@@ -1,5 +1,5 @@
 ---
-title: Hiểu rõ Harness Engineering trong một bài viết: Kiến trúc sáu lớp, quản lý ngữ cảnh và thực chiến từ các đội nhóm hàng đầu
+title: "Hiểu rõ Harness Engineering trong một bài viết: Kiến trúc sáu lớp, quản lý ngữ cảnh và thực chiến từ các đội nhóm hàng đầu"
 description: Phân tích sâu về Harness Engineering, làm rõ định nghĩa cốt lõi Agent = Model + Harness, trình bày kinh nghiệm thực chiến và bài học từ các đội nhóm hàng đầu như OpenAI, Anthropic, Stripe.
 category: Phát triển ứng dụng AI
 head:

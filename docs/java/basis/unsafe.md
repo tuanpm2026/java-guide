@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết lớp ma thuật Unsafe trong Java
-description: Phân tích sâu về lớp ma thuật Unsafe trong Java: trình bày khả năng tầng dưới của Unsafe như thao tác bộ nhớ trực tiếp, CAS atomic operations, khởi tạo instance đối tượng, hiểu nguyên lý triển khai của các công cụ đồng thời JUC và rủi ro khi sử dụng.
+description: "Phân tích sâu về lớp ma thuật Unsafe trong Java: trình bày khả năng tầng dưới của Unsafe như thao tác bộ nhớ trực tiếp, CAS atomic operations, khởi tạo instance đối tượng, hiểu nguyên lý triển khai của các công cụ đồng thời JUC và rủi ro khi sử dụng."
 category: Java
 tag:
   - Java Cơ bản

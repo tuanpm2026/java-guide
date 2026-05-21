@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết truyền giá trị trong Java
-description: Giải thích chi tiết tại sao Java chỉ có truyền giá trị: thông qua ví dụ phân tích sâu cơ chế truyền tham số Java, làm rõ hiểu lầm phổ biến về truyền giá trị và truyền tham chiếu, hiểu bản chất sự khác biệt giữa tham số hình thức và tham số thực tế.
+description: "Giải thích chi tiết tại sao Java chỉ có truyền giá trị: thông qua ví dụ phân tích sâu cơ chế truyền tham số Java, làm rõ hiểu lầm phổ biến về truyền giá trị và truyền tham chiếu, hiểu bản chất sự khác biệt giữa tham số hình thức và tham số thực tế."
 category: Java
 tag:
   - Java cơ bản

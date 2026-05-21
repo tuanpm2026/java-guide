@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phổ biến về Virtual Thread
-description: Giải thích chi tiết Java 21 Virtual Thread: phân tích toàn diện nguyên lý Virtual Threads, sự khác biệt với platform thread, Project Loom, tình huống I/O-intensive phù hợp, lưu ý sử dụng và best practice.
+description: "Giải thích chi tiết Java 21 Virtual Thread: phân tích toàn diện nguyên lý Virtual Threads, sự khác biệt với platform thread, Project Loom, tình huống I/O-intensive phù hợp, lưu ý sử dụng và best practice."
 category: Java
 tag:
   - Java Concurrent

@@ -1,6 +1,6 @@
 ---
 title: Tổng Hợp Kiến Thức Cốt Lõi về Java NIO
-description: Tổng hợp toàn diện kiến thức cốt lõi về Java NIO: giải thích chi tiết ba thành phần cốt lõi Channel, Buffer, Selector, triển khai non-blocking IO, kỹ thuật zero-copy, so sánh hiệu suất với IO truyền thống.
+description: "Tổng hợp toàn diện kiến thức cốt lõi về Java NIO: giải thích chi tiết ba thành phần cốt lõi Channel, Buffer, Selector, triển khai non-blocking IO, kỹ thuật zero-copy, so sánh hiệu suất với IO truyền thống."
 category: Java
 tag:
   - Java IO

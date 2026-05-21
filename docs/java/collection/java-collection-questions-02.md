@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn về Java Collection (Phần 2)
-description: Câu hỏi phỏng vấn tần suất cao về Java Collection: Phân tích sâu nguyên lý bên dưới của HashMap, chuyển đổi cây đỏ-đen, giải quyết xung đột hash, cơ chế an toàn luồng của ConcurrentHashMap, sự khác biệt với Hashtable và các kiến thức cốt lõi.
+description: "Câu hỏi phỏng vấn tần suất cao về Java Collection: Phân tích sâu nguyên lý bên dưới của HashMap, chuyển đổi cây đỏ-đen, giải quyết xung đột hash, cơ chế an toàn luồng của ConcurrentHashMap, sự khác biệt với Hashtable và các kiến thức cốt lõi."
 category: Java
 tag:
   - Java Collection

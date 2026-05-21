@@ -1,6 +1,6 @@
 ---
 title: Làm thế nào để triển khai Message Queue dựa trên Redis?
-description: Giải thích ba cách dùng Redis làm MQ: List, Pub/Sub, Stream. So sánh khả năng cốt lõi của production-grade MQ, giải thích chi tiết Consumer Group, ACK mechanism của Redis 5.0 Stream và so sánh tình huống sử dụng với Kafka/RabbitMQ.
+description: "Giải thích ba cách dùng Redis làm MQ: List, Pub/Sub, Stream. So sánh khả năng cốt lõi của production-grade MQ, giải thích chi tiết Consumer Group, ACK mechanism của Redis 5.0 Stream và so sánh tình huống sử dụng với Kafka/RabbitMQ."
 category: Cơ sở dữ liệu
 tag:
   - Redis

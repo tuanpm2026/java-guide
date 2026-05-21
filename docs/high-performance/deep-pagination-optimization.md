@@ -1,6 +1,6 @@
 ---
 title: Giới thiệu Deep Pagination và Gợi ý Tối ưu
-description: Deep pagination là tình huống query offset quá lớn dẫn đến hiệu năng giảm. Bài này giải thích chi tiết nguyên nhân deep pagination và bốn phương án tối ưu: range query, subquery optimization, INNER JOIN delayed association, covering index, cùng phân tích tình huống áp dụng và ưu nhược điểm của mỗi phương án.
+description: "Deep pagination là tình huống query offset quá lớn dẫn đến hiệu năng giảm. Bài này giải thích chi tiết nguyên nhân deep pagination và bốn phương án tối ưu: range query, subquery optimization, INNER JOIN delayed association, covering index, cùng phân tích tình huống áp dụng và ưu nhược điểm của mỗi phương án."
 category: High Performance
 head:
   - - meta

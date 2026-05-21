@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết ThreadLocal
-description: Phân tích chuyên sâu ThreadLocal: giải thích nguyên lý biến cục bộ luồng, cơ chế ThreadLocalMap, vấn đề tham chiếu yếu và rò rỉ bộ nhớ, các trường hợp sử dụng và thực hành tốt nhất.
+description: "Phân tích chuyên sâu ThreadLocal: giải thích nguyên lý biến cục bộ luồng, cơ chế ThreadLocalMap, vấn đề tham chiếu yếu và rò rỉ bộ nhớ, các trường hợp sử dụng và thực hành tốt nhất."
 category: Java
 tag:
   - Java Concurrency

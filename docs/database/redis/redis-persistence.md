@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết cơ chế lưu trữ liên tục của Redis
-description: Phân tích chuyên sâu ba cơ chế lưu trữ liên tục của Redis: RDB snapshot, AOF log và lưu trữ hỗn hợp, bao gồm nguyên lý hoạt động, cách cấu hình và so sánh ưu nhược điểm, giúp bạn lựa chọn chiến lược lưu trữ phù hợp với kịch bản kinh doanh.
+description: "Phân tích chuyên sâu ba cơ chế lưu trữ liên tục của Redis: RDB snapshot, AOF log và lưu trữ hỗn hợp, bao gồm nguyên lý hoạt động, cách cấu hình và so sánh ưu nhược điểm, giúp bạn lựa chọn chiến lược lưu trữ phù hợp với kịch bản kinh doanh."
 category: Cơ sở dữ liệu
 tag:
   - Redis

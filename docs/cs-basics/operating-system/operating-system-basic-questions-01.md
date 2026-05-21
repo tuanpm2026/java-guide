@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn hệ điều hành thường gặp (Phần 1)
-description: Tổng hợp các câu hỏi phỏng vấn hệ điều hành tần suất cao mới nhất (Phần 1): chuyển đổi user mode/kernel mode, sự khác biệt giữa process và thread, bốn điều kiện deadlock, giải thích chi tiết system call, so sánh thuật toán lập lịch, kèm biểu đồ và đánh dấu trọng tâm, nắm vững các điểm cốt lõi của OS trong một bài, nhanh chóng vượt qua phỏng vấn kỹ thuật backend!
+description: "Tổng hợp các câu hỏi phỏng vấn hệ điều hành tần suất cao mới nhất (Phần 1): chuyển đổi user mode/kernel mode, sự khác biệt giữa process và thread, bốn điều kiện deadlock, giải thích chi tiết system call, so sánh thuật toán lập lịch, kèm biểu đồ và đánh dấu trọng tâm, nắm vững các điểm cốt lõi của OS trong một bài, nhanh chóng vượt qua phỏng vấn kỹ thuật backend!"
 category: Kiến thức cơ bản máy tính
 tag:
   - Hệ điều hành

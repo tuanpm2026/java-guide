@@ -1,6 +1,6 @@
 ---
 title: Giải Thích Chi Tiết Proxy Pattern trong Java
-description: Giải thích chi tiết nguyên lý và cách triển khai Proxy Pattern trong Java: so sánh sự khác biệt giữa static proxy và dynamic proxy, phân tích sâu cơ chế JDK dynamic proxy và CGLIB proxy, hiểu rõ cách triển khai AOP cross-cutting concerns.
+description: "Giải thích chi tiết nguyên lý và cách triển khai Proxy Pattern trong Java: so sánh sự khác biệt giữa static proxy và dynamic proxy, phân tích sâu cơ chế JDK dynamic proxy và CGLIB proxy, hiểu rõ cách triển khai AOP cross-cutting concerns."
 category: Java
 tag:
   - Java Cơ Bản

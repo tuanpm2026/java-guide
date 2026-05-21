@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp các câu hỏi phỏng vấn MySQL thường gặp
-description: Giải thích chuyên sâu các câu hỏi phỏng vấn MySQL tần suất cao: kiến trúc cơ bản, engine InnoDB, nguyên lý index, B+tree, ACID của transaction, MVCC, redo/undo/binlog log, row lock/table lock, tối ưu hóa slow query - tất cả trong một bài viết!
+description: "Giải thích chuyên sâu các câu hỏi phỏng vấn MySQL tần suất cao: kiến trúc cơ bản, engine InnoDB, nguyên lý index, B+tree, ACID của transaction, MVCC, redo/undo/binlog log, row lock/table lock, tối ưu hóa slow query - tất cả trong một bài viết!"
 category: Cơ sở dữ liệu
 tag:
   - MySQL

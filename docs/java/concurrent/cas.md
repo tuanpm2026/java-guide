@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết CAS
-description: Phân tích sâu CAS Compare-And-Swap: giải thích chi tiết nguyên lý CAS atomic operation, triển khai lớp Unsafe, vấn đề ABA và giải pháp, cơ chế spin lock, so sánh hiệu năng với pessimistic lock.
+description: "Phân tích sâu CAS Compare-And-Swap: giải thích chi tiết nguyên lý CAS atomic operation, triển khai lớp Unsafe, vấn đề ABA và giải pháp, cơ chế spin lock, so sánh hiệu năng với pessimistic lock."
 category: Java
 tag:
   - Java Concurrent

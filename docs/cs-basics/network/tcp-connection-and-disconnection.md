@@ -1,6 +1,6 @@
 ---
 title: TCP bắt tay 3 lần và vẫy tay 4 lần（Tầng vận chuyển）
-description: Giải thích chi tiết TCP 3-way handshake và 4-way handshake: cách SEQ/ACK/SYN/FIN đồng bộ, lý do TIME_WAIT và 2MSL, cơ chế hoạt động của hàng đợi nửa kết nối (SYN Queue) và hàng đợi kết nối đầy đủ (Accept Queue), cùng ảnh hưởng của backlog/somaxconn/syncookies trong high concurrency và SYN Flood.
+description: "Giải thích chi tiết TCP 3-way handshake và 4-way handshake: cách SEQ/ACK/SYN/FIN đồng bộ, lý do TIME_WAIT và 2MSL, cơ chế hoạt động của hàng đợi nửa kết nối (SYN Queue) và hàng đợi kết nối đầy đủ (Accept Queue), cùng ảnh hưởng của backlog/somaxconn/syncookies trong high concurrency và SYN Flood."
 category: Kiến thức cơ bản máy tính
 tag:
   - Mạng máy tính

@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn Java Concurrent thường gặp (Phần 1)
-description: Câu hỏi phỏng vấn Java concurrent programming cơ bản: giải thích sâu sự khác biệt thread và process, cách tạo multi-thread, vòng đời và trạng thái thread, bốn điều kiện deadlock và cách ngăn chặn, các khái niệm concurrent và parallel, v.v.
+description: "Câu hỏi phỏng vấn Java concurrent programming cơ bản: giải thích sâu sự khác biệt thread và process, cách tạo multi-thread, vòng đời và trạng thái thread, bốn điều kiện deadlock và cách ngăn chặn, các khái niệm concurrent và parallel, v.v."
 category: Java
 tag:
   - Java Concurrent

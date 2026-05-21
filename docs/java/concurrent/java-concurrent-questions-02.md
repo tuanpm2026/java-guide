@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn Java Concurrent thường gặp (Phần 2)
-description: Câu hỏi phỏng vấn Java concurrent nâng cao: phân tích sâu sự khác biệt giữa synchronized và ReentrantLock, đảm bảo tính visible của volatile, mô hình bộ nhớ JMM, nguyên tắc happens-before và các cơ chế cốt lõi của lập trình đồng thời.
+description: "Câu hỏi phỏng vấn Java concurrent nâng cao: phân tích sâu sự khác biệt giữa synchronized và ReentrantLock, đảm bảo tính visible của volatile, mô hình bộ nhớ JMM, nguyên tắc happens-before và các cơ chế cốt lõi của lập trình đồng thời."
 category: Java
 tag:
   - Java Concurrent

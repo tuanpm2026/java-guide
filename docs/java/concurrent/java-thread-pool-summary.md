@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết về Thread Pool trong Java
-description: Giải thích chi tiết về thread pool Java: phân tích sâu các tham số cốt lõi ThreadPoolExecutor, hệ thống Executor framework, lựa chọn task queue, chiến lược từ chối, nguyên lý hoạt động và best practices.
+description: "Giải thích chi tiết về thread pool Java: phân tích sâu các tham số cốt lõi ThreadPoolExecutor, hệ thống Executor framework, lựa chọn task queue, chiến lược từ chối, nguyên lý hoạt động và best practices."
 category: Java
 tag:
   - Java Concurrent

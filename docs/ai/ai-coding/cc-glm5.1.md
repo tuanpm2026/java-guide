@@ -1,5 +1,5 @@
 ---
-title: Thực chiến tích hợp mô hình bên thứ ba với Claude Code: Chẩn đoán thông minh JVM và xử lý slow query
+title: "Thực chiến tích hợp mô hình bên thứ ba với Claude Code: Chẩn đoán thông minh JVM và xử lý slow query"
 description: Thông qua việc tích hợp mô hình GLM-5.1 với Claude Code, hoàn thành hai nhiệm vụ thực chiến là xây dựng từ đầu trợ lý chẩn đoán JVM thông minh và xử lý slow query với dữ liệu hàng triệu bản ghi, chia sẻ phương pháp làm việc và kinh nghiệm thực tế trong lập trình với sự hỗ trợ của AI.
 category: Thực chiến lập trình AI
 head:

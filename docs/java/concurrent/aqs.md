@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết AQS
-description: Phân tích chuyên sâu về AbstractQueuedSynchronizer (AQS): nguyên lý cốt lõi, cấu trúc hàng đợi CLH, triển khai khóa độc quyền và khóa chia sẻ, ứng dụng các bộ đồng bộ như ReentrantLock/Semaphore, cơ chế chặn và đánh thức thread.
+description: "Phân tích chuyên sâu về AbstractQueuedSynchronizer (AQS): nguyên lý cốt lõi, cấu trúc hàng đợi CLH, triển khai khóa độc quyền và khóa chia sẻ, ứng dụng các bộ đồng bộ như ReentrantLock/Semaphore, cơ chế chặn và đánh thức thread."
 category: Java
 tag:
   - Java Concurrent

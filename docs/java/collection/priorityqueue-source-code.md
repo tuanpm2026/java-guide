@@ -1,6 +1,6 @@
 ---
 title: Phân tích source code PriorityQueue (Trả phí)
-description: Phân tích sâu source code PriorityQueue: giải thích chi tiết triển khai priority queue dựa trên binary heap, thao tác heap hóa siftUp/siftDown, sắp xếp tùy chỉnh bằng Comparator, cơ chế dynamic expansion.
+description: "Phân tích sâu source code PriorityQueue: giải thích chi tiết triển khai priority queue dựa trên binary heap, thao tác heap hóa siftUp/siftDown, sắp xếp tùy chỉnh bằng Comparator, cơ chế dynamic expansion."
 category: Java
 tag:
   - Java Collection

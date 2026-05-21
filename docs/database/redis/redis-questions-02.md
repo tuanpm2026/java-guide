@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn Redis thường gặp (Phần 2)
-description: Tổng hợp câu hỏi phỏng vấn Redis mới nhất (Phần 2): Phân tích chuyên sâu về nguyên lý transaction Redis, tối ưu hiệu năng (pipeline/Lua/bigkey/hotkey), giải pháp cache penetration/breakdown/avalanche, slow query và memory fragmentation, Redis Sentinel và Cluster chi tiết. Giúp bạn dễ dàng vượt qua phỏng vấn kỹ thuật backend!
+description: "Tổng hợp câu hỏi phỏng vấn Redis mới nhất (Phần 2): Phân tích chuyên sâu về nguyên lý transaction Redis, tối ưu hiệu năng (pipeline/Lua/bigkey/hotkey), giải pháp cache penetration/breakdown/avalanche, slow query và memory fragmentation, Redis Sentinel và Cluster chi tiết. Giúp bạn dễ dàng vượt qua phỏng vấn kỹ thuật backend!"
 category: Cơ sở dữ liệu
 tag:
   - Redis

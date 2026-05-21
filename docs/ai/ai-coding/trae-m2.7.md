@@ -1,5 +1,5 @@
 ---
-title: Trae + MiniMax thực chiến đa tình huống: Chẩn đoán lỗi Redis và tái cấu trúc đa ngôn ngữ
+title: "Trae + MiniMax thực chiến đa tình huống: Chẩn đoán lỗi Redis và tái cấu trúc đa ngôn ngữ"
 description: Sử dụng Trae IDE tích hợp mô hình lớn MiniMax, thông qua hai tình huống thực tế là chẩn đoán lỗi kết nối Redis và tái cấu trúc đa ngôn ngữ từ C sang Go với mã nguồn Redis, chia sẻ kinh nghiệm thực chiến và kỹ năng làm việc trong lập trình với sự hỗ trợ của AI.
 category: Thực chiến lập trình AI
 head:

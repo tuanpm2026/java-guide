@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp các lưu ý khi sử dụng Java Collection
-description: Tổng hợp các lưu ý khi dùng Java collection: dựa trên Alibaba Java Development Manual tổng kết các best practice về kiểm tra collection rỗng, pitfall Arrays.asList, vấn đề subList, chọn concurrent container, v.v. để tránh các lỗi phổ biến.
+description: "Tổng hợp các lưu ý khi dùng Java collection: dựa trên Alibaba Java Development Manual tổng kết các best practice về kiểm tra collection rỗng, pitfall Arrays.asList, vấn đề subList, chọn concurrent container, v.v. để tránh các lỗi phổ biến."
 category: Java
 tag:
   - Java Collection

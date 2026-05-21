@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp các Concurrent Container phổ biến trong Java
-description: Tổng hợp toàn diện các Java concurrent container: giải thích chi tiết đặc tính, tình huống sử dụng và so sánh hiệu năng của các JUC thread-safe container như ConcurrentHashMap, CopyOnWriteArrayList, BlockingQueue.
+description: "Tổng hợp toàn diện các Java concurrent container: giải thích chi tiết đặc tính, tình huống sử dụng và so sánh hiệu năng của các JUC thread-safe container như ConcurrentHashMap, CopyOnWriteArrayList, BlockingQueue."
 category: Java
 tag:
   - Java Concurrent

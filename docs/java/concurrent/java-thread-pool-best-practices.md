@@ -1,6 +1,6 @@
 ---
 title: Java Thread Pool Best Practices
-description: Tổng hợp các best practice khi dùng Java thread pool: cấu hình tham số thread pool, tránh rủi ro OOM từ factory method của Executors, chọn rejection policy, monitor thread pool, chuẩn đặt tên thread, v.v.
+description: "Tổng hợp các best practice khi dùng Java thread pool: cấu hình tham số thread pool, tránh rủi ro OOM từ factory method của Executors, chọn rejection policy, monitor thread pool, chuẩn đặt tên thread, v.v."
 category: Java
 tag:
   - Java Concurrent

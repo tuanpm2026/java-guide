@@ -1,6 +1,6 @@
 ---
 title: Làm thế nào để triển khai Delayed Task dựa trên Redis?
-description: Giải thích chi tiết hai phương án triển khai delayed task dựa trên Redis: lắng nghe sự kiện key expired và Redisson delayed queue, phân tích ưu nhược điểm, vấn đề độ tin cậy và tình huống sử dụng của mỗi phương án.
+description: "Giải thích chi tiết hai phương án triển khai delayed task dựa trên Redis: lắng nghe sự kiện key expired và Redisson delayed queue, phân tích ưu nhược điểm, vấn đề độ tin cậy và tình huống sử dụng của mỗi phương án."
 category: Cơ sở dữ liệu
 tag:
   - Redis

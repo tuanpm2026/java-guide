@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp câu hỏi phỏng vấn Java Concurrency (Phần cuối)
-description: Câu hỏi phỏng vấn nâng cao về Java Concurrency: Giải thích chi tiết nguyên lý ThreadLocal và rò rỉ bộ nhớ, cấu hình tham số thread pool và nguyên lý hoạt động, lập trình bất đồng bộ với Future/CompletableFuture, sử dụng các container và công cụ concurrent.
+description: "Câu hỏi phỏng vấn nâng cao về Java Concurrency: Giải thích chi tiết nguyên lý ThreadLocal và rò rỉ bộ nhớ, cấu hình tham số thread pool và nguyên lý hoạt động, lập trình bất đồng bộ với Future/CompletableFuture, sử dụng các container và công cụ concurrent."
 category: Java
 tag:
   - Java Concurrent

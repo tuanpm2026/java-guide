@@ -1,6 +1,6 @@
 ---
 title: Phân tích mã nguồn CopyOnWriteArrayList
-description: Phân tích chuyên sâu mã nguồn CopyOnWriteArrayList: giải thích chi tiết cơ chế Copy-On-Write (COW), phù hợp với kịch bản đọc nhiều ghi ít, triển khai List an toàn luồng, đảm bảo tính nhất quán snapshot và cân nhắc về chi phí bộ nhớ.
+description: "Phân tích chuyên sâu mã nguồn CopyOnWriteArrayList: giải thích chi tiết cơ chế Copy-On-Write (COW), phù hợp với kịch bản đọc nhiều ghi ít, triển khai List an toàn luồng, đảm bảo tính nhất quán snapshot và cân nhắc về chi phí bộ nhớ."
 category: Java
 tag:
   - Java Collections

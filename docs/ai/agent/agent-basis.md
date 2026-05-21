@@ -1,5 +1,5 @@
 ---
-title: Một bài hiểu rõ các khái niệm cốt lõi của AI Agent: Agent Loop, Context Engineering, Đăng ký Tools
+title: "Một bài hiểu rõ các khái niệm cốt lõi của AI Agent: Agent Loop, Context Engineering, Đăng ký Tools"
 description: Phân tích chuyên sâu các khái niệm cốt lõi của AI Agent, hệ thống hóa lịch sử tiến hóa sáu thế hệ từ phản hồi thụ động đến tự trị thường trực, so sánh sự khác biệt bản chất giữa Agent, lập trình truyền thống và Workflow.
 category: Phát triển ứng dụng AI
 head:

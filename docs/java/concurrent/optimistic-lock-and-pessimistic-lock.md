@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết Optimistic Lock và Pessimistic Lock
-description: So sánh sâu Optimistic Lock và Pessimistic Lock: giải thích chi tiết triển khai pessimistic lock bằng synchronized/ReentrantLock, cơ chế CAS/version number của optimistic lock, phân tích tình huống sử dụng, so sánh hiệu năng và gợi ý lựa chọn.
+description: "So sánh sâu Optimistic Lock và Pessimistic Lock: giải thích chi tiết triển khai pessimistic lock bằng synchronized/ReentrantLock, cơ chế CAS/version number của optimistic lock, phân tích tình huống sử dụng, so sánh hiệu năng và gợi ý lựa chọn."
 category: Java
 tag:
   - Java Concurrent

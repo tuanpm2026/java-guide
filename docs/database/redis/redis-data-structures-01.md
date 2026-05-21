@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết 5 kiểu dữ liệu cơ bản của Redis
-description: Giải thích chi tiết phương pháp sử dụng và các tình huống ứng dụng của 5 kiểu dữ liệu cơ bản trong Redis: String, List, Set, Hash, Zset; phân tích sâu nguyên lý cài đặt các cấu trúc dữ liệu nội tại như SDS, Skip List, Compressed List.
+description: "Giải thích chi tiết phương pháp sử dụng và các tình huống ứng dụng của 5 kiểu dữ liệu cơ bản trong Redis: String, List, Set, Hash, Zset; phân tích sâu nguyên lý cài đặt các cấu trúc dữ liệu nội tại như SDS, Skip List, Compressed List."
 category: Cơ sở dữ liệu
 tag:
   - Redis

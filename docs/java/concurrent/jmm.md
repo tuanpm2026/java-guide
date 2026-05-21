@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết JMM（Java Memory Model）
-description: Phân tích sâu Java Memory Model JMM: giải thích chi tiết CPU cache model, cơ chế instruction reordering, nguyên tắc happens-before, đảm bảo memory visibility, hiểu tiêu chuẩn cơ bản của lập trình concurrent đa luồng.
+description: "Phân tích sâu Java Memory Model JMM: giải thích chi tiết CPU cache model, cơ chế instruction reordering, nguyên tắc happens-before, đảm bảo memory visibility, hiểu tiêu chuẩn cơ bản của lập trình concurrent đa luồng."
 category: Java
 tag:
   - Java Concurrent

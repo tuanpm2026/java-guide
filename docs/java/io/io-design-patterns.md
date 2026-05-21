@@ -1,6 +1,6 @@
 ---
 title: Tổng hợp Design Patterns trong Java IO
-description: Phân tích sâu các design patterns trong Java IO: giải thích chi tiết ứng dụng Decorator Pattern trong BufferedInputStream, Adapter Pattern trong InputStreamReader, Template Method Pattern trong InputStream, hiểu kiến trúc thư viện class Java IO.
+description: "Phân tích sâu các design patterns trong Java IO: giải thích chi tiết ứng dụng Decorator Pattern trong BufferedInputStream, Adapter Pattern trong InputStreamReader, Template Method Pattern trong InputStream, hiểu kiến trúc thư viện class Java IO."
 category: Java
 tag:
   - Java IO

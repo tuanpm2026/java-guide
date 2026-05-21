@@ -1,6 +1,6 @@
 ---
 title: Tổng kết các lớp Atomic
-description: Giải thích chi tiết các lớp Atomic trong Java: tổng quan hệ thống lớp Atomic trong gói JUC, các lớp thường dùng như AtomicInteger/AtomicLong/AtomicReference, cơ chế an toàn luồng dựa trên CAS, trường hợp sử dụng và ưu điểm về hiệu năng.
+description: "Giải thích chi tiết các lớp Atomic trong Java: tổng quan hệ thống lớp Atomic trong gói JUC, các lớp thường dùng như AtomicInteger/AtomicLong/AtomicReference, cơ chế an toàn luồng dựa trên CAS, trường hợp sử dụng và ưu điểm về hiệu năng."
 category: Java
 tag:
   - Java Concurrency

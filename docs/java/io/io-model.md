@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết Java IO Model
-description: Giải thích chi tiết Java IO Model: phân tích sâu ba model BIO blocking IO, NIO non-blocking IO, AIO async IO, cơ chế multiplexing, Reactor/Proactor pattern, phân biệt khái niệm synchronous/asynchronous/blocking/non-blocking.
+description: "Giải thích chi tiết Java IO Model: phân tích sâu ba model BIO blocking IO, NIO non-blocking IO, AIO async IO, cơ chế multiplexing, Reactor/Proactor pattern, phân biệt khái niệm synchronous/asynchronous/blocking/non-blocking."
 category: Java
 tag:
   - Java IO

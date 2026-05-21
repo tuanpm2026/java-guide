@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết Class Loader (Quan trọng)
-description: Giải thích chi tiết Java class loader: phân tích sâu cơ chế class loading của ClassLoader, nguyên lý Parent Delegation Model, Bootstrap ClassLoader/Extension ClassLoader/Application ClassLoader, triển khai custom class loader, tình huống phá vỡ Parent Delegation Model.
+description: "Giải thích chi tiết Java class loader: phân tích sâu cơ chế class loading của ClassLoader, nguyên lý Parent Delegation Model, Bootstrap ClassLoader/Extension ClassLoader/Application ClassLoader, triển khai custom class loader, tình huống phá vỡ Parent Delegation Model."
 category: Java
 tag:
   - JVM

@@ -1,6 +1,6 @@
 ---
 title: Giải thích chi tiết vùng bộ nhớ Java (Quan trọng)
-description: Giải thích chi tiết vùng bộ nhớ JVM: phân tích sâu các khu vực dữ liệu runtime của Java (Heap, Method Area, JVM Stack, Native Method Stack, Program Counter), quá trình tạo đối tượng, chiến lược phân bổ bộ nhớ, cách truy cập đối tượng.
+description: "Giải thích chi tiết vùng bộ nhớ JVM: phân tích sâu các khu vực dữ liệu runtime của Java (Heap, Method Area, JVM Stack, Native Method Stack, Program Counter), quá trình tạo đối tượng, chiến lược phân bổ bộ nhớ, cách truy cập đối tượng."
 category: Java
 tag:
   - JVM

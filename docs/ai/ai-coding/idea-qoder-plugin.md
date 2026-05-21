@@ -1,5 +1,5 @@
 ---
-title: Thực chiến đa tình huống IDEA + Plugin Qoder: Tối ưu interface và tái cấu trúc code
+title: "Thực chiến đa tình huống IDEA + Plugin Qoder: Tối ưu interface và tái cấu trúc code"
 description: Thông qua hai case study thực tế, trình bày hiệu quả thực tế của IDEA kết hợp plugin Qoder trong các tình huống như tối ưu deep pagination, tái cấu trúc code cũ, và chia sẻ sự chuyển đổi từ người thực thi sang người chỉ huy.
 category: Thực chiến lập trình AI
 head:

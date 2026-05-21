@@ -1,6 +1,6 @@
 ---
 title: Sau 275 ngày làm Huawei OD, tôi vào được Tencent!
-description: “Sau 275 ngày làm Huawei OD, tôi vào được Tencent!: Tổng hợp các khái niệm quan trọng, câu hỏi thường gặp và điểm thực hành xoay quanh kiến thức kỹ thuật và kinh nghiệm phỏng vấn, giúp bạn học hiệu quả và chuẩn bị tốt cho phỏng vấn.”
+description: "“Sau 275 ngày làm Huawei OD, tôi vào được Tencent!: Tổng hợp các khái niệm quan trọng, câu hỏi thường gặp và điểm thực hành xoay quanh kiến thức kỹ thuật và kinh nghiệm phỏng vấn, giúp bạn học hiệu quả và chuẩn bị tốt cho phỏng vấn.”"
 category: Tuyển tập bài viết kỹ thuật chất lượng cao
 tag:
   - Kinh nghiệm cá nhân
