@@ -90,7 +90,7 @@ Dùng ví dụ từ cuộc sống:
 
 Trong thực tế, thuật toán chỉ mục vector chủ yếu chia thành hai loại lớn:
 
-![Phân loại thuật toán chỉ mục vector](/Users/guide/Downloads/rag-vector-index-algorithms.png)
+![Phân loại thuật toán chỉ mục vector](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-vector-index-algorithms.png)
 
 Khi chúng ta nói về chỉ mục vector, tuyệt đại đa số thời gian nói đến là **thuật toán ANN**.
 
