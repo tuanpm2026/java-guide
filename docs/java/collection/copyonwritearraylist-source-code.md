@@ -65,7 +65,7 @@ implements List<E>, RandomAccess, Cloneable, Serializable
 - `Cloneable`: cho thấy nó có khả năng sao chép, có thể thực hiện deep copy hoặc shallow copy.
 - `Serializable`: cho thấy nó có thể được tuần tự hóa, tức là có thể chuyển đối tượng thành luồng byte để lưu trữ lâu dài hoặc truyền qua mạng.
 
-![Biểu đồ lớp CopyOnWriteArrayList](https://oss.javaguide.cn/github/javaguide/java/collection/copyonwritearraylist-class-diagram.png)
+![Biểu đồ lớp CopyOnWriteArrayList](/images/github/javaguide/java/collection/copyonwritearraylist-class-diagram.png)
 
 ### Khởi tạo
 

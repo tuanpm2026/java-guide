@@ -31,7 +31,7 @@ Official documentation: <https://spring.io/projects/spring-ai#learn>.
 
 [Spring AI Alibaba](https://github.com/alibaba/spring-ai-alibaba) tích hợp Spring AI ecosystem, là một project được thiết kế chuyên cho multi-agent systems và workflow orchestration. Project về mặt architecture bao gồm ba tầng sau:
 
-![Spring AI Alibaba Architecture](https://oss.javaguide.cn/github/javaguide/open-source-project/ai/springai-alibaba-architecture-new.png)
+![Spring AI Alibaba Architecture](/images/github/javaguide/open-source-project/ai/springai-alibaba-architecture-new.png)
 
 - **Agent Framework**: Agent development framework lấy ReactAgent design concept làm core, build Agents với automatic context engineering và human-computer interaction capabilities.
 - **Graph**: Low-level workflow và multi-agent coordination framework, là underlying runtime base của Agent Framework, giúp triển khai complex application orchestration.
@@ -98,7 +98,7 @@ Official documentation: <https://java.agentscope.io/zh/intro.html>.
 
 > **Note**: Architecture diagram được vẽ bằng draw.io, export dạng svg. Có thể hiển thị không tốt trong Github Dark mode.
 
-![System Architecture Diagram](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
+![System Architecture Diagram](/images/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
 
 ### AI Workflow Orchestration System
 
@@ -106,4 +106,4 @@ Official documentation: <https://java.agentscope.io/zh/intro.html>.
 
 **System architecture như sau**:
 
-![](https://oss.javaguide.cn/github/javaguide/open-source-project/ai/paiagent-architecture-diagram.jpg)
+![](/images/github/javaguide/open-source-project/ai/paiagent-architecture-diagram.jpg)

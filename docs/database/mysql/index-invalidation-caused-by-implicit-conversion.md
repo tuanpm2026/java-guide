@@ -76,7 +76,7 @@ CALL pre_test1();
 
 Lượng data khá lớn và liên quan đến việc dùng `MD5` tạo random string nên tốc độ hơi chậm — kiên nhẫn chờ. 10 triệu record, tôi mất 33 phút để chạy xong (thời gian thực tế phụ thuộc cấu hình phần cứng máy). Một vài record được tạo ra trông như thế này.
 
-![](https://oss.javaguide.cn/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-01.png)
+![](/images/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-01.png)
 
 ## SQL Test
 
@@ -95,7 +95,7 @@ Sau khi test, kết quả thực thi của 4 SQL này chênh nhau rất lớn. C
 
 Tại sao hiệu năng của 2 câu SQL 3 và 4 chênh nhau nhiều vậy, nhưng cùng là so sánh thì 2 câu SQL 1 và 2 lại không chênh lệch gì? Xem execution plan, dưới đây là dữ liệu execution plan của 4 câu SQL 1, 2, 3, 4:
 
-![](https://oss.javaguide.cn/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-02.png)
+![](/images/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-02.png)
 
 Có thể thấy 3 câu SQL 1, 2, 4 đều dùng được index, connection type đều là `ref`, số row scan đều là 1 — hiệu quả rất cao. Xem tiếp câu SQL thứ 3: không dùng index, nên full table scan, `rows` lên thẳng 10 triệu — nên hiệu năng chênh nhau nhiều vậy.
 
@@ -131,7 +131,7 @@ INSERT INTO `test1` (`id`, `num1`, `num2`, `type1`, `type2`, `str1`, `str2`) VAL
 
 Sau đó dùng SQL thứ 3 ``SELECT * FROM `test1` WHERE num2 = 10000;`` để query:
 
-![](https://oss.javaguide.cn/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-03.png)
+![](/images/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-03.png)
 
 Từ kết quả có thể thấy ba record mới insert cũng đều được match. Vậy quy tắc implicit conversion của string là gì? Tại sao cả `num2='10000a'`, `'010000'` và `' 10000'` đều được match? Tra tài liệu liên quan thì thấy quy tắc như sau:
 
@@ -140,13 +140,13 @@ Từ kết quả có thể thấy ba record mới insert cũng đều được m
 
 Dưới đây verify quy tắc trên qua test:
 
-![](https://oss.javaguide.cn/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-04.png)
+![](/images/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-04.png)
 
 Điều này cũng xác nhận kết quả query trước đó.
 
 Viết thêm một SQL query field str1: ``SELECT * FROM `test1` WHERE str1 = 1234;``
 
-![](https://oss.javaguide.cn/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-05.png)
+![](/images/github/javaguide/mysqlindex-invalidation-caused-by-implicit-conversion-05.png)
 
 ## Phân tích và Tổng kết
 

@@ -81,7 +81,7 @@ Ví dụ (giả sử chi tiết project được giới thiệu ở phần kinh 
 
 Dưới đây là phần giới thiệu kinh nghiệm thực tập mà một bạn trong [Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) chia sẻ — tổng thể viết rất tốt:
 
-![Internship experience template](https://oss.javaguide.cn/github/javaguide/interview-preparation/qiuyou-shixijingli-demo.png)
+![Internship experience template](/images/github/javaguide/interview-preparation/qiuyou-shixijingli-demo.png)
 
 📌 Thêm một điểm về phần kinh nghiệm thực tập: Nhiều bạn trong thời gian thực tập có thể không tiếp xúc được với những development tasks thực sự, phần lớn thời gian có thể chỉ là làm quen và maintain project.
 

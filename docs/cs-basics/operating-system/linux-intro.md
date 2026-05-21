@@ -25,7 +25,7 @@ Có thể tóm tắt Linux là gì qua ba điểm sau:
 - **Bản chất Linux là Linux kernel**: Nói chính xác, từ "Linux" chỉ đề cập đến Linux kernel. Chỉ riêng Linux kernel không thể tạo thành một hệ điều hành hoạt động bình thường. Do đó, có nhiều bản phân phối Linux khác nhau ra đời.
 - **Cha đẻ của Linux (Linus Benedict Torvalds)**: Một nhân vật huyền thoại trong lĩnh vực lập trình, thực sự là bậc thầy! Là hình mẫu chúng ta ngưỡng mộ và tôn kính. Ông là tác giả đầu tiên của **Linux kernel**, sau đó khởi xướng dự án mã nguồn mở này và đảm nhận vai trò kiến trúc sư trưởng của Linux kernel. Ông cũng khởi xướng dự án mã nguồn mở Git và là nhà phát triển chính.
 
-![Cha đẻ của Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-father.png)
+![Cha đẻ của Linux](/images/github/javaguide/cs-basics/operating-system/linux/linux-father.png)
 
 ### Lịch sử ra đời Linux
 
@@ -35,11 +35,11 @@ Năm 1989, Linus Torvalds nhập ngũ phục vụ trong Lữ đoàn Tân binh Fi
 
 Năm 1991, Linus Torvalds đã mã nguồn mở Linux kernel. Linux lấy hình ảnh một chú chim cánh cụt đáng yêu làm biểu tượng, tượng trưng cho sự dám nghĩ dám làm và yêu cuộc sống.
 
-![OPINION: Make the switch to a Linux operating system | Opinion ...](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/Linux-Logo.png)
+![OPINION: Make the switch to a Linux operating system | Opinion ...](/images/github/javaguide/cs-basics/operating-system/linux/Linux-Logo.png)
 
 ### Các bản phân phối Linux thường gặp
 
-![Hệ điều hành Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux.png)
+![Hệ điều hành Linux](/images/github/javaguide/cs-basics/operating-system/linux/linux.png)
 
 Linus Torvalds chỉ mã nguồn mở Linux kernel. Như đã đề cập ở trên về vai trò của kernel hệ điều hành, một số tổ chức hoặc nhà sản xuất đóng gói Linux kernel với các phần mềm và tài liệu khác nhau, đồng thời cung cấp giao diện cài đặt hệ thống, công cụ cấu hình, cài đặt và quản lý hệ thống — tạo thành các bản phân phối Linux.
 
@@ -170,11 +170,11 @@ Dưới đây chỉ liệt kê một số lệnh thường dùng hơn.
 
 Khuyến nghị một website tra cứu nhanh lệnh Linux rất hay — nếu quên lệnh nào hay không hiểu lệnh nào đều có thể tìm ở đây. Tra cứu nhanh lệnh Linux online: <https://wangchujiang.com/linux-command/>.
 
-![Tra cứu nhanh lệnh Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-command-search.png)
+![Tra cứu nhanh lệnh Linux](/images/github/javaguide/cs-basics/operating-system/linux/linux-command-search.png)
 
 Ngoài ra, website [shell.how](https://www.shell.how/) có thể dùng để giải thích ý nghĩa các lệnh thường gặp, hữu ích khi học các lệnh cơ bản Linux cũng như các lệnh thường dùng khác (như Git, NPM).
 
-![Ví dụ sử dụng shell.how](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/shell-now.png)
+![Ví dụ sử dụng shell.how](/images/github/javaguide/cs-basics/operating-system/linux/shell-now.png)
 
 ### Chuyển đổi thư mục
 

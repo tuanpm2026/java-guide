@@ -62,7 +62,7 @@ List triển khai message queue quá đơn giản — các tính năng như mess
 
 **Redis 2.0 giới thiệu tính năng Pub/Sub, giải quyết vấn đề List triển khai message queue không có broadcast mechanism.**
 
-![Redis Pub/Sub feature](https://oss.javaguide.cn/github/javaguide/database/redis/redis-pub-sub.png)
+![Redis Pub/Sub feature](/images/github/javaguide/database/redis/redis-pub-sub.png)
 
 Pub/Sub giới thiệu khái niệm **Channel (Kênh)** — cơ chế publish/subscribe được triển khai dựa trên Channel này.
 
@@ -75,7 +75,7 @@ Tức là nhiều consumer có thể đăng ký cùng một Channel. Producer pu
 
 Khởi động 3 Redis client để demo đơn giản:
 
-![Demo Pub/Sub triển khai message queue](https://oss.javaguide.cn/github/javaguide/database/redis/redis-pubsub-message-queue.png)
+![Demo Pub/Sub triển khai message queue](/images/github/javaguide/database/redis/redis-pubsub-message-queue.png)
 
 Pub/Sub hỗ trợ cả unicast lẫn broadcast, còn hỗ trợ simple regex matching cho Channel.
 
@@ -104,7 +104,7 @@ Stream học hỏi các concept cốt lõi của professional MQ như Kafka:
 
 Cấu trúc của `Stream` như dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/redis-stream-structure.png)
+![](/images/github/javaguide/database/redis/redis-stream-structure.png)
 
 Đây là ordered message linked list. Mỗi message có unique ID và nội dung tương ứng. ID là kết hợp timestamp và sequence number để đảm bảo tính duy nhất và tăng dần của message. Nội dung là một hoặc nhiều cặp key-value (tương tự kiểu dữ liệu cơ bản Hash), dùng để lưu dữ liệu message.
 
@@ -216,6 +216,6 @@ Bảng dưới là so sánh Redis Stream với các MQ phổ biến:
 
 Project [《SpringAI Intelligent Interview Platform + RAG Knowledge Base》](https://javaguide.cn/zhuanlan/interview-guide.html) của tôi dùng Redis Stream làm message queue. Trong tình huống của project, đây gần như là lựa chọn phù hợp nhất — hoàn toàn đủ dùng.
 
-![Sơ đồ kiến trúc hệ thống](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
+![Sơ đồ kiến trúc hệ thống](/images/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
 
-![AI Intelligent Interview Platform demo](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-history.png)
+![AI Intelligent Interview Platform demo](/images/xingqiu/pratical-project/interview-guide/page-resume-history.png)

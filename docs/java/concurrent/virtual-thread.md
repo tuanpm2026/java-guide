@@ -24,7 +24,7 @@ Trước khi giới thiệu virtual thread, package `java.lang.Thread` đã hỗ
 
 Sơ đồ quan hệ giữa virtual thread, platform thread và system kernel thread như dưới (nguồn: [How to Use Java 19 Virtual Threads](https://medium.com/javarevisited/how-to-use-java-19-virtual-threads-c16a32bad5f7)):
 
-![Quan hệ giữa virtual thread, platform thread và system kernel thread](https://oss.javaguide.cn/github/javaguide/java/new-features/virtual-threads-platform-threads-kernel-threads-relationship.png)
+![Quan hệ giữa virtual thread, platform thread và system kernel thread](/images/github/javaguide/java/new-features/virtual-threads-platform-threads-kernel-threads-relationship.png)
 
 Thêm một điểm về quan hệ tương ứng giữa platform thread và system kernel thread: Trên các OS phổ biến như Windows và Linux, Java thread dùng mô hình one-to-one — tức một platform thread tương ứng một system kernel thread. Solaris là ngoại lệ, HotSpot VM trên Solaris hỗ trợ cả many-to-many và one-to-one. Tham khảo câu trả lời của R: [Mô hình thread trong JVM có phải user-level không?](https://www.zhihu.com/question/23096638/answer/29617153).
 

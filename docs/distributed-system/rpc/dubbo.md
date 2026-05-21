@@ -24,7 +24,7 @@ Bài viết này là tổng kết về Dubbo mà tôi đã thực hiện dựa t
 
 ### Dubbo là gì?
 
-![Trang web chính thức Dubbo](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo.org-overview.png)
+![Trang web chính thức Dubbo](/images/github/javaguide/system-design/distributed-system/rpc/dubbo.org-overview.png)
 
 [Apache Dubbo](https://github.com/apache/dubbo) |ˈdʌbəʊ| là một framework WEB và RPC mã nguồn mở hiệu suất cao, nhẹ.
 
@@ -37,7 +37,7 @@ Theo giới thiệu của [tài liệu chính thức Dubbo](https://dubbo.apache
 5. Lập lịch luồng giao thông thời gian chạy.
 6. Quản trị và vận hành dịch vụ trực quan.
 
-![Sáu khả năng cốt lõi mà Dubbo cung cấp](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/dubbo%E6%8F%90%E4%BE%9B%E7%9A%84%E5%85%AD%E5%A4%A7%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B.png)
+![Sáu khả năng cốt lõi mà Dubbo cung cấp](/images/%E6%BA%90%E7%A0%81/dubbo/dubbo%E6%8F%90%E4%BE%9B%E7%9A%84%E5%85%AD%E5%A4%A7%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B.png)
 
 Nói một cách đơn giản: **Dubbo không chỉ có thể giúp chúng ta gọi dịch vụ từ xa, mà còn cung cấp một số tính năng sẵn dùng khác như cân bằng tải thông minh.**
 
@@ -45,7 +45,7 @@ Dubbo hiện đã có gần 34.4k Star.
 
 Trong **hoạt động bình chọn dự án mã nguồn mở Trung Quốc OSC năm 2020**, Dubbo xếp thứ 7 trong danh mục dự án framework phát triển và thành phần cơ sở. So với vài năm trước, mức độ nổi tiếng và xếp hạng có phần giảm sút.
 
-![](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/image-20210107153159545.png)
+![](/images/%E6%BA%90%E7%A0%81/dubbo/image-20210107153159545.png)
 
 Dubbo được Alibaba mã nguồn mở, sau đó gia nhập Apache. Chính sự ra đời của Dubbo đã khiến ngày càng nhiều công ty bắt đầu sử dụng và chấp nhận kiến trúc phân tán.
 
@@ -64,7 +64,7 @@ Tuy nhiên, sự ra đời của Dubbo đã giải quyết các vấn đề trê
 3. **Thống kê áp lực truy cập và thời gian dịch vụ, lập lịch và quản trị tài nguyên**: Quản lý dung lượng cụm theo thời gian thực dựa trên áp lực truy cập, nâng cao hiệu suất sử dụng cụm.
 4. ……
 
-![Tổng quan khả năng Dubbo](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo-features-overview.jpg)
+![Tổng quan khả năng Dubbo](/images/github/javaguide/system-design/distributed-system/rpc/dubbo-features-overview.jpg)
 
 Ngoài ra, Dubbo ngoài việc có thể được áp dụng trong hệ thống phân tán, còn có thể được áp dụng trong hệ thống microservice đang rất phổ biến hiện nay. Tuy nhiên, vì Spring Cloud được sử dụng rộng rãi hơn trong microservice, tôi cho rằng thông thường khi nhắc đến Dubbo, phần lớn là trong bối cảnh hệ thống phân tán.
 
@@ -76,7 +76,7 @@ Ngoài ra, Dubbo ngoài việc có thể được áp dụng trong hệ thống 
 
 Phân tán hay còn gọi là SOA phân tán, điều quan trọng là hướng dịch vụ. Nói đơn giản, phân tán là chúng ta chia toàn bộ hệ thống thành các dịch vụ khác nhau, sau đó đặt các dịch vụ này lên các máy chủ khác nhau để giảm áp lực cho dịch vụ đơn lẻ, nâng cao khả năng đồng thời và hiệu suất. Ví dụ hệ thống thương mại điện tử có thể được chia đơn giản thành hệ thống đơn hàng, hệ thống sản phẩm, hệ thống đăng nhập, v.v. Mỗi dịch vụ sau khi tách ra có thể được triển khai trên các máy khác nhau, nếu lượng truy cập của một dịch vụ nào đó khá lớn thì cũng có thể triển khai dịch vụ đó đồng thời trên nhiều máy.
 
-![Sơ đồ minh họa giao dịch phân tán](https://oss.javaguide.cn/java-guide-blog/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![Sơ đồ minh họa giao dịch phân tán](/images/java-guide-blog/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
 ### Tại sao cần phân tán?
 
@@ -90,7 +90,7 @@ Ngoài ra, tôi cho rằng việc tách hệ thống thành phân tán không ch
 
 [Chương thiết kế framework trong tài liệu chính thức](https://dubbo.apache.org/zh/docs/v2.7/dev/design/) đã giới thiệu rất chi tiết, tôi chỉ nhắc lại một số điểm khá quan trọng ở đây.
 
-![dubbo-relation](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/dubbo-relation.jpg)
+![dubbo-relation](/images/%E6%BA%90%E7%A0%81/dubbo/dubbo-relation.jpg)
 
 Giới thiệu ngắn gọn về các node trên và mối quan hệ giữa chúng:
 
@@ -106,7 +106,7 @@ Giới thiệu ngắn gọn về các node trên và mối quan hệ giữa chú
 
 Nói đơn giản, `Invoker` là sự trừu tượng hóa của Dubbo đối với lời gọi từ xa.
 
-![dubbo_rpc_invoke.jpg](https://oss.javaguide.cn/java-guide-blog/dubbo_rpc_invoke.jpg)
+![dubbo_rpc_invoke.jpg](/images/java-guide-blog/dubbo_rpc_invoke.jpg)
 
 Theo cách nói của Dubbo chính thức, `Invoker` được chia thành:
 
@@ -121,7 +121,7 @@ Hình dưới đây là thiết kế tổng thể của Dubbo, từ dưới lên
 
 > Phần nền xanh nhạt bên trái là các giao diện mà service consumer sử dụng, phần nền xanh lá nhạt bên phải là các giao diện mà service provider sử dụng, phần trên trục giữa là các giao diện mà cả hai bên đều dùng.
 
-![dubbo-framework](https://oss.javaguide.cn/source-code/dubbo/dubbo-framework.jpg)
+![dubbo-framework](/images/source-code/dubbo/dubbo-framework.jpg)
 
 - **Tầng cấu hình config**: Cấu hình liên quan đến Dubbo. Hỗ trợ cấu hình bằng code, đồng thời cũng hỗ trợ cấu hình dựa trên Spring, lấy `ServiceConfig`, `ReferenceConfig` làm trung tâm.
 - **Tầng proxy dịch vụ proxy**: Một chìa khóa để gọi phương thức từ xa giống như gọi phương thức cục bộ, quá trình gọi thực sự phụ thuộc vào proxy class, lấy `ServiceProxy` làm trung tâm.
@@ -193,7 +193,7 @@ Dubbo áp dụng mô hình Microkernel (vi nhân) + Plugin (plugin), nói đơn 
 
 Kiến trúc microkernel bao gồm hai loại thành phần: **hệ thống cốt lõi (core system)** và **module plugin (plug-in modules)**.
 
-![](https://oss.javaguide.cn/source-code/dubbo/%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![](/images/source-code/dubbo/%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
 Hệ thống cốt lõi cung cấp khả năng cốt lõi mà hệ thống cần, module plugin có thể mở rộng chức năng của hệ thống. Do đó, hệ thống dựa trên kiến trúc microkernel rất dễ mở rộng chức năng.
 
@@ -260,7 +260,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 
 Các lớp triển khai của `AbstractLoadBalance` bao gồm những lớp sau:
 
-![](https://oss.javaguide.cn/java-guide-blog/image-20210326105257812.png)
+![](/images/java-guide-blog/image-20210326105257812.png)
 
 Tài liệu chính thức giới thiệu phần cân bằng tải này rất chi tiết, khuyến nghị bạn xem, địa chỉ: [https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance) .
 
@@ -272,7 +272,7 @@ Nguyên lý triển khai cụ thể của `RandomLoadBalance` rất đơn giản
 
 Chúng ta phân phối các giá trị trọng số này trên khoảng tọa độ sẽ được: S1->[0, 7), S2->[7, 10). Chúng ta tạo số ngẫu nhiên trong khoảng [0, 10), số ngẫu nhiên rơi vào khoảng nào thì chọn máy chủ tương ứng để xử lý yêu cầu.
 
-![RandomLoadBalance](https://oss.javaguide.cn/java-guide-blog/%20RandomLoadBalance.png)
+![RandomLoadBalance](/images/java-guide-blog/%20RandomLoadBalance.png)
 
 Source code của `RandomLoadBalance` rất đơn giản, dành vài phút đọc qua.
 
@@ -417,11 +417,11 @@ public class RpcStatus {
 
 `ConsistentHashLoadBalance` tức là **chiến lược cân bằng tải Consistent Hash**. Trong `ConsistentHashLoadBalance` không có khái niệm trọng số, cụ thể service provider nào xử lý yêu cầu được quyết định bởi tham số yêu cầu của bạn, tức là các yêu cầu có cùng tham số luôn được gửi đến cùng một service provider.
 
-![](https://oss.javaguide.cn/java-guide-blog/consistent-hash-data-incline.jpg)
+![](/images/java-guide-blog/consistent-hash-data-incline.jpg)
 
 Ngoài ra, để tránh vấn đề nghiêng dữ liệu (node không đủ phân tán, lượng lớn yêu cầu rơi vào cùng một node), Dubbo cũng giới thiệu khái niệm node ảo. Thông qua node ảo có thể làm cho các node phân tán hơn, cân bằng hiệu quả lượng yêu cầu của từng node.
 
-![](https://oss.javaguide.cn/java-guide-blog/consistent-hash-invoker.jpg)
+![](/images/java-guide-blog/consistent-hash-invoker.jpg)
 
 Tài liệu chính thức có phân tích source code chi tiết: [https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance) . Còn có một [PR#5440](https://github.com/apache/dubbo/pull/5440) liên quan để sửa một số Bug tồn tại trong ConsistentHashLoadBalance phiên bản cũ. Bạn nào quan tâm có thể dành thêm thời gian nghiên cứu. Tôi sẽ không phân tích nhiều ở đây, bài tập này để lại cho các bạn!
 
@@ -441,7 +441,7 @@ Code triển khai của `RoundRobinLoadBalance` trong Dubbo đã được sửa 
 
 ### Dubbo hỗ trợ những phương thức serialization nào?
 
-![Các giao thức serialization mà Dubbo hỗ trợ](https://oss.javaguide.cn/github/javaguide/csdn/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70-20230309234143460.png)
+![Các giao thức serialization mà Dubbo hỗ trợ](/images/github/javaguide/csdn/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70-20230309234143460.png)
 
 Dubbo hỗ trợ nhiều phương thức serialization: serialization tích hợp sẵn của JDK, hessian2, JSON, Kryo, FST, Protostuff, ProtoBuf, v.v.
 
@@ -462,6 +462,6 @@ Kryo và FST là hai phương thức serialization mà Dubbo giới thiệu sau 
 
 Trong tài liệu chính thức của Dubbo còn có một [biểu đồ so sánh hiệu suất của các giao thức serialization](https://dubbo.apache.org/zh/docs/v2.7/user/serialization/#m-zhdocsv27userserialization) để tham khảo.
 
-![So sánh hiệu suất giao thức serialization](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/dubbo-serialization-protocol-performance-comparison.png)
+![So sánh hiệu suất giao thức serialization](/images/github/javaguide/distributed-system/rpc/dubbo-serialization-protocol-performance-comparison.png)
 
 <!-- @include: @article-footer.snippet.md -->

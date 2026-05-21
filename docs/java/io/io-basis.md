@@ -65,7 +65,7 @@ try (InputStream fis = new FileInputStream("input.txt")) {
 
 Nội dung file `input.txt`:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155214614.png)
+![](/images/github/javaguide/java/image-20220419155214614.png)
 
 Đầu ra:
 
@@ -136,7 +136,7 @@ try (FileOutputStream output = new FileOutputStream("output.txt")) {
 
 Kết quả chạy:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155514392.png)
+![](/images/github/javaguide/java/image-20220419155514392.png)
 
 Tương tự `FileInputStream`, `FileOutputStream` thường cũng kết hợp với `BufferedOutputStream` (luồng byte xuất đệm, sẽ đề cập sau).
 
@@ -175,7 +175,7 @@ Theo tôi có hai lý do chính:
 
 Vấn đề ký tự rác rất dễ tái hiện, chỉ cần thay đổi nội dung file `input.txt` trong ví dụ `FileInputStream` ở trên thành chữ Trung văn là được, không cần thay đổi code.
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220419154632551.png)
+![](/images/github/javaguide/java/image-20220419154632551.png)
 
 Đầu ra:
 
@@ -236,7 +236,7 @@ try (FileReader fileReader = new FileReader("input.txt");) {
 
 Nội dung file `input.txt`:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220419154632551.png)
+![](/images/github/javaguide/java/image-20220419154632551.png)
 
 Đầu ra:
 
@@ -284,7 +284,7 @@ try (Writer output = new FileWriter("output.txt")) {
 
 Kết quả đầu ra:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155802288.png)
+![](/images/github/javaguide/java/image-20220419155802288.png)
 
 ## Luồng đệm byte
 
@@ -519,7 +519,7 @@ System.out.println("读取之前的偏移量：" + randomAccessFile.getFilePoint
 
 Nội dung file `input.txt`:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220421162050158.png)
+![](/images/github/javaguide/java/image-20220421162050158.png)
 
 Đầu ra:
 
@@ -544,11 +544,11 @@ Một ứng dụng phổ biến của `RandomAccessFile` là triển khai **truy
 
 `RandomAccessFile` có thể giúp chúng ta hợp nhất các phần file, code ví dụ như sau:
 
-![](https://oss.javaguide.cn/github/javaguide/java/io/20210609164749122.png)
+![](/images/github/javaguide/java/io/20210609164749122.png)
 
 Tôi đã giới thiệu chi tiết vấn đề tải file lớn trong [《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html).
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220428104115362.png)
+![](/images/github/javaguide/java/image-20220428104115362.png)
 
 Triển khai của `RandomAccessFile` phụ thuộc vào `FileDescriptor` (file descriptor) và `FileChannel` (memory-mapped file).
 

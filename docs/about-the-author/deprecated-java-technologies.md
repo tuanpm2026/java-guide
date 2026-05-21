@@ -62,7 +62,7 @@ Không ngờ, phần bình luận xuất hiện đúng như dự đoán một lo
 
 > "Học không phải là kỹ thuật, là tư tưởng. Vậy bò cũng là kỹ thuật con người không cần hay sao? Tại sao khi sinh ra bạn phải học bò trước? Nếu tư tưởng nền tảng không có rồi đi học đủ loại framework, cuối cùng chỉ là loại phế vật chỉ biết copy-paste!"
 
-<img src="https://oss.javaguide.cn/github/javaguide/about-the-author/prattle/deprecated-java-technologies-zhihu-comments.png" style="zoom:50%;" />
+<img src="/images/github/javaguide/about-the-author/prattle/deprecated-java-technologies-zhihu-comments.png" style="zoom:50%;" />
 
 Câu này nhìn bề ngoài có vẻ có lý, nhưng thực ra lộ ra **sự thiếu hiểu biết và cố chấp** của một người.
 
@@ -72,7 +72,7 @@ Ví dụ: Khi tôi mới bắt đầu học Java backend development, hoàn toà
 
 Khi tôi còn học đại học, nhiều nội dung trong cuốn sách đó thực ra đã lỗi thời rồi. Ví dụ nó dành nhiều trang giới thiệu JSP, Struts, Hibernate, EJB và SVN. Tuy nhiên, cho đến tận bây giờ, tôi vẫn rất biết ơn cuốn sách này đã dẫn tôi bước vào cánh cửa Java backend development.
 
-![](https://oss.javaguide.cn/github/javaguide/about-the-author/prattle/java-web-integration-development-king-returns.png)
+![](/images/github/javaguide/about-the-author/prattle/java-web-integration-development-king-returns.png)
 
 Cuốn sách này có tổng cộng **1010** trang. Lúc đó tôi có thể nói là học quên ăn quên ngủ, mất rất nhiều thời gian mới "cắn" xong toàn bộ cuốn sách.
 

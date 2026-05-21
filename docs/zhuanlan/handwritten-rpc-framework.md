@@ -12,7 +12,7 @@ Mặc dù nhỏ nhưng đầy đủ nội tạng, code chú thích chi tiết, c
 
 ## Tổng quan nội dung
 
-![](https://oss.javaguide.cn/github/javaguide/image-20220308100605485.png)
+![](/images/github/javaguide/image-20220308100605485.png)
 
 Thông qua bánh xe đơn giản này, bạn có thể học được nguyên lý tầng dưới của RPC và ứng dụng các kỹ thuật Java coding. Bạn thậm chí có thể coi nó là graduation project hoặc project experience của bạn — đây là một lựa chọn rất tốt! So với project experience của các ứng viên khác đều là các loại hệ thống, tự xây dựng framework chắc chắn sẽ được interviewer ưu ái hơn.
 

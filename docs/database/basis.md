@@ -223,7 +223,7 @@ Attributes (corresponding to fields in table) cannot be further divided — a fi
 
 2NF on basis of 1NF eliminates partial functional dependencies of non-prime attributes on the key. As shown below, 2NF adds a primary key column to 1NF. Non-prime attributes all depend on the primary key.
 
-![Second Normal Form](https://oss.javaguide.cn/github/javaguide/csdn/bd1d31be3779342427fc9e462bf7f05c.png)
+![Second Normal Form](/images/github/javaguide/csdn/bd1d31be3779342427fc9e462bf7f05c.png)
 
 Some important concepts:
 
@@ -315,7 +315,7 @@ In modern internet architectures, stored procedures are used less and less. Main
 
 For these reasons, many internet company development standards explicitly restrict or prohibit stored procedures. For example, Alibaba Java Development Manual explicitly prohibits stored procedures, recommending business logic be placed at the application layer.
 
-![Alibaba Java Development Manual: Prohibit Stored Procedures](https://oss.javaguide.cn/github/javaguide/csdn/0fa082bc4d4f919065767476a41b2156.png)
+![Alibaba Java Development Manual: Prohibit Stored Procedures](/images/github/javaguide/csdn/0fa082bc4d4f919065767476a41b2156.png)
 
 ## DROP vs DELETE vs TRUNCATE Differences
 

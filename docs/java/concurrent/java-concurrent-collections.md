@@ -26,13 +26,13 @@ Chúng ta biết `HashMap` không thread-safe. Trong tình huống concurrent, m
 
 Trong JDK 1.7, `ConcurrentHashMap` chia toàn bộ bucket array thành các segment (`Segment` — segment lock). Mỗi lock chỉ lock một phần dữ liệu trong container (có sơ đồ bên dưới). Các thread truy cập dữ liệu ở các segment khác nhau sẽ không có lock contention, tăng tốc độ truy cập concurrent.
 
-![Cấu trúc lưu trữ Java7 ConcurrentHashMap](https://oss.javaguide.cn/github/javaguide/java/collection/java7_concurrenthashmap.png)
+![Cấu trúc lưu trữ Java7 ConcurrentHashMap](/images/github/javaguide/java/collection/java7_concurrenthashmap.png)
 
 Đến JDK 1.8, `ConcurrentHashMap` bỏ `Segment` segment lock, dùng `Node + CAS + synchronized` để đảm bảo an toàn concurrent. Cấu trúc dữ liệu tương tự `HashMap` 1.8 — array + linked list / red-black tree. Java 8 chuyển linked list (độ phức tạp tìm kiếm O(N)) sang red-black tree (độ phức tạp tìm kiếm O(log(N))) khi độ dài linked list vượt ngưỡng nhất định (8).
 
 Trong Java 8, granularity lock nhỏ hơn. `synchronized` chỉ lock head node của linked list hoặc red-black tree hiện tại. Như vậy chỉ cần hash không xung đột thì sẽ không có concurrency, không ảnh hưởng đến đọc/ghi Node khác, hiệu quả được cải thiện đáng kể.
 
-![Cấu trúc lưu trữ Java8 ConcurrentHashMap](https://oss.javaguide.cn/github/javaguide/java/collection/java8_concurrenthashmap.png)
+![Cấu trúc lưu trữ Java8 ConcurrentHashMap](/images/github/javaguide/java/collection/java8_concurrenthashmap.png)
 
 Để xem giới thiệu chi tiết về `ConcurrentHashMap`, đọc bài: [`ConcurrentHashMap` Source Code Analysis](./../collection/concurrent-hash-map-source-code.md).
 
@@ -70,7 +70,7 @@ Chúng ta không phân tích code nội bộ `ConcurrentLinkedQueue` ở đây. 
 
 `BlockingQueue` là một interface, kế thừa từ `Queue`, do đó các lớp triển khai cũng có thể dùng làm triển khai `Queue`. `Queue` lại kế thừa từ interface `Collection`. Dưới đây là các lớp liên quan triển khai `BlockingQueue`:
 
-![Các lớp triển khai BlockingQueue](https://oss.javaguide.cn/github/javaguide/java/51622268.jpg)
+![Các lớp triển khai BlockingQueue](/images/github/javaguide/java/51622268.jpg)
 
 Dưới đây giới thiệu 3 lớp triển khai `BlockingQueue` phổ biến: `ArrayBlockingQueue`, `LinkedBlockingQueue`, `PriorityBlockingQueue`.
 
@@ -143,13 +143,13 @@ Với một singly linked list, dù linked list đã được sắp xếp, nếu
 
 Bản chất của skip list là duy trì đồng thời nhiều linked list, và linked list có phân cấp.
 
-![Skip list 2-level index](https://oss.javaguide.cn/github/javaguide/java/93666217.jpg)
+![Skip list 2-level index](/images/github/javaguide/java/93666217.jpg)
 
 Linked list ở tầng thấp nhất duy trì tất cả element trong skip list, mỗi linked list tầng trên đều là tập con của tầng dưới.
 
 Tất cả element trong tất cả linked list của skip list đều được sắp xếp. Khi tìm kiếm, có thể bắt đầu từ linked list tầng cao nhất. Khi phát hiện element cần tìm nhỏ hơn node successor hiện tại (hoặc successor null), chuyển xuống linked list tầng dưới tiếp tục tìm. Tức là trong quá trình tìm kiếm, search là nhảy cóc. Như hình trên, tìm element 18 trong skip list.
 
-![Tìm element 18 trong skip list](https://oss.javaguide.cn/github/javaguide/java/32005738.jpg)
+![Tìm element 18 trong skip list](/images/github/javaguide/java/32005738.jpg)
 
 Tìm 18 trước cần duyệt 18 lần, giờ chỉ cần 7 lần. Khi độ dài linked list lớn, cải thiện hiệu quả tìm kiếm khi xây dựng index sẽ rất đáng kể.
 

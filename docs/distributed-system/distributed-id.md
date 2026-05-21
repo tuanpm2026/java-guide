@@ -34,11 +34,11 @@ Sau khi sharding database, data nằm rải rác trên các database của các 
 
 Đây là lúc cần tạo **Distributed ID**.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/id-after-the-sub-table-not-conflict.png)
+![](/images/github/javaguide/system-design/distributed-system/id-after-the-sub-table-not-conflict.png)
 
 ### Distributed ID cần đáp ứng những yêu cầu nào?
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/distributed-id-requirements.png)
+![](/images/github/javaguide/system-design/distributed-system/distributed-id-requirements.png)
 
 Distributed ID là mắt xích không thể thiếu trong distributed system, nhiều nơi cần dùng đến.
 
@@ -62,7 +62,7 @@ Ngoài những điều này, một distributed ID tốt còn nên đảm bảo:
 
 Cách này khá đơn giản rõ ràng — tạo unique ID thông qua auto-increment primary key của relational database.
 
-![Database primary key auto-increment](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/the-primary-key-of-the-database-increases-automatically.png)
+![Database primary key auto-increment](/images/github/javaguide/system-design/distributed-system/the-primary-key-of-the-database-increases-automatically.png)
 
 Lấy MySQL làm ví dụ, chúng ta thực hiện theo cách sau.
 
@@ -128,7 +128,7 @@ CREATE TABLE `sequence_id_generator` (
 
 Field `current_max_id` và `step` chủ yếu dùng để lấy batch ID. Batch ID lấy được là: `current_max_id ~ current_max_id+step`.
 
-![Database segment mode](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/database-number-segment-mode.png)
+![Database segment mode](/images/github/javaguide/system-design/distributed-system/database-number-segment-mode.png)
 
 Field `version` chủ yếu dùng để giải quyết vấn đề concurrency (optimistic lock). Flow đầy đủ như sau:
 
@@ -192,7 +192,7 @@ Ngoài ra, để tránh single point, bạn có thể dùng master-slave mode đ
 
 ### NoSQL
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/nosql-distributed-id.png)
+![](/images/github/javaguide/system-design/distributed-system/nosql-distributed-id.png)
 
 Thông thường, NoSQL solution dùng Redis nhiều hơn. Chúng ta có thể dùng lệnh `incr` của Redis để thực hiện atomic sequential increment của ID.
 
@@ -243,7 +243,7 @@ aof-use-rdb-preamble yes  # Hybrid persistence, RDB+AOF combination
 
 Ngoài Redis, MongoDB ObjectId cũng thường được dùng như giải pháp distributed ID.
 
-![MongoDB ObjectId Specification](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/mongodb9-objectId-distributed-id.png)
+![MongoDB ObjectId Specification](/images/github/javaguide/system-design/distributed-system/mongodb9-objectId-distributed-id.png)
 
 MongoDB ObjectId tổng cộng cần 12 byte để lưu:
 
@@ -272,7 +272,7 @@ UUID.randomUUID()
 
 [RFC 4122](https://tools.ietf.org/html/rfc4122) định nghĩa UUID v1-v5, [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html) phát hành năm 2024 thêm v6, v7, v8. Ví dụ về UUID trong RFC 9562 như sau:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rfc-4122-uuid.png)
+![](/images/github/javaguide/system-design/distributed-system/rfc-4122-uuid.png)
 
 Chúng ta tập trung chú ý vào Version này — quy tắc tạo UUID của các version khác nhau là khác nhau.
 
@@ -289,7 +289,7 @@ Chúng ta tập trung chú ý vào Version này — quy tắc tạo UUID của c
 
 Dưới đây là ví dụ UUID được tạo ra trong Version 1:
 
-![Version 1 UUID example](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/version1-uuid.png)
+![Version 1 UUID example](/images/github/javaguide/system-design/distributed-system/version1-uuid.png)
 
 UUID được tạo ra bằng method `randomUUID()` của `UUID` trong JDK mặc định là version 4.
 
@@ -338,7 +338,7 @@ Cuối cùng, chúng ta phân tích đơn giản **ưu nhược điểm của UU
 
 Snowflake là distributed ID generation algorithm mã nguồn mở của Twitter. Snowflake bao gồm số nhị phân 64 bit, 64 bit này được chia thành nhiều phần, mỗi phần lưu data có ý nghĩa cụ thể:
 
-![Snowflake composition](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/snowflake-distributed-id-schematic-diagram.png)
+![Snowflake composition](/images/github/javaguide/system-design/distributed-system/snowflake-distributed-id-schematic-diagram.png)
 
 - **sign (1 bit)**: Sign bit (identify positive/negative), luôn là 0, đại diện cho ID được tạo là số dương.
 - **timestamp (41 bits)**: Tổng cộng 41 bit, dùng để biểu thị **relative timestamp** (milliseconds từ custom base point), có thể hỗ trợ 2^41 milliseconds (khoảng 69 năm). Base point thường được đặt là thời điểm system launch (như 2020-01-01), chứ không phải Unix epoch.
@@ -404,7 +404,7 @@ Ngoài ra, Seata còn đề xuất "Improved Snowflake Algorithm", thực hiện
 
 Tuy nhiên, UidGenerator đã cải tiến Snowflake algorithm. Cấu thành unique ID được tạo ra như sau:
 
-![UidGenerator generated ID composition](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/uidgenerator-distributed-id-schematic-diagram.png)
+![UidGenerator generated ID composition](/images/github/javaguide/system-design/distributed-system/uidgenerator-distributed-id-schematic-diagram.png)
 
 - **sign (1 bit)**: Sign bit (identify positive/negative), luôn là 0, đại diện cho ID được tạo là số dương.
 - **delta seconds (28 bits)**: Thời gian hiện tại, increment value relative to base time "2016-05-20", unit: seconds, có thể hỗ trợ khoảng 8.7 năm.
@@ -415,7 +415,7 @@ Có thể thấy, cấu thành unique ID khác với Snowflake algorithm gốc. 
 
 Giới thiệu trong UidGenerator official documentation:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/uidgenerator-introduction-official-documents.png)
+![](/images/github/javaguide/system-design/distributed-system/uidgenerator-introduction-official-documents.png)
 
 Từ sau năm 2018, UidGenerator cơ bản không được duy trì nữa, ở đây cũng không giới thiệu thêm. Bạn muốn tìm hiểu thêm có thể xem [Official introduction of UidGenerator](https://github.com/baidu/uid-generator/blob/master/README.zh_cn.md).
 
@@ -433,7 +433,7 @@ Leaf thực hiện core optimization so với segment mode gốc — **Dual Buff
 
 (Hình ảnh từ Meituan official article: [《Leaf——Meituan Dianping Distributed ID Generation System》](https://tech.meituan.com/2017/04/21/mt-leaf.html))
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-id/leaf-principle.png)
+![](/images/github/javaguide/distributed-system/distributed-id/leaf-principle.png)
 
 Theo giới thiệu trong project README, trên 4C8G VM, thông qua company RPC call, QPS stress test result gần 5w/s, TP999 1ms.
 
@@ -445,7 +445,7 @@ Nguyên lý của database segment mode đã được giới thiệu ở trên. 
 
 Để hiểu rõ vấn đề này, trước tiên hãy xem architecture solution đơn giản dựa trên database segment mode. (Hình ảnh từ Tinyid official wiki: [《Tinyid Principle Introduction》](https://github.com/didi/tinyid/wiki/tinyid%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D))
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-id/tinyid-principle.png)
+![](/images/github/javaguide/distributed-system/distributed-id/tinyid-principle.png)
 
 Trong architecture mode này, chúng ta yêu cầu unique ID từ ID issuing service qua HTTP request. Load balancing router sẽ gửi request của chúng ta đến một trong số các tinyid-server.
 
@@ -458,7 +458,7 @@ Ngoài ra, HTTP call cũng có network overhead.
 
 Nguyên lý của Tinyid tương đối đơn giản, architecture của nó như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-id/tinyid-architecture-design.png)
+![](/images/github/javaguide/distributed-system/distributed-id/tinyid-architecture-design.png)
 
 So với architecture solution đơn giản dựa trên database segment mode, Tinyid solution chủ yếu thực hiện các tối ưu sau:
 
@@ -483,7 +483,7 @@ IdGenerator có các đặc điểm sau:
 
 Cấu thành unique ID được tạo bởi IdGenerator:
 
-![IdGenerator generated ID composition](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/idgenerator-distributed-id-schematic-diagram.png)
+![IdGenerator generated ID composition](/images/github/javaguide/system-design/distributed-system/idgenerator-distributed-id-schematic-diagram.png)
 
 - **timestamp (variable bits)**: Time difference, là total time difference (millisecond unit) giữa system time khi tạo ID và BaseTime (base time, còn gọi là base point time, origin time, epoch time, default là năm 2020). Ban đầu là 5 bits, tăng dần theo thời gian chạy. Nếu thấy default value quá cũ, có thể reset, nhưng lưu ý giá trị này sau này tốt nhất không thay đổi.
 - **worker id (default 6 bits)**: Machine ID, là parameter quan trọng nhất, là unique ID phân biệt các machine hoặc application khác nhau, max value bị giới hạn bởi `WorkerIdBitLength` (default 6). Nếu một server deploy nhiều independent service, cần chỉ định WorkerId khác nhau cho từng service.

@@ -14,11 +14,11 @@ Trong các dự án thực tế, một API có thể cần lấy nhiều loại 
 
 Nếu thực hiện tuần tự (từng tác vụ theo thứ tự), tốc độ phản hồi của API sẽ rất chậm. Xét đến việc phần lớn các tác vụ này **không có mối quan hệ thứ tự trước sau**, chúng có thể được **thực hiện song song**, chẳng hạn khi gọi lấy chi tiết sản phẩm thì có thể đồng thời gọi lấy thông tin vận chuyển. Bằng cách thực hiện nhiều tác vụ song song, tốc độ phản hồi của API sẽ được cải thiện đáng kể.
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/serial-to-parallel.png)
+![](/images/github/javaguide/high-performance/serial-to-parallel.png)
 
 Đối với các tác vụ có mối quan hệ thứ tự gọi trước sau, có thể thực hiện sắp xếp tác vụ.
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/serial-to-parallel2.png)
+![](/images/github/javaguide/high-performance/serial-to-parallel2.png)
 
 1. Chỉ sau khi lấy được thông tin người dùng mới có thể gọi API chi tiết sản phẩm và thông tin vận chuyển.
 2. Chỉ sau khi lấy thành công chi tiết sản phẩm và thông tin vận chuyển mới có thể gọi API gợi ý sản phẩm.
@@ -83,11 +83,11 @@ public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
 
 Có thể thấy, `CompletableFuture` đồng thời triển khai cả hai interface `Future` và `CompletionStage`.
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/completablefuture-class-diagram.jpg)
+![](/images/github/javaguide/java/concurrent/completablefuture-class-diagram.jpg)
 
 Ngoài cung cấp các tính năng `Future` hữu dụng và mạnh mẽ hơn, `CompletableFuture` còn cung cấp khả năng lập trình hàm.
 
-![](https://oss.javaguide.cn/javaguide/image-20210902092441434.png)
+![](/images/javaguide/image-20210902092441434.png)
 
 Interface `Future` có 5 phương thức:
 
@@ -101,7 +101,7 @@ Interface `CompletionStage` mô tả một giai đoạn của tính toán bất 
 
 Interface `CompletionStage` có nhiều phương thức, khả năng lập trình hàm của `CompletableFuture` được cung cấp bởi interface này. Nhìn vào tham số các phương thức của interface này bạn sẽ thấy nó sử dụng nhiều lập trình hàm được giới thiệu trong Java 8.
 
-![](https://oss.javaguide.cn/javaguide/image-20210902093026059.png)
+![](/images/javaguide/image-20210902093026059.png)
 
 Do có nhiều phương thức, nên không thể giải thích từng cái một ở đây, phần dưới tôi sẽ giới thiệu cách sử dụng hầu hết các phương thức phổ biến.
 
@@ -721,7 +721,7 @@ Sử dụng đúng cách các phương thức `thenCompose()`, `thenCombine()`, 
 
 Trong thực tế sử dụng, chúng ta còn có thể tận dụng hoặc tham khảo các framework sắp xếp tác vụ bất đồng bộ có sẵn, chẳng hạn [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) của JD.
 
-![asyncTool README 文档](https://oss.javaguide.cn/github/javaguide/java/concurrent/asyncTool-readme.png)
+![asyncTool README 文档](/images/github/javaguide/java/concurrent/asyncTool-readme.png)
 
 ## Lời kết
 

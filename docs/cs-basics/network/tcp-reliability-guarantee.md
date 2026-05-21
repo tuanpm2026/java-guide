@@ -41,7 +41,7 @@ TCP là giao tiếp full-duplex (FDX), cả hai bên có thể giao tiếp hai c
 
 **Sơ đồ cấu trúc send window TCP**:
 
-![Cấu trúc send window TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-send-window.png)
+![Cấu trúc send window TCP](/images/github/javaguide/cs-basics/network/tcp-send-window.png)
 
 - **SND.WND**: Send window.
 - **SND.UNA**: Con trỏ Send Unacknowledged, trỏ đến byte đầu tiên của send window.
@@ -57,7 +57,7 @@ TCP là giao tiếp full-duplex (FDX), cả hai bên có thể giao tiếp hai c
 
 **Sơ đồ cấu trúc receive window TCP**:
 
-![Cấu trúc receive window TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-receive-window.png)
+![Cấu trúc receive window TCP](/images/github/javaguide/cs-basics/network/tcp-receive-window.png)
 
 **Kích thước receive window được điều chỉnh động dựa trên tốc độ xử lý dữ liệu của receiver.** Nếu receiver đọc dữ liệu nhanh, receive window có thể mở rộng. Ngược lại có thể thu hẹp.
 
@@ -67,7 +67,7 @@ Ngoài ra, kích thước sliding window ở đây chỉ dùng để minh họa,
 
 Trong một khoảng thời gian nhất định, nếu nhu cầu về một tài nguyên nào đó trong mạng vượt quá phần khả dụng mà tài nguyên đó có thể cung cấp, hiệu suất mạng sẽ trở nên tệ hơn. Tình trạng này gọi là tắc nghẽn. Kiểm soát tắc nghẽn nhằm ngăn quá nhiều dữ liệu được đưa vào mạng, tránh router hoặc liên kết trong mạng bị quá tải. Tất cả các biện pháp kiểm soát tắc nghẽn đều có một tiền đề là mạng có thể chịu đựng tải mạng hiện tại. Kiểm soát tắc nghẽn là một quá trình toàn cục, liên quan đến tất cả host, tất cả router và tất cả các yếu tố liên quan đến giảm hiệu suất truyền tải mạng. Ngược lại, kiểm soát luồng thường là kiểm soát lưu lượng giao tiếp điểm-điểm, là vấn đề end-to-end. Mục tiêu của kiểm soát luồng là kiềm chế tốc độ gửi dữ liệu của sender để receiver kịp nhận.
 
-![Kiểm soát tắc nghẽn TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-congestion-control.png)
+![Kiểm soát tắc nghẽn TCP](/images/github/javaguide/cs-basics/network/tcp-congestion-control.png)
 
 Để thực hiện kiểm soát tắc nghẽn, TCP sender phải duy trì một biến trạng thái **congestion window (cwnd)**. Kích thước congestion window phụ thuộc vào mức độ tắc nghẽn mạng và thay đổi động. Sender đặt send window của mình bằng giá trị nhỏ hơn giữa congestion window và receive window của receiver.
 

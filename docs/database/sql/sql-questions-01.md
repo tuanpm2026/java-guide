@@ -1222,7 +1222,7 @@ SQL cho phép thêm một số từ khóa sửa đổi vào bên trái của `JO
 
 Hình dưới đây minh họa 7 cách sử dụng liên quan đến LEFT JOIN, RIGHT JOIN, INNER JOIN, OUTER JOIN.
 
-![](https://oss.javaguide.cn/github/javaguide/csdn/d1794312b448516831369f869814ab39.png)
+![](/images/github/javaguide/csdn/d1794312b448516831369f869814ab39.png)
 
 Nếu không thêm bất kỳ từ khóa sửa đổi nào, chỉ viết `JOIN`, thì mặc định là `INNER JOIN`
 

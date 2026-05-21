@@ -65,7 +65,7 @@ So với phương thức hash của JDK1.8, phương thức hash của JDK 1.7 c
 
 **"Chaining" (phương pháp kéo chuỗi)** là: kết hợp linked list và mảng lại với nhau. Tức là tạo một mảng linked list, mỗi ô trong mảng là một linked list. Khi gặp xung đột băm, chỉ cần thêm giá trị bị xung đột vào linked list là được.
 
-![Cấu trúc nội bộ trước JDK1.8 - HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.7_hashmap.png)
+![Cấu trúc nội bộ trước JDK1.8 - HashMap](/images/github/javaguide/java/collection/jdk1.7_hashmap.png)
 
 ### Từ JDK1.8 trở đi
 
@@ -73,7 +73,7 @@ So với các phiên bản trước, JDK1.8 trở đi có sự thay đổi lớn
 
 Khi độ dài linked list lớn hơn ngưỡng (mặc định là 8), phương thức `treeifyBin()` sẽ được gọi đầu tiên. Phương thức này sẽ quyết định có chuyển đổi sang red-black tree hay không dựa trên độ dài mảng của HashMap. Chỉ khi độ dài mảng lớn hơn hoặc bằng 64 mới thực hiện chuyển đổi sang red-black tree để giảm thời gian tìm kiếm. Ngược lại, chỉ thực hiện `resize()` để mở rộng mảng. Phần mã nguồn liên quan sẽ không trích dẫn ở đây, hãy tập trung vào phương thức `treeifyBin()` là được!
 
-![Cấu trúc nội bộ từ JDK1.8 trở đi - HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.8_hashmap.png)
+![Cấu trúc nội bộ từ JDK1.8 trở đi - HashMap](/images/github/javaguide/java/collection/jdk1.8_hashmap.png)
 
 **Các thuộc tính của class:**
 
@@ -271,7 +271,7 @@ HashMap chỉ cung cấp phương thức put để thêm phần tử; phương t
 1. Nếu vị trí mảng được xác định không có phần tử thì chèn trực tiếp.
 2. Nếu vị trí mảng được xác định đã có phần tử, so sánh key của phần tử đó với key cần chèn: nếu key giống nhau thì ghi đè trực tiếp, nếu key khác nhau thì kiểm tra xem p có phải là tree node hay không, nếu có thì gọi `e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)` để thêm phần tử vào cây. Nếu không thì duyệt linked list để chèn (chèn vào cuối linked list).
 
-![ ](https://oss.javaguide.cn/github/javaguide/database/sql/put.png)
+![ ](/images/github/javaguide/database/sql/put.png)
 
 ```java
 public V put(K key, V value) {

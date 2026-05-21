@@ -753,7 +753,7 @@ Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id
 | 12  | 1010 | 9002    | 2020-01-02 12:11:01 | 2020-01-02 12:41:01 | 76    |
 | 13  | 1011 | 9001    | 2020-01-02 10:01:01 | 2020-01-02 10:31:01 | 89    |
 
-![](https://oss.javaguide.cn/github/javaguide/database/sql/D2B491866B85826119EE3474F10D3636.png)
+![](/images/github/javaguide/database/sql/D2B491866B85826119EE3474F10D3636.png)
 
 Tìm những người có hướng tìm việc là kỹ sư thuật toán và đã hoàn thành đề thi thuật toán ngay ngày đăng ký, xếp hạng theo điểm cao nhất trong tất cả các kỳ thi đã tham gia. Bảng xếp hạng rất dài, chúng ta sẽ phân trang hiển thị, mỗi trang 3 bản ghi, bây giờ cần lấy thông tin người trên trang thứ 3 (số trang bắt đầu từ 1).
 

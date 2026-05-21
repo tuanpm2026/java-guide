@@ -37,7 +37,7 @@ Dù index có thể rút ngắn đáng kể thời gian truy vấn, nhưng việ
 
 Thứ tự của các field trong compound index rất quan trọng. Ví dụ như hình dưới đây, compound index bao gồm `{userid:1, score:-1}`, thì compound index này đầu tiên sắp xếp tăng dần theo `userid`; sau đó trong mỗi giá trị `userid`, sắp xếp giảm dần theo `score`.
 
-![Compound index](https://oss.javaguide.cn/github/javaguide/database/mongodb/mongodb-composite-index.png)
+![Compound index](/images/github/javaguide/database/mongodb/mongodb-composite-index.png)
 
 Trong compound index, cách sắp xếp quyết định index đó có thể được áp dụng trong truy vấn hay không.
 
@@ -142,13 +142,13 @@ Thông thường, một replica cluster bao gồm 1 primary node, nhiều second
 
 Hình dưới là một replica cluster ba thành viên điển hình:
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/replica-set-read-write-operations-primary.png)
+![](/images/github/javaguide/database/mongodb/replica-set-read-write-operations-primary.png)
 
 Primary node và secondary node đồng bộ dữ liệu thông qua **oplog (operation log)**. oplog là một **Capped Collection** đặc biệt trong thư viện local, dùng để lưu incremental log được tạo ra bởi thao tác ghi, tương tự như Binlog trong MySQL.
 
 > Capped Collection tương tự như hàng đợi vòng có độ dài cố định, dữ liệu được append tuần tự vào cuối collection; khi dung lượng collection đạt giới hạn, nó sẽ ghi đè document cũ nhất trong collection. Dữ liệu Capped Collection sẽ được ghi tuần tự vào không gian cố định trên đĩa, do đó tốc độ I/O rất nhanh; nếu không tạo index, hiệu suất tốt hơn.
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/replica-set-primary-with-two-secondaries.png)
+![](/images/github/javaguide/database/mongodb/replica-set-primary-with-two-secondaries.png)
 
 Khi một thao tác ghi trên primary node hoàn tất, một log tương ứng sẽ được ghi vào collection oplog, còn secondary node liên tục pull log mới từ oplog này và replay trên local để đạt được mục đích đồng bộ dữ liệu.
 
@@ -167,7 +167,7 @@ Sharded cluster là phiên bản phân tán của MongoDB, so với replica set,
 
 Sharded cluster của MongoDB bao gồm ba phần sau (hình dưới đây từ [giới thiệu về sharded cluster trong tài liệu chính thức](https://www.mongodb.com/docs/manual/sharding/)):
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/sharded-cluster-production-architecture.png)
+![](/images/github/javaguide/database/mongodb/sharded-cluster-production-architecture.png)
 
 - **Config Servers**: Config server, về bản chất là một replica set của MongoDB, chịu trách nhiệm lưu trữ các metadata và cấu hình của cluster, như địa chỉ shard, Chunks, v.v.
 - **Mongos**: Routing service, không lưu trữ dữ liệu cụ thể, lấy cấu hình cluster từ Config và chuyển tiếp request đến shard cụ thể, đồng thời tổng hợp kết quả shard trả về cho client.
@@ -214,7 +214,7 @@ MongoDB hỗ trợ hai thuật toán sharding để đáp ứng các nhu cầu t
 
 **1. Sharding dựa trên phạm vi (Range-based sharding)**:
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/example-of-scope-based-sharding.png)
+![](/images/github/javaguide/database/mongodb/example-of-scope-based-sharding.png)
 
 MongoDB phân chia dữ liệu thành các chunk khác nhau theo phạm vi giá trị của shard key, mỗi chunk chứa dữ liệu trong một phạm vi nhất định. Khi shard key có cardinality lớn, tần suất thấp và giá trị không thay đổi đơn điệu, range sharding hiệu quả hơn.
 
@@ -224,7 +224,7 @@ MongoDB phân chia dữ liệu thành các chunk khác nhau theo phạm vi giá 
 
 **2. Sharding dựa trên Hash**
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/example-of-hash-based-sharding.png)
+![](/images/github/javaguide/database/mongodb/example-of-hash-based-sharding.png)
 
 MongoDB tính toán giá trị hash của một field đơn làm giá trị index, và phân chia dữ liệu thành các chunk khác nhau theo phạm vi giá trị hash.
 
@@ -242,13 +242,13 @@ Sharded cluster không ghi lại từng dữ liệu nằm trên shard nào, mà 
 
 Theo mặc định, giá trị tối đa của một Chunk là 64MB (có thể điều chỉnh, phạm vi giá trị 1~1024 MB. Nếu không có yêu cầu đặc biệt, khuyến nghị giữ giá trị mặc định); khi thực hiện insert, update, delete dữ liệu, nếu lúc đó Mongos phát hiện kích thước hoặc lượng dữ liệu của Chunk mục tiêu vượt giới hạn, sẽ kích hoạt **Chunk splitting (Phân tách chunk)**.
 
-![Phân tách chunk](https://oss.javaguide.cn/github/javaguide/database/mongodb/chunk-splitting-shard-a.png)
+![Phân tách chunk](/images/github/javaguide/database/mongodb/chunk-splitting-shard-a.png)
 
 Sự tăng trưởng dữ liệu sẽ khiến Chunk phân tách ngày càng nhiều. Lúc này, số lượng Chunk trên các shard có thể không cân bằng. Component **Balancer (Cân bằng tải)** trong Mongos sẽ thực hiện tự động cân bằng, cố gắng giữ số lượng Chunk trên các Shard cân bằng nhau, quá trình này gọi là **Rebalance (Tái cân bằng)**. Theo mặc định, Rebalance cho database và collection được bật.
 
 Như hình dưới, khi dữ liệu được insert, dẫn đến Chunk phân tách, khiến hai shard A và B có 3 Chunk, còn shard C chỉ có 1 cái; lúc này sẽ migrate 1 chunk được phân bổ từ B sang shard C để thực hiện cân bằng dữ liệu cluster.
 
-![Chunk migration](https://oss.javaguide.cn/github/javaguide/database/mongodb/mongo-reblance-three-shards.png)
+![Chunk migration](/images/github/javaguide/database/mongodb/mongo-reblance-three-shards.png)
 
 > Balancer là một background process của MongoDB chạy trên Primary node của Config Server (từ phiên bản MongoDB 3.4 trở đi), nó theo dõi số lượng Chunk trên mỗi shard, và thực hiện migrate khi số lượng Chunk trên một shard đạt ngưỡng.
 

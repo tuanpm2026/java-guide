@@ -86,7 +86,7 @@ Phiên bản mới nhất của Hutool hiện tại hỗ trợ các loại dữ 
 
 Các phương thức ẩn danh mà Hutool cung cấp như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/2023-08-01-10-2119fnVCIDozqHgRGx.png)
+![](/images/github/javaguide/system-design/security/2023-08-01-10-2119fnVCIDozqHgRGx.png)
 
 Lưu ý: Ẩn danh của Hutool thực hiện bằng cách dùng \* để thay thế thông tin nhạy cảm, triển khai cụ thể trong phương thức StrUtil.hide. Nếu muốn tùy chỉnh ký hiệu ẩn, có thể copy source code của Hutool ra và triển khai lại.
 
@@ -350,7 +350,7 @@ public class TestController {
 }
 ```
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/2023-08-02-16-497DdCBy8vbf2D69g.png)
+![](/images/github/javaguide/system-design/security/2023-08-02-16-497DdCBy8vbf2D69g.png)
 
 Có thể thấy chúng ta đã thực hiện thành công ẩn danh dữ liệu.
 

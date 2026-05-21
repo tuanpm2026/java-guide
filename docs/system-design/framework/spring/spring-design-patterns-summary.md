@@ -22,7 +22,7 @@ Do năng lực cá nhân còn hạn chế, bài viết có thể có sai sót, m
 
 **IoC là một nguyên tắc, không phải là một pattern, các pattern sau đây (nhưng không giới hạn) triển khai nguyên tắc IoC.**
 
-![ioc-patterns](https://oss.javaguide.cn/github/javaguide/ioc-patterns.png)
+![ioc-patterns](/images/github/javaguide/ioc-patterns.png)
 
 **IoC container của Spring giống như một nhà máy, khi chúng ta cần tạo một đối tượng, chỉ cần cấu hình tệp cấu hình/annotation là xong, hoàn toàn không cần quan tâm đến đối tượng được tạo ra như thế nào.** IoC container chịu trách nhiệm tạo đối tượng, kết nối các đối tượng lại với nhau, cấu hình các đối tượng này, và xử lý toàn bộ vòng đời của các đối tượng này từ khi tạo đến khi bị hủy hoàn toàn.
 
@@ -137,7 +137,7 @@ Tuy nhiên, phần lớn Bean thực tế đều là stateless (không có biế
 
 Spring AOP dựa trên dynamic proxy, nếu đối tượng cần proxy có triển khai một interface nào đó, Spring AOP sẽ sử dụng **JDK Proxy** để tạo đối tượng proxy; đối với các đối tượng không triển khai interface, không thể dùng JDK Proxy để proxy, lúc này Spring AOP sẽ dùng **Cglib** để tạo một lớp con của đối tượng được proxy làm proxy, như hình dưới đây:
 
-![SpringAOPProcess](https://oss.javaguide.cn/github/javaguide/SpringAOPProcess.jpg)
+![SpringAOPProcess](/images/github/javaguide/SpringAOPProcess.jpg)
 
 Tất nhiên, bạn cũng có thể dùng AspectJ, Spring AOP đã tích hợp AspectJ, AspectJ được coi là AOP framework hoàn chỉnh nhất trong hệ sinh thái Java.
 
@@ -207,7 +207,7 @@ Spring mặc định có các sự kiện sau, tất cả đều là triển kha
 - `ContextRefreshedEvent`: Sự kiện được kích hoạt sau khi `ApplicationContext` khởi tạo hoặc refresh hoàn tất;
 - `ContextClosedEvent`: Sự kiện được kích hoạt sau khi `ApplicationContext` đóng.
 
-![ApplicationEvent-Subclass](https://oss.javaguide.cn/github/javaguide/ApplicationEvent-Subclass.png)
+![ApplicationEvent-Subclass](/images/github/javaguide/ApplicationEvent-Subclass.png)
 
 #### Vai trò event listener
 
@@ -330,7 +330,7 @@ Nếu thêm một loại `Controller` nữa thì phải thêm một câu lệnh 
 
 Decorator Pattern có thể động thêm một số thuộc tính hoặc hành vi cho đối tượng. So với việc sử dụng kế thừa, Decorator Pattern linh hoạt hơn. Nói đơn giản là khi chúng ta cần sửa đổi chức năng gốc nhưng không muốn sửa trực tiếp code gốc, hãy thiết kế một Decorator bọc quanh code gốc. Thực ra trong JDK cũng có nhiều nơi dùng Decorator Pattern, chẳng hạn như họ `InputStream`, các lớp con của `InputStream` như `FileInputStream` (đọc tệp), `BufferedInputStream` (thêm cache, tăng đáng kể tốc độ đọc tệp), v.v. đều mở rộng chức năng của `InputStream` mà không sửa đổi code `InputStream`.
 
-![装饰者模式示意图](https://oss.javaguide.cn/github/javaguide/Decorator.jpg)
+![装饰者模式示意图](/images/github/javaguide/Decorator.jpg)
 
 Trong Spring khi cấu hình DataSource, DataSource có thể là các cơ sở dữ liệu và nguồn dữ liệu khác nhau. Liệu chúng ta có thể động chuyển đổi giữa các nguồn dữ liệu khác nhau với ít sửa đổi code lớp gốc nhất theo nhu cầu của khách hàng không? Lúc này phải dùng Decorator Pattern (điểm này tôi vẫn chưa hiểu rõ nguyên lý cụ thể). Các class dùng Wrapper Pattern trong Spring có chứa `Wrapper` hoặc `Decorator` trong tên lớp. Những lớp này về cơ bản đều động thêm một số trách nhiệm phụ cho một đối tượng.
 

@@ -112,7 +112,7 @@ Cold data migration là core process của cold-hot separation. Có ba mainstrea
 
 Typical flow:
 
-![Cold-Hot Separation - Cold Data Migration](https://oss.javaguide.cn/github/javaguide/high-performance/data-cold-hot-separation.png)
+![Cold-Hot Separation - Cold Data Migration](/images/github/javaguide/high-performance/data-cold-hot-separation.png)
 
 **Practice recommendation**: If company has DBA support, first do a **manual migration of existing cold data** to bulk import historical data to cold DB; then use task scheduling to automate **incremental migration**.
 

@@ -202,7 +202,7 @@ Phần thuật toán rất quan trọng. Nếu bạn không biết cách học t
 
 Ngoài ra, trang web [GeeksforGeeks](https://www.geeksforgeeks.org/fundamentals-of-algorithms/) tổng hợp các thuật toán phổ biến khá toàn diện và có hệ thống.
 
-[![Banner](https://oss.javaguide.cn/xingqiu/xingqiu.png)](./about-the-author/zhishixingqiu-two-years.md)
+[![Banner](/images/xingqiu/xingqiu.png)](./about-the-author/zhishixingqiu-two-years.md)
 
 ## Cơ sở dữ liệu
 
@@ -263,7 +263,7 @@ Ngoài ra, trang web [GeeksforGeeks](https://www.geeksforgeeks.org/fundamentals-
 
 [Tổng hợp câu hỏi phỏng vấn Elasticsearch phổ biến (trả phí)](./database/elasticsearch/elasticsearch-questions-01.md)
 
-![JavaGuide Official Public Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Public Account](/images/github/javaguide/gongzhonghaoxuanchuan.png)
 
 ## Công cụ phát triển
 
@@ -461,4 +461,4 @@ Triển khai nhiều bản sao của cùng một dịch vụ để tránh điể
 
 Nếu mọi người muốn theo dõi real-time các bài viết cập nhật và các tài liệu hay mình chia sẻ, có thể quan tâm tài khoản chính thức của mình "**JavaGuide**".
 
-![JavaGuide Official Public Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Public Account](/images/github/javaguide/gongzhonghaoxuanchuan.png)

@@ -67,7 +67,7 @@ Câu hỏi tần suất cao:
 
 Câu hỏi theo dõi thường rơi vào tình huống cụ thể. Ví dụ "lịch sử hội thoại chatbot khách hàng của bạn quá dài thì sao?" Lúc này đừng chỉ nói "làm tóm tắt", câu trả lời hoàn chỉnh hơn là: Trước tiên phân biệt trạng thái nghiệp vụ phải giữ, hội thoại gần đây, hồ sơ người dùng và chat nhàn rỗi có thể bỏ; rồi làm ngân sách Token; vượt quá ngưỡng thì làm tóm tắt có cấu trúc cho tin nhắn lịch sử; bằng chứng RAG chỉ đặt đoạn liên quan nhất; cuối cùng xác minh qua tập đánh giá xem sau khi nén có ảnh hưởng câu trả lời câu hỏi quan trọng không.
 
-![Ví dụ quá trình tokenize](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-token-process.png)
+![Ví dụ quá trình tokenize](/images/github/javaguide/ai/llm/llm-token-process.png)
 
 ## Kỹ thuật gọi API
 

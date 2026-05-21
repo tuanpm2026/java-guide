@@ -18,7 +18,7 @@ Trước khi bắt đầu giới thiệu chính thức về RESTful API, cần h
 
 Khi phát triển backend, công việc chính của chúng ta là cung cấp API cho frontend hoặc các backend service khác — ví dụ API query user data.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/basis/20210507130629538.png)
+![](/images/github/javaguide/system-design/basis/20210507130629538.png)
 
 Tuy nhiên, API không chỉ đại diện cho interface do backend system expose ra. Các method do framework cung cấp cũng thuộc phạm vi API.
 
@@ -67,7 +67,7 @@ Tổng hợp giải thích trên, tóm tắt RESTful architecture là gì:
 
 ## Quy chuẩn RESTful API
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/basis/20210507154007779.png)
+![](/images/github/javaguide/system-design/basis/20210507154007779.png)
 
 ### Action (Hành động)
 

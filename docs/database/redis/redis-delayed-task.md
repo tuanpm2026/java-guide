@@ -30,7 +30,7 @@ Pub/sub liên quan đến hai vai trò: publisher (nhà xuất bản) và subscr
 - Publisher gửi message vào channel được chỉ định qua `PUBLISH`.
 - Subscriber đăng ký channel mình quan tâm qua `SUBSCRIBE`. Subscriber có thể đăng ký một hoặc nhiều channel.
 
-![Chức năng pub/sub của Redis](https://oss.javaguide.cn/github/javaguide/database/redis/redis-pub-sub.png)
+![Chức năng pub/sub của Redis](/images/github/javaguide/database/redis/redis-pub-sub.png)
 
 Trong chế độ pub/sub, producer cần chỉ định channel để gửi message, consumer đăng ký channel tương ứng để nhận message.
 
@@ -46,7 +46,7 @@ Chức năng này được Redis gọi chính thức là **keyspace notification
 
 Tài liệu chính thức giải thích nguyên nhân độ kịp thời kém tại: <https://redis.io/docs/manual/keyspace-notifications/#timing-of-expired-events>.
 
-![Redis expired event](https://oss.javaguide.cn/github/javaguide/database/redis/redis-timing-of-expired-events.png)
+![Redis expired event](/images/github/javaguide/database/redis/redis-timing-of-expired-events.png)
 
 Điểm cốt lõi: message sự kiện expired được publish khi Redis server xóa key, chứ không phải ngay khi key expired.
 

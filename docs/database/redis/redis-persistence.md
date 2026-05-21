@@ -20,7 +20,7 @@ Redis khác với Memcached ở một điểm quan trọng là Redis hỗ trợ 
 
 Địa chỉ tài liệu chính thức: <https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/> .
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/redis4.0-persitence.png)
+![](/images/github/javaguide/database/redis/redis4.0-persitence.png)
 
 **Bài viết này dựa trên phiên bản Redis 7.0+**. Các phiên bản khác nhau có sự khác biệt quan trọng về cơ chế lưu trữ liên tục, hãy xác nhận phiên bản Redis của bạn trước khi sử dụng:
 
@@ -45,7 +45,7 @@ redis-cli INFO server | grep redis_version
 
 Hình dưới đây mô tả toàn bộ quy trình cơ chế lưu trữ liên tục của Redis, bao gồm nội dung cốt lõi của bài viết này:
 
-![Toàn bộ quy trình cơ chế lưu trữ liên tục của Redis](https://oss.javaguide.cn/github/javaguide/database/redis/redis-persistence-flow.png)
+![Toàn bộ quy trình cơ chế lưu trữ liên tục của Redis](/images/github/javaguide/database/redis/redis-persistence-flow.png)
 
 ## Lưu trữ liên tục RDB
 
@@ -188,7 +188,7 @@ Dưới đây giải thích thêm một lần nữa về một số system call 
 
 Sơ đồ quy trình hoạt động AOF như sau:
 
-![Quy trình hoạt động cơ bản của AOF](https://oss.javaguide.cn/github/javaguide/database/redis/aof-work-process.png)
+![Quy trình hoạt động cơ bản của AOF](/images/github/javaguide/database/redis/aof-work-process.png)
 
 ### AOF có những cách lưu trữ nào?
 
@@ -227,7 +227,7 @@ Multi Part AOF không phải trọng tâm, biết qua là được. Để xem gi
 
 Cơ sở dữ liệu quan hệ (như MySQL) thường ghi log trước khi thực thi lệnh (để thuận tiện cho việc khôi phục sau sự cố), còn cơ chế lưu trữ AOF của Redis ghi log sau khi thực thi lệnh xong.
 
-![Quá trình ghi log AOF](https://oss.javaguide.cn/github/javaguide/database/redis/redis-aof-write-log-disc.png)
+![Quá trình ghi log AOF](/images/github/javaguide/database/redis/redis-aof-write-log-disc.png)
 
 **Tại sao ghi log sau khi thực thi lệnh xong?**
 
@@ -243,7 +243,7 @@ Cơ sở dữ liệu quan hệ (như MySQL) thường ghi log trước khi thự
 
 Khi AOF trở nên quá lớn, Redis có thể tự động viết lại AOF trong nền để tạo ra một file AOF mới, file AOF mới này lưu trạng thái database giống với file AOF cũ, nhưng kích thước nhỏ hơn.
 
-![AOF rewrite](https://oss.javaguide.cn/github/javaguide/database/redis/aof-rewrite.png)
+![AOF rewrite](/images/github/javaguide/database/redis/aof-rewrite.png)
 
 > AOF rewrite (viết lại) là một cái tên gây hiểu nhầm, chức năng này được thực hiện bằng cách đọc các cặp key-value trong database, chương trình không cần đọc, phân tích hay ghi bất kỳ thứ gì vào file AOF hiện có.
 
@@ -539,7 +539,7 @@ no-appendfsync-on-rewrite no        # 重写期间仍执行 fsync，可能阻塞
 
 Địa chỉ tài liệu chính thức: <https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/>
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/redis4.0-persitence.png)
+![](/images/github/javaguide/database/redis/redis4.0-persitence.png)
 
 ### Redis 7.0 đã tối ưu cơ chế lưu trữ liên tục như thế nào?
 

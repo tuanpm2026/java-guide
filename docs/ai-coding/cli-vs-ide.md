@@ -22,13 +22,13 @@ Trong bối cảnh lập trình AI, ý nghĩa của hai từ này hơi khác so 
 
 **Công cụ AI IDE**, là môi trường lập trình có giao diện đồ họa, soạn thảo code, chạy debug, hội thoại AI đều được tích hợp trong một cửa sổ. Cursor, Kiro, Qoder, TRAE, Windsurf mà bạn quen thuộc đều thuộc loại này. Trong đó hầu hết (Cursor, Windsurf, Kiro, TRAE) được phát triển thứ cấp dựa trên VS Code, phong cách giao diện và logic thao tác kế thừa VS Code; loại khác là sản phẩm native được phát triển độc lập, như Zed, JetBrains + plugin Qoder.
 
-![Giao diện chính Qoder](https://oss.javaguide.cn/github/javaguide/ai/coding/qoder-view.png)
+![Giao diện chính Qoder](/images/github/javaguide/ai/coding/qoder-view.png)
 
 **Công cụ AI CLI**, là công cụ dòng lệnh tương tác thuần terminal, không có giao diện đồ họa. Claude Code, Codex, Qwen Code, OpenCode đều thuộc loại này. Bạn nhập lệnh ngôn ngữ tự nhiên trong terminal, AI trực tiếp đọc repository, sửa code, chạy test, xem lỗi, rồi sửa lại — toàn bộ trong cửa sổ đen, vai trò của bạn từ "người viết code" chuyển thành "người chỉ huy AI làm việc".
 
-![Claude Code chạy lệnh /simplify](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-command-run.png)
+![Claude Code chạy lệnh /simplify](/images/github/javaguide/ai/coding/claudecode/simplify-command-run.png)
 
-![Claude Code bắt đầu tối ưu code](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-optimization-start.png)
+![Claude Code bắt đầu tối ưu code](/images/github/javaguide/ai/coding/claudecode/simplify-optimization-start.png)
 
 Phân biệt một câu: **CLI phù hợp với tình huống "nói với AI muốn gì, chờ nó giao hàng"; IDE phù hợp với tình huống "vừa xem vừa sửa, review từng dòng".**
 
@@ -48,7 +48,7 @@ Claude Code chính thức ra mắt công khai vào ngày 24 tháng 2 năm 2025. 
 - **Vibe Coding của Karpathy thêm lửa.** Gần như cùng lúc, cựu giám đốc AI của Tesla Andrej Karpathy đưa ra khái niệm "Vibe Coding" (lập trình không khí) — quan điểm cốt lõi là "bạn chỉ cần biểu đạt ý tưởng, AI lo viết code, bạn lo review và sửa". Bộ lý thuyết này và cách tương tác của Claude Code trùng hợp nhau, nhanh chóng gây ra thảo luận quy mô lớn trên mạng xã hội.
 - **Hiện tượng lan rộng.** Chỉ trong một tuần sau khi phát hành, trên X/Twitter, Zhihu và các nền tảng khác xuất hiện hàng loạt case "hoàn thành khối lượng công việc 1 năm của team trong 1 giờ". Claude Code có thể chủ động đọc file, thực thi lệnh terminal, thậm chí trực tiếp submit code trên GitHub — không chỉ đưa ra gợi ý code. Năng lực "thực sự làm việc" này khiến nó vượt xa so với plugin AI truyền thống.
 
-![Cựu giám đốc AI Tesla Andrej Karpathy đưa ra "Vibe Coding"](https://oss.javaguide.cn/github/javaguide/ai/coding/karpathy-vibe-coding.png)
+![Cựu giám đốc AI Tesla Andrej Karpathy đưa ra "Vibe Coding"](/images/github/javaguide/ai/coding/karpathy-vibe-coding.png)
 
 Đồng thời, Cursor vì mô hình kinh doanh bị Anthropic nắm đầu, bị buộc phải âm thầm thay đổi hạn ngạch — gói Pro 20 đô từ "gần như không hết" biến thành "hết ngay", danh tiếng sụt giảm, người dùng chạy ồ ạt.
 

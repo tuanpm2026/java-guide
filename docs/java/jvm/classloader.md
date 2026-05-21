@@ -17,7 +17,7 @@ Trước khi giới thiệu class loader và parent delegation model, ôn lại 
 - Quá trình class loading: **Loading → Linking → Initialization**.
 - Quá trình Linking lại chia thành ba bước: **Verification → Preparation → Resolution**.
 
-![Quá trình Class Loading](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loading-procedure.png)
+![Quá trình Class Loading](/images/github/javaguide/java/jvm/class-loading-procedure.png)
 
 Loading là bước đầu tiên của quá trình class loading, chủ yếu hoàn thành 3 việc:
 
@@ -102,7 +102,7 @@ JVM tích hợp sẵn ba `ClassLoader` quan trọng:
 
 Ngoài ba loại class loader này, user còn có thể thêm custom class loader để mở rộng, đáp ứng nhu cầu đặc biệt. Ví dụ có thể mã hóa bytecode (file `.class`) của Java class, khi load dùng custom class loader để giải mã.
 
-![Sơ đồ quan hệ phân cấp giữa các class loader](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
+![Sơ đồ quan hệ phân cấp giữa các class loader](/images/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
 
 Ngoài `BootstrapClassLoader` là một phần của JVM, tất cả class loader khác đều được triển khai bên ngoài JVM và đều kế thừa từ abstract class `ClassLoader`. Lợi ích là user có thể custom class loader để application quyết định cách lấy class cần thiết.
 
@@ -202,7 +202,7 @@ Từ giới thiệu trên có thể thấy:
 
 Quan hệ phân cấp giữa các class loader trong hình dưới được gọi là "**Parent Delegation Model**" của class loader.
 
-![Sơ đồ quan hệ phân cấp giữa các class loader](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
+![Sơ đồ quan hệ phân cấp giữa các class loader](/images/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
 
 Lưu ý ⚠️: Parent Delegation Model không phải ràng buộc bắt buộc — chỉ là cách JDK official khuyến nghị. Nếu vì yêu cầu đặc biệt nào đó muốn phá vỡ Parent Delegation Model, cũng được — phần sau sẽ giới thiệu method cụ thể.
 
@@ -347,7 +347,7 @@ Tomcat server mà chúng ta khá quen thuộc đã custom class loader `WebAppCl
 
 Cấu trúc phân cấp class loader của Tomcat như sau:
 
-![Cấu trúc phân cấp class loader của Tomcat](https://oss.javaguide.cn/github/javaguide/java/jvm/tomcat-class-loader-parents-delegation-model.png)
+![Cấu trúc phân cấp class loader của Tomcat](/images/github/javaguide/java/jvm/tomcat-class-loader-parents-delegation-model.png)
 
 Bốn custom class loader của Tomcat tương ứng với các thư mục:
 

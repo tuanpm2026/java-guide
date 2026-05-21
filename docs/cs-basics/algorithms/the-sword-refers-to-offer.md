@@ -428,7 +428,7 @@ Nhập một danh sách liên kết, sau khi đảo ngược, xuất tất cả 
 Ý tưởng là dựa vào đặc điểm của danh sách liên kết, node trước trỏ đến node sau, chuyển node phía sau lên phía trước.
 Ví dụ như hình dưới: Chúng ta đổi chỗ node 1 và node 2, sau đó cho node 3 trỏ vào node 2, node 4 trỏ vào node 3, như vậy danh sách liên kết bên dưới sẽ được đảo ngược.
 
-![Danh sách liên kết](https://oss.javaguide.cn/p3-juejin/844773c7300e4373922bb1a6ae2a55a3~tplv-k3u1fbpfcp-zoom-1.png)
+![Danh sách liên kết](/images/p3-juejin/844773c7300e4373922bb1a6ae2a55a3~tplv-k3u1fbpfcp-zoom-1.png)
 
 **Kiến thức kiểm tra:**
 
@@ -579,7 +579,7 @@ Trước tiên ôn lại đặc điểm cơ bản của stack và queue:
 **Queue:** Vào trước ra trước
 Rõ ràng chúng ta cần dựa vào một số phương thức cơ bản của stack do JDK cung cấp để triển khai. Hãy xem một số phương thức thông dụng của lớp Stack:
 
-![Một số phương thức thông dụng của lớp Stack](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/5985000.jpg)
+![Một số phương thức thông dụng của lớp Stack](/images/github/javaguide/cs-basics/algorithms/5985000.jpg)
 
 Vì đề bài cho hai stack, chúng ta có thể nghĩ như sau: khi push thì push phần tử vào stack1; khi pop thì trước tiên pop tất cả phần tử từ stack1 sang stack2, sau đó thực hiện pop trên stack2. Như vậy có thể đảm bảo vào trước ra trước. (Âm [pop] nhân âm [pop] bằng dương [vào trước ra trước])
 

@@ -228,7 +228,7 @@ Kết quả đầu ra của code như sau
 
 Trước khi tìm hiểu chi tiết về `ArrayBlockingQueue`, hãy xem class diagram của `ArrayBlockingQueue`.
 
-![Class diagram của ArrayBlockingQueue](https://oss.javaguide.cn/github/javaguide/java/collection/arrayblockingqueue-class-diagram.png)
+![Class diagram của ArrayBlockingQueue](/images/github/javaguide/java/collection/arrayblockingqueue-class-diagram.png)
 
 Từ hình, chúng ta có thể thấy `ArrayBlockingQueue` triển khai interface `BlockingQueue`. Dễ đoán rằng sau khi triển khai interface `BlockingQueue`, `ArrayBlockingQueue` sẽ có các hành vi thao tác thông thường của blocking queue.
 
@@ -394,11 +394,11 @@ Chìa khóa triển khai của hai phương thức này là hai condition object
 
 Tiếp theo tác giả dùng hai hình ảnh để giúp mọi người hiểu cách hai điều kiện này được sử dụng trong blocking queue.
 
-![Điều kiện notEmpty của ArrayBlockingQueue](https://oss.javaguide.cn/github/javaguide/java/collection/ArrayBlockingQueue-notEmpty-take.png)
+![Điều kiện notEmpty của ArrayBlockingQueue](/images/github/javaguide/java/collection/ArrayBlockingQueue-notEmpty-take.png)
 
 Giả sử consumer khởi động trước trong code của chúng ta. Khi nó thấy không có dữ liệu trong queue, điều kiện notEmpty sẽ treo thread này, tức là chờ cho đến khi điều kiện không rỗng để treo lại. Sau đó CPU thực thi đến producer, producer thấy có thể lưu dữ liệu vào queue, nên đưa dữ liệu vào, thông báo điều kiện không rỗng. Lúc này consumer sẽ được đánh thức để lấy giá trị từ queue bằng phương thức `take`.
 
-![Điều kiện notFull của ArrayBlockingQueue](https://oss.javaguide.cn/github/javaguide/java/collection/ArrayBlockingQueue-notFull-put.png)
+![Điều kiện notFull của ArrayBlockingQueue](/images/github/javaguide/java/collection/ArrayBlockingQueue-notFull-put.png)
 
 Trong quá trình thực thi tiếp theo, tốc độ sản xuất của producer vượt xa tốc độ tiêu thụ của consumer, producer lấp đầy queue và thử lại lưu dữ liệu vào queue, phát hiện queue đã đầy, blocking queue sẽ treo thread hiện tại, chờ không đầy. Sau đó consumer cầm CPU để tiêu thụ, queue có thể chứa dữ liệu mới, phát ra thông báo không đầy. Lúc này producer đang bị treo sẽ chờ CPU đến để thử lại lưu dữ liệu vào queue.
 
@@ -502,7 +502,7 @@ Vì phương thức `dequeue` (dequeue) và phương thức `enqueue` (enqueue) 
 
 Để giúp hiểu, tôi đã vẽ một hình ảnh đặc biệt để thể hiện cách hai condition object `notEmpty` (không rỗng) và `notFull` (không đầy) kiểm soát việc lưu và lấy của `ArrayBlockingQueue`.
 
-![notEmpty và notFull của ArrayBlockingQueue](https://oss.javaguide.cn/github/javaguide/java/collection/ArrayBlockingQueue-notEmpty-notFull.png)
+![notEmpty và notFull của ArrayBlockingQueue](/images/github/javaguide/java/collection/ArrayBlockingQueue-notEmpty-notFull.png)
 
 - **Consumer**: Sau khi consumer lấy một phần tử từ queue bằng các thao tác `take` hoặc `poll`, sẽ thông báo queue không đầy. Lúc này những producer đang chờ không đầy sẽ được đánh thức, chờ CPU để thực hiện enqueue.
 - **Producer**: Sau khi producer lưu phần tử vào queue, sẽ kích hoạt thông báo queue không rỗng. Lúc này consumer sẽ được đánh thức, chờ CPU để thử lấy phần tử. Cứ như vậy lặp đi lặp lại, hai condition object tạo thành một vòng lặp, kiểm soát việc lưu và lấy giữa các thread.
@@ -719,7 +719,7 @@ Lấy/Xóa phần tử:
 | `peek()`                            | Trả về null                                                                              | E              |
 | `remove()`                          | Ném ngoại lệ `NoSuchElementException` ngay lập tức                                       | boolean        |
 
-![](https://oss.javaguide.cn/github/javaguide/java/collection/ArrayBlockingQueue-get-add-element-methods.png)
+![](/images/github/javaguide/java/collection/ArrayBlockingQueue-get-add-element-methods.png)
 
 ## Câu hỏi phỏng vấn liên quan đến ArrayBlockingQueue
 

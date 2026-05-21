@@ -19,7 +19,7 @@ Spring Cloud Gateway thuộc gateway trong hệ sinh thái Spring Cloud. Mục t
 
 Để nâng cao hiệu năng gateway, Spring Cloud Gateway dựa trên Spring WebFlux. Spring WebFlux dùng thư viện Reactor để triển khai reactive programming model, tầng dưới dựa trên Netty để triển khai synchronous non-blocking I/O.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/springcloud-gateway-%20demo.png)
+![](/images/github/javaguide/system-design/distributed-system/api-gateway/springcloud-gateway-%20demo.png)
 
 Spring Cloud Gateway không chỉ cung cấp routing thống nhất mà còn cung cấp các chức năng cơ bản của gateway dựa trên Filter chain như: security, monitoring/metrics, rate limiting.
 
@@ -32,7 +32,7 @@ Sự khác biệt giữa Spring Cloud Gateway và Zuul 2.x không lớn — cũn
 
 Workflow của Spring Cloud Gateway như hình dưới:
 
-![Workflow của Spring Cloud Gateway](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-workflow.png)
+![Workflow của Spring Cloud Gateway](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-workflow.png)
 
 Đây là hình từ blog chính thức của Spring, link bài gốc: <https://spring.io/blog/2022/08/26/creating-a-custom-spring-cloud-gateway-filter>.
 
@@ -54,17 +54,17 @@ Trong Gateway, nếu request của client thỏa điều kiện assertion, sẽ 
 
 Ví dụ cấu hình assertion như dưới, đã cấu hình hai routing rule, có một cấu hình predicate. Khi URL request chứa `api/thirdparty` thì match route đầu tiên `route_thirdparty`.
 
-![Ví dụ cấu hình Predicate](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-example.png)
+![Ví dụ cấu hình Predicate](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-example.png)
 
 Các quy tắc routing assertion phổ biến như hình dưới:
 
-![Quy tắc routing assertion của Spring Cloud Gateway](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-rules.png)
+![Quy tắc routing assertion của Spring Cloud Gateway](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-rules.png)
 
 ## Mối quan hệ giữa Route và Predicate trong Spring Cloud Gateway?
 
 Quan hệ tương ứng giữa Route và Predicate như sau:
 
-![Quan hệ tương ứng giữa Route và Predicate](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-route.png)
+![Quan hệ tương ứng giữa Route và Predicate](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-predicate-route.png)
 
 - **One-to-many**: Một routing rule có thể chứa nhiều assertion. Như hình trên Route1 cấu hình ba Predicate.
 - **Đồng thời thỏa mãn**: Nếu một routing rule có nhiều assertion, cần thỏa tất cả cùng lúc mới match. Như hình trên Route2 cấu hình hai assertion — request của client phải thỏa cả hai assertion mới match Route2.
@@ -96,7 +96,7 @@ Một cách phân loại khác là dựa trên phạm vi tác dụng của Filte
 
 Các local filter phổ biến như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-gatewayfilters.png)
+![](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-gatewayfilters.png)
 
 Dùng như thế nào? Dưới đây là ví dụ: Nếu URL match thành công thì bỏ "api" khỏi URL.
 
@@ -111,7 +111,7 @@ Tất nhiên cũng có thể custom filter — không đi sâu trong bài này.
 
 Các global filter phổ biến như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-globalfilters.png)
+![](/images/github/javaguide/system-design/distributed-system/api-gateway/spring-cloud-gateway-globalfilters.png)
 
 Cách dùng phổ biến nhất của global filter là load balancing. Cấu hình như sau:
 

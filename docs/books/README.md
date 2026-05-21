@@ -28,4 +28,4 @@ Tổng quan nội dung:
 
 Cập nhật mới nhất sẽ được đồng bộ đầu tiên trên Official Account, khuyến nghị follow! Ngoài ra, Official Account có nhiều nội dung chất lượng sẽ không được đồng bộ lên website đọc online.
 
-<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account"  style="zoom: 43%; display: block; margin: 0 auto;" />
+<img src="/images/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account"  style="zoom: 43%; display: block; margin: 0 auto;" />

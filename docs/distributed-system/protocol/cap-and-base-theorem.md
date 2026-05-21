@@ -30,7 +30,7 @@ CAP theorem thảo luận về Consistency (nhất quán), Availability (sẵn s
 
 > **Lưu ý quan trọng**: Thuật ngữ "thiên CP / thiên AP" dưới đây chỉ là mô tả trực quan. Theo định nghĩa chính thống của CAP (C=Linearizability, A=mọi non-faulty node đều phải respond), nhiều hệ thống không thể phân loại rõ ràng — cùng một hệ thống, các operations khác nhau có đặc tính consistency/availability khác nhau, nhiều hệ thống không đáp ứng hoàn toàn cả CAP-C lẫn CAP-A.
 
-![](https://oss.javaguide.cn/2020-11/cap.png)
+![](/images/2020-11/cap.png)
 
 Khi đề xuất CAP conjecture, Brewer không đưa ra định nghĩa chặt chẽ cho **Consistency**, **Availability**, **Partition Tolerance**.
 
@@ -46,7 +46,7 @@ Trong khoa học máy tính lý thuyết, CAP theorem phát biểu rằng đối
 
 Trong distributed system, nhiều nodes được kết nối với nhau qua network, nhưng do một số sự cố (ví dụ một số nodes bị lỗi mạng), một số nodes không thể kết nối với nhau nữa, toàn bộ network chia thành các vùng riêng lẻ — đây gọi là **network partition**.
 
-![partition-tolerance](https://oss.javaguide.cn/2020-11/partition-tolerance.png)
+![partition-tolerance](/images/2020-11/partition-tolerance.png)
 
 ### Không phải "chọn 2 trong 3"
 
@@ -231,7 +231,7 @@ Hình dưới là architecture diagram của Dubbo. **Registry trong đó đóng
 
 Registry chịu trách nhiệm register và lookup service addresses, đóng vai trò như directory service. Service providers và consumers chỉ tương tác với registry khi startup, registry không forward requests nên pressure nhẹ.
 
-![](https://oss.javaguide.cn/2020-11/dubbo-architecture.png)
+![](/images/2020-11/dubbo-architecture.png)
 
 Các components phổ biến có thể dùng làm registry: ZooKeeper, Eureka, Nacos...
 

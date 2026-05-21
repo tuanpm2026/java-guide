@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" style="background-color: #F8FAFC; font-family: system-ui, sans-serif;">
+    <defs>
+        <pattern id="grid-p2" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+        </pattern>
+        <filter id="card-shadow-p2">
+            <feDropShadow dx="2" dy="6" stdDeviation="10" flood-color="#005D7B" flood-opacity="0.08" />
+        </filter>
+        <filter id="glow-orange-p2">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#grid-p2)" />
+    
+    <text x="450" y="50" text-anchor="middle" font-size="24" font-weight="bold" fill="#005D7B">结构化思维链 (Structured CoT) 运行机制</text>
+
+    <g transform="translate(40, 150)">
+        <rect width="140" height="80" rx="8" fill="#FFFFFF" filter="url(#card-shadow-p2)" />
+        <rect width="6" height="80" x="0" y="0" rx="3" fill="#005D7B" />
+        <text x="70" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#005D7B">复杂任务输入</text>
+        <text x="70" y="60" text-anchor="middle" font-size="12" fill="#64748B">包含 CoT 引导指令</text>
+    </g>
+
+    <path d="M 180 190 L 230 190" fill="none" stroke="#005D7B" stroke-width="2" />
+    <polygon points="230,190 220,185 220,195" fill="#005D7B" />
+
+    <g transform="translate(240, 100)">
+        <rect width="420" height="260" rx="12" fill="#F0F4F8" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,4" />
+        <text x="210" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#64748B">大语言模型内部生成流</text>
+
+        <rect x="30" y="50" width="360" height="110" rx="8" fill="#FFFFFF" filter="url(#card-shadow-p2)" />
+        <rect x="30" y="50" width="6" height="110" rx="3" fill="#E99151" />
+        <text x="50" y="75" font-size="14" font-weight="bold" fill="#E99151">&lt;thinking&gt; 隐藏推理空间</text>
+        <text x="50" y="100" font-size="12" fill="#64748B">1. 变量提取与关系梳理</text>
+        <text x="50" y="120" font-size="12" fill="#64748B">2. 逻辑分步推导计算</text>
+        <text x="50" y="140" font-size="12" fill="#64748B">3. 结果自验证</text>
+        <circle cx="370" cy="70" r="5" fill="#E99151" filter="url(#glow-orange-p2)" />
+
+        <line x1="210" y1="160" x2="210" y2="180" stroke="#E99151" stroke-width="2" />
+        <polygon points="210,185 205,175 215,175" fill="#E99151" />
+
+        <rect x="30" y="185" width="360" height="55" rx="8" fill="#FFFFFF" filter="url(#card-shadow-p2)" />
+        <rect x="30" y="185" width="6" height="55" rx="3" fill="#4CA497" />
+        <text x="50" y="210" font-size="14" font-weight="bold" fill="#4CA497">&lt;answer&gt; 最终输出</text>
+        <text x="50" y="228" font-size="12" fill="#64748B">仅包含经验证的确定性结果</text>
+    </g>
+
+    <path d="M 660 190 L 710 190" fill="none" stroke="#4CA497" stroke-width="2" />
+    <polygon points="710,190 700,185 700,195" fill="#4CA497" />
+
+    <g transform="translate(720, 150)">
+        <rect width="140" height="80" rx="8" fill="#FFFFFF" filter="url(#card-shadow-p2)" />
+        <rect width="6" height="80" x="0" y="0" rx="3" fill="#4CA497" />
+        <text x="70" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#4CA497">业务应用解析</text>
+        <text x="70" y="60" text-anchor="middle" font-size="12" fill="#64748B">截取 answer 标签</text>
+    </g>
+
+    <g transform="translate(740, 400) rotate(-5)">
+        <text x="0" y="0" font-size="14" font-weight="bold" fill="#94A3B8">公众号：<tspan fill="#005D7B">JavaGuide</tspan></text>
+        <text x="0" y="20" font-size="14" font-weight="bold" fill="#94A3B8">网站：<tspan fill="#005D7B">javaguide.cn</tspan></text>
+    </g>
+</svg>

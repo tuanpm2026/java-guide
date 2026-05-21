@@ -67,9 +67,9 @@ Câu hỏi tần suất cao:
 
 Cách trả lời ổn định hơn là: Trước tiên thừa nhận khả năng ra quyết định động của Agent, rồi bổ sung chi phí của nó. Ví dụ Agent thuần túy linh hoạt nhưng khó debug, quỹ đạo không ổn định, chi phí Token cao; Workflow có thể kiểm soát nhưng yêu cầu phân tách quy trình trước cao. Tình huống To B thường ưu tiên Workflow hoặc Agentic Workflow, kiểm soát đường dẫn quan trọng, chỉ để mô hình ra quyết định ở các node cần thiết.
 
-![Kiến trúc cốt lõi AI Agent](https://oss.javaguide.cn/github/javaguide/ai/agent/agent-core-arch.png)
+![Kiến trúc cốt lõi AI Agent](/images/github/javaguide/ai/agent/agent-core-arch.png)
 
-![Quy trình làm việc Agent Loop](https://oss.javaguide.cn/github/javaguide/ai/agent/agent-loop-flow.png)
+![Quy trình làm việc Agent Loop](/images/github/javaguide/ai/agent/agent-loop-flow.png)
 
 ## Agent Memory
 
@@ -98,7 +98,7 @@ Câu hỏi tần suất cao:
 
 Nếu bị hỏi thêm "thiết kế hệ thống bộ nhớ như thế nào", có thể trả lời theo pipeline đọc-ghi: Trước tiên định nghĩa thông tin nào được phép ghi, rồi lọc thông tin nhạy cảm và loại bỏ trùng lặp; khi ghi ghi lại nguồn, thời gian, độ tin cậy và phạm vi; khi đọc truy xuất bộ nhớ liên quan theo nhiệm vụ, không phải chèn toàn bộ; khi hết hạn hoặc xung đột xử lý qua kiểm tra thủ công hoặc chiến lược quy tắc.
 
-![Bức tranh toàn cảnh phân loại bộ nhớ Agent](https://oss.javaguide.cn/github/javaguide/ai/agent/agent-memory-memory-taxonomy.svg)
+![Bức tranh toàn cảnh phân loại bộ nhớ Agent](/images/github/javaguide/ai/agent/agent-memory-memory-taxonomy.svg)
 
 ## Prompt và Context Engineering
 
@@ -126,7 +126,7 @@ Câu hỏi tần suất cao:
 
 Khi trả lời loại câu hỏi này, có thể nắm lấy một câu: **Prompt quyết định mô hình nhận được chỉ thị gì, Context quyết định mô hình thực tế nhìn thấy thế giới gì.** Khi Agent bước vào gọi công cụ đa vòng, cái sau thường quan trọng hơn.
 
-![Prompt engineering vs. context engineering](https://oss.javaguide.cn/github/javaguide/ai/context-engineering/context-engineering-vs-prompt-engineering.png)
+![Prompt engineering vs. context engineering](/images/github/javaguide/ai/context-engineering/context-engineering-vs-prompt-engineering.png)
 
 ## MCP và Agent Skills
 
@@ -181,7 +181,7 @@ Câu hỏi tần suất cao:
 
 Khi trả lời đừng nói Harness như tập hợp từ mới. Cách tốt hơn là dùng vấn đề cụ thể để dẫn ra: Agent đi lạc giữa chừng trong nhiệm vụ dài, cần trạng thái nhiệm vụ và kiểm tra giai đoạn; công cụ trả về lỗi, mô hình cần phản hồi lỗi có thể sửa chữa; tạo sinh code triển khai trùng lặp logic đã có, cần cơ chế truy xuất và loại bỏ trùng lặp. Đây đều là năng lực hệ thống mà Harness cần bổ sung.
 
-![Quan hệ giữa Harness và Prompt/Context Engineering](https://oss.javaguide.cn/github/javaguide/ai/harness/harness-engineering-layers-arch.png)
+![Quan hệ giữa Harness và Prompt/Context Engineering](/images/github/javaguide/ai/harness/harness-engineering-layers-arch.png)
 
 ## Workflow, Graph và Loop
 

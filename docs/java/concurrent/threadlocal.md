@@ -317,7 +317,7 @@ Tiếp theo bắt đầu duyệt về phía sau từ vị trí `staleSlot` (`ind
 
 Từ nút hiện tại `staleSlot` tìm phần tử `Entry` có `key` bằng nhau về phía sau. Sau khi tìm thấy, cập nhật giá trị `Entry` và trao đổi vị trí của phần tử `staleSlot` (`staleSlot` là phần tử hết hạn), cập nhật dữ liệu `Entry`, sau đó bắt đầu dọn dẹp các `Entry` hết hạn như hình:
 
-![](https://oss.javaguide.cn/java-guide-blog/view.png)
+![](/images/java-guide-blog/view.png)
 
 Trong quá trình duyệt về phía sau, nếu không tìm thấy dữ liệu Entry có cùng giá trị key:
 

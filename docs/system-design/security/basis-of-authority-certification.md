@@ -26,11 +26,11 @@ Cách diễn đạt chính thức hơn (dài dòng hơn):
 
 Authentication:
 
-![Authentication login](https://oss.javaguide.cn/github/javaguide/system-design/security/authentication-login.png)
+![Authentication login](/images/github/javaguide/system-design/security/authentication-login.png)
 
 Authorization:
 
-![No permission](https://oss.javaguide.cn/github/javaguide/system-design/security/20210604161032412.png)
+![No permission](/images/github/javaguide/system-design/security/20210604161032412.png)
 
 Hai cái này thường được kết hợp sử dụng trong hệ thống của chúng ta, mục đích là để bảo vệ tính bảo mật của hệ thống.
 
@@ -42,23 +42,23 @@ Mô hình kiểm soát truy cập được sử dụng phổ biến nhất trong
 
 Nói đơn giản: Một user có thể có nhiều role, mỗi role có thể được phân nhiều quyền, từ đó tạo thành mô hình ủy quyền "user - role - permission". Trong mô hình này, user với role, role với permission tạo thành quan hệ many-to-many.
 
-![Sơ đồ mô hình phân quyền RBAC](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
+![Sơ đồ mô hình phân quyền RBAC](/images/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
 
 Trong mô hình phân quyền RBAC, quyền được liên kết với role, user có được quyền của những role đó bằng cách trở thành thành viên của role có quyền đặc biệt đó — điều này đơn giản hóa đáng kể việc quản lý quyền.
 
 Để triển khai mô hình phân quyền RBAC, thiết kế database table phổ biến như sau (tổng cộng 5 bảng, 2 bảng junction để thiết lập liên kết giữa các bảng):
 
-![](https://oss.javaguide.cn/2020-11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1-%E6%9D%83%E9%99%90.png)
+![](/images/2020-11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1-%E6%9D%83%E9%99%90.png)
 
 Thông qua mô hình phân quyền này, chúng ta có thể tạo các role khác nhau và phân phạm vi quyền (menu) khác nhau cho từng role.
 
-![](https://oss.javaguide.cn/github/javaguide/books%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.png)
+![](/images/github/javaguide/books%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.png)
 
 Thông thường, nếu hệ thống có yêu cầu kiểm soát quyền khá nghiêm ngặt, thường sẽ chọn dùng RBAC model để kiểm soát quyền.
 
 ## Cookie là gì? Tác dụng của Cookie là gì?
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/cookie-sessionId.png)
+![](/images/github/javaguide/system-design/security/cookie-sessionId.png)
 
 `Cookie` và `Session` đều là phương thức session để theo dõi danh tính của browser user, nhưng application scenario của hai cái này khá khác nhau.
 
@@ -139,7 +139,7 @@ Nhiều khi chúng ta dùng `SessionID` để nhận dạng user cụ thể, `Se
 
 Quy trình chi tiết hơn của phương thức xác thực này như sau:
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/session-cookie-authentication-process.png)
+![](/images/github/javaguide/system-design/security/session-cookie-authentication-process.png)
 
 1. User gửi username, password, verification code đến server để đăng nhập hệ thống.
 2. Sau khi server xác minh thành công, sẽ tạo một Session object chuyên dùng cho user đó (có thể hiểu là một vùng bộ nhớ trên server, lưu data trạng thái của user như giỏ hàng, thông tin đăng nhập v.v.) và lưu lại, đồng thời cấp cho Session này một `SessionID` duy nhất.
@@ -198,7 +198,7 @@ Trong `Session` authentication, `SessionId` trong `Cookie` được browser gử
 
 Nhưng, nếu dùng `Token` thì không có vấn đề này. Sau khi đăng nhập thành công và nhận được `Token`, thường chúng ta sẽ chọn lưu trong `localStorage` (local storage của browser). Rồi ở frontend thông qua một số cách sẽ thêm `Token` này vào mỗi request gửi đến backend — như vậy sẽ không có lỗ hổng CSRF. Vì dù bạn click vào link bất hợp pháp và gửi request đến server, request bất hợp pháp đó sẽ không mang `Token`, vì vậy request này sẽ là bất hợp pháp.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/20210615161108272.png)
+![](/images/github/javaguide/system-design/security/20210615161108272.png)
 
 Cần lưu ý: Dù là `Cookie` hay `Token` đều không thể tránh được **Cross Site Scripting (XSS) attack**.
 
@@ -220,7 +220,7 @@ Khuyến nghị đọc: [Làm thế nào để ngăn CSRF attack? — Meituan Te
 
 SSO (Single Sign On) — Đăng nhập một lần là khi user đăng nhập vào một trong các subsystem thì có quyền truy cập vào các hệ thống liên quan khác. Ví dụ khi đăng nhập vào JD Finance (Jingdong), chúng ta đồng thời đăng nhập thành công vào JD Supermarket, JD International, JD Fresh và các subsystem khác.
 
-![SSO diagram](https://oss.javaguide.cn/github/javaguide/system-design/security/sso.png)
+![SSO diagram](/images/github/javaguide/system-design/security/sso.png)
 
 ## SSO có lợi ích gì?
 
@@ -244,7 +244,7 @@ Ngoài ra, OAuth 2.0 hiện cũng phổ biến trong scenario thanh toán (WeCha
 
 Hình dưới đây là sơ đồ đăng nhập bên thứ ba [Slack OAuth 2.0](https://api.slack.com/legacy/oauth):
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/20210615151716340.png)
+![](/images/github/javaguide/system-design/security/20210615151716340.png)
 
 **Khuyến nghị đọc:**
 

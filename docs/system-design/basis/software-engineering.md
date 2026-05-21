@@ -53,7 +53,7 @@ Có nhiều mô hình phát triển phần mềm, ví dụ: Waterfall Model (Mô
 
 **Waterfall Model** định nghĩa một chu trình phát triển phần mềm hoàn chỉnh, thể hiện toàn diện vòng đời của một phần mềm.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/schedule-task/up-264f2750a3d30366e36c375ec3a30ec2775.png)
+![](/images/github/javaguide/system-design/schedule-task/up-264f2750a3d30366e36c375ec3a30ec2775.png)
 
 **Agile Development Model** là mô hình phát triển phần mềm được sử dụng nhiều nhất hiện nay. [MBA Wiki mô tả về Agile Development](https://wiki.mbalib.com/wiki/%E6%95%8F%E6%8D%B7%E5%BC%80%E5%8F%91) như sau:
 
@@ -87,7 +87,7 @@ Phát triển phần mềm là quá trình tiến hóa từng bước, chúng ta
 
 Sản phẩm khả thi tối thiểu này có thể hiểu là sản phẩm vừa đủ để đáp ứng nhu cầu của khách hàng. Hình ảnh dưới đây thể hiện rất cô đọng tư duy này.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/schedule-task/up-a99961ff7725106c0592abca845d555568a.png)
+![](/images/github/javaguide/system-design/schedule-task/up-a99961ff7725106c0592abca845d555568a.png)
 
 Với MVP, chúng ta cũng có thể thực hiện phân tích thị trường sớm hơn — điều này rất hữu ích trong việc khám phá sự không chắc chắn của sản phẩm. Có thể hướng dẫn hiệu quả bước tiếp theo chúng ta nên đi đâu.
 

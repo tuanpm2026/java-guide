@@ -28,7 +28,7 @@ JDK 25 có tổng cộng 18 tính năng mới, bài viết này sẽ chọn mộ
 
 Hình dưới là số lượng tính năng mới và thời gian cập nhật của mỗi phiên bản từ JDK 8 đến JDK 25:
 
-![](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![](/images/github/javaguide/java/new-features/jdk8~jdk24.png)
 
 ## JDK 25
 

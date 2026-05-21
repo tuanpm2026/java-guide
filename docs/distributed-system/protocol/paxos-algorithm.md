@@ -27,7 +27,7 @@ Sau khi bài báo được công bố, các học giả từ khắp nơi đều 
 
 Bài báo 《Paxos Made Simple》chỉ có 14 trang, ngắn gọn hơn nhiều so với 33 trang của 《The Part-Time Parliament》. Điều quan trọng nhất là phần tóm tắt của bài báo này chỉ có một câu:
 
-![《Paxos Made Simple》](https://oss.javaguide.cn/github/javaguide/distributed-system/protocol/paxos-made-simple.png)
+![《Paxos Made Simple》](/images/github/javaguide/distributed-system/protocol/paxos-made-simple.png)
 
 > The Paxos algorithm, when presented in plain English, is very simple.
 
@@ -62,7 +62,7 @@ Basic Paxos có 3 vai trò quan trọng:
 2. **Acceptor (Người chấp nhận)**: Còn được gọi là voter (người bỏ phiếu), chịu trách nhiệm bỏ phiếu cho các đề xuất, đồng thời cần ghi nhớ lịch sử bỏ phiếu của mình.
 3. **Learner (Người học)**: Chịu trách nhiệm học (learn) các giá trị đã được chọn. Trong triển khai máy trạng thái sao chép (RSM), giá trị này thường tương ứng với một lệnh cần thực thi, được state machine áp dụng theo thứ tự rồi trả kết quả qua tầng dịch vụ bên ngoài.
 
-![Các vai trò trong Basic Paxos](https://oss.javaguide.cn/github/javaguide/distributed-system/protocol/up-890fa3212e8bf72886a595a34654918486c.png)
+![Các vai trò trong Basic Paxos](/images/github/javaguide/distributed-system/protocol/up-890fa3212e8bf72886a595a34654918486c.png)
 
 **Sơ đồ tương tác giữa các vai trò**:
 

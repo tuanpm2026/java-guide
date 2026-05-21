@@ -13,7 +13,7 @@ head:
 
 Tôi có một người bạn đã làm một website nhỏ, bây giờ muốn triển khai tính năng Web message push trong trang. Đúng vậy, đó là cái chấm đỏ nhỏ trong hình dưới — một tính năng rất phổ biến.
 
-![In-site message Web push](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192380.png)
+![In-site message Web push](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192380.png)
 
 Nhưng bạn ấy chưa nghĩ ra dùng cách nào, ở đây tôi giúp bạn ấy tổng hợp một số phương án và triển khai đơn giản.
 
@@ -27,17 +27,17 @@ Message push thường chia thành Web-end message push và mobile-end message p
 
 Mobile-end message push example:
 
-![Mobile-end message push example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/IKleJ9auR1Ojdicyr0bH.png)
+![Mobile-end message push example](/images/github/javaguide/system-design/web-real-time-message-push/IKleJ9auR1Ojdicyr0bH.png)
 
 Web-end message push example:
 
-![Web-end message push example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/image-20220819100512941.png)
+![Web-end message push example](/images/github/javaguide/system-design/web-real-time-message-push/image-20220819100512941.png)
 
 Trước khi triển khai cụ thể, hãy phân tích lại yêu cầu phía trên. Thực ra tính năng rất đơn giản: chỉ cần trigger một event nào đó (chủ động chia sẻ resource hoặc backend chủ động push message), chấm đỏ notification trên webpage sẽ real-time `+1` là được.
 
 Thông thường phía server sẽ có một số message push table để ghi lại các loại message khác nhau được push khi user trigger các event khác nhau. Frontend chủ động query (pull) hoặc bị động nhận (push) tất cả unread message count của user.
 
-![Message push table](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192384.png)
+![Message push table](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192384.png)
 
 Message push không ngoài hai hình thức push và pull. Dưới đây chúng ta lần lượt tìm hiểu.
 
@@ -74,7 +74,7 @@ Long polling thực ra nguyên lý gần giống polling, đều dùng cách pol
 
 Lần này tôi dùng cách Apollo config center triển khai long polling, áp dụng một class `DeferredResult`. Đây là một cơ chế async request được Spring đóng gói và cung cấp sau Servlet 3.0, nghĩa đen là "delayed result".
 
-![Long polling diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192386.png)
+![Long polling diagram](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192386.png)
 
 `DeferredResult` cho phép container thread nhanh chóng release resource chiếm dụng, không block request thread, từ đó nhận nhiều request hơn để cải thiện system throughput. Sau đó khởi động async worker thread để xử lý business logic thực sự. Sau khi xử lý xong gọi `DeferredResult.setResult(200)` để submit response result.
 
@@ -151,7 +151,7 @@ iframe stream là chèn một thẻ `<iframe>` ẩn vào page, thông qua reques
 
 Data truyền thường là HTML, hoặc JavaScript script nhúng, để đạt được hiệu quả cập nhật page real-time.
 
-![iframe stream diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192388.png)
+![iframe stream diagram](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192388.png)
 
 Cách triển khai đơn giản. Frontend chỉ cần một thẻ `<iframe>` là xong.
 
@@ -183,7 +183,7 @@ public class IframeController {
 
 iframe stream có server overhead rất lớn, và IE, Chrome v.v. luôn ở trạng thái loading với biểu tượng xoay không ngừng — giết chết người bị OCD.
 
-![iframe stream effect](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192389.png)
+![iframe stream effect](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192389.png)
 
 iframe stream rất không thân thiện — cực kỳ không khuyến nghị.
 
@@ -193,17 +193,17 @@ Nhiều người có thể không biết, ngoài `WebSocket` nổi tiếng, còn
 
 ChatGPT nổi tiếng cũng dùng SSE. Với conversation scenario cần đợi response lâu, ChatGPT dùng một chiến lược khéo léo: push data đã tính toán ra cho user, và dùng SSE technology để liên tục trả về data trong quá trình tính toán. Ưu điểm là tránh user đóng page vì chờ quá lâu.
 
-![ChatGPT using SSE for conversation](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/chatgpt-sse.png)
+![ChatGPT using SSE for conversation](/images/github/javaguide/system-design/web-real-time-message-push/chatgpt-sse.png)
 
 SSE dựa trên HTTP protocol. Chúng ta biết HTTP protocol thông thường không thể để server chủ động push message đến client, nhưng SSE là ngoại lệ — nó thay đổi cách tiếp cận.
 
-![SSE diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192390.png)
+![SSE diagram](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192390.png)
 
 SSE mở một one-way channel giữa server và client. Response của server không còn là data packet one-time nữa mà là data stream info kiểu `text/event-stream`, streaming từ server đến client khi có data thay đổi.
 
 Tư duy triển khai tổng thể hơi giống xem video online — video stream liên tục được push đến browser. Bạn cũng có thể hiểu là client đang thực hiện một lần download rất dài (mạng không tốt).
 
-![SSE demonstration](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192391.png)
+![SSE demonstration](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192391.png)
 
 SSE và WebSocket có tác dụng tương tự, đều có thể thiết lập communication giữa server và browser, triển khai server push message đến client. Nhưng vẫn có một số điểm khác nhau:
 
@@ -292,7 +292,7 @@ public static void sendMessage(String userId, String message) {
 
 **Lưu ý:** SSE không hỗ trợ IE browser, nhưng compatibility với các browser mainstream khác khá tốt.
 
-![SSE compatibility](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192393.png)
+![SSE compatibility](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192393.png)
 
 ### WebSocket
 
@@ -300,7 +300,7 @@ WebSocket là một cách triển khai message push mà mọi người đều kh
 
 Đây là một protocol full-duplex communication trên TCP connection, thiết lập communication channel giữa client và server. Browser và server chỉ cần một lần handshake, hai bên có thể tạo persistent connection và tiến hành bidirectional data transmission.
 
-![WebSocket diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
+![WebSocket diagram](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
 
 Quá trình hoạt động của WebSocket có thể chia thành các bước sau:
 
@@ -431,7 +431,7 @@ Frontend khởi tạo mở WebSocket connection và monitor connection status, n
 
 Page khởi tạo thiết lập WebSocket connection, sau đó có thể bidirectional communicate — hiệu quả khá tốt.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192395.png)
+![](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192395.png)
 
 ### MQTT
 
@@ -441,7 +441,7 @@ MQTT (Message Queue Telemetry Transport) là lightweight communication protocol 
 
 Protocol này tách biệt publisher và subscriber, do đó có thể cung cấp reliable message service cho remote connected devices trong unreliable network environment. Cách dùng hơi giống MQ truyền thống.
 
-![MQTT protocol example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000022986325.png)
+![MQTT protocol example](/images/github/javaguide/system-design/web-real-time-message-push/1460000022986325.png)
 
 TCP protocol nằm ở transport layer, MQTT protocol nằm ở application layer. MQTT protocol được xây dựng trên TCP/IP protocol — tức là bất cứ nơi nào hỗ trợ TCP/IP protocol stack đều có thể dùng MQTT protocol.
 

@@ -20,7 +20,7 @@ Kỳ thi Kỹ thuật và Phần mềm máy tính Quốc gia (Soft Exam) là m�
 
 Soft Exam có ba cấp độ: sơ, trung, cao cấp. Khuyến nghị thi thẳng cao cấp. So với PMP (Project Management Professional certification), Soft Exam high-level (high item) khó hơn, đặc biệt là phần luận văn — phần lớn đều trượt ở phần luận văn. Qua được Soft Exam high item, ở một số đơn vị có thể internal "hanging certificate" để kiếm thêm vài trăm mỗi tháng.
 
-![Soft Exam Advanced Certificate](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/ruankao-advanced-certification%20.jpg)
+![Soft Exam Advanced Certificate](/images/github/javaguide/programmer-life/programmer-certification/ruankao-advanced-certification%20.jpg)
 
 Official website: <https://www.ruankao.org.cn/>.
 
@@ -34,13 +34,13 @@ Passing PAT and meeting the level and score requirements specified by alliance c
 
 For students applying to Zhejiang University's graduate program, PAT (Level A) scores within one year can serve as master's graduate enrollment computer exam re-examination scores.
 
-![PAT (Level A) score usage](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pat-enterprise-alliance.png)
+![PAT (Level A) score usage](/images/github/javaguide/programmer-life/programmer-certification/pat-enterprise-alliance.png)
 
 ## PMP
 
 PMP (Project Management Professional) certification is provided by the Project Management Institute (PMI) and is the most globally recognized professional qualification for project management professionals. PMP aims to enhance project management professionals' knowledge and skills to ensure smooth project completion.
 
-![PMP Certificate](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pmp-certification.png)
+![PMP Certificate](/images/github/javaguide/programmer-life/programmer-certification/pmp-certification.png)
 
 PMP is a "one certification, globally valid" qualification. For project management professionals, PMP has relatively high value. Globally, many successful enterprises use PMP certification as a standard for project managers.
 
@@ -58,13 +58,13 @@ Oracle Certified Professional (OCP) is a professional certification from Oracle 
 
 The image below shows different Oracle certification paths and levels: Core Track and Speciality Track.
 
-![OCP Certification Paths](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/oracle-certified-professional.jpg)
+![OCP Certification Paths](/images/github/javaguide/programmer-life/programmer-certification/oracle-certified-professional.jpg)
 
 ## Alibaba Cloud Certification
 
 Professional certifications provided by Alibaba Cloud covering cloud computing, big data, AI, DevOps and other directions. Career certifications have three levels: ACA, ACP, ACE. Beyond career certifications, there's also a developer Clouder certification — specialized skills certification designed for developers.
 
-![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/aliyun-professional-certification.png)
+![](/images/github/javaguide/programmer-life/programmer-certification/aliyun-professional-certification.png)
 
 Official website: <https://edu.aliyun.com/certification/>.
 
@@ -72,7 +72,7 @@ Official website: <https://edu.aliyun.com/certification/>.
 
 Huawei certification is provided by Huawei Technologies for ICT (Information and Communication Technology) professionals. Covers networking, storage, cloud computing, big data, AI and other directions — very extensive certification system.
 
-![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/huawei-professional-certification.png)
+![](/images/github/javaguide/programmer-life/programmer-certification/huawei-professional-certification.png)
 
 ## AWS Certification
 
@@ -99,7 +99,7 @@ Official website: <https://cloud.google.com/certification>
 
 Microsoft's certification system mainly targets its Azure cloud platform, with basic, associate, and expert levels covering cloud computing, data management, development, productivity tools and other directions.
 
-![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/microsoft-certification.png)
+![](/images/github/javaguide/programmer-life/programmer-certification/microsoft-certification.png)
 
 ## Elastic Certification
 
@@ -111,7 +111,7 @@ Current Elastic certifications: Elastic Certified Engineer, Elastic Certified An
 
 **Elastic Certified Engineer** is recommended — fundamental certification for Elastic Stack covering installation, configuration, management and maintenance of Elasticsearch clusters.
 
-![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/elastic-certified-engineer-certification.png)
+![](/images/github/javaguide/programmer-life/programmer-certification/elastic-certified-engineer-certification.png)
 
 ## Others
 

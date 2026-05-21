@@ -21,17 +21,17 @@ Nhưng thực tế, MySQL auto-increment primary key không đảm bảo nhất 
 
 Lấy ví dụ dưới đây, tạo một bảng như sau:
 
-![](https://oss.javaguide.cn/p3-juejin/3e6b80ba50cb425386b80924e3da0d23~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/3e6b80ba50cb425386b80924e3da0d23~tplv-k3u1fbpfcp-zoom-1.png)
 
 ## Giá trị auto-increment được lưu ở đâu?
 
 Dùng `insert into test_pk values(null, 1, 1)` để insert một row data, rồi thực thi lệnh `show create table` xem định nghĩa cấu trúc bảng:
 
-![](https://oss.javaguide.cn/p3-juejin/c17e46230bd34150966f0d86b2ad5e91~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/c17e46230bd34150966f0d86b2ad5e91~tplv-k3u1fbpfcp-zoom-1.png)
 
 Định nghĩa cấu trúc bảng trên được lưu trong file cục bộ có hậu tố `.frm`, tìm được file `.frm` này trong thư mục data dưới thư mục cài MySQL:
 
-![](https://oss.javaguide.cn/p3-juejin/3ec0514dd7be423d80b9e7f2d52f5902~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/3ec0514dd7be423d80b9e7f2d52f5902~tplv-k3u1fbpfcp-zoom-1.png)
 
 Từ cấu trúc bảng trên, thấy trong định nghĩa bảng có `AUTO_INCREMENT=2`, nghĩa là lần insert tiếp theo nếu cần tự động tạo giá trị auto-increment sẽ tạo id = 2.
 
@@ -43,13 +43,13 @@ Nhưng cần lưu ý, giá trị auto-increment không được lưu trong cấu
 
 Ví dụ: Hiện tại row data lớn nhất trong bảng có id là 1, AUTO_INCREMENT=2. Lúc này xóa row id=1, AUTO_INCREMENT vẫn là 2.
 
-![](https://oss.javaguide.cn/p3-juejin/61b8dc9155624044a86d91c368b20059~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/61b8dc9155624044a86d91c368b20059~tplv-k3u1fbpfcp-zoom-1.png)
 
 Nhưng nếu restart MySQL instance ngay lúc đó, AUTO_INCREMENT của bảng này sau khi restart sẽ thành 1. Tức là, restart MySQL có thể modify giá trị AUTO_INCREMENT của một bảng.
 
-![](https://oss.javaguide.cn/p3-juejin/27fdb15375664249a31f88b64e6e5e66~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/27fdb15375664249a31f88b64e6e5e66~tplv-k3u1fbpfcp-zoom-1.png)
 
-![](https://oss.javaguide.cn/p3-juejin/dee15f93e65d44d384345a03404f3481~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/dee15f93e65d44d384345a03404f3481~tplv-k3u1fbpfcp-zoom-1.png)
 
 Trên đây là thử nghiệm trên MySQL 5.x của tôi. Thực ra, **từ MySQL 8.0 trở đi, bản ghi thay đổi giá trị auto-increment được đặt trong redo log, cung cấp khả năng persist giá trị auto-increment** — tức triển khai "nếu restart, giá trị auto-increment của bảng có thể khôi phục về giá trị trước khi MySQL restart".
 
@@ -91,11 +91,11 @@ Vì vậy trong trường hợp này, giá trị auto-increment có thể là 10
 
 Ví dụ: Bây giờ insert một record (null, 1, 1) vào bảng, primary key tạo ra là 1, AUTO_INCREMENT=2, đúng chứ.
 
-![](https://oss.javaguide.cn/p3-juejin/c22c4f2cea234c7ea496025eb826c3bc~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/c22c4f2cea234c7ea496025eb826c3bc~tplv-k3u1fbpfcp-zoom-1.png)
 
 Lúc này thực thi thêm lệnh insert `(null,1,1)`, rõ ràng sẽ báo lỗi `Duplicate entry` vì chúng ta đặt một unique index field `a`:
 
-![](https://oss.javaguide.cn/p3-juejin/c0325e31398d4fa6bb1cbe08ef797b7f~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/c0325e31398d4fa6bb1cbe08ef797b7f~tplv-k3u1fbpfcp-zoom-1.png)
 
 Nhưng bạn sẽ ngạc nhiên khi thấy rằng dù insert thất bại, giá trị auto-increment vẫn tăng từ 2 lên 3!
 
@@ -124,27 +124,27 @@ Ngoài ra, transaction rollback cũng gây ra tình huống này.
 
 Bây giờ bảng có một record `(1, 1, 1)`, AUTO_INCREMENT = 3:
 
-![](https://oss.javaguide.cn/p3-juejin/6220fcf7dac54299863e43b6fb97de3e~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/6220fcf7dac54299863e43b6fb97de3e~tplv-k3u1fbpfcp-zoom-1.png)
 
 Trước tiên insert một row data `(null, 2, 2)`, tức (3, 2, 2), và AUTO_INCREMENT thành 4:
 
-![](https://oss.javaguide.cn/p3-juejin/3f02d46437d643c3b3d9f44a004ab269~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/3f02d46437d643c3b3d9f44a004ab269~tplv-k3u1fbpfcp-zoom-1.png)
 
 Rồi thực thi đoạn SQL này:
 
-![](https://oss.javaguide.cn/p3-juejin/faf5ce4a2920469cae697f845be717f5~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/faf5ce4a2920469cae697f845be717f5~tplv-k3u1fbpfcp-zoom-1.png)
 
 Dù đã insert record (null, 3, 3) nhưng đã dùng rollback để rollback lại, nên trong database không có record này:
 
-![](https://oss.javaguide.cn/p3-juejin/6cb4c02722674dd399939d3d03a431c1~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/6cb4c02722674dd399939d3d03a431c1~tplv-k3u1fbpfcp-zoom-1.png)
 
 Trong tình huống transaction rollback này, giá trị auto-increment không rollback theo! Như hình dưới, giá trị auto-increment vẫn cố tăng từ 4 lên 5:
 
-![](https://oss.javaguide.cn/p3-juejin/e6eea1c927424ac7bda34a511ca521ae~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/e6eea1c927424ac7bda34a511ca521ae~tplv-k3u1fbpfcp-zoom-1.png)
 
 Vì vậy khi insert thêm một data (null, 3, 3), primary key id sẽ tự động được gán là `5`:
 
-![](https://oss.javaguide.cn/p3-juejin/80da69dd13b543c4a32d6ed832a3c568~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/80da69dd13b543c4a32d6ed832a3c568~tplv-k3u1fbpfcp-zoom-1.png)
 
 Vậy tại sao khi xảy ra unique key conflict hay rollback, MySQL không đổi giá trị auto-increment của bảng về lại? Nếu rollback về thì không còn auto-increment id không liên tục nữa?
 
@@ -158,7 +158,7 @@ Có hai transaction A và B chạy song song. Khi xin giá trị auto-increment,
 2. Transaction B commit thành công, nhưng transaction A gặp unique key conflict — row id=1 insert thất bại. Nếu cho phép transaction A rollback auto-increment id về, tức đổi giá trị auto-increment hiện tại của bảng về 1, thì sẽ xảy ra: bảng đã có row id=2, nhưng giá trị auto-increment hiện tại là 1.
 3. Tiếp tục, các transaction khác sẽ xin được id=2. Lúc này câu insert báo lỗi "primary key conflict".
 
-![](https://oss.javaguide.cn/p3-juejin/5f26f02e60f643c9a7cab88a9f1bdce9~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/5f26f02e60f643c9a7cab88a9f1bdce9~tplv-k3u1fbpfcp-zoom-1.png)
 
 Để giải quyết primary key conflict này có hai cách:
 
@@ -186,21 +186,21 @@ Còn với các câu lệnh kiểu `insert...select`, `replace...select` và `lo
 
 Ví dụ: Giả sử bảng hiện tại có dữ liệu sau:
 
-![](https://oss.javaguide.cn/p3-juejin/6453cfc107f94e3bb86c95072d443472~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/6453cfc107f94e3bb86c95072d443472~tplv-k3u1fbpfcp-zoom-1.png)
 
 Tạo bảng `test_pk2` có cùng định nghĩa cấu trúc với bảng `test_pk` hiện tại:
 
-![](https://oss.javaguide.cn/p3-juejin/45248a6dc34f431bba14d434bee2c79e~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/45248a6dc34f431bba14d434bee2c79e~tplv-k3u1fbpfcp-zoom-1.png)
 
 Dùng `insert...select` để batch insert data vào bảng `test_pk2`:
 
-![](https://oss.javaguide.cn/p3-juejin/c1b061e86bae484694d15ceb703b10ca~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/c1b061e86bae484694d15ceb703b10ca~tplv-k3u1fbpfcp-zoom-1.png)
 
 Có thể thấy import data thành công.
 
 Xem lại giá trị auto-increment của `test_pk2` là bao nhiêu:
 
-![](https://oss.javaguide.cn/p3-juejin/0ff9039366154c738331d64ebaf88d3b~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/0ff9039366154c738331d64ebaf88d3b~tplv-k3u1fbpfcp-zoom-1.png)
 
 Như đã phân tích, là 8 chứ không phải 6.
 
@@ -212,7 +212,7 @@ Cụ thể, `insert...select` thực tế insert 5 row data vào bảng: (1,1)(2
 
 Vì câu lệnh này thực tế chỉ dùng 5 id, nên id=6 và id=7 bị lãng phí. Sau đó, thực thi `insert into test_pk2 values(null, 6, 6)`, data thực sự insert là (8, 6, 6):
 
-![](https://oss.javaguide.cn/p3-juejin/51612fbac3804cff8c5157df21d6e355~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/51612fbac3804cff8c5157df21d6e355~tplv-k3u1fbpfcp-zoom-1.png)
 
 ## Tổng kết ngắn
 

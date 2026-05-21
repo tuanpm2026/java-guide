@@ -26,7 +26,7 @@ Trước khi giới thiệu giao thức ARP, cần giới thiệu về MAC addre
 
 MAC address, tên đầy đủ là **Media Access Control Address (Địa chỉ kiểm soát truy cập phương tiện)**. Nếu mọi tài nguyên trên Internet được xác định duy nhất bởi địa chỉ IP (nội dung giao thức IP), thì mọi thiết bị mạng đều được xác định duy nhất bởi MAC address.
 
-![Mặt sau router thường ghi MAC address](https://oss.javaguide.cn/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
+![Mặt sau router thường ghi MAC address](/images/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
 
 Có thể hiểu MAC address là số CMND thực sự của thiết bị mạng, IP address chỉ là cách định vị không trùng lặp (ví dụ "Nguyễn Văn A ở tỉnh X thành phố Y phường Z" là định vị logic tức là địa chỉ IP, số CMND của họ mới là MAC address). Cũng có thể hiểu MAC address là số CMND, IP address là địa chỉ bưu chính. MAC address còn có các tên gọi khác như LAN address, physical address, Ethernet address, v.v.
 

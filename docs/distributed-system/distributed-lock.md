@@ -29,7 +29,7 @@ Ví dụ: Giả sử có 100 user tham gia một flash sale giới hạn thời 
 - Thread 2 tiếp tục thực thi, giảm tồn kho 1 cái, trả về success.
 - Lúc này đã xảy ra vấn đề overselling — sản phẩm bị bán thêm một cái.
 
-![Vấn đề xảy ra khi shared resource không được mutual exclusion](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/oversold-without-locking.png)
+![Vấn đề xảy ra khi shared resource không được mutual exclusion](/images/github/javaguide/distributed-system/distributed-lock/oversold-without-locking.png)
 
 Để đảm bảo shared resource được truy cập an toàn, cần dùng mutual exclusion operation để bảo vệ shared resource — tức chỉ cho phép một thread truy cập shared resource tại một thời điểm, các thread khác phải chờ thread hiện tại release mới được truy cập. Như vậy có thể tránh data race và dirty data, đảm bảo tính đúng đắn và ổn định của chương trình.
 
@@ -41,7 +41,7 @@ Với single machine multi-threading, trong Java, chúng ta thường dùng **lo
 
 Dưới đây là sơ đồ minh họa local lock của tôi.
 
-![Local lock](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/jvm-local-lock.png)
+![Local lock](/images/github/javaguide/distributed-system/distributed-lock/jvm-local-lock.png)
 
 Từ hình có thể thấy, các thread truy cập shared resource là mutual exclusion — tại một thời điểm chỉ có một thread có thể lấy local lock để truy cập shared resource.
 
@@ -51,7 +51,7 @@ Ví dụ: Order service của hệ thống được deploy 3 bản, đều cung 
 
 Dưới đây là sơ đồ minh họa distributed lock của tôi.
 
-![Distributed Lock](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/distributed-lock.png)
+![Distributed Lock](/images/github/javaguide/distributed-system/distributed-lock/distributed-lock.png)
 
 Từ hình có thể thấy, các thread trong các process độc lập này truy cập shared resource là mutual exclusion — tại một thời điểm chỉ có một thread có thể lấy distributed lock để truy cập shared resource.
 

@@ -50,7 +50,7 @@ Mặc định, cấu hình mặc định của Redis dùng lệnh `bgsave`. Nế
 
 Cơ chế AOF persistence của Redis là ghi log sau khi thực thi xong câu lệnh — khác với RDBMS (như MySQL) thường ghi log trước khi thực thi (để khôi phục khi sự cố).
 
-![Quá trình ghi AOF log](https://oss.javaguide.cn/github/javaguide/database/redis/redis-aof-write-log-disc.png)
+![Quá trình ghi AOF log](/images/github/javaguide/database/redis/redis-aof-write-log-disc.png)
 
 **Tại sao ghi log sau khi thực thi câu lệnh?**
 

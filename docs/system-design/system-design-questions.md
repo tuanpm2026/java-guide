@@ -13,7 +13,7 @@ Các câu hỏi phỏng vấn liên quan đến **System Design** là nội dung
 
 **《Backend Interview High-Frequency System Design & Scenario Questions》** chứa các case study system design phổ biến như short URL system, flash sale system cùng các câu hỏi tình huống tần suất cao như loại trùng dữ liệu lớn, third-party authorization login.
 
-![《Backend Interview High-Frequency System Design & Scenario Questions》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
+![《Backend Interview High-Frequency System Design & Scenario Questions》](/images/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
 
 Những năm gần đây khi phỏng vấn kỹ thuật ở Trung Quốc ngày càng cạnh tranh, ngày càng nhiều công ty bắt đầu kiểm tra system design và câu hỏi tình huống trong phỏng vấn để đánh giá toàn diện hơn ứng viên — dù là campus recruit hay social recruit. Tuy nhiên, tình trạng toàn bộ phỏng vấn là câu hỏi tình huống vẫn rất hiếm. Phỏng vấn viên thường xen kẽ một đến hai câu system design và tình huống trong phỏng vấn.
 

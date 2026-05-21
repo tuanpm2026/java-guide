@@ -60,7 +60,7 @@ Rồi cài đặt plugin từ plugin marketplace này:
 
 Có ba tùy chọn tải xuống:
 
-![Tải xuống Superpowers](https://oss.javaguide.cn/github/javaguide/ai/superpowers/superpowers-download.png)
+![Tải xuống Superpowers](/images/github/javaguide/ai/superpowers/superpowers-download.png)
 
 | **Tùy chọn**                                         | **Phạm vi áp dụng**                                                                                        |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |

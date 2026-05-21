@@ -27,7 +27,7 @@ Ngoài ra, configuration center thường cung cấp các khả năng nâng cao 
 - **Version management**: Ghi lại người sửa, thời gian sửa, nội dung sửa của mỗi lần thay đổi config, hỗ trợ rollback một nút.
 - **Gray release**: Trước tiên push config cho một phần instance để verify, giảm rủi ro thay đổi (Apollo, Nacos 1.1.0+ hỗ trợ).
 
-![Apollo Configuration Center](https://oss.javaguide.cn/github/javaguide/config-center/view-release-history.png)
+![Apollo Configuration Center](/images/github/javaguide/config-center/view-release-history.png)
 
 ## Các Configuration Center phổ biến là gì? Làm thế nào chọn?
 

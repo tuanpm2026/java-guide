@@ -16,7 +16,7 @@ Từ khi class được load vào bộ nhớ của virtual machine cho đến kh
 
 Thứ tự 7 giai đoạn này như hình dưới:
 
-![Vòng đời đầy đủ của một class](https://oss.javaguide.cn/github/javaguide/java/jvm/lifecycle-of-a-class.png)
+![Vòng đời đầy đủ của một class](/images/github/javaguide/java/jvm/lifecycle-of-a-class.png)
 
 ## Quá trình Class Loading
 
@@ -24,7 +24,7 @@ Thứ tự 7 giai đoạn này như hình dưới:
 
 Hệ thống load file kiểu Class gồm ba bước chính: **Loading → Linking → Initialization**. Quá trình Linking lại chia thành ba bước: **Verification → Preparation → Resolution**.
 
-![Quá trình Class Loading](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loading-procedure.png)
+![Quá trình Class Loading](/images/github/javaguide/java/jvm/class-loading-procedure.png)
 
 Xem thêm: [Java Virtual Machine Specification - 5.3. Creation and Loading](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html#jvms-5.3).
 
@@ -63,7 +63,7 @@ Giai đoạn verification chủ yếu gồm bốn giai đoạn kiểm tra:
 3. Bytecode verification (kiểm tra ngữ nghĩa chương trình)
 4. Symbolic reference verification (kiểm tra tính đúng đắn của class)
 
-![Sơ đồ giai đoạn Verification](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loading-process-verification.png)
+![Sơ đồ giai đoạn Verification](/images/github/javaguide/java/jvm/class-loading-process-verification.png)
 
 Giai đoạn file format verification dựa trên binary byte stream của class, mục đích chính là đảm bảo byte stream input có thể được parse và lưu trữ đúng trong method area, format phù hợp với yêu cầu mô tả type info Java. Ngoài giai đoạn này, ba giai đoạn verification còn lại đều dựa trên cấu trúc lưu trữ của method area, không còn đọc/thao tác trực tiếp byte stream.
 
@@ -90,7 +90,7 @@ Mục đích chính của symbolic reference verification là đảm bảo giai 
 
 **Zero value của basic data type**: (hình từ 《Deep Understanding Java Virtual Machine》 Edition 3, Section 7.3.3)
 
-![Zero value của basic data type](https://oss.javaguide.cn/github/javaguide/java/%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%9B%B6%E5%80%BC.png)
+![Zero value của basic data type](/images/github/javaguide/java/%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%9B%B6%E5%80%BC.png)
 
 ### Resolution (Phân giải)
 
@@ -98,7 +98,7 @@ Mục đích chính của symbolic reference verification là đảm bảo giai 
 
 《Deep Understanding Java Virtual Machine》 Edition 3, Section 7.3.4 giải thích symbolic reference và direct reference như sau:
 
-![Symbolic reference và Direct reference](https://oss.javaguide.cn/github/javaguide/java/jvm/symbol-reference-and-direct-reference.png)
+![Symbolic reference và Direct reference](/images/github/javaguide/java/jvm/symbol-reference-and-direct-reference.png)
 
 Ví dụ: Khi chương trình thực thi một method, hệ thống cần biết chính xác method này nằm ở đâu. Java Virtual Machine chuẩn bị cho mỗi class một method table lưu tất cả method trong class. Khi cần gọi method của một class, chỉ cần biết offset của method đó trong method table là có thể gọi trực tiếp. Thông qua thao tác resolution, symbolic reference có thể trực tiếp chuyển thành vị trí của method đích trong class method table, từ đó method có thể được gọi.
 

@@ -22,7 +22,7 @@ Các lớp `Atomic` dựa vào khóa lạc quan CAS (Compare-And-Swap, so sánh 
 
 Bài viết này chỉ giới thiệu khái niệm về các lớp Atomic. Để tìm hiểu nguyên lý triển khai cụ thể, bạn có thể đọc bài viết này của tác giả: [Giải thích chi tiết về CAS](./cas.md).
 
-![Tổng quan các lớp Atomic trong JUC](https://oss.javaguide.cn/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
+![Tổng quan các lớp Atomic trong JUC](/images/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
 
 Dựa theo kiểu dữ liệu được thao tác, các lớp nguyên tử trong gói JUC có thể được chia thành 4 loại:
 

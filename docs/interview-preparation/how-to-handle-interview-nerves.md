@@ -43,7 +43,7 @@ Trước tiên phải hiểu rằng căng thẳng là cảm xúc bình thường
 
 Tổng quan 「Technical Interview Questions Self-test Section」 của [《Java Interview Guide》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html):
 
-![Technical Interview Questions Self-test Section](https://oss.javaguide.cn/javamianshizhibei/technical-interview-questions-self-test.png)
+![Technical Interview Questions Self-test Section](/images/javamianshizhibei/technical-interview-questions-self-test.png)
 
 ### Thực hành diễn đạt nhiều hơn
 

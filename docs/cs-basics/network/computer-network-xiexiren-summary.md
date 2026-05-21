@@ -12,7 +12,7 @@ head:
 
 Bài viết này được tôi tổng hợp trong thời gian học mạng máy tính năm hai đại học, phần lớn nội dung đến từ cuốn [《Mạng máy tính》 phiên bản thứ 7 của thầy Tạ Hy Nhân](https://www.elias.ltd/usr/local/etc/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf). Để nội dung dễ hiểu hơn, tôi đã cấu trúc lại những ghi chú trước đây và thêm một số hình minh họa liên quan để dễ hiểu hơn.
 
-![](https://oss.javaguide.cn/p3-juejin/fb5d8645cd55484ab0177f25a13e97db~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/fb5d8645cd55484ab0177f25a13e97db~tplv-k3u1fbpfcp-zoom-1.png)
 
 Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng máy tính (phiên bản thứ 7) của Tạ Hy Nhân? - Zhihu](https://www.zhihu.com/question/327872966).
 
@@ -25,11 +25,11 @@ Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng má
 3. **Host**: Máy tính kết nối trên Internet.
 4. **ISP (Internet Service Provider)**: Nhà cung cấp dịch vụ Internet.
 
-   ![ISP (Internet Service Provider) Definition](https://oss.javaguide.cn/p3-juejin/e77e26123d404d438d0c5943e3c65893~tplv-k3u1fbpfcp-zoom-1.png)
+   ![ISP (Internet Service Provider) Definition](/images/p3-juejin/e77e26123d404d438d0c5943e3c65893~tplv-k3u1fbpfcp-zoom-1.png)
 
 5. **IXP (Internet eXchange Point)**: Điểm trao đổi Internet. Chức năng chính của IXP là cho phép hai mạng kết nối trực tiếp và trao đổi gói tin, mà không cần phải chuyển tiếp gói tin qua mạng thứ ba.
 
-   ![IXP Traffic Levels During the Stratos Skydive — RIPE Labs](https://oss.javaguide.cn/p3-juejin/7f9a6ddaa09441ceac11cb77f7a69d8f~tplv-k3u1fbpfcp-zoom-1.png)
+   ![IXP Traffic Levels During the Stratos Skydive — RIPE Labs](/images/p3-juejin/7f9a6ddaa09441ceac11cb77f7a69d8f~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:center;font-size:13px;color:gray">https://labs.ripe.net/Members/fergalc/ixp-traffic-during-stratos-skydive</p>
 
@@ -38,20 +38,20 @@ Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng má
 8. **Mạng đô thị MAN (Metropolitan Area Network)**: Dùng để kết nối nhiều mạng cục bộ lại với nhau.
 9. **Mạng cục bộ LAN (Local Area Network)**: Hầu hết trường học hoặc doanh nghiệp đều có nhiều mạng cục bộ được kết nối với nhau.
 
-   ![MAN & WMAN | Red de área metropolitana, Redes informaticas, Par trenzado](https://oss.javaguide.cn/p3-juejin/eb48d21b2e984a63a26250010d7adac4~tplv-k3u1fbpfcp-zoom-1.png)
+   ![MAN & WMAN | Red de área metropolitana, Redes informaticas, Par trenzado](/images/p3-juejin/eb48d21b2e984a63a26250010d7adac4~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:center;font-size:13px;color:gray">http://conexionesmanwman.blogspot.com/</p>
 
 10. **Mạng cá nhân PAN (Personal Area Network)**: Mạng kết nối các thiết bị điện tử cá nhân bằng công nghệ không dây tại nơi làm việc cá nhân.
 
-    ![Advantages and disadvantages of personal area network (PAN) - IT Release](https://oss.javaguide.cn/p3-juejin/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.png)
+    ![Advantages and disadvantages of personal area network (PAN) - IT Release](/images/p3-juejin/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.png)
 
     <p style=”text-align:center;font-size:13px;color:gray”>https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
 
 11. **Gói tin (packet)**: Đơn vị dữ liệu truyền trên Internet. Gồm header và data segment. Gói tin còn gọi là packet, header còn gọi là packet header.
 12. **Lưu và chuyển tiếp (store and forward)**: Router nhận một gói tin, kiểm tra xem gói tin có đúng không và lọc bỏ các gói lỗi xung đột. Sau khi xác định gói đúng, lấy địa chỉ đích, tra bảng để tìm địa chỉ cổng đầu ra muốn gửi, sau đó gửi gói đó đi.
 
-    ![](https://oss.javaguide.cn/p3-juejin/addb6b2211444a4da9e0ffc129dd444f~tplv-k3u1fbpfcp-zoom-1.gif)
+    ![](/images/p3-juejin/addb6b2211444a4da9e0ffc129dd444f~tplv-k3u1fbpfcp-zoom-1.gif)
 
 13. **Băng thông (bandwidth)**: Trong mạng máy tính, biểu thị "tốc độ dữ liệu tối đa" có thể truyền từ điểm này đến điểm khác trong mạng trong đơn vị thời gian. Thường dùng để biểu thị khả năng truyền dữ liệu của đường truyền mạng. Đơn vị là "bit mỗi giây", ký hiệu là b/s.
 14. **Thông lượng (throughput)**: Biểu thị lượng dữ liệu đi qua một mạng nhất định (hoặc kênh, giao diện) trong đơn vị thời gian. Thông lượng thường được dùng để đo lường mạng trong thế giới thực, để biết thực tế có bao nhiêu dữ liệu có thể đi qua mạng. Thông lượng bị giới hạn bởi băng thông hoặc tốc độ danh định của mạng.
@@ -69,13 +69,13 @@ Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng má
 9. Giao thức mạng, tức là giao thức, là các quy tắc được thiết lập để thực hiện trao đổi dữ liệu trong mạng. Các lớp của mạng máy tính và tập hợp giao thức của chúng gọi là kiến trúc mạng.
 10. **Kiến trúc năm lớp bao gồm lớp ứng dụng, lớp vận chuyển, lớp mạng (lớp internet), lớp liên kết dữ liệu, lớp vật lý. Giao thức quan trọng nhất của lớp vận chuyển là TCP và UDP, giao thức quan trọng nhất của lớp mạng là IP.**
 
-![](https://oss.javaguide.cn/p3-juejin/acec0fa44041449b8088872dcd7c0b3a~tplv-k3u1fbpfcp-zoom-1.gif)
+![](/images/p3-juejin/acec0fa44041449b8088872dcd7c0b3a~tplv-k3u1fbpfcp-zoom-1.gif)
 
 Nội dung sau sẽ giới thiệu kiến trúc năm lớp của mạng máy tính: **Lớp vật lý + Lớp liên kết dữ liệu + Lớp mạng (Lớp internet) + Lớp vận chuyển + Lớp ứng dụng**.
 
 ## 2. Lớp vật lý (Physical Layer)
 
-![Lớp vật lý](https://oss.javaguide.cn/p3-juejin/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp vật lý](/images/p3-juejin/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 2.1. Thuật ngữ cơ bản
 
@@ -86,11 +86,11 @@ Nội dung sau sẽ giới thiệu kiến trúc năm lớp của mạng máy tí
 5. **Bán song công (half duplex)**: Cả hai bên truyền thông đều có thể gửi thông tin, nhưng không thể gửi đồng thời (tất nhiên cũng không thể nhận đồng thời).
 6. **Song công toàn phần (full duplex)**: Cả hai bên truyền thông có thể gửi và nhận thông tin cùng lúc.
 
-   ![](https://oss.javaguide.cn/p3-juejin/b1f02095b7c34eafb3c255ee81f58c2a~tplv-k3u1fbpfcp-zoom-1.png)
+   ![](/images/p3-juejin/b1f02095b7c34eafb3c255ee81f58c2a~tplv-k3u1fbpfcp-zoom-1.png)
 
 7. **Méo tín hiệu (distortion)**: Mất tính trung thực, chủ yếu là tín hiệu nhận được khác với tín hiệu gửi, có mài mòn và suy hao. Các yếu tố ảnh hưởng đến mức độ méo: 1. Tốc độ truyền phần tử mã 2. Khoảng cách truyền tín hiệu 3. Nhiễu 4. Chất lượng môi trường truyền dẫn
 
-   ![](https://oss.javaguide.cn/p3-juejin/f939342f543046459ffabdc476f7bca4~tplv-k3u1fbpfcp-zoom-1.png)
+   ![](/images/p3-juejin/f939342f543046459ffabdc476f7bca4~tplv-k3u1fbpfcp-zoom-1.png)
 
 8. **Tiêu chuẩn Nyquist (Nyquist criterion)**: Trong bất kỳ kênh nào, hiệu quả truyền phần tử mã có giới hạn trên, nếu tốc độ truyền vượt quá giới hạn trên này, sẽ xảy ra vấn đề nhiễu liên phần tử mã nghiêm trọng, khiến việc phán đoán (tức nhận dạng) phần tử mã ở phía thu trở nên không thể.
 9. **Định lý Shannon (Shannon theorem)**: Trong kênh bị giới hạn băng thông và có nhiễu, để không tạo ra lỗi, tốc độ truyền dữ liệu thông tin có giới hạn trên.
@@ -100,7 +100,7 @@ Nội dung sau sẽ giới thiệu kiến trúc năm lớp của mạng máy tí
 13. **Tỷ số tín hiệu trên nhiễu (signal-to-noise ratio)**: Tỷ lệ giữa công suất trung bình của tín hiệu và công suất trung bình của nhiễu, ký hiệu là S/N. SNR (dB) = 10\*log10(S/N).
 14. **Ghép kênh (channel multiplexing)**: Nhiều người dùng chia sẻ cùng một kênh. (Không nhất thiết phải cùng lúc).
 
-    ![Công nghệ ghép kênh](https://oss.javaguide.cn/p3-juejin/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.png)
+    ![Công nghệ ghép kênh](/images/p3-juejin/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.png)
 
 15. **Tốc độ bit (bit rate)**: Số bit được truyền trong đơn vị thời gian (mỗi giây).
 16. **Tốc độ baud (baud rate)**: Số lần thay đổi trạng thái điều chế sóng mang trong đơn vị thời gian. Đối với tốc độ điều chế của tín hiệu dữ liệu lên sóng mang.
@@ -142,7 +142,7 @@ Các phương pháp truy cập băng rộng từ người dùng đến Internet 
 
 ## 3. Lớp liên kết dữ liệu (Data Link Layer)
 
-![Lớp liên kết dữ liệu](https://oss.javaguide.cn/p3-juejin/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp liên kết dữ liệu](/images/p3-juejin/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 3.1. Thuật ngữ cơ bản
 
@@ -153,10 +153,10 @@ Các phương pháp truy cập băng rộng từ người dùng đến Internet 
 5. **MTU (Maximum Transfer Unit)**: Đơn vị truyền tối đa. Giới hạn trên của độ dài phần dữ liệu của khung.
 6. **Tỷ lệ lỗi bit BER (Bit Error Rate)**: Trong một khoảng thời gian, tỷ lệ bit truyền sai trong tổng số bit được truyền.
 7. **PPP (Point-to-Point Protocol)**: Giao thức điểm-điểm. Tức là giao thức lớp liên kết dữ liệu được sử dụng khi máy tính người dùng giao tiếp với ISP. Dưới đây là sơ đồ khung PPP:
-   ![PPP](https://oss.javaguide.cn/p3-juejin/6b0310d3103c4149a725a28aaf001899~tplv-k3u1fbpfcp-zoom-1.jpeg)
+   ![PPP](/images/p3-juejin/6b0310d3103c4149a725a28aaf001899~tplv-k3u1fbpfcp-zoom-1.jpeg)
 8. **Địa chỉ MAC (Media Access Control hoặc Medium Access Control)**: Dịch nghĩa là kiểm soát truy cập phương tiện, hay còn gọi là địa chỉ vật lý, địa chỉ phần cứng, dùng để xác định vị trí của thiết bị mạng. Trong mô hình OSI, lớp 3 mạng chịu trách nhiệm địa chỉ IP, lớp 2 liên kết dữ liệu chịu trách nhiệm địa chỉ MAC. Do đó một host sẽ có một địa chỉ MAC, và mỗi vị trí mạng sẽ có một địa chỉ IP riêng dành cho nó. Địa chỉ là định danh quan trọng để nhận dạng một hệ thống, "tên chỉ ra tài nguyên chúng ta đang tìm kiếm, địa chỉ chỉ ra nơi tài nguyên đang ở, routing cho chúng ta biết cách đến đó."
 
-   ![ARP (Address Resolution Protocol) explained](https://oss.javaguide.cn/p3-juejin/057b83e7ec5b4c149e56255a3be89141~tplv-k3u1fbpfcp-zoom-1.png)
+   ![ARP (Address Resolution Protocol) explained](/images/p3-juejin/057b83e7ec5b4c149e56255a3be89141~tplv-k3u1fbpfcp-zoom-1.png)
 
 9. **Bridge (cầu nối)**: Thiết bị kết nối mạng dùng để relay ở lớp liên kết dữ liệu, kết nối hai hoặc nhiều mạng cục bộ.
 10. **Switch (bộ chuyển mạch)**: Theo nghĩa rộng, switch là thiết bị hoàn thành trao đổi thông tin trong hệ thống truyền thông. Switch hoạt động ở lớp liên kết dữ liệu ở đây là switching hub, thực chất là một bridge nhiều cổng.
@@ -185,7 +185,7 @@ Các phương pháp truy cập băng rộng từ người dùng đến Internet 
 
 ## 4. Lớp mạng (Network Layer)
 
-![Lớp mạng](https://oss.javaguide.cn/p3-juejin/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp mạng](/images/p3-juejin/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 4.1. Thuật ngữ cơ bản
 
@@ -213,7 +213,7 @@ Các phương pháp truy cập băng rộng từ người dùng đến Internet 
 
 ## 5. Lớp vận chuyển (Transport Layer)
 
-![Lớp vận chuyển](https://oss.javaguide.cn/p3-juejin/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp vận chuyển](/images/p3-juejin/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 5.1. Thuật ngữ cơ bản
 
@@ -223,7 +223,7 @@ Các phương pháp truy cập băng rộng từ người dùng đến Internet 
 4. **TCP (Transmission Control Protocol)**: Giao thức điều khiển truyền dữ liệu.
 5. **UDP (User Datagram Protocol)**: Giao thức datagram người dùng.
 
-   ![TCP và UDP](https://oss.javaguide.cn/p3-juejin/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.png)
+   ![TCP và UDP](/images/p3-juejin/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.png)
 
 6. **Port (cổng)**: Mục đích của port là để xác nhận process nào của máy kia đang tương tác với mình, ví dụ MSN và QQ có port khác nhau, nếu không có port có thể xảy ra lỗi process QQ tương tác với MSN. Port còn gọi là protocol port number.
 7. **Stop-and-wait protocol**: Chỉ sau khi bên gửi gửi xong một gói thì dừng gửi, chờ xác nhận của phía kia, sau khi nhận được xác nhận mới gửi gói tiếp theo.
@@ -266,38 +266,38 @@ Các kiến thức sau cần được chú ý đặc biệt:
 
 ## 6. Lớp ứng dụng (Application Layer)
 
-![Lớp ứng dụng](https://oss.javaguide.cn/p3-juejin/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp ứng dụng](/images/p3-juejin/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 6.1. Thuật ngữ cơ bản
 
 1. **Hệ thống tên miền (DNS)**: DNS (Domain Name System) chuyển đổi tên miền mà con người có thể đọc được (ví dụ, www.baidu.com) thành địa chỉ IP mà máy móc có thể đọc được (ví dụ, 220.181.38.148). Chúng ta có thể hiểu nó như danh bạ điện thoại được thiết kế đặc biệt cho Internet.
 
-   ![](https://oss.javaguide.cn/p3-juejin/e7da4b07947f4c0094d46dc96a067df0~tplv-k3u1fbpfcp-zoom-1.png)
+   ![](/images/p3-juejin/e7da4b07947f4c0094d46dc96a067df0~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:right;font-size:12px">https://www.seobility.net/en/wiki/HTTP_headers</p>
 
 2. **Giao thức truyền tệp (FTP)**: FTP là viết tắt tiếng Anh của File Transfer Protocol (Giao thức truyền tệp), viết tắt tiếng Trung là "văn truyền giao thức". Dùng để truyền tệp hai chiều trên Internet. Đồng thời, nó cũng là một chương trình ứng dụng. Có các ứng dụng FTP khác nhau dựa trên các hệ điều hành khác nhau, và tất cả các ứng dụng này đều tuân theo cùng một giao thức để truyền tệp. Trong quá trình sử dụng FTP, người dùng thường gặp hai khái niệm: "Download" (tải xuống) và "Upload" (tải lên). "Download" là sao chép tệp từ remote host về máy tính của mình; "Upload" là sao chép tệp từ máy tính của mình lên remote host.
 
-   ![Quá trình làm việc của FTP](https://oss.javaguide.cn/p3-juejin/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.png)
+   ![Quá trình làm việc của FTP](/images/p3-juejin/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.png)
 
 3. **Giao thức truyền tệp đơn giản (TFTP)**: TFTP (Trivial File Transfer Protocol) là một giao thức trong họ giao thức TCP/IP dùng để truyền tệp đơn giản giữa client và server, cung cấp dịch vụ truyền tệp không phức tạp, chi phí thấp. Port number là 69.
 4. **Giao thức terminal từ xa (TELNET)**: Giao thức Telnet là thành viên của họ giao thức TCP/IP, là giao thức tiêu chuẩn và phương thức chính của dịch vụ đăng nhập từ xa Internet. Nó cung cấp cho người dùng khả năng thực hiện công việc trên remote host từ máy tính cục bộ. Người dùng terminal sử dụng chương trình telnet trên máy tính của mình để kết nối đến server. Người dùng terminal có thể nhập lệnh trong chương trình telnet, các lệnh này sẽ chạy trên server, giống như nhập trực tiếp trên console của server. Có thể điều khiển server từ local. Để bắt đầu một phiên telnet, phải nhập tên người dùng và mật khẩu để đăng nhập vào server. Telnet là phương pháp phổ biến để điều khiển từ xa Web server.
 5. **World Wide Web (WWW)**: WWW là viết tắt của World Wide Web, tên tiếng Việt là "mạng toàn cầu". Gồm chương trình Web client và Web server. WWW cho phép Web client (thường là trình duyệt) truy cập và duyệt các trang trên Web server. Là một hệ thống bao gồm nhiều hypertext liên kết với nhau, được truy cập qua Internet. Trong hệ thống này, mỗi thứ có ích gọi là một "tài nguyên"; và được xác định bởi một "Uniform Resource Identifier" (URI) toàn cầu; các tài nguyên này được truyền đến người dùng thông qua Hypertext Transfer Protocol (HTTP), và người dùng lấy tài nguyên bằng cách nhấp vào link. World Wide Web Consortium (W3C), còn gọi là Hội đồng W3C. Được thành lập vào tháng 10 năm 1994 tại phòng thí nghiệm khoa học máy tính của MIT. Người tạo ra World Wide Web Consortium là người phát minh ra WWW, Tim Berners-Lee. WWW không giống Internet, WWW chỉ là một trong những dịch vụ mà Internet có thể cung cấp, là một dịch vụ chạy nhờ Internet.
 6. **Quy trình làm việc đại khái của WWW:**
 
-   ![Quy trình làm việc đại khái của WWW](https://oss.javaguide.cn/p3-juejin/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.jpeg)
+   ![Quy trình làm việc đại khái của WWW](/images/p3-juejin/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 7. **URL (Uniform Resource Locator)**: URL là biểu diễn ngắn gọn về vị trí và phương thức truy cập tài nguyên có thể lấy từ Internet, là địa chỉ của tài nguyên tiêu chuẩn trên Internet. Mỗi tệp trên Internet đều có một URL duy nhất, thông tin nó chứa chỉ ra vị trí của tệp và cách trình duyệt xử lý nó.
 8. **HTTP (Hypertext Transfer Protocol)**: HTTP (HyperText Transfer Protocol) là giao thức mạng được sử dụng rộng rãi nhất trên Internet. Tất cả các tệp WWW đều phải tuân theo tiêu chuẩn này. Mục đích ban đầu thiết kế HTTP là để cung cấp một phương pháp xuất bản và nhận các trang HTML. Năm 1960, người Mỹ Ted Nelson đã nghĩ ra một phương pháp xử lý thông tin văn bản thông qua máy tính và gọi nó là hypertext, đây trở thành nền tảng phát triển của kiến trúc tiêu chuẩn giao thức truyền siêu văn bản HTTP.
 
    Bản chất của giao thức HTTP chính là một định dạng truyền thông được thỏa thuận giữa trình duyệt và server. Nguyên lý HTTP như hình dưới:
 
-   ![](https://oss.javaguide.cn/p3-juejin/8e3efca026654874bde8be88c96e1783~tplv-k3u1fbpfcp-zoom-1.jpeg)
+   ![](/images/p3-juejin/8e3efca026654874bde8be88c96e1783~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 9. **Proxy Server (máy chủ proxy)**: Proxy Server là một thực thể mạng, còn gọi là WWW cache tốc độ cao. Proxy server lưu tạm một số request và response gần đây vào đĩa cục bộ. Khi request mới đến, nếu proxy server phát hiện request này giống với request đã lưu tạm, sẽ trả về response đã lưu, mà không cần truy cập tài nguyên đó trên Internet theo URL một lần nữa. Proxy server có thể làm việc ở phía client hoặc server, cũng có thể làm việc ở hệ thống trung gian.
 10. **SMTP (Simple Mail Transfer Protocol)**: SMTP là một nhóm quy tắc để truyền mail từ địa chỉ nguồn đến địa chỉ đích, kiểm soát cách thức chuyển tiếp thư. Giao thức SMTP thuộc họ giao thức TCP/IP, nó giúp mỗi máy tính tìm đến đích tiếp theo khi gửi hoặc chuyển tiếp thư. Thông qua server được chỉ định bởi giao thức SMTP, có thể gửi E-mail đến server của người nhận, toàn bộ quá trình chỉ mất vài phút. SMTP server là mail server gửi thư tuân theo giao thức SMTP, dùng để gửi hoặc chuyển tiếp email gửi đi.
 
-    ![Quá trình một email được gửi đi](https://oss.javaguide.cn/p3-juejin/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.png)
+    ![Quá trình một email được gửi đi](/images/p3-juejin/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.png)
 
     <p style="text-align:right;font-size:12px">https://www.campaignmonitor.com/resources/knowledge-base/what-is-the-code-that-makes-bcc-or-cc-operate-in-an-email/</p>
 

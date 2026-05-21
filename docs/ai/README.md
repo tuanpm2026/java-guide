@@ -160,15 +160,15 @@ Học trên giấy vẫn thấy nông. Chỉ khi tự tay dùng AI coding tools 
 
 To help readers better understand abstract technical concepts, I drew a large number of illustrations in each article. Here are a few:
 
-![Context window illustration](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
+![Context window illustration](/images/github/javaguide/ai/llm/llm-context-window.png)
 
 _The context window is the LLM's "working memory", determining the maximum amount of text the model can process_
 
-![RAG architecture illustration](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
+![RAG architecture illustration](/images/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
 
 _RAG's core idea: first retrieve relevant context, then let LLM generate answers based on context_
 
-![MCP illustration](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
+![MCP illustration](/images/github/javaguide/ai/skills/mcp-simple-diagram.png)
 
 _MCP is called the "USB-C interface of AI field", unifying the communication standards between LLMs and external tools_
 
@@ -178,4 +178,4 @@ This column will continue to be updated. If you find it helpful, please share it
 
 ---
 
-![JavaGuide Official Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Account](/images/github/javaguide/gongzhonghaoxuanchuan.png)

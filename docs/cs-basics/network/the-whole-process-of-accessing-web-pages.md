@@ -14,7 +14,7 @@ Trong các buổi phỏng vấn vị trí developer, kiến thức mạng máy t
 
 Tổng thể, mô hình giao tiếp mạng có thể biểu diễn bằng hình dưới — nghĩa là chỉ cần thuộc mô hình 5 tầng mạng, theo hệ thống này, nhiều điểm kiến thức sẽ tự nhiên kết nối. Quá trình truy cập trang web cũng vậy.
 
-![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/five-layers.png)
+![](/images/github/javaguide/cs-basics/network/five-layers.png)
 
 Trước khi bắt đầu, hãy lướt qua nhanh toàn bộ quy trình:
 
@@ -36,7 +36,7 @@ URL (Uniform Resource Locators — Định vị tài nguyên thống nhất) là
 
 ### Cấu trúc URL
 
-![Cấu trúc URL](https://oss.javaguide.cn/github/javaguide/cs-basics/network/URL-parts.png)
+![Cấu trúc URL](/images/github/javaguide/cs-basics/network/URL-parts.png)
 
 1. **Giao thức**: Tiền tố URL thường cho biết địa chỉ web đó dùng giao thức tầng ứng dụng nào, thường có hai loại — HTTP và HTTPS. Tất nhiên cũng có một số tiền tố ít phổ biến hơn, ví dụ `ftp:` dùng khi truyền file.
 2. **Tên miền**: Tên miền là tên thông dụng để truy cập địa chỉ web. Ở đây cũng có thể là địa chỉ IP của trang web. Tên miền có thể hiểu là phiên bản dễ đọc của địa chỉ IP, vì hầu hết mọi người không muốn nhớ địa chỉ IP của một trang web.

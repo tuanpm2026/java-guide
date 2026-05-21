@@ -12,7 +12,7 @@ head:
 
 > **Lời giới thiệu**: Đây là một bài trong phần Level-up Strategies của [《Java Interview Guide》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html), chia sẻ quan điểm của tôi về cách học nhanh một công nghệ mới.
 >
-> ![《Java Interview Guide》 Level-up Strategies Section](https://oss.javaguide.cn/javamianshizhibei/training-strategy-articles.png)
+> ![《Java Interview Guide》 Level-up Strategies Section](/images/javamianshizhibei/training-strategy-articles.png)
 
 Nhiều khi vì lý do công việc, chúng ta cần học nhanh một kỹ thuật nào đó để áp dụng vào project. Hoặc công ty mà chúng ta muốn phỏng vấn yêu cầu một kỹ thuật mà trước đây chúng ta chưa tiếp xúc — để đối phó với nhu cầu phỏng vấn, chúng ta cần nhanh chóng nắm vững kỹ thuật đó.
 
@@ -22,7 +22,7 @@ Khi học bất kỳ công nghệ nào, nhất định phải làm rõ trước 
 
 Ví dụ khi học Spring, qua tài liệu chính thức của Spring bạn có thể biết xu hướng kỹ thuật mới nhất của Spring, Spring bao gồm những modules nào, Spring có thể giúp bạn giải quyết vấn đề gì.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/20210506110341207.png)
+![](/images/github/javaguide/system-design/web-real-time-message-push/20210506110341207.png)
 
 Ví dụ khác khi học message queue, tôi sẽ tìm hiểu trước message queue này thường có tác dụng gì trong hệ thống, giúp chúng ta giải quyết vấn đề gì. Có nhiều loại message queue — khi học và nghiên cứu một message queue cụ thể, tôi sẽ so sánh nó với message queue đã học trước đó. Như khi học RocketMQ, tôi sẽ so sánh nó với message queue đầu tiên tôi từng học là ActiveMQ — suy nghĩ RocketMQ cải tiến gì so với ActiveMQ, giải quyết được pain points nào của ActiveMQ, hai cái có điểm gì tương tự và khác nhau.
 

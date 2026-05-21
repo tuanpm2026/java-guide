@@ -30,7 +30,7 @@ WebSocket protocol ra đời năm 2008, trở thành tiêu chuẩn quốc tế n
 
 Về bản chất WebSocket protocol là giao thức tầng ứng dụng, dùng để bù đắp thiếu sót của HTTP protocol về khả năng persistent communication. Client và server chỉ cần một lần handshake là có thể tạo kết nối persistent và truyền data hai chiều.
 
-![Sơ đồ WebSocket](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
+![Sơ đồ WebSocket](/images/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
 
 Dưới đây là các tình huống ứng dụng phổ biến của WebSocket:
 
@@ -54,7 +54,7 @@ Ngoài ra, sau khi thiết lập kết nối WebSocket, dùng heartbeat mechanis
 
 **SMTP (Simple Mail Transfer Protocol — Giao thức truyền tải mail đơn giản)** dựa trên TCP protocol, là giao thức dùng để gửi email.
 
-![SMTP Protocol](https://oss.javaguide.cn/github/javaguide/cs-basics/network/what-is-smtp.png)
+![SMTP Protocol](/images/github/javaguide/cs-basics/network/what-is-smtp.png)
 
 Lưu ý ⚠️: **Giao thức nhận mail không phải SMTP mà là POP3.**
 
@@ -105,7 +105,7 @@ FTP được thiết kế dựa trên mô hình client-server (C/S). Client và 
 >
 > Tư tưởng tách riêng command và data để truyền này cải thiện đáng kể hiệu quả của FTP.
 
-![Quá trình hoạt động FTP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/ftp.png)
+![Quá trình hoạt động FTP](/images/github/javaguide/cs-basics/network/ftp.png)
 
 Lưu ý ⚠️: FTP là giao thức không an toàn vì không mã hóa data trong quá trình truyền. Do đó file truyền qua FTP có thể bị nghe lén hoặc giả mạo. Khuyến nghị dùng giao thức an toàn hơn như SFTP (SSH File Transfer Protocol — giao thức truyền file an toàn dựa trên SSH, dùng để truyền file an toàn trên mạng) khi truyền data nhạy cảm.
 
@@ -113,7 +113,7 @@ Lưu ý ⚠️: FTP là giao thức không an toàn vì không mã hóa data tro
 
 **Giao thức Telnet** dựa trên TCP protocol, dùng để đăng nhập vào server khác qua một terminal. Một trong những nhược điểm lớn nhất của Telnet là tất cả data (bao gồm username và password) đều được gửi dưới dạng plain text — có rủi ro bảo mật tiềm ẩn. Đây là lý do tại sao ngày nay ít dùng Telnet mà chuyển sang dùng giao thức truyền tải mạng rất an toàn gọi là SSH.
 
-![Telnet: Remote Login Protocol](https://oss.javaguide.cn/github/javaguide/cs-basics/network/Telnet_is_vulnerable_to_eavesdropping-2.png)
+![Telnet: Remote Login Protocol](/images/github/javaguide/cs-basics/network/Telnet_is_vulnerable_to_eavesdropping-2.png)
 
 ## SSH: Secure Network Transfer Protocol
 
@@ -125,7 +125,7 @@ SSH dùng mô hình client-server, cổng mặc định là 22. SSH là daemon, 
 
 Như hình dưới, SSH Client và SSH Server trao đổi public key để sinh shared symmetric encryption key, dùng cho các giao tiếp mã hóa tiếp theo.
 
-![SSH: Secure Network Transfer Protocol](https://oss.javaguide.cn/github/javaguide/cs-basics/network/ssh-client-server.png)
+![SSH: Secure Network Transfer Protocol](/images/github/javaguide/cs-basics/network/ssh-client-server.png)
 
 ## RTP: Real-time Transport Protocol
 
@@ -140,7 +140,7 @@ RTP protocol chia thành hai sub-protocol:
 
 DNS (Domain Name System — Hệ thống tên miền) thường dựa trên UDP protocol (cổng 53), dùng để giải quyết vấn đề ánh xạ domain name và IP address. Khi response data vượt giới hạn UDP hay thực hiện zone transfer sẽ chuyển sang TCP.
 
-![DNS: Domain Name System](https://oss.javaguide.cn/github/javaguide/cs-basics/network/dns-overview.png)
+![DNS: Domain Name System](/images/github/javaguide/cs-basics/network/dns-overview.png)
 
 ## Tài liệu tham khảo
 

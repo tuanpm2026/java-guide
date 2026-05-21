@@ -51,7 +51,7 @@ Nói chính xác hơn, CAS trong Java được triển khai dưới dạng C++ i
 
 Package `java.util.concurrent.atomic` cung cấp một số lớp dùng cho atomic operation.
 
-![Tổng quan JUC atomic classes](https://oss.javaguide.cn/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
+![Tổng quan JUC atomic classes](/images/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
 
 Để xem giới thiệu và cách dùng các lớp Atomic, đọc bài: [Tổng hợp Atomic atomic classes](https://javaguide.cn/java/concurrent/atomic-classes.html).
 

@@ -8,7 +8,7 @@ Vì nội dung project liên tục được cập nhật, nên ở đây không 
 
 Bạn có thể đăng ký [RSS feed](https://javaguide.cn/feed.json) để nhận các cập nhật mới nhất của website, bạn cũng có thể xem các bài viết cập nhật mới nhất tại [https://javaguide.cn/article/](https://javaguide.cn/article/).
 
-![](https://oss.javaguide.cn/github/javaguideimage-20220614172338606.png)
+![](/images/github/javaguideimage-20220614172338606.png)
 
 Ở đây chỉ ghi lại một số mốc quan trọng:
 

@@ -66,7 +66,7 @@ If you truly understand these books, I believe you can have very in-depth conver
 
 For more book recommendations, check [JavaGuide](https://javaguide.cn/books/) — quite comprehensive.
 
-![](https://oss.javaguide.cn/p3-juejin/62099c9b2fd24d3cb6511e49756f486b~tplv-k3u1fbpfcp-zoom-1.png)
+![](/images/p3-juejin/62099c9b2fd24d3cb6511e49756f486b~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### Tutorial Recommendations
 

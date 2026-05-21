@@ -18,7 +18,7 @@ Như tên gọi, chúng ta có thể biết: **Read-write separation chủ yếu
 
 Tôi vẽ một sơ đồ đơn giản để giúp những bạn chưa hiểu rõ về read-write separation.
 
-![Read-write separation diagram](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation.png)
+![Read-write separation diagram](/images/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation.png)
 
 Thông thường, chúng ta sẽ chọn one master multi slave — một master database chịu trách nhiệm ghi, các slave database còn lại chịu trách nhiệm đọc. Giữa master và slave sẽ đồng bộ dữ liệu để đảm bảo tính chính xác của dữ liệu trong slave. Architecture này triển khai tương đối đơn giản và cũng phù hợp với đặc điểm đọc nhiều ghi ít của hệ thống.
 
@@ -34,7 +34,7 @@ Trong project thực tế, có hai cách phổ biến:
 
 **1. Proxy method**
 
-![Read-write separation via proxy](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation-proxy.png)
+![Read-write separation via proxy](/images/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation-proxy.png)
 
 Chúng ta có thể thêm một proxy layer giữa application và database. Tất cả request dữ liệu của application đều giao cho proxy layer xử lý, proxy layer chịu trách nhiệm tách read/write request và route chúng đến database tương ứng.
 
@@ -56,7 +56,7 @@ MySQL binlog (binary log — file log nhị phân) chủ yếu ghi lại tất c
 
 Quá trình cụ thể và chi tiết hơn như sau (hình ảnh từ [《MySQL Master-Slave Replication on the Same Machine》](https://www.toptal.com/mysql/mysql-master-slave-replication-tutorial)):
 
-![MySQL master-slave replication](https://oss.javaguide.cn/java-guide-blog/78816271d3ab52424bfd5ad3086c1a0f.png)
+![MySQL master-slave replication](/images/java-guide-blog/78816271d3ab52424bfd5ad3086c1a0f.png)
 
 1. Master ghi các thay đổi dữ liệu trong database vào binlog
 2. Slave kết nối với master
@@ -256,7 +256,7 @@ ShardingSphere tuyệt đối có thể nói là lựa chọn đầu tiên cho d
 
 Các chức năng ShardingSphere cung cấp:
 
-![Features provided by ShardingSphere](https://oss.javaguide.cn/github/javaguide/high-performance/shardingsphere-features.png)
+![Features provided by ShardingSphere](/images/github/javaguide/high-performance/shardingsphere-features.png)
 
 Ưu điểm của ShardingSphere (trích từ ShardingSphere official documentation: <https://shardingsphere.apache.org/document/current/cn/overview/>):
 

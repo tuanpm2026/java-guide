@@ -44,7 +44,7 @@ Với sự phát triển tiếp theo, những điểm yếu này đã được K
 
 #### Mô hình queue: Mô hình message thời kỳ đầu
 
-![Mô hình queue](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/%E9%98%9F%E5%88%97%E6%A8%A1%E5%9E%8B23.png)
+![Mô hình queue](/images/github/javaguide/high-performance/message-queue/%E9%98%9F%E5%88%97%E6%A8%A1%E5%9E%8B23.png)
 
 **Sử dụng Queue (hàng đợi) làm phương tiện truyền thông message, đáp ứng mô hình producer-consumer, một message chỉ có thể được sử dụng bởi một consumer, các message chưa được tiêu thụ sẽ được giữ trong queue cho đến khi được tiêu thụ hoặc hết hạn.** Ví dụ: nếu producer của chúng ta gửi 100 message, hai consumer đến tiêu thụ, trong điều kiện bình thường hai consumer sẽ mỗi người tiêu thụ một nửa theo thứ tự message được gửi (tức là bạn một cái tôi một cái).
 
@@ -58,7 +58,7 @@ Trong tình huống này, mô hình queue khó giải quyết. Nhiều người 
 
 Mô hình publish-subscribe chủ yếu để giải quyết vấn đề tồn tại với mô hình queue.
 
-![Mô hình publish-subscribe](https://oss.javaguide.cn/java-guide-blog/%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B.png)
+![Mô hình publish-subscribe](/images/java-guide-blog/%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B.png)
 
 Mô hình publish-subscribe (Pub-Sub) sử dụng **Topic (chủ đề)** làm phương tiện truyền thông message, tương tự như **chế độ broadcast**; publisher phát hành một message, message đó được truyền đến tất cả subscriber thông qua topic, **những người đăng ký sau khi một message được broadcast sẽ không nhận được message đó**.
 
@@ -74,7 +74,7 @@ Mô hình publish-subscribe (Pub-Sub) sử dụng **Topic (chủ đề)** làm p
 
 Kafka gửi message do producer phát hành đến **Topic (chủ đề)**, các consumer cần những message này có thể đăng ký các **Topic (chủ đề)** này, như hình dưới đây:
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue20210507200944439.png)
+![](/images/github/javaguide/high-performance/message-queue20210507200944439.png)
 
 Hình trên cũng giới thiệu cho chúng ta một số khái niệm quan trọng của Kafka:
 
@@ -108,7 +108,7 @@ Một điểm tôi cho là khá quan trọng là Kafka đã giới thiệu cơ c
 
 Hình dưới đây là Zookeeper cục bộ của tôi, nó đã kết nối thành công với Kafka cục bộ của tôi (cấu trúc thư mục sau đây được thực hiện thông qua plugin Zookeeper tool của idea).
 
-<img src="https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/zookeeper-kafka.jpg" style="zoom:50%;" />
+<img src="/images/github/javaguide/high-performance/message-queue/zookeeper-kafka.jpg" style="zoom:50%;" />
 
 ZooKeeper chủ yếu cung cấp chức năng quản lý metadata cho Kafka.
 
@@ -125,7 +125,7 @@ Trước Kafka 2.8, điều bị phàn nàn nhiều nhất về Kafka là sự p
 
 Tuy nhiên, cần lưu ý: **Nếu muốn sử dụng chế độ KRaft, khuyến nghị chọn phiên bản Kafka cao hơn, vì tính năng này vẫn đang được tiếp tục hoàn thiện và tối ưu hóa. Kafka 3.3.1 là phiên bản đầu tiên đánh dấu giao thức đồng thuận KRaft (Kafka Raft) là sẵn sàng cho môi trường production.**
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/kafka3.3.1-kraft-production-ready.png)
+![](/images/github/javaguide/high-performance/message-queue/kafka3.3.1-kraft-production-ready.png)
 
 ## Thứ tự tiêu thụ, mất message và tiêu thụ lặp lại trong Kafka
 
@@ -140,7 +140,7 @@ Nếu thứ tự tiêu thụ của hai message này không giống nhau, kết q
 
 Chúng ta biết rằng Partition (phân vùng) trong Kafka là nơi thực sự lưu trữ message, tất cả message chúng ta gửi đều được đặt ở đây. Và Partition (phân vùng) của chúng ta tồn tại trong khái niệm Topic (chủ đề), và chúng ta có thể chỉ định nhiều Partition cho một Topic cụ thể.
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/KafkaTopicPartionsLayout.png)
+![](/images/github/javaguide/high-performance/message-queue/KafkaTopicPartionsLayout.png)
 
 Mỗi lần thêm message vào Partition (phân vùng) đều sử dụng phương pháp thêm vào cuối (tail append), như hình trên. **Kafka chỉ có thể đảm bảo các message trong Partition (phân vùng) có thứ tự.**
 
@@ -191,7 +191,7 @@ Ngoài ra, ở đây khuyến nghị đặt `retries` (số lần thử lại) c
 
 Chúng ta biết rằng khi message được thêm vào Partition (phân vùng) sẽ được phân bổ một offset cụ thể. Offset biểu thị vị trí hiện tại Consumer đang tiêu thụ trong Partition (phân vùng). Kafka có thể đảm bảo thứ tự message trong partition thông qua offset.
 
-![kafka offset](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/kafka-offset.jpg)
+![kafka offset](/images/github/javaguide/high-performance/message-queue/kafka-offset.jpg)
 
 Khi consumer kéo một message nào đó trong partition, consumer sẽ tự động commit offset. Tự động commit sẽ có một vấn đề, hãy thử nghĩ xem: khi consumer vừa lấy được message này chuẩn bị tiêu thụ thực sự, đột nhiên bị crash, message thực tế chưa được tiêu thụ, nhưng offset đã được tự động commit.
 

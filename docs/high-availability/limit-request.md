@@ -250,7 +250,7 @@ Nếu bạn muốn thủ công triển khai logic rate limiting dựa trên Redi
 
 > ShenYu: <https://github.com/apache/incubator-shenyu>
 
-![ShenYu rate limiting script](https://oss.javaguide.cn/github/javaguide/high-availability/limit-request/shenyu-ratelimit-lua-scripts.png)
+![ShenYu rate limiting script](/images/github/javaguide/high-availability/limit-request/shenyu-ratelimit-lua-scripts.png)
 
 Ngoài ra, nếu không muốn tự viết Lua script, cũng có thể dùng trực tiếp `RRateLimiter` trong Redisson để triển khai distributed rate limiting, triển khai tầng dưới của nó dựa trên Lua code + token bucket algorithm.
 

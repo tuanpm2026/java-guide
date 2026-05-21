@@ -15,7 +15,7 @@ Vì nội dung JavaGuide liên tục được hoàn thiện, nên không có phi
 
 Trả lời "**PDF**" trong phần backend của Official Account của tôi là có thể lấy 《JavaGuide Interview Quick Review Version》, hoàn toàn miễn phí. Ngoài ra còn được tặng miễn phí nhiều cuốn PDF interview handbook chất lượng khác.
 
-![Official Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![Official Account](/images/github/javaguide/gongzhonghaoxuanchuan.png)
 
 ## Cách nhìn về việc JavaGuide có rất nhiều star?
 

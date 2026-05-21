@@ -23,15 +23,15 @@ Nói đơn giản: **CDN là phân phối static resource đến nhiều địa 
 
 Tương tự như hệ thống kho bãi và vận chuyển khổng lồ của JD.com — JD Logistics có rất nhiều kho trên toàn quốc, mạng lưới kho hàng gần như bao phủ toàn bộ quận huyện. Như vậy ngay khi user đặt hàng, sản phẩm được gửi trực tiếp từ kho gần nhất đến trạm giao hàng tương ứng, rồi JD delivery giao đến tận nhà.
 
-![JD Warehouse & Distribution System](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/jingdong-wuliu-cangpei.png)
+![JD Warehouse & Distribution System](/images/github/javaguide/high-performance/cdn/jingdong-wuliu-cangpei.png)
 
 Có thể coi CDN như **special cache service** ở tầng trên cùng của service, phân tán trên khắp cả nước, chủ yếu để xử lý request cho static resource.
 
-![CDN Simple Diagram](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-101.png)
+![CDN Simple Diagram](/images/github/javaguide/high-performance/cdn/cdn-101.png)
 
 Chúng ta thường so sánh full-site acceleration và CDN — đừng nhầm lẫn hai cái! **Full-site acceleration** (các cloud provider gọi khác nhau: Tencent Cloud gọi là ECDN, Alibaba Cloud gọi là DCDN) có thể accelerate cả static và dynamic resource. Còn **CDN (Content Delivery Network)** chủ yếu nhắm vào **static resource**.
 
-![Alibaba Cloud docs: https://help.aliyun.com/document_detail/64836.html](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-aliyun-dcdn.png)
+![Alibaba Cloud docs: https://help.aliyun.com/document_detail/64836.html](/images/github/javaguide/high-performance/cdn/cdn-aliyun-dcdn.png)
 
 Hầu hết công ty đều dùng CDN service trong phát triển project, nhưng rất ít có công ty tự xây CDN. Dựa trên chi phí, stability và usability, khuyến nghị chọn thẳng CDN service out-of-the-box do cloud provider chuyên nghiệp (như Alibaba Cloud, Tencent Cloud, Huawei Cloud) hoặc CDN provider cung cấp.
 
@@ -68,13 +68,13 @@ CDN cache static resource chủ yếu theo hai cách: **Prefetch** và **Origin 
 
 Vòng đời đầy đủ của CDN cache như hình dưới:
 
-![Full Life Cycle của CDN Cache](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-full-life-cycle-of-cdn-cache.png)
+![Full Life Cycle của CDN Cache](/images/github/javaguide/high-performance/cdn/cdn-full-life-cycle-of-cdn-cache.png)
 
 Nếu resource có update, có thể **refresh** nó — xóa resource cũ đã cache trên CDN node và force CDN node pull resource mới nhất từ origin vào lần request tiếp theo.
 
 Hầu hết CDN service do cloud provider cung cấp đều có chức năng refresh và prefetch cache (hình dưới là chức năng tương ứng của Alibaba Cloud CDN):
 
-![CDN Cache Refresh và Prefetch](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-refresh-warm-up.png)
+![CDN Cache Refresh và Prefetch](/images/github/javaguide/high-performance/cdn/cdn-refresh-warm-up.png)
 
 **Hit rate** và **origin pull rate** là hai chỉ số cốt lõi để đánh giá chất lượng CDN service:
 
@@ -145,7 +145,7 @@ Xác định xem nguồn request có hợp lệ không bằng cách kiểm tra f
 
 Hầu hết CDN provider đều hỗ trợ cơ chế hotlink protection cơ bản này:
 
-![Tencent Cloud CDN Referer Hotlink Protection Config](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cnd-tencent-cloud-anti-theft.png)
+![Tencent Cloud CDN Referer Hotlink Protection Config](/images/github/javaguide/high-performance/cdn/cnd-tencent-cloud-anti-theft.png)
 
 > **Lưu ý**: Nếu hotlink protection config cho phép Referer rỗng, attacker có thể bypass hotlink protection check bằng cách ẩn Referer. Do đó Referer hotlink protection thường cần kết hợp với các cơ chế khác.
 
@@ -164,11 +164,11 @@ http://cdn.example.com/video/123.mp4?wsSecret=79aead3bd7b5db4adeffb93a010298b5&w
 - `wsSecret`: Signature string, được tính và tạo ra từ phía server dựa trên key và thông tin request.
 - `wsTime`: Expiry timestamp (Unix timestamp format).
 
-![](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/timestamp-anti-theft.png)
+![](/images/github/javaguide/high-performance/cdn/timestamp-anti-theft.png)
 
 Hầu hết CDN provider đều hỗ trợ cơ chế timestamp hotlink protection out-of-the-box:
 
-![Qiniu Cloud Timestamp Hotlink Protection Config](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/qiniuyun-timestamp-anti-theft.png)
+![Qiniu Cloud Timestamp Hotlink Protection Config](/images/github/javaguide/high-performance/cdn/qiniuyun-timestamp-anti-theft.png)
 
 > **Best practice khuyến nghị**: Production khuyến nghị dùng phương án kết hợp **Referer hotlink protection + Timestamp hotlink protection**, cân bằng bảo mật và chi phí triển khai. Với tình huống yêu cầu bảo mật cực cao (như paid content), có thể tiếp tục giới thiệu Token authentication.
 

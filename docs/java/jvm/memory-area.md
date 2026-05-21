@@ -34,11 +34,11 @@ JDK 1.8 và các phiên bản trước có một số khác biệt nhỏ, ở đ
 
 **JDK 1.7**:
 
-![Java 运行时数据区域（JDK1.7）](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.7.png)
+![Java 运行时数据区域（JDK1.7）](/images/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.7.png)
 
 **JDK 1.8**:
 
-![Java 运行时数据区域（JDK1.8 ）](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
+![Java 运行时数据区域（JDK1.8 ）](/images/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
 
 **Riêng theo thread:**
 
@@ -151,17 +151,17 @@ Dữ liệu của lời gọi phương thức cần được truyền qua stack,
 
 Stack được cấu tạo bởi các stack frame, mỗi stack frame có: bảng biến cục bộ (local variable table), ngăn xếp toán hạng (operand stack), dynamic linking, địa chỉ trả về phương thức. Tương tự với cấu trúc dữ liệu stack, cả hai đều là cấu trúc dữ liệu vào sau ra trước (LIFO), chỉ hỗ trợ hai thao tác pop và push.
 
-![Java 虚拟机栈](https://oss.javaguide.cn/github/javaguide/java/jvm/stack-area.png)
+![Java 虚拟机栈](/images/github/javaguide/java/jvm/stack-area.png)
 
 **Bảng biến cục bộ** chủ yếu lưu trữ các kiểu dữ liệu đã biết tại thời điểm biên dịch (boolean, byte, char, short, int, float, long, double), tham chiếu đối tượng (kiểu reference, khác với bản thân đối tượng, có thể là một con trỏ tham chiếu trỏ đến địa chỉ đầu của đối tượng, hoặc là một handle đại diện cho đối tượng hoặc vị trí liên quan đến đối tượng này).
 
-![局部变量表](https://oss.javaguide.cn/github/javaguide/java/jvm/local-variables-table.png)
+![局部变量表](/images/github/javaguide/java/jvm/local-variables-table.png)
 
 **Operand stack** chủ yếu được dùng như trạm trung chuyển của lời gọi phương thức, dùng để lưu trữ kết quả tính toán trung gian được tạo ra trong quá trình thực thi phương thức. Ngoài ra, các biến tạm thời được tạo ra trong quá trình tính toán cũng được đặt trong operand stack.
 
 **Dynamic linking** là một trong những cơ chế quan trọng của Java Virtual Machine để thực hiện lời gọi phương thức. Trong file Class, lời gọi phương thức tồn tại dưới dạng **symbolic reference** trong constant pool. Để thực thi lời gọi, các symbolic reference này phải được chuyển đổi thành **direct reference** trong bộ nhớ. Quá trình chuyển đổi này chia thành hai trường hợp: đối với các phương thức tĩnh, phương thức private, v.v. mà phiên bản có thể xác định tại thời điểm biên dịch, việc chuyển đổi này được hoàn thành trong **giai đoạn giải quyết khi tải class**, gọi là **static resolution**. Còn đối với **virtual method** (là cơ sở để thực hiện tính đa hình) mà việc xác định triển khai cụ thể phụ thuộc vào kiểu thực tế của đối tượng, quá trình chuyển đổi này được trì hoãn đến **thời điểm chạy chương trình**, được thực hiện bởi **dynamic linking**. Do đó, tác dụng cốt lõi của **dynamic linking** là **giải quyết điểm gọi virtual method tại runtime, liên kết nó đến phiên bản phương thức đúng**.
 
-![](https://oss.javaguide.cn/github/javaguide/jvmimage-20220331175738692.png)
+![](/images/github/javaguide/jvmimage-20220331175738692.png)
 
 Mặc dù không gian stack không phải là vô hạn, nhưng trong các lời gọi bình thường, thường không có vấn đề gì. Tuy nhiên, nếu lời gọi hàm rơi vào vòng lặp vô hạn, sẽ dẫn đến quá nhiều stack frame được đẩy vào stack và chiếm quá nhiều không gian, gây ra độ sâu stack quá lớn. Khi thread yêu cầu độ sâu stack vượt quá độ sâu tối đa của Java Virtual Machine Stack hiện tại, lỗi `StackOverFlowError` sẽ được ném ra.
 
@@ -179,7 +179,7 @@ Tóm tắt ngắn gọn hai lỗi có thể xảy ra trong stack khi chạy chư
 - **`StackOverFlowError`:** Nếu kích thước bộ nhớ stack không cho phép mở rộng động, khi thread yêu cầu độ sâu stack vượt quá độ sâu tối đa của Java Virtual Machine Stack hiện tại, lỗi `StackOverFlowError` sẽ được ném ra.
 - **`OutOfMemoryError`:** Nếu kích thước bộ nhớ stack có thể mở rộng động, khi máy ảo không thể xin được đủ không gian bộ nhớ khi mở rộng stack động, ngoại lệ `OutOfMemoryError` sẽ được ném ra.
 
-![](https://oss.javaguide.cn/github/javaguide/java/jvm/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%8B%E7%AC%AC%E4%B8%89%E7%89%88%E7%9A%84%E7%AC%AC2%E7%AB%A0-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88.png)
+![](/images/github/javaguide/java/jvm/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%8B%E7%AC%AC%E4%B8%89%E7%89%88%E7%9A%84%E7%AC%AC2%E7%AB%A0-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88.png)
 
 ### Native Method Stack (Ngăn xếp phương thức native)
 
@@ -273,7 +273,7 @@ Trong JDK 7 và các phiên bản trước JDK 7, heap thường được chia t
 
 Vùng Eden, hai vùng Survivor S0 và S1 trong hình dưới đây đều thuộc Young Generation, lớp giữa thuộc Old Generation, lớp dưới cùng thuộc Permanent Generation.
 
-![堆内存结构](https://oss.javaguide.cn/github/javaguide/java/jvm/hotspot-heap-structure.png)
+![堆内存结构](/images/github/javaguide/java/jvm/hotspot-heap-structure.png)
 
 **Sau JDK 8, PermGen (Permanent Generation) đã được thay thế bằng Metaspace (không gian meta), Metaspace sử dụng bộ nhớ local.** (Tôi sẽ giới thiệu chi tiết trong phần Method Area).
 
@@ -293,7 +293,7 @@ Trong máy ảo HotSpot, bố cục lưu trữ đối tượng trong bộ nhớ 
 
 Thông tin tuổi này được lưu trong trường đánh dấu (trường đánh dấu cũng lưu các thông tin khác của bản thân đối tượng như hash code, thông tin trạng thái khóa, v.v.). `markOop.hpp` định nghĩa cấu trúc của mark word:
 
-![标记字段结构](https://oss.javaguide.cn/github/javaguide/java/jvm/hotspot-markOop.hpp..png)
+![标记字段结构](/images/github/javaguide/java/jvm/hotspot-markOop.hpp..png)
 
 Có thể thấy kích thước tuổi đối tượng chiếm thực sự là 4 bit.
 
@@ -375,17 +375,17 @@ Cần đặc biệt lưu ý rằng, mặc dù về mặt logic các dữ liệu 
 - **String Pool (Bộ pool chuỗi)**: Cũng từ JDK 7, string pool cũng đã được **chuyển sang Java Heap**.
 - **JIT Code Cache (Bộ nhớ cache code JIT)**: Code máy cục bộ được JIT compiler biên dịch từ bytecode của các hot method, được lưu trong một **vùng nhớ độc lập gọi là "Code Cache"**, không phải trong method area. Điều này nhằm thực hiện quản lý bộ nhớ và thực thi hiệu quả hơn.
 
-![method-area-jdk1.7](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.7.png)
+![method-area-jdk1.7](/images/github/javaguide/java/jvm/method-area-jdk1.7.png)
 
 **Method Area, Permanent Generation và Metaspace có mối quan hệ như thế nào?** Mối quan hệ giữa Method Area, Permanent Generation và Metaspace giống như mối quan hệ giữa interface và class trong Java, class triển khai interface, ở đây class có thể được coi là Permanent Generation và Metaspace, interface có thể được coi là Method Area. Nghĩa là Permanent Generation và Metaspace là hai cách triển khai Method Area trong đặc tả máy ảo của HotSpot. Và, Permanent Generation là triển khai method area trước JDK 1.8, từ JDK 1.8 trở đi, triển khai method area đã chuyển sang Metaspace.
 
-![HotSpot 虚拟机方法区的两种实现](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-implementation.png)
+![HotSpot 虚拟机方法区的两种实现](/images/github/javaguide/java/jvm/method-area-implementation.png)
 
 **Tại sao lại thay thế Permanent Generation (PermGen) bằng Metaspace?**
 
 Hình dưới đây từ "Hiểu sâu về Java Virtual Machine" phiên bản 3, mục 2.2.5
 
-![](https://oss.javaguide.cn/github/javaguide/java/jvm/20210425134508117.png)
+![](/images/github/javaguide/java/jvm/20210425134508117.png)
 
 1. Toàn bộ Permanent Generation có một giới hạn kích thước cố định được đặt bởi JVM, không thể điều chỉnh (tức là bị giới hạn bởi bộ nhớ JVM), trong khi Metaspace sử dụng bộ nhớ local, bị giới hạn bởi bộ nhớ khả dụng của máy cục bộ, mặc dù Metaspace vẫn có thể tràn, nhưng xác suất xảy ra sẽ nhỏ hơn trước đây.
 
@@ -458,7 +458,7 @@ Literal là cách biểu diễn giá trị cố định trong source code, tức
 
 Giải thích về symbolic reference và direct reference trong "Hiểu sâu về Java Virtual Machine" mục 7.34, phiên bản thứ ba như sau:
 
-![符号引用和直接引用](https://oss.javaguide.cn/github/javaguide/java/jvm/symbol-reference-and-direct-reference.png)
+![符号引用和直接引用](/images/github/javaguide/java/jvm/symbol-reference-and-direct-reference.png)
 
 Constant pool table sẽ được lưu vào runtime constant pool của method area sau khi class được tải.
 
@@ -517,9 +517,9 @@ Trong máy ảo HotSpot, triển khai của string pool là `src/hotspot/share/c
 
 Trước JDK1.7, string pool được đặt trong permanent generation. Trong JDK1.7, string pool và biến tĩnh đã được chuyển từ permanent generation sang Java Heap.
 
-![method-area-jdk1.6](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.6.png)
+![method-area-jdk1.6](/images/github/javaguide/java/jvm/method-area-jdk1.6.png)
 
-![method-area-jdk1.7](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.7.png)
+![method-area-jdk1.7](/images/github/javaguide/java/jvm/method-area-jdk1.7.png)
 
 **Tại sao JDK 1.7 lại chuyển string pool sang heap?**
 
@@ -687,13 +687,13 @@ Tạo đối tượng là để sử dụng đối tượng, chương trình Jav
 
 Nếu sử dụng handle, thì trong Java Heap sẽ được tách ra một vùng nhớ làm handle pool, reference lưu trữ địa chỉ handle của đối tượng, và trong handle chứa thông tin địa chỉ cụ thể của cả dữ liệu instance đối tượng và dữ liệu kiểu đối tượng.
 
-![对象的访问定位-使用句柄](https://oss.javaguide.cn/github/javaguide/java/jvm/access-location-of-object-handle.png)
+![对象的访问定位-使用句柄](/images/github/javaguide/java/jvm/access-location-of-object-handle.png)
 
 #### Direct Pointer (Con trỏ trực tiếp)
 
 Nếu sử dụng direct pointer để truy cập, reference lưu trực tiếp địa chỉ của đối tượng.
 
-![对象的访问定位-直接指针](https://oss.javaguide.cn/github/javaguide/java/jvm/access-location-of-object-handle-direct-pointer.png)
+![对象的访问定位-直接指针](/images/github/javaguide/java/jvm/access-location-of-object-handle-direct-pointer.png)
 
 Hai phương thức truy cập đối tượng này đều có ưu điểm riêng. Ưu điểm lớn nhất của việc sử dụng handle để truy cập là reference lưu trữ địa chỉ handle ổn định, khi đối tượng bị di chuyển chỉ cần thay đổi con trỏ dữ liệu instance trong handle, còn reference bản thân không cần sửa đổi. Ưu điểm lớn nhất của phương thức truy cập bằng direct pointer là tốc độ nhanh, tiết kiệm được một lần overhead định vị con trỏ.
 

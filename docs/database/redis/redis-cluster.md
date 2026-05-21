@@ -12,6 +12,6 @@ head:
 
 Các câu hỏi phỏng vấn liên quan đến **Redis Cluster** là nội dung độc quyền của [Knowledge Planet](../../about-the-author/zhishixingqiu-two-years.md) của tôi (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Interview Guide》](../../zhuanlan/java-mian-shi-zhi-bei.md).
 
-![](https://oss.javaguide.cn/xingqiu/mianshizhibei-database.png)
+![](/images/xingqiu/mianshizhibei-database.png)
 
 <!-- @include: @planet.snippet.md -->

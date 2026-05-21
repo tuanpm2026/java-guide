@@ -20,7 +20,7 @@ Khi phát triển Web, dù là viết frontend page hay backend interface, đề
 
 Tại sao nói vậy? Frontend validation chủ yếu là để user experience và chặn một số data "điền bừa" rõ ràng. Nhưng người hiểu kỹ thuật bypass frontend validation là chuyện quá đơn giản (như dùng Postman gửi request thẳng). Nên, **backend validation mới là phòng tuyến cuối cùng và cứng nhất** bảo vệ security và data accuracy của hệ thống. Nó phải đảm bảo data vào hệ thống không chỉ đúng format mà còn tuân thủ business rules. Và quan trọng nhất, người thực hiện thao tác đó phải có **permission**!
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/user-input-validation.png)
+![](/images/github/javaguide/system-design/security/user-input-validation.png)
 
 ## Frontend Validation
 
@@ -190,7 +190,7 @@ Cách chính của Java backend hiện nay là dùng security framework trưởn
 
 Thông thường, hầu hết hệ thống đều dùng RBAC permission model hoặc phiên bản đơn giản hóa của nó. Mô tả bằng hình như dưới:
 
-![RBAC Permission Model Diagram](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
+![RBAC Permission Model Diagram](/images/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
 
 Chi tiết về thiết kế permission system xem bài: [Thiết kế Permission System Explained](https://javaguide.cn/system-design/security/design-of-authority-system.html).
 

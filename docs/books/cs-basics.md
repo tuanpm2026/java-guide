@@ -23,17 +23,17 @@ Xét đến việc nhiều bạn thích xem video, phần này tôi không chỉ
 
 Nếu muốn học OS có hệ thống, hardest và most authoritative book là **[《Operating Systems: Three Easy Pieces》](https://book.douban.com/subject/33463930/)**. Kết hợp thêm **[《Computer Systems: A Programmer's Perspective》](https://book.douban.com/subject/1230413/)** để hiểu sâu hơn bản chất của computer systems!
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20201012191645919.png)
+![](/images/github/javaguide/booksimage-20201012191645919.png)
 
 Ngoài ra, một cuốn sách OS domestic ra gần đây cũng rất tốt: **[《Modern Operating Systems: Principles and Implementation》](https://book.douban.com/subject/35208251/)** (tác phẩm của team thầy Xia và thầy Chen, đáng khuyến nghị).
 
-![](https://oss.javaguide.cn/github/javaguide/books/20210406132050845.png)
+![](/images/github/javaguide/books/20210406132050845.png)
 
 Nếu bạn thích thực hành và không hứng thú với lý thuyết, khuyến nghị xem **[《Making your own 32-bit OS in 30 Days》](https://book.douban.com/subject/11530329/)** — sẽ hướng dẫn từng bước viết một OS.
 
 Học trên giấy vẫn thấy nông — muốn hiểu thực sự phải thực hành! Rất khuyến nghị CS majors phải thực hành nhiều!
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20220409123802972.png)
+![](/images/github/javaguide/booksimage-20220409123802972.png)
 
 Sách khác được khuyến nghị:
 
@@ -48,19 +48,19 @@ Nếu thích xem video, khuyến nghị MOOC [《Operating Systems》](https://w
 
 Curriculum outline:
 
-![Curriculum outline](https://oss.javaguide.cn/github/javaguide/books/image-20220414144527747.png)
+![Curriculum outline](/images/github/javaguide/books/image-20220414144527747.png)
 
 Covers six basic modules: CPU management, memory management, I/O device management, disk and file system, user interface và startup modules.
 
 Độ khó của khóa học khá cao, đặc biệt các labs. Nếu muốn thực sự hiểu OS bottom-layer principles, hãy làm labs. Như thầy Li Zhijun nói: "Learning on paper is shallow — true understanding requires hands-on practice".
 
-![](https://oss.javaguide.cn/github/javaguide/books/image-20220414145210679.png)
+![](/images/github/javaguide/books/image-20220414145210679.png)
 
 Nếu có thể tự làm một số labs, tôi tin sự hiểu biết về OS của bạn sẽ tăng lên mấy bậc. Tất nhiên nếu chỉ chuẩn bị phỏng vấn thì không cần làm labs.
 
 Nói thật lòng, tôi rất thích các bài giảng của thầy Li Zhijun. Ông biết khoảng cách giữa domestic và foreign teaching materials, và đang cố gắng thu hẹp khoảng cách đó theo cách riêng của mình. Trân trọng.
 
-![](https://oss.javaguide.cn/github/javaguide/books/image-20220414145249714.png)
+![](/images/github/javaguide/books/image-20220414145249714.png)
 
 Khóa học nước ngoài này cũng rất tốt: [《Computer Systems: A Programmer's Perspective》](https://www.bilibili.com/video/av31289365?from=search&seid=16298868573410423104).
 
@@ -70,18 +70,18 @@ Computer Networks là môn học có hệ thống mạnh. Các trường đại 
 
 Để học tốt computer networking, đầu tiên cần hiểu mô hình OSI 7-layer hoặc TCP/IP 5-layer, tức là application layer (application, presentation, session), transport layer, network layer, data link layer, physical layer.
 
-![OSI 7-layer model](https://oss.javaguide.cn/github/javaguide/booksosi%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B2.png)
+![OSI 7-layer model](/images/github/javaguide/booksosi%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B2.png)
 
 Sách tham khảo rất khuyến nghị là **《Computer Networking: A Top-Down Approach》** từ Mechanical Industry Press. Mục lục rõ ràng, giảng theo TCP/IP 5-layer model, thảo luận chi tiết về mỗi layer. Về cơ bản curriculum của hầu hết các trường đều theo mục lục của cuốn này.
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20220409123250570.png)
+![](/images/github/javaguide/booksimage-20220409123250570.png)
 
 Nếu thấy cuốn trên nhàm chán, rất khuyến nghị hai cuốn thú vị sau:
 
 - [《Illustrated HTTP》](https://book.douban.com/subject/25863515/): Giảng HTTP như truyện tranh, rất thú vị, không chán. Bao gồm hầu hết HTTP knowledge points phổ biến. Do số trang, nội dung có thể không đầy đủ. Nhưng nếu không chuyên về networking mà muốn hiểu HTTP, cuốn này là đủ.
 - [《How Networks Connect》](https://book.douban.com/subject/26941639/): Từ khi bạn gõ URL vào browser đến khi webpage hiển thị, trace toàn bộ quá trình. Với hình ảnh minh họa, giải thích toàn cảnh networking và cách actual network devices và software hoạt động.
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20201011215144139.png)
+![](/images/github/javaguide/booksimage-20201011215144139.png)
 
 Ngoài theoretical knowledge, học computer networking cần "**hands-on practice**" — tương tự programming.
 
@@ -96,11 +96,11 @@ Video recommendations:
 
 **1. [Harbin Institute of Technology Computer Networks Course](http://www.icourse163.org/course/HIT-154005)**: National quality course, already opened 10+ times. Community rating is very high!
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20201218141241911.png)
+![](/images/github/javaguide/booksimage-20201218141241911.png)
 
 **2. [Wangdao Graduate Entrance Exam Computer Networks](https://www.bilibili.com/video/BV19E411D78Q?from=search&seid=17198507506906312317)**: Very suitable for CS major students preparing for graduate entrance exams! Currently has 16k+ likes on Bilibili.
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20201218141652837.png)
+![](/images/github/javaguide/booksimage-20201218141652837.png)
 
 ## Algorithms
 
@@ -110,7 +110,7 @@ First, three introductory books. Any one of these three is great for getting sta
 2. [《Grokking Algorithms》](https://book.douban.com/subject/26979890/)
 3. [《Aha! Algorithm》](https://book.douban.com/subject/25894685/)
 
-![](https://oss.javaguide.cn/java-guide-blog/image-20210327104418851.png)
+![](/images/java-guide-blog/image-20210327104418851.png)
 
 Cá nhân tôi prefer **[《My First Algorithm Book》](https://book.douban.com/subject/30357170/)** mặc dù Douban score hơi thấp hơn hai cuốn kia. Illustrations và explanations là the best of these three. The only obvious issue is no code examples. But that doesn't prevent it from being a good introductory book. These introductory books aren't meant to make you strong in algorithms — just to introduce you to algorithm learning.
 
@@ -118,7 +118,7 @@ A few more classic algorithm books:
 
 **[《Algorithms》](https://book.douban.com/subject/19952400/)**
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20220409123422140.png)
+![](/images/github/javaguide/booksimage-20220409123422140.png)
 
 Very clear and easy to understand, suitable for data structures and algorithms beginners. Covers common data structures and algorithms! Provides detailed Java code — very suitable for Java learners. Can be called a must-have for Java programmers.
 
@@ -142,7 +142,7 @@ Similar god-tier books: [《Introduction to Algorithms》](https://book.douban.c
 
 **[《Sword Refers to Offer》](https://book.douban.com/subject/6466465/)**
 
-![](https://oss.javaguide.cn/github/javaguide/booksimage-20220409145506482.png)
+![](/images/github/javaguide/booksimage-20220409145506482.png)
 
 This interview bible covers many classic algorithm interview questions. Don't miss it if preparing for big company interviews.
 
@@ -154,7 +154,7 @@ Questions here are much harder than Sword Refers to Offer. More comprehensive co
 
 Video recommendation: Peking University national quality course — **[Algorithm Design (2): Algorithm Fundamentals](https://www.icourse163.org/course/PKU-1001894005)** — excellent!
 
-![](https://oss.javaguide.cn/github/javaguide/books/22ce4a17dc0c40f6a3e0d58002261b7a.png)
+![](/images/github/javaguide/books/22ce4a17dc0c40f6a3e0d58002261b7a.png)
 
 Covers seven fundamental algorithms (enumeration, binary search, recursion, divide and conquer, dynamic programming, search, greedy). And some example problems are equivalent to medium-level ACM international programming contest problems.
 
@@ -240,4 +240,4 @@ Book recommendation: 《Compilers: Principles, Techniques and Tools》 (Dragon B
 
 Video recommendation: [Harbin Institute of Technology Compiler Principles](https://www.icourse163.org/course/HIT-1002123007) — national quality course with great instructor!
 
-![](https://oss.javaguide.cn/github/javaguide/books/20210406152847824.png)
+![](/images/github/javaguide/books/20210406152847824.png)

@@ -17,7 +17,7 @@ Cấu trúc rõ ràng, nội dung chi tiết, rất phù hợp để đọc cho 
 
 ## Tổng quan nội dung
 
-![](https://oss.javaguide.cn/xingqiu/image-20220621091832348.png)
+![](/images/xingqiu/image-20220621091832348.png)
 
 <!-- @include: @planet2.snippet.md -->
 
@@ -25,4 +25,4 @@ Cấu trúc rõ ràng, nội dung chi tiết, rất phù hợp để đọc cho 
 
 Ngoài 《Java Must-read Source Code Series》, Knowledge Planet của tôi còn có [《Java Interview Guide》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247536358&idx=2&sn=a6098093107d596d3c426c9e71e871b8&chksm=cea1012df9d6883b95aab61fd815a238c703b2d4b36d78901553097a4939504e3e6d73f2b14b&token=710779655&lang=zh_CN#rd), [《Backend Interview High-frequency System Design & Scenario Questions》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247536451&idx=1&sn=5eae2525ac3d79591dd86c6051522c0b&chksm=cea10088f9d6899e0aee4146de162a6de6ece71ba4c80c23f04d12b1fd48c087a31bc7d413f4&token=710779655&lang=zh_CN#rd), [《Handwritten RPC Framework》](./handwritten-rpc-framework.md) và nhiều chuyên mục khác. Sau khi vào Planet, tất cả đều có thể đọc miễn phí.
 
-![](https://oss.javaguide.cn/xingqiu/image-20220211231206733.png)
+![](/images/xingqiu/image-20220211231206733.png)

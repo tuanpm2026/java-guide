@@ -36,7 +36,7 @@ Ví dụ kinh điển nhất thường được dùng để minh họa transacti
 
 Nếu giữa hai thao tác này đột ngột xảy ra lỗi như hệ thống ngân hàng bị sập hoặc sự cố mạng, dẫn đến số dư của Tiểu Minh giảm nhưng số dư của Tiểu Hồng không tăng, thì sẽ sai. Transaction đảm bảo rằng hai thao tác then chốt này hoặc đều thành công, hoặc đều thất bại.
 
-![Sơ đồ minh họa transaction](https://oss.javaguide.cn/github/javaguide/mysql/%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![Sơ đồ minh họa transaction](/images/github/javaguide/mysql/%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
 ```java
 public class OrdersService {
@@ -71,7 +71,7 @@ Ngoài ra, bốn đặc tính ACID của database transaction là nền tảng c
 
 🌈 Đây cần bổ sung thêm một điểm: **Chỉ khi đảm bảo được tính bền vững, tính nguyên tử và tính cô lập của transaction, thì tính nhất quán mới có thể được đảm bảo. Tức là D, A, I là phương tiện, C là mục đích!** Chắc chắn mọi người cũng như tôi, đã bị khái niệm ACID này gây hiểu nhầm một thời gian! Tôi cũng chỉ hiểu rõ sau khi xem khóa học công khai của thầy Zhou Zhiming [《Khóa học Kiến trúc Phần mềm của Zhou Zhiming》](https://time.geekbang.org/opencourse/intro/100064201) (Hãy đọc nhiều sách hay hơn!).
 
-![AID->C](https://oss.javaguide.cn/github/javaguide/mysql/AID->C.png)
+![AID->C](/images/github/javaguide/mysql/AID->C.png)
 
 Ngoài ra, tác giả của DDIA tức là [《Designing Data-Intensive Application (Thiết kế Hệ thống Ứng dụng Tập trung Dữ liệu)》](https://book.douban.com/subject/30329536/) đã nói trong cuốn sách của ông:
 

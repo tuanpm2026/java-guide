@@ -177,7 +177,7 @@ JWT cấu trúc phức tạp (Header, Payload và Signature), chứa nhiều th�
 
 Cấu trúc JWT:
 
-![Cấu trúc JWT](https://oss.javaguide.cn/javaguide/system-design/jwt/jwt-composition.png)
+![Cấu trúc JWT](/images/javaguide/system-design/jwt/jwt-composition.png)
 
 Ví dụ JWT:
 

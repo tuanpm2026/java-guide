@@ -132,7 +132,7 @@ Có thể phán đoán theo hướng này trước:
 
 ## Khi troubleshoot đừng chỉ nhìn số lượng, hãy xem ai đang chủ động đóng trước
 
-![Quy trình troubleshoot TIME_WAIT và CLOSE_WAIT](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-time-wait-close-wait-troubleshooting-flowchart.png)
+![Quy trình troubleshoot TIME_WAIT và CLOSE_WAIT](/images/github/javaguide/cs-basics/network/tcp-time-wait-close-wait-troubleshooting-flowchart.png)
 
 Khi thấy nhiều `TIME_WAIT` hoặc `CLOSE_WAIT`, có thể dùng một số lệnh sau để xác định hướng:
 
@@ -161,7 +161,7 @@ sudo lsof -nP -iTCP -sTCP:CLOSE_WAIT
 ss -ltn
 ```
 
-![macOS：查看各 TCP 状态数量和 TIME-WAIT 主要集中在哪些远端](https://oss.javaguide.cn/github/javaguide/cs-basics/network/macos-check-tcp-state-count-and-time-wait-remote-distribution.png)
+![macOS：查看各 TCP 状态数量和 TIME-WAIT 主要集中在哪些远端](/images/github/javaguide/cs-basics/network/macos-check-tcp-state-count-and-time-wait-remote-distribution.png)
 
 Cách phán đoán từ lệnh:
 

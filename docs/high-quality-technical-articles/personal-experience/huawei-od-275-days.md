@@ -62,7 +62,7 @@ Nói về những gì tôi biết về OD:
 - Mã nhân viên là dãy số 300 riêng biệt, nhân viên nhà cung cấp khác có mã bắt đầu bằng 8, hoặc WX;
 - Dây đeo thẻ màu đỏ, giống nhân viên chính thức, nhưng nội dung thẻ khác, thẻ OD ghi rõ: Thẻ ra vào khu văn phòng, và có ghi chú của công ty Adecco:
 
-![](https://oss.javaguide.cn/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124231550508-1315720640.jpg)
+![](/images/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124231550508-1315720640.jpg)
 
 Còn nghe một số ý kiến nội bộ:
 
@@ -83,7 +83,7 @@ Là người đi trước, tôi xin cung cấp thêm một số tham khảo 😃
 
 a) Các văn bản nội bộ, và hầu hết nội dung trên nền tảng nội bộ, đều không có quyền xem:
 
-![](https://oss.javaguide.cn/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124225007848-1701355006.png)
+![](/images/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124225007848-1701355006.png)
 
 b) Chấm công của bạn được quản lý trong hệ thống quản lý nhân viên thuê ngoài, quản lý hiệu suất cũng vậy;
 
@@ -138,7 +138,7 @@ Nhưng cũng có đồng nghiệp không chuẩn bị, nhiều lần liên tiế
 
 Cái này nghe có vẻ rất huyền bí. Vẫn câu đó thôi, năng lực và may mắn đến thì chắc được! Ảnh nhân viên chuyển chính thức thành công để minh chứng:
 
-![](https://oss.javaguide.cn/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124231943817-1976130336.jpg)
+![](/images/github/javaguide/high-quality-technical-articles/personal-experience/1438655-20210124231943817-1976130336.jpg)
 
 ### Thực sự biết ơn OD, cũng biết ơn Huawei
 

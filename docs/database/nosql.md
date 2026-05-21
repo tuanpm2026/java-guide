@@ -20,7 +20,7 @@ Một hiểu lầm phổ biến là NoSQL database hay non-relational database k
 
 Các đại diện NoSQL database: HBase, Cassandra, MongoDB, Redis.
 
-![](https://oss.javaguide.cn/github/javaguide/database/mongodb/sql-nosql-tushi.png)
+![](/images/github/javaguide/database/mongodb/sql-nosql-tushi.png)
 
 ## SQL và NoSQL khác nhau như thế nào?
 
@@ -55,7 +55,7 @@ NoSQL database chủ yếu chia thành bốn loại sau:
 
 Hình dưới đây có nguồn từ [Microsoft Official Documentation | Relational vs NoSQL data](https://learn.microsoft.com/en-us/dotnet/architecture/cloud-native/relational-vs-nosql-data).
 
-![NoSQL Data Models](https://oss.javaguide.cn/github/javaguide/database/mongodb/types-of-nosql-datastores.png)
+![NoSQL Data Models](/images/github/javaguide/database/mongodb/types-of-nosql-datastores.png)
 
 ## Tài liệu tham khảo
 

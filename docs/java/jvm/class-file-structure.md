@@ -16,7 +16,7 @@ Trong Java, code mà JVM có thể hiểu được gọi là `bytecode` (tức c
 
 Clojure (phương ngữ của ngôn ngữ Lisp), Groovy, Scala, JRuby, Kotlin, v.v. đều chạy trên Java Virtual Machine. Hình dưới cho thấy các ngôn ngữ khác nhau được các compiler khác nhau biên dịch thành file `.class` và cuối cùng chạy trên JVM. Format nhị phân của file `.class` có thể xem bằng [WinHex](https://www.x-ways.net/winhex/).
 
-![Các ngôn ngữ lập trình chạy trên JVM](https://oss.javaguide.cn/github/javaguide/java/basis/java-virtual-machine-program-language-os.png)
+![Các ngôn ngữ lập trình chạy trên JVM](/images/github/javaguide/java/basis/java-virtual-machine-program-language-os.png)
 
 Có thể nói file `.class` là cầu nối quan trọng giữa các ngôn ngữ khác nhau trong JVM, đồng thời cũng là một lý do quan trọng Java cross-platform.
 
@@ -49,11 +49,11 @@ ClassFile {
 
 Thông qua phân tích nội dung `ClassFile`, có thể biết được cấu tạo của class file.
 
-![Phân tích nội dung ClassFile](https://oss.javaguide.cn/java-guide-blog/16d5ec47609818fc.jpeg)
+![Phân tích nội dung ClassFile](/images/java-guide-blog/16d5ec47609818fc.jpeg)
 
 Hình dưới được xem qua IDEA plugin `jclasslib` — có thể trực quan hơn khi xem cấu trúc Class file.
 
-![](https://oss.javaguide.cn/java-guide-blog/image-20210401170711475.png)
+![](/images/java-guide-blog/image-20210401170711475.png)
 
 Dùng `jclasslib` không chỉ có thể trực quan xem bytecode file tương ứng với một class, mà còn xem thông tin cơ bản, constant pool, interface, attribute, function, v.v. của class.
 
@@ -126,7 +126,7 @@ Sau khi constant pool kết thúc, ngay sau đó là hai byte biểu thị acces
 
 Class access và attribute modifier:
 
-![Class access và attribute modifier](https://oss.javaguide.cn/github/javaguide/java/%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png)
+![Class access và attribute modifier](/images/github/javaguide/java/%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png)
 
 Chúng ta định nghĩa một class `Employee`:
 
@@ -139,7 +139,7 @@ public class Employee {
 
 Dùng lệnh `javap -v class_name` để xem access flag của class.
 
-![Xem access flag của class](https://oss.javaguide.cn/github/javaguide/java/%E6%9F%A5%E7%9C%8B%E7%B1%BB%E7%9A%84%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png)
+![Xem access flag của class](/images/github/javaguide/java/%E6%9F%A5%E7%9C%8B%E7%B1%BB%E7%9A%84%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png)
 
 ### Index collection của Class hiện tại (This Class), Class cha (Super Class), Interface
 
@@ -167,7 +167,7 @@ Field table (field info) dùng để mô tả variable được khai báo trong 
 
 **Cấu trúc của field info (field table):**
 
-![Cấu trúc field table](https://oss.javaguide.cn/github/javaguide/java/%E5%AD%97%E6%AE%B5%E8%A1%A8%E7%9A%84%E7%BB%93%E6%9E%84.png)
+![Cấu trúc field table](/images/github/javaguide/java/%E5%AD%97%E6%AE%B5%E8%A1%A8%E7%9A%84%E7%BB%93%E6%9E%84.png)
 
 - **access_flags**: Scope của field (`public`, `private`, `protected` modifier), là instance variable hay class variable (`static` modifier), có thể serialize không (`transient` modifier), mutability (`final`), visibility (`volatile` modifier — có bắt buộc đọc/ghi từ main memory không).
 - **name_index**: Reference đến constant pool, biểu thị name của field.
@@ -179,7 +179,7 @@ Trong các thông tin trên, mỗi modifier đều là boolean — hoặc có mo
 
 **Giá trị access_flag của field:**
 
-![Giá trị access_flag của field](https://oss.javaguide.cn/github/javaguide/java/jvm/class-file-fields-access_flag.png)
+![Giá trị access_flag của field](/images/github/javaguide/java/jvm/class-file-fields-access_flag.png)
 
 ### Method table collection (Methods)
 
@@ -194,11 +194,11 @@ Format lưu method trong Class file gần như hoàn toàn giống với cách m
 
 **Cấu trúc của method_info (method table):**
 
-![Cấu trúc method table](https://oss.javaguide.cn/github/javaguide/java/%E6%96%B9%E6%B3%95%E8%A1%A8%E7%9A%84%E7%BB%93%E6%9E%84.png)
+![Cấu trúc method table](/images/github/javaguide/java/%E6%96%B9%E6%B3%95%E8%A1%A8%E7%9A%84%E7%BB%93%E6%9E%84.png)
 
 **Giá trị access_flag của method table:**
 
-![Giá trị access_flag của method table](https://oss.javaguide.cn/github/javaguide/java/jvm/class-file-methods-access_flag.png)
+![Giá trị access_flag của method table](/images/github/javaguide/java/jvm/class-file-methods-access_flag.png)
 
 Lưu ý: Vì modifier `volatile` và `transient` không thể modify method, nên trong access flag của method table không có hai flag tương ứng. Nhưng vì `synchronized`, `native`, `abstract` và các keyword khác có thể modify method, nên có thêm các flag tương ứng với những keyword này.
 

@@ -31,7 +31,7 @@ Toàn văn gần 10.000 từ, nên lưu trước. Nội dung chính bao gồm:
 
 ## RAG là gì?
 
-![RAG là gì?](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
+![RAG là gì?](/images/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
 
 RAG (Retrieval-Augmented Generation, Sinh tăng cường thu hồi) là framework kết hợp tìm kiếm thông tin và mô hình ngôn ngữ lớn sinh tạo.
 
@@ -41,7 +41,7 @@ RAG (Retrieval-Augmented Generation, Sinh tăng cường thu hồi) là framewor
 
 ## GraphRAG là gì?
 
-![GraphRAG là gì?](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-simplified-architecture-diagram.png)
+![GraphRAG là gì?](/images/github/javaguide/ai/rag/graphrag-simplified-architecture-diagram.png)
 
 GraphRAG (Graph-based Retrieval-Augmented Generation) có thể hiểu là: **ngoài vector search truyền thống còn đưa vào knowledge graph, mô hình hóa tường minh các thực thể, quan hệ và ngữ cảnh có cấu trúc trong tài liệu. Khi thu hồi, ngoài việc thu hồi đoạn tương tự, còn thu thập bằng chứng theo quan hệ đồ thị, rồi giao cho mô hình lớn sinh câu trả lời.**
 
@@ -58,7 +58,7 @@ Vector RAG giỏi phán đoán "đoạn này và câu hỏi của tôi có giố
 
 ## RAG vector truyền thống có giới hạn gì?
 
-![Giới hạn của RAG vector truyền thống](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-vector-rag-limitation.png)
+![Giới hạn của RAG vector truyền thống](/images/github/javaguide/ai/rag/graphrag-vector-rag-limitation.png)
 
 Logic cơ bản của vector RAG rất trực tiếp:
 
@@ -120,7 +120,7 @@ Nhiều người lúc này sẽ điều chỉnh Top-K từ 5 lên 20, thêm rera
 
 ## Sự khác biệt bản chất giữa GraphRAG và RAG vector truyền thống
 
-![Sự khác biệt bản chất giữa GraphRAG và RAG vector truyền thống](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-vs-rag.png)
+![Sự khác biệt bản chất giữa GraphRAG và RAG vector truyền thống](/images/github/javaguide/ai/rag/graphrag-vs-rag.png)
 
 | Chiều               | RAG vector truyền thống                          | GraphRAG                                                                    |
 | ------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
@@ -157,7 +157,7 @@ Nếu tiếp tục hỏi "khi nào không dùng GraphRAG", có thể bổ sung:
 
 Để hiểu GraphRAG, trước tiên tháo rời vài từ khóa quan trọng.
 
-![Các khái niệm cốt lõi của GraphRAG](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-core-concept.png)
+![Các khái niệm cốt lõi của GraphRAG](/images/github/javaguide/ai/rag/graphrag-core-concept.png)
 
 ### Knowledge Graph: Biến tri thức thành mạng quan hệ có thể duyệt
 
@@ -282,7 +282,7 @@ Phân biệt bằng một câu:
 
 Sơ đồ dưới đây thể hiện chuỗi cốt lõi của GraphRAG:
 
-![Giai đoạn xây dựng GraphRAG: Từ tài liệu đến đồ thị](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-build-process.png)
+![Giai đoạn xây dựng GraphRAG: Từ tài liệu đến đồ thị](/images/github/javaguide/ai/rag/graphrag-build-process.png)
 
 Giai đoạn xây dựng của GraphRAG thường bao gồm các bước sau:
 
@@ -315,7 +315,7 @@ Câu hỏi người dùng đặt ra khác nhau, cách thu hồi cũng khác nhau
 
 Sơ đồ dưới đây thể hiện ánh xạ từ loại câu hỏi đến chế độ thu hồi:
 
-![Giai đoạn truy vấn GraphRAG: Trước tiên phán đoán loại câu hỏi](https://oss.javaguide.cn/github/javaguide/ai/rag/graphrag-query-routing.png)
+![Giai đoạn truy vấn GraphRAG: Trước tiên phán đoán loại câu hỏi](/images/github/javaguide/ai/rag/graphrag-query-routing.png)
 
 Một hệ thống trưởng thành sẽ không đẩy tất cả câu hỏi vào GraphRAG. Nhiều câu hỏi đơn giản, dùng vector search rẻ hơn, nhanh hơn, ổn định hơn.
 

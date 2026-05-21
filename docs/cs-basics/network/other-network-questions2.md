@@ -85,7 +85,7 @@ HTTP/3.0 trở về trước dựa trên TCP protocol, còn HTTP/3.0 sẽ bỏ T
 - **HTTP/1.x và HTTP/2.0**: Hai phiên bản này của HTTP protocol đều rõ ràng xây dựng trên TCP. TCP cung cấp truyền đáng tin cậy, connection-oriented, đảm bảo dữ liệu đến theo thứ tự, không có lỗi — điều này rất quan trọng cho việc hiển thị đúng nội dung webpage. Trước khi gửi HTTP request, cần thiết lập kết nối qua TCP three-way handshake.
 - **HTTP/3.0**: Đây là thay đổi lớn. HTTP/3 bỏ TCP, chuyển sang dùng QUIC protocol, còn QUIC được xây dựng trên UDP.
 
-![http-3-implementation](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-3-implementation.png)
+![http-3-implementation](/images/github/javaguide/cs-basics/network/http-3-implementation.png)
 
 **Tại sao HTTP/3 thực hiện thay đổi này? Chủ yếu có hai lý do:**
 
@@ -178,7 +178,7 @@ Thiết bị mạng dựa vào destination IP address để xác định đích 
 
 Cách addressing dựa trên IP address này là nền tảng của internet communication, cho phép packet truyền giữa các mạng khác nhau, thực hiện kết nối mạng phạm vi toàn cầu. Tính duy nhất và toàn cầu của IP address đảm bảo mỗi thiết bị trong mạng có thể được nhận dạng và addressing thông qua IP address độc đáo của nó.
 
-![IP address helps packets reach their destination](https://oss.javaguide.cn/github/javaguide/cs-basics/network/internet_protocol_ip_address_diagram.png)
+![IP address helps packets reach their destination](/images/github/javaguide/cs-basics/network/internet_protocol_ip_address_diagram.png)
 
 ### IP address filtering là gì?
 
@@ -190,11 +190,11 @@ IP address filtering là một biện pháp bảo mật mạng đơn giản, tro
 
 **IPv4 (Internet Protocol version 4)** là phiên bản IP address được sử dụng rộng rãi hiện tại, định dạng là bốn nhóm số cách nhau bằng dấu chấm, ví dụ: 123.89.46.72. IPv4 dùng 32-bit address làm Internet address, có nghĩa là có khoảng 4.2 tỷ ($2^{32}$) IP address khả dụng.
 
-![IPv4](https://oss.javaguide.cn/github/javaguide/cs-basics/network/Figure-1-IPv4Addressformatwithdotteddecimalnotation-29c824f6a451d48d8c27759799f0c995.png)
+![IPv4](/images/github/javaguide/cs-basics/network/Figure-1-IPv4Addressformatwithdotteddecimalnotation-29c824f6a451d48d8c27759799f0c995.png)
 
 Ít vậy tất nhiên không đủ dùng! Để giải quyết vấn đề cạn kiệt IP address, giải pháp căn bản nhất là dùng phiên bản IP protocol mới với không gian địa chỉ lớn hơn — **IPv6 (Internet Protocol version 6)**. IPv6 address dùng định dạng phức tạp hơn, sử dụng nhóm số và chữ cái cách nhau bởi dấu hai chấm đơn hoặc đôi, ví dụ: 2001:0db8:85a3:0000:0000:8a2e:0370:7334. IPv6 dùng 128-bit internet address, có nghĩa là có tới $2^{128}$ IP address khả dụng (số 39 chữ số bắt đầu bằng 3, kinh khủng thật!).
 
-![IPv6](https://oss.javaguide.cn/github/javaguide/cs-basics/network/Figure-2-IPv6Addressformatwithhexadecimalnotation-7da3a419bd81627a9b2cef3b0efb4940.png)
+![IPv6](/images/github/javaguide/cs-basics/network/Figure-2-IPv6Addressformatwithhexadecimalnotation-7da3a419bd81627a9b2cef3b0efb4940.png)
 
 Ngoài không gian address lớn hơn, ưu điểm của IPv6 còn bao gồm:
 
@@ -229,7 +229,7 @@ Tunnel + DSR mode. Phương pháp này có thể áp dụng cho bất kỳ proto
 
 NAT không chỉ giúp giảm bớt vấn đề thiếu hụt tài nguyên IPv4 address, mà còn có thể ẩn cấu trúc topo thực tế của internal network, khiến external network không thể truy cập trực tiếp các thiết bị trong internal network, từ đó nâng cao tính bảo mật của internal network.
 
-![NAT implements IP address translation](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-address-translation.png)
+![NAT implements IP address translation](/images/github/javaguide/cs-basics/network/network-address-translation.png)
 
 Đọc liên quan: [Giải thích chi tiết NAT Protocol (Network Layer)](https://javaguide.cn/cs-basics/network/nat.html).
 
@@ -239,7 +239,7 @@ NAT không chỉ giúp giảm bớt vấn đề thiếu hụt tài nguyên IPv4 
 
 Tên đầy đủ của MAC address là **Media Access Control Address**. Nếu nói rằng mỗi tài nguyên trên internet được định danh duy nhất bởi IP address (nội dung IP protocol), thì mọi thiết bị mạng đều được định danh duy nhất bởi MAC address.
 
-![Mặt sau của router sẽ ghi MAC address](https://oss.javaguide.cn/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
+![Mặt sau của router sẽ ghi MAC address](/images/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
 
 Có thể hiểu rằng MAC address là số CMND thực sự của một thiết bị mạng, còn IP address chỉ là một cách định vị không trùng lặp (ví dụ như Zhang San sống ở tỉnh X, thành phố Y, đường Z, cách định vị logic này là IP address, số CMND của anh ta mới là MAC address). MAC address cũng có một số tên gọi khác như LAN address, physical address, ethernet address.
 

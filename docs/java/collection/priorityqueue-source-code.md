@@ -12,7 +12,7 @@ head:
 
 **Phân tích source code PriorityQueue** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Must-Read Source Code Series》](https://javaguide.cn/zhuanlan/source-code-reading.html).
 
-![Phân tích source code PriorityQueue](https://oss.javaguide.cn/xingqiu/image-20230727084055593.png)
+![Phân tích source code PriorityQueue](/images/xingqiu/image-20230727084055593.png)
 
 <!-- @include: @yuanma.snippet.md -->
 

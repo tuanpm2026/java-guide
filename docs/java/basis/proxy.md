@@ -18,7 +18,7 @@ Proxy Pattern là một design pattern khá dễ hiểu. Nói đơn giản thì 
 
 Ví dụ: Cô dâu nhờ dì của mình thay mặt để xử lý các câu hỏi từ chú rể, những câu hỏi mà cô dâu nhận được đều đã được dì xử lý và lọc qua. Người dì ở đây có thể được coi là đối tượng proxy của bạn, hành vi (phương thức) được ủy quyền là tiếp nhận và trả lời câu hỏi của chú rể.
 
-![Understanding the Proxy Design Pattern | by Mithun Sasidharan | Medium](https://oss.javaguide.cn/2020-8/1*DjWCgTFm-xqbhbNQVsaWQw.png)
+![Understanding the Proxy Design Pattern | by Mithun Sasidharan | Medium](/images/2020-8/1*DjWCgTFm-xqbhbNQVsaWQw.png)
 
 <p style="text-align:right;font-size:13px;color:gray">https://medium.com/@mithunsasidharan/understanding-the-proxy-design-pattern-5e63fe38052a</p>
 

@@ -24,7 +24,7 @@ Trong Java, khi chúng ta khởi động hàm `main` thực chất là khởi đ
 
 Như hình dưới, trên Windows có thể thấy rõ các process Windows đang chạy hiện tại (chạy file `.exe`) qua Task Manager.
 
-![Ví dụ process trên Windows](https://oss.javaguide.cn/github/javaguide/java/%E8%BF%9B%E7%A8%8B%E7%A4%BA%E4%BE%8B%E5%9B%BE%E7%89%87-Windows.png)
+![Ví dụ process trên Windows](/images/github/javaguide/java/%E8%BF%9B%E7%A8%8B%E7%A4%BA%E4%BE%8B%E5%9B%BE%E7%89%87-Windows.png)
 
 #### Thread là gì?
 
@@ -78,7 +78,7 @@ Thread model là cách liên kết giữa user thread và kernel thread. Có ba 
 2. Many-to-one (nhiều user thread map đến một kernel thread)
 3. Many-to-many (nhiều user thread map đến nhiều kernel thread)
 
-![Ba loại thread model phổ biến](https://oss.javaguide.cn/github/javaguide/java/concurrent/three-types-of-thread-models.png)
+![Ba loại thread model phổ biến](/images/github/javaguide/java/concurrent/three-types-of-thread-models.png)
 
 Trên các OS phổ biến như Windows và Linux, Java thread dùng thread model one-to-one — tức một Java thread tương ứng một system kernel thread. Solaris là ngoại lệ (Solaris hỗ trợ many-to-many thread model). HotSpot VM trên Solaris hỗ trợ cả many-to-many và one-to-one. Tham khảo câu trả lời của R: [Mô hình thread trong JVM có phải user-level không?](https://www.zhihu.com/question/23096638/answer/29617153).
 
@@ -86,7 +86,7 @@ Trên các OS phổ biến như Windows và Linux, Java thread dùng thread mode
 
 Hình dưới là Java memory area. Từ góc độ JVM qua hình này nói về quan hệ giữa thread và process.
 
-![Java runtime data area (sau JDK1.8)](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
+![Java runtime data area (sau JDK1.8)](/images/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
 
 Từ hình trên có thể thấy: Một process có thể có nhiều thread. Nhiều thread chia sẻ tài nguyên **heap** và **method area (Metaspace sau JDK1.8)** của process. Nhưng mỗi thread có **program counter**, **JVM stack** và **native method stack** riêng.
 
@@ -141,7 +141,7 @@ Thread trong vòng đời không cố định ở một trạng thái nào mà c
 
 Sơ đồ chuyển đổi trạng thái Java thread (nguồn: [Sửa lỗi | Ba lỗi về trạng thái thread trong 《The Art of Java Concurrent Programming》](https://mp.weixin.qq.com/s/0UTyrJpRKaKhkhHcQtXAiA)):
 
-![Sơ đồ chuyển đổi trạng thái Java thread](https://oss.javaguide.cn/github/javaguide/java/concurrent/640.png)
+![Sơ đồ chuyển đổi trạng thái Java thread](/images/github/javaguide/java/concurrent/640.png)
 
 Từ hình trên có thể thấy: Sau khi thread được tạo sẽ ở trạng thái **NEW (Mới tạo)**. Sau khi gọi method `start()` bắt đầu chạy, thread lúc này ở trạng thái **READY (Sẵn sàng)**. Thread ở trạng thái READY sau khi nhận được CPU time slice sẽ ở trạng thái **RUNNING (Đang chạy)**.
 
@@ -149,7 +149,7 @@ Từ hình trên có thể thấy: Sau khi thread được tạo sẽ ở trạn
 >
 > **Tại sao JVM không phân biệt hai trạng thái này?** (Trích từ: [Java thread chạy sao lại có trạng thái thứ sáu? - Câu trả lời của Dawell](https://www.zhihu.com/question/56494969/answer/154053599)) OS multi-task hiện đại dạng time-sharing thường áp dụng cái gọi là "time quantum/time slice" để thực hiện preemptive round-robin scheduling. Time slice này thường rất nhỏ — một thread mỗi lần chỉ có thể chạy tối đa khoảng 10-20ms trên CPU (lúc này ở running state) — tức khoảng 0.01 giây. Hết time slice sẽ bị switch xuống, đặt vào cuối scheduling queue chờ được schedule lại (quay lại ready state). Thread switch nhanh như vậy nên không có ý nghĩa gì khi phân biệt hai trạng thái này.
 
-![RUNNABLE-VS-RUNNING](https://oss.javaguide.cn/github/javaguide/java/RUNNABLE-VS-RUNNING.png)
+![RUNNABLE-VS-RUNNING](/images/github/javaguide/java/RUNNABLE-VS-RUNNING.png)
 
 - Sau khi thread thực thi method `wait()`, thread vào trạng thái **WAITING (Chờ)**. Thread ở waiting state cần thông báo từ thread khác mới có thể trở về running state.
 - Trạng thái **TIMED_WAITING (Timed wait)** tương đương waiting state nhưng có thêm timeout limit. Ví dụ dùng method `sleep(long millis)` hoặc `wait(long millis)` có thể đặt thread vào TIMED_WAITING. Sau khi timeout, thread sẽ trở về RUNNABLE state.
@@ -265,7 +265,7 @@ Thread deadlock mô tả tình huống: nhiều thread cùng bị block, một h
 
 Như hình dưới, thread A giữ resource 2, thread B giữ resource 1, cả hai đều muốn xin resource của bên kia — nên hai thread này sẽ chờ nhau và vào trạng thái deadlock.
 
-![Sơ đồ thread deadlock](https://oss.javaguide.cn/github/javaguide/java/2019-4%E6%AD%BB%E9%94%811.png)
+![Sơ đồ thread deadlock](/images/github/javaguide/java/2019-4%E6%AD%BB%E9%94%811.png)
 
 Demo deadlock qua ví dụ dưới đây — code mô phỏng tình huống deadlock trong hình (code đến từ 《The Beauty of Concurrent Programming》):
 
@@ -335,7 +335,7 @@ Dưới đây demo bằng công cụ JConsole.
 
 Trước tiên tìm thư mục bin của JDK, tìm jconsole và double-click mở.
 
-![jconsole](https://oss.javaguide.cn/github/javaguide/java/concurrent/jdk-home-bin-jconsole.png)
+![jconsole](/images/github/javaguide/java/concurrent/jdk-home-bin-jconsole.png)
 
 Với MAC user, có thể xem thư mục cài JDK qua `/usr/libexec/java_home -V`, sau khi tìm thấy mở bằng `open . + folder address`. Ví dụ path của một JDK trên máy tôi là:
 
@@ -345,9 +345,9 @@ Với MAC user, có thể xem thư mục cài JDK qua `/usr/libexec/java_home -V
 
 Sau khi mở jconsole, connect đến program tương ứng, vào giao diện thread và chọn detect deadlock là xong!
 
-![jconsole phát hiện deadlock](https://oss.javaguide.cn/github/javaguide/java/concurrent/jconsole-check-deadlock.png)
+![jconsole phát hiện deadlock](/images/github/javaguide/java/concurrent/jconsole-check-deadlock.png)
 
-![jconsole phát hiện được deadlock](https://oss.javaguide.cn/github/javaguide/java/concurrent/jconsole-check-deadlock-done.png)
+![jconsole phát hiện được deadlock](/images/github/javaguide/java/concurrent/jconsole-check-deadlock-done.png)
 
 ### Làm thế nào ngăn chặn và tránh thread deadlock?
 

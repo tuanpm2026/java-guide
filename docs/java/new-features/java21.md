@@ -28,7 +28,7 @@ JDK 21 có tổng cộng 15 tính năng mới, bài viết này sẽ chọn lọ
 
 Hình dưới đây thể hiện số lượng tính năng mới và thời điểm cập nhật của mỗi phiên bản từ JDK 8 đến JDK 24:
 
-![](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![](/images/github/javaguide/java/new-features/jdk8~jdk24.png)
 
 ## JEP 430: String Templates（Mẫu chuỗi, xem trước）
 

@@ -46,7 +46,7 @@ root@eaf70fc620cb:/apache-zookeeper-3.5.8-bin# cd bin
 
 Nếu bạn thấy console in ra thông tin như hình dưới, nghĩa là đã kết nối thành công ZooKeeper service.
 
-![Kết nối ZooKeeper service](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/connect-zooKeeper-service.png)
+![Kết nối ZooKeeper service](/images/github/javaguide/distributed-system/zookeeper/connect-zooKeeper-service.png)
 
 ## Demo các lệnh phổ biến của ZooKeeper
 
@@ -171,7 +171,7 @@ Lệnh này khá đơn giản, nhưng cần lưu ý: để xóa một node, node
 
 Curator là một bộ framework Java client mã nguồn mở cho ZooKeeper của Netflix. So với ZooKeeper client tích hợp sẵn, Curator được đóng gói hoàn thiện hơn, các API đều khá tiện dụng.
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/curator.png)
+![](/images/github/javaguide/distributed-system/zookeeper/curator.png)
 
 Hãy demo đơn giản cách dùng Curator!
 

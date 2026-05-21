@@ -68,7 +68,7 @@ ZooKeeper data model uses a hierarchical multi-tree structure. Each node can sto
 
 ZooKeeper node path format is similar to Unix filesystem paths.
 
-![ZooKeeper Data Model](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/znode-structure.png)
+![ZooKeeper Data Model](/images/github/javaguide/distributed-system/zookeeper/znode-structure.png)
 
 ### znode (Data Node)
 
@@ -133,7 +133,7 @@ Identity authentication methods:
 
 Watcher is a very important feature in ZooKeeper. ZooKeeper allows users to register Watchers on specified nodes. When specific events trigger, ZooKeeper server will notify interested clients. This mechanism is an important feature for ZooKeeper to implement distributed coordination services.
 
-![ZooKeeper Watcher Mechanism](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/zookeeper-watcher.png)
+![ZooKeeper Watcher Mechanism](/images/github/javaguide/distributed-system/zookeeper/zookeeper-watcher.png)
 
 ### Session
 
@@ -147,7 +147,7 @@ Before creating session for client, server first assigns a `sessionID` to each c
 
 For high availability, best to deploy ZooKeeper as a cluster. Usually 3 servers can form a ZooKeeper cluster.
 
-![ZooKeeper Cluster Architecture](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/zookeeper-cluster.png)
+![ZooKeeper Cluster Architecture](/images/github/javaguide/distributed-system/zookeeper/zookeeper-cluster.png)
 
 Each Server represents a server with ZooKeeper service installed. Servers maintain current state in memory and communicate with each other. Data consistency is maintained across cluster through **ZAB Protocol (ZooKeeper Atomic Broadcast)**.
 
@@ -157,7 +157,7 @@ Each Server represents a server with ZooKeeper service installed. Servers mainta
 
 ZooKeeper introduces three roles: Leader, Follower, and Observer.
 
-![ZooKeeper Cluster Roles](https://oss.javaguide.cn/github/javaguide/distributed-system/zookeeper/zookeeper-cluser-roles.png)
+![ZooKeeper Cluster Roles](/images/github/javaguide/distributed-system/zookeeper/zookeeper-cluser-roles.png)
 
 All machines in ZooKeeper cluster select a **Leader** through a **Leader election process**. Leader can provide both write and read services. **Follower** and **Observer** can only provide read services. Observer machines don't participate in Leader election or "majority write success" strategy, so they can improve cluster read performance without affecting write performance.
 

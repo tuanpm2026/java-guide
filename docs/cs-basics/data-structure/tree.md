@@ -20,7 +20,7 @@ Một cây có các đặc điểm sau:
 
 Hình dưới là một cây, cụ thể là binary tree.
 
-![Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/%E4%BA%8C%E5%8F%89%E6%A0%91-2.png)
+![Binary Tree](/images/github/javaguide/cs-basics/data-structure/%E4%BA%8C%E5%8F%89%E6%A0%91-2.png)
 
 Như hình trên, giải thích một số thuật ngữ phổ biến trong tree:
 
@@ -45,13 +45,13 @@ Hai nhánh của **binary tree** thường gọi là "**left subtree**" hoặc "
 
 Tầng thứ i của **binary tree** có tối đa `2^(i-1)` node. Binary tree có độ sâu k có tổng tối đa `2^(k+1)-1` node (trường hợp full binary tree), tối thiểu `2^(k)` node (định nghĩa về node depth còn nhiều tranh luận trong nước, tôi cá nhân đồng ý với [định nghĩa node depth của Wikipedia](<https://zh.wikipedia.org/wiki/%E6%A0%91_(%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84)#/%E6%9C%AF%E8%AF%AD>)).
 
-![Định nghĩa node depth của Wikipedia](https://oss.javaguide.cn/github/javaguide/image-20220119112736158.png)
+![Định nghĩa node depth của Wikipedia](/images/github/javaguide/image-20220119112736158.png)
 
 ### Full Binary Tree (Cây nhị phân đầy đủ / Cây nhị phân hoàn hảo)
 
 Binary tree mà mọi tầng đều có số node tối đa gọi là **full binary tree**. Tức là nếu binary tree có K tầng và tổng số node là (2^k)-1 thì đó là **full binary tree**. Như hình dưới:
 
-![Full Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/full-binary-tree.png)
+![Full Binary Tree](/images/github/javaguide/cs-basics/data-structure/full-binary-tree.png)
 
 ### Complete Binary Tree (Cây nhị phân hoàn chỉnh)
 
@@ -59,7 +59,7 @@ Nếu tất cả các tầng trừ tầng cuối cùng đều đầy, và tầng
 
 Hãy tưởng tượng một cây bắt đầu mở rộng từ root node. Phải mở rộng xong left child node mới bắt đầu mở rộng right child node. Mỗi tầng mở rộng xong mới tiếp tục tầng tiếp theo. Như hình dưới:
 
-![Complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/complete-binary-tree.png)
+![Complete Binary Tree](/images/github/javaguide/cs-basics/data-structure/complete-binary-tree.png)
 
 Complete binary tree có một tính chất rất tốt: **Parent node và child node có quan hệ tương ứng về sequence number**.
 
@@ -76,7 +76,7 @@ Các cách triển khai phổ biến của balanced binary tree là **Red-Black 
 
 Trước khi giới thiệu balanced binary tree, hãy xem cây này trước:
 
-![Oblique Tree (Cây lệch)](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/oblique-tree.png)
+![Oblique Tree (Cây lệch)](/images/github/javaguide/cs-basics/data-structure/oblique-tree.png)
 
 **Cái này bạn gọi là cây à???**
 
@@ -90,7 +90,7 @@ Nhưng binary tree so với linked list, vì parent-child node và sibling node 
 
 Nhưng nếu binary tree degenerate thành linked list thì những tính chất tốt của tree khó thể hiện ra, efficiency cũng giảm đáng kể. Để tránh điều này, chúng ta muốn mỗi parent node đều "công bằng" — phần chia cho left child và right child càng bằng nhau càng tốt, chênh lệch tối đa không quá một tầng. Như hình dưới:
 
-![Balanced Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/balanced-binary-tree.png)
+![Balanced Binary Tree](/images/github/javaguide/cs-basics/data-structure/balanced-binary-tree.png)
 
 ## Lưu trữ Binary Tree
 
@@ -110,7 +110,7 @@ Nhưng JAVA không có con trỏ!
 
 Thì dùng object reference vậy!
 
-![Linked Storage Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/chain-store-binary-tree.png)
+![Linked Storage Binary Tree](/images/github/javaguide/cs-basics/data-structure/chain-store-binary-tree.png)
 
 ### Sequential Storage (Lưu trữ tuần tự)
 
@@ -118,11 +118,11 @@ Sequential storage dùng mảng để lưu trữ. Mỗi vị trí trong mảng c
 
 Sequential storage của complete binary tree như hình dưới:
 
-![Sequential Storage của Complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage.png)
+![Sequential Storage của Complete Binary Tree](/images/github/javaguide/cs-basics/data-structure/sequential-storage.png)
 
 Hãy thử điền vào mảng để lưu binary tree dưới đây, so sánh xem khác gì so với sequential storage của complete binary tree:
 
-![Sequential Storage của Non-complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage2.png)
+![Sequential Storage của Non-complete Binary Tree](/images/github/javaguide/cs-basics/data-structure/sequential-storage2.png)
 
 Có thể thấy nếu binary tree cần lưu không phải complete binary tree, sẽ có khoảng trống trong mảng, dẫn đến memory utilization rate giảm.
 
@@ -130,7 +130,7 @@ Có thể thấy nếu binary tree cần lưu không phải complete binary tree
 
 ### Pre-order Traversal (Duyệt tiền tự)
 
-![Pre-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/preorder-traversal.png)
+![Pre-order Traversal](/images/github/javaguide/cs-basics/data-structure/preorder-traversal.png)
 
 Pre-order traversal của binary tree là trước tiên output root node, rồi duyệt left subtree, cuối cùng duyệt right subtree. Khi duyệt left subtree và right subtree cũng tuân theo quy tắc pre-order traversal. Tức là có thể triển khai pre-order traversal bằng đệ quy.
 
@@ -149,11 +149,11 @@ public void preOrder(TreeNode root){
 
 ### In-order Traversal (Duyệt trung tự)
 
-![In-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal.png)
+![In-order Traversal](/images/github/javaguide/cs-basics/data-structure/inorder-traversal.png)
 
 In-order traversal của binary tree là trước tiên đệ quy in-order duyệt left subtree, rồi output giá trị root node, rồi đệ quy in-order duyệt right subtree. Hãy tưởng tượng như một bàn tay đập phẳng cây — parent node bị đẩy vào giữa left và right child node. Như hình dưới:
 
-![In-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal2.png)
+![In-order Traversal](/images/github/javaguide/cs-basics/data-structure/inorder-traversal2.png)
 
 Code:
 
@@ -170,7 +170,7 @@ public void inOrder(TreeNode root){
 
 ### Post-order Traversal (Duyệt hậu tự)
 
-![Post-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/postorder-traversal.png)
+![Post-order Traversal](/images/github/javaguide/cs-basics/data-structure/postorder-traversal.png)
 
 Post-order traversal của binary tree là trước tiên đệ quy post-order duyệt left subtree, rồi đệ quy post-order duyệt right subtree, cuối cùng output giá trị root node.
 

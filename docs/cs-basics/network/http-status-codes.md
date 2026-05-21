@@ -12,7 +12,7 @@ head:
 
 HTTP status code dùng để mô tả kết quả của HTTP request, ví dụ 2xx nghĩa là request đã được xử lý thành công.
 
-![Các HTTP status code phổ biến](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-status-code.png)
+![Các HTTP status code phổ biến](/images/github/javaguide/cs-basics/network/http-status-code.png)
 
 ### 1xx Informational（Mã trạng thái thông tin）
 
@@ -27,7 +27,7 @@ So với các nhóm status code khác, 1xx là nhóm bạn hầu như sẽ khôn
 
 🐛 Đính chính (xem: [issue#2458](https://github.com/Snailclimb/JavaGuide/issues/2458)): Status code 201 Created chính xác hơn là tạo một hoặc nhiều resource mới, tham khảo: <https://httpwg.org/specs/rfc9110.html#status.201>.
 
-![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/rfc9110-201-created.png)
+![](/images/github/javaguide/cs-basics/network/rfc9110-201-created.png)
 
 Cần đặc biệt nhắc đến status code 204, đây là mã không thường gặp trong học tập/công việc hàng ngày.
 

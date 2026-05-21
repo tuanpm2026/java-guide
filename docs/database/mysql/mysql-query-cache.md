@@ -27,7 +27,7 @@ Với các câu hỏi sau, chúng ta bắt đầu bài này:
 
 Kiến trúc MySQL như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/mysql/mysql-architecture.png)
+![](/images/github/javaguide/mysql/mysql-architecture.png)
 
 Để cải thiện tốc độ response của các câu query hoàn toàn giống nhau, MySQL Server tính Hash của câu query để lấy Hash value. MySQL Server không xử lý SQL theo bất kỳ cách nào — SQL phải hoàn toàn giống nhau mới cho cùng Hash value. Sau khi có Hash value, dùng Hash value đó để tìm kết quả query trong query cache.
 
@@ -36,7 +36,7 @@ Kiến trúc MySQL như hình dưới:
 
 Tức là, **sau khi câu query (select) đến MySQL Server, sẽ kiểm tra query cache trước. Nếu đã thực thi trước đó thì trả thẳng result set cho client.**
 
-![](https://oss.javaguide.cn/javaguide/13526879-3037b144ed09eb88.png)
+![](/images/javaguide/13526879-3037b144ed09eb88.png)
 
 ## Quản lý và Cấu hình MySQL Query Cache
 

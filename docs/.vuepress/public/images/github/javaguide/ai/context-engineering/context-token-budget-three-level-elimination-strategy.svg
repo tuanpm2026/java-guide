@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" style="background-color: #F8FAFC; font-family: system-ui, sans-serif;">
+    <defs>
+        <pattern id="grid-2" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+        </pattern>
+        <filter id="card-shadow-2">
+            <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#005D7B" flood-opacity="0.08" />
+        </filter>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#grid-2)" />
+    
+    <text x="400" y="50" text-anchor="middle" font-size="24" font-weight="bold" fill="#005D7B">上下文 Token 预算的三级淘汰策略</text>
+    <text x="400" y="80" text-anchor="middle" font-size="14" fill="#64748B">当上下文窗口逼近极限时的“页面置换”逻辑</text>
+
+    <g transform="translate(150, 120)">
+        <rect width="500" height="80" rx="12" fill="#FFFFFF" filter="url(#card-shadow-2)" />
+        <rect width="8" height="50" x="20" y="15" rx="4" fill="#005D7B" />
+        <text x="45" y="38" font-size="16" font-weight="bold" fill="#005D7B">P0：绝对保护 (核心基座)</text>
+        <text x="45" y="60" font-size="14" fill="#64748B">系统约束 (System Constraints) &amp; 核心工具描述</text>
+        <rect x="380" y="25" width="100" height="30" rx="15" fill="#EBF4F6" />
+        <text x="430" y="45" text-anchor="middle" font-size="12" font-weight="bold" fill="#005D7B">永不剔除</text>
+    </g>
+
+    <line x1="400" y1="200" x2="400" y2="230" stroke="#005D7B" stroke-width="2" stroke-dasharray="4,4" />
+
+    <g transform="translate(180, 230)">
+        <rect width="440" height="80" rx="12" fill="#FFFFFF" filter="url(#card-shadow-2)" />
+        <rect width="8" height="50" x="20" y="15" rx="4" fill="#4CA497" />
+        <text x="45" y="38" font-size="16" font-weight="bold" fill="#4CA497">P1：核心精简 (动态增强)</text>
+        <text x="45" y="60" font-size="14" fill="#64748B">RAG 检索的背景资料 &amp; 工具调用输出结果</text>
+        <rect x="320" y="25" width="100" height="30" rx="15" fill="#E8F4F1" />
+        <text x="370" y="45" text-anchor="middle" font-size="12" font-weight="bold" fill="#4CA497">二次裁剪</text>
+    </g>
+
+    <line x1="400" y1="310" x2="400" y2="340" stroke="#005D7B" stroke-width="2" stroke-dasharray="4,4" />
+
+    <g transform="translate(210, 340)">
+        <rect width="380" height="80" rx="12" fill="#FFFFFF" filter="url(#card-shadow-2)" />
+        <rect width="8" height="50" x="20" y="15" rx="4" fill="#E99151" />
+        <text x="45" y="38" font-size="16" font-weight="bold" fill="#E99151">P2：优先折叠 (对话历史)</text>
+        <text x="45" y="60" font-size="14" fill="#64748B">早期多轮对话历史</text>
+        <rect x="260" y="25" width="100" height="30" rx="15" fill="#FFF5ED" />
+        <text x="310" y="45" text-anchor="middle" font-size="12" font-weight="bold" fill="#E99151">AI 摘要压缩</text>
+    </g>
+</svg>

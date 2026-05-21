@@ -44,7 +44,7 @@ Tác vụ cần thực thi phải triển khai **interface `Runnable`** hoặc *
 
 Như hình dưới đây, bao gồm interface cốt lõi **`Executor`** và interface **`ExecutorService`** kế thừa từ `Executor`. Hai class quan trọng **`ThreadPoolExecutor`** và **`ScheduledThreadPoolExecutor`** triển khai interface **`ExecutorService`**.
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/executor-class-diagram.png)
+![](/images/github/javaguide/java/concurrent/executor-class-diagram.png)
 
 Tuy đề cập đến nhiều mối quan hệ cấp thấp, nhưng thực tế chúng ta cần quan tâm nhiều hơn đến class `ThreadPoolExecutor`, class này được sử dụng rất thường xuyên trong quá trình sử dụng thread pool thực tế.
 
@@ -134,7 +134,7 @@ Các tham số thường gặp khác của `ThreadPoolExecutor`:
 
 Hình dưới đây giúp bạn hiểu sâu hơn về mối quan hệ giữa các tham số trong thread pool (Nguồn ảnh: "Thực chiến tối ưu hiệu năng Java"):
 
-![Mối quan hệ giữa các tham số thread pool](https://oss.javaguide.cn/github/javaguide/java/concurrent/relationship-between-thread-pool-parameters.png)
+![Mối quan hệ giữa các tham số thread pool](/images/github/javaguide/java/concurrent/relationship-between-thread-pool-parameters.png)
 
 ### Trạng thái vòng đời Thread Pool
 
@@ -209,7 +209,7 @@ Trong Java, có hai cách chính để tạo thread pool:
 
 **Cách 1: Tạo trực tiếp qua constructor của `ThreadPoolExecutor` (khuyến nghị)**
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpoolexecutor-construtors.png)
+![](/images/github/javaguide/java/concurrent/threadpoolexecutor-construtors.png)
 
 Đây là cách được khuyến nghị nhất, vì nó cho phép developer chỉ định rõ ràng các tham số cốt lõi của thread pool, có kiểm soát chi tiết hơn đối với hành vi chạy của thread pool, từ đó tránh rủi ro cạn kiệt tài nguyên.
 
@@ -217,7 +217,7 @@ Trong Java, có hai cách chính để tạo thread pool:
 
 Các phương thức tạo thread pool mà class tiện ích `Executors` cung cấp được hiển thị như hình dưới:
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/executors-new-thread-pool-methods.png)
+![](/images/github/javaguide/java/concurrent/executors-new-thread-pool-methods.png)
 
 Có thể thấy, thông qua class tiện ích `Executors` có thể tạo nhiều loại thread pool khác nhau, bao gồm:
 
@@ -462,7 +462,7 @@ Phương thức này rất quan trọng, hãy xem source code của nó:
 3. Nếu việc đưa tác vụ vào task queue thất bại (task queue đã đầy) và tổng số working thread hiện tại nhỏ hơn số thread tối đa, tạo một non-core thread mới để thực thi tác vụ.
 4. Nếu tổng số working thread hiện tại đã bằng số thread tối đa và task queue cũng không thể tiếp tục nhận tác vụ, tác vụ hiện tại sẽ bị từ chối, chiến lược từ chối sẽ gọi phương thức `RejectedExecutionHandler.rejectedExecution()`.
 
-![Minh họa nguyên lý triển khai thread pool](https://oss.javaguide.cn/github/javaguide/java/concurrent/thread-pool-principle.png)
+![Minh họa nguyên lý triển khai thread pool](/images/github/javaguide/java/concurrent/thread-pool-principle.png)
 
 Trong phương thức `execute`, phương thức `addWorker` được gọi nhiều lần. Phương thức `addWorker` chủ yếu được dùng để tạo working thread mới; nếu trả về true, tức là tạo và khởi động working thread thành công, ngược lại trả về false.
 

@@ -35,7 +35,7 @@ Hãy xem các bước đọc/ghi cache trong chế độ này.
 
 Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/cache-aside-write.png)
+![](/images/github/javaguide/database/redis/cache-aside-write.png)
 
 **Thao tác đọc:**
 
@@ -45,7 +45,7 @@ Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
 Vẽ một hình đơn giản giúp hiểu các bước đọc.
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/cache-aside-read.png)
+![](/images/github/javaguide/database/redis/cache-aside-read.png)
 
 Chỉ biết những điều trên là chưa đủ. Chúng ta cần hiểu nguyên lý bên trong.
 
@@ -115,7 +115,7 @@ Chiến lược đọc/ghi cache này các bạn có thể thấy rất hiếm t
 
 Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/write-through.png)
+![](/images/github/javaguide/database/redis/write-through.png)
 
 **Đọc (Read Through):**
 
@@ -125,7 +125,7 @@ Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
 Vẽ một hình đơn giản giúp hiểu các bước đọc.
 
-![](https://oss.javaguide.cn/github/javaguide/database/redis/read-through.png)
+![](/images/github/javaguide/database/redis/read-through.png)
 
 Read-Through thực ra chỉ là encapsulation trên cơ sở Cache-Aside. Trong Cache-Aside, khi xảy ra read request mà Cache không có dữ liệu tương ứng, client tự chịu trách nhiệm ghi dữ liệu vào Cache; còn Read Through thì Cache service tự ghi vào cache, điều này trong suốt với client.
 

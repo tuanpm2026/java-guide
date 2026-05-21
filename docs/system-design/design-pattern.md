@@ -11,10 +11,10 @@ head:
 
 Các câu hỏi phỏng vấn liên quan đến **Design Pattern** đã được tổng hợp vào tài liệu PDF. Bạn có thể nhận được bằng cách reply "**PDF**" ở trang sau của tài khoản công khai "**JavaGuide**".
 
-![Tài khoản công khai chính thức JavaGuide](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![Tài khoản công khai chính thức JavaGuide](/images/github/javaguide/gongzhonghaoxuanchuan.png)
 
 **Tổng quan nội dung PDF《Design Pattern》**:
 
-![Tổng quan tài liệu PDF《Design Pattern》](https://oss.javaguide.cn/github/javaguide/system-design/design-pattern-pdf.png)
+![Tổng quan tài liệu PDF《Design Pattern》](/images/github/javaguide/system-design/design-pattern-pdf.png)
 
 <!-- @include: @article-footer.snippet.md -->

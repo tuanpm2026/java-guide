@@ -21,7 +21,7 @@ Bài này được trích từ **[《Java Interview Guide》](../zhuanlan/java-m
 
 Xem hình tổng quan dưới đây (sẽ giải thích chi tiết sau):
 
-![Java Backend Interview Key Points](https://oss.javaguide.cn/github/javaguide/interview-preparation/back-end-interview-focus.png)
+![Java Backend Interview Key Points](/images/github/javaguide/interview-preparation/back-end-interview-focus.png)
 
 Một vài lời khuyên tin cậy:
 
@@ -37,7 +37,7 @@ Tuy nhìn có vẻ rất nhiều technical questions về Java backend, nhưng t
 
 ## Làm thế nào để chuẩn bị technical questions hiệu quả hơn?
 
-<img src="https://oss.javaguide.cn/github/javaguide/interview-preparation/preparation-for%20eight-part%20essay.png" style="zoom:50%;" />
+<img src="/images/github/javaguide/interview-preparation/preparation-for%20eight-part%20essay.png" style="zoom:50%;" />
 
 Đối với technical interview questions, hãy cố gắng không thuộc lòng máy móc — cách này rất nhàm chán và hạn chế trong việc nâng cao năng lực bản thân! Nhưng! Muốn không thuộc chút nào là không thực tế, chỉ là phải kết hợp với tình huống ứng dụng thực tế và thực hành để hiểu và ghi nhớ.
 

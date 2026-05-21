@@ -35,7 +35,7 @@ Có thể giám sát trạng thái hoạt động của thread pool bằng một
 
 Ngoài ra, có thể dùng các API liên quan của `ThreadPoolExecutor` để monitor đơn giản. Từ hình dưới, `ThreadPoolExecutor` cung cấp phương thức lấy số thread hiện tại, active thread count, số task đã hoàn thành, số task đang xếp hàng, v.v.
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpool-methods-information.png)
+![](/images/github/javaguide/java/concurrent/threadpool-methods-information.png)
 
 Dưới đây là Demo đơn giản. `printThreadPoolStatus()` in ra thread count, active thread count, số task hoàn thành và số task trong queue của thread pool mỗi giây.
 
@@ -66,13 +66,13 @@ Thông thường khuyến nghị các nghiệp vụ khác nhau dùng thread pool
 
 **Cùng xem một ca tai nạn thực tế!** (Ca này đến từ: [《Tai nạn online vì dùng sai thread pool》](https://heapdump.cn/article/646639) — một ca rất hay!)
 
-![Code overview](https://oss.javaguide.cn/github/javaguide/java/concurrent/production-accident-threadpool-sharing-example.png)
+![Code overview](/images/github/javaguide/java/concurrent/production-accident-threadpool-sharing-example.png)
 
 Code trên có thể xảy ra deadlock. Tại sao? Vẽ hình giải thích.
 
 Thử nghĩ tình huống cực đoan này: Giả sử core thread count của thread pool là **n**, số parent task (task trừ tiền) là **n**, mỗi parent task có hai child task (sub-task dưới task trừ tiền). Một cái đã thực thi xong, cái kia được đặt vào task queue. Vì parent task đã dùng hết core thread resource của thread pool, child task không thể lấy được thread resource nên không thể thực thi bình thường — bị block mãi trong queue. Parent task chờ child task thực thi xong, child task chờ parent task giải phóng thread pool resource — dẫn đến **"deadlock"**.
 
-![Thread pool dùng sai gây deadlock](https://oss.javaguide.cn/github/javaguide/java/concurrent/production-accident-threadpool-sharing-deadlock.png)
+![Thread pool dùng sai gây deadlock](/images/github/javaguide/java/concurrent/production-accident-threadpool-sharing-deadlock.png)
 
 Giải pháp cũng đơn giản: Thêm một thread pool riêng biệt để thực thi child task.
 
@@ -190,7 +190,7 @@ Trong bài [《Tổng kết học thread pool mà newbie cũng hiểu》](https:
 
 **Làm thế nào hỗ trợ dynamic configuration tham số?** Xem các method sau của `ThreadPoolExecutor`.
 
-![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpoolexecutor-methods.png)
+![](/images/github/javaguide/java/concurrent/threadpoolexecutor-methods.png)
 
 Đặc biệt cần chú ý `corePoolSize`. Khi gọi `setCorePoolSize()` trong khi chương trình chạy, thread pool trước tiên kiểm tra số working thread hiện tại có lớn hơn `corePoolSize` không. Nếu lớn hơn thì sẽ reclaim working thread.
 
@@ -198,7 +198,7 @@ Ngoài ra, bạn cũng thấy không có method nào chỉ định dynamic queue
 
 Effect cuối cùng của dynamic modify thread pool params như hình dưới. 👏👏👏
 
-![Effect cuối cùng của dynamic configuration thread pool params](https://oss.javaguide.cn/github/javaguide/java/concurrent/meituan-dynamically-configuring-thread-pool-parameters.png)
+![Effect cuối cùng của dynamic configuration thread pool params](/images/github/javaguide/java/concurrent/meituan-dynamically-configuring-thread-pool-parameters.png)
 
 Nếu dự án của bạn cũng muốn triển khai effect này, có thể dùng các open source project có sẵn:
 

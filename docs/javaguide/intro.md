@@ -28,7 +28,7 @@ Cố lên!
 
 Dưới đây là một số dịch vụ mà Planet cung cấp (click vào hình dưới để xem giới thiệu chi tiết về Knowledge Planet):
 
-[![Planet services](https://oss.javaguide.cn/xingqiu/xingqiufuwu.png)](../about-the-author/zhishixingqiu-two-years.md)
+[![Planet services](/images/xingqiu/xingqiufuwu.png)](../about-the-author/zhishixingqiu-two-years.md)
 
 ## Thông tin project
 

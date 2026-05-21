@@ -38,7 +38,7 @@ Leetcode official detailed solution:
 
 Chúng ta dùng một biến để track carry (số nhớ), mô phỏng quá trình cộng từng chữ số bắt đầu từ đầu danh sách (chứa chữ số ít có nghĩa nhất).
 
-![Hình 1: Visualization của phương pháp cộng hai số: 342 + 465 = 807, mỗi node chứa một chữ số, và chữ số được lưu theo thứ tự ngược.](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/34910956.jpg)
+![Hình 1: Visualization của phương pháp cộng hai số: 342 + 465 = 807, mỗi node chứa một chữ số, và chữ số được lưu theo thứ tự ngược.](/images/github/javaguide/cs-basics/algorithms/34910956.jpg)
 
 ### Solution
 
@@ -86,7 +86,7 @@ public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 
 > Sword Offer: Nhập vào một linked list, sau khi đảo ngược, xuất tất cả elements của linked list.
 
-![Đảo ngược linked list](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/81431871.jpg)
+![Đảo ngược linked list](/images/github/javaguide/cs-basics/algorithms/81431871.jpg)
 
 ### Phân tích bài toán
 
@@ -252,7 +252,7 @@ Bài này trên leetcode có giải thích chi tiết, có thể tham khảo Lee
 
 Chú ý bài toán này có thể đơn giản hóa thành: xóa node thứ (L - n + 1) từ đầu, L là chiều dài list. Chỉ cần tìm được L là có thể giải quyết dễ dàng.
 
-![Hình 1. Xóa element thứ L - n + 1 trong list](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/94354387.jpg)
+![Hình 1. Xóa element thứ L - n + 1 trong list](/images/github/javaguide/cs-basics/algorithms/94354387.jpg)
 
 ### Solution
 

@@ -13,6 +13,6 @@ head:
 
 Các câu hỏi phỏng vấn liên quan đến **Elasticsearch** là nội dung độc quyền của [Knowledge Planet](../../about-the-author/zhishixingqiu-two-years.md) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Interview Guide》](../../zhuanlan/java-mian-shi-zhi-bei.md).
 
-![](https://oss.javaguide.cn/javamianshizhibei/elasticsearch-questions.png)
+![](/images/javamianshizhibei/elasticsearch-questions.png)
 
 <!-- @include: @planet.snippet.md -->

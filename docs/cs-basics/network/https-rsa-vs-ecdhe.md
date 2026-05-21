@@ -31,7 +31,7 @@ Bài viết này chủ yếu trả lời một số câu hỏi:
 
 Khi giải thích rõ những câu hỏi này, `PreMasterSecret`, `Server Key Exchange`, bảo mật chuyển tiếp, lý do TLS 1.3 loại bỏ RSA tĩnh — tất cả đều có thể hiểu theo từng bước.
 
-![RSA và ECDHE trao đổi khóa: sự khác biệt cốt lõi](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-rsa-and-ecdhe-key-exchange-core-differences.png)
+![RSA và ECDHE trao đổi khóa: sự khác biệt cốt lõi](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-rsa-and-ecdhe-key-exchange-core-differences.png)
 
 ## Hai vấn đề cốt lõi của bắt tay TLS
 
@@ -105,7 +105,7 @@ Phê bình ở đây không phải là thuật toán RSA "không thể dùng". R
 
 Khi khóa riêng server bị rò rỉ, cái giá phải trả quá lớn.
 
-![RSA tĩnh thiếu bảo mật chuyển tiếp: Bắt gói đầy đủ + rò rỉ khóa riêng có thể truy xuất lưu lượng lịch sử](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-static-rsa-lacks-forward-secrecy.png)
+![RSA tĩnh thiếu bảo mật chuyển tiếp: Bắt gói đầy đủ + rò rỉ khóa riêng có thể truy xuất lưu lượng lịch sử](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-static-rsa-lacks-forward-secrecy.png)
 
 ### Một gánh nặng lịch sử khác: Tấn công padding oracle
 
@@ -222,7 +222,7 @@ Nhấn mạnh lại một lần nữa:
 
 Đây cũng là chỗ nhiều người dễ hiểu nhầm nhất khi nhìn vào tên bộ mật mã.
 
-![Luồng bắt tay TLS 1.2 ECDHE_RSA](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-tls-1-2-ecdhe-rsa-handshake-process.png)
+![Luồng bắt tay TLS 1.2 ECDHE_RSA](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-tls-1-2-ecdhe-rsa-handshake-process.png)
 
 ### Cách đọc tên bộ mật mã
 
@@ -265,7 +265,7 @@ Bạn sẽ thấy nó không còn viết phương thức trao đổi khóa và x
 
 Vì vậy, khi thấy `TLS_AES_128_GCM_SHA256` của TLS 1.3, đừng nhầm tưởng nó "không có trao đổi khóa". Trao đổi khóa vẫn còn, chỉ là không viết theo kiểu đặt tên của TLS 1.2.
 
-![Phân tách tên bộ mật mã](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-cipher-suite-name-decomposition.png)
+![Phân tách tên bộ mật mã](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-cipher-suite-name-decomposition.png)
 
 ## Bảo mật chuyển tiếp và chi phí hiệu suất
 
@@ -283,7 +283,7 @@ Trong trao đổi khóa RSA, khóa riêng server có thể trực tiếp mở `P
 
 Sự thay đổi vai trò này quyết định sự khác biệt giữa hai loại trong việc bảo vệ lưu lượng lịch sử.
 
-![Nguyên tắc bảo mật chuyển tiếp của ECDHE: Khóa dài hạn vs Khóa tạm thời](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-ecdhe-forward-secrecy-principle-long-term-key-vs-ephemeral-key.png)
+![Nguyên tắc bảo mật chuyển tiếp của ECDHE: Khóa dài hạn vs Khóa tạm thời](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-ecdhe-forward-secrecy-principle-long-term-key-vs-ephemeral-key.png)
 
 Tuy nhiên, bảo mật chuyển tiếp không phải là phép màu bất khả xâm phạm.
 
@@ -345,7 +345,7 @@ Tuy nhiên, TLS 1.3 không phải trong mọi trường hợp đều ổn địn
 
 Vì vậy trong môi trường sản xuất, việc client và server hỗ trợ các nhóm thỏa thuận khóa phổ biến cần được căn chỉnh càng nhiều càng tốt, như `X25519`, `secp256r1` và các lựa chọn phổ biến khác. Nếu không, lợi thế 1 RTT của TLS 1.3 có thể bị giảm sút.
 
-![So sánh RTT bắt tay TLS 1.2 vs TLS 1.3](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-tls-1-2-vs-tls-1-3-handshake-rtt-comparison.png)
+![So sánh RTT bắt tay TLS 1.2 vs TLS 1.3](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-tls-1-2-vs-tls-1-3-handshake-rtt-comparison.png)
 
 Còn trao đổi khóa hybrid hậu lượng tử, 0-RTT, PSK-only, mTLS, những thứ này đều thuộc một nhánh khác, bài này không mở rộng.
 
@@ -364,7 +364,7 @@ Nhìn cùng nhau, sự khác biệt rất rõ ràng.
 | Vấn đề điển hình                      | Khóa riêng dài hạn có giá trị quá cao, có gánh nặng lịch sử tấn công padding oracle PKCS#1 v1.5 | Bắt tay có chi phí tính toán bổ sung, kiểm tra tham số và quản lý khóa tạm thời phụ thuộc chất lượng triển khai |
 | Tình hình TLS 1.3                     | Trao đổi khóa RSA tĩnh đã bị loại bỏ                                                            | Thỏa thuận khóa tạm thời trở thành dòng chính                                                                   |
 
-![So sánh nhanh RSA vs ECDHE](https://oss.javaguide.cn/github/javaguide/cs-basics/network/https-rsa-ecdhe-rsa-vs-ecdhe-quick-reference.png)
+![So sánh nhanh RSA vs ECDHE](/images/github/javaguide/cs-basics/network/https-rsa-ecdhe-rsa-vs-ecdhe-quick-reference.png)
 
 Nếu bạn muốn giải thích nhanh trong phỏng vấn, có thể nói như vậy:
 

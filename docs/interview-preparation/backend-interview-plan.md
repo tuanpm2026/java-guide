@@ -158,7 +158,7 @@ Interviewer thường xen kẽ một hai câu system design hoặc scenario ques
 - **System Design / Scenario Questions Summary**: [System Design Common Interview Questions Summary](https://javaguide.cn/system-design/system-design-questions.html) (Paid content in [《Backend Interview High-frequency System Design & Scenario Questions》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html) column — 30+ questions including short URL, flash sale, massive data processing).
 - **Design articles on this website for reference** (approaches can be transferred to interview verbal): [Scheduled Tasks](https://javaguide.cn/system-design/schedule-task.html), [Web Real-time Message Push](https://javaguide.cn/system-design/web-real-time-message-push.html).
 
-![《Backend Interview High-frequency System Design & Scenario Questions》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
+![《Backend Interview High-frequency System Design & Scenario Questions》](/images/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
 
 **Self-test**: Có thể kể lại overall approach và key trade-offs của 1~2 classic system designs (như short URL, flash sale, rate limiting). For scenario questions (like massive data deduplication, third-party login), can name common solutions.
 

@@ -41,7 +41,7 @@ So sánh hai approaches: Chúng ta "mất đi một quyền" (quyền create và
 - **Control**: Quyền create (instantiate, manage) objects
 - **Inversion**: Trao quyền control cho external environment (IoC container)
 
-![IoC Diagram](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration.png)
+![IoC Diagram](/images/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration.png)
 
 ### IoC giải quyết vấn đề gì?
 
@@ -54,11 +54,11 @@ Ví dụ: Có một operation cho User, dùng Service và Dao two-layer structur
 
 Không dùng IoC, Service layer muốn dùng Dao layer's concrete implementation cần manually new `UserDaoImpl` trong `UserServiceImpl`. Điều này ổn, nhưng hình dung scenario: Trong quá trình dev bỗng nhận được requirement mới — develop thêm một concrete implementation class cho `IUserDao`. Vì Service layer depends on concrete implementation của `IUserDao`, cần modify object được new trong `UserServiceImpl`. Nếu nhiều places đều reference concrete implementation của `IUserDao`, thay đổi implementation sẽ rất đau đầu.
 
-![IoC DAO Service](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration-dao-service.png)
+![IoC DAO Service](/images/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration-dao-service.png)
 
 Dùng IoC, chúng ta trao control (creation, management) của objects cho IoC container quản lý. Khi cần, chỉ cần "lấy" từ IoC container.
 
-![IoC DAO](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration-dao.png)
+![IoC DAO](/images/github/javaguide/system-design/framework/spring/IoC&Aop-ioc-illustration-dao.png)
 
 ### IoC và DI có khác nhau không?
 
@@ -82,7 +82,7 @@ Mục đích của AOP là tách **cross-cutting concerns** (như logging, trans
 
 AOP gọi là aspect-oriented programming vì core idea của nó là tách cross-cutting concerns ra khỏi core business logic, tạo thành các **Aspects**.
 
-![Aspect-oriented programming diagram](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/aop-program-execution.jpg)
+![Aspect-oriented programming diagram](/images/github/javaguide/system-design/framework/spring/aop-program-execution.jpg)
 
 Key terms của AOP:
 
@@ -95,7 +95,7 @@ Key terms của AOP:
 
 ### AOP common advice types?
 
-![AspectJ advice types](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/aspectj-advice-types.jpg)
+![AspectJ advice types](/images/github/javaguide/system-design/framework/spring/aspectj-advice-types.jpg)
 
 - **Before**: Triggered before target object's method call
 - **After**: Triggered after target object's method call
@@ -188,7 +188,7 @@ Common AOP implementations: dynamic proxy, bytecode manipulation.
 
 Spring AOP dựa trên dynamic proxy. Nếu object cần proxy đã implement một interface, Spring AOP sẽ dùng **JDK Proxy** để create proxy object. Với objects chưa implement interface, Spring AOP sẽ dùng CGLIB để generate subclass của object được proxied làm proxy.
 
-![SpringAOPProcess](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/230ae587a322d6e4d09510161987d346.jpeg)
+![SpringAOPProcess](/images/github/javaguide/system-design/framework/spring/230ae587a322d6e4d09510161987d346.jpeg)
 
 **Spring Boot và Spring có cùng dynamic proxy strategy không?** Thực ra không — nhiều người hiểu sai.
 

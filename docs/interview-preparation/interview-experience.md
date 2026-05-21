@@ -15,15 +15,15 @@ Trong **「Interview Experience Section」** của **[《Java Interview Guide》
 
 Nếu bạn không xuất thân từ khoa Khoa học Máy tính, bạn cũng có thể tìm thấy các bài kinh nghiệm của những người không xuất thân từ CS trong các bài viết này.
 
-![](https://oss.javaguide.cn/githubjuejinjihua/thinkimage-20220612185810480.png)
+![](/images/githubjuejinjihua/thinkimage-20220612185810480.png)
 
 Ngoài ra, [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) còn có chủ đề chuyên chia sẻ kinh nghiệm phỏng vấn và câu hỏi phỏng vấn, nơi sẽ chia sẻ rất nhiều kinh nghiệm và câu hỏi phỏng vấn chất lượng.
 
-![](https://oss.javaguide.cn/xingqiu/image-20220304120018731.png)
+![](/images/xingqiu/image-20220304120018731.png)
 
-![](https://oss.javaguide.cn/xingqiu/image-20220628101743381.png)
+![](/images/xingqiu/image-20220628101743381.png)
 
-![](https://oss.javaguide.cn/xingqiu/image-20220628101805897.png)
+![](/images/xingqiu/image-20220628101805897.png)
 
 So với các bài kinh nghiệm phỏng vấn trên Nowcoder hoặc các website khác, kinh nghiệm phỏng vấn được tổng hợp trong 《Java Interview Guide》 có chất lượng cao hơn, và tôi cung cấp tài liệu tham khảo chất lượng.
 

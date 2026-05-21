@@ -101,7 +101,7 @@ Lấy dữ liệu chính thức của DeepSeek làm ví dụ: 1 ký tự tiếng
 - Cắt: `[你好]` `[，]` `[我是]` `[Guide]` `[。]`
 - Thống kê: Văn bản gốc 12 ký tự → Số Token: 5 → Tỷ lệ nén khoảng 2.4 lần
 
-![Ví dụ quá trình Token hóa](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-token-process.png)
+![Ví dụ quá trình Token hóa](/images/github/javaguide/ai/llm/llm-token-process.png)
 
 > **⚠️ Lưu ý**: Việc cắt Token thực tế được thực hiện bởi Tokenizer của nhà cung cấp mô hình, các nhà cung cấp khác nhau có thể tạo ra các chuỗi Token khác nhau cho cùng một văn bản. Trong môi trường production, nên sử dụng công cụ Tokenizer của nhà cung cấp tương ứng để đếm chính xác.
 
@@ -143,7 +143,7 @@ Các mô hình như GPT-4o, Claude 3.5, Gemini đã hỗ trợ đầu vào hình
 
 "Mô hình hỗ trợ 128K/200K/1M" có nghĩa là giới hạn Token tổng cộng trong **một lần gọi** có thể đưa vào mô hình. **Hầu hết context window của mô hình bao gồm tổng input và output**, nhưng một số nhà cung cấp (như Google Gemini) đặt giới hạn riêng cho input và output, hãy tham khảo tài liệu API cụ thể. Ngoài ra, context window thường bị chiếm dụng bởi chi phí ẩn:
 
-![Context Window = "Working Memory" của LLM](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
+![Context Window = "Working Memory" của LLM](/images/github/javaguide/ai/llm/llm-context-window.png)
 
 - **System Prompt**: Chỉ dẫn hệ thống điều chỉnh hành vi mô hình (thường ẩn với người dùng nhưng chiếm window).
 - **User Prompt**: Dữ liệu và chỉ dẫn nghiệp vụ.
@@ -314,7 +314,7 @@ Dưới đây sẽ triển khai từng cái.
 
 ### ⭐ Temperature: Kiểm soát "mức độ mạo hiểm" của mô hình
 
-![Tham số Temperature: kiểm soát tính ngẫu nhiên của output mô hình](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-temperature-params.png)
+![Tham số Temperature: kiểm soát tính ngẫu nhiên của output mô hình](/images/github/javaguide/ai/llm/llm-temperature-params.png)
 
 Nguyên lý hoạt động của Temperature rất đơn giản: trước khi softmax, **chia** tất cả điểm cho giá trị nhiệt độ T.
 

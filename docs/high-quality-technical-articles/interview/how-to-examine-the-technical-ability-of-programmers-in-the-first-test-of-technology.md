@@ -125,7 +125,7 @@ Ví dụ Java thread sync: Thread A thực hiện code xong, tạo async task ch
 
 Thiết kế initial question (ví dụ search algorithm), sau đó từ đó chain nhiều knowledge points:
 
-![](https://oss.javaguide.cn/github/javaguide/open-source-project/502996-20220211115505399-72788909.png)
+![](/images/github/javaguide/open-source-project/502996-20220211115505399-72788909.png)
 
 **Build personalized interview question bank**
 

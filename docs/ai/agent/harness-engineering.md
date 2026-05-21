@@ -41,13 +41,13 @@ Vivek Trivedi của LangChain trong bài "The Anatomy of an Agent Harness" giả
 
 Ví dụ như: model là CPU, Harness là hệ điều hành. CPU mạnh đến đâu, OS tệ cũng vô dụng. Bạn mua chip M5 mới nhất, cài hệ thống liên tục crash, trải nghiệm còn không bằng chip cũ với OS ổn định.
 
-![Agent = Model + Harness](https://oss.javaguide.cn/github/javaguide/ai/harness/harness-agent-equals-model-harness-arch.png)
+![Agent = Model + Harness](/images/github/javaguide/ai/harness/harness-agent-equals-model-harness-arch.png)
 
 ### Quan hệ giữa Harness và Prompt/Context Engineering là gì?
 
 Ba cái này không phải quan hệ song song, mà là quan hệ lồng nhau. Quan trọng hơn, **mỗi lớp giải quyết vấn đề hoàn toàn khác nhau**:
 
-![Quan hệ giữa Harness và Prompt/Context Engineering](https://oss.javaguide.cn/github/javaguide/ai/harness/harness-engineering-layers-arch.png)
+![Quan hệ giữa Harness và Prompt/Context Engineering](/images/github/javaguide/ai/harness/harness-engineering-layers-arch.png)
 
 | Lớp                     | Vấn đề cốt lõi cần giải quyết                                            | Điểm tập trung                                                         | Công việc điển hình                                                      |
 | ----------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -82,7 +82,7 @@ Cách hiểu về thành phần ở trên theo hướng "thiếu gì bổ sung n
 
 Tôi đã xem một chia sẻ về framework sáu lớp trên YouTube, cảm thấy framework này mô tả khá đầy đủ toàn cảnh Harness:
 
-![Kiến trúc sáu lớp Harness Engineering](https://oss.javaguide.cn/github/javaguide/ai/harness/harness-engineering-six-layer-architecture.svg)
+![Kiến trúc sáu lớp Harness Engineering](/images/github/javaguide/ai/harness/harness-engineering-six-layer-architecture.svg)
 
 | Lớp    | Tên                                      | Giải quyết vấn đề gì                                     | Thiết kế chính                                                                                            |
 | ------ | ---------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -117,7 +117,7 @@ Phía LangChain cũng xác nhận kết luận này: họ tối ưu hóa môi tr
 
 Dex Horthy quan sát được một hiện tượng: cửa sổ ngữ cảnh 168K token, dùng đến khoảng 40% thì chất lượng đầu ra của Agent bắt đầu giảm rõ rệt.
 
-![Hiện tượng ngưỡng 40% khi sử dụng ngữ cảnh](https://oss.javaguide.cn/github/javaguide/ai/harness/context-utilization-40-percent-threshold-phenomenon.svg)
+![Hiện tượng ngưỡng 40% khi sử dụng ngữ cảnh](/images/github/javaguide/ai/harness/context-utilization-40-percent-threshold-phenomenon.svg)
 
 | Vùng           | Tỷ lệ     | Biểu hiện                                                        |
 | -------------- | --------- | ---------------------------------------------------------------- |
@@ -286,7 +286,7 @@ Kiến thức viết trong Slack discussion hoặc Google Docs với Agent như 
 
 Anthropic có hai thực hành đáng xem kỹ hơn trong hướng này, chúng từ các góc độ khác nhau tiết lộ những vấn đề dễ bị bỏ qua trong thiết kế Harness.
 
-![Kiến trúc cộng tác ba tác nhân Anthropic (lấy cảm hứng từ GAN)](https://oss.javaguide.cn/github/javaguide/ai/harness/anthropic-three-agent-collaborative-architecture-inspired-by-gan.svg)
+![Kiến trúc cộng tác ba tác nhân Anthropic (lấy cảm hứng từ GAN)](/images/github/javaguide/ai/harness/anthropic-three-agent-collaborative-architecture-inspired-by-gan.svg)
 
 #### Dùng 16 Agent viết compiler C, phát hiện được gì?
 
@@ -362,7 +362,7 @@ Anthropic tổng kết điều này rất súc tích: **"Every component in a ha
 
 Hệ thống Minions của Stripe đại diện cho một thái cực khác — chế độ không cần giám sát tự động hóa cao. Developer gửi một tin nhắn Slack, Agent từ viết code đến chạy CI đến submit PR đều xử lý xong, người chỉ review ở cuối. Hơn 1300 PR được tạo hoàn toàn bởi Minions, không chứa bất kỳ dòng code nào của người viết, được merge mỗi tuần.
 
-![Kiến trúc điều phối hybrid state machine của Stripe](https://oss.javaguide.cn/github/javaguide/ai/harness/stripe-hybrid-state-machine-orchestration-architecture.svg)
+![Kiến trúc điều phối hybrid state machine của Stripe](/images/github/javaguide/ai/harness/stripe-hybrid-state-machine-orchestration-architecture.svg)
 
 Thành thật mà nói, lần đầu nhìn thấy con số này hơi choáng. Dưới đây là phân tích kiến trúc của họ.
 
@@ -396,7 +396,7 @@ Lộ trình sáu bước tiến bộ của ông:
 
 **📌 Cách dùng đúng của `AGENTS.md`**: `AGENTS.md` trong project Ghostty, mỗi dòng tương ứng một case thất bại của Agent trong quá khứ. Đây không phải tài liệu tĩnh viết xong bỏ, mà là một hệ thống phòng lỗi tích lũy liên tục — Agent mắc một loại lỗi mới, thêm một dòng quy tắc, sau này sẽ không mắc nữa.
 
-![Vòng phản hồi phòng lỗi Harness tiến hóa liên tục](https://oss.javaguide.cn/github/javaguide/ai/harness/continuously-evolving-harness-error-prevention-feedback-loop.svg)
+![Vòng phản hồi phòng lỗi Harness tiến hóa liên tục](/images/github/javaguide/ai/harness/continuously-evolving-harness-error-prevention-feedback-loop.svg)
 
 ### Birgitta Böckeler hệ thống hóa Harness
 

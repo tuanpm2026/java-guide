@@ -49,7 +49,7 @@ footer: |-
 - Nếu bạn thích **PDF** hơn (đọc khi đi lại/offline/in ra để học), scan QR code bên dưới, trả lời "**PDF**" trong phần backend để lấy phiên bản mới nhất (cập nhật liên tục, xem chi tiết tại: **[2026 Latest Backend Interview PDF Materials](./interview-preparation/pdf-interview-javaguide.md)**).
 - Nếu bạn cần tham gia group trao đổi backend interview, scan QR code bên dưới, trả lời "**WeChat**" trong phần backend để vào group.
 
-<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account" style="zoom: 43%; display: block; margin: 0 auto;" />
+<img src="/images/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account" style="zoom: 43%; display: block; margin: 0 auto;" />
 
 ## 🌐 Về website
 

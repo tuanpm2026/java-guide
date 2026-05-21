@@ -23,7 +23,7 @@ Alibaba 《Java Development Manual》 có đoạn mô tả như sau:
 
 > 【Mandatory】Cấm JOIN quá 3 tables. Các fields cần JOIN, data types phải hoàn toàn nhất quán. Với multi-table join queries, đảm bảo các fields được join cần có indexes.
 
-![Avoid multi-table JOIN](https://oss.javaguide.cn/github/javaguide/mysql/alibaba-java-development-handbook-multi-table-join.png)
+![Avoid multi-table JOIN](/images/github/javaguide/mysql/alibaba-java-development-handbook-multi-table-join.png)
 
 JOIN efficiency thường thấp, nguyên nhân chính là vì nó dùng Nested Loop để implement join queries. Các implementations phổ biến trước đây đều không quá hiệu quả:
 
@@ -75,7 +75,7 @@ Alibaba 《Java Development Manual》 có đoạn mô tả:
 
 > Không được dùng foreign keys và cascades. Tất cả foreign key concepts phải giải quyết ở application layer.
 
-![](https://oss.javaguide.cn/github/javaguide/mysql/alibaba-java-development-handbook-multi-table-join-foreign-keys-and-cascades.png)
+![](/images/github/javaguide/mysql/alibaba-java-development-handbook-multi-table-join-foreign-keys-and-cascades.png)
 
 Đã có rất nhiều bài phân tích về các vấn đề của foreign keys và cascades trên mạng. Cá nhân tôi không khuyến nghị dùng foreign keys chủ yếu vì không thân thiện với database sharding, còn ảnh hưởng performance thực ra tương đối nhỏ.
 
@@ -206,7 +206,7 @@ MySQL hỗ trợ Profiling sau version 5.0.37. `select @@have_profiling` trả v
 
 Có thể xem trạng thái qua lệnh `SHOW VARIABLES`:
 
-![](https://oss.javaguide.cn/github/javaguide/mysql/mysql-show-variables-profiling.png)
+![](/images/github/javaguide/mysql/mysql-show-variables-profiling.png)
 
 Cũng có thể xem qua lệnh `SELECT @@profiling`:
 
@@ -226,7 +226,7 @@ Sau khi bật, thực thi vài SQL statements. Sau khi hoàn thành, dùng `SHOW
 
 Số lượng SQL có thể collect được quyết định bởi tham số `profiling_history_size`, mặc định là 15, max là 100. Nếu đặt 0 tương đương với tắt Profiling.
 
-![](https://oss.javaguide.cn/github/javaguide/mysql/mysql-show-profiles-ranking-list-table.png)
+![](/images/github/javaguide/mysql/mysql-show-profiles-ranking-list-table.png)
 
 Để xem execution time details của một SQL statement, dùng lệnh `SHOW PROFILE`.
 
@@ -258,7 +258,7 @@ SHOW PROFILE CPU,IPC FOR QUERY 8;
 
 Nếu không thêm `FOR QUERY {n}` clause, mặc định hiển thị execution của SQL mới nhất. Thêm `FOR QUERY {n}` nghĩa là hiển thị SQL có Query_ID là n.
 
-![](https://oss.javaguide.cn/github/javaguide/mysql/mysql-show-profiles-cpu-ipc.png)
+![](/images/github/javaguide/mysql/mysql-show-profiles-cpu-ipc.png)
 
 ## Tối Ưu Slow SQL
 

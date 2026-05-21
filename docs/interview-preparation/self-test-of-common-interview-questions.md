@@ -13,10 +13,10 @@ Trước khi phỏng vấn, rất khuyến nghị mọi người dùng các câu
 
 Trong **「Phần tự kiểm tra câu hỏi technical interview」** của **[《Java Interview Guide》](../zhuanlan/java-mian-shi-zhi-bei.md)**, tôi tổng hợp các câu hỏi phỏng vấn phổ biến nhất về các kiến thức quan trọng nhất trong Java interview và trình bày theo phong cách đặt câu hỏi trong phỏng vấn.
 
-![《Java Interview Guide》 Technical Interview Questions Self-test Section](https://oss.javaguide.cn/javamianshizhibei/self-test.png)
+![《Java Interview Guide》 Technical Interview Questions Self-test Section](/images/javamianshizhibei/self-test.png)
 
 Mỗi câu hỏi tôi đều đưa ra **gợi ý và hướng suy nghĩ**, và dùng ⭐ để đánh dấu mức độ quan trọng: ⭐ càng nhiều thì phỏng vấn càng hay hỏi, càng đáng dành nhiều thời gian chuẩn bị hơn.
 
-![](https://oss.javaguide.cn/javamianshizhibei/self-test-key-points.png)
+![](/images/javamianshizhibei/self-test-key-points.png)
 
 <!-- @include: @planet.snippet.md -->

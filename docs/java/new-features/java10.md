@@ -14,7 +14,7 @@ head:
 
 Hình dưới là số lượng tính năng mới và thời gian cập nhật từng phiên bản từ JDK 8 đến JDK 25:
 
-![Số lượng tính năng mới và thời gian cập nhật mỗi phiên bản từ JDK 8 đến JDK 25](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![Số lượng tính năng mới và thời gian cập nhật mỗi phiên bản từ JDK 8 đến JDK 25](/images/github/javaguide/java/new-features/jdk8~jdk24.png)
 
 Bài này sẽ chọn giới thiệu chi tiết một số tính năng quan trọng hơn:
 
@@ -94,7 +94,7 @@ static <E> List<E> copyOf(Collection<? extends E> coll) {
 
 Collection tạo bằng `copyOf()` là immutable collection, không thể thêm, xóa, thay thế, sắp xếp, v.v. Ngược lại sẽ throw exception `java.lang.UnsupportedOperationException`. IDEA cũng sẽ có cảnh báo tương ứng.
 
-![Collection tạo bằng `copyOf()` là immutable](https://oss.javaguide.cn/java-guide-blog/image-20210816154125579.png)
+![Collection tạo bằng `copyOf()` là immutable](/images/java-guide-blog/image-20210816154125579.png)
 
 Ngoài ra, `java.util.stream.Collectors` bổ sung static method để collect các element trong stream thành immutable collection.
 

@@ -26,7 +26,7 @@ ps: Nghiêm túc mà nói, hash algorithm thực ra không thuộc encryption al
 
 Hash algorithm còn gọi là hash function hay digest algorithm. Tác dụng của nó là tạo ra một unique identifier có độ dài cố định từ data có độ dài tùy ý — còn gọi là hash value, scatter value hoặc message digest (sau đây gọi thống nhất là hash value).
 
-![Hash algorithm effect demonstration](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
+![Hash algorithm effect demonstration](/images/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
 
 Hash algorithm là không thể đảo ngược — bạn không thể lấy lại giá trị gốc từ giá trị sau khi hash.
 
@@ -163,7 +163,7 @@ public PasswordEncoder passwordEncoder(){
 
 Symmetric encryption algorithm là algorithm mã hóa và giải mã dùng cùng một key — còn gọi là shared key encryption algorithm.
 
-![Symmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
+![Symmetric Encryption](/images/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
 
 Các symmetric encryption algorithm phổ biến gồm DES, 3DES, AES v.v.
 
@@ -175,7 +175,7 @@ Mặc dù DES mỗi lần chỉ mã hóa được 64-bit, nhưng chúng ta chỉ
 
 Core idea của DES encryption algorithm là chia plaintext 64-bit thành hai nửa, sau đó thực hiện nhiều vòng biến đổi trên mỗi nửa, cuối cùng gộp lại thành ciphertext 64-bit. Các biến đổi này bao gồm permutation, XOR, selection, shift và các thao tác khác. Mỗi vòng đều dùng một subkey, và các subkey đều được tạo từ cùng một master key 56-bit. DES encryption algorithm tổng cộng thực hiện 16 vòng biến đổi, cuối cùng thực hiện một inverse permutation để ra ciphertext cuối.
 
-![DES (Data Encryption Standard)](https://oss.javaguide.cn/github/javaguide/system-design/security/des-steps.jpg)
+![DES (Data Encryption Standard)](/images/github/javaguide/system-design/security/des-steps.jpg)
 
 Đây là một classic symmetric encryption algorithm, nhưng cũng có nhược điểm rõ ràng — key 56-bit không đủ bảo mật, đã được chứng minh có thể crack trong thời gian ngắn.
 
@@ -195,11 +195,11 @@ Tương tự DES, đối với plaintext không phải bội số của 128-bit 
 
 Tốc độ của AES nhanh hơn 3DES và an toàn hơn.
 
-![AES (Advanced Encryption Standard)](https://oss.javaguide.cn/github/javaguide/system-design/security/aes-steps.jpg)
+![AES (Advanced Encryption Standard)](/images/github/javaguide/system-design/security/aes-steps.jpg)
 
 So sánh đơn giản DES và AES (hình ảnh từ: [RSA vs. AES Encryption: Key Differences Explained](https://cheapsslweb.com/blog/rsa-vs-aes-encryption)):
 
-![DES vs AES comparison](https://oss.javaguide.cn/github/javaguide/system-design/security/des-vs-aes.png)
+![DES vs AES comparison](/images/github/javaguide/system-design/security/des-vs-aes.png)
 
 AES algorithm code example dựa trên Java:
 
@@ -274,7 +274,7 @@ Asymmetric encryption algorithm là algorithm mã hóa và giải mã dùng các
 
 Nếu dùng public key để mã hóa data, chỉ có thể dùng private key tương ứng để giải mã (encryption); nếu dùng private key để mã hóa data, chỉ có thể dùng public key tương ứng để giải mã (signature). Như vậy có thể thực hiện truyền dữ liệu an toàn và identity authentication.
 
-![Asymmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
+![Asymmetric Encryption](/images/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
 
 Các asymmetric encryption algorithm phổ biến gồm RSA, DSA, ECC v.v.
 
@@ -288,7 +288,7 @@ Bảo mật của RSA algorithm phụ thuộc vào độ khó của large number
 
 RSA algorithm là asymmetric encryption algorithm được ứng dụng rộng rãi nhất hiện nay. Các protocol như SSL/TLS, SSH đều có dùng RSA algorithm.
 
-![HTTPS certificate signing algorithm with SHA-256 with RSA encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/https-rsa-sha-256.png)
+![HTTPS certificate signing algorithm with SHA-256 with RSA encryption](/images/github/javaguide/system-design/security/encryption-algorithms/https-rsa-sha-256.png)
 
 RSA algorithm code example dựa trên Java:
 
@@ -360,7 +360,7 @@ Quá trình signing của DSA algorithm:
 3. Truyền original data và digital signature cùng nhau qua internet đến bên nhận.
 4. Bên nhận dùng public key của bên gửi để giải mã digital signature, lấy được information digest. Đồng thời, bên nhận cũng dùng message digest algorithm để mã hóa original data nhận được, lấy được một information digest khác. Bên nhận so sánh hai information digest, nếu nhất quán thì chứng tỏ data không bị tamper hoặc hỏng trong quá trình truyền; ngược lại thì data đã mất security và confidentiality.
 
-![DSA algorithm signing process](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/dsa-algorithm-signing-process.png)
+![DSA algorithm signing process](/images/github/javaguide/system-design/security/encryption-algorithms/dsa-algorithm-signing-process.png)
 
 ## Tổng kết
 

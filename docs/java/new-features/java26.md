@@ -27,7 +27,7 @@ JDK 26 có tổng cộng 10 tính năng mới. Bài viết này sẽ chọn lọ
 
 Biểu đồ dưới đây thể hiện số lượng tính năng mới và thời gian phát hành từ JDK 8 đến JDK 25:
 
-![](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![](/images/github/javaguide/java/new-features/jdk8~jdk24.png)
 
 ## JEP 517: Thêm hỗ trợ HTTP/3 cho HTTP Client API
 

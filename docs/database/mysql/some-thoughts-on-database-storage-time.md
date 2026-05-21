@@ -113,7 +113,7 @@ SET GLOBAL time_zone = 'Europe/Helsinki';
 
 Hình dưới là không gian lưu trữ mà các kiểu ngày tháng MySQL chiếm dụng (link tài liệu chính thức: <https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html>):
 
-![](https://oss.javaguide.cn/github/javaguide/FhRGUVHFK0ujRPNA75f6CuOXQHTE.jpeg)
+![](/images/github/javaguide/FhRGUVHFK0ujRPNA75f6CuOXQHTE.jpeg)
 
 Trước MySQL 5.6.4, không gian lưu trữ của DateTime và TIMESTAMP là cố định, lần lượt là 8 byte và 4 byte. Nhưng từ MySQL 5.6.4, không gian lưu trữ sẽ thay đổi theo độ chính xác millisecond. DateTime từ 5 đến 8 byte, TIMESTAMP từ 4 đến 7 byte.
 
@@ -166,7 +166,7 @@ mysql> SELECT FROM_UNIXTIME(1578707612);
 
 Vì có reader đề cập đến kiểu thời gian trong PostgreSQL (PG), nên bổ sung thêm tại đây. Link tài liệu chính thức PG về kiểu thời gian: <https://www.postgresql.org/docs/current/datatype-datetime.html>.
 
-![Tổng kết kiểu thời gian PostgreSQL](https://oss.javaguide.cn/github/javaguide/mysql/pg-datetime-types.png)
+![Tổng kết kiểu thời gian PostgreSQL](/images/github/javaguide/mysql/pg-datetime-types.png)
 
 Có thể thấy PG không có kiểu tên là `DATETIME`:
 
@@ -183,7 +183,7 @@ Không có silver bullet. Nhiều developer thấy numeric timestamp thực sự
 
 Tác giả cuốn sách kinh điển 《High Performance MySQL》 khuyến nghị TIMESTAMP với lý do biểu thị thời gian bằng số không đủ trực quan. Đây là nguyên văn:
 
-<img src="https://oss.javaguide.cn/github/javaguide/%E9%AB%98%E6%80%A7%E8%83%BDmysql-%E4%B8%8D%E6%8E%A8%E8%8D%90%E7%94%A8%E6%95%B0%E5%80%BC%E6%97%B6%E9%97%B4%E6%88%B3.jpg" style="zoom:50%;" />
+<img src="/images/github/javaguide/%E9%AB%98%E6%80%A7%E8%83%BDmysql-%E4%B8%8D%E6%8E%A8%E8%8D%90%E7%94%A8%E6%95%B0%E5%80%BC%E6%97%B6%E9%97%B4%E6%88%B3.jpg" style="zoom:50%;" />
 
 Mỗi cách đều có ưu điểm riêng — chọn cái phù hợp nhất với tình huống thực tế mới là đúng đắn. Dưới đây so sánh đơn giản ba cách này để các bạn chọn đúng kiểu dữ liệu lưu thời gian trong phát triển thực tế:
 

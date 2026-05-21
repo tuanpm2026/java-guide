@@ -16,7 +16,7 @@ head:
 
 ### Quản lý bộ nhớ làm gì chủ yếu?
 
-![Những việc chính mà quản lý bộ nhớ thực hiện](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/memory-management-roles.png)
+![Những việc chính mà quản lý bộ nhớ thực hiện](/images/github/javaguide/cs-basics/operating-system/memory-management-roles.png)
 
 Quản lý bộ nhớ của hệ điều hành rất quan trọng, chủ yếu chịu trách nhiệm các công việc sau:
 
@@ -35,7 +35,7 @@ Phân mảnh bộ nhớ được tạo ra từ quá trình xin cấp phát và g
 - **Phân mảnh bộ nhớ bên trong (Internal Memory Fragmentation)**: Bộ nhớ đã được cấp phát cho tiến trình nhưng không được sử dụng. Nguyên nhân chính gây ra phân mảnh bộ nhớ bên trong là khi cấp phát bộ nhớ theo tỷ lệ cố định như lũy thừa của 2, bộ nhớ được cấp phát cho tiến trình có thể lớn hơn nhu cầu thực tế. Ví dụ, một tiến trình chỉ cần 65 byte bộ nhớ nhưng được cấp phát 128 (2^7) byte, thì 63 byte bộ nhớ trở thành phân mảnh bộ nhớ bên trong.
 - **Phân mảnh bộ nhớ bên ngoài (External Memory Fragmentation)**: Do các vùng bộ nhớ liên tục chưa được cấp phát quá nhỏ, không thể đáp ứng bất kỳ yêu cầu cấp phát bộ nhớ nào của tiến trình. Các mảnh nhỏ và không liên tục này được gọi là phân mảnh bên ngoài. Tức là, phân mảnh bộ nhớ bên ngoài chỉ các vùng bộ nhớ chưa được cấp phát cho tiến trình nhưng cũng không thể sử dụng. Cơ chế phân đoạn được giới thiệu sau sẽ dẫn đến phân mảnh bộ nhớ bên ngoài.
 
-![Phân mảnh bộ nhớ](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/internal-and-external-fragmentation.png)
+![Phân mảnh bộ nhớ](/images/github/javaguide/cs-basics/operating-system/internal-and-external-fragmentation.png)
 
 Phân mảnh bộ nhớ dẫn đến giảm hiệu quả sử dụng bộ nhớ. Giảm thiểu phân mảnh bộ nhớ là điều quản lý bộ nhớ cần rất chú trọng.
 
@@ -56,11 +56,11 @@ Khi cấp phát bộ nhớ, Buddy System sẽ cố gắng tìm khối bộ nhớ
 
 Giả sử hai khối bộ nhớ liền kề đều được giải phóng, hệ thống sẽ hợp nhất hai khối bộ nhớ đó thành một khối lớn hơn, để thuận tiện cho việc cấp phát bộ nhớ sau. Như vậy có thể giảm vấn đề phân mảnh bộ nhớ, nâng cao hiệu quả sử dụng bộ nhớ.
 
-![Quản lý bộ nhớ Buddy System](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux-buddy-system.png)
+![Quản lý bộ nhớ Buddy System](/images/github/javaguide/cs-basics/operating-system/linux-buddy-system.png)
 
 Dù đã giải quyết vấn đề phân mảnh bộ nhớ bên ngoài, Buddy System vẫn tồn tại vấn đề hiệu quả sử dụng bộ nhớ không cao (phân mảnh bộ nhớ bên trong). Chủ yếu là vì Buddy System chỉ có thể cấp phát khối bộ nhớ có kích thước 2^n, nên khi kích thước bộ nhớ cần cấp phát không phải bội số nguyên của 2^n, sẽ lãng phí một lượng bộ nhớ nhất định. Ví dụ: nếu cần cấp phát 65 byte bộ nhớ, vẫn phải cấp phát khối bộ nhớ có kích thước 2^7 = 128 byte.
 
-![Vấn đề lãng phí bộ nhớ của Buddy System](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/buddy-system-memory-waste.png)
+![Vấn đề lãng phí bộ nhớ của Buddy System](/images/github/javaguide/cs-basics/operating-system/buddy-system-memory-waste.png)
 
 Với vấn đề phân mảnh bộ nhớ bên trong, Linux sử dụng **SLAB** để giải quyết. Vì nội dung này không phải trọng tâm của bài viết, nên sẽ không giới thiệu chi tiết ở đây.
 
@@ -78,7 +78,7 @@ Quản lý bộ nhớ không liên tục có 3 phương pháp:
 
 **Bộ nhớ ảo (Virtual Memory)** là một kỹ thuật rất quan trọng trong quản lý bộ nhớ của hệ thống máy tính. Về bản chất, nó chỉ tồn tại về mặt logic — là một không gian bộ nhớ tưởng tượng, chủ yếu đóng vai trò là cầu nối để tiến trình truy cập bộ nhớ chính (bộ nhớ vật lý) và đơn giản hóa việc quản lý bộ nhớ.
 
-![Bộ nhớ ảo như cầu nối để tiến trình truy cập bộ nhớ chính](https://oss.javaguide.cn/xingqiu/virtual-memory.png)
+![Bộ nhớ ảo như cầu nối để tiến trình truy cập bộ nhớ chính](/images/xingqiu/virtual-memory.png)
 
 Tóm lại, bộ nhớ ảo cung cấp các khả năng sau:
 
@@ -108,7 +108,7 @@ Tức là, khi lập trình phát triển, thực ra chúng ta đang làm việc
 
 Hệ điều hành thường chuyển đổi địa chỉ ảo thành địa chỉ vật lý thông qua một thành phần quan trọng trong chip CPU là **MMU (Memory Management Unit - Đơn vị quản lý bộ nhớ)**. Quá trình này được gọi là **dịch địa chỉ/chuyển đổi địa chỉ (Address Translation)**.
 
-![Quá trình dịch địa chỉ](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation.png)
+![Quá trình dịch địa chỉ](/images/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation.png)
 
 Sau khi MMU chuyển đổi địa chỉ ảo thành địa chỉ vật lý, tiếp tục truyền qua bus đến thiết bị bộ nhớ vật lý, từ đó hoàn thành yêu cầu đọc ghi bộ nhớ vật lý tương ứng.
 
@@ -148,7 +148,7 @@ Quá trình dịch địa chỉ cụ thể như sau:
 2. Dùng số đoạn tra trong bảng đoạn của ứng dụng để lấy thông tin đoạn tương ứng (tìm mục bảng đoạn tương ứng);
 3. Lấy địa chỉ bắt đầu (địa chỉ vật lý) của đoạn đó từ thông tin đoạn, cộng với offset trong đoạn trong địa chỉ ảo để ra địa chỉ vật lý cuối cùng.
 
-![Quá trình dịch địa chỉ trong cơ chế phân đoạn](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-virtual-address-composition.png)
+![Quá trình dịch địa chỉ trong cơ chế phân đoạn](/images/github/javaguide/cs-basics/operating-system/segment-virtual-address-composition.png)
 
 Bảng đoạn còn lưu thông tin như độ dài đoạn (có thể dùng để kiểm tra địa chỉ ảo có vượt quá phạm vi hợp lệ không), loại đoạn (ví dụ đoạn code, đoạn dữ liệu) và các thông tin khác.
 
@@ -172,7 +172,7 @@ Ví dụ: Giả sử hệ thống có 5GB bộ nhớ vật lý khả dụng sử
 
 Lúc này, chúng ta đóng tiến trình 1 và tiến trình 4, thì bộ nhớ đoạn 1 và đoạn 4 sẽ được giải phóng, còn 1,5GB bộ nhớ vật lý trống. Vì 1,5GB bộ nhớ vật lý này không liên tục, nên không thể cấp phát bộ nhớ trống cho một tiến trình cần 1,5GB bộ nhớ vật lý.
 
-![Phân mảnh bộ nhớ bên ngoài do cơ chế phân đoạn](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-external-memory-fragmentation.png)
+![Phân mảnh bộ nhớ bên ngoài do cơ chế phân đoạn](/images/github/javaguide/cs-basics/operating-system/segment-external-memory-fragmentation.png)
 
 ### Cơ chế phân trang
 
@@ -186,7 +186,7 @@ Trong cơ chế phân trang, bất kỳ trang ảo nào trong không gian địa
 
 Quản lý phân trang ánh xạ địa chỉ ảo và địa chỉ vật lý thông qua **Bảng trang (Page Table)**. Đây là sơ đồ minh họa quá trình dịch địa chỉ dựa trên bảng trang đơn cấp.
 
-![Bảng trang đơn cấp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table.png)
+![Bảng trang đơn cấp](/images/github/javaguide/cs-basics/operating-system/page-table.png)
 
 Trong cơ chế phân trang, mỗi tiến trình sẽ có một bảng trang tương ứng.
 
@@ -201,7 +201,7 @@ Quá trình dịch địa chỉ cụ thể như sau:
 2. Dùng số trang ảo tra trong bảng trang của ứng dụng để lấy số trang vật lý tương ứng (tìm mục bảng trang tương ứng);
 3. Dùng địa chỉ bắt đầu trang vật lý (địa chỉ vật lý) tương ứng với số trang vật lý đó cộng với offset trong trang trong địa chỉ ảo để ra địa chỉ vật lý cuối cùng.
 
-![Quá trình dịch địa chỉ trong cơ chế phân trang](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/paging-virtual-address-composition.png)
+![Quá trình dịch địa chỉ trong cơ chế phân trang](/images/github/javaguide/cs-basics/operating-system/paging-virtual-address-composition.png)
 
 Bảng trang còn lưu các thông tin như flag truy cập (xác định trang đó đã được truy cập chưa), bit đánh dấu dữ liệu dirty và các thông tin khác.
 
@@ -221,7 +221,7 @@ Lấy bảng trang hai cấp làm ví dụ: Bảng trang hai cấp chia thành b
 
 Giả sử chỉ cần 2 bảng trang cấp hai, thì bộ nhớ chiếm dụng của bảng trang hai cấp là: 4KB (bảng trang cấp một) + 4KB × 2 (bảng trang cấp hai) = 12 KB.
 
-![Bảng trang đa cấp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/multilevel-page-table.png)
+![Bảng trang đa cấp](/images/github/javaguide/cs-basics/operating-system/multilevel-page-table.png)
 
 Bảng trang đa cấp là kịch bản điển hình của đánh đổi thời gian lấy không gian — dùng cách tăng số lần tra bảng trang để giảm không gian mà bảng trang chiếm dụng.
 
@@ -229,7 +229,7 @@ Bảng trang đa cấp là kịch bản điển hình của đánh đổi thời
 
 Để nâng cao tốc độ chuyển đổi từ địa chỉ ảo sang địa chỉ vật lý, hệ điều hành giới thiệu **TLB (Translation Lookaside Buffer - Bộ đệm dịch địa chỉ nhanh, còn gọi là bảng tra nhanh)** trên nền **giải pháp bảng trang**.
 
-![Dịch địa chỉ sau khi thêm TLB](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
+![Dịch địa chỉ sau khi thêm TLB](/images/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
 
 Trong kiến trúc AArch64 và x86-64 chủ lưu, TLB thuộc về đơn vị bên trong MMU (Memory Management Unit), về bản chất là một bộ nhớ cache tốc độ cao, lưu cache ánh xạ từ số trang ảo đến số trang vật lý — bạn có thể xem nó đơn giản như một bảng hash lưu các cặp key (số trang ảo) - value (số trang vật lý).
 
@@ -240,7 +240,7 @@ Luồng dịch địa chỉ sau khi sử dụng TLB như sau:
 3. Nếu không tra được trang vật lý tương ứng thì vẫn phải tra bảng trang trong bộ nhớ chính, đồng thời thêm mục ánh xạ đó trong bảng trang vào TLB; trường hợp này gọi là TLB miss (TLB không trúng).
 4. Khi TLB đầy mà cần đăng ký trang mới, sẽ loại bỏ một trang trong TLB theo chiến lược loại bỏ nhất định.
 
-![Luồng dịch địa chỉ sau khi sử dụng TLB](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table-tlb.png)
+![Luồng dịch địa chỉ sau khi sử dụng TLB](/images/github/javaguide/cs-basics/operating-system/page-table-tlb.png)
 
 Vì bảng trang cũng ở trong bộ nhớ chính, nên trước khi có TLB, mỗi lần đọc ghi dữ liệu bộ nhớ CPU phải truy cập bộ nhớ chính hai lần. Với TLB, dữ liệu bảng trang tồn tại trong TLB chỉ cần truy cập bộ nhớ chính một lần.
 
@@ -279,7 +279,7 @@ Nếu page fault xảy ra quá thường xuyên sẽ ảnh hưởng rất nhiề
 
 Có 5 thuật toán thay thế trang thường gặp sau (các thuật toán khác phần lớn được cải tiến từ các thuật toán này):
 
-![Các thuật toán thay thế trang thường gặp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/image-20230409113009139.png)
+![Các thuật toán thay thế trang thường gặp](/images/github/javaguide/cs-basics/operating-system/image-20230409113009139.png)
 
 1. **Thuật toán thay thế trang tối ưu (OPT, Optimal)**: Ưu tiên loại bỏ trang không bao giờ được dùng lại trong tương lai, hoặc trang không được truy cập trong thời gian dài nhất, như vậy có thể đảm bảo tỷ lệ page fault thấp nhất. Nhưng vì hiện tại không thể dự đoán trước trang nào trong số các trang bộ nhớ của tiến trình sẽ không được truy cập trong thời gian dài nhất trong tương lai, nên thuật toán này không thể triển khai, chỉ là thuật toán thay thế trang tối ưu về mặt lý thuyết, có thể dùng làm tiêu chuẩn để đánh giá các thuật toán thay thế khác.
 2. **Thuật toán thay thế trang vào trước ra trước (FIFO, First In First Out)**: Thuật toán thay thế trang đơn giản nhất, luôn loại bỏ trang vào bộ nhớ sớm nhất, tức là chọn trang lưu trú trong bộ nhớ lâu nhất để loại bỏ. Thuật toán này dễ triển khai và hiểu, thường chỉ cần một hàng đợi FIFO là đủ. Tuy nhiên hiệu năng của nó không tốt lắm.
@@ -393,7 +393,7 @@ Thời gian của một lần đọc ghi đĩa được quyết định bởi th
 
 Có 6 thuật toán điều phối đĩa thường gặp sau (các thuật toán khác phần lớn được cải tiến từ các thuật toán này):
 
-![Các thuật toán điều phối đĩa thường gặp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/disk-scheduling-algorithms.png)
+![Các thuật toán điều phối đĩa thường gặp](/images/github/javaguide/cs-basics/operating-system/disk-scheduling-algorithms.png)
 
 1. **Thuật toán đến trước phục vụ trước (First-Come First-Served, FCFS)**: Xử lý theo thứ tự các yêu cầu đến bộ điều phối đĩa, yêu cầu đến trước được phục vụ trước. Thuật toán FCFS khá đơn giản để triển khai, không có chi phí thuật toán. Tuy nhiên vì không xét đến đường dẫn và hướng di chuyển của đầu đọc/ghi, thời gian tìm đầu đọc/ghi trung bình khá dài. Đồng thời thuật toán này dễ gây ra vấn đề starvation (chờ đợi vô thời hạn), tức là một số yêu cầu đĩa đến sau có thể phải chờ rất lâu mới được phục vụ.
 2. **Thuật toán ưu tiên thời gian tìm đầu đọc ngắn nhất (Shortest Seek Time First, SSTF)**: Còn gọi là Shortest Service Time First (SSTF), ưu tiên phục vụ yêu cầu gần vị trí đầu đọc/ghi hiện tại nhất. Thuật toán SSTF có thể tối thiểu hóa thời gian tìm đầu đọc, nhưng dễ gây ra vấn đề starvation — các yêu cầu gần đầu đọc/ghi liên tục được phục vụ, còn các yêu cầu xa đầu đọc/ghi không được hồi đáp trong thời gian dài. Trong ứng dụng thực tế cần tối ưu hóa triển khai của thuật toán này để tránh starvation.

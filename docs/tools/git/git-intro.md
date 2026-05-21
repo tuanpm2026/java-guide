@@ -26,7 +26,7 @@ Nhiều người có thói quen lưu các phiên bản khác nhau bằng cách c
 
 Để giải quyết vấn đề này, người ta từ lâu đã phát triển nhiều loại local version control systems, hầu hết dùng database đơn giản để lưu lại các thay đổi của file qua các lần update.
 
-![Local version control system](https://oss.javaguide.cn/github/javaguide/tools/git/%E6%9C%AC%E5%9C%B0%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
+![Local version control system](/images/github/javaguide/tools/git/%E6%9C%AC%E5%9C%B0%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
 
 ### Centralized version control systems
 
@@ -34,7 +34,7 @@ Tiếp theo mọi người lại gặp một vấn đề: làm thế nào để 
 
 Các CVCS đều có một server tập trung duy nhất, lưu tất cả các phiên bản của file, còn những người cộng tác kết nối vào server đó qua client, lấy về file mới nhất hoặc submit các cập nhật.
 
-![Centralized version control system](https://oss.javaguide.cn/github/javaguide/tools/git/%E9%9B%86%E4%B8%AD%E5%8C%96%E7%9A%84%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
+![Centralized version control system](/images/github/javaguide/tools/git/%E9%9B%86%E4%B8%AD%E5%8C%96%E7%9A%84%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
 
 Cách này tuy giải quyết được vấn đề local VCS không cho phép developers trên các hệ thống khác nhau cộng tác, nhưng vẫn còn các vấn đề:
 
@@ -47,7 +47,7 @@ Vì vậy Distributed Version Control Systems (DVCS) ra đời. Git là một DV
 
 Trong loại hệ thống này, client không chỉ pull về bản snapshot mới nhất của file, mà mirror toàn bộ repository. Như vậy, bất kỳ server cộng tác nào bị lỗi, sau đó đều có thể khôi phục từ bất kỳ local repository nào đã mirror. Vì mỗi lần clone thực ra là một bản backup đầy đủ của repository.
 
-![Distributed version control system](https://oss.javaguide.cn/github/javaguide/tools/git/%E5%88%86%E5%B8%83%E5%BC%8F%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
+![Distributed version control system](/images/github/javaguide/tools/git/%E5%88%86%E5%B8%83%E5%BC%8F%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F.png)
 
 DVCS có thể làm việc không cần kết nối mạng, vì mỗi người đều có full version repository trên máy của mình. Khi bạn sửa một file, chỉ cần push thay đổi của mình cho người khác là xong. Nhưng trong thực tế khi dùng DVCS, hiếm khi push trực tiếp, mà thường dùng một server giữ vai trò "central server". Server này chỉ đơn giản là để "trao đổi" thay đổi giữa mọi người, không có nó mọi người vẫn làm việc bình thường, chỉ là trao đổi thay đổi bất tiện hơn thôi.
 
@@ -71,7 +71,7 @@ Hầu hết các VCS (CVS, Subversion, Perforce, Bazaar...) đều lưu thông t
 
 Nguyên lý cụ thể như hình dưới, hiểu thực ra rất đơn giản, mỗi khi chúng ta commit update một file, hệ thống sẽ ghi lại những thay đổi nào đã được thực hiện với file đó, biểu diễn bằng ký hiệu delta Δ.
 
-![](https://oss.javaguide.cn/github/javaguide/tools/git/2019-3deltas.png)
+![](/images/github/javaguide/tools/git/2019-3deltas.png)
 
 **Làm thế nào để có được phiên bản cuối cùng của một file?**
 
@@ -83,7 +83,7 @@ Ví dụ nếu chúng ta có rất rất nhiều delta, muốn lấy file cuối
 
 Git không đối xử hoặc lưu dữ liệu theo cách trên. Thay vào đó, Git giống như coi dữ liệu là một tập snapshot của filesystem nhỏ. Mỗi lần bạn commit, hoặc lưu trạng thái project trong Git, nó chủ yếu tạo ra một snapshot của toàn bộ file tại thời điểm đó và lưu index của snapshot. Để hiệu quả, nếu file không thay đổi, Git không lưu lại file đó mà chỉ giữ một link trỏ đến file đã lưu trước đó. Git đối xử với dữ liệu giống như một **stream snapshot** hơn.
 
-![](https://oss.javaguide.cn/github/javaguide/tools/git/2019-3snapshots.png)
+![](/images/github/javaguide/tools/git/2019-3snapshots.png)
 
 ### Ba trạng thái của Git
 
@@ -95,7 +95,7 @@ Git có ba trạng thái, file của bạn có thể ở một trong các trạn
 
 Từ đó dẫn đến khái niệm về ba vùng làm việc của Git project: **Git repository (.git directory)**, **Working Directory** và **Staging Area**.
 
-![](https://oss.javaguide.cn/github/javaguide/tools/git/2019-3areas.png)
+![](/images/github/javaguide/tools/git/2019-3areas.png)
 
 **Basic Git workflow như sau:**
 
@@ -205,7 +205,7 @@ Switch branch hiện tại sang test (khi bạn switch branch, Git sẽ reset wo
 git checkout test
 ```
 
-![](https://oss.javaguide.cn/github/javaguide/tools/git/2019-3%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF.png)
+![](/images/github/javaguide/tools/git/2019-3%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF.png)
 
 Bạn cũng có thể tạo branch và switch sang ngay (kết hợp hai lệnh trên):
 

@@ -11,6 +11,6 @@ head:
 
 Các câu hỏi phỏng vấn liên quan đến **Netty** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Interview Guide》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html).
 
-![](https://oss.javaguide.cn/javamianshizhibei/netty-questisons.png)
+![](/images/javamianshizhibei/netty-questisons.png)
 
 <!-- @include: @planet.snippet.md -->

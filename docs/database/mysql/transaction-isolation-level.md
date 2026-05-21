@@ -81,27 +81,27 @@ Các câu lệnh concurrency control sử dụng trong thực tế dưới đây
 
 ### Dirty Read (Đọc chưa commit)
 
-![](<https://oss.javaguide.cn/github/javaguide/2019-31-1%E8%84%8F%E8%AF%BB(%E8%AF%BB%E6%9C%AA%E6%8F%90%E4%BA%A4)%E5%AE%9E%E4%BE%8B.jpg>)
+![](</images/github/javaguide/2019-31-1%E8%84%8F%E8%AF%BB(%E8%AF%BB%E6%9C%AA%E6%8F%90%E4%BA%A4)%E5%AE%9E%E4%BE%8B.jpg>)
 
 ### Tránh Dirty Read (Đọc đã commit)
 
-![](https://oss.javaguide.cn/github/javaguide/2019-31-2%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4%E5%AE%9E%E4%BE%8B.jpg)
+![](/images/github/javaguide/2019-31-2%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4%E5%AE%9E%E4%BE%8B.jpg)
 
 ### Non-Repeatable Read (Đọc không lặp lại được)
 
 Vẫn là hình Read Committed ở trên, mặc dù tránh được Read Uncommitted, nhưng lại xảy ra vấn đề Non-Repeatable Read khi một transaction chưa kết thúc.
 
-![](https://oss.javaguide.cn/github/javaguide/2019-32-1%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E5%AE%9E%E4%BE%8B.jpg)
+![](/images/github/javaguide/2019-32-1%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E5%AE%9E%E4%BE%8B.jpg)
 
 ### Repeatable Read (Đọc lặp lại được)
 
-![](https://oss.javaguide.cn/github/javaguide/2019-33-2%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB.jpg)
+![](/images/github/javaguide/2019-33-2%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB.jpg)
 
 ### Phantom Read (Đọc bóng ma)
 
 #### Minh họa tình huống xảy ra Phantom Read
 
-![](https://oss.javaguide.cn/github/javaguide/phantom_read.png)
+![](/images/github/javaguide/phantom_read.png)
 
 SQL script 1 lần đầu query chỉ có một record có lương 500. SQL script 2 insert một record có lương 500 và commit. SQL script 1 trong cùng transaction dùng current read query lại thì phát hiện có hai record có lương 500 — đây là phantom read.
 

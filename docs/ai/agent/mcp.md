@@ -30,7 +30,7 @@ Hôm nay hãy cùng tìm hiểu một số câu hỏi liên quan đến khái ni
 
 Nó cho phép AI kết nối với nguồn dữ liệu (như file local, database), công cụ (như search engine, máy tính) cũng như workflow (như các prompt cụ thể), giúp nó có thể lấy thông tin quan trọng và thực thi các tác vụ cụ thể.
 
-![Sơ đồ MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
+![Sơ đồ MCP](/images/github/javaguide/ai/skills/mcp-simple-diagram.png)
 
 Trước khi MCP xuất hiện, khi các lập trình viên tích hợp công cụ cho các LLM khác nhau (OpenAI GPT, Claude, Ernie Bot, v.v.) và các hệ thống backend khác nhau, họ phải viết lượng lớn **adapter code tùy chỉnh**. Điều này dẫn đến:
 
@@ -110,7 +110,7 @@ MCP giúp LLM có thể:
 
 **Sơ đồ quan hệ:**
 
-![Sự khác biệt giữa MCP, Function Calling và Agent](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-fc-agent-relations.png)
+![Sự khác biệt giữa MCP, Function Calling và Agent](/images/github/javaguide/ai/skills/mcp-fc-agent-relations.png)
 
 **Ví dụ tình huống điển hình:**
 
@@ -330,7 +330,7 @@ So sánh với RESTful: JSON-RPC nghiêng về “thao tác” hơn là “tài 
 
 **Quyết định chọn lựa**:
 
-![Lựa chọn phương thức truyền dẫn MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-transport-decision.png)
+![Lựa chọn phương thức truyền dẫn MCP](/images/github/javaguide/ai/skills/mcp-transport-decision.png)
 
 #### Phân tích Transport Layer Exceptions và Backpressure (Cân nhắc production-grade)
 

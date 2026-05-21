@@ -22,7 +22,7 @@ Bài viết này tiếp cận từ góc độ nguyên lý biên dịch Java, đi
 
 **Syntactic Sugar (Cú pháp đường)** còn được gọi là "sugar-coated syntax" (cú pháp bọc đường), là thuật ngữ do nhà khoa học máy tính người Anh Peter.J.Landin đặt ra, chỉ một loại cú pháp được thêm vào ngôn ngữ máy tính mà không ảnh hưởng đến chức năng của ngôn ngữ, nhưng lại thuận tiện hơn cho lập trình viên sử dụng. Nói một cách đơn giản, syntactic sugar giúp chương trình ngắn gọn hơn và có khả năng đọc cao hơn.
 
-![](https://oss.javaguide.cn/github/javaguide/java/basis/syntactic-sugar/image-20220818175953954.png)
+![](/images/github/javaguide/java/basis/syntactic-sugar/image-20220818175953954.png)
 
 > Thú vị là, trong lĩnh vực lập trình, ngoài syntactic sugar (đường cú pháp), còn có các khái niệm syntactic salt (muối cú pháp) và syntactic saccharin (đường hóa học cú pháp), nhưng bài viết này không mở rộng về những khái niệm đó.
 

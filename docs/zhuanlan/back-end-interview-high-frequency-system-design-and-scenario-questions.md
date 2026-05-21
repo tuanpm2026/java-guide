@@ -92,7 +92,7 @@ Nhiều cases được đề cập có thể trực tiếp áp dụng vào proje
 
 ## Content Preview
 
-![《Backend Interview High-frequency System Design & Scenario Questions》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
+![《Backend Interview High-frequency System Design & Scenario Questions》](/images/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
 
 ## Target Audience
 

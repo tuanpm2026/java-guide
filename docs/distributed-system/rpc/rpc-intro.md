@@ -36,7 +36,7 @@ Một câu tóm tắt: **RPC ra đời là để việc gọi remote method đơ
 
 Sơ đồ nguyên lý cụ thể như dưới. Sau đây sẽ giải thích toàn bộ quá trình RPC liên tục:
 
-![Sơ đồ nguyên lý RPC](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/37345851.jpg)
+![Sơ đồ nguyên lý RPC](/images/github/javaguide/distributed-system/rpc/37345851.jpg)
 
 1. Service consumer (client) gọi remote service theo cách gọi local.
 2. Client Stub sau khi nhận call chịu trách nhiệm đóng gói method, tham số, v.v. thành message body có thể truyền qua network (serialization): `RpcRequest`.
@@ -58,13 +58,13 @@ RPC framework ở đây là framework cho phép client gọi trực tiếp metho
 
 ### Dubbo
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/image-20220716111053081.png)
+![](/images/github/javaguide/distributed-system/rpc/image-20220716111053081.png)
 
 Apache Dubbo là microservice framework, cung cấp giải pháp high-performance RPC communication, traffic governance, observability, v.v. cho thực tiễn microservice quy mô lớn, bao gồm SDK triển khai cho nhiều ngôn ngữ như Java, Golang.
 
 Dubbo cung cấp gần như tất cả khả năng service governance từ service definition, service discovery, service communication đến traffic control, hỗ trợ Triple protocol (next-gen RPC communication protocol định nghĩa trên HTTP/2), application-level service discovery, Dubbo Mesh (Dubbo3 giới thiệu nhiều cloud-native friendly features mới), v.v.
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/image-20220716111545343.png)
+![](/images/github/javaguide/distributed-system/rpc/image-20220716111545343.png)
 
 Dubbo được Alibaba open source, sau đó gia nhập Apache. Chính sự xuất hiện của Dubbo đã khiến ngày càng nhiều công ty bắt đầu dùng và chấp nhận distributed architecture.
 
@@ -86,13 +86,13 @@ Tuy nhiên tôi không khuyến nghị dùng Motan trong dự án thực tế. N
 
 ### gRPC
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/2843b10d-0c2f-4b7e-9c3e-ea4466792a8b.png)
+![](/images/github/javaguide/distributed-system/rpc/2843b10d-0c2f-4b7e-9c3e-ea4466792a8b.png)
 
 gRPC là open source RPC framework high-performance, đa năng của Google. Nó được thiết kế chủ yếu hướng đến phát triển mobile application và dựa trên chuẩn HTTP/2 protocol (hỗ trợ bidirectional streaming, message header compression, v.v. — tiết kiệm bandwidth hơn). Xây dựng dựa trên ProtoBuf serialization protocol và hỗ trợ nhiều ngôn ngữ lập trình.
 
 **ProtoBuf là gì?** [ProtoBuf (Protocol Buffer)](https://github.com/protocolbuffers/protobuf) là format data linh hoạt và hiệu quả hơn, có thể dùng cho communication protocol, data storage, v.v. Về cơ bản hỗ trợ tất cả ngôn ngữ lập trình mainstream và cross-platform. Tuy nhiên định nghĩa interface và data type qua ProtoBuf khá rườm rà — đây là một nhược điểm nhỏ.
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/image-20220716104304033.png)
+![](/images/github/javaguide/distributed-system/rpc/image-20220716104304033.png)
 
 Phải nói rằng thiết kế communication layer của gRPC rất xuất sắc. Cải tiến communication layer của [Dubbo-go 3.0](https://dubbogo.github.io/) chủ yếu học hỏi từ gRPC.
 
@@ -118,11 +118,11 @@ Dubbo dù xét về mức độ hoàn chỉnh chức năng, ecosystem hay commun
 
 Hình dưới thể hiện ecosystem của Dubbo.
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/eee98ff2-8e06-4628-a42b-d30ffcd2831e.png)
+![](/images/github/javaguide/distributed-system/rpc/eee98ff2-8e06-4628-a42b-d30ffcd2831e.png)
 
 Dubbo cũng là một trong các component của Spring Cloud Alibaba.
 
-![](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/0d195dae-72bc-4956-8451-3eaf6dd11cbd.png)
+![](/images/github/javaguide/distributed-system/rpc/0d195dae-72bc-4956-8451-3eaf6dd11cbd.png)
 
 Nhưng Dubbo và Motan chủ yếu dùng cho ngôn ngữ Java. Dù Dubbo và Motan hiện cũng có thể tương thích một phần ngôn ngữ khác, nhưng không quá khuyến nghị. Nếu cần cross-language call thì có thể cân nhắc dùng gRPC.
 
@@ -136,7 +136,7 @@ Tuy nhỏ nhưng đầy đủ — code có comment chi tiết, cấu trúc rõ r
 
 **Tổng quan nội dung**:
 
-![](https://oss.javaguide.cn/github/javaguide/image-20220308100605485.png)
+![](/images/github/javaguide/image-20220308100605485.png)
 
 ## Đã có HTTP protocol, tại sao còn cần RPC?
 

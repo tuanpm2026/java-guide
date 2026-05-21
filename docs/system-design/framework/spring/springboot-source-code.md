@@ -12,7 +12,7 @@ head:
 
 **Giải đọc source code cốt lõi Spring Boot** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Must-Read Source Code Series》](https://javaguide.cn/zhuanlan/source-code-reading.html).
 
-![Giải đọc source code cốt lõi Spring Boot](https://oss.javaguide.cn/xingqiu/springboot-source-code.png)
+![Giải đọc source code cốt lõi Spring Boot](/images/xingqiu/springboot-source-code.png)
 
 <!-- @include: @yuanma.snippet.md -->
 

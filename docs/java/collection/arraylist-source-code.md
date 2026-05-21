@@ -31,7 +31,7 @@ public class ArrayList<E> extends AbstractList<E>
 - `Cloneable` ：Cho biết nó có khả năng sao chép, có thể thực hiện deep copy hoặc shallow copy.
 - `Serializable` : Cho biết nó có thể thực hiện serialization, tức là có thể chuyển đổi object thành byte stream để lưu trữ bền vững hoặc truyền qua mạng, rất tiện lợi.
 
-![Sơ đồ lớp ArrayList](https://oss.javaguide.cn/github/javaguide/java/collection/arraylist-class-diagram.png)
+![Sơ đồ lớp ArrayList](/images/github/javaguide/java/collection/arraylist-class-diagram.png)
 
 ### Sự khác biệt giữa ArrayList và Vector? (Chỉ cần nắm cơ bản)
 

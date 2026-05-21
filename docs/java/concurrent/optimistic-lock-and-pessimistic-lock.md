@@ -42,7 +42,7 @@ Optimistic Lock luôn giả định tình huống tốt nhất, cho rằng mỗi
 
 Trong Java, các lớp atomic variable trong package `java.util.concurrent.atomic` (ví dụ `AtomicInteger`, `LongAdder`) dùng một cách triển khai của optimistic lock là **CAS**.
 
-![Tổng quan JUC atomic classes](https://oss.javaguide.cn/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88-20230814005211968.png)
+![Tổng quan JUC atomic classes](/images/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88-20230814005211968.png)
 
 ```java
 // LongAdder hiệu năng tốt hơn AtomicInteger và AtomicLong trong tình huống high concurrency

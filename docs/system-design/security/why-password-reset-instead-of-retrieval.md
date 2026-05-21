@@ -16,7 +16,7 @@ head:
 
 Đây là câu hỏi khá thú vị — nhiều công ty cũng đã hỏi trong phỏng vấn. Khá đơn giản, không biết mọi người khi reset password có bao giờ nghĩ đến câu hỏi này không.
 
-![Reset account password](https://oss.javaguide.cn/github/javaguide/system-design/security/reset-password-page.png)
+![Reset account password](/images/github/javaguide/system-design/security/reset-password-page.png)
 
 Trả lời câu hỏi này thực ra chỉ một câu: **Vì server cũng không biết password gốc của bạn là gì**. Developer lưu password gốc đã bị đuổi rồi 🤣.
 
@@ -26,7 +26,7 @@ Hãy phân tích đơn giản ở đây.
 
 Bài này không bàn nhiều về encryption algorithm. Bạn quan tâm có thể đọc: [Tổng hợp các thuật toán mã hóa phổ biến](https://javaguide.cn/system-design/security/encryption-algorithms.html).
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/javaguide-security-encryption-algorithms.png)
+![](/images/github/javaguide/system-design/security/encryption-algorithms/javaguide-security-encryption-algorithms.png)
 
 ## Tại sao server không biết password gốc của bạn?
 
@@ -44,7 +44,7 @@ Do đó password phải qua xử lý mới được lưu. Cách xử lý này ch
 
 Hash algorithm còn gọi là hash function hay digest algorithm. Tác dụng của nó là tạo ra một unique identifier có độ dài cố định từ data có độ dài tùy ý — còn gọi là hash value, digest (sau đây gọi thống nhất là hash value).
 
-![Hash algorithm effect demonstration](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
+![Hash algorithm effect demonstration](/images/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
 
 Hash algorithm có hai đặc điểm quan trọng:
 
@@ -144,7 +144,7 @@ Khi bạn nhập password để login, verification flow như sau:
 3. So sánh hash value được tính với hash value lưu trong database xem có nhất quán không.
 4. Nếu nhất quán, password đúng; ngược lại password sai.
 
-![](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/sha256-salt-password.png)
+![](/images/github/javaguide/system-design/security/encryption-algorithms/sha256-salt-password.png)
 
 ## Khi reset password làm thế nào biết password mới giống password cũ?
 
@@ -188,11 +188,11 @@ Encryption algorithm chia thành **symmetric encryption** và **asymmetric encry
 
 **Symmetric encryption** là thuật toán mã hóa và giải mã dùng cùng key — còn gọi là shared key encryption algorithm.
 
-![Symmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
+![Symmetric Encryption](/images/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
 
 **Asymmetric encryption** là thuật toán mã hóa và giải mã dùng key khác nhau — còn gọi là public key encryption algorithm. Hai key này: một là public key (có thể công khai), một là private key (cần bảo mật). Data mã hóa bằng public key chỉ có thể giải mã bằng private key tương ứng, và ngược lại.
 
-![Asymmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
+![Asymmetric Encryption](/images/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
 
 Các asymmetric encryption algorithm phổ biến là RSA, DSA, ECC, v.v.
 

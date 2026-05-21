@@ -129,7 +129,7 @@ JSP là một loại Servlet, nhưng cách hoạt động khác với HttpServle
 Trong dự án JspLoginDemo có một file JSP tên login.jsp, sau khi triển khai dự án lên máy chủ lần đầu và truy cập file JSP này, chúng ta thấy thư mục đó có thêm hai file như hình dưới.
 File .class chính là Servlet tương ứng với JSP. Sau khi biên dịch xong sẽ chạy file class để phản hồi yêu cầu client. Sau đó khi client truy cập login.jsp, Tomcat sẽ không biên dịch lại file JSP mà sẽ trực tiếp gọi file class để phản hồi yêu cầu client.
 
-![Nguyên lý hoạt động của JSP](https://oss.javaguide.cn/github/javaguide/1.jpeg)
+![Nguyên lý hoạt động của JSP](/images/github/javaguide/1.jpeg)
 
 Vì JSP chỉ được biên dịch lần đầu tiên client yêu cầu, nên lần đầu truy cập JSP sẽ thấy khá chậm, sau đó sẽ cảm thấy nhanh hơn nhiều. Nếu xóa file class mà máy chủ đang lưu, máy chủ cũng sẽ biên dịch lại JSP.
 

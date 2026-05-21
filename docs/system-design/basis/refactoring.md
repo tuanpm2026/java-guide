@@ -10,7 +10,7 @@ head:
 
 Gần đây tôi đọc lại cuốn [《Refactoring: Improving the Design of Existing Code》](https://book.douban.com/subject/30468597/) — thu được nhiều điều. Thế là viết bài ngắn để chia sẻ quan điểm về refactoring.
 
-![](https://oss.javaguide.cn/github/javaguide/image-20220311155746549.png)
+![](/images/github/javaguide/image-20220311155746549.png)
 
 ## Refactoring là gì?
 
@@ -27,13 +27,13 @@ Software design principle hướng dẫn chúng ta tổ chức và chuẩn hóa 
 
 **Các design pattern phổ biến**:
 
-![Các design pattern phổ biến](https://oss.javaguide.cn/github/javaguide/system-design/basis/common-design-patterns.png)
+![Các design pattern phổ biến](/images/github/javaguide/system-design/basis/common-design-patterns.png)
 
 Tổng hợp đầy đủ hơn về design pattern, xem open source project **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)**.
 
 **Các software design principle phổ biến**:
 
-![Các software design principle phổ biến](https://oss.javaguide.cn/github/javaguide/system-design/basis/programming-principles.png)
+![Các software design principle phổ biến](/images/github/javaguide/system-design/basis/programming-principles.png)
 
 Tổng hợp đầy đủ hơn về design principle, xem hai open source project **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)** và **[hacker-laws-zh](https://github.com/nusr/hacker-laws-zh)**.
 
@@ -53,7 +53,7 @@ Nếu ánh xạ vào project thực tế, refactoring cụ thể mang lại lợ
 
 Refactoring không làm chậm tốc độ phát triển phần mềm. Ngược lại, nếu chất lượng code và software design kém, khi muốn thêm feature mới tốc độ phát triển sẽ ngày càng chậm. Cuối cùng thậm chí có cảm giác muốn viết lại toàn bộ hệ thống.
 
-![](https://oss.javaguide.cn/github/javaguide/bad&good-design.png)
+![](/images/github/javaguide/bad&good-design.png)
 
 Trong 《Refactoring: Improving the Design of Existing Code》 có viết:
 
@@ -89,7 +89,7 @@ Phát triển một feature mới không chỉ đơn giản là verify feature p
 
 Có một ẩn dụ về hai chiếc mũ: Trước khi tôi phát triển feature mới, tôi phát hiện refactoring có thể làm cho việc phát triển feature mới dễ hơn — tôi đội mũ refactoring. Sau khi refactor xong, tôi đổi lại mũ cũ, tiếp tục phát triển feature mới. Sau khi phát triển xong feature mới, tôi lại thấy code của mình khó hiểu — tôi lại đội mũ refactoring. Trạng thái phát triển tốt là như vậy — liên tục chuyển đổi giữa refactoring và phát triển feature mới.
 
-![refactor-two-hats](https://oss.javaguide.cn/github/javaguide/refractor-two-hats.png)
+![refactor-two-hats](/images/github/javaguide/refractor-two-hats.png)
 
 ### Sau Code Review
 

@@ -20,7 +20,7 @@ Kịch bản này thực ra không khó hiểu. Khi ngày càng có nhiều văn
 
 ## Chi tiết
 
-![Giao thức NAT](https://oss.javaguide.cn/github/javaguide/cs-basics/network/nat-demo.png)
+![Giao thức NAT](/images/github/javaguide/cs-basics/network/nat-demo.png)
 
 Giả sử kịch bản hiện tại như hình trên. Ở giữa là một router, phía phải tổ chức một LAN với network number `10.0.0/24`. IP address của LAN interface là `10.0.0.4`, và trong subnet có ít nhất ba host: `10.0.0.1`, `10.0.0.2` và `10.0.0.3`. Phía trái router kết nối với WAN, IP address của WAN interface là `138.76.29.7`.
 
@@ -41,7 +41,7 @@ Sau đó, sẽ có response như sau:
 2. Response message đến WAN interface của router. Router tra cứu NAT translation table, tìm thấy `138.76.29.7:5001` có trong bảng, từ đó chuyển đổi destination address và destination port thành `10.0.0.1:3345`, rồi gửi đến `10.0.0.4`.
 3. Response message đã được chuyển đổi đến LAN interface của router, rồi được chuyển tiếp đến đích `10.0.0.1`.
 
-![Chuyển đổi địa chỉ cho giao tiếp LAN-WAN](https://oss.javaguide.cn/github/javaguide/cs-basics/network/nat-demo2.png)
+![Chuyển đổi địa chỉ cho giao tiếp LAN-WAN](/images/github/javaguide/cs-basics/network/nat-demo2.png)
 
 🐛 Đính chính (xem: [issue#2009](https://github.com/Snailclimb/JavaGuide/issues/2009)): Giá trị Dest ở bước 4 trong hình trên phải là `10.0.0.1:3345` chứ không phải ~~`138.76.29.7:5001`~~, đây là lỗi ghi nhầm.
 

@@ -23,11 +23,11 @@ Khi query offset quá lớn, MySQL query optimizer có thể chọn full table s
 
 **Nguyên nhân gốc rễ deep pagination chậm** nằm ở cơ chế thực thi MySQL: Với `LIMIT offset, N`, MySQL không trực tiếp nhảy đến vị trí `offset` mà phải scan từ đầu `offset + N` record. Nếu query phụ thuộc secondary index và không thỏa covering index, điều này có nghĩa MySQL cần thực hiện **table lookup vô nghĩa** (sinh random I/O khổng lồ) cho `offset` record đầu tiên, rồi cuối cùng bỏ đi tất cả data đã vất vả query ra. Dù optimizer cuối cùng vì chi phí quá cao mà degrade xuống full table scan, chi phí sequential scan hàng triệu row vẫn rất lớn.
 
-![Vấn đề deep pagination](https://oss.javaguide.cn/github/javaguide/mysql/deep-pagination-phenomenon.png)
+![Vấn đề deep pagination](/images/github/javaguide/mysql/deep-pagination-phenomenon.png)
 
 Điểm giới hạn query offset quá lớn này có thể khác nhau trên các máy khác nhau, tùy thuộc vào nhiều yếu tố như cấu hình phần cứng (hiệu năng CPU, tốc độ disk), kích thước bảng, loại index và thống kê, v.v.
 
-![Điểm giới hạn chuyển sang full table scan](https://oss.javaguide.cn/github/javaguide/mysql/deep-pagination-phenomenon-critical-point.png)
+![Điểm giới hạn chuyển sang full table scan](/images/github/javaguide/mysql/deep-pagination-phenomenon-critical-point.png)
 
 MySQL query optimizer áp dụng chiến lược cost-based để chọn execution plan tối ưu nhất. Nó quyết định có dùng index scan hay full table scan dựa trên chi phí CPU và I/O. Nếu optimizer cho rằng chi phí full table scan thấp hơn, nó sẽ bỏ index. Tuy nhiên, dù offset rất lớn, nếu query dùng covering index, MySQL vẫn có thể dùng index và tránh được table lookup.
 
@@ -62,7 +62,7 @@ Trong 《Java Development Manual》 của Alibaba cũng có mô tả tương ứ
 
 > Dùng delayed association hoặc subquery để tối ưu tình huống phân trang quá nhiều trang.
 >
-> ![](https://oss.javaguide.cn/github/javaguide/mysql/alibaba-java-development-handbook-paging.png)
+> ![](/images/github/javaguide/mysql/alibaba-java-development-handbook-paging.png)
 
 ```sql
 -- Trước tiên dùng subquery để offset trên primary key index, tìm nhanh start ID

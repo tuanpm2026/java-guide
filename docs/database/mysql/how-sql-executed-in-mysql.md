@@ -30,7 +30,7 @@ Trước tiên giới thiệu ngắn gọn vai trò cơ bản của một số c
 - **Optimizer**: Thực thi theo phương án mà MySQL cho là tối ưu nhất.
 - **Executor**: Thực thi câu lệnh, sau đó trả dữ liệu từ storage engine.
 
-![](https://oss.javaguide.cn/javaguide/13526879-3037b144ed09eb88.png)
+![](/images/javaguide/13526879-3037b144ed09eb88.png)
 
 Nói đơn giản, MySQL chủ yếu chia thành Server layer và Storage Engine layer:
 

@@ -60,7 +60,7 @@ Chúng ta có thể gọi Gradle Wrapper là bộ bao bọc Gradle, nó bao bọ
 
 Sơ đồ luồng làm việc của Gradle Wrapper như sau (nguồn hình ảnh [tài liệu chính thức Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html)):
 
-![Luồng làm việc của Wrapper](https://oss.javaguide.cn/github/javaguide/csdn/efa7a0006b04051e2b84cd116c6ccdfc.png)
+![Luồng làm việc của Wrapper](/images/github/javaguide/csdn/efa7a0006b04051e2b84cd116c6ccdfc.png)
 
 Toàn bộ luồng chủ yếu được chia thành 3 bước:
 
@@ -270,11 +270,11 @@ Mặc dù về bản chất plugin Gradle và file .gradle không có sự khác
 
 Vòng đời build của Gradle có ba giai đoạn: **giai đoạn khởi tạo, giai đoạn cấu hình** và **giai đoạn chạy**.
 
-![](https://oss.javaguide.cn/github/javaguide/csdn/dadbdf59fccd9a2ebf60a2d018541e52.png)
+![](/images/github/javaguide/csdn/dadbdf59fccd9a2ebf60a2d018541e52.png)
 
 Giữa giai đoạn khởi tạo và giai đoạn cấu hình, sau khi giai đoạn cấu hình kết thúc, và sau khi giai đoạn thực thi kết thúc, chúng ta đều có thể thêm một số Hook tùy chỉnh.
 
-![](https://oss.javaguide.cn/github/javaguide/csdn/5c297ccc4dac83229ff3e19caee9d1d2.png)
+![](/images/github/javaguide/csdn/5c297ccc4dac83229ff3e19caee9d1d2.png)
 
 ### Giai đoạn khởi tạo
 
