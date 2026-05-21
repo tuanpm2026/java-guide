@@ -1,5 +1,5 @@
 ---
-title: Công nghệ giọng nói AI: Từ ASR, TTS đến triển khai thực tế Voice Agent
+title: "Công nghệ giọng nói AI: Từ ASR, TTS đến triển khai thực tế Voice Agent"
 description: Phân tích chuyên sâu hệ thống giọng nói AI, bao gồm thu âm, VAD, ASR, LLM, TTS, phát streaming, xử lý ngắt lời, tối ưu độ trễ và lựa chọn API đám mây, mô hình cục bộ, kết hợp.
 category: Phát triển ứng dụng AI
 head:

@@ -1,5 +1,5 @@
 ---
-title: DeepSeek V4 + Claude Code thực chiến: Đánh giá chuyên sâu năng lực code
+title: "DeepSeek V4 + Claude Code thực chiến: Đánh giá chuyên sâu năng lực code"
 description: Trải nghiệm sâu tích hợp DeepSeek V4 với Claude Code, thực nghiệm nhiều tình huống kiểm toán code, migration database, nâng cấp mô hình, đánh giá năng lực code thực tế của V4-Pro và V4-Flash.
 category: Thực chiến lập trình AI
 head:

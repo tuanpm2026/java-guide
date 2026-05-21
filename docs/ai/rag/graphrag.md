@@ -1,5 +1,5 @@
 ---
-title: Giải thích chi tiết GraphRAG hơn 10.000 từ: Tại sao chỉ dựa vào vector search không đáp ứng được hỏi đáp tri thức phức tạp
+title: "Giải thích chi tiết GraphRAG hơn 10.000 từ: Tại sao chỉ dựa vào vector search không đáp ứng được hỏi đáp tri thức phức tạp"
 description: Phân tích chuyên sâu các khái niệm cốt lõi của GraphRAG, giải thích rõ về knowledge graph, thực thể, quan hệ, community detection, global search, local search, cũng như sự khác biệt bản chất giữa GraphRAG và RAG vector truyền thống, và chi phí triển khai kỹ thuật thực tế.
 category: Phát triển ứng dụng AI
 head:

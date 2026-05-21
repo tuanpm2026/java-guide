@@ -1,5 +1,5 @@
 ---
-title: Giới thiệu Skills thiết yếu cho lập trình AI: TDD, Code Review và tự động hóa web thực chiến
+title: "Giới thiệu Skills thiết yếu cho lập trình AI: TDD, Code Review và tự động hóa web thực chiến"
 description: Chia sẻ thực chiến 6 công cụ Skills lập trình AI, bao gồm quy trình phát triển TDD, code review, thiết kế UI, tự động hóa web và phát triển Skill, giúp AI coding Agent thực sự trở thành công cụ tăng năng suất.
 category: Thực chiến lập trình AI
 head:

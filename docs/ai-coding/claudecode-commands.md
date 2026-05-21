@@ -1,5 +1,5 @@
 ---
-title: Giải thích chi tiết các lệnh cốt lõi của Claude Code: simplify, review, loop, batch
+title: "Giải thích chi tiết các lệnh cốt lõi của Claude Code: simplify, review, loop, batch"
 description: Phân tích chuyên sâu các lệnh cốt lõi của Claude Code, bao gồm phương thức sử dụng và kỹ thuật thực chiến của /simplify, /review, /loop, /batch và các lệnh thực dụng khác.
 category: Kỹ thuật lập trình AI
 head:

@@ -1,6 +1,6 @@
 ---
-title: Hệ thống đánh giá ứng dụng AI: Từ xây dựng Golden Set đến vòng lặp khép kín với triển khai thử nghiệm
-description: Bắt đầu từ "không có bộ đánh giá thì không có niềm tin để lên production", bài viết phân tích toàn bộ vòng lặp khép kín của việc đánh giá ứng dụng AI: xây dựng Golden Set, ba phương pháp đánh giá, các chỉ số theo lĩnh vực RAG/Agent/đầu ra có cấu trúc, thực hành LLM-as-Judge, phát lại Trace và triển khai hồi quy tự động trong CI.
+title: "Hệ thống đánh giá ứng dụng AI: Từ xây dựng Golden Set đến vòng lặp khép kín với triển khai thử nghiệm"
+description: 'Bắt đầu từ "không có bộ đánh giá thì không có niềm tin để lên production", bài viết phân tích toàn bộ vòng lặp khép kín của việc đánh giá ứng dụng AI: xây dựng Golden Set, ba phương pháp đánh giá, các chỉ số theo lĩnh vực RAG/Agent/đầu ra có cấu trúc, thực hành LLM-as-Judge, phát lại Trace và triển khai hồi quy tự động trong CI.'
 category: Phát triển ứng dụng AI
 head:
   - - meta

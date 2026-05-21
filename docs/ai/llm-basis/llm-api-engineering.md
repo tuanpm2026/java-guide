@@ -1,5 +1,5 @@
 ---
-title: Thực hành kỹ thuật gọi API mô hình lớn: Streaming, retry, rate limit và trả về có cấu trúc
+title: "Thực hành kỹ thuật gọi API mô hình lớn: Streaming, retry, rate limit và trả về có cấu trúc"
 description: Phân tích toàn bộ chuỗi production của ứng dụng AI gọi API mô hình lớn, bao gồm yêu cầu nghiệp vụ, lắp ráp Prompt, model gateway, streaming output, retry, rate limit, trả về có cấu trúc, quan sát và triển khai Java backend.
 category: Phát triển ứng dụng AI
 head:

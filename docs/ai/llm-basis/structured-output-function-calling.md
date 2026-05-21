@@ -1,5 +1,5 @@
 ---
-title: Structured Output của mô hình lớn: Từ hợp đồng JSON đến triển khai Function Calling
+title: "Structured Output của mô hình lớn: Từ hợp đồng JSON đến triển khai Function Calling"
 description: Bắt đầu từ lý do "vui lòng trả về JSON" không đáng tin cậy trong production, phân tích Structured Outputs, JSON Schema, Function Calling, MCP và triển khai gọi công cụ backend Java.
 category: Phát triển ứng dụng AI
 head:

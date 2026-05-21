@@ -1,5 +1,5 @@
 ---
-title: Giải thích chi tiết tối ưu RAG hơn 15.000 từ: Từ thu hồi, xếp hạng lại đến kỹ thuật ngữ cảnh
+title: "Giải thích chi tiết tối ưu RAG hơn 15.000 từ: Từ thu hồi, xếp hạng lại đến kỹ thuật ngữ cảnh"
 description: Phân tích chuyên sâu phương pháp kỹ thuật hệ thống để tối ưu RAG, bao gồm chiến lược Chunk, Metadata, Hybrid Search, Query Rewrite, Rerank, nén ngữ cảnh, đánh giá câu trả lời và quy trình xử lý sự cố trong môi trường sản xuất.
 category: Phát triển ứng dụng AI
 head:
