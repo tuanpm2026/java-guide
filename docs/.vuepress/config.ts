@@ -4,6 +4,7 @@ import theme from "./theme.js";
 
 export default defineUserConfig({
   dest: "./dist",
+  base: "/java-guide/",
 
   title: "JavaGuide",
   description:
