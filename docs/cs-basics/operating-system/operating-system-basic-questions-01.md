@@ -10,6 +10,8 @@ head:
       content: 操作系统面试题,用户态 vs 内核态,进程 vs 线程,死锁必要条件,系统调用过程,进程调度算法,PCB进程控制块,进程间通信IPC,死锁预防避免,操作系统基础高频题,虚拟内存管理
 ---
 
+<!-- markdownlint-disable MD033 -->
+
 <!-- @include: @small-advertisement.snippet.md -->
 
 Nhiều bạn đọc phàn nàn rằng kiến thức về hệ điều hành khá phức tạp và không có nhiều kiên nhẫn để đọc, nhưng khi phỏng vấn lại thường xuyên gặp phải. Vì vậy, tôi đã tổng hợp các câu hỏi thường gặp về hệ điều hành! Bài viết này tổng hợp một số câu hỏi liên quan đến hệ điều hành mà tôi cho là khá quan trọng như **chế độ người dùng và chế độ nhân, system call, process và thread, deadlock, quản lý bộ nhớ, bộ nhớ ảo, hệ thống file** v.v.

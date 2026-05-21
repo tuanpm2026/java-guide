@@ -46,7 +46,7 @@ Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng má
 
     ![Advantages and disadvantages of personal area network (PAN) - IT Release](https://oss.javaguide.cn/p3-juejin/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.png)
 
-    <p style="text-align:center;font-size:13px;color:gray">https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
+    <p style=”text-align:center;font-size:13px;color:gray”>https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
 
 11. **Gói tin (packet)**: Đơn vị dữ liệu truyền trên Internet. Gồm header và data segment. Gói tin còn gọi là packet, header còn gọi là packet header.
 12. **Lưu và chuyển tiếp (store and forward)**: Router nhận một gói tin, kiểm tra xem gói tin có đúng không và lọc bỏ các gói lỗi xung đột. Sau khi xác định gói đúng, lấy địa chỉ đích, tra bảng để tìm địa chỉ cổng đầu ra muốn gửi, sau đó gửi gói đó đi.

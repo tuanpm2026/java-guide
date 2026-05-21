@@ -16,7 +16,7 @@ head:
 
 HTTP dùng mô hình client-server. Client gửi HTTP Request (yêu cầu) đến server, server respond và trả về HTTP Response (phản hồi). Toàn bộ quá trình như hình dưới.
 
-![](https://oss.javaguide.cn/github/javaguide/450px-HTTP-Header.png)
+这篇文章主要回答几个问题：
 
 HTTP protocol dựa trên TCP protocol. Trước khi gửi HTTP request phải thiết lập kết nối TCP tức phải trải qua 3 lần bắt tay. Hầu hết HTTP protocol hiện đang dùng là 1.1. Trong protocol 1.1, Keep-Alive mặc định được bật — kết nối được thiết lập có thể tái sử dụng qua nhiều request.
 

@@ -2,14 +2,14 @@
 title: Giải mã cơ chế hoạt động của LLM - Token, Context và Sampling Parameters
 description: Phân tích chuyên sâu cơ chế vận hành nền tảng của Large Language Model (LLM), giải thích chi tiết Token, Context Window, Temperature, Top-p và các Sampling Parameters cốt lõi, giúp lập trình viên thực sự hiểu và làm chủ mô hình ngôn ngữ lớn.
 category: AI 应用开发
-icon: "ai"
+icon: "mdi:robot-outline"
 head:
   - - meta
     - name: keywords
       content: LLM,大语言模型,Token,上下文窗口,Temperature,Top-p,采样参数,AI 应用开发
 ---
 
-<!-- @include: @article-header.snippet.md -->
+<!-- @include: @small-advertisement.snippet.md -->
 
 Trong quá trình tìm hiểu về RAG, Agent workflow, MCP protocol và các kiến trúc phức tạp khác, tôi nhận ra một hiện tượng rất phổ biến: nhiều lập trình viên khi xây dựng Agent workflow hoặc tinh chỉnh RAG retrieval thường vấp phải những lỗi cơ bản nhất từ tham số LLM ở tầng dưới cùng. Ví dụ: tại sao đã set Temperature bằng 0 mà structured output vẫn thỉnh thoảng bị lỗi? Tại sao nhét tài liệu dài vào mô hình thì nó như "mất trí nhớ", bỏ qua những chỉ dẫn quan trọng trong System Prompt?
 

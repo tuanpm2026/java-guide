@@ -21,7 +21,14 @@ head:
 - **Cho xin một Star**：Nếu bạn thấy nội dung của JavaGuide hữu ích, hãy cho một Star miễn phí, đó là sự khích lệ lớn nhất với mình. Cảm ơn mọi người đã đồng hành！Cổng vào: [GitHub](https://github.com/Snailclimb/JavaGuide) | [Gitee](https://gitee.com/SnailClimb/JavaGuide).
 - **Lưu ý khi dẫn nguồn**：Tất cả các bài viết dưới đây nếu không ghi là đăng lại thì đều là bản gốc của JavaGuide. Khi dẫn nguồn vui lòng ghi rõ nguồn ở đầu bài. Nếu phát hiện sao chép/đạo văn độc hại, sẽ sử dụng các biện pháp pháp lý để bảo vệ quyền lợi. Hãy cùng nhau duy trì một môi trường sáng tạo kỹ thuật lành mạnh!
 
-:::
+JavaGuide 是一份系统化的 **Java 面试指南** 和**后端通用面试复习资料**，内容覆盖 Java 基础、集合、并发编程、JVM、Spring/Spring Boot、MySQL、Redis、分布式、高并发、高可用和系统设计等核心知识点。
+
+如果你正在准备校招、社招或跳槽面试，可以从 [Java 后端面试通关计划](./interview-preparation/backend-interview-plan.md) 开始，再按下面的模块逐步复习高频 Java 八股文和后端面试题。
+
+本站所有内容都已免费开源，欢迎一起[维护完善](http://localhost:8080/javaguide/contribution-guideline.html)，有帮助的话，欢迎 Star！
+
+- **项目地址**：<https://github.com/Snailclimb/JavaGuide>
+- **在线阅读**：<https://javaguide.cn/>
 
 ## Chuẩn bị phỏng vấn
 

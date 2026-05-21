@@ -214,7 +214,7 @@ Mục đích tự triển khai chủ yếu là để hiểu nguyên lý Bloom fi
 
 Trước tiên thêm dependency Guava vào project:
 
-```java
+```xml
 <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava</artifactId>

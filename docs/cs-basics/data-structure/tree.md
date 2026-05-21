@@ -138,12 +138,12 @@ Code:
 
 ```java
 public void preOrder(TreeNode root){
-	if(root == null){
-		return;
-	}
-	system.out.println(root.data);
-	preOrder(root.left);
-	preOrder(root.right);
+    if(root == null){
+        return;
+    }
+    system.out.println(root.data);
+    preOrder(root.left);
+    preOrder(root.right);
 }
 ```
 
@@ -159,12 +159,12 @@ Code:
 
 ```java
 public void inOrder(TreeNode root){
-	if(root == null){
-		return;
-	}
-	inOrder(root.left);
-	system.out.println(root.data);
-	inOrder(root.right);
+    if(root == null){
+        return;
+    }
+    inOrder(root.left);
+    system.out.println(root.data);
+    inOrder(root.right);
 }
 ```
 

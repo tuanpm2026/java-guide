@@ -11,12 +11,6 @@ head:
     - name: keywords
       content: JavaGuide,Java interview,Java interview guide,Java technical questions,backend interview,backend development,database interview,MySQL interview,Redis interview,distributed,high concurrency,high performance,high availability,system design,message queue,cache,computer network,Linux,AI interview,AI application development,Agent,RAG,MCP,LLM,AI coding
   - - meta
-    - property: og:type
-      content: website
-  - - meta
-    - property: og:url
-      content: https://javaguide.cn/
-  - - meta
     - property: og:image
       content: https://javaguide.cn/logo.png
 actions:

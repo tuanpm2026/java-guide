@@ -3,6 +3,10 @@ title: 《Java Must-read Source Code Series》
 description: Chuyên mục Java source code phải đọc, bao gồm phân tích source code của các framework chính như Dubbo, Netty, Spring Boot, giúp hiểu sâu nguyên lý tầng dưới.
 category: Knowledge Planet
 star: true
+head:
+  - - meta
+    - name: keywords
+      content: Java源码,源码解析,Dubbo源码,Netty源码,Spring Boot源码,框架源码,源码阅读,Java源码学习,开源框架源码
 ---
 
 ## Giới thiệu

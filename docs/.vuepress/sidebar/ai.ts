@@ -3,12 +3,44 @@ import { ICONS } from "./constants.js";
 
 export const ai = arraySidebar([
   {
+    text: "Câu hỏi phỏng vấn",
+    icon: ICONS.INTERVIEW,
+    prefix: "interview-questions/",
+    children: [
+      {
+        text: "⭐️ Hướng dẫn phỏng vấn AI Application",
+        link: "ai-interview-guide",
+      },
+      {
+        text: "Tổng hợp câu hỏi phỏng vấn LLM cơ bản",
+        link: "llm-interview-questions",
+      },
+      {
+        text: "Tổng hợp câu hỏi phỏng vấn AI Agent",
+        link: "agent-interview-questions",
+      },
+      {
+        text: "Tổng hợp câu hỏi phỏng vấn RAG",
+        link: "rag-interview-questions",
+      },
+      {
+        text: "Tổng hợp câu hỏi phỏng vấn AI System Design",
+        link: "ai-system-design-interview-questions",
+      },
+    ],
+  },
+  {
     text: "LLM cơ bản",
     icon: ICONS.MACHINE_LEARNING,
     prefix: "llm-basis/",
     children: [
       { text: "Cơ chế vận hành LLM", link: "llm-operation-mechanism" },
-      { text: "Câu hỏi phỏng vấn mở về AI coding", link: "ai-ide" },
+      { text: "Kỹ thuật gọi API LLM", link: "llm-api-engineering" },
+      {
+        text: "Chi tiết Structured Output của LLM",
+        link: "structured-output-function-calling",
+      },
+      { text: "Hệ thống đánh giá AI Application", link: "llm-evaluation" },
     ],
   },
   {
@@ -16,25 +48,14 @@ export const ai = arraySidebar([
     icon: ICONS.CHAT,
     prefix: "agent/",
     children: [
-      { text: "Hiểu rõ khái niệm cốt lõi AI Agent", link: "agent-basis" },
-      {
-        text: "Hướng dẫn Prompt Engineering cho LLM",
-        link: "prompt-engineering",
-      },
-      {
-        text: "Hướng dẫn thực chiến Context Engineering",
-        link: "context-engineering",
-      },
-      { text: "Chi tiết về Agent Skills", link: "skills" },
-      { text: "Chi tiết về MCP Protocol", link: "mcp" },
-      {
-        text: "Hiểu rõ Harness Engineering",
-        link: "harness-engineering",
-      },
-      {
-        text: "Workflow, Graph và Loop trong AI Workflow",
-        link: "workflow-graph-loop",
-      },
+      { text: "⭐️ Chi tiết khái niệm cốt lõi AI Agent", link: "agent-basis" },
+      { text: "⭐️ Hệ thống Memory của AI Agent", link: "agent-memory" },
+      { text: "Hướng dẫn Prompt Engineering", link: "prompt-engineering" },
+      { text: "Hướng dẫn Context Engineering", link: "context-engineering" },
+      { text: "Chi tiết Agent Skills", link: "skills" },
+      { text: "Chi tiết MCP Protocol", link: "mcp" },
+      { text: "Chi tiết Harness Engineering", link: "harness-engineering" },
+      { text: "Chi tiết AI Workflow", link: "workflow-graph-loop" },
     ],
   },
   {
@@ -42,38 +63,33 @@ export const ai = arraySidebar([
     icon: ICONS.SEARCH,
     prefix: "rag/",
     children: [
-      { text: "Chi tiết về khái niệm RAG cơ bản", link: "rag-basis" },
+      { text: "⭐️ Khái niệm cơ bản RAG", link: "rag-basis" },
       {
-        text: "Chi tiết thuật toán Vector Index & Vector DB cho RAG",
+        text: "Document processing & chunking cho RAG",
+        link: "rag-document-processing",
+      },
+      {
+        text: "⭐️ Vector Index & Vector DB cho RAG",
         link: "rag-vector-store",
       },
+      {
+        text: "Chiến lược update Knowledge Base",
+        link: "rag-knowledge-update",
+      },
+      { text: "Chi tiết GraphRAG", link: "graphrag" },
+      { text: "Tối ưu retrieval cho RAG", link: "rag-optimization" },
     ],
   },
   {
-    text: "Thực chiến AI Coding",
-    icon: ICONS.CODE,
-    prefix: "ai-coding/",
+    text: "AI System Design",
+    icon: ICONS.DESIGN,
+    prefix: "system-design/",
     children: [
       {
-        text: "IDEA + Qoder plugin thực chiến đa kịch bản",
-        link: "idea-qoder-plugin",
+        text: "Kiến trúc AI Application",
+        link: "ai-application-architecture",
       },
-      {
-        text: "Trae + MiniMax thực chiến đa kịch bản",
-        link: "trae-m2.7",
-      },
-      {
-        text: "Claude Code tích hợp model bên thứ ba",
-        link: "cc-glm5.1",
-      },
-      {
-        text: "Hướng dẫn sử dụng Claude Code",
-        link: "claudecode-tips",
-      },
-      {
-        text: "Best practices cho OpenAI Codex",
-        link: "codex-best-practices",
-      },
+      { text: "Chi tiết công nghệ AI Voice", link: "ai-voice" },
     ],
   },
 ]);

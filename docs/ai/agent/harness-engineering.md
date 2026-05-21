@@ -260,7 +260,7 @@ Giống như đến một thành phố mới, không cần thuộc lòng cả cu
 
 Họ định nghĩa cấu trúc phân lớp cố định cho mỗi business domain:
 
-```
+```text
 Types → Config → Repo → Service → Runtime → UI
 ```
 

@@ -169,7 +169,7 @@ Xem startup log:
 
 Xem thêm số file của log file group là bao nhiêu:
 
-![](images/redo-log.png)
+![](./images/redo-log.png)
 
 Đúng là 32, và kích thước mỗi log file là `671088640 / 32 = 20971520`.
 

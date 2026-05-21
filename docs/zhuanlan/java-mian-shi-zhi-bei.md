@@ -3,6 +3,10 @@ title: 《Java Interview Guide》
 description: Java Interview Guide - Hướng dẫn phỏng vấn Java backend được mài giũa 4 năm, bao gồm giảng giải hệ thống các kiến thức cốt lõi và câu hỏi phỏng vấn tần suất cao.
 category: Knowledge Planet
 star: 5
+head:
+  - - meta
+    - name: keywords
+      content: Java面试,Java面试指南,Java八股文,Java面试题,Java后端面试,Java面试指北,Java核心面试题,JVM面试题,并发面试题,Spring面试题,MySQL面试题,系统设计面试
 ---
 
 **4 năm mài một kiếm, chỉ để tạo ra hướng dẫn phỏng vấn Java chất lượng nhất.**

@@ -45,10 +45,32 @@ Từ "phản hồi thụ động" ban đầu đến "trí tuệ thể hiện" tr
 
 **Từ góc độ chủ thể quyết định:**
 
-```ebnf
-传统编程：程序员 ──→ 代码 ──→ 执行结果
-Workflow：产品/开发 ──→ 流程图 ──→ 执行结果
-Agent：用户描述意图 ──→ AI 决策 ──→ 动态执行
+**2023 年底，大家开始重视编排。**
+
+ReAct 这种推理框架逐渐被接受，多智能体协作也开始被讨论。Coze、Dify 这类平台把开发门槛降了下来，用 DAG（有向无环图）来约束执行流程，避免 AutoGPT 那种完全放飞的自治方式。
+
+**2024 年底，标准化和多模态开始变重要。**
+
+MCP 协议出现，解决工具接入碎片化的问题。Computer Use 让 Agent 可以操作图形界面。Cursor 这类 AI 编程工具也把 "Vibe Coding" 带火了。
+
+**2025 年，Agent 开始往常驻自治方向走。**
+
+Agent Skills、Heartbeat 这类机制成熟后，Agent 可以在后台长时间运行，也开始强调本地数据主权。
+
+再往后看，几个方向会继续推进：内建记忆、预测能力，以及从数字世界扩展到物理机器人。
+
+不过这个阶段划分，别看得太死。真实产品经常同时具备多个阶段的特征。比较明显的分水岭还是 2023 年中，之前 AI 基本只能“说”，之后才开始逐渐能“做”。
+
+### Agent、传统编程和 Workflow 区别？
+
+很多人第一次接触 Agent，会把它和自动化脚本、Workflow 混在一起。
+
+其实可以先看一个最简单的区别：
+
+```text
+传统编程：程序员写代码 → 执行结果
+Workflow：产品画流程图 → 执行结果
+Agent：用户说意图 → AI 决策 → 动态执行
 ```
 
 Tóm tắt một câu: **Lập trình truyền thống và Workflow đều là con người đưa ra quyết định, thiết kế trước toàn bộ logic, còn Agent là AI đưa ra quyết định**.
@@ -177,21 +199,21 @@ Dù công cụ bên ngoài phức tạp đến đâu, LLM khi suy luận chỉ n
   "type": "function",
   "function": {
     "name": "query_slow_sql",
-    "description": "查询指定微服务在特定时间段内的慢 SQL 日志。当需要排查服务响应慢、数据库查询超时或 CPU 异常飙升时调用。若用户询问的是网络或内存问题，请勿调用此工具。",
+    "description": "查指定微服务在特定时间段的慢 SQL 日志。服务响应慢、数据库超时、CPU 飙升的时候用这个。如果用户问的是网络或内存问题，别调这个。",
     "parameters": {
       "type": "object",
       "properties": {
         "service_name": {
           "type": "string",
-          "description": "待查询的服务名称，例如：user-service、order-service"
+          "description": "服务名，比如 user-service、order-service"
         },
         "time_range": {
           "type": "string",
-          "description": "查询时间范围，格式为 HH:MM-HH:MM，例如：09:00-09:30"
+          "description": "时间范围，格式 HH:MM-HH:MM，比如 09:00-09:30"
         },
         "threshold_ms": {
           "type": "integer",
-          "description": "慢 SQL 判定阈值（毫秒），默认为 1000，即超过 1 秒的查询视为慢 SQL"
+          "description": "慢 SQL 判定阈值（毫秒），默认 1000"
         }
       },
       "required": ["service_name", "time_range"]
@@ -243,15 +265,7 @@ Trước đây, nhà phát triển phải duy trì thủ công lượng lớn á
 
 Khi MCP Server tiếp xúc công cụ ra ngoài, bên trong vẫn sử dụng JSON Schema để mô tả tiêu chuẩn tham số của từng công cụ. Tức là JSON Schema là nền tảng định dạng dữ liệu tầng dưới, MCP là tầng giao thức giao tiếp được xây dựng trên nó.
 
-```json
-工具接入的标准化体系
-├── 数据格式层：JSON Schema（OpenAI Function Calling Schema）
-│     └── 定义 LLM 如何"读懂"工具的能力与参数
-│
-└── 通信协议层：MCP（Model Context Protocol）
-      ├── 定义工具如何"标准化接入"宿主程序
-      └── 内部的工具描述依然复用 JSON Schema
-```
+工具名称 → 实际执行函数 + JSON Schema 描述
 
 Ngoài ra, MCP không chỉ quản lý tích hợp công cụ, nó thực sự định nghĩa **ba loại nguyên ngữ chuẩn**:
 
@@ -409,15 +423,9 @@ Dưới đây lấy ví dụ trên để hiển thị quy trình thực thi (dù
 
 Từ góc nhìn tầng dưới, động cơ vận hành Agent Loop là một Prompt được tổ hợp động:
 
-```
-已知：
-当前历史上下文：&{历史上下文}
-实时环境输入：&{实时环境输入}
-用户目标："排查 user-service 变慢原因并通知负责人"
+先用 CoT 生成全局步骤，再在每个步骤内部嵌入 ReAct 子循环。这样既有全局结构，也保留局部灵活性。
 
-请做出下一步的决策：
-（你可以选择调用工具或 Skill，或者在任务完成时直接输出最终结果）
-```
+### Reflection
 
 **Kết quả cuối cùng:** "Đã xác minh nguyên nhân interface user-service chậm là do slow SQL không hit index dẫn đến full table scan, đã gửi email điều tra chi tiết đến người chịu trách nhiệm Vương Kiến Quốc."
 
@@ -502,11 +510,7 @@ Khi chúng ta nâng cấp Agent đơn lẻ thành Multi-Agent (nhóm đa tác nh
 
 **Từ góc độ chủ thể quyết định:**
 
-```ebnf
-传统编程：程序员 ──→ 代码 ──→ 执行结果
-Workflow：产品/开发 ──→ 流程图 ──→ 执行结果
-Agent：用户描述意图 ──→ AI 决策 ──→ 动态执行
-```
+Agentic Workflows 则是两者混着用：全局用 Workflow 管住结构，在某些不确定的节点里嵌入 Agent 子循环，让模型自己探索一小段。
 
 Tóm tắt một câu: **Lập trình truyền thống và Workflow đều là con người đưa ra quyết định, thiết kế trước toàn bộ logic, còn Agent là AI đưa ra quyết định**.
 

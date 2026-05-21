@@ -135,29 +135,29 @@ MCP áp dụng **thiết kế kiến trúc phân tầng**, bao gồm bốn thàn
 
 ```mermaid
 flowchart TB
-    %% 定义全局样式（2026 规范）
+    %% 定义全局样式
     classDef client fill:#00838F,color:#FFFFFF,stroke:none,rx:10,ry:10
     classDef infra fill:#9B59B6,color:#FFFFFF,stroke:none,rx:10,ry:10
     classDef business fill:#E99151,color:#FFFFFF,stroke:none,rx:10,ry:10
     classDef storage fill:#E4C189,color:#333333,stroke:none,rx:10,ry:10
 
-    subgraph Host["MCP Host (AI 应用)"]
+    subgraph Host["MCP Host（AI 应用）"]
         direction TB
         style Host fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        App["Claude Desktop<br/>VS Code / Cursor"]:::client
+        App["Claude Desktop / VS Code / Cursor"]:::client
     end
 
     subgraph Layer["MCP 层"]
         direction LR
         style Layer fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        MCPClient["MCP Client<br/>(连接管理)"]:::infra --> MCPServer["MCP Server<br/>(功能接口)"]:::business
+        MCPClient["MCP Client"]:::infra --> MCPServer["MCP Server"]:::business
     end
 
     subgraph Data["数据源层"]
         direction LR
         style Data fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        LocalFiles["本地文件<br/>Git 仓库"]:::storage
-        ExternalAPI["外部 API<br/>GitHub / 天气"]:::storage
+        LocalFiles["本地文件 / Git 仓库"]:::storage
+        ExternalAPI["外部 API / GitHub / 天气"]:::storage
     end
 
     App --> MCPClient
@@ -224,7 +224,7 @@ sequenceDiagram
 
 ### MCP sử dụng giao thức giao tiếp nào?
 
-#### JSON-RPC 2.0
+MCP 用的是 JSON-RPC 2.0，选它的原因挺实在的：
 
 MCP áp dụng **JSON-RPC 2.0** làm giao thức giao tiếp tầng ứng dụng, lý do như sau:
 
@@ -254,18 +254,13 @@ MCP áp dụng **JSON-RPC 2.0** làm giao thức giao tiếp tầng ứng dụng
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "文件内容..."
-      }
-    ]
+    "content": [{ "type": "text", "text": "文件内容..." }]
   },
-  "error": null  // error 和 result 互斥
+  "error": null
 }
 ```
 
-#### JSON-RPC vs HTTP
+和 RESTful 对比：JSON-RPC 更偏“操作”而不是“资源”，没有 HTTP 状态码、缓存那套东西，天然适合内部通信和工具调用。
 
 | Chiều so sánh          | HTTP (RESTful)                         | JSON-RPC                         |
 | ---------------------- | -------------------------------------- | -------------------------------- |
@@ -440,28 +435,23 @@ Năng lực Resources của MCP có thể một lần load lượng lớn văn b
 **Ví dụ nhanh (Python SDK):**
 
 ```python
-from mcp.server import Server
-from mcp.types import Tool, TextContent
+from mcp.server.fastmcp import FastMCP
 
-# 创建 Server 实例
-server = Server("my-mcp-server")
+mcp = FastMCP("weather-server")
 
-# 定义 Tool
-@server.tool()
-async def get_weather(city: str) -> str:
+@mcp.tool()
+def get_weather(city: str) -> str:
     """获取指定城市的天气信息"""
     # 实际业务逻辑
     return f"{city} 今天晴天，温度 25°C"
 
-# 定义 Resource
-@server.resource("weather://forecast")
-async def weather_forecast() -> str:
+@mcp.resource("weather://forecast")
+def weather_forecast() -> str:
     """返回未来一周天气预报"""
     return "未来七天天气预报..."
 
-# 启动 Server
 if __name__ == "__main__":
-    server.run()
+    mcp.run()
 ```
 
 **Ví dụ cấu hình (Claude Desktop):**
@@ -469,12 +459,9 @@ if __name__ == "__main__":
 ```json
 {
   "mcpServers": {
-    "my-server": {
-      "command": "python",
-      "args": ["/path/to/my_server.py"],
-      "env": {
-        "API_KEY": "your-api-key"
-      }
+    "weather-server": {
+      "command": "uv",
+      "args": ["run", "--with", "mcp", "/path/to/weather_server.py"]
     }
   }
 }
