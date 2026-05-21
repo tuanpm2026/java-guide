@@ -100,7 +100,7 @@ Internet được kết nối từ rất nhiều mạng không đồng nhất (h
 
 **Các giao thức tầng mạng phổ biến**:
 
-![Các giao thức tầng mạng phổ biến](images/network-model/nerwork-layer-protocol.png)
+![Các giao thức tầng mạng phổ biến](./images/network-model/nerwork-layer-protocol.png)
 
 - **IP (Internet Protocol — Giao thức Internet)**: Một trong các giao thức quan trọng nhất của TCP/IP, chức năng chính là định nghĩa định dạng gói tin, định tuyến và đánh địa chỉ gói tin để chúng có thể truyền qua mạng và đến đúng đích. Hiện tại giao thức IP chủ yếu có hai loại: IPv4 cũ và IPv6 mới hơn; cả hai đang được sử dụng, nhưng IPv6 đã được đề xuất thay thế IPv4.
 - **ARP (Address Resolution Protocol — Giao thức phân giải địa chỉ)**: ARP giải quyết vấn đề chuyển đổi giữa địa chỉ tầng mạng (IP) và địa chỉ tầng liên kết (MAC). Vì trong quá trình truyền vật lý của IP datagram, luôn cần biết hop tiếp theo (đích vật lý tiếp theo) là ở đâu, nhưng địa chỉ IP là địa chỉ logic còn MAC mới là địa chỉ vật lý, ARP giải quyết một số vấn đề chuyển đổi từ IP sang MAC.
