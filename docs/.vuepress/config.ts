@@ -8,8 +8,8 @@ export default defineUserConfig({
 
   title: "JavaGuide",
   description:
-    "JavaGuide 是一份面向后端开发/后端面试的学习与复习指南，覆盖 Java、数据库/MySQL、Redis、分布式、高并发、高可用、系统设计等核心知识。",
-  lang: "zh-CN",
+    "JavaGuide là hướng dẫn học và ôn tập cho lập trình viên backend / phỏng vấn backend, bao phủ Java, database/MySQL, Redis, distributed system, high concurrency, high availability, system design và các kiến thức cốt lõi khác.",
+  lang: "vi-VN",
 
   head: [
     // meta
@@ -33,7 +33,7 @@ export default defineUserConfig({
     // ],
     ["meta", { property: "og:site_name", content: "JavaGuide" }],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:locale", content: "zh_CN" }],
+    ["meta", { property: "og:locale", content: "vi_VN" }],
     ["meta", { property: "og:url", content: "https://javaguide.cn/" }],
     ["meta", { name: "apple-mobile-web-app-capable", content: "yes" }],
     // 添加百度统计 - 异步加载避免阻塞渲染

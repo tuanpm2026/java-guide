@@ -1,56 +1,64 @@
 import { navbar } from "vuepress-theme-hope";
 
 export default navbar([
-  { text: "后端面试", icon: "java", link: "/home.md" },
-  { text: "AI面试", icon: "a-MachineLearning", link: "/ai/" },
-  { text: "实战项目", icon: "project", link: "/zhuanlan/interview-guide.md" },
+  { text: "Phỏng vấn Backend", icon: "java", link: "/home.md" },
+  { text: "Phỏng vấn AI", icon: "a-MachineLearning", link: "/ai/" },
   {
-    text: "知识星球",
+    text: "Dự án thực tế",
+    icon: "project",
+    link: "/zhuanlan/interview-guide.md",
+  },
+  {
+    text: "Knowledge Planet",
     icon: "planet",
     children: [
       {
-        text: "星球介绍",
+        text: "Giới thiệu Planet",
         icon: "about",
         link: "/about-the-author/zhishixingqiu-two-years.md",
       },
-      { text: "星球专属优质专栏", icon: "about", link: "/zhuanlan/" },
+      { text: "Chuyên mục độc quyền", icon: "about", link: "/zhuanlan/" },
       {
-        text: "星球优质主题汇总",
+        text: "Tổng hợp chủ đề chất lượng",
         icon: "star",
         link: "https://www.yuque.com/snailclimb/rpkqw1/ncxpnfmlng08wlf1",
       },
     ],
   },
   {
-    text: "推荐阅读",
+    text: "Đọc thêm",
     icon: "book",
     children: [
-      { text: "开源项目", icon: "github", link: "/open-source-project/" },
-      { text: "技术书籍", icon: "book", link: "/books/" },
       {
-        text: "程序人生",
+        text: "Open Source Project",
+        icon: "github",
+        link: "/open-source-project/",
+      },
+      { text: "Sách kỹ thuật", icon: "book", link: "/books/" },
+      {
+        text: "Cuộc sống lập trình",
         icon: "code",
         link: "/high-quality-technical-articles/",
       },
     ],
   },
   {
-    text: "网站相关",
+    text: "Về website",
     icon: "about",
     children: [
-      { text: "关于作者", icon: "zuozhe", link: "/about-the-author/" },
+      { text: "Về tác giả", icon: "zuozhe", link: "/about-the-author/" },
       {
-        text: "PDF下载",
+        text: "Tải PDF",
         icon: "pdf",
         link: "/interview-preparation/pdf-interview-javaguide.md",
       },
       {
-        text: "面试突击",
+        text: "Tài liệu phỏng vấn",
         icon: "pdf",
         link: "https://interview.javaguide.cn/home.html",
       },
       {
-        text: "更新历史",
+        text: "Lịch sử cập nhật",
         icon: "history",
         link: "/timeline/",
       },

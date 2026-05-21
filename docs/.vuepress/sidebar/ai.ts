@@ -3,12 +3,12 @@ import { ICONS } from "./constants.js";
 
 export const ai = arraySidebar([
   {
-    text: "大模型基础",
+    text: "LLM cơ bản",
     icon: ICONS.MACHINE_LEARNING,
     prefix: "llm-basis/",
     children: [
-      { text: "万字拆解 LLM 运行机制", link: "llm-operation-mechanism" },
-      { text: "AI 编程开放性面试题", link: "ai-ide" },
+      { text: "Cơ chế vận hành LLM", link: "llm-operation-mechanism" },
+      { text: "Câu hỏi phỏng vấn mở về AI coding", link: "ai-ide" },
     ],
   },
   {
@@ -16,17 +16,23 @@ export const ai = arraySidebar([
     icon: ICONS.CHAT,
     prefix: "agent/",
     children: [
-      { text: "一文搞懂 AI Agent 核心概念", link: "agent-basis" },
-      { text: "大模型提示词工程实践指南", link: "prompt-engineering" },
-      { text: "上下文工程实战指南", link: "context-engineering" },
-      { text: "万字详解 Agent Skills", link: "skills" },
-      { text: "万字拆解 MCP 协议", link: "mcp" },
+      { text: "Hiểu rõ khái niệm cốt lõi AI Agent", link: "agent-basis" },
       {
-        text: "一文搞懂 Harness Engineering",
+        text: "Hướng dẫn Prompt Engineering cho LLM",
+        link: "prompt-engineering",
+      },
+      {
+        text: "Hướng dẫn thực chiến Context Engineering",
+        link: "context-engineering",
+      },
+      { text: "Chi tiết về Agent Skills", link: "skills" },
+      { text: "Chi tiết về MCP Protocol", link: "mcp" },
+      {
+        text: "Hiểu rõ Harness Engineering",
         link: "harness-engineering",
       },
       {
-        text: "AI 工作流中的 Workflow、Graph 与 Loop",
+        text: "Workflow, Graph và Loop trong AI Workflow",
         link: "workflow-graph-loop",
       },
     ],
@@ -36,36 +42,36 @@ export const ai = arraySidebar([
     icon: ICONS.SEARCH,
     prefix: "rag/",
     children: [
-      { text: "万字详解 RAG 基础概念", link: "rag-basis" },
+      { text: "Chi tiết về khái niệm RAG cơ bản", link: "rag-basis" },
       {
-        text: "万字详解 RAG 向量索引算法和向量数据库",
+        text: "Chi tiết thuật toán Vector Index & Vector DB cho RAG",
         link: "rag-vector-store",
       },
     ],
   },
   {
-    text: "AI 编程实战",
+    text: "Thực chiến AI Coding",
     icon: ICONS.CODE,
     prefix: "ai-coding/",
     children: [
       {
-        text: "IDEA + Qoder 插件多场景实战",
+        text: "IDEA + Qoder plugin thực chiến đa kịch bản",
         link: "idea-qoder-plugin",
       },
       {
-        text: "Trae + MiniMax 多场景实战",
+        text: "Trae + MiniMax thực chiến đa kịch bản",
         link: "trae-m2.7",
       },
       {
-        text: "Claude Code 接入第三方模型实战",
+        text: "Claude Code tích hợp model bên thứ ba",
         link: "cc-glm5.1",
       },
       {
-        text: "Claude Code 使用指南",
+        text: "Hướng dẫn sử dụng Claude Code",
         link: "claudecode-tips",
       },
       {
-        text: "OpenAI Codex 最佳实践指南",
+        text: "Best practices cho OpenAI Codex",
         link: "codex-best-practices",
       },
     ],

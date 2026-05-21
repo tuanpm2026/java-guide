@@ -3,13 +3,13 @@ import { ICONS } from "./constants.js";
 
 export const zhuanlan = arraySidebar([
   {
-    text: "实战项目教程",
+    text: "Tutorial dự án thực tế",
     icon: ICONS.PROJECT,
     collapsible: false,
     children: ["interview-guide", "handwritten-rpc-framework"],
   },
   {
-    text: "面试资料",
+    text: "Tài liệu phỏng vấn",
     icon: ICONS.INTERVIEW,
     collapsible: false,
     children: [

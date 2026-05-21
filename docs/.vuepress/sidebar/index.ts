@@ -23,14 +23,14 @@ export default sidebar({
   // 必须放在最后面
   "/": [
     {
-      text: "项目介绍",
+      text: "Giới thiệu dự án",
       icon: ICONS.STAR,
       collapsible: true,
       prefix: "javaguide/",
       children: ["intro", "use-suggestion", "contribution-guideline", "faq"],
     },
     {
-      text: "面试准备（必看）",
+      text: "Chuẩn bị phỏng vấn (Bắt buộc đọc)",
       icon: ICONS.INTERVIEW,
       collapsible: true,
       prefix: "interview-preparation/",
@@ -53,7 +53,7 @@ export default sidebar({
       prefix: "java/",
       children: [
         {
-          text: "基础",
+          text: "Cơ bản",
           prefix: "basis/",
           icon: ICONS.BASIC,
           children: [
@@ -74,7 +74,7 @@ export default sidebar({
           ],
         },
         {
-          text: "集合",
+          text: "Collection",
           prefix: "collection/",
           icon: ICONS.CONTAINER,
           children: [
@@ -95,7 +95,7 @@ export default sidebar({
           ],
         },
         {
-          text: "并发编程",
+          text: "Lập trình đồng thời (Concurrency)",
           prefix: "concurrent/",
           icon: ICONS.PERFORMANCE,
           children: [
@@ -131,7 +131,7 @@ export default sidebar({
           collapsible: true,
           children: [
             {
-              text: "JVM常见面试题总结",
+              text: "Tổng hợp câu hỏi phỏng vấn JVM",
               link: "https://interview.javaguide.cn/java/java-jvm.html",
             },
             "memory-area",
@@ -145,7 +145,7 @@ export default sidebar({
           ],
         },
         {
-          text: "新特性",
+          text: "Tính năng mới",
           prefix: "new-features/",
           icon: ICONS.FEATURED,
           collapsible: true,
@@ -171,13 +171,13 @@ export default sidebar({
       ],
     },
     {
-      text: "计算机基础",
+      text: "Computer Science cơ bản",
       icon: ICONS.COMPUTER,
       prefix: "cs-basics/",
       collapsible: true,
       children: [
         {
-          text: "网络",
+          text: "Mạng máy tính",
           prefix: "network/",
           icon: ICONS.NETWORK,
           children: [
@@ -201,7 +201,7 @@ export default sidebar({
           ],
         },
         {
-          text: "操作系统",
+          text: "Hệ điều hành",
           prefix: "operating-system/",
           icon: ICONS.OS,
           children: [
@@ -216,7 +216,7 @@ export default sidebar({
           ],
         },
         {
-          text: "数据结构",
+          text: "Cấu trúc dữ liệu",
           prefix: "data-structure/",
           icon: ICONS.DATA_STRUCTURE,
           collapsible: true,
@@ -230,7 +230,7 @@ export default sidebar({
           ],
         },
         {
-          text: "算法",
+          text: "Thuật toán",
           prefix: "algorithms/",
           icon: ICONS.ALGORITHM,
           collapsible: true,
@@ -246,13 +246,13 @@ export default sidebar({
       ],
     },
     {
-      text: "数据库",
+      text: "Database",
       icon: ICONS.DATABASE,
       prefix: "database/",
       collapsible: true,
       children: [
         {
-          text: "基础",
+          text: "Cơ bản",
           icon: ICONS.BASIC,
           children: [
             "basis",
@@ -285,7 +285,7 @@ export default sidebar({
               "mysql-index",
               "mysql-index-invalidation",
               {
-                text: "MySQL三大日志详解",
+                text: "Chi tiết 3 loại log của MySQL",
                 link: "mysql-logs",
               },
               "transaction-isolation-level",
@@ -338,7 +338,7 @@ export default sidebar({
       ],
     },
     {
-      text: "开发工具",
+      text: "Công cụ phát triển",
       icon: ICONS.TOOL,
       prefix: "tools/",
       collapsible: true,
@@ -375,7 +375,7 @@ export default sidebar({
       ],
     },
     {
-      text: "常用框架",
+      text: "Framework thường dùng",
       prefix: "system-design/framework/",
       icon: ICONS.COMPONENT,
       collapsible: true,
@@ -403,13 +403,13 @@ export default sidebar({
       ],
     },
     {
-      text: "系统设计",
+      text: "System Design",
       icon: ICONS.DESIGN,
       prefix: "system-design/",
       collapsible: true,
       children: [
         {
-          text: "基础知识",
+          text: "Kiến thức cơ bản",
           prefix: "basis/",
           icon: ICONS.BASIC,
           collapsible: true,
@@ -419,13 +419,13 @@ export default sidebar({
             "naming",
             "refactoring",
             {
-              text: "单元测试指南",
+              text: "Hướng dẫn Unit Test",
               link: "unit-test",
             },
           ],
         },
         {
-          text: "认证授权",
+          text: "Xác thực & Phân quyền",
           prefix: "security/",
           icon: ICONS.SECURITY,
           collapsible: true,
@@ -438,7 +438,7 @@ export default sidebar({
           ],
         },
         {
-          text: "数据安全",
+          text: "Bảo mật dữ liệu",
           prefix: "security/",
           icon: ICONS.SECURITY,
           collapsible: true,
@@ -452,7 +452,7 @@ export default sidebar({
         },
         "system-design-questions",
         {
-          text: "⭐设计模式常见面试题总结",
+          text: "⭐ Tổng hợp câu hỏi phỏng vấn Design Pattern",
           link: "https://interview.javaguide.cn/system-design/design-pattern.html",
         },
         "schedule-task",
@@ -460,17 +460,17 @@ export default sidebar({
       ],
     },
     {
-      text: "分布式",
+      text: "Distributed System",
       icon: ICONS.DISTRIBUTED,
       prefix: "distributed-system/",
       collapsible: true,
       children: [
         {
-          text: "⭐分布式高频面试题",
+          text: "⭐ Câu hỏi phỏng vấn Distributed phổ biến",
           link: "https://interview.javaguide.cn/distributed-system/distributed-system.html",
         },
         {
-          text: "理论&算法&协议",
+          text: "Lý thuyết & Thuật toán & Protocol",
           icon: ICONS.ALGORITHM,
           prefix: "protocol/",
           collapsible: true,
@@ -484,27 +484,27 @@ export default sidebar({
           ],
         },
         {
-          text: "API网关",
+          text: "API Gateway",
           icon: ICONS.GATEWAY,
           children: ["api-gateway", "spring-cloud-gateway-questions"],
         },
         {
-          text: "分布式ID",
+          text: "Distributed ID",
           icon: ICONS.ID,
           children: ["distributed-id", "distributed-id-design"],
         },
         {
-          text: "分布式锁",
+          text: "Distributed Lock",
           icon: ICONS.LOCK,
           children: ["distributed-lock", "distributed-lock-implementations"],
         },
         {
-          text: "分布式事务",
+          text: "Distributed Transaction",
           icon: ICONS.TRANSACTION,
           children: ["distributed-transaction"],
         },
         {
-          text: "分布式配置中心",
+          text: "Distributed Config Center",
           icon: ICONS.MAVEN,
           children: ["distributed-configuration-center"],
         },
@@ -525,7 +525,7 @@ export default sidebar({
       ],
     },
     {
-      text: "高性能",
+      text: "High Performance",
       icon: ICONS.PERFORMANCE,
       prefix: "high-performance/",
       collapsible: true,
@@ -536,12 +536,12 @@ export default sidebar({
           children: ["cdn"],
         },
         {
-          text: "负载均衡",
+          text: "Load Balancing",
           icon: ICONS.LOAD_BALANCING,
           children: ["load-balancing"],
         },
         {
-          text: "数据库优化",
+          text: "Tối ưu Database",
           icon: ICONS.MYSQL,
           children: [
             "read-and-write-separation-and-library-subtable",
@@ -551,7 +551,7 @@ export default sidebar({
           ],
         },
         {
-          text: "消息队列",
+          text: "Message Queue",
           prefix: "message-queue/",
           icon: ICONS.MQ,
           collapsible: true,
@@ -566,7 +566,7 @@ export default sidebar({
       ],
     },
     {
-      text: "高可用",
+      text: "High Availability",
       icon: ICONS.HIGH_AVAILABLE,
       prefix: "high-availability/",
       collapsible: true,
