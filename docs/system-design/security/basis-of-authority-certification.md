@@ -1,101 +1,101 @@
 ---
-title: 认证授权基础概念详解
-description: 认证与授权基础概念详解，讲解Authentication和Authorization的区别、Session、Token、OAuth2等核心知识。
-category: 系统设计
+title: Giải thích chi tiết các khái niệm cơ bản về Authentication và Authorization
+description: Giải thích chi tiết các khái niệm cơ bản về authentication và authorization, bao gồm sự khác biệt giữa Authentication và Authorization, Session, Token, OAuth2 và các kiến thức cốt lõi.
+category: System Design
 tag:
-  - 安全
+  - Security
 head:
   - - meta
     - name: keywords
-      content: 认证,授权,Authentication,Authorization,Session,Token,OAuth2,权限控制,安全基础
+      content: authentication,authorization,Authentication,Authorization,Session,Token,OAuth2,access control,security basics
 ---
 
-## 认证 (Authentication) 和授权 (Authorization)的区别是什么？
+## Sự khác biệt giữa Authentication (Xác thực) và Authorization (Phân quyền) là gì?
 
-这是一个绝大多数人都会混淆的问题。首先先从读音上来认识这两个名词，很多人都会把它俩的读音搞混，所以我建议你先先去查一查这两个单词到底该怎么读，他们的具体含义是什么。
+Đây là câu hỏi mà đại đa số mọi người đều nhầm lẫn. Trước tiên hãy nhận biết hai danh từ này qua cách phát âm, nhiều người hay nhầm phát âm của chúng, vì vậy tôi khuyến nghị bạn tra xem cách phát âm đúng của hai từ này và ý nghĩa cụ thể của chúng là gì.
 
-说简单点就是：
+Nói đơn giản:
 
-- **认证 (Authentication)：** 你是谁。
-- **授权 (Authorization)：** 你有权限干什么。
+- **Authentication (Xác thực):** Bạn là ai.
+- **Authorization (Phân quyền):** Bạn có quyền làm gì.
 
-稍微正式点（啰嗦点）的说法就是：
+Cách diễn đạt chính thức hơn (dài dòng hơn):
 
-- **Authentication（认证）** 是验证您的身份的凭据（例如用户名/用户 ID 和密码），通过这个凭据，系统得以知道你就是你，也就是说系统存在你这个用户。所以，Authentication 被称为身份/用户验证。
-- **Authorization（授权）** 发生在 **Authentication（认证）** 之后。授权嘛，光看意思大家应该就明白，它主要掌管我们访问系统的权限。比如有些特定资源只能具有特定权限的人才能访问比如 admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。
+- **Authentication (Xác thực)** là thông tin xác nhận danh tính của bạn (ví dụ username/user ID và password). Thông qua thông tin này, hệ thống biết bạn là bạn — tức là hệ thống tồn tại user bạn. Vì vậy Authentication được gọi là identity/user verification.
+- **Authorization (Phân quyền)** xảy ra sau **Authentication**. Phân quyền chủ yếu quản lý quyền truy cập hệ thống của chúng ta. Ví dụ một số tài nguyên cụ thể chỉ người có quyền đặc biệt mới có thể truy cập (như admin), một số thao tác trên tài nguyên hệ thống như xóa, thêm, cập nhật chỉ người cụ thể mới có thể thực hiện.
 
-认证：
+Authentication:
 
-![认证登录](https://oss.javaguide.cn/github/javaguide/system-design/security/authentication-login.png)
+![Authentication login](https://oss.javaguide.cn/github/javaguide/system-design/security/authentication-login.png)
 
-授权：
+Authorization:
 
-![没有权限](https://oss.javaguide.cn/github/javaguide/system-design/security/20210604161032412.png)
+![No permission](https://oss.javaguide.cn/github/javaguide/system-design/security/20210604161032412.png)
 
-这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。
+Hai cái này thường được kết hợp sử dụng trong hệ thống của chúng ta, mục đích là để bảo vệ tính bảo mật của hệ thống.
 
-## RBAC 模型了解吗？
+## Bạn có biết về mô hình RBAC không?
 
-系统权限控制最常采用的访问控制模型就是 **RBAC 模型** 。
+Mô hình kiểm soát truy cập được sử dụng phổ biến nhất trong kiểm soát quyền hệ thống là **RBAC model**.
 
-**什么是 RBAC 呢？** RBAC 即基于角色的权限访问控制（Role-Based Access Control）。这是一种通过角色关联权限，角色同时又关联用户的授权的方式。
+**RBAC là gì?** RBAC là Role-Based Access Control (Kiểm soát truy cập dựa trên vai trò). Đây là phương thức ủy quyền thông qua liên kết quyền với role, và role lại liên kết với user.
 
-简单地说：一个用户可以拥有若干角色，每一个角色又可以被分配若干权限，这样就构造成“用户-角色-权限” 的授权模型。在这种模型中，用户与角色、角色与权限之间构成了多对多的关系。
+Nói đơn giản: Một user có thể có nhiều role, mỗi role có thể được phân nhiều quyền, từ đó tạo thành mô hình ủy quyền "user - role - permission". Trong mô hình này, user với role, role với permission tạo thành quan hệ many-to-many.
 
-![RBAC 权限模型示意图](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
+![Sơ đồ mô hình phân quyền RBAC](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
 
-在 RBAC 权限模型中，权限与角色相关联，用户通过成为包含特定角色的成员而得到这些角色的权限，这就极大地简化了权限的管理。
+Trong mô hình phân quyền RBAC, quyền được liên kết với role, user có được quyền của những role đó bằng cách trở thành thành viên của role có quyền đặc biệt đó — điều này đơn giản hóa đáng kể việc quản lý quyền.
 
-为了实现 RBAC 权限模型，数据库表的常见设计如下（一共 5 张表，2 张用户建立表之间的联系）：
+Để triển khai mô hình phân quyền RBAC, thiết kế database table phổ biến như sau (tổng cộng 5 bảng, 2 bảng junction để thiết lập liên kết giữa các bảng):
 
 ![](https://oss.javaguide.cn/2020-11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1-%E6%9D%83%E9%99%90.png)
 
-通过这个权限模型，我们可以创建不同的角色并为不同的角色分配不同的权限范围（菜单）。
+Thông qua mô hình phân quyền này, chúng ta có thể tạo các role khác nhau và phân phạm vi quyền (menu) khác nhau cho từng role.
 
 ![](https://oss.javaguide.cn/github/javaguide/books%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.png)
 
-通常来说，如果系统对于权限控制要求比较严格的话，一般都会选择使用 RBAC 模型来做权限控制。
+Thông thường, nếu hệ thống có yêu cầu kiểm soát quyền khá nghiêm ngặt, thường sẽ chọn dùng RBAC model để kiểm soát quyền.
 
-## 什么是 Cookie ? Cookie 的作用是什么?
+## Cookie là gì? Tác dụng của Cookie là gì?
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/cookie-sessionId.png)
 
-`Cookie` 和 `Session` 都是用来跟踪浏览器用户身份的会话方式，但是两者的应用场景不太一样。
+`Cookie` và `Session` đều là phương thức session để theo dõi danh tính của browser user, nhưng application scenario của hai cái này khá khác nhau.
 
-维基百科是这样定义 `Cookie` 的：
+Wikipedia định nghĩa `Cookie` như sau:
 
-> `Cookies` 是某些网站为了辨别用户身份而储存在用户本地终端上的数据（通常经过加密）。
+> `Cookies` là dữ liệu (thường được mã hóa) được lưu trữ trên thiết bị đầu cuối cục bộ của user bởi một số website nhằm nhận dạng user.
 
-简单来说：**`Cookie` 存放在客户端，一般用来保存用户信息**。
+Nói đơn giản: **`Cookie` được lưu ở phía client, thường dùng để lưu thông tin user**.
 
-下面是 `Cookie` 的一些应用案例：
+Dưới đây là một số ứng dụng của `Cookie`:
 
-1. 我们在 `Cookie` 中保存已经登录过的用户信息，下次访问网站的时候页面可以自动帮你登录的一些基本信息给填了。除此之外，`Cookie` 还能保存用户首选项，主题和其他设置信息。
-2. 使用 `Cookie` 保存 `SessionId` 或者 `Token` ，向后端发送请求的时候带上 `Cookie`，这样后端就能取到 `Session` 或者 `Token` 了。这样就能记录用户当前的状态了，因为 HTTP 协议是无状态的。
-3. `Cookie` 还可以用来记录和分析用户行为。举个简单的例子你在网上购物的时候，因为 HTTP 协议是没有状态的，如果服务器想要获取你在某个页面的停留状态或者看了哪些商品，一种常用的实现方式就是将这些信息存放在 `Cookie`
+1. Chúng ta lưu thông tin cơ bản của user đã đăng nhập trong `Cookie`, lần sau truy cập website trang có thể tự động điền một số thông tin cơ bản giúp bạn đăng nhập. Ngoài ra, `Cookie` còn có thể lưu user preferences, theme và các cài đặt khác.
+2. Dùng `Cookie` lưu `SessionId` hoặc `Token`, khi gửi request đến backend mang theo `Cookie`, backend có thể lấy được `Session` hoặc `Token`. Như vậy có thể ghi lại trạng thái hiện tại của user, vì HTTP protocol là stateless.
+3. `Cookie` cũng có thể dùng để ghi lại và phân tích hành vi user. Ví dụ đơn giản: khi bạn mua sắm online, vì HTTP protocol không có trạng thái, nếu server muốn biết trạng thái dừng của bạn trên một trang hay bạn đã xem sản phẩm nào, một cách triển khai phổ biến là lưu những thông tin này trong `Cookie`.
 4. ……
 
-## 如何在项目中使用 Cookie 呢？
+## Làm thế nào để sử dụng Cookie trong project?
 
-我这里以 Spring Boot 项目为例。
+Ở đây tôi lấy Spring Boot project làm ví dụ.
 
-**1)设置 `Cookie` 返回给客户端**
+**1) Đặt `Cookie` trả về cho client**
 
 ```java
 @GetMapping("/change-username")
 public String setCookie(HttpServletResponse response) {
-    // 创建一个 cookie
+    // Tạo một cookie
     Cookie cookie = new Cookie("username", "Jovan");
-    //设置 cookie过期时间
+    // Đặt thời gian hết hạn cookie
     cookie.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
-    //添加到 response 中
+    // Thêm vào response
     response.addCookie(cookie);
 
     return "Username is changed!";
 }
 ```
 
-**2) 使用 Spring 框架提供的 `@CookieValue` 注解获取特定的 cookie 的值**
+**2) Dùng annotation `@CookieValue` của Spring framework để lấy giá trị của cookie cụ thể**
 
 ```java
 @GetMapping("/")
@@ -104,7 +104,7 @@ public String readCookie(@CookieValue(value = "username", defaultValue = "Atta")
 }
 ```
 
-**3) 读取所有的 `Cookie` 值**
+**3) Đọc tất cả giá trị `Cookie`**
 
 ```java
 @GetMapping("/all-cookies")
@@ -120,143 +120,143 @@ public String readAllCookies(HttpServletRequest request) {
 }
 ```
 
-更多关于如何在 Spring Boot 中使用 `Cookie` 的内容可以查看这篇文章：[How to use cookies in Spring Boot](https://attacomsian.com/blog/cookies-spring-boot) 。
+Xem thêm về cách sử dụng `Cookie` trong Spring Boot tại bài: [How to use cookies in Spring Boot](https://attacomsian.com/blog/cookies-spring-boot).
 
-## Cookie 和 Session 有什么区别？
+## Cookie và Session khác nhau như thế nào?
 
-**`Session` 的主要作用就是通过服务端记录用户的状态。** 典型的场景是购物车，当你要添加商品到购物车的时候，系统不知道是哪个用户操作的，因为 HTTP 协议是无状态的。服务端给特定的用户创建特定的 `Session` 之后就可以标识这个用户并且跟踪这个用户了。
+**Mục đích chính của `Session` là ghi lại trạng thái của user ở phía server.** Scenario điển hình là giỏ hàng — khi bạn thêm sản phẩm vào giỏ hàng, hệ thống không biết đó là user nào thao tác vì HTTP protocol là stateless. Sau khi server tạo `Session` cụ thể cho user cụ thể, có thể nhận dạng và theo dõi user đó.
 
-`Cookie` 数据保存在客户端(浏览器端)，`Session` 数据保存在服务器端。相对来说 `Session` 安全性更高。如果使用 `Cookie` 的一些敏感信息不要写入 `Cookie` 中，最好能将 `Cookie` 信息加密然后使用到的时候再去服务器端解密。
+Dữ liệu `Cookie` được lưu ở phía client (browser), dữ liệu `Session` được lưu ở phía server. `Session` có tính bảo mật cao hơn tương đối. Nếu dùng `Cookie`, đừng ghi thông tin nhạy cảm vào `Cookie`, tốt nhất nên mã hóa thông tin `Cookie` và chỉ giải mã khi cần dùng ở phía server.
 
-**那么，如何使用 `Session` 进行身份验证？**
+**Vậy, làm thế nào để xác thực danh tính bằng `Session`?**
 
-## 如何使用 Session-Cookie 方案进行身份验证？
+## Làm thế nào để xác thực danh tính bằng phương án Session-Cookie?
 
-很多时候我们都是通过 `SessionID` 来实现特定的用户，`SessionID` 一般会选择存放在 Redis 中。举个例子：
+Nhiều khi chúng ta dùng `SessionID` để nhận dạng user cụ thể, `SessionID` thường được lưu trong Redis. Ví dụ:
 
-1. 用户成功登陆系统，然后返回给客户端具有 `SessionID` 的 `Cookie` 。
-2. 当用户向后端发起请求的时候会把 `SessionID` 带上，这样后端就知道你的身份状态了。
+1. User đăng nhập thành công vào hệ thống, server trả về cho client `Cookie` chứa `SessionID`.
+2. Khi user gửi request đến backend, `SessionID` sẽ được gửi kèm, backend từ đó biết trạng thái danh tính của bạn.
 
-关于这种认证方式更详细的过程如下：
+Quy trình chi tiết hơn của phương thức xác thực này như sau:
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/session-cookie-authentication-process.png)
 
-1. 用户向服务器发送用户名、密码、验证码用于登陆系统。
-2. 服务器验证通过后，会为这个用户创建一个专属的 Session 对象（可以理解为服务器上的一块内存，存放该用户的状态数据，如购物车、登录信息等）存储起来，并给这个 Session 分配一个唯一的 `SessionID`。
-3. 服务器通过 HTTP 响应头中的 `Set-Cookie` 指令，把这个 `SessionID` 发送给用户的浏览器。
-4. 浏览器接收到 `SessionID` 后，会将其以 Cookie 的形式保存在本地。当用户保持登录状态时，每次向该服务器发请求，浏览器都会自动带上这个存有 `SessionID` 的 Cookie。
-5. 服务器收到请求后，从 Cookie 中拿出 `SessionID`，就能找到之前保存的那个 Session 对象，从而知道这是哪个用户以及他之前的状态了。
+1. User gửi username, password, verification code đến server để đăng nhập hệ thống.
+2. Sau khi server xác minh thành công, sẽ tạo một Session object chuyên dùng cho user đó (có thể hiểu là một vùng bộ nhớ trên server, lưu data trạng thái của user như giỏ hàng, thông tin đăng nhập v.v.) và lưu lại, đồng thời cấp cho Session này một `SessionID` duy nhất.
+3. Server gửi `SessionID` đến browser của user thông qua directive `Set-Cookie` trong HTTP response header.
+4. Sau khi nhận được `SessionID`, browser sẽ lưu dưới dạng Cookie. Khi user ở trạng thái đăng nhập, mỗi lần gửi request đến server, browser sẽ tự động mang theo Cookie chứa `SessionID`.
+5. Server nhận request, lấy `SessionID` từ Cookie, tìm được Session object đã lưu trước đó, từ đó biết đây là user nào và trạng thái trước đó của họ.
 
-使用 Session 的时候需要注意下面几个点：
+Khi sử dụng Session cần chú ý các điểm sau:
 
-- **客户端 Cookie 支持**：依赖 Session 的核心功能要确保用户浏览器开启了 Cookie。
-- **Session 过期管理**：合理设置 Session 的过期时间，平衡安全性和用户体验。
-- **Session ID 安全**：为包含 `SessionID` 的 Cookie 设置 `HttpOnly` 标志可以防止客户端脚本（如 JavaScript）窃取，设置 Secure 标志可以保证 `SessionID` 只在 HTTPS 连接下传输，增加安全性。
+- **Client Cookie support**: Chức năng cốt lõi phụ thuộc Session cần đảm bảo browser của user đã bật Cookie.
+- **Session expiry management**: Đặt thời gian hết hạn Session hợp lý, cân bằng giữa security và user experience.
+- **Session ID security**: Đặt flag `HttpOnly` cho Cookie chứa `SessionID` để ngăn client script (như JavaScript) đánh cắp; đặt flag Secure để đảm bảo `SessionID` chỉ được truyền qua HTTPS connection, tăng tính bảo mật.
 
-另外，Spring Session 提供了一种跨多个应用程序或实例管理用户会话信息的机制。如果想详细了解可以查看下面几篇很不错的文章：
+Ngoài ra, Spring Session cung cấp cơ chế quản lý session thông tin của user trên nhiều ứng dụng hoặc instance. Nếu muốn tìm hiểu chi tiết có thể xem một số bài rất hay sau:
 
 - [Getting Started with Spring Session](https://codeboje.de/spring-Session-tutorial/)
 - [Guide to Spring Session](https://www.baeldung.com/spring-Session)
 - [Sticky Sessions with Spring Session & Redis](https://medium.com/@gvnix/sticky-Sessions-with-spring-Session-redis-bdc6f7438cc3)
 
-## 多服务器节点下 Session-Cookie 方案如何做？
+## Phương án Session-Cookie hoạt động như thế nào khi có nhiều server node?
 
-Session-Cookie 方案在单体环境是一个非常好的身份认证方案。但是，当服务器水平拓展成多节点时，Session-Cookie 方案就要面临挑战了。
+Phương án Session-Cookie là một phương thức xác thực danh tính rất tốt trong môi trường monolithic. Nhưng khi server mở rộng theo chiều ngang thành nhiều node, phương án Session-Cookie sẽ phải đối mặt với thách thức.
 
-举个例子：假如我们部署了两份相同的服务 A，B，用户第一次登陆的时候 ，Nginx 通过负载均衡机制将用户请求转发到 A 服务器，此时用户的 Session 信息保存在 A 服务器。结果，用户第二次访问的时候 Nginx 将请求路由到 B 服务器，由于 B 服务器没有保存 用户的 Session 信息，导致用户需要重新进行登陆。
+Ví dụ: Giả sử chúng ta deploy hai service A, B giống nhau, user lần đầu đăng nhập, Nginx qua cơ chế load balancing chuyển request của user đến server A, lúc này thông tin Session của user được lưu tại server A. Kết quả, lần thứ hai user truy cập, Nginx route request đến server B, vì server B không có lưu Session của user nên user phải đăng nhập lại.
 
-**我们应该如何避免上面这种情况的出现呢？**
+**Chúng ta nên làm thế nào để tránh tình trạng này?**
 
-有几个方案可供大家参考：
+Có một số giải pháp để tham khảo:
 
-1. 某个用户的所有请求都通过特性的哈希策略分配给同一个服务器处理。这样的话，每个服务器都保存了一部分用户的 Session 信息。服务器宕机，其保存的所有 Session 信息就完全丢失了。
-2. 每一个服务器保存的 Session 信息都是互相同步的，也就是说每一个服务器都保存了全量的 Session 信息。每当一个服务器的 Session 信息发生变化，我们就将其同步到其他服务器。这种方案成本太大，并且，节点越多时，同步成本也越高。
-3. 单独使用一个所有服务器都能访问到的数据节点（比如缓存）来存放 Session 信息。为了保证高可用，数据节点尽量要避免是单点。
-4. Spring Session 是一个用于在多个服务器之间管理会话的项目。它可以与多种后端存储（如 Redis、MongoDB 等）集成，从而实现分布式会话管理。通过 Spring Session，可以将会话数据存储在共享的外部存储中，以实现跨服务器的会话同步和共享。
+1. Tất cả request của một user nhất định đều được phân bổ đến cùng một server xử lý thông qua hash strategy cụ thể. Như vậy, mỗi server lưu Session của một phần user. Nếu server down, tất cả Session nó lưu sẽ bị mất hoàn toàn.
+2. Thông tin Session mà mỗi server lưu đều đồng bộ với nhau — tức là mỗi server lưu toàn bộ Session. Mỗi khi Session trên một server thay đổi, đồng bộ sang các server khác. Phương án này tốn kém, và càng nhiều node thì chi phí đồng bộ càng cao.
+3. Dùng riêng một data node (như cache) mà tất cả server đều có thể truy cập để lưu Session. Để đảm bảo high availability, data node nên tránh single point of failure.
+4. Spring Session là project dùng để quản lý session trên nhiều server. Nó có thể tích hợp với nhiều backend storage (như Redis, MongoDB v.v.) để triển khai distributed session management. Thông qua Spring Session, có thể lưu session data vào shared external storage để đồng bộ và chia sẻ session giữa các server.
 
-## 如果没有 Cookie 的话 Session 还能用吗？
+## Nếu không có Cookie thì Session có còn dùng được không?
 
-这是一道经典的面试题！
+Đây là câu hỏi phỏng vấn kinh điển!
 
-一般是通过 `Cookie` 来保存 `SessionID` ，假如你使用了 `Cookie` 保存 `SessionID` 的方案的话， 如果客户端禁用了 `Cookie`，那么 `Session` 就无法正常工作。
+Thông thường `SessionID` được lưu qua `Cookie`, nếu bạn dùng phương án lưu `SessionID` bằng `Cookie`, khi client vô hiệu hóa `Cookie` thì `Session` sẽ không hoạt động bình thường.
 
-但是，并不是没有 `Cookie` 之后就不能用 `Session` 了，比如你可以将 `SessionID` 放在请求的 `url` 里面`https://javaguide.cn/?Session_id=xxx` 。这种方案的话可行，但是安全性和用户体验感降低。当然，为了安全你也可以对 `SessionID` 进行一次加密之后再传入后端。
+Nhưng, không phải không có `Cookie` thì không thể dùng `Session`. Ví dụ bạn có thể đặt `SessionID` vào trong `url` của request `https://javaguide.cn/?Session_id=xxx`. Phương án này khả thi, nhưng bảo mật và user experience giảm. Tất nhiên, để an toàn bạn cũng có thể mã hóa `SessionID` một lần trước khi truyền vào backend.
 
-## 为什么 Cookie 无法防止 CSRF 攻击，而 Token 可以？
+## Tại sao Cookie không thể ngăn CSRF attack còn Token thì có thể?
 
-**CSRF(Cross Site Request Forgery)** 一般被翻译为 **跨站请求伪造** 。那么什么是 **跨站请求伪造** 呢？说简单点，就是用你的身份去发送一些对你不友好的请求。举个简单的例子：
+**CSRF (Cross Site Request Forgery)** thường được dịch là **Cross-site Request Forgery**. Vậy Cross-site Request Forgery là gì? Nói đơn giản là dùng danh tính của bạn để gửi một số request không thân thiện với bạn. Ví dụ đơn giản:
 
-小壮登录了某网上银行，他来到了网上银行的帖子区，看到一个帖子下面有一个链接写着“科学理财，年盈利率过万”，小壮好奇的点开了这个链接，结果发现自己的账户少了 10000 元。这是这么回事呢？原来黑客在链接中藏了一个请求，这个请求直接利用小壮的身份给银行发送了一个转账请求,也就是通过你的 Cookie 向银行发出请求。
+Xiao Zhuang đăng nhập vào một ngân hàng online, vào khu vực diễn đàn của ngân hàng online, thấy dưới một bài đăng có link ghi "Đầu tư thông minh, lợi nhuận năm vượt 10 nghìn", Xiao Zhuang tò mò click vào link đó, kết quả phát hiện tài khoản mất 10.000 đồng. Chuyện gì đây? Thì ra hacker đã giấu một request trong link, request này trực tiếp sử dụng danh tính của Xiao Zhuang gửi request chuyển tiền đến ngân hàng — tức là gửi request đến ngân hàng thông qua Cookie của bạn.
 
 ```html
-<a src=http://www.mybank.com/Transfer?bankId=11&money=10000>科学理财，年盈利率过万</>
+<a src=http://www.mybank.com/Transfer?bankId=11&money=10000>Đầu tư thông minh, lợi nhuận năm vượt 10 nghìn</>
 ```
 
-上面也提到过，进行 `Session` 认证的时候，我们一般使用 `Cookie` 来存储 `SessionId`,当我们登陆后后端生成一个 `SessionId` 放在 Cookie 中返回给客户端，服务端通过 Redis 或者其他存储工具记录保存着这个 `SessionId`，客户端登录以后每次请求都会带上这个 `SessionId`，服务端通过这个 `SessionId` 来标示你这个人。如果别人通过 `Cookie` 拿到了 `SessionId` 后就可以代替你的身份访问系统了。
+Như đã đề cập ở trên, khi thực hiện `Session` authentication, chúng ta thường dùng `Cookie` để lưu `SessionId`. Khi đăng nhập, backend tạo một `SessionId` đặt trong Cookie trả về cho client, server lưu `SessionId` này qua Redis hoặc công cụ lưu trữ khác, client sau khi đăng nhập mỗi lần request đều mang theo `SessionId` này, server dùng `SessionId` này để xác định danh tính. Nếu ai đó lấy được `SessionId` qua `Cookie`, có thể thay thế danh tính bạn truy cập hệ thống.
 
-`Session` 认证中 `Cookie` 中的 `SessionId` 是由浏览器发送到服务端的，借助这个特性，攻击者就可以通过让用户误点攻击链接，达到攻击效果。
+Trong `Session` authentication, `SessionId` trong `Cookie` được browser gửi đến server, lợi dụng đặc điểm này, attacker có thể đạt được mục đích tấn công bằng cách khiến user click nhầm vào link tấn công.
 
-但是，我们使用 `Token` 的话就不会存在这个问题，在我们登录成功获得 `Token` 之后，一般会选择存放在 `localStorage` （浏览器本地存储）中。然后我们在前端通过某些方式会给每个发到后端的请求加上这个 `Token`,这样就不会出现 CSRF 漏洞的问题。因为，即使你点击了非法链接发送了请求到服务端，这个非法请求是不会携带 `Token` 的，所以这个请求将是非法的。
+Nhưng, nếu dùng `Token` thì không có vấn đề này. Sau khi đăng nhập thành công và nhận được `Token`, thường chúng ta sẽ chọn lưu trong `localStorage` (local storage của browser). Rồi ở frontend thông qua một số cách sẽ thêm `Token` này vào mỗi request gửi đến backend — như vậy sẽ không có lỗ hổng CSRF. Vì dù bạn click vào link bất hợp pháp và gửi request đến server, request bất hợp pháp đó sẽ không mang `Token`, vì vậy request này sẽ là bất hợp pháp.
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/20210615161108272.png)
 
-需要注意的是：不论是 `Cookie` 还是 `Token` 都无法避免 **跨站脚本攻击（Cross Site Scripting）XSS** 。
+Cần lưu ý: Dù là `Cookie` hay `Token` đều không thể tránh được **Cross Site Scripting (XSS) attack**.
 
-> 跨站脚本攻击（Cross Site Scripting）缩写为 CSS 但这会与层叠样式表（Cascading Style Sheets，CSS）的缩写混淆。因此，有人将跨站脚本攻击缩写为 XSS。
+> Cross Site Scripting (Tấn công cross-site scripting) viết tắt là CSS nhưng điều này sẽ nhầm lẫn với Cascading Style Sheets (CSS). Vì vậy có người viết tắt là XSS.
 
-XSS 中攻击者会用各种方式将恶意代码注入到其他用户的页面中。就可以通过脚本盗用信息比如 `Cookie` 。
+Trong XSS, attacker dùng nhiều cách để chèn malicious code vào trang của user khác, có thể đánh cắp thông tin như `Cookie` thông qua script.
 
-推荐阅读：[如何防止 CSRF 攻击？—美团技术团队](https://tech.meituan.com/2018/10/11/fe-security-csrf.html)
+Khuyến nghị đọc: [Làm thế nào để ngăn CSRF attack? — Meituan Technical Team](https://tech.meituan.com/2018/10/11/fe-security-csrf.html)
 
-## 什么是 JWT?JWT 由哪些部分组成？
+## JWT là gì? JWT bao gồm những phần nào?
 
-[JWT 基础概念详解](./jwt-intro.md)
+[Giải thích chi tiết các khái niệm cơ bản về JWT](./jwt-intro.md)
 
-## 如何基于 JWT 进行身份验证？ 如何防止 JWT 被篡改？
+## Làm thế nào để xác thực danh tính dựa trên JWT? Làm thế nào để ngăn JWT bị giả mạo?
 
-[JWT 基础概念详解](./jwt-intro.md)
+[Giải thích chi tiết các khái niệm cơ bản về JWT](./jwt-intro.md)
 
-## 什么是 SSO?
+## SSO là gì?
 
-SSO(Single Sign On)即单点登录说的是用户登陆多个子系统的其中一个就有权访问与其相关的其他系统。举个例子我们在登陆了京东金融之后，我们同时也成功登陆京东的京东超市、京东国际、京东生鲜等子系统。
+SSO (Single Sign On) — Đăng nhập một lần là khi user đăng nhập vào một trong các subsystem thì có quyền truy cập vào các hệ thống liên quan khác. Ví dụ khi đăng nhập vào JD Finance (Jingdong), chúng ta đồng thời đăng nhập thành công vào JD Supermarket, JD International, JD Fresh và các subsystem khác.
 
-![SSO 示意图](https://oss.javaguide.cn/github/javaguide/system-design/security/sso.png)
+![SSO diagram](https://oss.javaguide.cn/github/javaguide/system-design/security/sso.png)
 
-## SSO 有什么好处？
+## SSO có lợi ích gì?
 
-- **用户角度** :用户能够做到一次登录多次使用，无需记录多套用户名和密码，省心。
-- **系统管理员角度** : 管理员只需维护好一个统一的账号中心就可以了，方便。
-- **新系统开发角度:** 新系统开发时只需直接对接统一的账号中心即可，简化开发流程，省时。
+- **Góc độ user**: User có thể đăng nhập một lần dùng nhiều lần, không cần nhớ nhiều bộ username/password, tiện lợi.
+- **Góc độ system admin**: Admin chỉ cần duy trì một account center thống nhất, tiện quản lý.
+- **Góc độ phát triển hệ thống mới**: Khi phát triển hệ thống mới chỉ cần kết nối trực tiếp với account center thống nhất, đơn giản hóa quy trình phát triển, tiết kiệm thời gian.
 
-## 如何设计实现一个 SSO 系统?
+## Làm thế nào để thiết kế và triển khai hệ thống SSO?
 
-[SSO 单点登录详解](./sso-intro.md)
+[Giải thích chi tiết SSO Single Sign On](./sso-intro.md)
 
-## 什么是 OAuth 2.0？
+## OAuth 2.0 là gì?
 
-OAuth 是一个行业的标准授权协议，主要用来授权第三方应用获取有限的权限。而 OAuth 2.0 是对 OAuth 1.0 的完全重新设计，OAuth 2.0 更快，更容易实现，OAuth 1.0 已经被废弃。详情请见：[rfc6749](https://tools.ietf.org/html/rfc6749)。
+OAuth là giao thức ủy quyền chuẩn trong ngành, chủ yếu dùng để ủy quyền cho ứng dụng bên thứ ba nhận quyền hạn chế. OAuth 2.0 là bản thiết kế lại hoàn toàn của OAuth 1.0, nhanh hơn, dễ triển khai hơn, OAuth 1.0 đã bị deprecated. Chi tiết xem: [rfc6749](https://tools.ietf.org/html/rfc6749).
 
-实际上它就是一种授权机制，它的最终目的是为第三方应用颁发一个有时效性的令牌 Token，使得第三方应用能够通过该令牌获取相关的资源。
+Thực ra đây là một cơ chế ủy quyền, mục đích cuối cùng là cấp cho ứng dụng bên thứ ba một Token có thời hạn, cho phép ứng dụng bên thứ ba lấy được tài nguyên liên quan thông qua Token đó.
 
-OAuth 2.0 比较常用的场景就是第三方登录，当你的网站接入了第三方登录的时候一般就是使用的 OAuth 2.0 协议。
+OAuth 2.0 được dùng phổ biến nhất trong scenario đăng nhập bên thứ ba — khi website của bạn tích hợp đăng nhập bên thứ ba thường dùng giao thức OAuth 2.0.
 
-另外，现在 OAuth 2.0 也常见于支付场景（微信支付、支付宝支付）和开发平台（微信开放平台、阿里开放平台等等）。
+Ngoài ra, OAuth 2.0 hiện cũng phổ biến trong scenario thanh toán (WeChat Pay, Alipay) và nền tảng phát triển (WeChat Open Platform, Alibaba Open Platform, v.v.).
 
-下图是 [Slack OAuth 2.0 第三方登录](https://api.slack.com/legacy/oauth)的示意图：
+Hình dưới đây là sơ đồ đăng nhập bên thứ ba [Slack OAuth 2.0](https://api.slack.com/legacy/oauth):
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/20210615151716340.png)
 
-**推荐阅读：**
+**Khuyến nghị đọc:**
 
-- [OAuth 2.0 的一个简单解释](http://www.ruanyifeng.com/blog/2019/04/oauth_design.html)
-- [10 分钟理解什么是 OAuth 2.0 协议](https://deepzz.com/post/what-is-oauth2-protocol.html)
-- [OAuth 2.0 的四种方式](http://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html)
-- [GitHub OAuth 第三方登录示例教程](http://www.ruanyifeng.com/blog/2019/04/github-oauth.html)
+- [Giải thích đơn giản về OAuth 2.0](http://www.ruanyifeng.com/blog/2019/04/oauth_design.html)
+- [Hiểu giao thức OAuth 2.0 trong 10 phút](https://deepzz.com/post/what-is-oauth2-protocol.html)
+- [Bốn phương thức của OAuth 2.0](http://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html)
+- [GitHub OAuth third-party login tutorial](http://www.ruanyifeng.com/blog/2019/04/github-oauth.html)
 
-## 参考
+## Tài liệu tham khảo
 
-- 不要用 JWT 替代 session 管理（上）：全面了解 Token,JWT,OAuth,SAML,SSO：<https://zhuanlan.zhihu.com/p/38942172>
-- Introduction to JSON Web Tokens：<https://jwt.io/introduction>
-- JSON Web Token Claims：<https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims>
+- Không dùng JWT thay thế quản lý session (Phần 1): Hiểu toàn diện về Token, JWT, OAuth, SAML, SSO: <https://zhuanlan.zhihu.com/p/38942172>
+- Introduction to JSON Web Tokens: <https://jwt.io/introduction>
+- JSON Web Token Claims: <https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims>
 
 <!-- @include: @article-footer.snippet.md -->

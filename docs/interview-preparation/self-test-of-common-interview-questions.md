@@ -1,21 +1,21 @@
 ---
-title: 常见面试题自测(付费)
-description: 常见面试题自测：按面试提问方式整理Java后端高频问题，提供提示与重要程度标注，适合面试前自测、定位短板、针对性复习。
-category: 知识星球
+title: Tự kiểm tra câu hỏi phỏng vấn phổ biến (Trả phí)
+description: Tự kiểm tra câu hỏi phỏng vấn phổ biến - Tổng hợp câu hỏi Java backend tần suất cao theo phong cách phỏng vấn, cung cấp gợi ý và đánh dấu mức độ quan trọng, phù hợp để tự kiểm tra trước phỏng vấn, xác định điểm yếu, ôn tập có mục tiêu.
+category: Knowledge Planet
 icon: security-fill
 head:
   - - meta
     - name: keywords
-      content: 面试题自测,Java面试题,八股文自测,查缺补漏,面试复习,高频考点,Java后端面试,付费内容
+      content: interview questions self-test,Java interview questions,technical questions self-test,fill gaps,interview review,high-frequency test points,Java backend interview,paid content
 ---
 
-面试之前，强烈建议大家多拿常见的面试题来进行自测，检查一下自己的掌握情况，这是一种非常实用的备战技术面试的小技巧。
+Trước khi phỏng vấn, rất khuyến nghị mọi người dùng các câu hỏi phỏng vấn phổ biến để tự kiểm tra, kiểm tra mức độ nắm vững của bản thân — đây là một mẹo nhỏ rất thực dụng để chuẩn bị cho technical interview.
 
-在 **[《Java 面试指北》](../zhuanlan/java-mian-shi-zhi-bei.md)** 的 **「技术面试题自测篇」** ，我总结了 Java 面试中最重要的知识点的最常见的面试题并按照面试提问的方式展现出来。
+Trong **「Phần tự kiểm tra câu hỏi technical interview」** của **[《Java Interview Guide》](../zhuanlan/java-mian-shi-zhi-bei.md)**, tôi tổng hợp các câu hỏi phỏng vấn phổ biến nhất về các kiến thức quan trọng nhất trong Java interview và trình bày theo phong cách đặt câu hỏi trong phỏng vấn.
 
-![《Java 面试指北》技术面试题自测篇](https://oss.javaguide.cn/javamianshizhibei/self-test.png)
+![《Java Interview Guide》 Technical Interview Questions Self-test Section](https://oss.javaguide.cn/javamianshizhibei/self-test.png)
 
-每道题我都会给出**提示与思路**，并用 ⭐ 标注重要程度：⭐ 越多，说明面试越爱问，就越值得多花一些时间准备。
+Mỗi câu hỏi tôi đều đưa ra **gợi ý và hướng suy nghĩ**, và dùng ⭐ để đánh dấu mức độ quan trọng: ⭐ càng nhiều thì phỏng vấn càng hay hỏi, càng đáng dành nhiều thời gian chuẩn bị hơn.
 
 ![](https://oss.javaguide.cn/javamianshizhibei/self-test-key-points.png)
 

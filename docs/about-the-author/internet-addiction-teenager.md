@@ -1,153 +1,153 @@
 ---
-title: 我曾经也是网瘾少年
-description: 从网瘾少年到程序员的成长经历，初中沉迷游戏、高中觉醒奋起直追、高考失眠的真实故事，分享如何克服网瘾专注学习。
-category: 走近作者
+title: Tôi từng là đứa trẻ nghiện internet
+description: Hành trình từ đứa trẻ nghiện internet đến lập trình viên, câu chuyện thật về thời THCS chìm đắm trong game, THPT thức tỉnh vươn lên, mất ngủ trước kỳ thi đại học, chia sẻ cách vượt qua nghiện internet để tập trung học tập.
+category: Về tác giả
 tag:
-  - 个人经历
+  - Trải nghiệm cá nhân
 ---
 
-> 这篇文章写于 2021 年高考前夕。
+> Bài viết này được viết vào đêm trước kỳ thi đại học năm 2021.
 
-聊到高考，无数人都似乎有很多话说。今天就假借高考的名义，简单来聊聊我的高中求学经历吧！
+Nói đến kỳ thi đại học, vô số người dường như có rất nhiều điều muốn nói. Hôm nay nhân danh kỳ thi đại học, mình đơn giản kể về hành trình học THPT của mình!
 
-说实话，我自己的高中求学经历真的还不算平淡，甚至有点魔幻，所以还是有很多话想要说的。
+Thật lòng mà nói, hành trình học THPT của mình thực sự không bình thường, thậm chí hơi kỳ diệu, vì vậy vẫn có nhiều điều muốn nói.
 
-这篇文章大概会从我的初中一直介绍到高中，每一部分我都不会花太多篇幅，就简单聊聊吧！
+Bài viết này sẽ kể từ thời THCS đến THPT, mỗi phần mình sẽ không tốn quá nhiều chỗ, chỉ nói qua thôi!
 
-**以下所有内容皆是事实，没有任何夸大的地方，稍微有一点点魔幻。**
+**Tất cả nội dung dưới đây đều là sự thật, không phóng đại bất cứ điều gì, chỉ hơi kỳ lạ một chút.**
 
-## 刚开始接触电脑
+## Lần đầu tiếp xúc máy tính
 
-最开始接触电脑是在我刚上五年级的时候，那时候家里没电脑，刚开始上网都是在黑网吧玩的。
+Lần đầu tiếp xúc máy tính là khi mình mới lên lớp 5, lúc đó nhà không có máy tính, mới đầu lên mạng đều là ở quán net đen.
 
-黑网吧大概就是下面这样式儿的，一个没有窗户的房间里放了很多台老式电脑，非常拥挤。
+Quán net đen đại khái như hình dưới, một căn phòng không có cửa sổ với nhiều máy tính cũ, rất chật chội.
 
-![黑网吧](https://oss.javaguide.cn/about-the-author/internet-addiction-teenager/heiwangba.png)
+![Quán net đen](https://oss.javaguide.cn/about-the-author/internet-addiction-teenager/heiwangba.png)
 
-在黑网吧上网的经历也是一波三折，经常会遇到警察来检查或者碰到大孩子骚扰。在黑网吧上网的一年多中，我一共两次碰到警察来检查，主要是看有没有未成年人（当时黑网吧里几乎全是未成年人），实际感觉像是要问黑网吧老板要点好处。碰到大孩子骚扰的次数就比较多，大孩子经常抢我电脑，还威胁我把身上所有的钱给他们。我当时一个人也比较怂，被打了几次之后，就尽量避开大孩子来玩的时间去黑网吧，身上也只带很少的钱。小时候的性格就比较独立，在外遇到事情我一般也不会给家里人说（因为说了也没什么用，家人给我的安全感很少）。
+Trải nghiệm lên mạng ở quán net đen cũng nhiều thăng trầm, thường gặp công an đến kiểm tra hoặc bọn anh lớn quấy rối. Trong hơn một năm ở quán net đen, mình gặp cảnh sát kiểm tra 2 lần, chủ yếu là xem có trẻ vị thành niên không (lúc đó quán net đen hầu như toàn trẻ vị thành niên), cảm giác thực sự giống như muốn lấy tiền bảo kê. Gặp bọn anh lớn quấy rối thì nhiều hơn, chúng hay cướp máy tính, còn đe dọa đưa hết tiền trong người cho chúng. Lúc đó một mình cũng khá nhát, bị đánh vài lần rồi, cố gắng tránh giờ bọn anh lớn hay đến, cũng chỉ mang rất ít tiền. Hồi nhỏ tính khá độc lập, ra ngoài gặp chuyện gì mình cũng không nói với người nhà (vì nói cũng không ích gì, gia đình cho mình rất ít cảm giác an toàn).
 
-我现在已经记不太清当时是被我哥还是我姐带进网吧的，好像是我姐。
+Bây giờ mình đã không nhớ rõ là anh hay chị dẫn mình vào quán net, hình như là chị.
 
-起初的时候，自己就是玩玩流行蝴蝶剑、单机摩托之类的单机游戏。但是，也没有到沉迷的地步，只是觉得这东西确实挺好玩的，一玩就可以玩一下午，恋恋不舍。
+Ban đầu, mình chỉ chơi các game một mình như Phong Vũ, xe máy đơn... Nhưng cũng chưa đến mức nghiện, chỉ là thấy thật sự vui, chơi một chiều không biết chán.
 
 ![](https://oss.javaguide.cn/github/javaguide/books2a6021b9-e7a0-41c4-b69e-a652f7bc3e12-20200802173601289.png)
 
-## 小学毕业后开始有网瘾
+## Nghiện internet sau khi tốt nghiệp tiểu học
 
-开始有网瘾是在小学毕业的时候，在我玩了一款叫做 **QQ 飞车** 的游戏之后（好像是六年级末就开始玩了）。我艹，当时真的被这游戏吸引了。**每天上课都幻想自己坐在车里面飘逸，没错，当时就觉得秋名山车神就是我啦！**
+Bắt đầu nghiện internet là khi tốt nghiệp tiểu học, sau khi mình chơi một game tên là **QQ Racing** (hình như từ cuối lớp 6 đã chơi rồi). Trời ơi, lúc đó thực sự bị game này hút hồn. **Mỗi ngày lên lớp đều tưởng tượng mình đang ngồi trong xe lướt gió, đúng vậy, lúc đó cứ nghĩ mình là vua tốc độ!**
 
-我当时技术还是挺不错的，整个网吧玩这个游戏的貌似还没有可以打败我的（我们当时经常会开放切磋）。
+Kỹ thuật của mình lúc đó khá không tệ, trong cả quán net dường như không có ai chơi game này đánh bại được mình (chúng mình thường hay thi đấu giao lưu).
 
-QQ 飞车这款戏当时还挺火的，很多 90 后的小伙伴应该比较熟悉。
+QQ Racing lúc đó khá nổi tiếng, nhiều bạn 9x chắc còn nhớ.
 
-我记得，那时候上网还不要身份证，10 元办一张网卡就行了，网费也是一元一小时。我就经常不吃早饭，攒钱用来上网。只要口袋里有钱，我都会和我的小伙伴奔跑到网吧一起玩 QQ 飞车。青回啊！
+Mình nhớ, hồi đó lên mạng không cần CMND, 10 tệ làm một thẻ net là được, phí net cũng là 1 tệ một giờ. Mình thường xuyên không ăn sáng, tiết kiệm tiền để lên net. Chỉ cần trong túi có tiền, mình và bạn bè sẽ chạy vào quán net cùng nhau chơi QQ Racing. Hoài niệm!
 
-> 说到这，我情不自禁地打开自己的 Windows 电脑，下载了 Wegame ，然后下载了 QQ 飞车。
+> Nói đến đây, mình không nhịn được đã mở máy Windows lên, tải Wegame, rồi tải QQ Racing xuống.
 
-到了初二的时候，就没玩 QQ 飞车了。我的等级也永久定格在了 **120** 级，这个等级在当时那个升级难的一匹的年代，算的上非常高的等级了。
+Đến lớp 8, mình không chơi QQ Racing nữa. Level của mình mãi mãi dừng ở **cấp 120**, cấp độ này trong thời đại việc lên cấp khó khăn lúc đó, thuộc loại rất cao.
 
 ![](https://oss.javaguide.cn/javaguide/b488618c-3c25-4bc9-afd4-7324e27553bd-20200802175534614.png)
 
-## 初二网瘾爆发
+## Nghiện internet bùng phát hồi lớp 8
 
-网瘾爆发是在上了初中之后。初二的时候，最为猖狂，自己当时真的是太痴迷于 **穿越火线** 这款游戏了，比 QQ 飞车还要更痴迷一些。每天上课都在想像自己拿起枪横扫地方阵营的场景，心完全不在学习上。
+Nghiện internet bùng phát là sau khi lên THCS. Lớp 8 là điên cuồng nhất, bản thân lúc đó thật sự quá mê **CrossFire (Đột Kích)**, còn mê hơn cả QQ Racing. Mỗi ngày lên lớp đều tưởng tượng mình cầm súng quét sạch đội địch, tâm trí hoàn toàn không ở chỗ học tập.
 
-我经常每天早上起早去玩别人包夜留下的机子，毕竟那时候上学也没什么钱嘛！我几乎每个周五晚上都会趁家人睡着之后，偷偷跑出去通宵。整个初二我通宵了无数次，我的眼睛就是这样近视的。
+Mình thường xuyên mỗi sáng dậy sớm đến chơi máy của người bao đêm để lại, vì lúc đó đi học cũng không có nhiều tiền! Gần như mỗi tối thứ 6, mình đều đợi người nhà ngủ rồi lén lút chạy ra thức đêm. Suốt lớp 8 mình thức đêm vô số lần, mắt mình cận thị chính vì vậy.
 
-有网瘾真的很可怕，为了上网什么都敢做。当时我家住在顶楼的隔热层，我每次晚上偷偷出去上网，为了不被家里人发现，要从我的房间的窗户爬出去，穿过几栋楼，经过几间无人居住的顶楼隔热层之后再下楼。现在想想，还是比较危险的。而且，我天生比较怕黑。当时为了上网，每次穿过这么多没人居住的顶层隔热层都没怕过。你让我现在再去，我都不敢，实在是佩服当年的自己的啊！
+Nghiện internet thật sự đáng sợ, vì được lên mạng thì làm gì cũng dám. Hồi đó nhà mình ở tầng thượng, mỗi lần tối lén ra lên mạng, để không bị người nhà phát hiện, mình phải trèo ra từ cửa sổ phòng mình, vượt qua vài tòa nhà, qua vài tầng thượng không người ở rồi mới xuống lầu. Nghĩ lại bây giờ cũng khá nguy hiểm. Mà mình bẩm sinh rất sợ bóng tối. Hồi đó vì được lên mạng, mỗi lần vượt qua bao nhiêu tầng thượng không người ở cũng không sợ. Bây giờ bảo mình ra đó lại, mình còn không dám, thật sự phục mình hồi đó!
 
-![我家楼顶拍的雪景](https://oss.javaguide.cn/about-the-author/image-20230429114622340.png)
+![Cảnh tuyết chụp từ mái nhà mình](https://oss.javaguide.cn/about-the-author/image-20230429114622340.png)
 
-周五晚上通宵完之后，我会睡到中午，然后下午继续去网吧玩。到了周日，基本都是直接从早上 8 点玩到晚上 9 点 10 点。那时候精力是真旺盛，真的完全不会感觉比较累，反而乐在其中。
+Sau khi thức đêm tối thứ 6, mình ngủ đến trưa, chiều tiếp tục đến quán net. Đến chủ nhật, cơ bản là ngồi liên tục từ 8 giờ sáng đến 9-10 giờ tối. Hồi đó sức lực thực sự dồi dào, không hề cảm thấy mệt, ngược lại còn thích thú.
 
-我的最终军衔停留在了两个钻石，玩过的小伙伴应该清楚这在当时要玩多少把（现在升级比较简单）。
+Quân hàm cuối của mình dừng ở hai kim cương, những ai đã chơi chắc hiểu hồi đó phải chơi bao nhiêu ván mới lên được đến đó (bây giờ lên cấp đơn giản hơn nhiều).
 
 ![](https://oss.javaguide.cn/about-the-author/cf.png)
 
-ps: 回坑 CF 快一年了，目前的军衔是到了两颗星中校 3 了。
+ps: Trở lại CF gần một năm rồi, hiện tại quân hàm đã lên trung tá hai sao cấp 3.
 
-那时候成绩挺差的。这样说吧！我当时在很普通的一个县级市的高中，全年级有 500 来人，我基本都是在 280 名左右。而且，整个初二我都没有学物理，上物理课就睡觉，考试就交白卷。
+Hồi đó thành tích rất kém. Nói thẳng! Mình học ở một trường THCS huyện lỵ bình thường, cả khóa có khoảng 500 người, mình cơ bản đều xếp khoảng thứ 280. Mà cả lớp 8 mình không học Vật lý, giờ Vật lý ngủ gật, kiểm tra bỏ giấy trắng.
 
-为什么对物理这么抵触呢？这是因为开学不久的一次物理课，物理老师误会我在上课吃东西还狡辩，扇了我一巴掌。那时候心里一直记仇到大学，想着以后自己早晚有时间把这个物理老师暴打一顿。
+Tại sao lại phản cảm với Vật lý như vậy? Vì không lâu sau khai giảng có một buổi học Vật lý, thầy Vật lý hiểu nhầm mình đang ăn trong lớp còn cãi lại, và tát mình một cái. Lúc đó trong lòng ghi thù cho đến tận đại học, nghĩ rằng mình sớm muộn gì cũng có dịp đánh thầy Vật lý đó một trận.
 
-## 初三开启学习模式
+## Lớp 9 bắt đầu vào guồng học
 
-初三上学期的时候突然觉悟，像是开窍了一样，当时就突然意识到自己马上就要升高中了，要开始好好搞搞学习了。
+Đầu học kỳ 1 lớp 9 đột nhiên thức tỉnh, như được mở mắt vậy, lúc đó đột nhiên nhận ra mình sắp lên THPT rồi, cần bắt đầu học nghiêm túc.
 
-诶，其实也不算是开窍，主要还是为了让自己能在家附近上学，这样上网容易一些。因为当时我家就在我们当地的二中附近，附近有特别特别多的网吧，上网特别特别容易，加上我又能走读。
+Thực ra cũng không hẳn là thức tỉnh, chủ yếu là muốn học gần nhà để dễ lên mạng hơn. Vì nhà mình ngay gần trường THPT của huyện, xung quanh có rất rất nhiều quán net, lên mạng rất rất dễ, lại còn được đi học về nhà.
 
-像我初中在的那个学校，年级前 80 的话基本才有可能考得上二中。经过努力，初三上学期的第一次月考，我直接从 280 多名进步到了年级 50 多名，有机会考入二中。当时还因为进步太大，被当作 **进步之星** 在讲台上给整个年级做演讲，分享经验。这也是我第一次在这么多人面前讲话，挺紧张的，但是挺爽的，在暗恋对象面前赚足了面子。
+Ở trường THCS mình học, thường chỉ top 80 mới có cơ hội thi vào trường THPT đó. Sau khi nỗ lực, lần kiểm tra định kỳ đầu tiên học kỳ 1 lớp 9, mình nhảy thẳng từ hạng 280 lên hạng 50 mấy trong khối, có cơ hội vào THPT. Lúc đó vì tiến bộ quá nhiều còn được tuyên dương là **Học sinh tiến bộ nhất** lên bục giảng nói chuyện trước toàn khối, chia sẻ kinh nghiệm. Đó cũng là lần đầu tiên mình nói chuyện trước đông người như vậy, khá hồi hộp nhưng cũng thỏa mãn, kiếm được thể diện trước người mình thầm thích.
 
-其实在初三的时候，我的网瘾还是很大。不过，我去玩游戏的前提都是自己把所有任务做完，并且上课听讲也相对比较认真的听。
+Thực ra hồi lớp 9, mình vẫn còn nghiện internet khá nặng. Tuy nhiên, điều kiện tiên quyết để mình đi chơi game là phải hoàn thành hết tất cả nhiệm vụ, và cũng nghe giảng trên lớp tương đối chăm chú hơn.
 
-初三那会，我通宵的次数变少了一些，但会经常晚上趁着家人睡觉了，偷偷跑出去玩到凌晨 2 点多回来。
+Hồi lớp 9, số lần thức đêm giảm đi một chút, nhưng thường tối đợi người nhà ngủ, lén lút chạy ra chơi đến 2-3 giờ sáng mới về.
 
-当时，我们当地的高中有一个政策是每个学校的成绩比较优秀的学生可以参加 **高中提前招生考试** ，只要考上了就不用参加中考了。我当时也有幸参加了这次考试并成功进入了我们当地的二中。
+Hồi đó, THPT ở địa phương mình có một chính sách là học sinh xuất sắc của mỗi trường có thể tham dự **kỳ thi tuyển sinh THPT sớm**, chỉ cần đậu là không cần thi tốt nghiệp THCS. Mình may mắn được tham dự kỳ thi đó và đậu vào THPT địa phương.
 
-在我参加高中提前考试前的一个晚上，我半夜 12 点趁着妈妈睡着，跑去了网吧玩 CF 到凌晨 3 点多回来。就那一次我被抓了现行，到家之后发现妈妈就坐在客厅等我，训斥一顿后，我就保证以后不再晚上偷偷跑出去了。
+Tối trước hôm tham dự kỳ thi tuyển sinh THPT sớm, mình 12 giờ đêm đợi mẹ ngủ, chạy ra quán net chơi CF đến 3-4 giờ sáng mới về. Đúng lần đó mình bị bắt tại trận, về đến nhà phát hiện mẹ đang ngồi chờ ở phòng khách, mắng một trận xong, mình hứa từ đó về sau không lén ra ngoài ban đêm nữa.
 
-> 这里要说明一点：我的智商我自己有自知之明的，属于比较普通的水平吧！前进很大的主要原因是自己基础还行，特别是英语和物理。英语是因为自己喜欢，加上小学就学了很多初中的英语课程。物理的话就很奇怪，虽然初二也不怎么听物理课，也不会物理，但是到了初三之后自己就突然开窍了。真的！我现在都感觉很奇怪。然后，到了高中之后，我的英语和物理依然是我最好的两门课。大学的兼职，我出去做家教都是教的高中物理。
+> Cần nói rõ một điểm: Mình tự biết IQ của mình ở mức khá bình thường. Lý do tiến bộ nhiều chủ yếu là nền tảng còn ổn, đặc biệt là tiếng Anh và Vật lý. Tiếng Anh là vì mình thích, cộng thêm từ tiểu học đã học nhiều kiến thức tiếng Anh THCS. Còn Vật lý thì lạ lắm, dù lớp 8 cũng không học Vật lý, không biết Vật lý, nhưng lên lớp 9 đột nhiên sáng ra. Thật! Mình đến giờ vẫn thấy lạ. Rồi lên THPT, tiếng Anh và Vật lý vẫn là hai môn giỏi nhất của mình. Đi làm thêm thời đại học, mình ra ngoài gia sư đều dạy Vật lý THPT.
 
-## 高中从小班掉到平行班
+## THPT từ lớp chọn xuống lớp đại trà
 
-![出高考成绩后回高中母校拍摄](https://oss.javaguide.cn/about-the-author/internet-addiction-teenager/wodegaozhong.png)
+![Chụp lại ở trường THPT cũ sau khi có kết quả thi đại học](https://oss.javaguide.cn/about-the-author/internet-addiction-teenager/wodegaozhong.png)
 
-由于参加了高中提前招生考试，我提前 4 个月就来到了高中，进入了小班，开始学习高中的课程。
+Vì tham dự kỳ thi tuyển sinh THPT sớm, mình đến THPT trước 4 tháng, vào lớp chọn, bắt đầu học chương trình THPT.
 
-上了高中的之后，我上课就偷偷看小说，神印王座、斗罗大陆、斗破苍穹很多小说都是当时看的。中午和晚上回家之后，就在家里玩几把 DNF。当时家里也买了电脑，姥爷给买的，是对自己顺利进入二中的奖励。到我卸载 DNF 的时候，已经练了 4 个满级的号，两个接近满级的号。
+Lên THPT rồi, mình ngồi lén đọc tiểu thuyết trong giờ học, nhiều tiểu thuyết như Thần Ấn Vương Tọa, Đấu La Đại Lục, Đấu Phá Thương Khung đều đọc hồi đó. Trưa và tối về nhà thì chơi vài ván DNF. Hồi đó nhà cũng mua máy tính rồi, ông ngoại mua cho, là phần thưởng vì đậu vào THPT. Đến khi mình gỡ cài đặt DNF, đã luyện được 4 nhân vật level tối đa, 2 nhân vật gần tối đa.
 
-当时我的空间专门有一个相册里面放的全是 DNF 的一些照片和截图，无比痴迷于练级和刷图。
+Hồi đó space (mạng xã hội) của mình có hẳn một album ảnh toàn ảnh và screenshot của DNF, mê level up và farm đồ vô cùng.
 
-在高中待了不到一个月，我上体育课的时候不小心把腿摔断了，这也是我第一次感受到骨头断裂的头疼，实在是太难受了！
+Ở THPT chưa đầy một tháng, mình gãy chân trong giờ thể dục, đó cũng là lần đầu tiên mình cảm nhận được cơn đau của xương gãy, thực sự rất khó chịu!
 
-于是，我就开始休学养病。直到高中正式开学一个月之后，我才去上学，也没有参加军训。
+Thế là mình bắt đầu nghỉ học để điều trị. Mãi đến sau khi khai giảng chính thức một tháng, mình mới đi học, cũng không tham gia quân sự hóa đầu năm.
 
-由于我耽误了几个月的课程，因此没办法再进入小班，只能转到奥赛班。到了奥赛班之后，我继续把时间和经历都投入在游戏和小说上，于是我的成绩在奥赛班快接近倒数了。等到高二分班的时候，我成功被踢出奥赛班来到了最普通的平行班。
+Vì bỏ lỡ vài tháng học, không thể vào lại lớp chọn, chỉ chuyển sang lớp bồi dưỡng Olympic. Vào lớp Olympic rồi, mình tiếp tục dồn thời gian và công sức vào game và tiểu thuyết, nên thành tích gần áp chót lớp Olympic. Đến khi phân lớp năm 11, mình bị đuổi khỏi lớp Olympic về lớp đại trà bình thường nhất.
 
-**我成功把自己从学校最好的小班玩到奥赛班，然后再到平行班。有点魔幻吧！**
+**Mình đã thành công "chơi" từ lớp chọn tốt nhất của trường xuống lớp Olympic rồi lớp đại trà. Hơi kỳ diệu phải không!**
 
-## 高二开始奋起直追
+## Năm 11 bắt đầu vươn lên
 
-高中觉悟是在高二下学期的时候，当时是真的觉悟了，就突然觉得游戏不香了，觉得 DNF 也不好玩了，什么杀怪打装备不过是虚无，练了再多满级的 DNF 账号也屁用没有，没钱都是浮云。
+Thức tỉnh hồi THPT là học kỳ 2 năm 11, lúc đó thực sự thức tỉnh rồi, đột nhiên thấy game không còn thú vị nữa, thấy DNF cũng chán rồi, diệt quái lấy đồ chỉ là hư vô, luyện bao nhiêu nhân vật DNF level tối đa cũng vô nghĩa, không có tiền thì tất cả đều là mây khói.
 
-我妈妈当时还很诧异，还奇怪地问我：“怎么不玩游戏了？”（我妈属于不怎么管我玩游戏的，她觉得这东西还是要靠自觉）。
+Mẹ mình hồi đó còn ngạc nhiên, lạ lẫm hỏi mình: "Sao không chơi game nữa?" (Mẹ mình không quản mình chơi game, bà cảm thấy chuyện này phải tự giác).
 
-于是，我便开始牟足劲学习，每天都沉迷学习无法自拔（豪不夸张），乐在其中。虽然晚自习上完回到家已经差不多 11 点了，但也并不感觉累，反而感觉很快乐，很充实。
+Thế là mình bắt đầu dồn sức học, mỗi ngày chìm đắm trong học hành không dứt ra được (không nói quá), thấy thích thú. Dù tan học tối về đến nhà đã gần 11 giờ, nhưng không thấy mệt, ngược lại thấy rất vui, rất sung mãn.
 
-**我的付出也很快得到了回报，我顺利返回了奥赛班。** 当时，理科平行班大概有 7 个，每次考试都是平行班之间会单独排一个名次，小班和奥赛班不和我们一起排名次。后面的话，自己基本每次都能在平行班得第一，并且很多时候都是领先第二名 30 来分。由于成绩还算亮眼，高三上学期快结束的时候，我就向年级主任申请去了奥赛班。
+**Sự nỗ lực của mình cũng sớm được đền đáp, mình trở lại lớp Olympic.** Lúc đó, khối tự nhiên lớp đại trà có khoảng 7 lớp, mỗi kỳ thi đều xếp riêng cho các lớp đại trà, không xếp chung với lớp chọn và lớp Olympic. Sau đó, bản thân cơ bản lần nào cũng đứng nhất khối đại trà, và nhiều lần dẫn trước người thứ hai 30 mấy điểm. Vì thành tích nổi bật, cuối học kỳ 1 năm 12, mình xin với hiệu trưởng và được chuyển sang lớp Olympic.
 
-## 高考前的失眠
+## Mất ngủ trước kỳ thi đại học
 
-> **失败之后，不要抱怨外界因素，自始至终实际都是自己的问题，自己不够强大！** 然后，高考前的失眠也是我自己问题，要怪只能怪自己，别的没有任何接口。
+> **Sau khi thất bại, đừng đổ lỗi cho yếu tố bên ngoài, từ đầu đến cuối thực ra đều là vấn đề của bản thân, bản thân chưa đủ mạnh!** Và việc mất ngủ trước kỳ thi đại học cũng là vấn đề của mình, chỉ có thể trách bản thân, không có lý do nào khác.
 
-我的高考经历其实还蛮坎坷的，毫不夸张的说，高考那今天可能是我到现在为止，经历的最难熬的时候，特别是在晚上。
+Trải nghiệm thi đại học của mình thực ra khá gian nan, không nói quá mà nói, những ngày thi đại học đó có lẽ là khoảng thời gian khổ sở nhất mà mình trải qua cho đến nay, đặc biệt là ban đêm.
 
-我在高考那几天晚上都经历了失眠，想睡都睡不着那种痛苦想必很多人或许都体验过。
+Mình trải qua mất ngủ trong mấy tối trước kỳ thi đại học, cái khổ của muốn ngủ mà không ngủ được chắc nhiều người cũng từng trải qua.
 
-其实我在之前是从来没有过失眠的经历的。高考前夕，因为害怕自己睡不着，所以，我提前让妈妈去买了几瓶老师推荐的安神补脑液。我到现在还记得这个安神补脑液是敖东牌的。
+Thực ra trước đó mình chưa bao giờ có kinh nghiệm mất ngủ. Đêm trước kỳ thi đại học, vì sợ ngủ không được, mình nhờ mẹ mua trước vài chai thuốc an thần bổ não do thầy giáo gợi ý. Đến giờ mình vẫn nhớ thuốc an thần bổ não đó là hiệu Aodong.
 
 ![](https://oss.javaguide.cn/about-the-author/internet-addiction-teenager/image-20220625194714247.png)
 
-高考那几天的失眠，我觉得可能和我喝了老师推荐的安神补脑液有关系，又或者是我自己太过于紧张了。因为那几天睡觉总会感觉有很多蚂蚁在身上爬一样，身上还起了一些小痘痘（有点像是过敏）。
+Việc mất ngủ trong mấy ngày thi đại học, mình nghĩ có thể liên quan đến việc mình uống thuốc an thần bổ não thầy giới thiệu, hay có thể bản thân mình quá căng thẳng. Vì mấy ngày đó khi ngủ luôn có cảm giác như có nhiều con kiến bò trên người, người nổi mấy nốt nhỏ (hơi giống dị ứng).
 
-这里要格外说明一点，避免引起误导：**睡不着本身就是自身的问题，上述言论并没有责怪这个补脑液的意思。** 另外， 这款安神补脑液我去各个平台都查了一下，发现大家对他的评价都挺好，和我们老师当时推荐的理由差不多。如果大家需要改善睡眠的话，可以咨询相关医生之后尝试一下。
+Cần đặc biệt nói rõ một điểm để tránh hiểu nhầm: **Không thể ngủ vốn là vấn đề của bản thân, lời nói trên không có ý đổ lỗi cho thuốc bổ não đó.** Ngoài ra, thuốc an thần bổ não này mình đã tra trên nhiều platform, thấy mọi người đánh giá đều khá tốt, gần giống với lý do thầy giáo giới thiệu hồi đó. Nếu mọi người cần cải thiện giấc ngủ, có thể tham khảo ý kiến bác sĩ liên quan rồi thử.
 
-高考也确实没发挥好，整个人在考场都是懵的状态。高考成绩出来之后，比我自己预估的还低了几十分，最后只上了一个双非一本。不过，好在专业选的好，吃了一些计算机专业的红利，大学期间也挺努力的。
+Kỳ thi đại học cũng không làm tốt, cả người ở phòng thi đều trong trạng thái ngơ ngác. Điểm thi đại học ra, thấp hơn tự mình ước tính vài chục điểm, cuối cùng chỉ đậu được một trường đại học non-985/211. Nhưng may là chọn được ngành tốt, được hưởng lợi từ ngành Computer Science, hồi đại học cũng khá nỗ lực.
 
-## 大学生活
+## Đời sinh viên
 
-大学生活过的还是挺丰富的，我会偶尔通宵敲代码，也会偶尔半夜发疯跑出去和同学一起走走古城墙、去网吧锤一夜的 LOL。
+Đời sinh viên khá phong phú, thỉnh thoảng mình thức đêm code, thỉnh thoảng nửa đêm bỗng điên, chạy ra ngoài cùng bạn bè đi dạo thành cổ, đến quán net cày một đêm LOL.
 
-大学生活专门写过一篇文章介绍：[害，毕业三年了！](./my-college-life.md) 。
+Đời sinh viên đã viết riêng một bài giới thiệu: [Ôi, tốt nghiệp được ba năm rồi!](./my-college-life.md).
 
-## 总结
+## Tổng kết
 
-整个初中我都属于有点网瘾少年的状态，不过初三的时候稍微克制一些。到了高二下学期的时候，自己才对游戏真的没有那么沉迷了。
+Suốt thời THCS mình đều trong trạng thái có nghiện internet chút ít, nhưng hồi lớp 9 mới kiềm chế được. Đến học kỳ 2 năm 11, mình mới thực sự không còn mê game nhiều như vậy nữa.
 
-对游戏不那么沉迷，也是因为自己意识到游戏终究只是消遣，学习才是当时最重要的事情。而且，我的游戏技术又不厉害，又不能靠游戏吃饭，什么打怪升级到最后不过是电脑中的二进制数据罢了！
+Không còn mê game như vậy, cũng vì bản thân nhận ra game cuối cùng cũng chỉ là giải trí, học tập mới là điều quan trọng nhất lúc đó. Hơn nữa kỹ thuật game của mình cũng không giỏi, không thể sống bằng game, diệt quái lên cấp đến cuối cũng chỉ là dữ liệu nhị phân trong máy tính mà thôi!
 
-**这玩意必须你自己意识到，不然，单纯靠父母监督真的很难改变！如果心不在学习上面的话，那同时是不可能学好的！**
+**Chuyện này nhất định phải bản thân tự nhận ra, không thì chỉ nhờ cha mẹ giám sát thực sự rất khó thay đổi! Nếu tâm trí không đặt vào học hành, đồng thời là không thể học tốt được!**
 
-我真的很反对父母过于干涉孩子的生活，强烈谴责很多父母把自己孩子的网瘾归咎于网络游戏，把自己孩子的暴力归咎于影视媒体。
+Mình thực sự phản đối cha mẹ can thiệp quá nhiều vào cuộc sống của con cái, mạnh mẽ lên án nhiều cha mẹ đổ lỗi nghiện internet của con cho game online, đổ lỗi bạo lực của con cho phim ảnh truyền thông.
 
-**时刻把自己的孩子保护起来不是一件靠谱的事情，他终究要独自面对越来越多的诱惑。到了大学，很多被父母保护太好的孩子就直接废了。他们没有独立意识，没有抗拒诱惑的定力！**
+**Lúc nào cũng bảo bọc con không phải điều đáng tin cậy, cuối cùng chúng vẫn phải một mình đối mặt với ngày càng nhiều cám dỗ. Lên đại học, nhiều đứa trẻ được cha mẹ bảo vệ quá tốt liền hỏng luôn. Chúng không có ý thức độc lập, không có ý chí kháng cự cám dỗ!**

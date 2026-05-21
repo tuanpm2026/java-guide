@@ -1,9 +1,9 @@
 ---
-title: 操作系统常见面试题总结(上)
-description: 最新操作系统高频面试题总结（上）：用户态/内核态切换、进程线程区别、死锁四条件、系统调用详解、调度算法对比，附图表+⭐️重点标注，一文掌握OS核心考点，快速通关后端技术面试！
-category: 计算机基础
+title: Tổng hợp câu hỏi phỏng vấn hệ điều hành thường gặp (Phần 1)
+description: Tổng hợp các câu hỏi phỏng vấn hệ điều hành tần suất cao mới nhất (Phần 1): chuyển đổi user mode/kernel mode, sự khác biệt giữa process và thread, bốn điều kiện deadlock, giải thích chi tiết system call, so sánh thuật toán lập lịch, kèm biểu đồ và đánh dấu trọng tâm, nắm vững các điểm cốt lõi của OS trong một bài, nhanh chóng vượt qua phỏng vấn kỹ thuật backend!
+category: Kiến thức cơ bản máy tính
 tag:
-  - 操作系统
+  - Hệ điều hành
 head:
   - - meta
     - name: keywords
@@ -12,317 +12,317 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-很多读者抱怨计算操作系统的知识点比较繁杂，自己也没有多少耐心去看，但是面试的时候又经常会遇到。所以，我带着我整理好的操作系统的常见问题来啦！这篇文章总结了一些我觉得比较重要的操作系统相关的问题比如 **用户态和内核态、系统调用、进程和线程、死锁、内存管理、虚拟内存、文件系统**等等。
+Nhiều bạn đọc phàn nàn rằng kiến thức về hệ điều hành khá phức tạp và không có nhiều kiên nhẫn để đọc, nhưng khi phỏng vấn lại thường xuyên gặp phải. Vì vậy, tôi đã tổng hợp các câu hỏi thường gặp về hệ điều hành! Bài viết này tổng hợp một số câu hỏi liên quan đến hệ điều hành mà tôi cho là khá quan trọng như **chế độ người dùng và chế độ nhân, system call, process và thread, deadlock, quản lý bộ nhớ, bộ nhớ ảo, hệ thống file** v.v.
 
-这篇文章只是对一些操作系统比较重要概念的一个概览，深入学习的话，建议大家还是老老实实地去看书。另外， 这篇文章的很多内容参考了《现代操作系统》第三版这本书，非常感谢。
+Bài viết này chỉ là cái nhìn tổng quan về một số khái niệm quan trọng của hệ điều hành, để học sâu hơn, tôi khuyên mọi người nên đọc sách. Ngoài ra, nhiều nội dung của bài viết này tham khảo cuốn sách "Modern Operating Systems" ấn bản thứ ba, rất cảm ơn.
 
-开始本文的内容之前，我们先聊聊为什么要学习操作系统。
+Trước khi bắt đầu nội dung, chúng ta hãy nói về lý do tại sao phải học hệ điều hành.
 
-- **从对个人能力方面提升来说**：操作系统中的很多思想、很多经典的算法，你都可以在我们日常开发使用的各种工具或者框架中找到它们的影子。比如说我们开发的系统使用的缓存（比如 Redis）和操作系统的高速缓存就很像。CPU 中的高速缓存有很多种，不过大部分都是为了解决 CPU 处理速度和内存处理速度不对等的问题。我们还可以把内存看作外存的高速缓存，程序运行的时候我们把外存的数据复制到内存，由于内存的处理速度远远高于外存，这样提高了处理速度。同样地，我们使用的 Redis 缓存就是为了解决程序处理速度和访问常规关系型数据库速度不对等的问题。高速缓存一般会按照局部性原理（2-8 原则）根据相应的淘汰算法保证缓存中的数据是经常会被访问的。我们平常使用的 Redis 缓存很多时候也会按照 2-8 原则去做，很多淘汰算法都和操作系统中的类似。既说了 2-8 原则，那就不得不提命中率了，这是所有缓存概念都通用的。简单来说也就是你要访问的数据有多少能直接在缓存中直接找到。命中率高的话，一般表明你的缓存设计比较合理，系统处理速度也相对较快。
-- **从面试角度来说**：尤其是校招，对于操作系统方面知识的考察是非常非常多的。
+- **Về việc nâng cao năng lực cá nhân**: Nhiều ý tưởng trong hệ điều hành, nhiều thuật toán kinh điển, bạn đều có thể tìm thấy bóng dáng của chúng trong các công cụ hoặc framework được sử dụng trong phát triển hàng ngày của chúng ta. Ví dụ bộ nhớ cache trong hệ thống chúng ta phát triển (như Redis) và bộ nhớ cache tốc độ cao trong hệ điều hành rất giống nhau. CPU có nhiều loại bộ nhớ cache tốc độ cao, nhưng hầu hết đều là để giải quyết vấn đề tốc độ xử lý của CPU và tốc độ xử lý bộ nhớ không tương xứng. Chúng ta còn có thể coi bộ nhớ là bộ nhớ cache tốc độ cao của bộ nhớ ngoài, khi chương trình chạy chúng ta sao chép dữ liệu từ bộ nhớ ngoài vào bộ nhớ, do tốc độ xử lý bộ nhớ cao hơn nhiều so với bộ nhớ ngoài, điều này cải thiện tốc độ xử lý. Tương tự, bộ nhớ cache Redis mà chúng ta sử dụng là để giải quyết vấn đề tốc độ xử lý chương trình và tốc độ truy cập cơ sở dữ liệu quan hệ thông thường không tương xứng. Bộ nhớ cache tốc độ cao thường sẽ đảm bảo dữ liệu trong cache là dữ liệu thường xuyên được truy cập theo nguyên tắc cục bộ (nguyên tắc 2-8) dựa trên thuật toán loại bỏ tương ứng. Redis cache chúng ta thường dùng cũng thường áp dụng nguyên tắc 2-8, nhiều thuật toán loại bỏ đều tương tự như trong hệ điều hành. Đã nói về nguyên tắc 2-8, thì không thể không đề cập đến tỷ lệ hit, đây là khái niệm chung cho tất cả cache. Nói đơn giản là trong số dữ liệu bạn muốn truy cập, có bao nhiêu có thể tìm thấy trực tiếp trong cache. Tỷ lệ hit cao thường có nghĩa là thiết kế cache của bạn khá hợp lý và tốc độ xử lý hệ thống cũng tương đối nhanh.
+- **Từ góc độ phỏng vấn**: Đặc biệt là tuyển dụng sinh viên mới tốt nghiệp, kiến thức về hệ điều hành được kiểm tra rất rất nhiều.
 
-**简单来说，学习操作系统能够提高自己思考的深度以及对技术的理解力，并且，操作系统方面的知识也是面试必备。**
+**Nói đơn giản, học hệ điều hành có thể nâng cao chiều sâu suy nghĩ và khả năng hiểu về công nghệ, và kiến thức về hệ điều hành cũng là bắt buộc trong phỏng vấn.**
 
-## 操作系统基础
+## Kiến thức cơ bản về hệ điều hành
 
 ![](https://oss.javaguide.cn/2020-8/image-20200807161118901.png)
 
-### 什么是操作系统？
+### Hệ điều hành là gì?
 
-通过以下四点可以概括操作系统到底是什么：
+Có thể tóm tắt hệ điều hành là gì qua bốn điểm sau:
 
-1. 操作系统（Operating System，简称 OS）是管理计算机硬件与软件资源的程序，是计算机的基石。
-2. 操作系统本质上是一个运行在计算机上的软件程序 ，主要用于管理计算机硬件和软件资源。 举例：运行在你电脑上的所有应用程序都通过操作系统来调用系统内存以及磁盘等等硬件。
-3. 操作系统存在屏蔽了硬件层的复杂性。 操作系统就像是硬件使用的负责人，统筹着各种相关事项。
-4. 操作系统的内核（Kernel）是操作系统的核心部分，它负责系统的内存管理，硬件设备的管理，文件系统的管理以及应用程序的管理。 内核是连接应用程序和硬件的桥梁，决定着系统的性能和稳定性。
+1. Hệ điều hành (Operating System, viết tắt là OS) là chương trình quản lý phần cứng và phần mềm máy tính, là nền tảng của máy tính.
+2. Hệ điều hành về bản chất là một chương trình phần mềm chạy trên máy tính, chủ yếu dùng để quản lý phần cứng và phần mềm máy tính. Ví dụ: tất cả các ứng dụng chạy trên máy tính của bạn đều gọi bộ nhớ hệ thống và phần cứng như ổ đĩa thông qua hệ điều hành.
+3. Hệ điều hành che khuất tính phức tạp của tầng phần cứng. Hệ điều hành giống như người phụ trách sử dụng phần cứng, điều phối các vấn đề liên quan khác nhau.
+4. Kernel (nhân) của hệ điều hành là phần cốt lõi của hệ điều hành, nó chịu trách nhiệm quản lý bộ nhớ hệ thống, quản lý thiết bị phần cứng, quản lý hệ thống file và quản lý ứng dụng. Kernel là cầu nối kết nối ứng dụng và phần cứng, quyết định hiệu suất và độ ổn định của hệ thống.
 
-很多人容易把操作系统的内核（Kernel）和中央处理器（CPU，Central Processing Unit）弄混。你可以简单从下面两点来区别：
+Nhiều người dễ nhầm lẫn giữa Kernel (nhân) của hệ điều hành và CPU (Central Processing Unit - Bộ xử lý trung tâm). Bạn có thể phân biệt đơn giản qua hai điểm sau:
 
-1. 操作系统的内核（Kernel）属于操作系统层面，而 CPU 属于硬件。
-2. CPU 主要提供运算，处理各种指令的能力。内核（Kernel）主要负责系统管理比如内存管理，它屏蔽了对硬件的操作。
+1. Kernel của hệ điều hành thuộc tầng hệ điều hành, trong khi CPU thuộc phần cứng.
+2. CPU chủ yếu cung cấp khả năng tính toán, xử lý các loại chỉ thị. Kernel chủ yếu chịu trách nhiệm quản lý hệ thống như quản lý bộ nhớ, nó che khuất các thao tác với phần cứng.
 
-下图清晰说明了应用程序、内核、CPU 这三者的关系。
+Hình dưới đây minh họa rõ ràng mối quan hệ giữa ứng dụng, kernel và CPU.
 
 ![Kernel_Layout](https://oss.javaguide.cn/2020-8/Kernel_Layout.png)
 
-### 操作系统主要有哪些功能？
+### Hệ điều hành có những chức năng gì?
 
-从资源管理的角度来看，操作系统有 6 大功能：
+Từ góc độ quản lý tài nguyên, hệ điều hành có 6 chức năng chính:
 
-1. **进程和线程的管理**：进程的创建、撤销、阻塞、唤醒，进程间的通信等。
-2. **存储管理**：内存的分配和管理、外存（磁盘等）的分配和管理等。
-3. **文件管理**：文件的读、写、创建及删除等。
-4. **设备管理**：完成设备（输入输出设备和外部存储设备等）的请求或释放，以及设备启动等功能。
-5. **网络管理**：操作系统负责管理计算机网络的使用。网络是计算机系统中连接不同计算机的方式，操作系统需要管理计算机网络的配置、连接、通信和安全等，以提供高效可靠的网络服务。
-6. **安全管理**：用户的身份认证、访问控制、文件加密等，以防止非法用户对系统资源的访问和操作。
+1. **Quản lý process và thread**: Tạo, hủy, chặn, đánh thức process, giao tiếp giữa các process, v.v.
+2. **Quản lý lưu trữ**: Phân bổ và quản lý bộ nhớ, phân bổ và quản lý bộ nhớ ngoài (ổ đĩa, v.v.), v.v.
+3. **Quản lý file**: Đọc, ghi, tạo và xóa file, v.v.
+4. **Quản lý thiết bị**: Hoàn thành các yêu cầu hoặc giải phóng thiết bị (thiết bị input/output và thiết bị lưu trữ ngoài, v.v.) cũng như khởi động thiết bị, v.v.
+5. **Quản lý mạng**: Hệ điều hành chịu trách nhiệm quản lý việc sử dụng mạng máy tính. Mạng là cách kết nối các máy tính khác nhau trong hệ thống máy tính, hệ điều hành cần quản lý cấu hình, kết nối, giao tiếp và bảo mật của mạng máy tính để cung cấp dịch vụ mạng hiệu quả và đáng tin cậy.
+6. **Quản lý bảo mật**: Xác thực danh tính người dùng, kiểm soát truy cập, mã hóa file, v.v. để ngăn người dùng bất hợp pháp truy cập và thao tác tài nguyên hệ thống.
 
-### 常见的操作系统有哪些？
+### Các hệ điều hành phổ biến có những gì?
 
 #### Windows
 
-目前最流行的个人桌面操作系统 ，不做多的介绍，大家都清楚。界面简单易操作，软件生态非常好。
+Hệ điều hành desktop cá nhân phổ biến nhất hiện nay, không cần giới thiệu nhiều, mọi người đều biết. Giao diện đơn giản dễ sử dụng, hệ sinh thái phần mềm rất tốt.
 
-_玩玩电脑游戏还是必须要有 Windows 的，所以我现在是一台 Windows 用于玩游戏，一台 Mac 用于平时日常开发和学习使用。_
+_Muốn chơi game máy tính thì vẫn phải có Windows, nên hiện tại tôi dùng một máy Windows để chơi game, một máy Mac để phát triển và học tập hàng ngày._
 
 ![windows](./images/windows.png)
 
 #### Unix
 
-最早的多用户、多任务操作系统 。后面崛起的 Linux 在很多方面都参考了 Unix。
+Hệ điều hành đa người dùng, đa nhiệm sớm nhất. Linux ra đời sau đã tham khảo Unix ở nhiều khía cạnh.
 
-目前这款操作系统已经逐渐逐渐退出操作系统的舞台。
+Hiện nay hệ điều hành này đã dần dần rút lui khỏi sân khấu hệ điều hành.
 
 ![unix](./images/unix.png)
 
 #### Linux
 
-**Linux 是一套免费使用、开源的类 Unix 操作系统。** Linux 存在着许多不同的发行版本，但它们都使用了 **Linux 内核** 。
+**Linux là hệ điều hành dạng Unix miễn phí và mã nguồn mở.** Linux có nhiều phiên bản phân phối khác nhau, nhưng tất cả đều sử dụng **Linux kernel**.
 
-> 严格来讲，Linux 这个词本身只表示 Linux 内核，在 GNU/Linux 系统中，Linux 实际就是 Linux 内核，而该系统的其余部分主要是由 GNU 工程编写和提供的程序组成。单独的 Linux 内核并不能成为一个可以正常工作的操作系统。
+> Nói chính xác, bản thân từ Linux chỉ biểu thị Linux kernel, trong hệ thống GNU/Linux, Linux thực ra chính là Linux kernel, và phần còn lại của hệ thống chủ yếu bao gồm các chương trình được viết và cung cấp bởi dự án GNU. Chỉ riêng Linux kernel không thể trở thành một hệ điều hành hoạt động bình thường.
 >
-> **很多人更倾向使用 “GNU/Linux” 一词来表达人们通常所说的 “Linux”。**
+> **Nhiều người có xu hướng dùng thuật ngữ "GNU/Linux" để diễn đạt điều mà mọi người thường gọi là "Linux".**
 
-![Linux 操作系统](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux.png)
+![Hệ điều hành Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux.png)
 
 #### Mac OS
 
-苹果自家的操作系统，编程体验和 Linux 相当，但是界面、软件生态以及用户体验各方面都要比 Linux 操作系统更好。
+Hệ điều hành riêng của Apple, trải nghiệm lập trình tương đương Linux, nhưng về giao diện, hệ sinh thái phần mềm và trải nghiệm người dùng đều tốt hơn hệ điều hành Linux.
 
 ![macos](./images/macos.png)
 
-### 用户态和内核态
+### Chế độ người dùng (User Mode) và chế độ nhân (Kernel Mode)
 
-#### 什么是用户态和内核态？
+#### Chế độ người dùng và chế độ nhân là gì?
 
-根据进程访问资源的特点，我们可以把进程在系统上的运行分为两个级别：
+Dựa trên đặc điểm truy cập tài nguyên của process, chúng ta có thể chia việc chạy process trên hệ thống thành hai cấp độ:
 
-![用户态和内核态](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/usermode-and-kernelmode.png)
+![Chế độ người dùng và chế độ nhân](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/usermode-and-kernelmode.png)
 
-- **用户态(User Mode)** : 用户态运行的进程可以直接读取用户程序的数据，拥有较低的权限。当应用程序需要执行某些需要特殊权限的操作，例如读写磁盘、网络通信等，就需要向操作系统发起系统调用请求，进入内核态。
-- **内核态(Kernel Mode)** ：内核态运行的进程几乎可以访问计算机的任何资源包括系统的内存空间、设备、驱动程序等，不受限制，拥有非常高的权限。当操作系统接收到进程的系统调用请求时，就会从用户态切换到内核态，执行相应的系统调用，并将结果返回给进程，最后再从内核态切换回用户态。
+- **User Mode (Chế độ người dùng)**: Process chạy ở user mode có thể đọc trực tiếp dữ liệu chương trình người dùng, có quyền hạn thấp hơn. Khi ứng dụng cần thực thi một số thao tác đòi hỏi quyền đặc biệt, ví dụ như đọc ghi đĩa, giao tiếp mạng, v.v., cần gửi yêu cầu system call đến hệ điều hành, chuyển sang kernel mode.
+- **Kernel Mode (Chế độ nhân)**: Process chạy ở kernel mode gần như có thể truy cập bất kỳ tài nguyên nào của máy tính bao gồm không gian bộ nhớ hệ thống, thiết bị, driver, v.v., không bị giới hạn, có quyền hạn rất cao. Khi hệ điều hành nhận được yêu cầu system call của process, sẽ chuyển từ user mode sang kernel mode, thực thi system call tương ứng và trả kết quả về cho process, cuối cùng chuyển lại từ kernel mode về user mode.
 
-内核态相比用户态拥有更高的特权级别，因此能够执行更底层、更敏感的操作。不过，由于进入内核态需要付出较高的开销（需要进行一系列的上下文切换和权限检查），应该尽量减少进入内核态的次数，以提高系统的性能和稳定性。
+Kernel mode có mức đặc quyền cao hơn user mode, do đó có thể thực thi các thao tác cấp thấp hơn, nhạy cảm hơn. Tuy nhiên, do việc vào kernel mode cần phải trả chi phí khá cao (cần thực hiện một loạt chuyển đổi context và kiểm tra quyền), nên cần giảm thiểu số lần vào kernel mode để cải thiện hiệu suất và độ ổn định của hệ thống.
 
-#### 为什么要有用户态和内核态？只有一个内核态不行么？
+#### Tại sao cần có user mode và kernel mode? Chỉ có kernel mode không được sao?
 
-这样设计主要是为了**安全**和**稳定**。
+Thiết kế như vậy chủ yếu là vì **bảo mật** và **ổn định**.
 
-- 在 CPU 的所有指令中，有一些指令是比较危险的比如内存分配、设置时钟、IO 处理等，如果所有的程序都能使用这些指令的话，会对系统的正常运行造成灾难性地影响。因此，我们需要限制这些危险指令只能内核态运行。这些只能由操作系统内核态执行的指令也被叫做 **特权指令** 。
-- 如果计算机系统中只有一个内核态，那么所有程序或进程都必须共享系统资源，例如内存、CPU、硬盘等，这将导致系统资源的竞争和冲突，从而影响系统性能和效率。并且，这样也会让系统的安全性降低，毕竟所有程序或进程都具有相同的特权级别和访问权限。
+- Trong tất cả các chỉ thị của CPU, có một số chỉ thị khá nguy hiểm như phân bổ bộ nhớ, thiết lập đồng hồ, xử lý IO, v.v., nếu tất cả các chương trình đều có thể sử dụng những chỉ thị này, sẽ gây ảnh hưởng thảm khốc đến việc vận hành bình thường của hệ thống. Do đó, chúng ta cần giới hạn những chỉ thị nguy hiểm này chỉ có thể chạy ở kernel mode. Những chỉ thị chỉ có thể được thực thi bởi kernel mode hệ điều hành còn được gọi là **chỉ thị đặc quyền**.
+- Nếu hệ thống máy tính chỉ có kernel mode, thì tất cả các chương trình hoặc process đều phải chia sẻ tài nguyên hệ thống, ví dụ như bộ nhớ, CPU, ổ đĩa, v.v., điều này sẽ dẫn đến cạnh tranh và xung đột tài nguyên hệ thống, từ đó ảnh hưởng đến hiệu suất và hiệu quả hệ thống. Và, điều này cũng sẽ làm giảm tính bảo mật của hệ thống, bởi vì tất cả các chương trình hoặc process đều có cùng cấp đặc quyền và quyền truy cập.
 
-因此，同时具有用户态和内核态主要是为了保证计算机系统的安全性、稳定性和性能。
+Do đó, việc đồng thời có user mode và kernel mode chủ yếu là để đảm bảo tính bảo mật, ổn định và hiệu suất của hệ thống máy tính.
 
-#### 用户态和内核态是如何切换的？
+#### User mode và kernel mode chuyển đổi như thế nào?
 
-![用户态切换到内核态的 3 种方式](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/the-way-switch-between-user-mode-and-kernel-mode.drawio.png)
+![3 cách chuyển từ user mode sang kernel mode](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/the-way-switch-between-user-mode-and-kernel-mode.drawio.png)
 
-用户态切换到内核态的 3 种方式：
+3 cách chuyển từ user mode sang kernel mode:
 
-1. **系统调用（Trap）**：这是最主要的方式，是应用程序**主动**发起的。比如，当我们的程序需要读取一个文件或者发送网络数据时，它无法直接操作磁盘或网卡，就必须调用操作系统提供的接口（如 `read()`,`send()`), 这会触发一次从用户态到内核态的切换。
-2. **中断（Interrupt）**：这是**被动**的，由外部硬件设备触发。比如，当硬盘完成了数据读取，会向 CPU 发送一个中断信号，CPU 会暂停当前用户态的程序，切换到内核态去处理这个中断。
-3. **异常（Exception）**：这也是**被动**的，由程序自身错误引起。比如，我们的代码执行了一个除以零的操作，或者访问了一个非法的内存地址（缺页异常），CPU 会捕获这个异常，并切换到内核态去处理它。
+1. **System call (Trap)**: Đây là cách chủ yếu nhất, do ứng dụng **chủ động** phát khởi. Ví dụ, khi chương trình của chúng ta cần đọc một file hoặc gửi dữ liệu mạng, nó không thể trực tiếp thao tác ổ đĩa hay card mạng, mà phải gọi giao diện được cung cấp bởi hệ điều hành (như `read()`, `send()`), điều này sẽ kích hoạt một lần chuyển đổi từ user mode sang kernel mode.
+2. **Interrupt (Ngắt)**: Đây là **thụ động**, được kích hoạt bởi thiết bị phần cứng bên ngoài. Ví dụ, khi ổ đĩa hoàn thành việc đọc dữ liệu, sẽ gửi một tín hiệu ngắt đến CPU, CPU sẽ tạm dừng chương trình ở user mode hiện tại và chuyển sang kernel mode để xử lý ngắt này.
+3. **Exception (Ngoại lệ)**: Đây cũng là **thụ động**, do lỗi của chương trình gây ra. Ví dụ, code của chúng ta thực hiện thao tác chia cho không, hoặc truy cập một địa chỉ bộ nhớ không hợp lệ (page fault), CPU sẽ bắt lấy ngoại lệ này và chuyển sang kernel mode để xử lý nó.
 
-在系统的处理上，中断和异常类似，都是通过中断向量表来找到相应的处理程序进行处理。区别在于，中断来自处理器外部，不是由任何一条专门的指令造成，而异常是执行当前指令的结果。
+Trong cách xử lý của hệ thống, interrupt và exception tương tự nhau, đều tìm kiếm chương trình xử lý tương ứng thông qua interrupt vector table. Sự khác biệt là interrupt đến từ bên ngoài processor, không phải do bất kỳ chỉ thị chuyên dụng nào gây ra, còn exception là kết quả của việc thực thi chỉ thị hiện tại.
 
-最后，需要强调的是，这种**状态切换是有性能开销的**。因为它涉及到保存用户态的上下文（寄存器等）、切换到内核态执行、再恢复用户态的上下文。因此，在高性能编程中，我们常常需要考虑如何减少这种切换次数，比如通过缓冲 I/O 来批量读写文件，就是一个典型的例子。
+Cuối cùng, cần nhấn mạnh rằng **việc chuyển đổi trạng thái này có chi phí hiệu suất**. Vì nó liên quan đến việc lưu context của user mode (registers, v.v.), chuyển sang kernel mode để thực thi, sau đó khôi phục context của user mode. Do đó, trong lập trình hiệu suất cao, chúng ta thường cần xem xét cách giảm số lần chuyển đổi này, ví dụ như thông qua buffered I/O để đọc ghi file theo lô, đây là một ví dụ điển hình.
 
-### 系统调用
+### System call (Lời gọi hệ thống)
 
-#### 什么是系统调用？
+#### System call là gì?
 
-我们运行的程序基本都是运行在用户态，如果我们调用操作系统提供的内核态级别的子功能咋办呢？那就需要系统调用了！
+Các chương trình chúng ta chạy về cơ bản đều chạy ở user mode, nếu chúng ta muốn gọi chức năng con ở cấp kernel mode được cung cấp bởi hệ điều hành thì làm thế nào? Đó là khi cần system call!
 
-也就是说在我们运行的用户程序中，凡是与系统态级别的资源有关的操作（如文件管理、进程控制、内存管理等)，都必须通过系统调用方式向操作系统提出服务请求，并由操作系统代为完成。
+Tức là trong các chương trình người dùng mà chúng ta chạy, tất cả các thao tác liên quan đến tài nguyên ở cấp kernel mode (như quản lý file, kiểm soát process, quản lý bộ nhớ, v.v.) đều phải gửi yêu cầu dịch vụ đến hệ điều hành thông qua system call và được hệ điều hành thực hiện thay.
 
-![系统调用](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/system-call.png)
+![System call](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/system-call.png)
 
-这些系统调用按功能大致可分为如下几类：
+Các system call này có thể phân thành các loại sau đây theo chức năng:
 
-- 设备管理：完成设备（输入输出设备和外部存储设备等）的请求或释放，以及设备启动等功能。
-- 文件管理：完成文件的读、写、创建及删除等功能。
-- 进程管理：进程的创建、撤销、阻塞、唤醒，进程间的通信等功能。
-- 内存管理：完成内存的分配、回收以及获取作业占用内存区大小及地址等功能。
+- Quản lý thiết bị: Hoàn thành các yêu cầu hoặc giải phóng thiết bị (thiết bị input/output và thiết bị lưu trữ ngoài, v.v.) cũng như khởi động thiết bị, v.v.
+- Quản lý file: Hoàn thành chức năng đọc, ghi, tạo và xóa file, v.v.
+- Quản lý process: Chức năng tạo, hủy, chặn, đánh thức process, giao tiếp giữa các process, v.v.
+- Quản lý bộ nhớ: Hoàn thành chức năng phân bổ, thu hồi bộ nhớ cũng như lấy kích thước và địa chỉ vùng bộ nhớ mà công việc chiếm dụng, v.v.
 
-系统调用和普通库函数调用非常相似，只是系统调用由操作系统内核提供，运行于内核态，而普通的库函数调用由函数库或用户自己提供，运行于用户态。
+System call và gọi hàm thư viện thông thường rất giống nhau, chỉ là system call được cung cấp bởi kernel hệ điều hành, chạy ở kernel mode, còn gọi hàm thư viện thông thường được cung cấp bởi thư viện hàm hoặc người dùng tự cung cấp, chạy ở user mode.
 
-总结：系统调用是应用程序与操作系统之间进行交互的一种方式，通过系统调用，应用程序可以访问操作系统底层资源例如文件、设备、网络等。
+Tóm tắt: System call là một cách để ứng dụng tương tác với hệ điều hành, thông qua system call, ứng dụng có thể truy cập tài nguyên cấp thấp của hệ điều hành như file, thiết bị, mạng, v.v.
 
-#### 系统调用的过程了解吗？
+#### Bạn có hiểu về quá trình của system call không?
 
-系统调用的过程可以简单分为以下几个步骤：
+Quá trình của system call có thể đơn giản chia thành các bước sau:
 
-1. 用户态的程序发起系统调用，因为系统调用中涉及一些特权指令（只能由操作系统内核态执行的指令），用户态程序权限不足，因此会中断执行，也就是 Trap（Trap 是一种中断）。
-2. 发生中断后，当前 CPU 执行的程序会中断，跳转到中断处理程序。内核程序开始执行，也就是开始处理系统调用。
-3. 当系统调用处理完成后，操作系统使用特权指令（如 `iret`、`sysret` 或 `eret`）切换回用户态，恢复用户态的上下文，继续执行用户程序。
+1. Chương trình ở user mode phát khởi system call, vì system call liên quan đến một số chỉ thị đặc quyền (chỉ thị chỉ có thể được thực thi bởi kernel mode hệ điều hành), quyền hạn chương trình user mode không đủ, do đó sẽ ngắt thực thi, tức là Trap (Trap là một loại interrupt).
+2. Sau khi xảy ra interrupt, chương trình đang thực thi trên CPU sẽ bị ngắt, nhảy đến chương trình xử lý interrupt. Chương trình kernel bắt đầu thực thi, tức là bắt đầu xử lý system call.
+3. Khi xử lý system call hoàn tất, hệ điều hành sử dụng chỉ thị đặc quyền (như `iret`, `sysret` hoặc `eret`) để chuyển lại về user mode, khôi phục context của user mode, tiếp tục thực thi chương trình người dùng.
 
-![系统调用的过程](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/system-call-procedure.png)
+![Quá trình system call](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/system-call-procedure.png)
 
-## 进程和线程
+## Process và Thread
 
-### 进程和线程的区别是什么？
+### Sự khác biệt giữa process và thread là gì?
 
-进程和线程是操作系统中并发执行的两个核心概念，它们的关系可以理解为 **工厂和工人** 的关系。
+Process và thread là hai khái niệm cốt lõi trong hệ điều hành về thực thi đồng thời, mối quan hệ của chúng có thể hiểu là mối quan hệ giữa **nhà máy và công nhân**.
 
-**进程（Process）就像一个工厂**。操作系统在分配资源时，是以进程为基本单位的。比如，当我启动一个微信，操作系统就为它建立了一个独立的工厂，分配给它专属的内存空间、文件句柄等资源。这个工厂与其他工厂（比如我打开的浏览器进程）是严格隔离的。
+**Process (Tiến trình) giống như một nhà máy**. Khi hệ điều hành phân bổ tài nguyên, đơn vị cơ bản là process. Ví dụ, khi tôi khởi động WeChat, hệ điều hành sẽ tạo một nhà máy độc lập cho nó, phân bổ cho nó không gian bộ nhớ riêng, file handle và các tài nguyên khác. Nhà máy này được cô lập hoàn toàn với các nhà máy khác (ví dụ như process trình duyệt tôi đang mở).
 
-**线程（Thread）则像是工厂里的工人**。一个工厂里可以有很多工人，他们共享这个工厂的资源，但每个工人有自己的工具箱和任务清单，让他们可以独立地执行不同的任务。比如微信这个工厂里，可以有一个工人（线程）负责接收消息，一个工人负责渲染界面。
+**Thread (Luồng) giống như công nhân trong nhà máy**. Một nhà máy có thể có nhiều công nhân, họ chia sẻ tài nguyên của nhà máy này, nhưng mỗi công nhân có hộp công cụ và danh sách nhiệm vụ riêng, cho phép họ thực thi các nhiệm vụ khác nhau một cách độc lập. Ví dụ như nhà máy WeChat có thể có một công nhân (thread) chịu trách nhiệm nhận tin nhắn, một công nhân chịu trách nhiệm hiển thị giao diện.
 
-这是我用 AI 绘制的一张图片，可以说是非常形象了：
+Đây là hình ảnh tôi vẽ bằng AI, có thể nói là rất trực quan:
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/process-and-thread-difference-wechat-factory-as-an-example.png)
 
-下图是 Java 内存区域，我们从 JVM 的角度来说一下线程和进程之间的关系吧！
+Hình dưới là vùng bộ nhớ Java, hãy để tôi nói về mối quan hệ giữa thread và process từ góc độ JVM!
 
-![Java 运行时数据区域（JDK1.8 之后）](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
+![Vùng dữ liệu runtime Java (sau JDK1.8)](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
 
-从上图可以看出：一个进程中可以有多个线程，多个线程共享进程的**堆**和**方法区 (JDK1.8 之后的元空间)**资源，但是每个线程有自己的**程序计数器**、**虚拟机栈** 和 **本地方法栈**。
+Từ hình trên có thể thấy: Một process có thể có nhiều thread, nhiều thread chia sẻ tài nguyên **heap** và **method area (metaspace sau JDK1.8)** của process, nhưng mỗi thread có **program counter**, **virtual machine stack** và **native method stack** riêng.
 
-这里从 3 个角度总结下线程和进程的核心区别：
+Dưới đây tóm tắt sự khác biệt cốt lõi giữa thread và process từ 3 góc độ:
 
-1. **资源所有权：** 进程是资源分配的基本单位，拥有独立的地址空间；而线程是 CPU 调度的基本单位，几乎不拥有系统资源，只保留少量私有数据（PC、栈、寄存器），主要共享其所属进程的资源。
-2. **开销：** 创建或销毁一个工厂（进程）的开销很大，需要分配独立的资源。而雇佣或解雇一个工人（线程）的开销就小得多。同理，进程间的上下文切换开销远大于线程间的切换。
-3. **健壮性：** 工厂之间是隔离的，一个工厂倒闭（进程崩溃）不会影响其他工厂。但一个工厂内的工人之间是共享资源的，一个工人操作失误（比如一个线程访问了非法内存）可能会导致整个工厂停工（整个进程崩溃）。
+1. **Quyền sở hữu tài nguyên:** Process là đơn vị cơ bản của việc phân bổ tài nguyên, có không gian địa chỉ độc lập; còn thread là đơn vị cơ bản của lập lịch CPU, hầu như không sở hữu tài nguyên hệ thống, chỉ giữ lại một ít dữ liệu riêng tư (PC, stack, registers), chủ yếu chia sẻ tài nguyên của process mà nó thuộc về.
+2. **Chi phí:** Chi phí tạo hoặc hủy một nhà máy (process) rất lớn, cần phân bổ tài nguyên độc lập. Còn chi phí thuê hoặc sa thải một công nhân (thread) thì nhỏ hơn nhiều. Tương tự, chi phí chuyển đổi context giữa các process lớn hơn nhiều so với chuyển đổi giữa các thread.
+3. **Độ bền vững:** Các nhà máy bị cô lập với nhau, một nhà máy đóng cửa (process bị crash) không ảnh hưởng đến các nhà máy khác. Nhưng các công nhân trong cùng một nhà máy chia sẻ tài nguyên, một công nhân thao tác sai (ví dụ một thread truy cập bộ nhớ không hợp lệ) có thể khiến toàn bộ nhà máy ngừng hoạt động (toàn bộ process bị crash).
 
-### 有了进程为什么还需要线程?
+### Tại sao đã có process rồi còn cần thread?
 
-核心原因就是**为了在单个应用内实现低开销、高效率的并发**。如果我想让微信同时接收消息和发送文件，如果用两个进程来实现，不仅资源开销巨大，它们之间通信还非常麻烦（需要 IPC）。而使用两个线程，它们不仅切换成本低，还能直接通过共享内存高效通信，从而能更好地利用多核 CPU，提升应用的响应速度和吞吐量。
+Lý do cốt lõi là **để thực hiện đồng thời chi phí thấp, hiệu quả cao trong một ứng dụng duy nhất**. Nếu tôi muốn WeChat đồng thời nhận tin nhắn và gửi file, nếu dùng hai process để thực hiện, không chỉ chi phí tài nguyên lớn mà giao tiếp giữa chúng cũng rất phức tạp (cần IPC). Còn dùng hai thread, chi phí chuyển đổi không chỉ thấp mà còn có thể giao tiếp hiệu quả trực tiếp thông qua shared memory, từ đó có thể tận dụng tốt hơn CPU đa nhân, cải thiện tốc độ phản hồi và throughput của ứng dụng.
 
-再那我们上面举的工厂和工人为例：线程=同一屋檐下的轻量级工人，切换成本低、共享内存零拷贝；若换成两个独立进程，就得各建一座工厂（独立地址空间），既费砖又费电（资源与 IPC 开销）。
+Lấy ví dụ nhà máy và công nhân ở trên: thread = công nhân nhẹ dưới cùng một mái nhà, chi phí chuyển đổi thấp, giao tiếp shared memory không cần copy; nếu đổi sang hai process độc lập, sẽ phải xây mỗi nhà máy riêng (không gian địa chỉ độc lập), vừa tốn gạch vừa tốn điện (chi phí tài nguyên và IPC).
 
-### 为什么要使用多线程?
+### Tại sao nên sử dụng đa luồng?
 
-先从总体上来说：
+Trước tiên nói từ tổng thể:
 
-- **从计算机底层来说：** 线程可以比作是轻量级的进程，是程序执行的最小单位,线程间的切换和调度的成本远远小于进程。另外，多核 CPU 时代意味着多个线程可以同时运行，这减少了线程上下文切换的开销。
-- **从当代互联网发展趋势来说：** 现在的系统动不动就要求百万级甚至千万级的并发量，而多线程并发编程正是开发高并发系统的基础，利用好多线程机制可以大大提高系统整体的并发能力以及性能。
+- **Từ góc độ cơ bản của máy tính:** Thread có thể được ví như process nhẹ, là đơn vị nhỏ nhất của thực thi chương trình, chi phí chuyển đổi và lập lịch giữa các thread nhỏ hơn nhiều so với process. Ngoài ra, kỷ nguyên CPU đa nhân có nghĩa là nhiều thread có thể chạy đồng thời, điều này giảm chi phí chuyển đổi context thread.
+- **Từ xu hướng phát triển internet hiện đại:** Hiện nay các hệ thống yêu cầu concurrency hàng triệu thậm chí chục triệu, và lập trình đa luồng đồng thời chính là nền tảng để phát triển hệ thống high concurrency, tận dụng tốt cơ chế đa luồng có thể cải thiện đáng kể khả năng concurrency tổng thể và hiệu suất của hệ thống.
 
-再深入到计算机底层来探讨：
+Đi sâu hơn vào cơ bản của máy tính:
 
-- **单核时代**：在单核时代多线程主要是为了提高单进程利用 CPU 和 IO 系统的效率。 假设只运行了一个 Java 进程的情况，当我们请求 IO 的时候，如果 Java 进程中只有一个线程，此线程被 IO 阻塞则整个进程被阻塞。CPU 和 IO 设备只有一个在运行，那么可以简单地说系统整体效率只有 50%。当使用多线程的时候，一个线程被 IO 阻塞，其他线程还可以继续使用 CPU。从而提高了 Java 进程利用系统资源的整体效率。
-- **多核时代**: 多核时代多线程主要是为了提高进程利用多核 CPU 的能力。举个例子：假如我们要计算一个复杂的任务，我们只用一个线程的话，不论系统有几个 CPU 核心，都只会有一个 CPU 核心被利用到。而创建多个线程，这些线程可以被映射到底层多个 CPU 上执行，在任务中的多个线程没有资源竞争的情况下，任务执行的效率会有显著性的提高，约等于（单核时执行时间/CPU 核心数）。
+- **Kỷ nguyên đơn nhân**: Trong kỷ nguyên đơn nhân, đa luồng chủ yếu là để cải thiện hiệu quả sử dụng CPU và hệ thống IO của một process. Giả sử chỉ chạy một Java process, khi chúng ta yêu cầu IO, nếu trong Java process chỉ có một thread, thread này bị IO block thì toàn bộ process bị block. CPU và thiết bị IO chỉ có một cái đang chạy, thì có thể nói đơn giản là hiệu quả tổng thể hệ thống chỉ 50%. Khi sử dụng đa luồng, một thread bị IO block, các thread khác vẫn có thể tiếp tục sử dụng CPU. Từ đó cải thiện hiệu quả tổng thể sử dụng tài nguyên hệ thống của Java process.
+- **Kỷ nguyên đa nhân**: Trong kỷ nguyên đa nhân, đa luồng chủ yếu là để cải thiện khả năng sử dụng CPU đa nhân của process. Ví dụ: Giả sử chúng ta cần tính toán một tác vụ phức tạp, nếu chỉ dùng một thread, dù hệ thống có bao nhiêu lõi CPU, cũng chỉ có một lõi CPU được sử dụng. Còn tạo nhiều thread, các thread này có thể được ánh xạ lên nhiều CPU cơ bản để thực thi, trong trường hợp các thread trong tác vụ không có resource contention, hiệu quả thực thi tác vụ sẽ được cải thiện đáng kể, xấp xỉ (thời gian thực thi trên đơn nhân / số lõi CPU).
 
-### 线程间的同步的方式有哪些？
+### Các cách đồng bộ hóa giữa các thread là gì?
 
-线程同步是两个或多个共享关键资源的线程的并发执行。应该同步线程以避免关键的资源使用冲突。
+Đồng bộ hóa thread là thực thi đồng thời của hai hoặc nhiều thread chia sẻ tài nguyên quan trọng. Nên đồng bộ hóa thread để tránh xung đột sử dụng tài nguyên quan trọng.
 
-下面是几种常见的线程同步的方式：
+Dưới đây là một số cách đồng bộ hóa thread thông dụng:
 
-1. **互斥锁(Mutex)** ：采用互斥对象机制，只有拥有互斥对象的线程才有访问公共资源的权限。因为互斥对象只有一个，所以可以保证公共资源不会被多个线程同时访问。比如 Java 中的 `synchronized` 关键词和各种 `Lock` 都是这种机制。
-2. **读写锁（Read-Write Lock）** ：允许多个线程同时读取共享资源，但只有一个线程可以对共享资源进行写操作。
-3. **信号量(Semaphore)** ：它允许同一时刻多个线程访问同一资源，但是需要控制同一时刻访问此资源的最大线程数量。
-4. **屏障（Barrier）** ：屏障是一种同步原语，用于等待多个线程到达某个点再一起继续执行。当一个线程到达屏障时，它会停止执行并等待其他线程到达屏障，直到所有线程都到达屏障后，它们才会一起继续执行。比如 Java 中的 `CyclicBarrier` 是这种机制。
-5. **事件(Event)** :Wait/Notify：通过通知操作的方式来保持多线程同步，还可以方便的实现多线程优先级的比较操作。
+1. **Mutex (Khóa loại trừ lẫn nhau)**: Sử dụng cơ chế đối tượng mutex, chỉ thread sở hữu đối tượng mutex mới có quyền truy cập tài nguyên chung. Vì đối tượng mutex chỉ có một, nên có thể đảm bảo tài nguyên chung không bị nhiều thread truy cập đồng thời. Ví dụ như từ khóa `synchronized` trong Java và các loại `Lock` khác nhau đều là cơ chế này.
+2. **Read-Write Lock (Khóa đọc-ghi)**: Cho phép nhiều thread đọc tài nguyên chia sẻ đồng thời, nhưng chỉ một thread có thể thực hiện thao tác ghi lên tài nguyên chia sẻ.
+3. **Semaphore (Cờ hiệu)**: Cho phép nhiều thread truy cập cùng một tài nguyên tại cùng một thời điểm, nhưng cần kiểm soát số lượng thread tối đa có thể truy cập tài nguyên này tại cùng một thời điểm.
+4. **Barrier (Rào chắn)**: Barrier là một primitive đồng bộ, dùng để chờ nhiều thread đến một điểm nhất định rồi cùng tiếp tục thực thi. Khi một thread đến barrier, nó sẽ dừng thực thi và chờ các thread khác đến barrier, cho đến khi tất cả các thread đã đến barrier, chúng mới cùng tiếp tục thực thi. Ví dụ như `CyclicBarrier` trong Java là cơ chế này.
+5. **Event (Sự kiện)** - Wait/Notify: Duy trì đồng bộ đa luồng thông qua thao tác thông báo, còn có thể dễ dàng thực hiện so sánh độ ưu tiên đa luồng.
 
-### PCB 是什么？包含哪些信息？
+### PCB là gì? Chứa những thông tin gì?
 
-**PCB（Process Control Block）** 即进程控制块，是操作系统中用来管理和跟踪进程的数据结构，每个进程都对应着一个独立的 PCB。你可以将 PCB 视为进程的大脑。
+**PCB (Process Control Block)** tức là khối điều khiển process, là cấu trúc dữ liệu dùng trong hệ điều hành để quản lý và theo dõi process, mỗi process tương ứng với một PCB độc lập. Bạn có thể coi PCB là bộ não của process.
 
-当操作系统创建一个新进程时，会为该进程分配一个唯一的进程 ID，并且为该进程创建一个对应的进程控制块。当进程执行时，PCB 中的信息会不断变化，操作系统会根据这些信息来管理和调度进程。
+Khi hệ điều hành tạo một process mới, sẽ phân bổ một process ID duy nhất cho process đó và tạo một khối điều khiển process tương ứng. Khi process thực thi, thông tin trong PCB liên tục thay đổi, hệ điều hành dựa vào những thông tin này để quản lý và lập lịch process.
 
-PCB 主要包含下面几部分的内容：
+PCB chủ yếu chứa các phần nội dung sau:
 
-- 进程的描述信息，包括进程的名称、标识符等等；
-- 进程的调度信息，包括进程阻塞原因、进程状态（就绪、运行、阻塞等）、进程优先级（标识进程的重要程度）等等；
-- 进程对资源的需求情况，包括 CPU 时间、内存空间、I/O 设备等等。
-- 进程打开的文件信息，包括文件描述符、文件类型、打开模式等等。
-- 处理机的状态信息（由处理机的各种寄存器中的内容组成的），包括通用寄存器、指令计数器、程序状态字 PSW、用户栈指针。
-- ……
+- Thông tin mô tả process, bao gồm tên process, định danh, v.v.;
+- Thông tin lập lịch process, bao gồm lý do process bị block, trạng thái process (ready, running, blocked, v.v.), mức độ ưu tiên process (xác định mức độ quan trọng của process), v.v.;
+- Nhu cầu tài nguyên của process, bao gồm thời gian CPU, không gian bộ nhớ, thiết bị I/O, v.v.
+- Thông tin file đã mở bởi process, bao gồm file descriptor, loại file, chế độ mở, v.v.
+- Thông tin trạng thái processor (bao gồm nội dung của các loại thanh ghi khác nhau của processor), bao gồm các thanh ghi đa năng, instruction counter, program status word PSW, con trỏ stack người dùng.
+- ...
 
-### 进程有哪几种状态?
+### Process có mấy trạng thái?
 
-我们一般把进程大致分为 5 种状态，这一点和线程很像！
+Thông thường chúng ta phân process thành khoảng 5 trạng thái, điều này rất giống với thread!
 
-- **创建状态(new)**：进程正在被创建，尚未到就绪状态。
-- **就绪状态(ready)**：进程已处于准备运行状态，即进程获得了除了处理器之外的一切所需资源，一旦得到处理器资源(处理器分配的时间片)即可运行。
-- **运行状态(running)**：进程正在处理器上运行(单核 CPU 下任意时刻只有一个进程处于运行状态)。
-- **阻塞状态(waiting)**：又称为等待状态，进程正在等待某一事件而暂停运行如等待某资源为可用或等待 IO 操作完成。即使处理器空闲，该进程也不能运行。
-- **结束状态(terminated)**：进程正在从系统中消失。可能是进程正常结束或其他原因中断退出运行。
+- **Trạng thái tạo (new)**: Process đang được tạo, chưa đến trạng thái ready.
+- **Trạng thái sẵn sàng (ready)**: Process đã ở trạng thái sẵn sàng chạy, tức là process đã có được tất cả tài nguyên cần thiết ngoại trừ processor, một khi nhận được tài nguyên processor (time slice được processor phân bổ) là có thể chạy.
+- **Trạng thái chạy (running)**: Process đang chạy trên processor (tại bất kỳ thời điểm nào dưới CPU đơn nhân chỉ có một process ở trạng thái running).
+- **Trạng thái block (waiting)**: Còn được gọi là trạng thái chờ, process đang chờ một sự kiện nào đó mà tạm dừng chạy như chờ tài nguyên nào đó có sẵn hoặc chờ thao tác IO hoàn thành. Ngay cả khi processor rảnh, process này cũng không thể chạy.
+- **Trạng thái kết thúc (terminated)**: Process đang biến mất khỏi hệ thống. Có thể là process kết thúc bình thường hoặc bị ngắt thoát chạy vì lý do khác.
 
-![进程状态图转换图](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/state-transition-of-process.png)
+![Sơ đồ chuyển đổi trạng thái process](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/state-transition-of-process.png)
 
-### 进程间的通信方式有哪些？
+### Các cách giao tiếp giữa các process là gì?
 
-> 下面这部分总结参考了:[《进程间通信 IPC (InterProcess Communication)》](https://www.jianshu.com/p/c1015f5ffa74) 这篇文章，推荐阅读，总结的非常不错。
+> Phần tổng hợp dưới đây tham khảo bài viết: [《IPC - Giao tiếp giữa các process (InterProcess Communication)》](https://www.jianshu.com/p/c1015f5ffa74), khuyến nghị đọc, tóm tắt rất hay.
 
-1. **管道/匿名管道(Pipes)** ：用于具有亲缘关系的父子进程间或者兄弟进程之间的通信。
-2. **有名管道(Named Pipes)** : 匿名管道由于没有名字，只能用于亲缘关系的进程间通信。为了克服这个缺点，提出了有名管道。有名管道严格遵循 **先进先出(First In First Out)** 。有名管道以磁盘文件的方式存在，可以实现本机任意两个进程通信。
-3. **信号(Signal)** ：信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生；
-4. **消息队列(Message Queuing)** ：消息队列是消息的链表,具有特定的格式,存放在内存中并由消息队列标识符标识。管道和消息队列的通信数据都是先进先出的原则。与管道（无名管道：只存在于内存中的文件；命名管道：存在于实际的磁盘介质或者文件系统）不同的是消息队列存放在内核中，只有在内核重启(即，操作系统重启)或者显式地删除一个消息队列时，该消息队列才会被真正的删除。消息队列可以实现消息的随机查询,消息不一定要以先进先出的次序读取,也可以按消息的类型读取.比 FIFO 更有优势。消息队列克服了信号承载信息量少，管道只能承载无格式字 节流以及缓冲区大小受限等缺点。
-5. **信号量(Semaphores)** ：信号量是一个计数器，用于多进程对共享数据的访问，信号量的意图在于进程间同步。这种通信方式主要用于解决与同步相关的问题并避免竞争条件。
-6. **共享内存(Shared memory)** ：使得多个进程可以访问同一块内存空间，不同进程可以及时看到对方进程中对共享内存中数据的更新。这种方式需要依靠某种同步操作，如互斥锁和信号量等。可以说这是最有用的进程间通信方式。
-7. **套接字(Sockets)** : 此方法主要用于在客户端和服务器之间通过网络进行通信。套接字是支持 TCP/IP 的网络通信的基本操作单元，可以看做是不同主机之间的进程进行双向通信的端点，简单的说就是通信的两方的一种约定，用套接字中的相关函数来完成通信过程。
+1. **Pipe/Anonymous Pipe (Ống/Ống vô danh)**: Dùng cho giao tiếp giữa các process cha-con hoặc anh-em có quan hệ thân tộc.
+2. **Named Pipe (Ống có tên)**: Ống vô danh do không có tên nên chỉ có thể dùng cho giao tiếp giữa các process có quan hệ thân tộc. Để khắc phục hạn chế này, người ta đề xuất ống có tên. Ống có tên tuân theo nghiêm ngặt nguyên tắc **FIFO (First In First Out)**. Ống có tên tồn tại dưới dạng file đĩa, có thể thực hiện giao tiếp giữa bất kỳ hai process nào trên cùng máy.
+3. **Signal (Tín hiệu)**: Tín hiệu là cách giao tiếp tương đối phức tạp, dùng để thông báo cho process nhận biết rằng một sự kiện nào đó đã xảy ra;
+4. **Message Queue (Hàng đợi tin nhắn)**: Hàng đợi tin nhắn là danh sách liên kết các tin nhắn, có định dạng cụ thể, được lưu trong bộ nhớ và được xác định bởi định danh hàng đợi tin nhắn. Dữ liệu giao tiếp của pipe và message queue đều theo nguyên tắc FIFO. Khác với pipe (ống vô danh: chỉ tồn tại trong file bộ nhớ; ống có tên: tồn tại trong phương tiện đĩa thực tế hoặc hệ thống file), message queue được lưu trong kernel, chỉ khi kernel khởi động lại (tức là hệ điều hành khởi động lại) hoặc khi xóa rõ ràng một message queue, message queue đó mới thực sự bị xóa. Message queue có thể thực hiện truy vấn tin nhắn ngẫu nhiên, tin nhắn không nhất thiết phải được đọc theo thứ tự FIFO, cũng có thể đọc theo loại tin nhắn. Ưu thế hơn FIFO. Message queue khắc phục những nhược điểm của signal là tải thông tin ít, pipe chỉ có thể tải byte stream không định dạng và kích thước bộ đệm bị giới hạn.
+5. **Semaphore (Cờ hiệu)**: Cờ hiệu là một bộ đếm, dùng để truy cập dữ liệu chia sẻ của nhiều process, mục đích của cờ hiệu là đồng bộ hóa giữa các process. Cách giao tiếp này chủ yếu dùng để giải quyết các vấn đề liên quan đến đồng bộ và tránh race condition.
+6. **Shared Memory (Bộ nhớ chia sẻ)**: Cho phép nhiều process truy cập cùng một khối bộ nhớ, các process khác nhau có thể nhìn thấy kịp thời các cập nhật đối với dữ liệu trong bộ nhớ chia sẻ của nhau. Cách này cần dựa vào một số thao tác đồng bộ như mutex và semaphore. Có thể nói đây là cách giao tiếp giữa các process hữu ích nhất.
+7. **Socket (Cổng giao tiếp)**: Phương pháp này chủ yếu được sử dụng để giao tiếp qua mạng giữa client và server. Socket là đơn vị thao tác cơ bản của giao tiếp mạng hỗ trợ TCP/IP, có thể coi là endpoint để các process trên các máy chủ khác nhau thực hiện giao tiếp hai chiều, nói đơn giản là một thỏa thuận của hai bên giao tiếp, sử dụng các hàm liên quan trong socket để hoàn thành quá trình giao tiếp.
 
-### 进程的调度算法有哪些?
+### Các thuật toán lập lịch process là gì?
 
-![常见进程调度算法](https://oss.javaguide.cn/github/javaguide/cs-basics/network/scheduling-algorithms-of-process.png)
+![Các thuật toán lập lịch process thường gặp](https://oss.javaguide.cn/github/javaguide/cs-basics/network/scheduling-algorithms-of-process.png)
 
-进程调度算法的核心目标是决定就绪队列中的哪个进程应该获得 CPU 资源，其设计目标通常是在**吞吐量、周转时间、响应时间**和**公平性**之间做权衡。
+Mục tiêu cốt lõi của thuật toán lập lịch process là quyết định process nào trong ready queue sẽ nhận được tài nguyên CPU, mục tiêu thiết kế thường là đánh đổi giữa **throughput, turnaround time, response time** và **fairness**.
 
-我习惯将这些算法分为两大类：**非抢占式**和**抢占式**。
+Tôi thường phân loại các thuật toán này thành hai loại chính: **Non-preemptive (Không có quyền ưu tiên)** và **Preemptive (Có quyền ưu tiên)**.
 
-**第一类：非抢占式调度 (Non-Preemptive)**
+**Loại 1: Non-preemptive Scheduling (Lập lịch không có quyền ưu tiên)**
 
-这种方式下，一旦 CPU 分配给一个进程，它就会一直运行下去，直到任务完成或主动放弃（比如等待 I/O）。
+Theo cách này, một khi CPU được phân bổ cho một process, nó sẽ tiếp tục chạy cho đến khi hoàn thành tác vụ hoặc chủ động từ bỏ (ví dụ như chờ I/O).
 
-1. **先到先服务调度算法(FCFS，First Come, First Served)** : 这是最简单的，就像排队，谁先来谁先用。优点是公平、实现简单。但缺点很明显，如果一个很长的任务先到了，后面无数个短任务都得等着，这会导致平均等待时间很长，我们称之为“护航效应”。
-2. **短作业优先的调度算法(SJF，Shortest Job First)** : 从就绪队列中选出一个估计运行时间最短的进程为之分配资源。理论上，它的平均等待时间是最短的，吞吐量很高。但缺点是，它需要预测运行时间，这很难做到，而且可能会导致长作业“饿死”，永远得不到执行。
+1. **FCFS (First Come, First Served - Đến trước, phục vụ trước)**: Đây là đơn giản nhất, giống như xếp hàng, ai đến trước thì dùng trước. Ưu điểm là công bằng, dễ thực hiện. Nhưng nhược điểm rõ ràng, nếu một tác vụ rất dài đến trước, vô số tác vụ ngắn phía sau đều phải chờ, điều này sẽ dẫn đến thời gian chờ trung bình rất dài, chúng ta gọi đây là "convoy effect - hiệu ứng đoàn hộ tống".
+2. **SJF (Shortest Job First - Tác vụ ngắn nhất trước)**: Chọn ra process có thời gian chạy ước tính ngắn nhất từ ready queue để phân bổ tài nguyên. Về lý thuyết, thời gian chờ trung bình của nó là ngắn nhất, throughput rất cao. Nhưng nhược điểm là cần dự đoán thời gian chạy, điều này rất khó thực hiện, và có thể dẫn đến tác vụ dài bị "chết đói", không bao giờ được thực thi.
 
-**第二类：抢占式调度 (Preemptive)**
+**Loại 2: Preemptive Scheduling (Lập lịch có quyền ưu tiên)**
 
-操作系统可以强制剥夺当前进程的 CPU 使用权，分配给其他更重要的进程。现代操作系统基本都采用这种方式。
+Hệ điều hành có thể buộc tước quyền sử dụng CPU của process hiện tại và phân bổ cho process quan trọng hơn. Hệ điều hành hiện đại về cơ bản đều sử dụng cách này.
 
-- **时间片轮转调度算法（RR，Round-Robin）** : 这是最经典、最公平的抢占式算法。它给每个进程分配一个固定的时间片，用完了就把它放到队尾，切换到下一个进程。它非常适合分时系统，保证了每个进程都能得到响应，但时间片的设置很关键：太长了退化成 FCFS，太短了则会导致过于频繁的上下文切换，增加系统开销。
-- **优先级调度算法（Priority）**：每个进程都有一个优先级，进程调度器总是选择优先级最高的进程，具有相同优先级的进程以 FCFS 方式执行。这很灵活，可以根据内存要求，时间要求或任何其他资源要求来确定优先级，但同样可能导致低优先级进程“饿死”。
+- **RR (Round-Robin - Luân chuyển thời gian)**: Đây là thuật toán preemptive kinh điển và công bằng nhất. Nó phân bổ cho mỗi process một time slice cố định, hết rồi đặt nó vào cuối hàng đợi, chuyển sang process tiếp theo. Nó rất phù hợp với hệ thống chia sẻ thời gian, đảm bảo mỗi process đều được phản hồi, nhưng việc thiết lập time slice rất quan trọng: quá dài sẽ thoái hóa thành FCFS, quá ngắn sẽ dẫn đến chuyển đổi context quá thường xuyên, tăng overhead hệ thống.
+- **Priority Scheduling (Lập lịch theo độ ưu tiên)**: Mỗi process có một độ ưu tiên, bộ lập lịch process luôn chọn process có độ ưu tiên cao nhất, các process có cùng độ ưu tiên thực thi theo cách FCFS. Điều này rất linh hoạt, có thể xác định độ ưu tiên dựa trên yêu cầu bộ nhớ, yêu cầu thời gian hoặc bất kỳ yêu cầu tài nguyên nào khác, nhưng cũng có thể dẫn đến process ưu tiên thấp bị "chết đói".
 
-前面介绍的几种进程调度的算法都有一定的局限性，如：**短进程优先的调度算法，仅照顾了短进程而忽略了长进程** 。那有没有一种结合了上面这些进程调度算法优点的呢？
+Các thuật toán lập lịch process được giới thiệu trước đây đều có một số hạn chế nhất định, ví dụ: **thuật toán lập lịch ưu tiên process ngắn, chỉ quan tâm đến process ngắn mà bỏ qua process dài**. Vậy có thuật toán nào kết hợp được ưu điểm của các thuật toán lập lịch process này không?
 
-**多级反馈队列调度算法（MFQ，Multi-level Feedback Queue）** 是现实世界中最常用的一种算法，比如早期的 UNIX。它非常聪明，结合了 RR 和优先级调度。它设置了多个不同优先级的队列，每个队列使用 RR 调度，时间片大小也不同。新进程先进入最高优先级队列；如果在一个时间片内没执行完，就会被降级到下一个队列。这样既照顾了短作业（在高优先级队列中快速完成），也保证了长作业不会饿死（最终会在低优先级队列中得到执行），是一种非常均衡的方案。
+**MFQ (Multi-level Feedback Queue - Hàng đợi nhiều cấp phản hồi)** là thuật toán phổ biến nhất trong thực tế, ví dụ như UNIX ban đầu. Nó rất thông minh, kết hợp RR và lập lịch theo độ ưu tiên. Nó thiết lập nhiều hàng đợi với các mức độ ưu tiên khác nhau, mỗi hàng đợi sử dụng lập lịch RR với kích thước time slice khác nhau. Process mới vào hàng đợi ưu tiên cao nhất; nếu không hoàn thành trong một time slice, sẽ bị hạ cấp xuống hàng đợi tiếp theo. Điều này vừa quan tâm đến tác vụ ngắn (hoàn thành nhanh trong hàng đợi ưu tiên cao), vừa đảm bảo tác vụ dài không bị chết đói (cuối cùng sẽ được thực thi trong hàng đợi ưu tiên thấp), là một phương án rất cân bằng.
 
-### 那究竟是谁来调度这个进程呢？
+### Vậy chính xác là ai lập lịch cho process?
 
-负责进程调度的核心是操作系统内核中的两个紧密协作的组件：**调度程序（Scheduler）** 和 **分派程序（Dispatcher）**。我们可以把它们理解成一个团队：
+Cốt lõi chịu trách nhiệm lập lịch process là hai thành phần phối hợp chặt chẽ trong kernel hệ điều hành: **Scheduler (Bộ lập lịch)** và **Dispatcher (Bộ phân phối)**. Chúng ta có thể hiểu chúng như một đội:
 
-- **调度程序 (Scheduler):** 可以看作是决策者。当需要进行调度时，调度程序会被激活，它会根据预设的调度算法（比如我们前面聊到的多级反馈队列），从就绪队列中挑选出下一个应该占用 CPU 的进程。
-- **分派程序 (Dispatcher)：** 可以看作是执行者。它负责完成具体的“交接”工作，也就是**上下文切换**。这个过程非常底层，主要包括：
-  - 保存当前进程的上下文（CPU 寄存器状态、程序计数器等）到其进程控制块（PCB）中。
-  - 加载下一个被选中进程的上下文，从其 PCB 中读取状态，恢复到 CPU 寄存器。
-  - 将 CPU 的控制权正式移交给新进程，让它开始运行。
+- **Scheduler (Bộ lập lịch):** Có thể coi là người ra quyết định. Khi cần lập lịch, bộ lập lịch sẽ được kích hoạt, nó sẽ dựa vào thuật toán lập lịch được thiết lập sẵn (như multi-level feedback queue chúng ta đã bàn trước đó), chọn ra process tiếp theo sẽ chiếm CPU từ ready queue.
+- **Dispatcher (Bộ phân phối):** Có thể coi là người thực thi. Nó chịu trách nhiệm hoàn thành công việc "bàn giao" cụ thể, tức là **context switching**. Quá trình này rất cấp thấp, chủ yếu bao gồm:
+  - Lưu context của process hiện tại (trạng thái CPU register, program counter, v.v.) vào PCB của nó.
+  - Tải context của process được chọn tiếp theo, đọc trạng thái từ PCB của nó, khôi phục vào CPU register.
+  - Chính thức chuyển quyền kiểm soát CPU cho process mới, để nó bắt đầu chạy.
 
-## 死锁
+## Deadlock (Tắc nghẽn)
 
-### 什么是死锁？
+### Deadlock là gì?
 
-死锁（Deadlock）描述的是这样一种情况：多个进程/线程同时被阻塞，它们中的一个或者全部都在等待某个资源被释放。由于进程/线程被无限期地阻塞，因此程序不可能正常终止。
+Deadlock mô tả tình huống như sau: nhiều process/thread đồng thời bị block, một hoặc tất cả trong số chúng đều đang chờ một tài nguyên nào đó được giải phóng. Do process/thread bị block vô thời hạn, chương trình không thể kết thúc bình thường.
 
-一个最经典的例子就是**“交叉持锁”**。想象有两个线程和两个锁:
+Một ví dụ kinh điển nhất là **"cross-lock - khóa chéo"**. Hãy tưởng tượng có hai thread và hai lock:
 
-- 线程 1 先拿到了锁 A，然后尝试去获取锁 B。
-- 几乎同时，线程 2 拿到了锁 B，然后尝试去获取锁 A。
+- Thread 1 đã lấy được lock A, sau đó cố gắng lấy lock B.
+- Gần như đồng thời, Thread 2 đã lấy được lock B, sau đó cố gắng lấy lock A.
 
-这时，线程 1 等着线程 2 释放锁 B，而线程 2 等着线程 1 释放锁 A，双方都持有对方需要的资源，并等待对方释放，就形成了一个“死结”。
+Lúc này, Thread 1 chờ Thread 2 giải phóng lock B, còn Thread 2 chờ Thread 1 giải phóng lock A, hai bên đều giữ tài nguyên mà đối phương cần và chờ đối phương giải phóng, tạo thành một "nút thắt".
 
 <img src="https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/deadlock-two-threads-waiting-for-each-other-to-release-lock.png" style="zoom: 50%;" />
 
-### 产生死锁的四个必要条件是什么?
+### Bốn điều kiện cần thiết để xảy ra deadlock là gì?
 
-死锁的发生并不是偶然的，它需要同时满足**四个必要条件**：
+Sự xuất hiện của deadlock không phải ngẫu nhiên, nó cần đồng thời thỏa mãn **bốn điều kiện cần thiết**:
 
-1. **互斥**：资源必须处于非共享模式，即一次只有一个进程可以使用。如果另一进程申请该资源，那么必须等待直到该资源被释放为止。
-2. **占有并等待**：一个进程至少应该占有一个资源，并等待另一资源，而该资源被其他进程所占有。
-3. **非抢占**：资源不能被抢占。只能在持有资源的进程完成任务后，该资源才会被释放。
-4. **循环等待**：有一组等待进程 {P0, P1,..., Pn}， P0 等待的资源被 P1 占有，P1 等待的资源被 P2 占有，……，Pn-1 等待的资源被 Pn 占有，Pn 等待的资源被 P0 占有。
+1. **Mutual Exclusion (Loại trừ lẫn nhau)**: Tài nguyên phải ở chế độ không chia sẻ, tức là mỗi lần chỉ có một process có thể sử dụng. Nếu process khác yêu cầu tài nguyên đó, phải chờ cho đến khi tài nguyên đó được giải phóng.
+2. **Hold and Wait (Giữ và chờ)**: Một process phải giữ ít nhất một tài nguyên và chờ một tài nguyên khác, trong khi tài nguyên đó đang được process khác giữ.
+3. **No Preemption (Không có quyền ưu tiên)**: Tài nguyên không thể bị tước đoạt. Tài nguyên chỉ được giải phóng sau khi process giữ tài nguyên hoàn thành tác vụ.
+4. **Circular Wait (Chờ vòng tròn)**: Có một nhóm các process chờ đợi {P0, P1,..., Pn}, P0 chờ tài nguyên do P1 giữ, P1 chờ tài nguyên do P2 giữ, ..., Pn-1 chờ tài nguyên do Pn giữ, Pn chờ tài nguyên do P0 giữ.
 
-**注意 ⚠️**：这四个条件是产生死锁的 **必要条件** ，也就是说只要系统发生死锁，这些条件必然成立，而只要上述条件之一不满足，就不会发生死锁。
+**Lưu ý**: Bốn điều kiện này là **điều kiện cần thiết** để xảy ra deadlock, tức là miễn là hệ thống xảy ra deadlock, các điều kiện này nhất định phải được thỏa mãn, và chỉ cần một trong các điều kiện trên không được thỏa mãn, deadlock sẽ không xảy ra.
 
-下面是百度百科对必要条件的解释：
+Dưới đây là giải thích về điều kiện cần thiết từ Baidu Baike:
 
-> 如果没有事物情况 A，则必然没有事物情况 B，也就是说如果有事物情况 B 则一定有事物情况 A，那么 A 就是 B 的必要条件。从逻辑学上看，B 能推导出 A，A 就是 B 的必要条件，等价于 B 是 A 的充分条件。
+> Nếu không có sự kiện A thì chắc chắn không có sự kiện B, tức là nếu có sự kiện B thì nhất định có sự kiện A, thì A là điều kiện cần thiết của B. Từ góc độ logic học, B có thể suy ra A, A là điều kiện cần thiết của B, tương đương với B là điều kiện đủ của A.
 
-### 能写一个模拟产生死锁的代码吗？
+### Bạn có thể viết code mô phỏng deadlock không?
 
-下面通过一个实际的例子来模拟下图展示的线程死锁：
+Dưới đây mô phỏng deadlock thread được biểu thị trong hình qua một ví dụ thực tế:
 
-![线程死锁示意图 ](https://oss.javaguide.cn/github/javaguide/java/2019-4%E6%AD%BB%E9%94%811-20230814005444749.png)
+![Sơ đồ minh họa deadlock thread](https://oss.javaguide.cn/github/javaguide/java/2019-4%E6%AD%BB%E9%94%811-20230814005444749.png)
 
 ```java
 public class DeadLockDemo {
@@ -372,94 +372,94 @@ Thread[线程 1,5,main]waiting get resource2
 Thread[线程 2,5,main]waiting get resource1
 ```
 
-线程 A 通过 `synchronized (resource1)` 获得 `resource1` 的监视器锁，然后通过`Thread.sleep(1000);`让线程 A 休眠 1s 为的是让线程 B 得到执行然后获取到 `resource2` 的监视器锁。线程 A 和线程 B 休眠结束了都开始企图请求获取对方的资源，然后这两个线程就会陷入互相等待的状态，这也就产生了死锁。
+Thread A lấy được monitor lock của `resource1` thông qua `synchronized (resource1)`, sau đó cho Thread A nghỉ 1s thông qua `Thread.sleep(1000)` để Thread B có thể thực thi và lấy được monitor lock của `resource2`. Thread A và Thread B sau khi hết thời gian nghỉ đều bắt đầu cố gắng yêu cầu tài nguyên của đối phương, sau đó hai thread này sẽ rơi vào trạng thái chờ nhau, đây cũng chính là deadlock.
 
-### 解决死锁的方法
+### Phương pháp giải quyết deadlock
 
-解决死锁的方法可以从多个角度去分析，一般的情况下，有**预防，避免，检测和解除四种**。
+Các phương pháp giải quyết deadlock có thể được phân tích từ nhiều góc độ, thông thường có **bốn phương pháp: phòng ngừa, tránh, phát hiện và giải trừ**.
 
-- **死锁预防：** 这是我们程序员最常用的方法。通过编码规范来破坏条件。最经典的就是**破坏循环等待**，比如规定所有线程都必须**按相同的顺序**来获取锁（比如先 A 后 B），这样就不会形成环路。
-- **死锁避免：** 这是一种更动态的方法，比如操作系统的**银行家算法**。它会在分配资源前进行预测，如果这次分配可能导致未来发生死锁，就拒绝分配。但这种方法开销很大，在通用系统中用得比较少。
-- **死锁检测与解除：** 这是一种“事后补救”的策略，就像乐观锁。系统允许死锁发生，但会有一个后台线程（或机制）定期检测是否存在死锁环路（比如通过分析线程等待图）。一旦发现，就会采取措施解除，比如**强制剥夺某个线程的资源或直接终止它**。数据库系统中的死锁处理就常常采用这种方式。
+- **Phòng ngừa deadlock (Deadlock Prevention):** Đây là phương pháp thường được lập trình viên sử dụng nhất. Phá vỡ điều kiện thông qua quy ước viết code. Kinh điển nhất là **phá vỡ circular wait**, ví dụ quy định tất cả các thread đều phải **theo cùng một thứ tự** để lấy lock (ví dụ trước A rồi mới B), như vậy sẽ không hình thành vòng tròn.
+- **Tránh deadlock (Deadlock Avoidance):** Đây là phương pháp động hơn, ví dụ như **thuật toán Banker** của hệ điều hành. Nó sẽ dự đoán trước khi phân bổ tài nguyên, nếu lần phân bổ này có thể gây ra deadlock trong tương lai, thì từ chối phân bổ. Nhưng phương pháp này có overhead rất lớn, ít được sử dụng trong hệ thống đa năng.
+- **Phát hiện và giải trừ deadlock (Deadlock Detection and Recovery):** Đây là chiến lược "sửa chữa sau sự cố", giống như optimistic lock. Hệ thống cho phép deadlock xảy ra, nhưng sẽ có một background thread (hoặc cơ chế) định kỳ phát hiện xem có tồn tại vòng deadlock không (ví dụ bằng cách phân tích thread wait graph). Khi phát hiện, sẽ thực hiện biện pháp giải trừ, ví dụ **buộc tước đoạt tài nguyên của một thread nào đó hoặc trực tiếp kết thúc nó**. Xử lý deadlock trong hệ thống cơ sở dữ liệu thường sử dụng cách này.
 
-#### 死锁的预防
+#### Phòng ngừa deadlock
 
-死锁四大必要条件上面都已经列出来了，很显然，只要破坏四个必要条件中的任何一个就能够预防死锁的发生。
+Bốn điều kiện cần thiết của deadlock đã được liệt kê ở trên, rõ ràng là chỉ cần phá vỡ bất kỳ một trong bốn điều kiện cần thiết là có thể phòng ngừa deadlock xảy ra.
 
-破坏第一个条件 **互斥条件**：使得资源是可以同时访问的，这是种简单的方法，磁盘就可以用这种方法管理，但是我们要知道，有很多资源 **往往是不能同时访问的** ，所以这种做法在大多数的场合是行不通的。
+Phá vỡ điều kiện thứ nhất **Mutual Exclusion**: Làm cho tài nguyên có thể được truy cập đồng thời, đây là phương pháp đơn giản, ổ đĩa có thể được quản lý theo phương pháp này, nhưng chúng ta biết rằng có nhiều tài nguyên **thường không thể được truy cập đồng thời**, vì vậy cách làm này không khả thi trong hầu hết các trường hợp.
 
-破坏第三个条件 **非抢占**：也就是说可以采用 **剥夺式调度算法**，但剥夺式调度方法目前一般仅适用于 **主存资源** 和 **处理器资源** 的分配，并不适用于所有的资源，会导致 **资源利用率下降**。
+Phá vỡ điều kiện thứ ba **No Preemption**: Tức là có thể sử dụng **thuật toán lập lịch có quyền tước đoạt**, nhưng phương pháp lập lịch có quyền tước đoạt hiện tại thường chỉ áp dụng cho phân bổ **tài nguyên bộ nhớ chính** và **tài nguyên processor**, không phù hợp với tất cả tài nguyên, sẽ dẫn đến **tỷ lệ sử dụng tài nguyên giảm**.
 
-所以一般比较实用的 **预防死锁的方法**，是通过考虑破坏第二个条件和第四个条件。
+Vì vậy, **phương pháp phòng ngừa deadlock** thực tế hơn thường là xem xét phá vỡ điều kiện thứ hai và thứ tư.
 
-**1、静态分配策略**
+**1. Chiến lược phân bổ tĩnh**
 
-静态分配策略可以破坏死锁产生的第二个条件（占有并等待）。所谓静态分配策略，就是指一个进程必须在执行前就申请到它所需要的全部资源，并且知道它所要的资源都得到满足之后才开始执行。进程要么占有所有的资源然后开始执行，要么不占有资源，不会出现占有一些资源等待一些资源的情况。
+Chiến lược phân bổ tĩnh có thể phá vỡ điều kiện thứ hai của deadlock (giữ và chờ). Chiến lược phân bổ tĩnh là một process phải yêu cầu tất cả tài nguyên cần thiết trước khi thực thi và chỉ bắt đầu thực thi sau khi biết rằng tất cả tài nguyên cần thiết đều được thỏa mãn. Process hoặc giữ tất cả tài nguyên rồi bắt đầu thực thi, hoặc không giữ tài nguyên, sẽ không xảy ra tình huống giữ một số tài nguyên và chờ một số tài nguyên khác.
 
-静态分配策略逻辑简单，实现也很容易，但这种策略 **严重地降低了资源利用率**，因为在每个进程所占有的资源中，有些资源是在比较靠后的执行时间里采用的，甚至有些资源是在额外的情况下才使用的，这样就可能造成一个进程占有了一些 **几乎不用的资源而使其他需要该资源的进程产生等待** 的情况。
+Chiến lược phân bổ tĩnh logic đơn giản, thực hiện cũng dễ dàng, nhưng chiến lược này **giảm nghiêm trọng tỷ lệ sử dụng tài nguyên**, vì trong các tài nguyên mà mỗi process giữ, có một số tài nguyên được sử dụng ở thời điểm thực thi tương đối muộn, thậm chí có một số tài nguyên chỉ được sử dụng trong các trường hợp đặc biệt, điều này có thể gây ra tình huống **một process giữ một số tài nguyên hầu như không dùng khiến các process khác cần tài nguyên đó phải chờ**.
 
-**2、层次分配策略**
+**2. Chiến lược phân bổ theo cấp bậc**
 
-层次分配策略破坏了产生死锁的第四个条件(循环等待)。在层次分配策略下，所有的资源被分成了多个层次，一个进程得到某一次的一个资源后，它只能再申请较高一层的资源；当一个进程要释放某层的一个资源时，必须先释放所占用的较高层的资源，按这种策略，是不可能出现循环等待链的，因为那样的话，就出现了已经申请了较高层的资源，反而去申请了较低层的资源，不符合层次分配策略，证明略。
+Chiến lược phân bổ theo cấp bậc phá vỡ điều kiện thứ tư (circular wait). Trong chiến lược phân bổ theo cấp bậc, tất cả tài nguyên được phân thành nhiều cấp bậc, sau khi một process lấy được một tài nguyên ở một cấp bậc nào đó, nó chỉ có thể yêu cầu tài nguyên ở cấp bậc cao hơn; khi một process muốn giải phóng một tài nguyên ở một cấp bậc nào đó, phải trước tiên giải phóng tài nguyên ở cấp bậc cao hơn mà mình đang giữ, theo chiến lược này, không thể xảy ra chuỗi chờ vòng tròn, vì như vậy sẽ xuất hiện tình huống đã yêu cầu tài nguyên ở cấp bậc cao hơn nhưng lại đi yêu cầu tài nguyên ở cấp bậc thấp hơn, vi phạm chiến lược phân bổ theo cấp bậc, bằng chứng bỏ qua.
 
-#### 死锁的避免
+#### Tránh deadlock
 
-上面提到的 **破坏** 死锁产生的四个必要条件之一就可以成功 **预防系统发生死锁** ，但是会导致 **低效的进程运行** 和 **资源使用率** 。而死锁的避免相反，它的角度是允许系统中**同时存在四个必要条件** ，只要掌握并发进程中与每个进程有关的资源动态申请情况，做出 **明智和合理的选择** ，仍然可以避免死锁，因为四大条件仅仅是产生死锁的必要条件。
+Ở trên đã đề cập đến việc **phá vỡ** một trong bốn điều kiện cần thiết để xảy ra deadlock là có thể **phòng ngừa** thành công hệ thống xảy ra deadlock, nhưng sẽ dẫn đến **hiệu suất thực thi process thấp** và **tỷ lệ sử dụng tài nguyên thấp**. Còn tránh deadlock thì ngược lại, góc nhìn của nó là cho phép đồng thời tồn tại bốn điều kiện cần thiết trong hệ thống, chỉ cần nắm vững tình huống yêu cầu tài nguyên động liên quan đến mỗi process trong các process đồng thời, đưa ra **lựa chọn thông minh và hợp lý**, vẫn có thể tránh deadlock, vì bốn điều kiện đó chỉ là điều kiện cần thiết để xảy ra deadlock.
 
-我们将系统的状态分为 **安全状态** 和 **不安全状态** ，每当在为申请者分配资源前先测试系统状态，若把系统资源分配给申请者会产生死锁，则拒绝分配，否则接受申请，并为它分配资源。
+Chúng ta phân loại trạng thái hệ thống thành **trạng thái an toàn** và **trạng thái không an toàn**, mỗi khi trước khi phân bổ tài nguyên cho người yêu cầu đều kiểm tra trạng thái hệ thống trước, nếu phân bổ tài nguyên hệ thống cho người yêu cầu sẽ gây ra deadlock, thì từ chối phân bổ, nếu không thì chấp nhận yêu cầu và phân bổ tài nguyên cho nó.
 
-> 如果操作系统能够保证所有的进程在有限的时间内得到需要的全部资源，则称系统处于安全状态，否则说系统是不安全的。很显然，系统处于安全状态则不会发生死锁，系统若处于不安全状态则可能发生死锁。
+> Nếu hệ điều hành có thể đảm bảo tất cả process nhận được tất cả tài nguyên cần thiết trong thời gian hữu hạn, thì hệ thống được gọi là ở trạng thái an toàn, nếu không thì hệ thống không an toàn. Rõ ràng, nếu hệ thống ở trạng thái an toàn thì không xảy ra deadlock, nếu hệ thống ở trạng thái không an toàn thì có thể xảy ra deadlock.
 
-那么如何保证系统保持在安全状态呢？通过算法，其中最具有代表性的 **避免死锁算法** 就是 Dijkstra 的银行家算法，银行家算法用一句话表达就是：当一个进程申请使用资源的时候，**银行家算法** 通过先 **试探** 分配给该进程资源，然后通过 **安全性算法** 判断分配后系统是否处于安全状态，若不安全则试探分配作废，让该进程继续等待，若能够进入到安全的状态，则就 **真的分配资源给该进程**。
+Vậy làm thế nào để đảm bảo hệ thống ở trạng thái an toàn? Thông qua thuật toán, trong đó **thuật toán tránh deadlock** đại diện nhất là thuật toán Banker của Dijkstra, thuật toán Banker nói tóm lại trong một câu: Khi một process yêu cầu sử dụng tài nguyên, **thuật toán Banker** trước tiên **thử** phân bổ tài nguyên cho process đó, sau đó thông qua **thuật toán safety** để phán đoán xem sau khi phân bổ hệ thống có ở trạng thái an toàn không, nếu không an toàn thì hủy phân bổ thử, để process tiếp tục chờ, nếu có thể vào trạng thái an toàn, thì **thực sự phân bổ tài nguyên cho process đó**.
 
-银行家算法详情可见：[《一句话+一张图说清楚——银行家算法》](https://blog.csdn.net/qq_33414271/article/details/80245715) 。
+Chi tiết thuật toán Banker có thể xem: [《Nói rõ thuật toán Banker trong một câu + một hình》](https://blog.csdn.net/qq_33414271/article/details/80245715).
 
-操作系统教程书中讲述的银行家算法也比较清晰，可以一看.
+Sách giáo khoa về hệ điều hành trình bày thuật toán Banker cũng khá rõ ràng, có thể tham khảo.
 
-死锁的避免(银行家算法)改善了 **资源使用率低的问题** ，但是它要不断地检测每个进程对各类资源的占用和申请情况，以及做 **安全性检查** ，需要花费较多的时间。
+Tránh deadlock (thuật toán Banker) cải thiện **vấn đề tỷ lệ sử dụng tài nguyên thấp**, nhưng nó phải liên tục phát hiện tình trạng chiếm dụng và yêu cầu tài nguyên của mỗi loại tài nguyên của mỗi process, cũng như thực hiện **kiểm tra safety**, cần mất khá nhiều thời gian.
 
-#### 死锁的检测
+#### Phát hiện deadlock
 
-对资源的分配加以限制可以 **预防和避免** 死锁的发生，但是都不利于各进程对系统资源的**充分共享**。解决死锁问题的另一条途径是 **死锁检测和解除** (这里突然联想到了乐观锁和悲观锁，感觉死锁的检测和解除就像是 **乐观锁** ，分配资源时不去提前管会不会发生死锁了，等到真的死锁出现了再来解决嘛，而 **死锁的预防和避免** 更像是悲观锁，总是觉得死锁会出现，所以在分配资源的时候就很谨慎)。
+Thêm hạn chế vào việc phân bổ tài nguyên có thể **phòng ngừa và tránh** sự xuất hiện của deadlock, nhưng đều không có lợi cho việc **chia sẻ đầy đủ** tài nguyên hệ thống của mỗi process. Một con đường khác để giải quyết vấn đề deadlock là **phát hiện và giải trừ deadlock** (ở đây bỗng liên tưởng đến optimistic lock và pessimistic lock, cảm thấy phát hiện và giải trừ deadlock giống như **optimistic lock**, khi phân bổ tài nguyên không lo trước có sẽ xảy ra deadlock không, đợi đến khi deadlock thực sự xuất hiện mới giải quyết, còn **phòng ngừa và tránh deadlock** giống như pessimistic lock hơn, luôn lo deadlock sẽ xuất hiện, vì vậy khi phân bổ tài nguyên thì rất thận trọng).
 
-这种方法对资源的分配不加以任何限制，也不采取死锁避免措施，但系统 **定时地运行一个 “死锁检测”** 的程序，判断系统内是否出现死锁，如果检测到系统发生了死锁，再采取措施去解除它。
+Phương pháp này không áp đặt bất kỳ hạn chế nào lên việc phân bổ tài nguyên, cũng không thực hiện biện pháp tránh deadlock, nhưng hệ thống **định kỳ chạy một chương trình "phát hiện deadlock"**, phán đoán xem hệ thống có xảy ra deadlock không, nếu phát hiện hệ thống xảy ra deadlock, mới thực hiện biện pháp giải trừ.
 
-##### 进程-资源分配图
+##### Đồ thị phân bổ tài nguyên process
 
-操作系统中的每一刻时刻的**系统状态**都可以用**进程-资源分配图**来表示，进程-资源分配图是描述进程和资源申请及分配关系的一种有向图，可用于**检测系统是否处于死锁状态**。
+Mỗi khoảnh khắc trong hệ điều hành **trạng thái hệ thống** đều có thể được biểu thị bằng **đồ thị phân bổ tài nguyên process**, đồ thị phân bổ tài nguyên process là một đồ thị có hướng mô tả mối quan hệ yêu cầu và phân bổ tài nguyên của process và tài nguyên, có thể được dùng để **phát hiện xem hệ thống có ở trạng thái deadlock không**.
 
-用一个方框表示每一个资源类，方框中的黑点表示该资源类中的各个资源，用一个圆圈表示每一个进程，用 **有向边** 来表示**进程申请资源和资源被分配的情况**。
+Dùng một hộp chữ nhật biểu thị mỗi loại tài nguyên, các chấm đen trong hộp biểu thị các tài nguyên trong loại tài nguyên đó, dùng một vòng tròn biểu thị mỗi process, dùng **cạnh có hướng** để biểu thị **tình huống process yêu cầu tài nguyên và tài nguyên được phân bổ**.
 
-图中 2-21 是**进程-资源分配图**的一个例子，其中共有三个资源类，每个进程的资源占有和申请情况已清楚地表示在图中。在这个例子中，由于存在 **占有和等待资源的环路** ，导致一组进程永远处于等待资源的状态，发生了 **死锁**。
+Hình 2-21 là một ví dụ về **đồ thị phân bổ tài nguyên process**, trong đó có ba loại tài nguyên, tình trạng chiếm dụng và yêu cầu tài nguyên của mỗi process đã được thể hiện rõ ràng trong đồ thị. Trong ví dụ này, do tồn tại **vòng tròn chiếm dụng và chờ tài nguyên**, dẫn đến một nhóm process mãi mãi ở trạng thái chờ tài nguyên, xảy ra **deadlock**.
 
-![进程-资源分配图](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/process-resource-allocation-diagram.jpg)
+![Đồ thị phân bổ tài nguyên process](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/process-resource-allocation-diagram.jpg)
 
-进程-资源分配图中存在环路并不一定是发生了死锁。因为循环等待资源仅仅是死锁发生的必要条件，而不是充分条件。图 2-22 便是一个有环路而无死锁的例子。虽然进程 P1 和进程 P3 分别占用了一个资源 R1 和一个资源 R2，并且因为等待另一个资源 R2 和另一个资源 R1 形成了环路，但进程 P2 和进程 P4 分别占有了一个资源 R1 和一个资源 R2，它们申请的资源得到了满足，在有限的时间里会归还资源，于是进程 P1 或 P3 都能获得另一个所需的资源，环路自动解除，系统也就不存在死锁状态了。
+Sự tồn tại của vòng tròn trong đồ thị phân bổ tài nguyên process không nhất thiết là deadlock đã xảy ra. Vì chờ vòng tròn tài nguyên chỉ là điều kiện cần thiết của deadlock xảy ra, chứ không phải điều kiện đủ. Hình 2-22 là một ví dụ có vòng tròn nhưng không có deadlock. Mặc dù process P1 và process P3 lần lượt chiếm dụng một tài nguyên R1 và một tài nguyên R2, và do chờ một tài nguyên R2 và một tài nguyên R1 khác đã hình thành vòng tròn, nhưng process P2 và process P4 lần lượt đã chiếm được một tài nguyên R1 và một tài nguyên R2, yêu cầu tài nguyên của chúng đã được thỏa mãn, trong thời gian hữu hạn sẽ trả lại tài nguyên, sau đó P1 hoặc P3 đều có thể lấy được tài nguyên cần thiết khác, vòng tròn tự động biến mất, hệ thống cũng không ở trạng thái deadlock.
 
-##### 死锁检测步骤
+##### Các bước phát hiện deadlock
 
-知道了死锁检测的原理，我们可以利用下列步骤编写一个 **死锁检测** 程序，检测系统是否产生了死锁。
+Biết nguyên lý phát hiện deadlock, chúng ta có thể viết một chương trình **phát hiện deadlock** sử dụng các bước sau, phát hiện xem hệ thống có xảy ra deadlock không.
 
-1. 如果进程-资源分配图中无环路，则此时系统没有发生死锁
-2. 如果进程-资源分配图中有环路，且每个资源类仅有一个资源，则系统中已经发生了死锁。
-3. 如果进程-资源分配图中有环路，且涉及到的资源类有多个资源，此时系统未必会发生死锁。如果能在进程-资源分配图中找出一个 **既不阻塞又非独立的进程** ，该进程能够在有限的时间内归还占有的资源，也就是把边给消除掉了，重复此过程，直到能在有限的时间内 **消除所有的边** ，则不会发生死锁，否则会发生死锁。(消除边的过程类似于 **拓扑排序**)
+1. Nếu trong đồ thị phân bổ tài nguyên process không có vòng tròn, thì lúc này hệ thống không xảy ra deadlock
+2. Nếu trong đồ thị phân bổ tài nguyên process có vòng tròn và mỗi loại tài nguyên chỉ có một tài nguyên, thì hệ thống đã xảy ra deadlock.
+3. Nếu trong đồ thị phân bổ tài nguyên process có vòng tròn và các loại tài nguyên liên quan có nhiều tài nguyên, lúc này hệ thống chưa chắc sẽ xảy ra deadlock. Nếu trong đồ thị phân bổ tài nguyên process có thể tìm được một process **vừa không bị block vừa không độc lập**, process đó có thể trả lại tài nguyên đang giữ trong thời gian hữu hạn, tức là loại bỏ các cạnh đi, lặp lại quá trình này, cho đến khi có thể **loại bỏ tất cả các cạnh** trong thời gian hữu hạn, thì sẽ không xảy ra deadlock, nếu không sẽ xảy ra deadlock. (Quá trình loại bỏ cạnh tương tự như **topological sort**)
 
-#### 死锁的解除
+#### Giải trừ deadlock
 
-当死锁检测程序检测到存在死锁发生时，应设法让其解除，让系统从死锁状态中恢复过来，常用的解除死锁的方法有以下四种：
+Khi chương trình phát hiện deadlock phát hiện có deadlock xảy ra, cần tìm cách giải trừ nó, để hệ thống phục hồi từ trạng thái deadlock, các phương pháp giải trừ deadlock thường dùng có bốn loại sau:
 
-1. **立即结束所有进程的执行，重新启动操作系统**：这种方法简单，但以前所在的工作全部作废，损失很大。
-2. **撤销涉及死锁的所有进程，解除死锁后继续运行**：这种方法能彻底打破**死锁的循环等待**条件，但将付出很大代价，例如有些进程可能已经计算了很长时间，由于被撤销而使产生的部分结果也被消除了，再重新执行时还要再次进行计算。
-3. **逐个撤销涉及死锁的进程，回收其资源直至死锁解除。**
-4. **抢占资源**：从涉及死锁的一个或几个进程中抢占资源，把夺得的资源再分配给涉及死锁的进程直至死锁解除。
+1. **Kết thúc ngay lập tức tất cả process đang thực thi, khởi động lại hệ điều hành**: Phương pháp này đơn giản, nhưng toàn bộ công việc trước đó đều bị mất, thiệt hại rất lớn.
+2. **Hủy tất cả các process liên quan đến deadlock, giải trừ deadlock rồi tiếp tục chạy**: Phương pháp này có thể triệt để phá vỡ **điều kiện circular wait của deadlock**, nhưng sẽ trả giá rất lớn, ví dụ có một số process có thể đã tính toán trong thời gian dài, do bị hủy mà một phần kết quả đã tạo ra cũng bị xóa, khi thực thi lại còn phải tính toán lại.
+3. **Lần lượt hủy các process liên quan đến deadlock, thu hồi tài nguyên của chúng cho đến khi deadlock được giải trừ.**
+4. **Tước đoạt tài nguyên**: Tước đoạt tài nguyên từ một hoặc vài process liên quan đến deadlock, phân bổ lại tài nguyên đã tước đoạt cho các process liên quan đến deadlock cho đến khi deadlock được giải trừ.
 
-## 参考
+## Tham khảo
 
-- 《计算机操作系统—汤小丹》第四版
-- 《深入理解计算机系统》
-- 《重学操作系统》
-- 操作系统为什么要分用户态和内核态：<https://blog.csdn.net/chen134225/article/details/81783980>
-- 从根上理解用户态与内核态：<https://juejin.cn/post/6923863670132850701>
-- 什么是僵尸进程与孤儿进程：<https://blog.csdn.net/a745233700/article/details/120715371>
+- 《Hệ điều hành máy tính - Tang Xiaodan》 ấn bản thứ tư
+- 《Computer Systems: A Programmer's Perspective》
+- 《Học lại hệ điều hành》
+- Tại sao hệ điều hành cần phân biệt user mode và kernel mode: <https://blog.csdn.net/chen134225/article/details/81783980>
+- Hiểu user mode và kernel mode từ gốc rễ: <https://juejin.cn/post/6923863670132850701>
+- Zombie process và orphan process là gì: <https://blog.csdn.net/a745233700/article/details/120715371>
 
 <!-- @include: @article-footer.snippet.md -->

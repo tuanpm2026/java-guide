@@ -1,83 +1,83 @@
 ---
-title: 十大经典排序算法总结
-description: 系统梳理十大经典排序算法，附复杂度与稳定性对比，覆盖比较类与非比较类排序的核心原理与实现场景，帮助快速选型与优化。
-category: 计算机基础
+title: Tổng kết 10 thuật toán sắp xếp cổ điển
+description: Tổng hợp có hệ thống 10 thuật toán sắp xếp cổ điển, kèm so sánh độ phức tạp và tính ổn định, bao gồm nguyên lý cốt lõi và tình huống sử dụng của các loại sắp xếp so sánh và không so sánh, giúp nhanh chóng lựa chọn và tối ưu hóa.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 算法
+  - Thuật toán
 head:
   - - meta
     - name: keywords
       content: 排序算法,快速排序,归并排序,堆排序,冒泡排序,选择排序,插入排序,希尔排序,桶排序,计数排序,基数排序,时间复杂度,空间复杂度,稳定性
 ---
 
-> 本文转自：<http://www.guoyaohua.com/sorting.html>，JavaGuide 对其做了补充完善。
+> Bài viết này được dịch từ: <http://www.guoyaohua.com/sorting.html>, JavaGuide đã bổ sung và hoàn thiện thêm.
 
 <!-- markdownlint-disable MD024 -->
 
-## 引言
+## Mở đầu
 
-所谓排序，就是使一串记录，按照其中的某个或某些关键字的大小，递增或递减的排列起来的操作。排序算法，就是如何使得记录按照要求排列的方法。排序算法在很多领域得到相当地重视，尤其是在大量数据的处理方面。一个优秀的算法可以节省大量的资源。在各个领域中考虑到数据的各种限制和规范，要得到一个符合实际的优秀算法，得经过大量的推理和分析。
+Sắp xếp là thao tác sắp xếp một chuỗi bản ghi theo thứ tự tăng dần hoặc giảm dần dựa trên một hoặc một số khóa trong chúng. Thuật toán sắp xếp là phương pháp để các bản ghi được sắp xếp theo yêu cầu. Thuật toán sắp xếp được chú trọng đáng kể trong nhiều lĩnh vực, đặc biệt là trong xử lý lượng lớn dữ liệu. Một thuật toán xuất sắc có thể tiết kiệm rất nhiều tài nguyên. Trong các lĩnh vực khác nhau, xem xét các hạn chế và quy chuẩn khác nhau của dữ liệu, để đạt được một thuật toán xuất sắc phù hợp với thực tế, cần trải qua nhiều suy luận và phân tích.
 
-## 简介
+## Giới thiệu
 
-### 排序算法总结
+### Tổng kết các thuật toán sắp xếp
 
-常见的内部排序算法有：**插入排序**、**希尔排序**、**选择排序**、**冒泡排序**、**归并排序**、**快速排序**、**堆排序**、**基数排序**等，本文只讲解内部排序算法。用一张表格概括：
+Các thuật toán sắp xếp nội bộ thông dụng bao gồm: **Sắp xếp chèn (Insertion Sort)**, **Sắp xếp Shell (Shell Sort)**, **Sắp xếp chọn (Selection Sort)**, **Sắp xếp nổi bọt (Bubble Sort)**, **Sắp xếp trộn (Merge Sort)**, **Sắp xếp nhanh (Quick Sort)**, **Sắp xếp đống (Heap Sort)**, **Sắp xếp cơ số (Radix Sort)**, v.v. Bài viết này chỉ giải thích các thuật toán sắp xếp nội bộ. Tóm tắt bằng một bảng:
 
-| 排序算法 | 时间复杂度（平均） | 时间复杂度（最差） | 时间复杂度（最好） | 空间复杂度 | 排序方式 | 稳定性 |
-| -------- | ------------------ | ------------------ | ------------------ | ---------- | -------- | ------ |
-| 冒泡排序 | O(n^2)             | O(n^2)             | O(n)               | O(1)       | 内部排序 | 稳定   |
-| 选择排序 | O(n^2)             | O(n^2)             | O(n^2)             | O(1)       | 内部排序 | 不稳定 |
-| 插入排序 | O(n^2)             | O(n^2)             | O(n)               | O(1)       | 内部排序 | 稳定   |
-| 希尔排序 | O(nlogn)           | O(n^2)             | O(nlogn)           | O(1)       | 内部排序 | 不稳定 |
-| 归并排序 | O(nlogn)           | O(nlogn)           | O(nlogn)           | O(n)       | 外部排序 | 稳定   |
-| 快速排序 | O(nlogn)           | O(n^2)             | O(nlogn)           | O(logn)    | 内部排序 | 不稳定 |
-| 堆排序   | O(nlogn)           | O(nlogn)           | O(nlogn)           | O(1)       | 内部排序 | 不稳定 |
-| 计数排序 | O(n+k)             | O(n+k)             | O(n+k)             | O(k)       | 外部排序 | 稳定   |
-| 桶排序   | O(n+k)             | O(n^2)             | O(n+k)             | O(n+k)     | 外部排序 | 稳定   |
-| 基数排序 | O(n×k)             | O(n×k)             | O(n×k)             | O(n+k)     | 外部排序 | 稳定   |
+| Thuật toán sắp xếp | Độ phức tạp thời gian (TB) | Độ phức tạp thời gian (Xấu nhất) | Độ phức tạp thời gian (Tốt nhất) | Độ phức tạp không gian | Kiểu sắp xếp     | Tính ổn định  |
+| ------------------ | -------------------------- | -------------------------------- | -------------------------------- | ---------------------- | ---------------- | ------------- |
+| Sắp xếp nổi bọt    | O(n^2)                     | O(n^2)                           | O(n)                             | O(1)                   | Sắp xếp nội bộ   | Ổn định       |
+| Sắp xếp chọn       | O(n^2)                     | O(n^2)                           | O(n^2)                           | O(1)                   | Sắp xếp nội bộ   | Không ổn định |
+| Sắp xếp chèn       | O(n^2)                     | O(n^2)                           | O(n)                             | O(1)                   | Sắp xếp nội bộ   | Ổn định       |
+| Sắp xếp Shell      | O(nlogn)                   | O(n^2)                           | O(nlogn)                         | O(1)                   | Sắp xếp nội bộ   | Không ổn định |
+| Sắp xếp trộn       | O(nlogn)                   | O(nlogn)                         | O(nlogn)                         | O(n)                   | Sắp xếp ngoại bộ | Ổn định       |
+| Sắp xếp nhanh      | O(nlogn)                   | O(n^2)                           | O(nlogn)                         | O(logn)                | Sắp xếp nội bộ   | Không ổn định |
+| Sắp xếp đống       | O(nlogn)                   | O(nlogn)                         | O(nlogn)                         | O(1)                   | Sắp xếp nội bộ   | Không ổn định |
+| Sắp xếp đếm        | O(n+k)                     | O(n+k)                           | O(n+k)                           | O(k)                   | Sắp xếp ngoại bộ | Ổn định       |
+| Sắp xếp thùng      | O(n+k)                     | O(n^2)                           | O(n+k)                           | O(n+k)                 | Sắp xếp ngoại bộ | Ổn định       |
+| Sắp xếp cơ số      | O(n×k)                     | O(n×k)                           | O(n×k)                           | O(n+k)                 | Sắp xếp ngoại bộ | Ổn định       |
 
-**术语解释**：
+**Giải thích thuật ngữ**:
 
-- **n**：数据规模，表示待排序的数据量大小。
-- **k**：“桶” 的个数，在某些特定的排序算法中（如基数排序、桶排序等），表示分割成的独立的排序区间或类别的数量。
-- **内部排序**：所有排序操作都在内存中完成，不需要额外的磁盘或其他存储设备的辅助。这适用于数据量小到足以完全加载到内存中的情况。
-- **外部排序**：当数据量过大，不可能全部加载到内存中时使用。外部排序通常涉及到数据的分区处理，部分数据被暂时存储在外部磁盘等存储设备上。
-- **稳定**：如果 A 原本在 B 前面，而 $A=B$，排序之后 A 仍然在 B 的前面。
-- **不稳定**：如果 A 原本在 B 的前面，而 $A=B$，排序之后 A 可能会出现在 B 的后面。
-- **时间复杂度**：定性描述一个算法执行所耗费的时间。
-- **空间复杂度**：定性描述一个算法执行所需内存的大小。
+- **n**: Quy mô dữ liệu, biểu thị kích thước dữ liệu cần sắp xếp.
+- **k**: Số lượng "thùng", trong một số thuật toán sắp xếp đặc thù (như sắp xếp cơ số, sắp xếp thùng, v.v.), biểu thị số lượng khoảng hoặc danh mục sắp xếp độc lập được phân chia.
+- **Sắp xếp nội bộ**: Tất cả các thao tác sắp xếp đều hoàn thành trong bộ nhớ, không cần sự hỗ trợ của đĩa hoặc thiết bị lưu trữ khác. Phù hợp khi kích thước dữ liệu đủ nhỏ để tải hoàn toàn vào bộ nhớ.
+- **Sắp xếp ngoại bộ**: Dùng khi kích thước dữ liệu quá lớn, không thể tải hết vào bộ nhớ. Sắp xếp ngoại bộ thường liên quan đến xử lý phân vùng dữ liệu, một phần dữ liệu được tạm thời lưu trên đĩa ngoài hoặc thiết bị lưu trữ khác.
+- **Ổn định**: Nếu A đứng trước B, và $A=B$, sau khi sắp xếp A vẫn đứng trước B.
+- **Không ổn định**: Nếu A đứng trước B, và $A=B$, sau khi sắp xếp A có thể xuất hiện sau B.
+- **Độ phức tạp thời gian**: Mô tả định tính thời gian thực thi của một thuật toán.
+- **Độ phức tạp không gian**: Mô tả định tính kích thước bộ nhớ cần thiết khi thực thi một thuật toán.
 
-### 排序算法分类
+### Phân loại thuật toán sắp xếp
 
-十种常见排序算法可以分类两大类别：**比较类排序**和**非比较类排序**。
+Mười thuật toán sắp xếp thông dụng có thể được phân thành hai loại: **sắp xếp so sánh** và **sắp xếp không so sánh**.
 
-![排序算法分类](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/sort2.png)
+![Phân loại thuật toán sắp xếp](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/sort2.png)
 
-常见的**快速排序**、**归并排序**、**堆排序**以及**冒泡排序**等都属于**比较类排序算法**。比较类排序是通过比较来决定元素间的相对次序，由于其时间复杂度不能突破 `O(nlogn)`，因此也称为非线性时间比较类排序。在冒泡排序之类的排序中，问题规模为 `n`，又因为需要比较 `n` 次，所以平均时间复杂度为 `O(n²)`。在**归并排序**、**快速排序**之类的排序中，问题规模通过**分治法**消减为 `logn` 次，所以时间复杂度平均 `O(nlogn)`。
+Các thuật toán **sắp xếp nhanh**, **sắp xếp trộn**, **sắp xếp đống** và **sắp xếp nổi bọt** thông dụng đều thuộc **thuật toán sắp xếp so sánh**. Sắp xếp so sánh xác định thứ tự tương đối giữa các phần tử thông qua so sánh, vì độ phức tạp thời gian không thể vượt qua `O(nlogn)` nên còn được gọi là sắp xếp so sánh phi tuyến tính. Trong các thuật toán sắp xếp như sắp xếp nổi bọt, quy mô vấn đề là `n`, và vì cần so sánh `n` lần, nên độ phức tạp thời gian trung bình là `O(n²)`. Trong **sắp xếp trộn**, **sắp xếp nhanh**, quy mô vấn đề được thu nhỏ thành `logn` lần thông qua **phương pháp chia để trị**, nên độ phức tạp thời gian trung bình là `O(nlogn)`.
 
-比较类排序的优势是，适用于各种规模的数据，也不在乎数据的分布，都能进行排序。可以说，比较排序适用于一切需要排序的情况。
+Ưu điểm của sắp xếp so sánh là áp dụng được cho dữ liệu có quy mô bất kỳ, không phụ thuộc vào phân phối dữ liệu. Có thể nói sắp xếp so sánh áp dụng cho mọi trường hợp cần sắp xếp.
 
-而**计数排序**、**基数排序**、**桶排序**则属于**非比较类排序算法**。非比较排序不通过比较来决定元素间的相对次序，而是通过确定每个元素之前，应该有多少个元素来排序。由于它可以突破基于比较排序的时间下界，以线性时间运行，因此称为线性时间非比较类排序。 非比较排序只要确定每个元素之前的已有的元素个数即可，所有一次遍历即可解决。算法时间复杂度 $O(n)$。
+Trong khi đó, **sắp xếp đếm**, **sắp xếp cơ số**, **sắp xếp thùng** thuộc **thuật toán sắp xếp không so sánh**. Sắp xếp không so sánh không xác định thứ tự tương đối giữa các phần tử thông qua so sánh, mà thông qua việc xác định có bao nhiêu phần tử đứng trước mỗi phần tử. Vì có thể vượt qua giới hạn thời gian dưới của sắp xếp dựa trên so sánh, chạy trong thời gian tuyến tính, nên được gọi là sắp xếp không so sánh thời gian tuyến tính. Sắp xếp không so sánh chỉ cần xác định số lượng phần tử đã có trước mỗi phần tử, nên một lần duyệt là đủ. Độ phức tạp thời gian thuật toán là $O(n)$.
 
-非比较排序时间复杂度底，但由于非比较排序需要占用空间来确定唯一位置。所以对数据规模和数据分布有一定的要求。
+Độ phức tạp thời gian của sắp xếp không so sánh thấp, nhưng do cần chiếm không gian để xác định vị trí duy nhất, nên có những yêu cầu nhất định về quy mô và phân phối dữ liệu.
 
-## 冒泡排序 (Bubble Sort)
+## Sắp xếp nổi bọt (Bubble Sort)
 
-冒泡排序是一种简单的排序算法。它重复地遍历要排序的序列，依次比较两个元素，如果它们的顺序错误就把它们交换过来。遍历序列的工作是重复地进行直到没有再需要交换为止，此时说明该序列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢 “浮” 到数列的顶端。
+Sắp xếp nổi bọt là một thuật toán sắp xếp đơn giản. Nó liên tục duyệt qua chuỗi cần sắp xếp, so sánh từng cặp phần tử liền kề, nếu thứ tự sai thì hoán đổi chúng. Công việc duyệt qua chuỗi được thực hiện lặp đi lặp lại cho đến khi không cần hoán đổi nữa, lúc này chuỗi đã được sắp xếp. Thuật toán được đặt tên là sắp xếp nổi bọt vì các phần tử nhỏ hơn sẽ từ từ "nổi" lên đầu danh sách thông qua hoán đổi.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 比较相邻的元素。如果第一个比第二个大，就交换它们两个；
-2. 对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对，这样在最后的元素应该会是最大的数；
-3. 针对所有的元素重复以上的步骤，除了最后一个；
-4. 重复步骤 1~3，直到排序完成。
+1. So sánh các phần tử liền kề. Nếu phần tử đầu tiên lớn hơn phần tử thứ hai, hoán đổi chúng;
+2. Thực hiện thao tác tương tự cho mỗi cặp phần tử liền kề, từ cặp đầu tiên đến cặp cuối cùng, sau đó phần tử cuối cùng sẽ là số lớn nhất;
+3. Lặp lại các bước trên cho tất cả phần tử, trừ phần tử cuối cùng;
+4. Lặp lại bước 1~3 cho đến khi sắp xếp xong.
 
-### 图解算法
+### Minh họa thuật toán
 
-![冒泡排序](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/bubble_sort.gif)
+![Sắp xếp nổi bọt](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/bubble_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -107,30 +107,30 @@ public static int[] bubbleSort(int[] arr) {
 }
 ```
 
-**此处对代码做了一个小优化，加入了 `is_sorted` Flag，目的是将算法的最佳时间复杂度优化为 `O(n)`，即当原输入序列就是排序好的情况下，该算法的时间复杂度就是 `O(n)`。**
+**Ở đây code được tối ưu hóa thêm một chút, thêm cờ `is_sorted`, mục đích là tối ưu độ phức tạp thời gian tốt nhất của thuật toán thành `O(n)`, tức là khi chuỗi đầu vào ban đầu đã được sắp xếp, độ phức tạp thời gian của thuật toán này chỉ là `O(n)`.**
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(n)$ ，最差：$O(n^2)$， 平均：$O(n^2)$
-- **空间复杂度**：$O(1)$
-- **排序方式**：In-place
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n)$, Xấu nhất: $O(n^2)$, Trung bình: $O(n^2)$
+- **Độ phức tạp không gian**: $O(1)$
+- **Kiểu sắp xếp**: In-place
 
-## 选择排序 (Selection Sort)
+## Sắp xếp chọn (Selection Sort)
 
-选择排序是一种简单直观的排序算法，无论什么数据进去都是 $O(n^2)$ 的时间复杂度。所以用到它的时候，数据规模越小越好。唯一的好处可能就是不占用额外的内存空间了吧。它的工作原理：首先在未排序序列中找到最小（大）元素，存放到排序序列的起始位置，然后，再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。以此类推，直到所有元素均排序完毕。
+Sắp xếp chọn là một thuật toán sắp xếp đơn giản và trực quan, dù dữ liệu nào vào cũng có độ phức tạp thời gian $O(n^2)$. Vì vậy khi dùng nó, quy mô dữ liệu càng nhỏ càng tốt. Ưu điểm duy nhất có thể là không chiếm thêm bộ nhớ. Nguyên lý hoạt động của nó: đầu tiên tìm phần tử nhỏ nhất (lớn nhất) trong chuỗi chưa được sắp xếp, đặt vào vị trí đầu của chuỗi đã được sắp xếp, sau đó tiếp tục tìm phần tử nhỏ nhất (lớn nhất) trong các phần tử chưa được sắp xếp còn lại, đặt vào cuối chuỗi đã được sắp xếp. Cứ thế cho đến khi tất cả phần tử đều được sắp xếp xong.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 首先在未排序序列中找到最小（大）元素，存放到排序序列的起始位置
-2. 再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。
-3. 重复第 2 步，直到所有元素均排序完毕。
+1. Đầu tiên tìm phần tử nhỏ nhất (lớn nhất) trong chuỗi chưa được sắp xếp, đặt vào vị trí đầu của chuỗi đã được sắp xếp
+2. Tiếp tục tìm phần tử nhỏ nhất (lớn nhất) trong các phần tử chưa được sắp xếp còn lại, đặt vào cuối chuỗi đã được sắp xếp.
+3. Lặp lại bước 2 cho đến khi tất cả phần tử đều được sắp xếp xong.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![Selection Sort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/selection_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -156,35 +156,35 @@ public static int[] selectionSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：不稳定
-- **时间复杂度**：最佳：$O(n^2)$ ，最差：$O(n^2)$， 平均：$O(n^2)$
-- **空间复杂度**：$O(1)$
-- **排序方式**：In-place
+- **Tính ổn định**: Không ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n^2)$, Xấu nhất: $O(n^2)$, Trung bình: $O(n^2)$
+- **Độ phức tạp không gian**: $O(1)$
+- **Kiểu sắp xếp**: In-place
 
-## 插入排序 (Insertion Sort)
+## Sắp xếp chèn (Insertion Sort)
 
-插入排序是一种简单直观的排序算法。它的工作原理是通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。插入排序在实现上，通常采用 in-place 排序（即只需用到 $O(1)$ 的额外空间的排序），因而在从后向前扫描过程中，需要反复把已排序元素逐步向后挪位，为最新元素提供插入空间。
+Sắp xếp chèn là một thuật toán sắp xếp đơn giản và trực quan. Nguyên lý hoạt động của nó là xây dựng chuỗi đã sắp xếp, với dữ liệu chưa được sắp xếp, quét từ sau ra trước trong chuỗi đã sắp xếp, tìm vị trí thích hợp và chèn vào. Trong triển khai sắp xếp chèn, thường dùng sắp xếp in-place (chỉ cần $O(1)$ không gian bổ sung), vì vậy trong quá trình quét từ sau ra trước, cần liên tục dịch chuyển các phần tử đã sắp xếp sang sau, để tạo không gian chèn cho phần tử mới.
 
-插入排序的代码实现虽然没有冒泡排序和选择排序那么简单粗暴，但它的原理应该是最容易理解的了，因为只要打过扑克牌的人都应该能够秒懂。插入排序是一种最简单直观的排序算法，它的工作原理是通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。
+Mặc dù triển khai code của sắp xếp chèn không đơn giản như sắp xếp nổi bọt và sắp xếp chọn, nhưng nguyên lý của nó nên là dễ hiểu nhất, vì ai đã chơi bài đều có thể hiểu ngay. Sắp xếp chèn là thuật toán sắp xếp đơn giản và trực quan nhất, nguyên lý hoạt động là xây dựng chuỗi đã sắp xếp, với dữ liệu chưa được sắp xếp, quét từ sau ra trước trong chuỗi đã sắp xếp, tìm vị trí thích hợp và chèn vào.
 
-插入排序和冒泡排序一样，也有一种优化算法，叫做拆半插入。
+Sắp xếp chèn cũng có một thuật toán tối ưu hóa, gọi là chèn nhị phân.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 从第一个元素开始，该元素可以认为已经被排序；
-2. 取出下一个元素，在已经排序的元素序列中从后向前扫描；
-3. 如果该元素（已排序）大于新元素，将该元素移到下一位置；
-4. 重复步骤 3，直到找到已排序的元素小于或者等于新元素的位置；
-5. 将新元素插入到该位置后；
-6. 重复步骤 2~5。
+1. Bắt đầu từ phần tử đầu tiên, phần tử này có thể được coi là đã sắp xếp;
+2. Lấy phần tử tiếp theo, quét từ sau ra trước trong chuỗi các phần tử đã sắp xếp;
+3. Nếu phần tử đó (đã sắp xếp) lớn hơn phần tử mới, chuyển phần tử đó sang vị trí tiếp theo;
+4. Lặp lại bước 3 cho đến khi tìm được vị trí mà phần tử đã sắp xếp nhỏ hơn hoặc bằng phần tử mới;
+5. Chèn phần tử mới vào vị trí đó;
+6. Lặp lại bước 2~5.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![insertion_sort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/insertion_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -206,34 +206,34 @@ public static int[] insertionSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(n)$ ，最差：$O(n^2)$， 平均：$O(n2)$
-- **空间复杂度**：O(1)$
-- **排序方式**：In-place
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n)$, Xấu nhất: $O(n^2)$, Trung bình: $O(n2)$
+- **Độ phức tạp không gian**: O(1)$
+- **Kiểu sắp xếp**: In-place
 
-## 希尔排序 (Shell Sort)
+## Sắp xếp Shell (Shell Sort)
 
-希尔排序是希尔 (Donald Shell) 于 1959 年提出的一种排序算法。希尔排序也是一种插入排序，它是简单插入排序经过改进之后的一个更高效的版本，也称为递减增量排序算法，同时该算法是冲破 $O(n^2)$ 的第一批算法之一。
+Sắp xếp Shell là một thuật toán sắp xếp được đề xuất bởi Donald Shell vào năm 1959. Sắp xếp Shell cũng là một loại sắp xếp chèn, là phiên bản hiệu quả hơn của sắp xếp chèn đơn giản sau khi được cải tiến, còn được gọi là thuật toán sắp xếp tăng dần giảm dần, đồng thời đây là một trong những thuật toán đầu tiên vượt qua $O(n^2)$.
 
-希尔排序的基本思想是：先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，待整个序列中的记录 “基本有序” 时，再对全体记录进行依次直接插入排序。
+Ý tưởng cơ bản của sắp xếp Shell là: đầu tiên chia toàn bộ chuỗi bản ghi cần sắp xếp thành nhiều chuỗi con để thực hiện sắp xếp chèn trực tiếp riêng biệt, khi toàn bộ chuỗi "cơ bản có thứ tự", mới thực hiện một lần sắp xếp chèn trực tiếp cho toàn bộ bản ghi.
 
-### 算法步骤
+### Các bước thuật toán
 
-我们来看下希尔排序的基本步骤，在此我们选择增量 $gap=length/2$，缩小增量继续以 $gap = gap/2$ 的方式，这种增量选择我们可以用一个序列来表示，$\lbrace \frac{n}{2}, \frac{(n/2)}{2}, \dots, 1 \rbrace$，称为**增量序列**。希尔排序的增量序列的选择与证明是个数学难题，我们选择的这个增量序列是比较常用的，也是希尔建议的增量，称为希尔增量，但其实这个增量序列不是最优的。此处我们做示例使用希尔增量。
+Hãy xem các bước cơ bản của sắp xếp Shell, ở đây chúng ta chọn increment $gap=length/2$, tiếp tục thu nhỏ theo cách $gap = gap/2$, cách chọn increment này có thể biểu diễn bằng một chuỗi $\lbrace \frac{n}{2}, \frac{(n/2)}{2}, \dots, 1 \rbrace$, gọi là **chuỗi increment**. Việc chọn và chứng minh chuỗi increment cho sắp xếp Shell là một bài toán toán học khó, chuỗi increment chúng ta chọn là chuỗi phổ biến nhất, cũng là increment mà Shell đề xuất, gọi là increment Shell, nhưng thực ra chuỗi increment này không phải là tối ưu. Ở đây chúng ta dùng increment Shell làm ví dụ.
 
-先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，具体算法描述：
+Chia toàn bộ chuỗi bản ghi cần sắp xếp thành nhiều chuỗi con để thực hiện sắp xếp chèn trực tiếp riêng biệt, mô tả thuật toán cụ thể:
 
-- 选择一个增量序列 $\lbrace t_1, t_2, \dots, t_k \rbrace$，其中 $t_i \gt t_j, i \lt j, t_k = 1$；
-- 按增量序列个数 k，对序列进行 k 趟排序；
-- 每趟排序，根据对应的增量 $t$，将待排序列分割成若干长度为 $m$ 的子序列，分别对各子表进行直接插入排序。仅增量因子为 1 时，整个序列作为一个表来处理，表长度即为整个序列的长度。
+- Chọn một chuỗi increment $\lbrace t_1, t_2, \dots, t_k \rbrace$, trong đó $t_i \gt t_j, i \lt j, t_k = 1$;
+- Theo số lượng k trong chuỗi increment, thực hiện sắp xếp k lần cho chuỗi;
+- Mỗi lần sắp xếp, theo increment $t$ tương ứng, chia chuỗi cần sắp xếp thành nhiều chuỗi con có độ dài $m$, thực hiện sắp xếp chèn trực tiếp cho từng bảng con. Khi hệ số increment bằng 1, toàn bộ chuỗi được xử lý như một bảng, độ dài bảng là độ dài toàn bộ chuỗi.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![shell_sort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/shell_sort.png)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -263,34 +263,34 @@ public static int[] shellSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：不稳定
-- **时间复杂度**：最佳：$O(nlogn)$， 最差：$O(n^2)$ 平均：$O(nlogn)$
-- **空间复杂度**：$O(1)$
+- **Tính ổn định**: Không ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(nlogn)$, Xấu nhất: $O(n^2)$, Trung bình: $O(nlogn)$
+- **Độ phức tạp không gian**: $O(1)$
 
-## 归并排序 (Merge Sort)
+## Sắp xếp trộn (Merge Sort)
 
-归并排序是建立在归并操作上的一种有效的排序算法。该算法是采用分治法 (Divide and Conquer) 的一个非常典型的应用。归并排序是一种稳定的排序方法。将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。若将两个有序表合并成一个有序表，称为 2 - 路归并。
+Sắp xếp trộn là một thuật toán sắp xếp hiệu quả được xây dựng trên thao tác trộn. Thuật toán này là một ứng dụng rất điển hình của phương pháp chia để trị (Divide and Conquer). Sắp xếp trộn là một phương pháp sắp xếp ổn định. Trộn các chuỗi con đã có thứ tự để tạo ra chuỗi hoàn toàn có thứ tự; tức là đầu tiên làm cho mỗi chuỗi con có thứ tự, sau đó làm cho các đoạn chuỗi con có thứ tự với nhau. Nếu trộn hai bảng có thứ tự thành một bảng có thứ tự, gọi là trộn 2 đường.
 
-和选择排序一样，归并排序的性能不受输入数据的影响，但表现比选择排序好的多，因为始终都是 $O(nlogn)$ 的时间复杂度。代价是需要额外的内存空间。
+Cũng như sắp xếp chọn, hiệu suất của sắp xếp trộn không bị ảnh hưởng bởi dữ liệu đầu vào, nhưng biểu hiện tốt hơn nhiều so với sắp xếp chọn, vì độ phức tạp thời gian luôn là $O(nlogn)$. Chi phí là cần thêm không gian bộ nhớ.
 
-### 算法步骤
+### Các bước thuật toán
 
-归并排序算法是一个递归过程，边界条件为当输入序列仅有一个元素时，直接返回，具体过程如下：
+Thuật toán sắp xếp trộn là một quá trình đệ quy, điều kiện biên là khi chuỗi đầu vào chỉ có một phần tử thì trả về trực tiếp, quá trình cụ thể như sau:
 
-1. 如果输入内只有一个元素，则直接返回，否则将长度为 $n$ 的输入序列分成两个长度为 $n/2$ 的子序列；
-2. 分别对这两个子序列进行归并排序，使子序列变为有序状态；
-3. 设定两个指针，分别指向两个已经排序子序列的起始位置；
-4. 比较两个指针所指向的元素，选择相对小的元素放入到合并空间（用于存放排序结果），并移动指针到下一位置；
-5. 重复步骤 3 ~ 4 直到某一指针达到序列尾；
-6. 将另一序列剩下的所有元素直接复制到合并序列尾。
+1. Nếu đầu vào chỉ có một phần tử thì trả về trực tiếp, ngược lại chia chuỗi đầu vào có độ dài $n$ thành hai chuỗi con có độ dài $n/2$;
+2. Thực hiện sắp xếp trộn cho hai chuỗi con này, làm cho chuỗi con có thứ tự;
+3. Thiết lập hai con trỏ, lần lượt trỏ vào vị trí bắt đầu của hai chuỗi con đã sắp xếp;
+4. So sánh các phần tử mà hai con trỏ chỉ đến, chọn phần tử tương đối nhỏ hơn đặt vào không gian trộn (dùng để lưu kết quả sắp xếp), và di chuyển con trỏ đến vị trí tiếp theo;
+5. Lặp lại bước 3~4 cho đến khi một con trỏ đến cuối chuỗi;
+6. Sao chép trực tiếp tất cả phần tử còn lại của chuỗi kia vào cuối chuỗi đã trộn.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![MergeSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/merge_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -346,36 +346,36 @@ public static int[] merge(int[] arr_1, int[] arr_2) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(nlogn)$， 最差：$O(nlogn)$， 平均：$O(nlogn)$
-- **空间复杂度**：$O(n)$
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(nlogn)$, Xấu nhất: $O(nlogn)$, Trung bình: $O(nlogn)$
+- **Độ phức tạp không gian**: $O(n)$
 
-## 快速排序 (Quick Sort)
+## Sắp xếp nhanh (Quick Sort)
 
-快速排序用到了分治思想，同样的还有归并排序。乍看起来快速排序和归并排序非常相似，都是将问题变小，先排序子串，最后合并。不同的是快速排序在划分子问题的时候经过多一步处理，将划分的两组数据划分为一大一小，这样在最后合并的时候就不必像归并排序那样再进行比较。但也正因为如此，划分的不定性使得快速排序的时间复杂度并不稳定。
+Sắp xếp nhanh sử dụng tư tưởng chia để trị, tương tự như sắp xếp trộn. Nhìn thoáng qua sắp xếp nhanh và sắp xếp trộn rất giống nhau, đều thu nhỏ vấn đề, sắp xếp chuỗi con trước rồi trộn lại. Điểm khác biệt là sắp xếp nhanh trong quá trình phân chia bài toán con có thêm một bước xử lý, chia hai nhóm dữ liệu thành một nhóm lớn và một nhóm nhỏ, như vậy khi trộn cuối cùng không cần so sánh lại như sắp xếp trộn. Nhưng cũng chính vì vậy, tính không xác định trong phân chia làm cho độ phức tạp thời gian của sắp xếp nhanh không ổn định.
 
-快速排序的基本思想：通过一趟排序将待排序列分隔成独立的两部分，其中一部分记录的元素均比另一部分的元素小，则可分别对这两部分子序列继续进行排序，以达到整个序列有序。
+Ý tưởng cơ bản của sắp xếp nhanh: thông qua một lần sắp xếp, chia chuỗi cần sắp xếp thành hai phần độc lập, trong đó tất cả phần tử của một phần đều nhỏ hơn các phần tử của phần kia, sau đó tiếp tục sắp xếp các chuỗi con này, để đạt được toàn bộ chuỗi có thứ tự.
 
-### 算法步骤
+### Các bước thuật toán
 
-快速排序使用[分治法](https://zh.wikipedia.org/wiki/分治法)（Divide and conquer）策略来把一个序列分为较小和较大的 2 个子序列，然后递归地排序两个子序列。具体算法描述如下：
+Sắp xếp nhanh sử dụng chiến lược [chia để trị](https://zh.wikipedia.org/wiki/分治法) (Divide and conquer) để chia một chuỗi thành 2 chuỗi con nhỏ hơn và lớn hơn, sau đó đệ quy sắp xếp hai chuỗi con. Mô tả thuật toán cụ thể như sau:
 
-1. **选择基准（Pivot）** ：从数组中选一个元素作为基准。为了避免最坏情况，通常会随机选择。
-2. **分区（Partition）** ：重新排列序列，将所有比基准值小的元素摆放在基准前面，所有比基准值大的摆在基准的后面（相同的数可以到任一边）。在这个操作结束之后，该基准就处于数列的中间位置。
-3. **递归（Recurse）** ：递归地把小于基准值元素的子序列和大于基准值元素的子序列进行快速排序。
+1. **Chọn phần tử trục (Pivot)**: Chọn một phần tử từ mảng làm trục. Để tránh trường hợp xấu nhất, thường chọn ngẫu nhiên.
+2. **Phân vùng (Partition)**: Sắp xếp lại chuỗi, đặt tất cả phần tử nhỏ hơn giá trị trục trước trục, tất cả phần tử lớn hơn đứng sau trục (phần tử bằng nhau có thể ở phía nào cũng được). Sau thao tác này, trục sẽ ở vị trí giữa của chuỗi.
+3. **Đệ quy (Recurse)**: Đệ quy sắp xếp nhanh chuỗi con các phần tử nhỏ hơn giá trị trục và chuỗi con các phần tử lớn hơn giá trị trục.
 
-**关于性能，这也是它与归并排序的关键区别：**
+**Về hiệu suất, đây cũng là điểm khác biệt then chốt so với sắp xếp trộn:**
 
-- **平均和最佳情况：** 它的时间复杂度是 $O(nlogn)$。这种情况发生在每次分区都能把数组分成均等的两半。
-- **最坏情况：** 它的时间复杂度会退化到 $O(n^2)$。这发生在每次我们选的基准都是当前数组的最小值或最大值时，比如对一个已经排好序的数组，每次都选第一个元素做基准，这就会导致分区极其不均，算法退化成类似冒泡排序。这就是为什么**随机选择基准**非常重要。
+- **Trường hợp trung bình và tốt nhất:** Độ phức tạp thời gian là $O(nlogn)$. Điều này xảy ra khi mỗi lần phân vùng đều chia mảng thành hai nửa bằng nhau.
+- **Trường hợp xấu nhất:** Độ phức tạp thời gian sẽ giảm xuống $O(n^2)$. Điều này xảy ra khi mỗi lần trục chúng ta chọn là giá trị nhỏ nhất hoặc lớn nhất của mảng hiện tại, chẳng hạn đối với một mảng đã được sắp xếp, mỗi lần chọn phần tử đầu tiên làm trục, điều này sẽ dẫn đến phân vùng cực kỳ mất cân bằng, thuật toán thoái hóa thành sắp xếp nổi bọt. Đó là lý do tại sao **chọn trục ngẫu nhiên** rất quan trọng.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![RandomQuickSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/random_quick_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 import java.util.concurrent.ThreadLocalRandom;
@@ -435,27 +435,27 @@ class Solution {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：不稳定
-- **时间复杂度**：最佳：$O(nlogn)$， 最差：$O(n^2)$，平均：$O(nlogn)$
-- **空间复杂度**：$O(logn)$
+- **Tính ổn định**: Không ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(nlogn)$, Xấu nhất: $O(n^2)$, Trung bình: $O(nlogn)$
+- **Độ phức tạp không gian**: $O(logn)$
 
-## 堆排序 (Heap Sort)
+## Sắp xếp đống (Heap Sort)
 
-堆排序是指利用堆这种数据结构所设计的一种排序算法。堆是一个近似完全二叉树的结构，并同时满足**堆的性质**：即**子结点的值总是小于（或者大于）它的父节点**。
+Sắp xếp đống là một thuật toán sắp xếp được thiết kế bằng cách sử dụng cấu trúc dữ liệu heap. Heap là cấu trúc gần giống cây nhị phân hoàn chỉnh, đồng thời thỏa mãn **tính chất của heap**: **giá trị của node con luôn nhỏ hơn (hoặc lớn hơn) node cha của nó**.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 将初始待排序列 $(R_1, R_2, \dots, R_n)$ 构建成大顶堆，此堆为初始的无序区；
-2. 将堆顶元素 $R_1$ 与最后一个元素 $R_n$ 交换，此时得到新的无序区 $(R_1, R_2, \dots, R_{n-1})$ 和新的有序区 $R_n$, 且满足 $R_i \leqslant R_n (i \in 1, 2,\dots, n-1)$；
-3. 由于交换后新的堆顶 $R_1$ 可能违反堆的性质，因此需要对当前无序区 $(R_1, R_2, \dots, R_{n-1})$ 调整为新堆，然后再次将 $R_1$ 与无序区最后一个元素交换，得到新的无序区 $(R_1, R_2, \dots, R_{n-2})$ 和新的有序区 $(R_{n-1}, R_n)$。不断重复此过程直到有序区的元素个数为 $n-1$，则整个排序过程完成。
+1. Xây dựng chuỗi ban đầu cần sắp xếp $(R_1, R_2, \dots, R_n)$ thành max-heap, heap này là vùng không có thứ tự ban đầu;
+2. Hoán đổi phần tử đỉnh heap $R_1$ với phần tử cuối cùng $R_n$, lúc này thu được vùng không có thứ tự mới $(R_1, R_2, \dots, R_{n-1})$ và vùng có thứ tự mới $R_n$, và thỏa mãn $R_i \leqslant R_n (i \in 1, 2,\dots, n-1)$;
+3. Vì sau khi hoán đổi, đỉnh heap mới $R_1$ có thể vi phạm tính chất của heap, nên cần điều chỉnh vùng không có thứ tự hiện tại $(R_1, R_2, \dots, R_{n-1})$ thành heap mới, sau đó lại hoán đổi $R_1$ với phần tử cuối cùng của vùng không có thứ tự, thu được vùng không có thứ tự mới $(R_1, R_2, \dots, R_{n-2})$ và vùng có thứ tự mới $(R_{n-1}, R_n)$. Tiếp tục lặp lại quá trình này cho đến khi số phần tử trong vùng có thứ tự là $n-1$, thì toàn bộ quá trình sắp xếp hoàn thành.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![HeapSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/heap_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 // Global variable that records the length of an array;
@@ -524,32 +524,32 @@ public static int[] heapSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：不稳定
-- **时间复杂度**：最佳：$O(nlogn)$， 最差：$O(nlogn)$， 平均：$O(nlogn)$
-- **空间复杂度**：$O(1)$
+- **Tính ổn định**: Không ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(nlogn)$, Xấu nhất: $O(nlogn)$, Trung bình: $O(nlogn)$
+- **Độ phức tạp không gian**: $O(1)$
 
-## 计数排序 (Counting Sort)
+## Sắp xếp đếm (Counting Sort)
 
-计数排序的核心在于将输入的数据值转化为键存储在额外开辟的数组空间中。 作为一种线性时间复杂度的排序，**计数排序要求输入的数据必须是有确定范围的整数**。
+Điểm cốt lõi của sắp xếp đếm là chuyển đổi giá trị dữ liệu đầu vào thành khóa lưu trữ trong không gian mảng bổ sung. Là một loại sắp xếp có độ phức tạp thời gian tuyến tính, **sắp xếp đếm yêu cầu dữ liệu đầu vào phải là số nguyên có phạm vi xác định**.
 
-计数排序 (Counting sort) 是一种稳定的排序算法。计数排序使用一个额外的数组 `C`，其中第 `i` 个元素是待排序数组 `A` 中值等于 `i` 的元素的个数。然后根据数组 `C` 来将 `A` 中的元素排到正确的位置。**它只能对整数进行排序**。
+Sắp xếp đếm (Counting sort) là một thuật toán sắp xếp ổn định. Sắp xếp đếm sử dụng một mảng bổ sung `C`, trong đó phần tử thứ `i` là số lượng phần tử trong mảng cần sắp xếp `A` có giá trị bằng `i`. Sau đó dựa trên mảng `C` để đặt các phần tử trong `A` vào vị trí chính xác. **Nó chỉ có thể sắp xếp số nguyên**.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 找出数组中的最大值 `max`、最小值 `min`；
-2. 创建一个新数组 `C`，其长度是 `max-min+1`，其元素默认值都为 0；
-3. 遍历原数组 `A` 中的元素 `A[i]`，以 `A[i] - min` 作为 `C` 数组的索引，以 `A[i]` 的值在 `A` 中元素出现次数作为 `C[A[i] - min]` 的值；
-4. 对 `C` 数组变形，**新元素的值是该元素与前一个元素值的和**，即当 `i>1` 时 `C[i] = C[i] + C[i-1]`；
-5. 创建结果数组 `R`，长度和原始数组一样。
-6. **从后向前**遍历原始数组 `A` 中的元素 `A[i]`，使用 `A[i]` 减去最小值 `min` 作为索引，在计数数组 `C` 中找到对应的值 `C[A[i] - min]`，`C[A[i] - min] - 1` 就是 `A[i]` 在结果数组 `R` 中的位置，做完上述这些操作，将 `count[A[i] - min]` 减小 1。
+1. Tìm giá trị lớn nhất `max` và nhỏ nhất `min` trong mảng;
+2. Tạo một mảng mới `C` có độ dài `max-min+1`, giá trị mặc định của các phần tử là 0;
+3. Duyệt phần tử `A[i]` trong mảng gốc `A`, dùng `A[i] - min` làm chỉ số của mảng `C`, dùng số lần xuất hiện của giá trị `A[i]` trong `A` làm giá trị của `C[A[i] - min]`;
+4. Biến đổi mảng `C`, **giá trị phần tử mới là tổng của phần tử đó và phần tử trước nó**, tức là khi `i>1` thì `C[i] = C[i] + C[i-1]`;
+5. Tạo mảng kết quả `R`, có độ dài bằng mảng gốc.
+6. Duyệt **từ sau ra trước** các phần tử `A[i]` trong mảng gốc `A`, dùng `A[i]` trừ đi giá trị nhỏ nhất `min` làm chỉ số, tìm giá trị tương ứng `C[A[i] - min]` trong mảng đếm `C`, `C[A[i] - min] - 1` chính là vị trí của `A[i]` trong mảng kết quả `R`, sau khi thực hiện các thao tác trên, giảm `count[A[i] - min]` đi 1.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![CountingSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/counting_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -602,35 +602,35 @@ public static int[] countingSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-当输入的元素是 `n` 个 `0` 到 `k` 之间的整数时，它的运行时间是 $O(n+k)$。计数排序不是比较排序，排序的速度快于任何比较排序算法。由于用来计数的数组 `C` 的长度取决于待排序数组中数据的范围（等于待排序数组的**最大值与最小值的差加上 1**），这使得计数排序对于数据范围很大的数组，需要大量额外内存空间。
+Khi các phần tử đầu vào là `n` số nguyên từ `0` đến `k`, thời gian chạy của nó là $O(n+k)$. Sắp xếp đếm không phải là sắp xếp so sánh, tốc độ sắp xếp nhanh hơn bất kỳ thuật toán sắp xếp so sánh nào. Vì độ dài của mảng đếm `C` phụ thuộc vào phạm vi giá trị trong mảng cần sắp xếp (bằng **hiệu giữa giá trị lớn nhất và nhỏ nhất của mảng cộng với 1**), điều này làm cho sắp xếp đếm cần nhiều bộ nhớ bổ sung cho các mảng có phạm vi giá trị rất lớn.
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(n+k)$ 最差：$O(n+k)$ 平均：$O(n+k)$
-- **空间复杂度**：$O(k)$
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n+k)$, Xấu nhất: $O(n+k)$, Trung bình: $O(n+k)$
+- **Độ phức tạp không gian**: $O(k)$
 
-## 桶排序 (Bucket Sort)
+## Sắp xếp thùng (Bucket Sort)
 
-桶排序是计数排序的升级版。它利用了函数的映射关系，高效与否的关键就在于这个映射函数的确定。为了使桶排序更加高效，我们需要做到这两点：
+Sắp xếp thùng là phiên bản nâng cấp của sắp xếp đếm. Nó tận dụng mối quan hệ ánh xạ của hàm, điểm mấu chốt của hiệu quả hay không nằm ở việc xác định hàm ánh xạ này. Để sắp xếp thùng hiệu quả hơn, chúng ta cần làm được hai điểm sau:
 
-1. 在额外空间充足的情况下，尽量增大桶的数量
-2. 使用的映射函数能够将输入的 N 个数据均匀的分配到 K 个桶中
+1. Trong điều kiện không gian bổ sung đủ, tăng số lượng thùng càng nhiều càng tốt
+2. Hàm ánh xạ được sử dụng có thể phân phối đều N dữ liệu đầu vào vào K thùng
 
-桶排序的工作的原理：假设输入数据服从均匀分布，将数据分到有限数量的桶里，每个桶再分别排序（有可能再使用别的排序算法或是以递归方式继续使用桶排序进行。
+Nguyên lý hoạt động của sắp xếp thùng: giả sử dữ liệu đầu vào tuân theo phân phối đồng đều, phân chia dữ liệu vào số lượng thùng hữu hạn, mỗi thùng sau đó được sắp xếp riêng (có thể dùng thuật toán sắp xếp khác hoặc tiếp tục dùng sắp xếp thùng đệ quy).
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 设置一个 BucketSize，作为每个桶所能放置多少个不同数值；
-2. 遍历输入数据，并且把数据依次映射到对应的桶里去；
-3. 对每个非空的桶进行排序，可以使用其它排序方法，也可以递归使用桶排序；
-4. 从非空桶里把排好序的数据拼接起来。
+1. Thiết lập một BucketSize, biểu thị số lượng giá trị khác nhau mà mỗi thùng có thể chứa;
+2. Duyệt dữ liệu đầu vào và ánh xạ từng dữ liệu vào thùng tương ứng;
+3. Sắp xếp mỗi thùng không rỗng, có thể dùng phương pháp sắp xếp khác hoặc đệ quy dùng sắp xếp thùng;
+4. Nối dữ liệu đã sắp xếp từ các thùng không rỗng lại.
 
-### 图解算法
+### Minh họa thuật toán
 
 ![BucketSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/bucket_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -687,31 +687,31 @@ public static List<Integer> bucketSort(List<Integer> arr, int bucket_size) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(n+k)$ 最差：$O(n^2)$ 平均：$O(n+k)$
-- **空间复杂度**：$O(n+k)$
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n+k)$, Xấu nhất: $O(n^2)$, Trung bình: $O(n+k)$
+- **Độ phức tạp không gian**: $O(n+k)$
 
-## 基数排序 (Radix Sort)
+## Sắp xếp cơ số (Radix Sort)
 
-基数排序也是非比较的排序算法，对元素中的每一位数字进行排序，从最低位开始排序，复杂度为 $O(n×k)$，$n$ 为数组长度，$k$ 为数组中元素的最大的位数；
+Sắp xếp cơ số cũng là thuật toán sắp xếp không so sánh, sắp xếp từng chữ số trong mỗi phần tử, bắt đầu từ chữ số thấp nhất, độ phức tạp là $O(n×k)$, $n$ là độ dài mảng, $k$ là số chữ số lớn nhất của phần tử trong mảng;
 
-基数排序是按照低位先排序，然后收集；再按照高位排序，然后再收集；依次类推，直到最高位。有时候有些属性是有优先级顺序的，先按低优先级排序，再按高优先级排序。最后的次序就是高优先级高的在前，高优先级相同的低优先级高的在前。基数排序基于分别排序，分别收集，所以是稳定的。
+Sắp xếp cơ số sắp xếp theo chữ số thấp trước rồi thu thập; sau đó sắp xếp theo chữ số cao rồi thu thập lại; cứ thế cho đến chữ số cao nhất. Đôi khi một số thuộc tính có thứ tự ưu tiên, sắp xếp theo ưu tiên thấp trước, sau đó sắp xếp theo ưu tiên cao. Thứ tự cuối cùng là ưu tiên cao hơn đứng trước, khi ưu tiên cao bằng nhau thì ưu tiên thấp cao hơn đứng trước. Sắp xếp cơ số dựa trên sắp xếp và thu thập riêng lẻ, nên ổn định.
 
-### 算法步骤
+### Các bước thuật toán
 
-1. 取得数组中的最大数，并取得位数，即为迭代次数 $N$（例如：数组中最大数值为 1000，则 $N=4$）；
-2. `A` 为原始数组，从最低位开始取每个位组成 `radix` 数组；
-3. 对 `radix` 进行计数排序（利用计数排序适用于小范围数的特点）；
-4. 将 `radix` 依次赋值给原数组；
-5. 重复 2~4 步骤 $N$ 次
+1. Lấy số lớn nhất trong mảng và lấy số chữ số của nó, đó là số lần lặp $N$ (ví dụ: giá trị lớn nhất trong mảng là 1000, thì $N=4$);
+2. `A` là mảng gốc, bắt đầu từ chữ số thấp nhất, lấy từng vị trí tạo thành mảng `radix`;
+3. Thực hiện sắp xếp đếm cho `radix` (tận dụng đặc điểm sắp xếp đếm phù hợp với số phạm vi nhỏ);
+4. Gán lần lượt `radix` cho mảng gốc;
+5. Lặp lại bước 2~4 $N$ lần
 
-### 图解算法
+### Minh họa thuật toán
 
 ![RadixSort](https://oss.javaguide.cn/github/javaguide/cs-basics/sorting-algorithms/radix_sort.gif)
 
-### 代码实现
+### Triển khai code
 
 ```java
 /**
@@ -755,21 +755,21 @@ public static int[] radixSort(int[] arr) {
 }
 ```
 
-### 算法分析
+### Phân tích thuật toán
 
-- **稳定性**：稳定
-- **时间复杂度**：最佳：$O(n×k)$ 最差：$O(n×k)$ 平均：$O(n×k)$
-- **空间复杂度**：$O(n+k)$
+- **Tính ổn định**: Ổn định
+- **Độ phức tạp thời gian**: Tốt nhất: $O(n×k)$, Xấu nhất: $O(n×k)$, Trung bình: $O(n×k)$
+- **Độ phức tạp không gian**: $O(n+k)$
 
-**基数排序 vs 计数排序 vs 桶排序**
+**Sắp xếp cơ số vs Sắp xếp đếm vs Sắp xếp thùng**
 
-这三种排序算法都利用了桶的概念，但对桶的使用方法上有明显差异：
+Ba thuật toán sắp xếp này đều sử dụng khái niệm thùng, nhưng cách sử dụng thùng có sự khác biệt rõ rệt:
 
-- 基数排序：根据键值的每位数字来分配桶
-- 计数排序：每个桶只存储单一键值
-- 桶排序：每个桶存储一定范围的数值
+- Sắp xếp cơ số: phân bổ thùng dựa trên từng chữ số của giá trị khóa
+- Sắp xếp đếm: mỗi thùng chỉ lưu trữ một giá trị khóa duy nhất
+- Sắp xếp thùng: mỗi thùng lưu trữ một phạm vi giá trị nhất định
 
-## 参考文章
+## Tài liệu tham khảo
 
 - <https://www.cnblogs.com/guoyaohua/p/8600214.html>
 - <https://en.wikipedia.org/wiki/Sorting_algorithm>

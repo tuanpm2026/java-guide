@@ -1,7 +1,7 @@
 ---
-title: MyBatis常见面试题总结
-description: MyBatis常见面试题详解，涵盖#{}与${}区别、动态SQL、一级二级缓存、分页插件及Mapper映射原理。
-category: 框架
+title: Tổng hợp các câu hỏi phỏng vấn MyBatis phổ biến
+description: Giải thích chi tiết các câu hỏi phỏng vấn MyBatis phổ biến, bao gồm sự khác biệt giữa #{} và ${}, dynamic SQL, cache cấp 1 và cấp 2, plugin phân trang và nguyên lý ánh xạ Mapper.
+category: Framework
 icon: "database"
 tag:
   - MyBatis
@@ -13,45 +13,45 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-> 本篇文章由 JavaGuide 收集自网络，原出处不明。
+> Bài viết này được JavaGuide sưu tầm từ mạng, nguồn gốc ban đầu không rõ.
 >
-> 比起这些枯燥的面试题，我更建议你看看文末推荐的 MyBatis 优质好文。
+> Thay vì những câu hỏi phỏng vấn khô khan này, tôi khuyên bạn nên xem các bài viết hay về MyBatis được giới thiệu ở cuối bài.
 
-### #{} 和 \${} 的区别是什么？
+### Sự khác biệt giữa #{} và \${} là gì?
 
-注：这道题是面试官面试我同事的。
+Lưu ý: Câu hỏi này là phỏng vấn viên hỏi đồng nghiệp của tôi.
 
-答：
+Trả lời:
 
-- `${}`是 Properties 文件中的变量占位符，它可以用于标签属性值和 sql 内部，属于原样文本替换，可以替换任意内容，比如\${driver}会被原样替换为`com.mysql.jdbc. Driver`。
+- `${}` là placeholder biến trong file Properties, nó có thể dùng cho giá trị thuộc tính tag và bên trong sql, thuộc dạng thay thế văn bản nguyên gốc, có thể thay thế bất kỳ nội dung nào, ví dụ `${driver}` sẽ được thay thế nguyên văn thành `com.mysql.jdbc. Driver`.
 
-一个示例：根据参数按任意字段排序：
+Một ví dụ: sắp xếp theo bất kỳ trường nào dựa trên tham số:
 
 ```sql
 select * from users order by ${orderCols}
 ```
 
-`orderCols`可以是 `name`、`name desc`、`name,sex asc`等，实现灵活的排序。
+`orderCols` có thể là `name`, `name desc`, `name,sex asc`, v.v., thực hiện sắp xếp linh hoạt.
 
-- `#{}`是 sql 的参数占位符，MyBatis 会将 sql 中的`#{}`替换为? 号，在 sql 执行前会使用 PreparedStatement 的参数设置方法，按序给 sql 的? 号占位符设置参数值，比如 ps.setInt(0, parameterValue)，`#{item.name}` 的取值方式为使用反射从参数对象中获取 item 对象的 name 属性值，相当于 `param.getItem().getName()`。
+- `#{}` là placeholder tham số sql, MyBatis sẽ thay thế `#{}` trong sql thành dấu ?, trước khi thực thi sql sẽ dùng phương thức thiết lập tham số của PreparedStatement để đặt giá trị tham số theo thứ tự cho các placeholder ?, ví dụ ps.setInt(0, parameterValue). Cách lấy giá trị của `#{item.name}` là dùng reflection để lấy giá trị thuộc tính name của đối tượng item từ đối tượng tham số, tương đương với `param.getItem().getName()`.
 
-### xml 映射文件中，除了常见的 select、insert、update、delete 标签之外，还有哪些标签？
+### Trong file xml mapping, ngoài các tag phổ biến select, insert, update, delete, còn có những tag nào khác?
 
-注：这道题是京东面试官面试我时问的。
+Lưu ý: Câu hỏi này là phỏng vấn viên JD hỏi tôi.
 
-答：还有很多其他的标签， `<resultMap>`、 `<parameterMap>`、 `<sql>`、 `<include>`、 `<selectKey>` ，加上动态 sql 的 9 个标签， `trim|where|set|foreach|if|choose|when|otherwise|bind` 等，其中 `<sql>` 为 sql 片段标签，通过 `<include>` 标签引入 sql 片段， `<selectKey>` 为不支持自增的主键生成策略标签。
+Trả lời: Còn có nhiều tag khác, `<resultMap>`, `<parameterMap>`, `<sql>`, `<include>`, `<selectKey>`, cộng thêm 9 tag dynamic sql gồm `trim|where|set|foreach|if|choose|when|otherwise|bind`, trong đó `<sql>` là tag sql fragment, được tham chiếu thông qua tag `<include>`, `<selectKey>` là tag chiến lược sinh primary key cho các loại không hỗ trợ auto-increment.
 
-### Dao 接口的工作原理是什么？Dao 接口里的方法，参数不同时，方法能重载吗？
+### Nguyên lý hoạt động của Dao interface là gì? Các phương thức trong Dao interface có thể overload khi tham số khác nhau không?
 
-注：这道题也是京东面试官面试我被问的。
+Lưu ý: Câu hỏi này cũng là phỏng vấn viên JD hỏi tôi.
 
-答：最佳实践中，通常一个 xml 映射文件，都会写一个 Dao 接口与之对应。Dao 接口就是人们常说的 `Mapper` 接口，接口的全限名，就是映射文件中的 namespace 的值，接口的方法名，就是映射文件中 `MappedStatement` 的 id 值，接口方法内的参数，就是传递给 sql 的参数。 `Mapper` 接口是没有实现类的，当调用接口方法时，接口全限名+方法名拼接字符串作为 key 值，可唯一定位一个 `MappedStatement` ，举例：`com.mybatis3.mappers. StudentDao.findStudentById` ，可以唯一找到 namespace 为 `com.mybatis3.mappers. StudentDao` 下面 `id = findStudentById` 的 `MappedStatement` 。在 MyBatis 中，每一个 `<select>`、 `<insert>`、 `<update>`、 `<delete>` 标签，都会被解析为一个 `MappedStatement` 对象。
+Trả lời: Trong best practice, thường mỗi file xml mapping sẽ có một Dao interface tương ứng. Dao interface chính là `Mapper` interface mà mọi người hay nói, tên đầy đủ của interface chính là giá trị namespace trong file mapping, tên phương thức của interface chính là giá trị id của `MappedStatement` trong file mapping, tham số trong phương thức interface chính là tham số truyền vào sql. `Mapper` interface không có lớp triển khai, khi gọi phương thức interface, tên đầy đủ + tên phương thức ghép lại thành chuỗi làm key, có thể xác định duy nhất một `MappedStatement`. Ví dụ: `com.mybatis3.mappers. StudentDao.findStudentById` có thể xác định duy nhất `MappedStatement` có `id = findStudentById` trong namespace `com.mybatis3.mappers. StudentDao`. Trong MyBatis, mỗi tag `<select>`, `<insert>`, `<update>`, `<delete>` đều được parse thành một đối tượng `MappedStatement`.
 
-~~Dao 接口里的方法，是不能重载的，因为是全限名+方法名的保存和寻找策略。~~
+~~Các phương thức trong Dao interface không thể overload, vì chiến lược lưu trữ và tìm kiếm là tên đầy đủ + tên phương thức.~~
 
-Dao 接口里的方法可以重载，但是 Mybatis 的 xml 里面的 ID 不允许重复。
+Các phương thức trong Dao interface có thể overload, nhưng ID trong xml của Mybatis không được phép trùng.
 
-Mybatis 版本 3.3.0，亲测如下：
+Mybatis phiên bản 3.3.0, đã test như sau:
 
 ```java
 /**
@@ -65,7 +65,7 @@ public interface StuMapper {
 }
 ```
 
-然后在 `StuMapper.xml` 中利用 Mybatis 的动态 sql 就可以实现。
+Sau đó trong `StuMapper.xml` dùng dynamic sql của Mybatis là có thể triển khai được.
 
 ```xml
 <select id="getAllStu" resultType="com.pojo.Student">
@@ -78,22 +78,22 @@ public interface StuMapper {
 </select>
 ```
 
-能正常运行，并能得到相应的结果，这样就实现了在 Dao 接口中写重载方法。
+Chạy bình thường và nhận được kết quả tương ứng, như vậy đã triển khai viết phương thức overload trong Dao interface.
 
-**Mybatis 的 Dao 接口可以有多个重载方法，但是多个方法对应的映射必须只有一个，否则启动会报错。**
+**Dao interface của Mybatis có thể có nhiều phương thức overload, nhưng nhiều phương thức phải chỉ tương ứng với một mapping duy nhất, nếu không sẽ báo lỗi khi khởi động.**
 
-相关 issue：[更正：Dao 接口里的方法可以重载，但是 Mybatis 的 xml 里面的 ID 不允许重复！](https://github.com/Snailclimb/JavaGuide/issues/1122)。
+Issue liên quan: [Đính chính: Các phương thức trong Dao interface có thể overload, nhưng ID trong xml của Mybatis không được phép trùng!](https://github.com/Snailclimb/JavaGuide/issues/1122)
 
-Dao 接口的工作原理是 JDK 动态代理，MyBatis 运行时会使用 JDK 动态代理为 Dao 接口生成代理 proxy 对象，代理对象 proxy 会拦截接口方法，转而执行 `MappedStatement` 所代表的 sql，然后将 sql 执行结果返回。
+Nguyên lý hoạt động của Dao interface là JDK dynamic proxy, khi chạy MyBatis sẽ dùng JDK dynamic proxy để tạo đối tượng proxy cho Dao interface, đối tượng proxy sẽ intercept phương thức interface, chuyển sang thực thi sql đại diện bởi `MappedStatement`, sau đó trả về kết quả thực thi sql.
 
-**补充**：
+**Bổ sung**:
 
-Dao 接口方法可以重载，但是需要满足以下条件：
+Phương thức Dao interface có thể overload, nhưng cần thỏa mãn các điều kiện sau:
 
-1. 仅有一个无参方法和一个有参方法
-2. 多个有参方法时，参数数量必须一致。且使用相同的 `@Param` ，或者使用 `param1` 这种
+1. Chỉ có một phương thức không tham số và một phương thức có tham số
+2. Khi có nhiều phương thức có tham số, số lượng tham số phải như nhau. Và dùng cùng `@Param`, hoặc dùng dạng `param1`
 
-**测试如下**：
+**Test như sau**:
 
 `PersonDao.java`
 
@@ -124,7 +124,7 @@ Person queryById(@Param("id") Long id, @Param("name") String name);
 </select>
 ```
 
-`org.apache.ibatis.scripting.xmltags. DynamicContext. ContextAccessor#getProperty` 方法用于获取 `<if>` 标签中的条件值
+Phương thức `org.apache.ibatis.scripting.xmltags. DynamicContext. ContextAccessor#getProperty` dùng để lấy giá trị điều kiện trong tag `<if>`
 
 ```java
 public Object getProperty(Map context, Object target, Object name) {
@@ -144,9 +144,9 @@ public Object getProperty(Map context, Object target, Object name) {
 }
 ```
 
-`parameterObject` 为 map，存放的是 Dao 接口中参数相关信息。
+`parameterObject` là map, lưu trữ thông tin liên quan đến tham số trong Dao interface.
 
-`((Map)parameterObject).get(name)` 方法如下
+Phương thức `((Map)parameterObject).get(name)` như sau
 
 ```java
 public V get(Object key) {
@@ -157,41 +157,41 @@ public V get(Object key) {
 }
 ```
 
-1. `queryById()`方法执行时，`parameterObject`为 null，`getProperty`方法返回 null 值，`<if>`标签获取的所有条件值都为 null，所有条件不成立，动态 sql 可以正常执行。
-2. `queryById(1L)`方法执行时，`parameterObject`为 map，包含了`id`和`param1`两个 key 值。当获取`<if>`标签中`name`的属性值时，进入`((Map)parameterObject).get(name)`方法中，map 中 key 不包含`name`，所以抛出异常。
-3. `queryById(1L,"1")`方法执行时，`parameterObject`中包含`id`,`param1`,`name`,`param2`四个 key 值，`id`和`name`属性都可以获取到，动态 sql 正常执行。
+1. Khi phương thức `queryById()` được thực thi, `parameterObject` là null, phương thức `getProperty` trả về null, tất cả giá trị điều kiện lấy được từ tag `<if>` đều là null, tất cả điều kiện không thỏa mãn, dynamic sql có thể thực thi bình thường.
+2. Khi phương thức `queryById(1L)` được thực thi, `parameterObject` là map, chứa hai key `id` và `param1`. Khi lấy giá trị thuộc tính `name` trong tag `<if>`, vào phương thức `((Map)parameterObject).get(name)`, map không chứa key `name`, nên ném exception.
+3. Khi phương thức `queryById(1L,"1")` được thực thi, `parameterObject` chứa bốn key `id`, `param1`, `name`, `param2`, cả thuộc tính `id` và `name` đều có thể lấy được, dynamic sql thực thi bình thường.
 
-### MyBatis 是如何进行分页的？分页插件的原理是什么？
+### MyBatis thực hiện phân trang như thế nào? Nguyên lý của plugin phân trang là gì?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：**(1)** MyBatis 使用 RowBounds 对象进行分页，它是针对 ResultSet 结果集执行的内存分页，而非物理分页；**(2)** 可以在 sql 内直接书写带有物理分页的参数来完成物理分页功能，**(3)** 也可以使用分页插件来完成物理分页。
+Trả lời: **(1)** MyBatis dùng đối tượng RowBounds để phân trang, đây là phân trang trong bộ nhớ được thực thi trên tập kết quả ResultSet, không phải phân trang vật lý; **(2)** Có thể viết trực tiếp tham số phân trang vật lý trong sql để hoàn thành chức năng phân trang vật lý; **(3)** Cũng có thể dùng plugin phân trang để hoàn thành phân trang vật lý.
 
-分页插件的基本原理是使用 MyBatis 提供的插件接口，实现自定义插件，在插件的拦截方法内拦截待执行的 sql，然后重写 sql，根据 dialect 方言，添加对应的物理分页语句和物理分页参数。
+Nguyên lý cơ bản của plugin phân trang là dùng interface plugin do MyBatis cung cấp, triển khai plugin tùy chỉnh, trong phương thức interceptor của plugin, chặn sql cần thực thi, sau đó viết lại sql, thêm câu lệnh phân trang vật lý và tham số phân trang vật lý tương ứng dựa trên dialect.
 
-举例：`select _ from student` ，拦截 sql 后重写为：`select t._ from （select \* from student）t limit 0，10`
+Ví dụ: `select _ from student`, sau khi chặn sql, viết lại thành: `select t._ from (select \* from student) t limit 0，10`
 
-### 简述 MyBatis 的插件运行原理，以及如何编写一个插件
+### Trình bày ngắn gọn nguyên lý hoạt động của plugin MyBatis và cách viết một plugin
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：MyBatis 仅可以编写针对 `ParameterHandler`、 `ResultSetHandler`、 `StatementHandler`、 `Executor` 这 4 种接口的插件，MyBatis 使用 JDK 的动态代理，为需要拦截的接口生成代理对象以实现接口方法拦截功能，每当执行这 4 种接口对象的方法时，就会进入拦截方法，具体就是 `InvocationHandler` 的 `invoke()` 方法，当然，只会拦截那些你指定需要拦截的方法。
+Trả lời: MyBatis chỉ có thể viết plugin cho 4 loại interface là `ParameterHandler`, `ResultSetHandler`, `StatementHandler`, `Executor`. MyBatis dùng JDK dynamic proxy để tạo đối tượng proxy cho interface cần interceptor nhằm triển khai chức năng interceptor phương thức interface. Mỗi khi phương thức của 4 loại đối tượng interface này được thực thi, sẽ vào phương thức interceptor, cụ thể là phương thức `invoke()` của `InvocationHandler`. Tất nhiên, chỉ interceptor những phương thức mà bạn chỉ định cần interceptor.
 
-实现 MyBatis 的 `Interceptor` 接口并复写 `intercept()` 方法，然后在给插件编写注解，指定要拦截哪一个接口的哪些方法即可，记住，别忘了在配置文件中配置你编写的插件。
+Triển khai interface `Interceptor` của MyBatis và override phương thức `intercept()`, sau đó viết annotation cho plugin chỉ định cần interceptor phương thức nào của interface nào là được. Nhớ đừng quên cấu hình plugin bạn đã viết trong file cấu hình.
 
-### MyBatis 执行批量插入，能返回数据库主键列表吗？
+### Khi MyBatis thực hiện batch insert, có thể trả về danh sách primary key từ cơ sở dữ liệu không?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：能，JDBC 都能，MyBatis 当然也能。
+Trả lời: Được, JDBC có thể thì MyBatis tất nhiên cũng có thể.
 
-### MyBatis 动态 sql 是做什么的？都有哪些动态 sql？能简述一下动态 sql 的执行原理不？
+### Dynamic sql trong MyBatis dùng để làm gì? Có những loại dynamic sql nào? Có thể trình bày ngắn gọn nguyên lý thực thi của dynamic sql không?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：MyBatis 动态 sql 可以让我们在 xml 映射文件内，以标签的形式编写动态 sql，完成逻辑判断和动态拼接 sql 的功能。其执行原理为，使用 OGNL 从 sql 参数对象中计算表达式的值，根据表达式的值动态拼接 sql，以此来完成动态 sql 的功能。
+Trả lời: Dynamic sql của MyBatis cho phép chúng ta viết dynamic sql dưới dạng tag trong file xml mapping, hoàn thành chức năng phán đoán logic và ghép nối sql động. Nguyên lý thực thi của nó là dùng OGNL để tính giá trị biểu thức từ đối tượng tham số sql, dựa trên giá trị biểu thức để ghép nối sql động, từ đó hoàn thành chức năng dynamic sql.
 
-MyBatis 提供了 9 种动态 sql 标签:
+MyBatis cung cấp 9 loại tag dynamic sql:
 
 - `<if></if>`
 - `<where></where>(trim,set)`
@@ -199,31 +199,31 @@ MyBatis 提供了 9 种动态 sql 标签:
 - `<foreach></foreach>`
 - `<bind/>`
 
-关于 MyBatis 动态 SQL 的详细介绍，请看这篇文章：[Mybatis 系列全解（八）：Mybatis 的 9 大动态 SQL 标签你知道几个？](https://segmentfault.com/a/1190000039335704) 。
+Để biết thêm chi tiết về MyBatis dynamic SQL, vui lòng xem bài viết này: [Mybatis series toàn giải (Phần 8): Bạn biết bao nhiêu trong 9 tag dynamic SQL của Mybatis?](https://segmentfault.com/a/1190000039335704)
 
-关于这些动态 SQL 的具体使用方法，请看这篇文章：[Mybatis【13】-- Mybatis 动态 sql 标签怎么使用？](https://cloud.tencent.com/developer/article/1943349)
+Để biết cách sử dụng cụ thể của các dynamic SQL này, vui lòng xem bài viết này: [Mybatis【13】-- Cách sử dụng các tag dynamic SQL của Mybatis?](https://cloud.tencent.com/developer/article/1943349)
 
-### MyBatis 是如何将 sql 执行结果封装为目标对象并返回的？都有哪些映射形式？
+### MyBatis đóng gói kết quả thực thi sql thành đối tượng mục tiêu và trả về như thế nào? Có những hình thức ánh xạ nào?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：第一种是使用 `<resultMap>` 标签，逐一定义列名和对象属性名之间的映射关系。第二种是使用 sql 列的别名功能，将列别名书写为对象属性名，比如 T_NAME AS NAME，对象属性名一般是 name，小写，但是列名不区分大小写，MyBatis 会忽略列名大小写，智能找到与之对应对象属性名，你甚至可以写成 T_NAME AS NaMe，MyBatis 一样可以正常工作。
+Trả lời: Cách thứ nhất là dùng tag `<resultMap>`, định nghĩa từng mối quan hệ ánh xạ giữa tên cột và tên thuộc tính đối tượng. Cách thứ hai là dùng chức năng alias của cột sql, viết alias cột thành tên thuộc tính đối tượng, ví dụ T_NAME AS NAME. Tên thuộc tính đối tượng thường là name viết thường, nhưng tên cột không phân biệt hoa thường, MyBatis sẽ bỏ qua case của tên cột, thông minh tìm tên thuộc tính đối tượng tương ứng, bạn thậm chí có thể viết là T_NAME AS NaMe, MyBatis vẫn hoạt động bình thường.
 
-有了列名与属性名的映射关系后，MyBatis 通过反射创建对象，同时使用反射给对象的属性逐一赋值并返回，那些找不到映射关系的属性，是无法完成赋值的。
+Sau khi có mối quan hệ ánh xạ giữa tên cột và tên thuộc tính, MyBatis tạo đối tượng thông qua reflection, đồng thời dùng reflection gán giá trị từng thuộc tính của đối tượng và trả về. Những thuộc tính không tìm được mối quan hệ ánh xạ sẽ không thể gán giá trị.
 
-### MyBatis 能执行一对一、一对多的关联查询吗？都有哪些实现方式，以及它们之间的区别
+### MyBatis có thể thực hiện truy vấn liên kết một-một, một-nhiều không? Có những cách triển khai nào và sự khác biệt giữa chúng là gì?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：能，MyBatis 不仅可以执行一对一、一对多的关联查询，还可以执行多对一，多对多的关联查询，多对一查询，其实就是一对一查询，只需要把 `selectOne()` 修改为 `selectList()` 即可；多对多查询，其实就是一对多查询，只需要把 `selectOne()` 修改为 `selectList()` 即可。
+Trả lời: Được, MyBatis không chỉ có thể thực hiện truy vấn liên kết một-một, một-nhiều, mà còn có thể thực hiện nhiều-một, nhiều-nhiều. Truy vấn nhiều-một thực ra chính là truy vấn một-một, chỉ cần đổi `selectOne()` thành `selectList()`; truy vấn nhiều-nhiều thực ra chính là truy vấn một-nhiều, chỉ cần đổi `selectOne()` thành `selectList()`.
 
-关联对象查询，有两种实现方式，一种是单独发送一个 sql 去查询关联对象，赋给主对象，然后返回主对象。另一种是使用嵌套查询，嵌套查询的含义为使用 join 查询，一部分列是 A 对象的属性值，另外一部分列是关联对象 B 的属性值，好处是只发一个 sql 查询，就可以把主对象和其关联对象查出来。
+Truy vấn đối tượng liên kết có hai cách triển khai, một là gửi riêng một sql để truy vấn đối tượng liên kết rồi gán cho đối tượng chính, sau đó trả về đối tượng chính. Cách kia là dùng truy vấn lồng nhau, ý nghĩa của truy vấn lồng nhau là dùng join query, một phần cột là giá trị thuộc tính của đối tượng A, phần còn lại là giá trị thuộc tính của đối tượng liên kết B, ưu điểm là chỉ gửi một sql query là có thể lấy được cả đối tượng chính lẫn đối tượng liên kết.
 
-那么问题来了，join 查询出来 100 条记录，如何确定主对象是 5 个，而不是 100 个？其去重复的原理是 `<resultMap>` 标签内的 `<id>` 子标签，指定了唯一确定一条记录的 id 列，MyBatis 根据 `<id>` 列值来完成 100 条记录的去重复功能， `<id>` 可以有多个，代表了联合主键的语意。
+Vậy câu hỏi đặt ra, join query lấy ra 100 bản ghi, làm thế nào để xác định đối tượng chính là 5 cái chứ không phải 100 cái? Nguyên lý loại trùng lặp là tag con `<id>` trong tag `<resultMap>`, chỉ định cột id xác định duy nhất một bản ghi, MyBatis dùng giá trị cột `<id>` để thực hiện chức năng loại trùng lặp 100 bản ghi. `<id>` có thể có nhiều cái, đại diện cho ý nghĩa của composite primary key.
 
-同样主对象的关联对象，也是根据这个原理去重复的，尽管一般情况下，只有主对象会有重复记录，关联对象一般不会重复。
+Tương tự, đối tượng liên kết của đối tượng chính cũng loại trùng lặp theo nguyên lý này, mặc dù trong trường hợp thông thường, chỉ đối tượng chính mới có bản ghi trùng lặp, đối tượng liên kết thường không bị trùng.
 
-举例：下面 join 查询出来 6 条记录，一、二列是 Teacher 对象列，第三列为 Student 对象列，MyBatis 去重复处理后，结果为 1 个老师 6 个学生，而不是 6 个老师 6 个学生。
+Ví dụ: join query bên dưới lấy ra 6 bản ghi, cột một và hai là cột của đối tượng Teacher, cột ba là cột của đối tượng Student, sau khi MyBatis xử lý loại trùng lặp, kết quả là 1 giáo viên 6 học sinh, chứ không phải 6 giáo viên 6 học sinh.
 
 | t_id | t_name  | s_id |
 | ---- | ------- | ---- |
@@ -234,85 +234,85 @@ MyBatis 提供了 9 种动态 sql 标签:
 | 1    | teacher | 42   |
 | 1    | teacher | 43   |
 
-### MyBatis 是否支持延迟加载？如果支持，它的实现原理是什么？
+### MyBatis có hỗ trợ lazy loading không? Nếu có, nguyên lý triển khai của nó là gì?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：MyBatis 仅支持 association 关联对象和 collection 关联集合对象的延迟加载，association 指的就是一对一，collection 指的就是一对多查询。在 MyBatis 配置文件中，可以配置是否启用延迟加载 `lazyLoadingEnabled=true|false。`
+Trả lời: MyBatis chỉ hỗ trợ lazy loading cho đối tượng liên kết association và đối tượng collection liên kết, association là quan hệ một-một, collection là truy vấn một-nhiều. Trong file cấu hình MyBatis, có thể cấu hình có bật lazy loading không: `lazyLoadingEnabled=true|false`.
 
-它的原理是，使用 `CGLIB` 创建目标对象的代理对象，当调用目标方法时，进入拦截器方法，比如调用 `a.getB().getName()` ，拦截器 `invoke()` 方法发现 `a.getB()` 是 null 值，那么就会单独发送事先保存好的查询关联 B 对象的 sql，把 B 查询上来，然后调用 a.setB(b)，于是 a 的对象 b 属性就有值了，接着完成 `a.getB().getName()` 方法的调用。这就是延迟加载的基本原理。
+Nguyên lý của nó là dùng `CGLIB` tạo đối tượng proxy của đối tượng mục tiêu, khi gọi phương thức mục tiêu, vào phương thức interceptor. Ví dụ khi gọi `a.getB().getName()`, phương thức `invoke()` của interceptor phát hiện `a.getB()` là giá trị null, khi đó sẽ gửi riêng câu sql truy vấn đối tượng liên kết B đã được lưu sẵn, truy vấn B lên, sau đó gọi `a.setB(b)`, như vậy thuộc tính b của đối tượng a đã có giá trị, tiếp theo hoàn thành lời gọi phương thức `a.getB().getName()`. Đây là nguyên lý cơ bản của lazy loading.
 
-当然了，不光是 MyBatis，几乎所有的包括 Hibernate，支持延迟加载的原理都是一样的。
+Tất nhiên, không chỉ MyBatis, hầu như tất cả các framework hỗ trợ lazy loading kể cả Hibernate đều có nguyên lý giống nhau.
 
-### MyBatis 的 xml 映射文件中，不同的 xml 映射文件，id 是否可以重复？
+### Trong các file xml mapping khác nhau của MyBatis, id có được phép trùng không?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：不同的 xml 映射文件，如果配置了 namespace，那么 id 可以重复；如果没有配置 namespace，那么 id 不能重复；毕竟 namespace 不是必须的，只是最佳实践而已。
+Trả lời: Ở các file xml mapping khác nhau, nếu đã cấu hình namespace thì id có thể trùng; nếu không cấu hình namespace thì id không thể trùng. Dù sao namespace cũng không bắt buộc, chỉ là best practice mà thôi.
 
-原因就是 namespace+id 是作为 `Map<String, MappedStatement>` 的 key 使用的，如果没有 namespace，就剩下 id，那么，id 重复会导致数据互相覆盖。有了 namespace，自然 id 就可以重复，namespace 不同，namespace+id 自然也就不同。
+Nguyên nhân là namespace+id được dùng làm key của `Map<String, MappedStatement>`, nếu không có namespace, chỉ còn id, thì id trùng sẽ dẫn đến dữ liệu ghi đè lên nhau. Khi có namespace, tất nhiên id có thể trùng, namespace khác nhau thì namespace+id tự nhiên cũng khác nhau.
 
-### MyBatis 中如何执行批处理？
+### Làm thế nào để thực hiện batch processing trong MyBatis?
 
-注：我出的。
+Lưu ý: Tôi tự đặt ra câu hỏi này.
 
-答：使用 `BatchExecutor` 完成批处理。
+Trả lời: Dùng `BatchExecutor` để hoàn thành batch processing.
 
-### MyBatis 都有哪些 Executor 执行器？它们之间的区别是什么？
+### MyBatis có những loại Executor nào? Sự khác biệt giữa chúng là gì?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：MyBatis 有三种基本的 `Executor` 执行器：
+Trả lời: MyBatis có ba loại `Executor` cơ bản:
 
-- **`SimpleExecutor`：** 每执行一次 update 或 select，就开启一个 Statement 对象，用完立刻关闭 Statement 对象。
-- **`ReuseExecutor`：** 执行 update 或 select，以 sql 作为 key 查找 Statement 对象，存在就使用，不存在就创建，用完后，不关闭 Statement 对象，而是放置于 Map<String, Statement>内，供下一次使用。简言之，就是重复使用 Statement 对象。
-- **`BatchExecutor`**：执行 update（没有 select，JDBC 批处理不支持 select），将所有 sql 都添加到批处理中（addBatch()），等待统一执行（executeBatch()），它缓存了多个 Statement 对象，每个 Statement 对象都是 addBatch()完毕后，等待逐一执行 executeBatch()批处理。与 JDBC 批处理相同。
+- **`SimpleExecutor`:** Mỗi lần thực thi update hoặc select sẽ mở một đối tượng Statement, dùng xong đóng ngay đối tượng Statement.
+- **`ReuseExecutor`:** Thực thi update hoặc select, dùng sql làm key để tìm đối tượng Statement, nếu tồn tại thì dùng, không tồn tại thì tạo mới, sau khi dùng xong, không đóng đối tượng Statement mà đặt vào `Map<String, Statement>` để dùng lần tiếp theo. Nói ngắn gọn là tái sử dụng đối tượng Statement.
+- **`BatchExecutor`**: Thực thi update (không có select, JDBC batch processing không hỗ trợ select), thêm tất cả sql vào batch processing (`addBatch()`), chờ thực thi đồng loạt (`executeBatch()`), nó cache nhiều đối tượng Statement, mỗi đối tượng Statement sau khi `addBatch()` xong, chờ thực thi `executeBatch()` từng cái. Giống với JDBC batch processing.
 
-作用范围：`Executor` 的这些特点，都严格限制在 SqlSession 生命周期范围内。
+Phạm vi tác dụng: Những đặc điểm này của `Executor` đều bị giới hạn nghiêm ngặt trong phạm vi vòng đời SqlSession.
 
-### MyBatis 中如何指定使用哪一种 Executor 执行器？
+### Làm thế nào để chỉ định dùng loại Executor nào trong MyBatis?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：在 MyBatis 配置文件中，可以指定默认的 `ExecutorType` 执行器类型，也可以手动给 `DefaultSqlSessionFactory` 的创建 SqlSession 的方法传递 `ExecutorType` 类型参数。
+Trả lời: Trong file cấu hình MyBatis, có thể chỉ định loại `ExecutorType` mặc định, cũng có thể truyền tham số kiểu `ExecutorType` thủ công vào phương thức tạo SqlSession của `DefaultSqlSessionFactory`.
 
-### MyBatis 是否可以映射 Enum 枚举类？
+### MyBatis có thể ánh xạ enum Enum không?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：MyBatis 可以映射枚举类，不单可以映射枚举类，MyBatis 可以映射任何对象到表的一列上。映射方式为自定义一个 `TypeHandler` ，实现 `TypeHandler` 的 `setParameter()` 和 `getResult()` 接口方法。 `TypeHandler` 有两个作用：
+Trả lời: MyBatis có thể ánh xạ enum class, không chỉ enum class, MyBatis có thể ánh xạ bất kỳ đối tượng nào vào một cột của bảng. Cách ánh xạ là tự định nghĩa một `TypeHandler`, triển khai các phương thức interface `setParameter()` và `getResult()` của `TypeHandler`. `TypeHandler` có hai tác dụng:
 
-- 一是完成从 javaType 至 jdbcType 的转换；
-- 二是完成 jdbcType 至 javaType 的转换，体现为 `setParameter()` 和 `getResult()` 两个方法，分别代表设置 sql 问号占位符参数和获取列查询结果。
+- Một là hoàn thành chuyển đổi từ javaType sang jdbcType;
+- Hai là hoàn thành chuyển đổi từ jdbcType sang javaType, thể hiện qua hai phương thức `setParameter()` và `getResult()`, đại diện lần lượt cho việc đặt tham số placeholder dấu ? trong sql và lấy kết quả truy vấn cột.
 
-### MyBatis 映射文件中，如果 A 标签通过 include 引用了 B 标签的内容，请问，B 标签能否定义在 A 标签的后面，还是说必须定义在 A 标签的前面？
+### Trong file mapping xml của MyBatis, nếu tag A tham chiếu nội dung của tag B thông qua include, vậy tag B có thể định nghĩa sau tag A không, hay phải định nghĩa trước tag A?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：虽然 MyBatis 解析 xml 映射文件是按照顺序解析的，但是，被引用的 B 标签依然可以定义在任何地方，MyBatis 都可以正确识别。
+Trả lời: Mặc dù MyBatis parse file xml mapping theo thứ tự, nhưng tag B được tham chiếu vẫn có thể định nghĩa ở bất kỳ đâu, MyBatis đều có thể nhận diện đúng.
 
-原理是，MyBatis 解析 A 标签，发现 A 标签引用了 B 标签，但是 B 标签尚未解析到，尚不存在，此时，MyBatis 会将 A 标签标记为未解析状态，然后继续解析余下的标签，包含 B 标签，待所有标签解析完毕，MyBatis 会重新解析那些被标记为未解析的标签，此时再解析 A 标签时，B 标签已经存在，A 标签也就可以正常解析完成了。
+Nguyên lý là, MyBatis parse tag A, phát hiện tag A tham chiếu tag B, nhưng tag B chưa được parse, chưa tồn tại. Khi đó MyBatis sẽ đánh dấu tag A là trạng thái chưa parse, sau đó tiếp tục parse các tag còn lại bao gồm tag B. Khi tất cả tag đã parse xong, MyBatis sẽ parse lại những tag được đánh dấu là chưa parse. Lúc này khi parse tag A, tag B đã tồn tại, tag A cũng có thể parse hoàn thành bình thường.
 
-### 简述 MyBatis 的 xml 映射文件和 MyBatis 内部数据结构之间的映射关系？
+### Trình bày ngắn gọn mối quan hệ ánh xạ giữa file xml mapping của MyBatis và cấu trúc dữ liệu nội bộ của MyBatis?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：MyBatis 将所有 xml 配置信息都封装到 All-In-One 重量级对象 Configuration 内部。在 xml 映射文件中， `<parameterMap>` 标签会被解析为 `ParameterMap` 对象，其每个子元素会被解析为 ParameterMapping 对象。 `<resultMap>` 标签会被解析为 `ResultMap` 对象，其每个子元素会被解析为 `ResultMapping` 对象。每一个 `<select>、<insert>、<update>、<delete>` 标签均会被解析为 `MappedStatement` 对象，标签内的 sql 会被解析为 BoundSql 对象。
+Trả lời: MyBatis đóng gói tất cả thông tin cấu hình xml vào đối tượng hạng nặng All-In-One là Configuration. Trong file xml mapping, tag `<parameterMap>` sẽ được parse thành đối tượng `ParameterMap`, mỗi phần tử con của nó sẽ được parse thành đối tượng ParameterMapping. Tag `<resultMap>` sẽ được parse thành đối tượng `ResultMap`, mỗi phần tử con của nó sẽ được parse thành đối tượng `ResultMapping`. Mỗi tag `<select>`, `<insert>`, `<update>`, `<delete>` đều sẽ được parse thành đối tượng `MappedStatement`, sql trong tag sẽ được parse thành đối tượng BoundSql.
 
-### 为什么说 MyBatis 是半自动 ORM 映射工具？它与全自动的区别在哪里？
+### Tại sao MyBatis được gọi là công cụ ORM mapping bán tự động? Sự khác biệt của nó với loại hoàn toàn tự động là gì?
 
-注：我出的
+Lưu ý: Tôi tự đặt ra câu hỏi này
 
-答：Hibernate 属于全自动 ORM 映射工具，使用 Hibernate 查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，所以它是全自动的。而 MyBatis 在查询关联对象或关联集合对象时，需要手动编写 sql 来完成，所以，称之为半自动 ORM 映射工具。
+Trả lời: Hibernate thuộc công cụ ORM mapping hoàn toàn tự động, khi dùng Hibernate để truy vấn đối tượng liên kết hoặc đối tượng collection liên kết, có thể lấy trực tiếp dựa trên mô hình quan hệ đối tượng, vì vậy nó là hoàn toàn tự động. Còn MyBatis khi truy vấn đối tượng liên kết hoặc đối tượng collection liên kết, cần viết sql thủ công để hoàn thành, vì vậy được gọi là công cụ ORM mapping bán tự động.
 
-面试题看似都很简单，但是想要能正确回答上来，必定是研究过源码且深入的人，而不是仅会使用的人或者用的很熟的人，以上所有面试题及其答案所涉及的内容，在我的 MyBatis 系列博客中都有详细讲解和原理分析。
+Các câu hỏi phỏng vấn có vẻ đơn giản, nhưng để có thể trả lời đúng, chắc chắn phải là người đã nghiên cứu mã nguồn sâu sắc, chứ không chỉ là người biết dùng hoặc dùng thành thạo. Tất cả các câu hỏi phỏng vấn và câu trả lời ở trên đều có giải thích chi tiết và phân tích nguyên lý trong các blog series MyBatis của tôi.
 
 <!-- @include: @article-footer.snippet.md -->
 
-### 文章推荐
+### Bài viết được đề xuất
 
-- [2W 字全面剖析 Mybatis 中的 9 种设计模式](https://juejin.cn/post/7273516671574687759)
-- [从零开始实现一个 MyBatis 加解密插件](https://mp.weixin.qq.com/s/WUEAdFDwZsZ4EKO8ix0ijg)
-- [MyBatis 最全使用指南](https://juejin.cn/post/7051910683264286750)
-- [脑洞打开！第一次看到这样使用 MyBatis 的，看得我一愣一愣的。](https://juejin.cn/post/7269390456530190376)
-- [MyBatis 居然也有并发问题](https://juejin.cn/post/7264921613551730722)
+- [Phân tích toàn diện 9 design pattern trong Mybatis (2W chữ)](https://juejin.cn/post/7273516671574687759)
+- [Tự xây dựng một plugin mã hóa/giải mã MyBatis từ đầu](https://mp.weixin.qq.com/s/WUEAdFDwZsZ4EKO8ix0ijg)
+- [Hướng dẫn sử dụng MyBatis đầy đủ nhất](https://juejin.cn/post/7051910683264286750)
+- [Mở mang tư duy! Lần đầu thấy cách dùng MyBatis như vậy, khiến tôi bất ngờ không thôi.](https://juejin.cn/post/7269390456530190376)
+- [MyBatis cũng có vấn đề đồng thời](https://juejin.cn/post/7264921613551730722)

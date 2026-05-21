@@ -1,106 +1,96 @@
 ---
-title: Java基础常见面试题总结(下)
-description: Java高级特性面试题总结：深入讲解异常处理机制、泛型原理、反射应用、注解使用、SPI机制、序列化、IO流模型(BIO/NIO/AIO)、语法糖等核心知识点。
+title: Tóm Tắt Các Câu Hỏi Phỏng Vấn Java Cơ Bản (Phần 2)
+description: Tóm tắt các câu hỏi phỏng vấn Java về các tính năng nâng cao giải thích chi tiết cơ chế xử lý ngoại lệ, nguyên lý kiểu dữ liệu chung, ứng dụng phản ánh, cách sử dụng chú thích, cơ chế SPI, tuần tự hóa, mô hình IO (BIO/NIO/AIO), cú pháp đường tắt và các kiến thức cốt lõi khác.
 category: Java
 tag:
-  - Java基础
+  - Java Cơ Bản
 head:
   - - meta
     - name: keywords
-      content: Java异常,泛型,反射,注解,SPI,序列化,IO流,语法糖,try-with-resources,BIO NIO AIO,Java面试题
+      content: ngoại lệ Java, kiểu dữ liệu chung, phản ánh, chú thích, SPI, tuần tự hóa, IO, cú pháp đường tắt, try-with-resources, BIO NIO AIO, câu hỏi phỏng vấn Java
 ---
 
-<!-- @include: @small-advertisement.snippet.md -->
+## Ngoại Lệ
 
-## 异常
+**Tổng Quan Về Cấu Trúc Phân Cấp Ngoại Lệ Java**:
 
-**Java 异常类层次结构图概览**：
+Các ngoại lệ trong Java có một tổ tiên chung là lớp `Throwable` trong gói `java.lang`. Lớp `Throwable` có hai lớp con quan trọng:
 
-![Java 异常类层次结构图](https://oss.javaguide.cn/github/javaguide/java/basis/types-of-exceptions-in-java.png)
+- **`Exception`**: Ngoại lệ mà chương trình chính nó có thể xử lý, có thể được bắt bằng `catch`. `Exception` có thể chia thành Checked Exception (ngoại lệ được kiểm tra, phải xử lý) và Unchecked Exception (ngoại lệ không được kiểm tra, có thể không xử lý).
+- **`Error`**: Lỗi mà chương trình không thể xử lý, ~~không có cách để bắt bằng `catch`~~không nên bắt bằng `catch`. Ví dụ như lỗi chạy máy ảo Java (`Virtual MachineError`), lỗi bộ nhớ máy ảo không đủ (`OutOfMemoryError`), lỗi định nghĩa lớp (`NoClassDefFoundError`), v.v. Khi những ngoại lệ này xảy ra, máy ảo Java (JVM) thường sẽ chọn kết thúc luồng.
 
-### Exception 和 Error 有什么区别？
+### ClassNotFoundException Và NoClassDefFoundError Có Gì Khác Nhau?
 
-在 Java 中，所有的异常都有一个共同的祖先 `java.lang` 包中的 `Throwable` 类。`Throwable` 类有两个重要的子类:
+- `ClassNotFoundException` là Exception, xảy ra khi sử dụng phản ánh để tải động không tìm thấy lớp, là điều có thể dự tính, có thể bắt và xử lý.
+- `NoClassDefFoundError` là Error, là lớp tồn tại lúc biên dịch, nhưng không liên kết được lúc chạy (ví dụ: tệp jar bị thiếu), là vấn đề môi trường, khiến JVM không thể tiếp tục.
 
-- **`Exception`** :程序本身可以处理的异常，可以通过 `catch` 来进行捕获。`Exception` 又可以分为 Checked Exception (受检查异常，必须处理) 和 Unchecked Exception (不受检查异常，可以不处理)。
-- **`Error`** ：`Error` 属于程序无法处理的错误 ，~~我们没办法通过 `catch` 来进行捕获~~不建议通过`catch`捕获 。例如 Java 虚拟机运行错误（`Virtual MachineError`）、虚拟机内存不够错误(`OutOfMemoryError`)、类定义错误（`NoClassDefFoundError`）等 。这些异常发生时，Java 虚拟机（JVM）一般会选择线程终止。
+### ⭐️Checked Exception Và Unchecked Exception Có Gì Khác Nhau?
 
-### ClassNotFoundException 和 NoClassDefFoundError 的区别
+**Checked Exception** tức là ngoại lệ được kiểm tra, trong quá trình biên dịch code Java, nếu ngoại lệ được kiểm tra không được `catch` hoặc xử lý bằng từ khóa `throws`, thì sẽ không thể vượt qua biên dịch.
 
-- `ClassNotFoundException` 是Exception，发生在使用反射等动态加载时找不到类，是可预期的，可以捕获处理。
-- `NoClassDefFoundError` 是Error，是编译时存在的类，在运行时链接不到了（比如 jar 包缺失），是环境问题，导致 JVM 无法继续。
+Ví dụ đoạn code hoạt động IO dưới đây:
 
-### ⭐️Checked Exception 和 Unchecked Exception 有什么区别？
+Ngoài `RuntimeException` và các lớp con của nó, tất cả các lớp `Exception` khác và lớp con của chúng đều thuộc ngoại lệ được kiểm tra. Các ngoại lệ được kiểm tra phổ biến bao gồm: các ngoại lệ liên quan đến IO, `ClassNotFoundException`, `SQLException`...
 
-**Checked Exception** 即 受检查异常 ，Java 代码在编译过程中，如果受检查异常没有被 `catch`或者`throws` 关键字处理的话，就没办法通过编译。
+**Unchecked Exception** tức là ngoại lệ không được kiểm tra, trong quá trình biên dịch code Java, ngay cả khi chúng tôi không xử lý ngoại lệ không được kiểm tra cũng có thể vượt qua biên dịch bình thường.
 
-比如下面这段 IO 操作的代码：
+`RuntimeException` và tất cả các lớp con của nó được gọi chung là ngoại lệ không được kiểm tra, những ngoại lệ phổ biến (khuyến nghị ghi nhớ, sẽ thường xuyên được sử dụng trong phát triển hàng ngày):
 
-![](https://oss.javaguide.cn/github/javaguide/java/basis/checked-exception.png)
+- `NullPointerException` (lỗi con trỏ null)
+- `IllegalArgumentException` (lỗi tham số, ví dụ như kiểu dữ liệu tham số phương thức sai)
+- `NumberFormatException` (lỗi định dạng chuyển đổi chuỗi thành số, lớp con của `IllegalArgumentException`)
+- `ArrayIndexOutOfBoundsException` (lỗi vượt chỉ số mảng)
+- `ClassCastException` (lỗi chuyển đổi kiểu)
+- `ArithmeticException` (lỗi tính toán)
+- `SecurityException` (lỗi bảo mật, ví dụ như quyền không đủ)
+- `UnsupportedOperationException` (lỗi hoạt động không được hỗ trợ, ví dụ tạo lại người dùng giống nhau)
+- ...
 
-除了`RuntimeException`及其子类以外，其他的`Exception`类及其子类都属于受检查异常 。常见的受检查异常有：IO 相关的异常、`ClassNotFoundException`、`SQLException`...。
+### Bạn Thích Sử Dụng Checked Exception Hay Unchecked Exception Hơn?
 
-**Unchecked Exception** 即 **不受检查异常** ，Java 代码在编译过程中 ，我们即使不处理不受检查异常也可以正常通过编译。
+Mặc định sử dụng Unchecked Exception, chỉ sử dụng Checked Exception khi cần thiết.
 
-`RuntimeException` 及其子类都统称为非受检查异常，常见的有（建议记下来，日常开发中会经常用到）：
+Chúng ta có thể coi Unchecked Exception (ví dụ như `NullPointerException`) như một lỗi code. Cách tốt nhất để xử lý lỗi là để nó lộ ra rồi sửa code, thay vì dùng `try-catch` để che giấu nó.
 
-- `NullPointerException`(空指针错误)
-- `IllegalArgumentException`(参数错误比如方法入参类型错误)
-- `NumberFormatException`（字符串转换为数字格式错误，`IllegalArgumentException`的子类）
-- `ArrayIndexOutOfBoundsException`（数组越界错误）
-- `ClassCastException`（类型转换错误）
-- `ArithmeticException`（算术错误）
-- `SecurityException` （安全错误比如权限不够）
-- `UnsupportedOperationException`(不支持的操作错误比如重复创建同一用户)
-- ……
+Nói chung, chỉ sử dụng Checked Exception trong một tình huống: khi ngoại lệ này là một phần của logic kinh doanh, và người gọi phải xử lý nó. Ví dụ, một ngoại lệ về số dư không đủ. Đây không phải là lỗi, mà là một nhánh kinh doanh bình thường, tôi cần sử dụng Checked Exception để buộc người gọi xử lý tình huống này, ví dụ như nhắc người dùng nạp tiền. Bằng cách này, chúng ta có thể đảm bảo tính toàn vẹn của logic kinh doanh quan trọng đồng thời giữ code càng đơn giản càng tốt.
 
-![](https://oss.javaguide.cn/github/javaguide/java/basis/unchecked-exception.png)
+### Lớp Throwable Có Những Phương Thức Thường Dùng Nào?
 
-### 你更倾向于使用 Checked Exception 还是 Unchecked Exception？
+- `String getMessage()`: Trả về thông tin chi tiết khi xảy ra ngoại lệ
+- `String toString()`: Trả về mô tả ngắn gọn khi xảy ra ngoại lệ
+- `String getLocalizedMessage()`: Trả về thông tin bản địa hóa của đối tượng ngoại lệ. Sử dụng lớp con của `Throwable` để ghi đè phương thức này, có thể tạo thông tin bản địa hóa. Nếu lớp con không ghi đè phương thức này, thì thông tin được trả về bởi phương thức này giống như kết quả được trả về bởi `getMessage()`
+- `void printStackTrace()`: In thông tin ngoại lệ được `Throwable` đóng gói lên bảng điều khiển
 
-默认使用 Unchecked Exception，只在必要时才用 Checked Exception。
+### Cách Sử Dụng try-catch-finally?
 
-我们可以把 Unchecked Exception（比如 `NullPointerException`）看作是代码 Bug。对待 Bug，最好的方式是让它暴露出来然后去修复代码，而不是用 `try-catch` 去掩盖它。
+- Khối `try`: Được sử dụng để bắt ngoại lệ. Sau nó có thể theo sau không hoặc nhiều khối `catch`, nếu không có khối `catch`, thì phải theo sau một khối `finally`.
+- Khối `catch`: Được sử dụng để xử lý ngoại lệ mà khối try bắt được.
+- Khối `finally`: Bất kể có bắt hoặc xử lý ngoại lệ hay không, các câu lệnh trong khối `finally` đều sẽ được thực thi. Khi gặp câu lệnh `return` trong khối `try` hoặc khối `catch`, khối câu lệnh `finally` sẽ được thực thi trước khi phương thức trả về.
 
-一般来说，只在一种情况下使用 Checked Exception：当这个异常是业务逻辑的一部分，并且调用方必须处理它时。比如说，一个余额不足异常。这不是 bug，而是一个正常的业务分支，我需要用 Checked Exception 来强制调用者去处理这种情况，比如提示用户去充值。这样就能在保证关键业务逻辑完整性的同时，让代码尽可能保持简洁。
-
-### Throwable 类常用方法有哪些？
-
-- `String getMessage()`: 返回异常发生时的详细信息
-- `String toString()`: 返回异常发生时的简要描述
-- `String getLocalizedMessage()`: 返回异常对象的本地化信息。使用 `Throwable` 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 `getMessage()`返回的结果相同
-- `void printStackTrace()`: 在控制台上打印 `Throwable` 对象封装的异常信息
-
-### try-catch-finally 如何使用？
-
-- `try`块：用于捕获异常。其后可接零个或多个 `catch` 块，如果没有 `catch` 块，则必须跟一个 `finally` 块。
-- `catch`块：用于处理 try 捕获到的异常。
-- `finally` 块：无论是否捕获或处理异常，`finally` 块里的语句都会被执行。当在 `try` 块或 `catch` 块中遇到 `return` 语句时，`finally` 语句块将在方法返回之前被执行。
-
-代码示例：
+Ví dụ mã code:
 
 ```java
 try {
-    System.out.println("Try to do something");
+    System.out.println("Thử làm gì đó");
     throw new RuntimeException("RuntimeException");
 } catch (Exception e) {
-    System.out.println("Catch Exception -> " + e.getMessage());
+    System.out.println("Bắt Exception -> " + e.getMessage());
 } finally {
     System.out.println("Finally");
 }
 ```
 
-输出：
+Đầu ra:
 
 ```plain
-Try to do something
-Catch Exception -> RuntimeException
+Thử làm gì đó
+Bắt Exception -> RuntimeException
 Finally
 ```
 
-**注意：不要在 finally 语句块中使用 return!** 当 try 语句和 finally 语句中都有 return 语句时，try 语句块中的 return 语句会被忽略。这是因为 try 语句中的 return 返回值会先被暂存在一个本地变量中，当执行到 finally 语句中的 return 之后，这个本地变量的值就变为了 finally 语句中的 return 返回值。
+**Lưu Ý: Không nên sử dụng return trong khối lệnh finally!** Khi cả khối try và khối finally đều có câu lệnh return, câu lệnh return trong khối try sẽ bị bỏ qua. Điều này là do giá trị trả về của return trong câu lệnh try sẽ được lưu trữ tạm thời trong một biến cục bộ trước, khi thực thi đến câu lệnh return trong khối finally, giá trị của biến cục bộ này sẽ trở thành giá trị return của khối finally.
 
-代码示例：
+Ví dụ mã code:
 
 ```java
 public static void main(String[] args) {
@@ -118,60 +108,56 @@ public static int f(int value) {
 }
 ```
 
-输出：
+Đầu ra:
 
 ```plain
 0
 ```
 
-### finally 中的代码一定会执行吗？
+### Mã Code Trong finally Có Chắc Chắn Sẽ Được Thực Thi Không?
 
-不一定的！在某些情况下，finally 中的代码不会被执行。
+Không chắc chắn! Trong một số tình huống nhất định, mã code trong finally sẽ không được thực thi.
 
-就比如说 finally 之前虚拟机被终止运行的话，finally 中的代码就不会被执行。
+Chẳng hạn, nếu máy ảo bị chấm dứt trước khi finally thực thi, thì mã code trong finally sẽ không được thực thi.
 
 ```java
 try {
-    System.out.println("Try to do something");
+    System.out.println("Thử làm gì đó");
     throw new RuntimeException("RuntimeException");
 } catch (Exception e) {
-    System.out.println("Catch Exception -> " + e.getMessage());
-    // 终止当前正在运行的Java虚拟机
+    System.out.println("Bắt Exception -> " + e.getMessage());
+    // Chấm dứt máy ảo Java đang chạy
     System.exit(1);
 } finally {
     System.out.println("Finally");
 }
 ```
 
-输出：
+Đầu ra:
 
 ```plain
-Try to do something
-Catch Exception -> RuntimeException
+Thử làm gì đó
+Bắt Exception -> RuntimeException
 ```
 
-另外，在以下 2 种特殊情况下，`finally` 块的代码也不会被执行：
+Ngoài ra, trong 2 tình huống đặc biệt sau đây, mã code của khối `finally` cũng sẽ không được thực thi:
 
-1. 程序所在的线程死亡。
-2. 关闭 CPU。
+1. Chương trình ở trong luồng chết
+2. CPU bị tắt
 
-相关 issue：<https://github.com/Snailclimb/JavaGuide/issues/190>。
+### Cách Sử Dụng `try-with-resources` Thay Thế `try-catch-finally`?
 
-🧗🏻 进阶一下：从字节码角度分析`try catch finally`这个语法糖背后的实现原理。
+1. **Phạm Vi Áp Dụng (Định Nghĩa Tài Nguyên)**: Bất kỳ đối tượng nào triển khai `java.lang.AutoCloseable` hoặc `java.io.Closeable`
+2. **Thứ Tự Đóng Tài Nguyên Và Thực Thi Khối finally**: Trong câu lệnh `try-with-resources`, bất kỳ khối catch hoặc finally nào đều được chạy sau khi các tài nguyên được khai báo bị đóng
 
-### 如何使用 `try-with-resources` 代替`try-catch-finally`？
+Trong "Effective Java" có nêu rõ:
 
-1. **适用范围（资源的定义）：** 任何实现 `java.lang.AutoCloseable`或者 `java.io.Closeable` 的对象
-2. **关闭资源和 finally 块的执行顺序：** 在 `try-with-resources` 语句中，任何 catch 或 finally 块在声明的资源关闭后运行
+> Đối mặt với những tài nguyên phải đóng, chúng ta nên ưu tiên sử dụng `try-with-resources` thay vì `try-finally`. Mã code kết quả sẽ ngắn hơn, rõ ràng hơn, và các ngoại lệ được tạo ra cũng hữu ích hơn cho chúng ta. `try-with-resources` làm cho việc viết code cho những tài nguyên phải đóng dễ dàng hơn, nếu sử dụng `try-finally` thì gần như không thể làm được.
 
-《Effective Java》中明确指出：
-
-> 面对必须要关闭的资源，我们总是应该优先使用 `try-with-resources` 而不是`try-finally`。随之产生的代码更简短，更清晰，产生的异常对我们也更有用。`try-with-resources`语句让我们更容易编写必须要关闭的资源的代码，若采用`try-finally`则几乎做不到这点。
-
-Java 中类似于`InputStream`、`OutputStream`、`Scanner`、`PrintWriter`等的资源都需要我们调用`close()`方法来手动关闭，一般情况下我们都是通过`try-catch-finally`语句来实现这个需求，如下：
+Các tài nguyên như `InputStream`, `OutputStream`, `Scanner`, `PrintWriter` v.v. trong Java đều cần chúng ta gọi phương thức `close()` để đóng thủ công, nói chung chúng ta đều triển khai nhu cầu này thông qua câu lệnh `try-catch-finally`, như sau:
 
 ```java
-//读取文本文件的内容
+// Đọc nội dung của tệp văn bản
 Scanner scanner = null;
 try {
     scanner = new Scanner(new File("D://read.txt"));
@@ -187,7 +173,7 @@ try {
 }
 ```
 
-使用 Java 7 之后的 `try-with-resources` 语句改造上面的代码:
+Sử dụng câu lệnh `try-with-resources` sau Java 7 để cải tổ code trên:
 
 ```java
 try (Scanner scanner = new Scanner(new File("test.txt"))) {
@@ -199,9 +185,9 @@ try (Scanner scanner = new Scanner(new File("test.txt"))) {
 }
 ```
 
-当然多个资源需要关闭的时候，使用 `try-with-resources` 实现起来也非常简单，如果你还是用`try-catch-finally`可能会带来很多问题。
+Tất nhiên, khi cần đóng nhiều tài nguyên, sử dụng `try-with-resources` cũng rất đơn giản, nếu bạn vẫn sử dụng `try-catch-finally` có thể gây ra nhiều vấn đề.
 
-通过使用分号分隔，可以在`try-with-resources`块中声明多个资源。
+Thông qua sử dụng dấu chấm phẩy để phân cách, bạn có thể khai báo nhiều tài nguyên trong khối `try-with-resources`.
 
 ```java
 try (BufferedInputStream bin = new BufferedInputStream(new FileInputStream(new File("test.txt")));
@@ -216,242 +202,102 @@ catch (IOException e) {
 }
 ```
 
-### ⭐️异常使用有哪些需要注意的地方？
+### ⭐️Có Những Điểm Nào Cần Lưu Ý Khi Sử Dụng Ngoại Lệ?
 
-- 不要把异常定义为静态变量，因为这样会导致异常栈信息错乱。每次手动抛出异常，我们都需要手动 new 一个异常对象抛出。
-- 抛出的异常信息一定要有意义。
-- 建议抛出更加具体的异常，比如字符串转换为数字格式错误的时候应该抛出`NumberFormatException`而不是其父类`IllegalArgumentException`。
-- 避免重复记录日志：如果在捕获异常的地方已经记录了足够的信息（包括异常类型、错误信息和堆栈跟踪等），那么在业务代码中再次抛出这个异常时，就不应该再次记录相同的错误信息。重复记录日志会使得日志文件膨胀，并且可能会掩盖问题的实际原因，使得问题更难以追踪和解决。
-- ……
+- Không nên định nghĩa ngoại lệ làm biến tĩnh, vì điều này sẽ dẫn đến thông tin ngăn xếp ngoại lệ bị xáo trộn. Mỗi lần ném ngoại lệ thủ công, chúng ta cần ném một đối tượng ngoại lệ mới được tạo.
+- Thông tin ngoại lệ được ném phải có ý nghĩa.
+- Khuyến nghị ném ngoại lệ cụ thể hơn, ví dụ như khi lỗi chuyển đổi định dạng chuỗi sang số, nên ném `NumberFormatException` thay vì lớp cha `IllegalArgumentException`.
+- Tránh ghi lại log lặp lại: Nếu ở nơi bắt ngoại lệ đã ghi lại thông tin đầy đủ (bao gồm loại ngoại lệ, thông báo lỗi và theo dõi ngăn xếp), thì khi ném lại ngoại lệ này trong code kinh doanh, không nên ghi lại cùng thông báo lỗi. Ghi lại log lặp lại sẽ làm cho tệp log phình ra, và có thể che giấu nguyên nhân thực tế của vấn đề, làm cho vấn đề khó theo dõi và giải quyết hơn.
+- ...
 
-## 泛型
+## Kiểu Dữ Liệu Chung
 
-### 什么是泛型？有什么作用？
+### Kiểu Dữ Liệu Chung Là Gì? Có Tác Dụng Gì?
 
-**Java 泛型（Generics）** 是 JDK 5 中引入的一个新特性。使用泛型参数，可以增强代码的可读性以及稳定性。
+**Kiểu dữ liệu chung Java (Generics)** là tính năng mới được giới thiệu trong JDK 5. Sử dụng tham số kiểu dữ liệu chung, có thể tăng khả năng đọc hiểu và tính ổn định của code.
 
-编译器可以对泛型参数进行检测，并且通过泛型参数可以指定传入的对象类型。比如 `ArrayList<Person> persons = new ArrayList<Person>()` 这行代码就指明了该 `ArrayList` 对象只能传入 `Person` 对象，如果传入其他类型的对象就会报错。
+Trình biên dịch có thể kiểm tra tham số kiểu dữ liệu chung, và thông qua tham số kiểu dữ liệu chung có thể chỉ định loại đối tượng được truyền vào. Ví dụ `ArrayList<Person> persons = new ArrayList<Person>()` dòng code này chỉ rõ rằng đối tượng `ArrayList` này chỉ có thể chứa các đối tượng kiểu `Person`, nếu truyền vào kiểu khác sẽ báo lỗi.
 
 ```java
 ArrayList<E> extends AbstractList<E>
 ```
 
-并且，原生 `List` 返回类型是 `Object` ，需要手动转换类型才能使用，使用泛型后编译器自动转换。
+Ngoài ra, `List` gốc có kiểu trả về là `Object`, cần chuyển đổi kiểu thủ công để sử dụng, sử dụng kiểu dữ liệu chung sau khi trình biên dịch tự động chuyển đổi.
 
-### 泛型的使用方式有哪几种？
+### Cách Sử Dụng Kiểu Dữ Liệu Chung Có Bao Nhiêu?
 
-泛型一般有三种使用方式:**泛型类**、**泛型接口**、**泛型方法**。
+Kiểu dữ liệu chung thường có ba cách sử dụng: **lớp kiểu dữ liệu chung**, **giao diện kiểu dữ liệu chung**, **phương thức kiểu dữ liệu chung**.
 
-**1.泛型类**：
+Để tìm hiểu chi tiết về kiểu dữ liệu chung, hãy xem bài viết [Chi Tiết Về Kiểu Dữ Liệu Chung & Ký Tự Đại Diện](./generics-and-wildcards.md).
 
-```java
-//此处T可以随便写为任意标识，常见的如T、E、K、V等形式的参数常用于表示泛型
-//在实例化泛型类时，必须指定T的具体类型
-public class Generic<T>{
+## Phản Ánh
 
-    private T key;
+### Phản Ánh Được Sử Dụng Trong Những Tình Huống Nào?
 
-    public Generic(T key) {
-        this.key = key;
-    }
+Phản ánh được sử dụng rộng rãi trong các framework. Ví dụ:
 
-    public T getKey(){
-        return key;
-    }
-}
-```
+- **Spring Framework**: Spring sử dụng phản ánh để tạo instance, setter injection, v.v.
+- **MyBatis, Hibernate**: Những framework ORM này sử dụng phản ánh để tạo instance đối tượng và thiết lập giá trị thuộc tính.
 
-如何实例化泛型类：
+Ngoài ra, trong quá trình phát triển, chúng ta cũng có thể sử dụng phản ánh để gọi phương thức private, lấy hoặc sửa đổi giá trị trường riêng tư để viết các bài kiểm tra.
 
-```java
-Generic<Integer> genericInteger = new Generic<Integer>(123456);
-```
+Những framework như MyBatis, Hibernate có thể giúp bạn chuyển đổi một dòng dữ liệu được truy vấn từ cơ sở dữ liệu thành một đối tượng Java. Nó biết trường cơ sở dữ liệu tương ứng với thuộc tính Java nào như thế nào? Vẫn là nhờ phản ánh. Nó lấy danh sách thuộc tính của lớp Java thông qua phản ánh, sau đó ánh xạ kết quả truy vấn theo tên hoặc cấu hình, sau đó sử dụng phản ánh để gọi setter hoặc sửa đổi trực tiếp giá trị trường. Ngược lại, khi lưu đối tượng vào cơ sở dữ liệu, cũng sử dụng phản ánh để đọc giá trị thuộc tính để tạo SQL.
 
-**2.泛型接口**：
+## Proxy
 
-```java
-public interface Generator<T> {
-    public T method();
-}
-```
+Để tìm hiểu chi tiết về proxy Java, bạn có thể xem bài viết [Chi Tiết Về Mẫu Proxy Java](proxy.md).
 
-实现泛型接口，不指定类型：
+### Cách Triển Khai Proxy Động?
 
-```java
-class GeneratorImpl<T> implements Generator<T>{
-    @Override
-    public T method() {
-        return null;
-    }
-}
-```
+Proxy động là một mẫu thiết kế rất mạnh, nó cho phép chúng ta **không sửa đổi mã nguồn**, để **nâng cao chức năng (Enhancement)** các phương thức của một lớp hoặc đối tượng.
 
-实现泛型接口，指定类型：
+Trong Java, những cách phổ biến nhất để triển khai proxy động là: **Proxy Động JDK** và **Proxy Động CGLIB**.
 
-```java
-class GeneratorImpl implements Generator<String> {
-    @Override
-    public String method() {
-        return "hello";
-    }
-}
-```
+**Loại Thứ Nhất: Proxy Động JDK**
 
-**3.泛型方法**：
+Được cung cấp bởi chính thức Java, yêu cầu cốt lõi là lớp mục tiêu phải triển khai một hoặc nhiều giao diện. Proxy động JDK, lúc chạy, sẽ sử dụng phương thức `Proxy.newProxyInstance()` để tạo động một instance của lớp proxy triển khai những giao diện này. Lớp proxy này được tạo ra trong bộ nhớ, bạn không thể thấy tệp `.java` hoặc `.class` của nó.
 
-```java
-   public static < E > void printArray( E[] inputArray )
-   {
-         for ( E element : inputArray ){
-            System.out.printf( "%s ", element );
-         }
-         System.out.println();
-    }
-```
+Khi bạn gọi bất kỳ phương thức nào của đối tượng proxy, lệnh gọi này sẽ được chuyển tiếp tới phương thức `invoke` của giao diện `InvocationHandler` mà chúng ta cung cấp. Trong phương thức `invoke`, chúng ta có thể thêm logic nâng cao của chúng ta trước hoặc sau khi gọi phương thức gốc (phương thức mục tiêu).
 
-使用：
+**Loại Thứ Hai: Proxy Động CGLIB**
 
-```java
-// 创建不同类型数组：Integer, Double 和 Character
-Integer[] intArray = { 1, 2, 3 };
-String[] stringArray = { "Hello", "World" };
-printArray( intArray  );
-printArray( stringArray  );
-```
+CGLIB là thư viện tạo mã của bên thứ ba. Nguyên lý của nó hoàn toàn khác với JDK, nó không yêu cầu lớp được proxy phải triển khai giao diện. Lúc chạy, nó tạo động lớp con của lớp mục tiêu làm lớp proxy (thông qua kỹ thuật thao tác bytecode ASM). Sau đó, nó sẽ ghi đè tất cả các phương thức không phải `final`, `private` và `static` trong lớp cha (tức là lớp được proxy).
 
-> 注意: `public static < E > void printArray( E[] inputArray )` 一般被称为静态泛型方法;在 java 中泛型只是一个占位符，必须在传递类型后才能使用。类在实例化时才能真正的传递类型参数，由于静态方法的加载先于类的实例化，也就是说类中的泛型还没有传递真正的类型参数，静态的方法的加载就已经完成了，所以静态泛型方法是没有办法使用类上声明的泛型的。只能使用自己声明的 `<E>`
+Khi bạn gọi bất kỳ phương thức nào của đối tượng proxy, lệnh gọi này sẽ được phương thức `intercept` của giao diện `MethodInterceptor` của CGLIB bắt giữ. Giống như phương thức `invoke` của `InvocationHandler`, chúng ta có thể thêm logic nâng cao của chúng ta trong phương thức `intercept`, trước hoặc sau khi gọi phương thức lớp cha gốc.
 
-### 项目中哪里用到了泛型？
+### Proxy Tĩnh Và Proxy Động Có Gì Khác Nhau?
 
-- 自定义接口通用返回结果 `CommonResult<T>` 通过参数 `T` 可根据具体的返回类型动态指定结果的数据类型
-- 定义 `Excel` 处理类 `ExcelUtil<T>` 用于动态指定 `Excel` 导出的数据类型
-- 构建集合工具类（参考 `Collections` 中的 `sort`, `binarySearch` 方法）。
-- ……
+Sự khác biệt cốt lõi giữa proxy tĩnh và proxy động là **thời điểm xác định mối quan hệ proxy, tính linh hoạt của cách triển khai và chi phí bảo trì**.
 
-## ⭐️反射
+| Khía Cạnh So Sánh                    | Proxy Tĩnh (Static Proxy)                                                                                                                                               | Proxy Động (Dynamic Proxy)                                                                                                                                       |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Thời Điểm Xác Định Mối Quan Hệ Proxy | Thời gian biên dịch (sinh tệp bytecode `.class` cố định sau biên dịch)                                                                                                  | Thời gian chạy (tạo động bytecode lớp proxy và tải vào JVM)                                                                                                      |
+| Cách Triển Khai                      | Viết thủ công lớp proxy, cần triển khai cùng giao diện với lớp mục tiêu, ràng buộc một-một                                                                              | Không cần viết thủ công lớp proxy, thông qua `Handler`/`Interceptor` để bao bọc logic nâng cao, tái sử dụng một-nhiều                                            |
+| Phụ Thuộc Giao Diện                  | Phải triển khai giao diện (lớp proxy và lớp mục tiêu tuân theo cùng quy chuẩn giao diện)                                                                                | Hỗ trợ proxy giao diện hoặc proxy trực tiếp lớp triển khai                                                                                                       |
+| Lượng Code & Tính Bảo Trì            | Lượng code lớn (càng nhiều lớp mục tiêu, càng nhiều lớp proxy), chi phí bảo trì cao; khi thêm phương thức giao diện mới, lớp mục tiêu và lớp proxy cần cập nhật đồng bộ | Lượng code rất ít (logic nâng cao chung có thể tái sử dụng), khả năng bảo trì tốt; giải phóng khỏi giao diện, thay đổi giao diện không ảnh hưởng đến logic proxy |
+| Ưu Điểm Cốt Lõi                      | Triển khai đơn giản, logic rõ ràng, không có phụ thuộc framework bổ sung                                                                                                | Tính linh hoạt mạnh, tính tái sử dụng cao, giảm mã code lặp lại, thích hợp với các tình huống phức tạp                                                           |
+| Tình Huống Ứng Dụng Điển Hình        | Mẫu decorator đơn giản, nhu cầu nâng cao một số lớp cố định                                                                                                             | Spring AOP, RPC Framework (như Dubbo), ORM Framework                                                                                                             |
 
-关于反射的详细解读，请看这篇文章 [Java 反射机制详解](https://javaguide.cn/java/basis/reflection.html) 。
+### ⭐️Proxy Động JDK Và Proxy Động CGLIB Có Gì Khác Nhau?
 
-### 什么是反射？
+1. Proxy động JDK là chính thức, nó yêu cầu lớp được proxy phải triển khai giao diện. Nguyên lý của nó là tạo động một lớp triển khai giao diện làm proxy. CGLIB là của bên thứ ba, nó không cần giao diện. Nguyên lý của nó là tạo động một lớp con của lớp được proxy làm proxy. Nhưng cũng chính vì là kế thừa, nên nó không thể proxy lớp `final`, phương thức được proxy cũng không thể là `final` hoặc `private`.
+2. Về hiệu suất của cả hai, hầu hết các tình huống proxy động JDK là tuyệt vời hơn, với việc nâng cấp phiên bản JDK, ưu thế này trở nên rõ ràng hơn.
 
-简单来说，Java 反射 (Reflection) 是一种**在程序运行时，动态地获取类的信息并操作类或对象（方法、属性）的能力**。
+### ⭐️Giới Thiệu Các Tình Huống Ứng Dụng Thực Tế Của Proxy Động Trong Framework
 
-通常情况下，我们写的代码在编译时类型就已经确定了，要调用哪个方法、访问哪个字段都是明确的。但反射允许我们在**运行时**才去探知一个类有哪些方法、哪些属性、它的构造函数是怎样的，甚至可以动态地创建对象、调用方法或修改属性，哪怕这些方法或属性是私有的。
+Tình huống ứng dụng điển hình nhất của proxy động là **Spring AOP**.
 
-正是这种在运行时“反观自身”并进行操作的能力，使得反射成为许多**通用框架和库的基石**。它让代码更加灵活，能够处理在编译时未知的类型。
+AOP (Aspect-Oriented Programming: Lập Trình Hướng Khía Cạnh) có thể bao bọc những logic hoặc trách nhiệm không liên quan đến kinh doanh nhưng được gọi chung bởi các module kinh doanh (ví dụ: xử lý giao dịch, quản lý log, kiểm soát quyền hạn, v.v.), giúp giảm mã code lặp lại của hệ thống, giảm độ liên kết giữa các module, và có lợi cho tính mở rộng và khả năng bảo trì trong tương lai.
 
-### 反射有什么优缺点？
+Spring AOP dựa trên proxy động, nếu đối tượng được proxy triển khai một giao diện nào đó, Spring AOP sẽ sử dụng **JDK Proxy** để tạo đối tượng proxy, trong khi đối với các đối tượng không triển khai giao diện, Spring AOP không thể sử dụng JDK Proxy để proxy, lúc này Spring AOP sẽ sử dụng **Cglib** để tạo một lớp con của đối tượng được proxy làm proxy, như hình dưới đây:
 
-**优点：**
+## Chú Thích
 
-1. **灵活性和动态性**：反射允许程序在运行时动态地加载类、创建对象、调用方法和访问字段。这样可以根据实际需求（如配置文件、用户输入、注解等）动态地适应和扩展程序的行为，显著提高了系统的灵活性和适应性。
-2. **框架开发的基础**：许多现代 Java 框架（如 Spring、Hibernate、MyBatis）都大量使用反射来实现依赖注入（DI）、面向切面编程（AOP）、对象关系映射（ORM）、注解处理等核心功能。反射是实现这些“魔法”功能不可或缺的基础工具。
-3. **解耦合和通用性**：通过反射，可以编写更通用、可重用和高度解耦的代码，降低模块之间的依赖。例如，可以通过反射实现通用的对象拷贝、序列化、Bean 工具等。
+### Chú Thích Là Gì?
 
-**缺点：**
+`Annotation` (Chú Thích) là tính năng mới được giới thiệu từ Java5, có thể được coi như một loại chú thích đặc biệt, được sử dụng chủ yếu để sửa đổi lớp, phương thức hoặc biến, cung cấp một số thông tin để chương trình sử dụng lúc biên dịch hoặc chạy.
 
-1. **性能开销**：反射操作通常比直接代码调用要慢。因为涉及到动态类型解析、方法查找以及 JIT 编译器的优化受限等因素。不过，对于大多数框架场景，这种性能损耗通常是可以接受的，或者框架本身会做一些缓存优化。
-2. **安全性问题**：反射可以绕过 Java 语言的访问控制机制（如访问 `private` 字段和方法），破坏了封装性，可能导致数据泄露或程序被恶意篡改。此外，还可以绕过泛型检查，带来类型安全隐患。
-3. **代码可读性和维护性**：过度使用反射会使代码变得复杂、难以理解和调试。错误通常在运行时才会暴露，不像编译期错误那样容易发现。
-
-相关阅读：[Java Reflection: Why is it so slow?](https://stackoverflow.com/questions/1392351/java-reflection-why-is-it-so-slow) 。
-
-### 反射的应用场景？
-
-我们平时写业务代码可能很少直接跟 Java 的反射（Reflection）打交道。但你可能没意识到，你天天都在享受反射带来的便利！**很多流行的框架，比如 Spring/Spring Boot、MyBatis 等，底层都大量运用了反射机制**，这才让它们能够那么灵活和强大。
-
-下面简单列举几个最场景的场景帮助大家理解。
-
-**1.依赖注入与控制反转（IoC）**
-
-以 Spring/Spring Boot 为代表的 IoC 框架，会在启动时扫描带有特定注解（如 `@Component`, `@Service`, `@Repository`, `@Controller`）的类，利用反射实例化对象（Bean），并通过反射注入依赖（如 `@Autowired`、构造器注入等）。
-
-**2.注解处理**
-
-注解本身只是个“标记”，得有人去读这个标记才知道要做什么。反射就是那个“读取器”。框架通过反射检查类、方法、字段上有没有特定的注解，然后根据注解信息执行相应的逻辑。比如，看到 `@Value`，就用反射读取注解内容，去配置文件找对应的值，再用反射把值设置给字段。
-
-**3.动态代理与 AOP**
-
-想在调用某个方法前后自动加点料（比如打日志、开事务、做权限检查）？AOP（面向切面编程）就是干这个的，而动态代理是实现 AOP 的常用手段。JDK 自带的动态代理（Proxy 和 InvocationHandler）就离不开反射。代理对象在内部调用真实对象的方法时，就是通过反射的 `Method.invoke` 来完成的。
-
-```java
-public class DebugInvocationHandler implements InvocationHandler {
-    private final Object target; // 真实对象
-
-    public DebugInvocationHandler(Object target) { this.target = target; }
-
-    // proxy: 代理对象, method: 被调用的方法, args: 方法参数
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println("切面逻辑：调用方法 " + method.getName() + " 之前");
-        // 通过反射调用真实对象的同名方法
-        Object result = method.invoke(target, args);
-        System.out.println("切面逻辑：调用方法 " + method.getName() + " 之后");
-        return result;
-    }
-}
-```
-
-**4.对象关系映射（ORM）**
-
-像 MyBatis、Hibernate 这种框架，能帮你把数据库查出来的一行行数据，自动变成一个个 Java 对象。它是怎么知道数据库字段对应哪个 Java 属性的？还是靠反射。它通过反射获取 Java 类的属性列表，然后把查询结果按名字或配置对应起来，再用反射调用 setter 或直接修改字段值。反过来，保存对象到数据库时，也是用反射读取属性值来拼 SQL。
-
-## 代理
-
-关于 Java 代理的详细介绍，可以看看笔者写的 [Java 代理模式详解](https://javaguide.cn/java/basis/proxy.html "Java 代理模式详解")这篇文章。
-
-### 如何实现动态代理？
-
-动态代理是一种非常强大的设计模式，它允许我们在**不修改源代码**的情况下，对一个类或对象的方法进行**功能增强（Enhancement）**。
-
-在 Java 中，实现动态代理最主流的方式有两种：**JDK 动态代理** 和 **CGLIB 动态代理**。
-
-**第一种：JDK 动态代理**
-
-Java 官方提供的，其核心要求是目标类必须实现一个或多个接口。JDK 动态代理在运行时，会利用 `Proxy.newProxyInstance()` 方法，动态地创建一个实现了这些接口的代理类的实例。这个代理类在内存中生成，你看不到它的 `.java` 或 `.class` 文件。
-
-当你调用代理对象的任何一个方法时，这个调用都会被转发到我们提供的一个 `InvocationHandler` 接口的 `invoke` 方法中。在 `invoke` 方法里，我们就可以在调用原始方法（目标方法）之前或之后，加入我们自己的增强逻辑。
-
-**第二种：CGLIB 动态代理**
-
-CGLIB 是一个第三方的代码生成库。它的原理与 JDK 完全不同，它不要求被代理的类实现接口。它在运行时，动态生成目标类的子类作为代理类（通过 ASM 字节码操作技术）。然后，它会重写父类（也就是被代理类）中所有非 `final`、`private` 和 `static` 的方法。
-
-当你调用代理对象的任何一个方法时，这个调用会被 CGLIB 的 `MethodInterceptor` 接口的 `intercept` 方法拦截。和 `InvocationHandler` 的 `invoke` 方法一样，我们可以在 `intercept` 方法里，在调用原始的父类方法之前或之后，加入我们的增强逻辑。
-
-### 静态代理和动态代理有什么区别？
-
-静态代理和动态代理的核心差异在于 **代理关系的确定时机、实现灵活性及维护成本** 。
-
-| 对比维度         | 静态代理 (Static Proxy)                                                                  | 动态代理 (Dynamic Proxy)                                                       |
-| ---------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 代理关系确定时机 | 编译期（编译后生成固定的 `.class` 字节码文件）                                           | 运行时（动态生成代理类字节码并加载到 JVM）                                     |
-| 实现方式         | 手动编写代理类，需与目标类实现同一接口，一对一绑定                                       | 无需手动编写代理类，通过 `Handler`/`Interceptor` 封装增强逻辑，一对多复用      |
-| 接口依赖         | 必须实现接口（代理类与目标类遵循同一接口规范）                                           | 支持代理接口或直接代理实现类                                                   |
-| 代码量与维护性   | 代码量大（目标类越多，代理类越多），维护成本高；接口新增方法时，目标类与代理类需同步修改 | 代码量极少（通用增强逻辑可复用），维护性好；与接口解耦，接口变更不影响代理逻辑 |
-| 核心优势         | 实现简单、逻辑直观，无额外框架依赖                                                       | 灵活性强、复用性高，降低重复编码，适配复杂场景                                 |
-| 典型应用场景     | 简单的装饰器模式、少量固定类的增强需求                                                   | Spring AOP、RPC 框架（如 Dubbo）、ORM 框架                                     |
-
-### ⭐️JDK 动态代理和 CGLIB 动态代理有什么区别？
-
-1. JDK 动态代理是官方的，它要求被代理的类必须实现接口。它的原理是动态生成一个接口的实现类来作为代理。CGLIB 是第三方的，它不需要接口。它的原理是动态生成一个被代理类的子类来作为代理。但也正因为是继承，所以它不能代理 `final` 的类，被代理的方法也不能是 `final` 或 `private` 。
-2. 就二者的效率来说，大部分情况都是 JDK 动态代理更优秀，随着 JDK 版本的升级，这个优势更加明显。
-
-### ⭐️介绍一下动态代理在框架中的实际应用场景
-
-动态代理最典型的应用场景就是**Spring AOP**。
-
-AOP(Aspect-Oriented Programming:面向切面编程)能够将那些与业务无关，却为业务模块所共同调用的逻辑或责任（例如事务处理、日志管理、权限控制等）封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可拓展性和可维护性。
-
-Spring AOP 就是基于动态代理的，如果要代理的对象，实现了某个接口，那么 Spring AOP 会使用 **JDK Proxy**，去创建代理对象，而对于没有实现接口的对象，就无法使用 JDK Proxy 去进行代理了，这时候 Spring AOP 会使用 **Cglib** 生成一个被代理对象的子类来作为代理，如下图所示：
-
-![SpringAOPProcess](https://oss.javaguide.cn/github/javaguide/system-design/framework/spring/230ae587a322d6e4d09510161987d346.jpeg)
-
-## 注解
-
-### 何谓注解？
-
-`Annotation` （注解） 是 Java5 开始引入的新特性，可以看作是一种特殊的注释，主要用于修饰类、方法或者变量，提供某些信息供程序在编译或者运行时使用。
-
-注解本质是一个继承了`Annotation` 的特殊接口：
+Bản chất của chú thích là một giao diện đặc biệt kế thừa từ `Annotation`:
 
 ```java
 @Target(ElementType.METHOD)
@@ -465,179 +311,146 @@ public interface Override extends Annotation{
 }
 ```
 
-JDK 提供了很多内置的注解（比如 `@Override`、`@Deprecated`），同时，我们还可以自定义注解。
+JDK cung cấp nhiều chú thích tích hợp (ví dụ như `@Override`, `@Deprecated`), đồng thời, chúng ta cũng có thể tự định nghĩa chú thích.
 
-### 注解的解析方法有哪几种？
+### Có Bao Nhiêu Phương Thức Phân Tích Chú Thích?
 
-注解只有被解析之后才会生效，常见的解析方法有两种：
+Chú thích chỉ có hiệu lực sau khi được phân tích, những phương thức phân tích phổ biến có hai loại:
 
-- **编译期直接扫描**：编译器在编译 Java 代码的时候扫描对应的注解并处理，比如某个方法使用`@Override` 注解，编译器在编译的时候就会检测当前的方法是否重写了父类对应的方法。
-- **运行期通过反射处理**：像框架中自带的注解(比如 Spring 框架的 `@Value`、`@Component`)都是通过反射来进行处理的。
+- **Quét Trực Tiếp Tại Thời Gian Biên Dịch**: Trình biên dịch quét các chú thích tương ứng khi biên dịch code Java và xử lý, ví dụ như phương thức sử dụng chú thích `@Override`, trình biên dịch sẽ kiểm tra khi biên dịch xem phương thức hiện tại có ghi đè phương thức lớp cha tương ứng hay không.
+- **Xử Lý Thông Qua Phản Ánh Tại Thời Gian Chạy**: Những chú thích tích hợp trong framework (ví dụ như `@Value`, `@Component` của Spring framework) đều được xử lý thông qua phản ánh.
 
 ## ⭐️SPI
 
-关于 SPI 的详细解读，请看这篇文章 [Java SPI 机制详解](https://javaguide.cn/java/basis/spi.html) 。
+Để tìm hiểu chi tiết về SPI, vui lòng xem bài viết [Chi Tiết Về Cơ Chế SPI Java](./spi.md).
 
-### 何谓 SPI?
+### SPI Là Gì?
 
-SPI 即 Service Provider Interface ，字面意思就是：“服务提供者的接口”，我的理解是：专门提供给服务提供者或者扩展框架功能的开发者去使用的一个接口。
+SPI tức là Service Provider Interface, theo nghĩa đen là "giao diện của nhà cung cấp dịch vụ", theo hiểu biết của tôi, đó là: một giao diện được cung cấp đặc biệt cho những nhà cung cấp dịch vụ hoặc nhà phát triển mở rộng chức năng framework để sử dụng.
 
-SPI 将服务接口和具体的服务实现分离开来，将服务调用方和服务实现者解耦，能够提升程序的扩展性、可维护性。修改或者替换服务实现并不需要修改调用方。
+SPI tách biệt giao diện dịch vụ và cách triển khai dịch vụ cụ thể, giải phóng người gọi dịch vụ và nhà cung cấp dịch vụ, có thể nâng cao tính mở rộng và khả năng bảo trì của chương trình. Sửa đổi hoặc thay thế cách triển khai dịch vụ không cần phải sửa đổi người gọi.
 
-很多框架都使用了 Java 的 SPI 机制，比如：Spring 框架、数据库加载驱动、日志接口、以及 Dubbo 的扩展实现等等。
+Rất nhiều framework sử dụng cơ chế SPI của Java, ví dụ như: Spring framework, tải trình điều khiển cơ sở dữ liệu, giao diện log, cùng với cách triển khai mở rộng Dubbo, v.v.
 
-<img src="https://oss.javaguide.cn/github/javaguide/java/basis/spi/22e1830e0b0e4115a882751f6c417857tplv-k3u1fbpfcp-zoom-1.jpeg" style="zoom:50%;" />
+### SPI Và API Có Gì Khác Nhau?
 
-### SPI 和 API 有什么区别？
+Khi nói đến SPI, không thể không nói đến API (Application Programming Interface), từ góc độ rộng, chúng đều là giao diện, và rất dễ bị nhầm lẫn. Dưới đây là hình minh họa:
 
-**那 SPI 和 API 有啥区别？**
+Thông thường, các module giao tiếp với nhau thông qua giao diện, do đó chúng ta giới thiệu một "giao diện" giữa bên gọi dịch vụ và bên cung cấp dịch vụ (còn được gọi là nhà cung cấp dịch vụ).
 
-说到 SPI 就不得不说一下 API（Application Programming Interface） 了，从广义上来说它们都属于接口，而且很容易混淆。下面先用一张图说明一下：
+- Khi bên cung cấp cung cấp giao diện và cách triển khai, chúng ta có thể có được khả năng mà bên cung cấp cung cấp cho chúng ta thông qua gọi giao diện của bên cung cấp, đây là **API**. Trong tình huống này, giao diện và cách triển khai đều được đặt trong gói của bên cung cấp. Người gọi gọi giao diện của bên cung cấp để có được chức năng, mà không cần quan tâm đến chi tiết triển khai cụ thể.
+- Khi giao diện nằm ở phía người gọi, đây là **SPI**. Bên người gọi xác định quy tắc giao diện, sau đó các nhà cung cấp khác nhau triển khai giao diện này dựa trên quy tắc này, từ đó cung cấp dịch vụ.
 
-![SPI VS API](https://oss.javaguide.cn/github/javaguide/java/basis/spi-vs-api.png)
+Ví dụ dễ hiểu: Công ty H là một công ty công nghệ, mới thiết kế một loại con chip, và bây giờ cần sản xuất hàng loạt, trong khi trên thị trường có vài công ty sản xuất chip. Lúc này, miễn là công ty H quy định tiêu chuẩn sản xuất chip (định nghĩa tiêu chuẩn giao diện), thì những công ty sản xuất chip hợp tác (nhà cung cấp dịch vụ) sẽ giao hàng theo tiêu chuẩn, từ đó có những chip đặc thù của riêng nhà (cung cấp cách triển khai của các phương án khác nhau, nhưng kết quả được giao là giống nhau).
 
-一般模块之间都是通过接口进行通讯，因此我们在服务调用方和服务实现方（也称服务提供者）之间引入一个“接口”。
+### Ưu Và Nhược Điểm Của SPI?
 
-- 当实现方提供了接口和实现，我们可以通过调用实现方的接口从而拥有实现方给我们提供的能力，这就是 **API**。这种情况下，接口和实现都是放在实现方的包中。调用方通过接口调用实现方的功能，而不需要关心具体的实现细节。
-- 当接口存在于调用方这边时，这就是 **SPI** 。由接口调用方确定接口规则，然后由不同的厂商根据这个规则对这个接口进行实现，从而提供服务。
+Thông qua cơ chế SPI có thể nâng cao đáng kể tính linh hoạt của thiết kế giao diện, nhưng cơ chế SPI cũng có một số nhược điểm, ví dụ như:
 
-举个通俗易懂的例子：公司 H 是一家科技公司，新设计了一款芯片，然后现在需要量产了，而市面上有好几家芯片制造业公司，这个时候，只要 H 公司指定好了这芯片生产的标准（定义好了接口标准），那么这些合作的芯片公司（服务提供者）就按照标准交付自家特色的芯片（提供不同方案的实现，但是给出来的结果是一样的）。
+- Cần duyệt qua tải tất cả các lớp triển khai, không thể tải theo yêu cầu, vì vậy hiệu suất tương đối thấp.
+- Khi nhiều `ServiceLoader` cùng một lúc `load`, sẽ có vấn đề đồng thời.
 
-### SPI 的优缺点？
+## ⭐️Tuần Tự Hóa Và Giải Tuần Tự Hóa
 
-通过 SPI 机制能够大大地提高接口设计的灵活性，但是 SPI 机制也存在一些缺点，比如：
+Để tìm hiểu chi tiết về tuần tự hóa và giải tuần tự hóa, vui lòng xem bài viết [Giải Thích Chi Tiết Tuần Tự Hóa Java](./serialization.md), bên trong có những kiến thức và câu hỏi phỏng vấn toàn diện hơn.
 
-- 需要遍历加载所有的实现类，不能做到按需加载，这样效率还是相对较低的。
-- 当多个 `ServiceLoader` 同时 `load` 时，会有并发问题。
+### Tuần Tự Hóa Là Gì? Giải Tuần Tự Hóa Là Gì?
 
-## ⭐️序列化和反序列化
+Nếu chúng ta cần lưu trữ đối tượng Java lâu dài, ví dụ lưu vào tệp, hoặc truyền đối tượng Java qua mạng, những tình huống này đều cần sử dụng tuần tự hóa.
 
-关于序列化和反序列化的详细解读，请看这篇文章 [Java 序列化详解](https://javaguide.cn/java/basis/serialization.html) ，里面涉及到的知识点和面试题更全面。
+Nói một cách đơn giản:
 
-### 什么是序列化?什么是反序列化?
+- **Tuần Tự Hóa**: Chuyển đổi cấu trúc dữ liệu hoặc đối tượng thành một định dạng có thể lưu trữ hoặc truyền, thường là dòng byte nhị phân, cũng có thể là JSON, XML và các định dạng văn bản khác
+- **Giải Tuần Tự Hóa**: Quá trình chuyển đổi dữ liệu được tạo ra trong quá trình tuần tự hóa thành cấu trúc dữ liệu ban đầu hoặc đối tượng
 
-如果我们需要持久化 Java 对象比如将 Java 对象保存在文件中，或者在网络传输 Java 对象，这些场景都需要用到序列化。
+Đối với ngôn ngữ lập trình hướng đối tượng như Java, chúng ta tuần tự hóa các đối tượng (Object) tức là các lớp được tạo instance (Class), nhưng trong C++ là ngôn ngữ bán hướng đối tượng, struct (cấu trúc) định nghĩa là một loại cấu trúc dữ liệu, trong khi class tương ứng với loại đối tượng.
 
-简单来说：
+Dưới đây là các tình huống ứng dụng phổ biến của tuần tự hóa và giải tuần tự hóa:
 
-- **序列化**：将数据结构或对象转换成可以存储或传输的形式，通常是二进制字节流，也可以是 JSON, XML 等文本格式
-- **反序列化**：将在序列化过程中所生成的数据转换为原始数据结构或者对象的过程
+- Trước khi đối tượng được truyền qua mạng (ví dụ: khi gọi phương thức từ xa RPC), nó cần được tuần tự hóa trước tiên, sau khi nhận được đối tượng được tuần tự hóa, nó cần được giải tuần tự hóa;
+- Trước khi lưu đối tượng vào tệp, cần thực hiện tuần tự hóa, khi đọc đối tượng từ tệp, cần thực hiện giải tuần tự hóa;
+- Trước khi lưu đối tượng vào cơ sở dữ liệu (chẳng hạn như Redis), cần sử dụng tuần tự hóa, khi đọc đối tượng từ cơ sở dữ liệu bộ nhớ cache, cần giải tuần tự hóa;
+- Trước khi lưu đối tượng vào bộ nhớ, cần thực hiện tuần tự hóa, khi đọc đối tượng từ bộ nhớ, cần thực hiện giải tuần tự hóa.
 
-对于 Java 这种面向对象编程语言来说，我们序列化的都是对象（Object）也就是实例化后的类(Class)，但是在 C++这种半面向对象的语言中，struct(结构体)定义的是数据结构类型，而 class 对应的是对象类型。
+### Nếu Có Một Số Trường Không Muốn Tuần Tự Hóa Thì Sao?
 
-下面是序列化和反序列化常见应用场景：
+Đối với các biến không muốn tuần tự hóa, sử dụng từ khóa `transient` để sửa đổi.
 
-- 对象在进行网络传输（比如远程方法调用 RPC 的时候）之前需要先被序列化，接收到序列化的对象之后需要再进行反序列化；
-- 将对象存储到文件之前需要进行序列化，将对象从文件中读取出来需要进行反序列化；
-- 将对象存储到数据库（如 Redis）之前需要用到序列化，将对象从缓存数据库中读取出来需要反序列化；
-- 将对象存储到内存之前需要进行序列化，从内存中读取出来之后需要进行反序列化。
+Tác dụng của từ khóa `transient` là: Ngăn chặn những biến trong phiên bản được sửa đổi bằng từ khóa này tuần tự hóa; khi đối tượng được giải tuần tự hóa, giá trị của biến được sửa đổi bằng `transient` sẽ không được lưu trữ lâu dài và khôi phục.
 
-维基百科是如是介绍序列化的：
+Về `transient` còn có một vài điểm cần lưu ý:
 
-> **序列化**（serialization）在计算机科学的数据处理中，是指将数据结构或对象状态转换成可取用格式（例如存成文件，存于缓冲，或经由网络中发送），以留待后续在相同或另一台计算机环境中，能恢复原先状态的过程。依照序列化格式重新获取字节的结果时，可以利用它来产生与原始对象相同语义的副本。对于许多对象，像是使用大量引用的复杂对象，这种序列化重建的过程并不容易。面向对象中的对象序列化，并不概括之前原始对象所关系的函数。这种过程也称为对象编组（marshalling）。从一系列字节提取数据结构的反向操作，是反序列化（也称为解编组、deserialization、unmarshalling）。
+- `transient` chỉ có thể sửa đổi biến, không thể sửa đổi lớp và phương thức.
+- Biến được sửa đổi bằng `transient`, sau khi giải tuần tự hóa, giá trị biến sẽ được đặt thành giá trị mặc định của kiểu. Ví dụ, nếu sửa đổi kiểu `int`, kết quả sau giải tuần tự hóa sẽ là `0`.
+- Biến `static` vì không thuộc bất kỳ đối tượng nào (Object), nên dù có hoặc không có sửa đổi `transient`, đều sẽ không được tuần tự hóa.
 
-综上：**序列化的主要目的是通过网络传输对象或者说是将对象存储到文件系统、数据库、内存中。**
+### Các Giao Thức Tuần Tự Hóa Phổ Biến Có Những Cái Nào?
 
-![](https://oss.javaguide.cn/github/javaguide/a478c74d-2c48-40ae-9374-87aacf05188c.png)
+JDK tích hợp sẵn giao thức tuần tự hóa thường không được sử dụng, vì hiệu suất tuần tự hóa thấp và tồn tại vấn đề bảo mật. Những giao thức tuần tự hóa được sử dụng phổ biến là Hessian, Kryo, Protobuf, ProtoStuff, đây là những giao thức tuần tự hóa dựa trên nhị phân.
 
-<p style="text-align:right;font-size:13px;color:gray">https://www.corejavaguru.com/java/serialization/interview-questions-1</p>
+Những cái như JSON và XML là những loại tuần tự hóa văn bản. Mặc dù khả năng đọc hiểu tương đối tốt, nhưng hiệu suất kém, thường không được chọn.
 
-**序列化协议对应于 TCP/IP 4 层模型的哪一层？**
+### Tại Sao Không Khuyến Khích Sử Dụng Tuần Tự Hóa Mặc Định Của JDK?
 
-我们知道网络通信的双方必须要采用和遵守相同的协议。TCP/IP 四层模型是下面这样的，序列化协议属于哪一层呢？
+Chúng ta hầu như không bao giờ sử dụng trực tiếp giao thức tuần tự hóa mặc định được cung cấp bởi JDK, lý do chính có những lý do sau:
 
-1. 应用层
-2. 传输层
-3. 网络层
-4. 网络接口层
+- **Không Hỗ Trợ Gọi Chéo Ngôn Ngữ**: Nếu dịch vụ được gọi là từ ngôn ngữ khác thì sẽ không được hỗ trợ.
+- **Hiệu Năng Kém**: So với các framework tuần tự hóa khác, hiệu suất thấp hơn, lý do chính là mảng byte được tuần tự hóa lớn hơn, dẫn đến chi phí vận chuyển tăng lên.
+- **Tồn Tại Vấn Đề Bảo Mật**: Tuần tự hóa và giải tuần tự hóa chính nó không tồn tại vấn đề. Nhưng khi dữ liệu giải tuần tự hóa đầu vào có thể được kiểm soát bởi người dùng, thì những kẻ tấn công có thể tạo ra đầu vào độc hại, làm cho giải tuần tự hóa tạo ra các đối tượng không mong muốn, trong quá trình này sẽ thực thi mã được xây dựng bất kỳ. Bài đọc liên quan: [Lỗ Hổng Bảo Mật Ứng Dụng: Lỗ Hổng Giải Tuần Tự Hóa Java Là Gì](https://cryin.github.io/blog/secure-development-java-deserialization-vulnerability/)
 
-![TCP/IP 四层模型](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-ip-4-model.png)
+## IO
 
-如上图所示，OSI 七层协议模型中，表示层做的事情主要就是对应用层的用户数据进行处理转换为二进制流。反过来的话，就是将二进制流转换成应用层的用户数据。这不就对应的是序列化和反序列化么？
+Để tìm hiểu chi tiết về IO, vui lòng xem các bài viết dưới đây, những bài này có những kiến thức và câu hỏi phỏng vấn toàn diện hơn.
 
-因为，OSI 七层协议模型中的应用层、表示层和会话层对应的都是 TCP/IP 四层模型中的应用层，所以序列化协议属于 TCP/IP 协议应用层的一部分。
+- [Tổng Hợp Kiến Thức Cơ Bản Java IO](./io-basis.md)
+- [Tóm Tắt Mẫu Thiết Kế Java IO](./io-design-patterns.md)
+- [Giải Thích Chi Tiết Mô Hình IO Java](./io-model.md)
 
-### 如果有些字段不想进行序列化怎么办？
+### Bạn Hiểu Rõ Luồng IO Java Không?
 
-对于不想进行序列化的变量，使用 `transient` 关键字修饰。
+IO tức là `Input/Output`, nhập vào và xuất ra. Quá trình nhập dữ liệu vào bộ nhớ máy tính tức là nhập vào, ngược lại, quá trình xuất ra bên ngoài lưu trữ (ví dụ như cơ sở dữ liệu, tệp, máy chủ từ xa) tức là xuất ra. Quá trình truyền dữ liệu tương tự như dòng nước, vì vậy được gọi là luồng IO. Luồng IO trong Java chia thành luồng nhập vào và luồng xuất ra, và theo cách xử lý dữ liệu lại chia thành luồng byte và luồng ký tự.
 
-`transient` 关键字的作用是：阻止实例中那些用此关键字修饰的变量序列化；当对象被反序列化时，被 `transient` 修饰的变量值不会被持久化和恢复。
+Hơn 40 lớp của luồng IO Java đều được lấy từ 4 lớp cơ sở trừu tượng sau đây.
 
-关于 `transient` 还有几点注意：
+- `InputStream`/`Reader`: Lớp cơ sở của tất cả các luồng nhập vào, cái trước là luồng nhập vào byte, cái sau là luồng nhập vào ký tự.
+- `OutputStream`/`Writer`: Lớp cơ sở của tất cả các luồng xuất ra, cái trước là luồng xuất ra byte, cái sau là luồng xuất ra ký tự.
 
-- `transient` 只能修饰变量，不能修饰类和方法。
-- `transient` 修饰的变量，在反序列化后变量值将会被置成类型的默认值。例如，如果是修饰 `int` 类型，那么反序列后结果就是 `0`。
-- `static` 变量因为不属于任何对象(Object)，所以无论有没有 `transient` 关键字修饰，均不会被序列化。
+### Tại Sao Luồng IO Phải Chia Thành Luồng Byte Và Luồng Ký Tự?
 
-### 常见序列化协议有哪些？
+Câu hỏi về cơ bản muốn hỏi: **Bất kể là đọc ghi tệp hay gửi nhận mạng, đơn vị lưu trữ nhỏ nhất của thông tin đều là byte, vậy tại sao hoạt động luồng IO phải chia thành hoạt động luồng byte và hoạt động luồng ký tự?**
 
-JDK 自带的序列化方式一般不会用 ，因为序列化效率低并且存在安全问题。比较常用的序列化协议有 Hessian、Kryo、Protobuf、ProtoStuff，这些都是基于二进制的序列化协议。
+Cá nhân cho rằng chủ yếu có hai lý do:
 
-像 JSON 和 XML 这种属于文本类序列化方式。虽然可读性比较好，但是性能较差，一般不会选择。
+- Luồng ký tự được máy ảo Java chuyển đổi từ byte, quá trình này còn tương đối mất thời gian;
+- Nếu chúng tôi không biết loại mã hóa, trong quá trình sử dụng luồng byte rất dễ xảy ra vấn đề font chữ lộn xộn.
 
-### 为什么不推荐使用 JDK 自带的序列化？
+### Có Những Mẫu Thiết Kế Nào Trong Java IO?
 
-我们很少或者说几乎不会直接使用 JDK 自带的序列化方式，主要原因有下面这些原因：
+Tham khảo đáp án: [Tóm Tắt Mẫu Thiết Kế Java IO](./io-design-patterns.md)
 
-- **不支持跨语言调用** : 如果调用的是其他语言开发的服务的时候就不支持了。
-- **性能差**：相比于其他序列化框架性能更低，主要原因是序列化之后的字节数组体积较大，导致传输成本加大。
-- **存在安全问题**：序列化和反序列化本身并不存在问题。但当输入的反序列化的数据可被用户控制，那么攻击者即可通过构造恶意输入，让反序列化产生非预期的对象，在此过程中执行构造的任意代码。相关阅读：[应用安全：JAVA 反序列化漏洞之殇](https://cryin.github.io/blog/secure-development-java-deserialization-vulnerability/) 。
+### ⭐️Có Gì Khác Biệt Giữa BIO, NIO Và AIO?
 
-## I/O
+Tham khảo đáp án: [Giải Thích Chi Tiết Mô Hình IO Java](./io-model.md)
 
-关于 I/O 的详细解读，请看下面这几篇文章，里面涉及到的知识点和面试题更全面。
+## Cú Pháp Đường Tắt
 
-- [Java IO 基础知识总结](https://javaguide.cn/java/io/io-basis.html)
-- [Java IO 设计模式总结](https://javaguide.cn/java/io/io-design-patterns.html)
-- [Java IO 模型详解](https://javaguide.cn/java/io/io-model.html)
+### Cú Pháp Đường Tắt Là Gì?
 
-### Java IO 流了解吗？
+**Cú Pháp Đường Tắt (Syntactic sugar)** là một loại cú pháp đặc biệt được thiết kế bởi ngôn ngữ lập trình để tiện cho lập trình viên phát triển chương trình, loại cú pháp này không ảnh hưởng đến chức năng của ngôn ngữ lập trình. Triển khai cùng một chức năng, mã được viết dựa trên cú pháp đường tắt thường đơn giản hơn, ngắn gọn hơn và dễ đọc hơn.
 
-IO 即 `Input/Output`，输入和输出。数据输入到计算机内存的过程即输入，反之输出到外部存储（比如数据库，文件，远程主机）的过程即输出。数据传输过程类似于水流，因此称为 IO 流。IO 流在 Java 中分为输入流和输出流，而根据数据的处理方式又分为字节流和字符流。
-
-Java IO 流的 40 多个类都是从如下 4 个抽象类基类中派生出来的。
-
-- `InputStream`/`Reader`: 所有的输入流的基类，前者是字节输入流，后者是字符输入流。
-- `OutputStream`/`Writer`: 所有输出流的基类，前者是字节输出流，后者是字符输出流。
-
-### I/O 流为什么要分为字节流和字符流呢?
-
-问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
-
-个人认为主要有两点原因：
-
-- 字符流是由 Java 虚拟机将字节转换得到的，这个过程还算是比较耗时；
-- 如果我们不知道编码类型的话，使用字节流的过程中很容易出现乱码问题。
-
-### Java IO 中的设计模式有哪些？
-
-参考答案：[Java IO 设计模式总结](https://javaguide.cn/java/io/io-design-patterns.html)
-
-### ⭐️BIO、NIO 和 AIO 的区别？
-
-参考答案：[Java IO 模型详解](https://javaguide.cn/java/io/io-model.html)
-
-## 语法糖
-
-### 什么是语法糖？
-
-**语法糖（Syntactic sugar）** 代指的是编程语言为了方便程序员开发程序而设计的一种特殊语法，这种语法对编程语言的功能并没有影响。实现相同的功能，基于语法糖写出来的代码往往更简单简洁且更易阅读。
-
-举个例子，Java 中的 `for-each` 就是一个常用的语法糖，其原理其实就是基于普通的 for 循环和迭代器。
+Ví dụ, `for-each` trong Java là một cú pháp đường tắt thường dùng, nguyên lý của nó thực chất là dựa trên vòng lặp for thông thường và trình lặp.
 
 ```java
-String[] strs = {"JavaGuide", "公众号：JavaGuide", "博客：https://javaguide.cn/"};
+String[] strs = {"JavaGuide", "Tài Khoản Công Khai: JavaGuide", "Blog: https://javaguide.cn/"};
 for (String s : strs) {
     System.out.println(s);
 }
 ```
 
-不过，JVM 其实并不能识别语法糖，Java 语法糖要想被正确执行，需要先通过编译器进行解糖，也就是在程序编译阶段将其转换成 JVM 认识的基本语法。这也侧面说明，Java 中真正支持语法糖的是 Java 编译器而不是 JVM。如果你去看`com.sun.tools.javac.main.JavaCompiler`的源码，你会发现在`compile()`中有一个步骤就是调用`desugar()`，这个方法就是负责解语法糖的实现的。
+Tuy nhiên, JVM thực sự không thể nhận ra cú pháp đường tắt, để cú pháp đường tắt Java được thực thi chính xác, cần phải được biên dịch trước thông qua trình biên dịch để giải cú pháp, tức là trong quá trình biên dịch chương trình sẽ chuyển đổi nó thành cú pháp cơ bản mà JVM có thể nhận ra. Điều này cũng cho thấy rằng, trong Java, những gì thực sự hỗ trợ cú pháp đường tắt là trình biên dịch Java chứ không phải JVM. Nếu bạn xem mã nguồn `com.sun.tools.javac.main.JavaCompiler`, bạn sẽ thấy rằng trong `compile()` có một bước là gọi `desugar()`, phương thức này chính là chịu trách nhiệm triển khai giải cú pháp đường tắt.
 
-### Java 中有哪些常见的语法糖？
+### Có Những Cú Pháp Đường Tắt Thường Gặp Nào Trong Java?
 
-Java 中最常用的语法糖主要有泛型、自动拆装箱、变长参数、枚举、内部类、增强 for 循环、try-with-resources 语法、lambda 表达式等。
+Những cú pháp đường tắt được sử dụng phổ biến nhất trong Java chủ yếu là kiểu dữ liệu chung, tự động đóng gói mở gói, tham số độ dài thay đổi, enum, lớp bên trong, vòng lặp for nâng cao, cú pháp try-with-resources, biểu thức lambda, v.v.
 
-关于这些语法糖的详细解读，请看这篇文章 [Java 语法糖详解](./syntactic-sugar.md) 。
-
-<!-- @include: @article-footer.snippet.md -->
+Để tìm hiểu chi tiết về những cú pháp đường tắt này, vui lòng xem bài viết [Giải Thích Chi Tiết Cú Pháp Đường Tắt Java](./syntactic-sugar.md).

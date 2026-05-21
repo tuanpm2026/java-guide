@@ -1,12 +1,12 @@
 ---
-title: Java 优质开源大数据项目
-description: Java优质开源大数据项目推荐，涵盖Spark、Flink、HBase、Storm等主流大数据处理框架介绍与对比。
-category: 开源项目
+title: Các dự án Big Data open source Java chất lượng cao
+description: Giới thiệu và so sánh các framework xử lý big data open source Java phổ biến bao gồm Spark, Flink, HBase, Storm.
+category: Open Source Project
 icon: big-data
 ---
 
-- **[Spark](https://github.com/apache/spark)** :Spark 是用于大规模数据处理的统一分析引擎。
-- **[Flink](https://github.com/apache/flink "flink")**：Apache Flink 是一个框架和分布式处理引擎，用于在*无边界和有边界*数据流上进行有状态的计算。Flink 能在所有常见集群环境中运行，并能以内存速度和任意规模进行计算。
-- **[HBase](https://hbase.apache.org/)**：HBase – Hadoop Database，是一个高可靠性、高性能、面向列、可伸缩的分布式存储系统，利用 HBase 技术可在廉价 PC Server 上搭建起大规模结构化存储集群。
-- **[Flume](https://flume.apache.org/)** :Apache Flume 是一个分布式的、可靠的、可用的，从多种不同的源收集、聚集、移动大量日志数据到集中数据存储的系统。
-- **[Storm](https://storm.apache.org/)** : 一个分布式，高容错的实时计算系统。
+- **[Spark](https://github.com/apache/spark)**: Spark là unified analytics engine dùng để xử lý dữ liệu quy mô lớn.
+- **[Flink](https://github.com/apache/flink)**: Apache Flink là framework và distributed processing engine cho stateful computation trên _unbounded và bounded_ data stream. Flink có thể chạy trong tất cả môi trường cluster thông thường và tính toán ở tốc độ memory với quy mô tùy ý.
+- **[HBase](https://hbase.apache.org/)**: HBase – Hadoop Database, là hệ thống lưu trữ distributed có độ tin cậy cao, hiệu năng cao, hướng column, có khả năng scale. Dùng công nghệ HBase có thể xây dựng large-scale structured storage cluster trên PC Server phổ thông.
+- **[Flume](https://flume.apache.org/)**: Apache Flume là hệ thống phân tán, đáng tin cậy, highly available cho việc thu thập, tổng hợp, chuyển lượng lớn log data từ nhiều nguồn khác nhau vào centralized data storage.
+- **[Storm](https://storm.apache.org/)**: Hệ thống tính toán realtime phân tán, high fault-tolerant.

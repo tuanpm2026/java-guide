@@ -1,98 +1,98 @@
 ---
-title: 程序员怎样出版一本技术书
-description: "程序员怎样出版一本技术书：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: Programmer làm thế nào để xuất bản một cuốn sách kỹ thuật
+description: "Programmer làm thế nào để xuất bản một cuốn sách kỹ thuật: Tổng hợp các khái niệm quan trọng, câu hỏi phổ biến và điểm thực hành về kiến thức kỹ thuật và tổng kết phỏng vấn, giúp bạn học hiệu quả và chuẩn bị phỏng vấn."
+category: Tuyển tập bài viết kỹ thuật chất lượng cao
 author: hsm_computer
 tag:
-  - 程序员
+  - Programmer
 head:
   - - meta
     - name: keywords
-      content: 程序员出书,技术书籍出版,出版社合作,图书公司,写书技巧,稿酬收益,技术写作,畅销书
+      content: programmer xuất bản sách,xuất bản sách kỹ thuật,hợp tác nhà xuất bản,công ty sách,kỹ năng viết sách,thu nhập nhuận bút,viết kỹ thuật,sách bán chạy
 ---
 
-> **推荐语**：详细介绍了程序员应该如何从头开始出一本自己的书籍。
+> **Lời giới thiệu**: Giới thiệu chi tiết về cách programmer xuất bản một cuốn sách của riêng mình từ đầu.
 >
-> **原文地址**：<https://www.cnblogs.com/JavaArchitect/p/12195219.html>
+> **Nguồn gốc bài viết**: <https://www.cnblogs.com/JavaArchitect/p/12195219.html>
 
-在面试或联系副业的时候，如果能令人信服地证明自己的实力，那么很有可能事半功倍。如何证明自己的实力？最有信服力的是大公司职位背景背书，没有之一，比如在 BAT 担任资深架构，那么其它话甚至都不用讲了。
+Khi phỏng vấn hoặc tìm kiếm công việc phụ, nếu có thể chứng minh năng lực của mình một cách thuyết phục, khả năng cao bạn sẽ đạt được kết quả gấp đôi với nửa công sức. Làm thế nào để chứng minh năng lực? Có sức thuyết phục nhất là background tại công ty lớn, ví dụ như senior architect tại BAT thì không cần nói thêm gì nữa.
 
-不过，不是每个人入职后马上就是大公司架构师，在上进的路上，还可以通过公众号，专栏博文，GitHub 代码量和出书出视频等方式来证明自己。和其它方式相比，属于自己的技术图书由于经过了国家级出版社的加持，相对更能让别人认可自己的实力，而对于一些小公司而言，一本属于自己的书甚至可以说是免面试的通行证。所以在本文里，就将和广大程序员朋友聊聊出版技术书的那些事。
+Tuy nhiên, không phải ai ngay khi vào làm cũng trở thành architect ở công ty lớn. Trên con đường tiến bộ, bạn cũng có thể chứng minh năng lực qua công khai bài viết, chuyên mục blog, lượng code GitHub và xuất bản sách/video. So với các cách khác, sách kỹ thuật của riêng bạn vì được nhà xuất bản cấp quốc gia bảo chứng nên dễ được người khác công nhận năng lực hơn. Với một số công ty nhỏ, một cuốn sách của riêng bạn thậm chí có thể là giấy thông hành miễn phỏng vấn. Vì vậy, trong bài này, hãy cùng các bạn programmer thảo luận về chuyện xuất bản sách kỹ thuật.
 
-## 1.不是有能力了再出书，而是在出书过程中升能力
+## 1. Không phải đủ năng lực rồi mới viết sách, mà là trong quá trình viết sách mà nâng cao năng lực
 
-我知道的不少朋友，是在工作 3 年内出了第一本书，有些优秀的，甚至在校阶段就出书了。
+Không ít bạn bè tôi biết đã xuất bản cuốn sách đầu tiên khi làm được 3 năm, có những người giỏi thậm chí xuất bản sách khi còn đang học.
 
-与之相比还有另外一种态度，不少同学可能想，要等到技术积累到一定程度再写。其实这或许就不怎么积极了，边写书，边升技术，而且写出的书对人还有帮助，这绝对可以做到的。
+So sánh với đó còn có một quan điểm khác, không ít bạn có thể nghĩ rằng phải đợi kỹ thuật tích lũy đến một mức độ nhất định rồi mới viết. Thực ra điều đó có lẽ không quá tích cực. Vừa viết sách vừa nâng cao kỹ thuật, mà sách viết ra còn có ích cho người khác, điều này hoàn toàn có thể làm được.
 
-比如有同学向深入了解最近比较热门的 Python 数据分析和机器学习，那么就可以在系统性的学习之后，整理之前学习到的爬虫，数据分析和机器学习的案例，根据自己的理解，用适合于初学者的方式整理一下，然后就能出书了。这种书，对资深的人帮助未必大，但由于包含案例，对入门级的读者绝对有帮助，因为这属于现身说法。而且话说回来，如果没有出书这个动力，或者学习过程也就是浅尝辄止，或者未必能全身心地投入，有了出书这个目标，更能保证学习的效果。
+Ví dụ bạn muốn tìm hiểu sâu về Python data analysis và machine learning đang khá hot gần đây, thì sau khi học có hệ thống, bạn có thể tổng hợp các case study về web scraping, data analysis và machine learning đã học trước đó, theo cách hiểu của mình, sắp xếp theo cách phù hợp với người mới bắt đầu, là có thể xuất bản sách rồi. Loại sách này không hẳn có ích lớn với người kinh nghiệm, nhưng vì có case study nên tuyệt đối có ích với độc giả mới vào nghề, vì đây là kinh nghiệm thực tiễn. Hơn nữa, nếu không có động lực xuất bản sách, quá trình học đôi khi chỉ là qua loa, chưa chắc có thể toàn tâm đầu tư. Có mục tiêu xuất bản sách, hiệu quả học tập sẽ tốt hơn.
 
-## 2.适合初级开发，高级开发和架构师写的书
+## 2. Sách phù hợp để viết với junior developer, senior developer và architect
 
-之前也提到了，初级开发适合写案例书，就拿 Python 爬虫数据分析机器学习题材为例，可以先找几本这方面现成的书，这些书里，或者章节内容不同，但一起集成看的话，应该可以包含这方面的内容。然后就参考别人书的思路，比如一章写爬虫，一章写 pandas，一章写 matplotlib 等等，整合起来，就可以用 若干个章节构成一本书了。总之，别人书里包含什么内容，你别照抄，但可以参考别人写哪些技术点。
+Như đã đề cập, junior developer phù hợp viết sách case study. Lấy chủ đề Python web scraping, data analysis, machine learning làm ví dụ. Bạn có thể tìm vài cuốn sách hiện có về lĩnh vực này, những cuốn sách này dù các chương có thể khác nhau, nhưng đọc tổng hợp lại nên có thể bao gồm nội dung của lĩnh vực đó. Sau đó tham khảo cấu trúc của sách người khác, ví dụ một chương viết web scraping, một chương viết pandas, một chương viết matplotlib..., tích hợp lại là có thể tạo thành một cuốn sách với vài chương. Tóm lại, xem người khác đưa vào sách nội dung gì, bạn đừng sao chép, nhưng có thể tham khảo các điểm kỹ thuật người khác viết.
 
-定好章节后，再定下每个章节的小节，比如第三章讲爬虫案例，那么可以定 3.1 讲爬虫概念，3.2 讲如何搭建 Scrapy 库，3.3 讲如何开发 Scrapy 爬虫案例，通过先章再节的次序，就可以定好一本书的框架。由于是案例书，所以是先给运行通的代码，再用这些代码案例教别人入门，所以案例未必很深，但需要让初学者看了就能懂，而且按照你给出的知识体系逐步学习之后，能理解这个主题的内容。并且，能在看完你这本书以后，能通过调通你给出的爬虫，机器学习等的案例，掌握这一领域的知识，并能从事这方面的基本开发。这个目标，对初级开发而言，稍微用点心，费点时间，应该不难达到。
+Sau khi xác định chương, lại xác định các mục trong mỗi chương. Ví dụ chương 3 giảng về case study web scraping thì có thể xác định 3.1 giới thiệu khái niệm web scraping, 3.2 cách cài đặt thư viện Scrapy, 3.3 cách phát triển case study Scrapy crawler. Theo thứ tự từ chương đến mục, bạn xác định được framework của một cuốn sách. Vì là sách case study, nên cần đưa ra code chạy được trước, rồi dùng các case study code đó để hướng dẫn người khác vào nghề. Case study không nhất thiết phải sâu, nhưng cần để người mới nhìn vào là hiểu, và sau khi theo hệ thống kiến thức bạn đưa ra mà học từng bước, có thể hiểu được nội dung chủ đề này. Và sau khi đọc xong cuốn sách của bạn, có thể chạy được các case study web scraping, machine learning... bạn đưa ra, nắm vững kiến thức lĩnh vực này và có thể làm được phát triển cơ bản trong lĩnh vực đó. Mục tiêu này, với junior developer, chỉ cần chịu khó bỏ thời gian ra là không khó làm được.
 
-而对于高级开发和架构师而言，除了写存粹案例书以外，还可以在书里给出你在大公司里总结出来的开发经验，也就是所谓踩过的坑，比如 Python 在用 matplotlib 会图例时，在设置坐标轴方面有哪些技巧，设置时会遇到哪些常见问题，如果在书里大量包含这种经验，你的书含金量更高。
+Còn với senior developer và architect, ngoài viết sách thuần case study, còn có thể đưa vào sách những kinh nghiệm phát triển tổng kết được từ các công ty lớn, tức là những "hố" đã vấp phải. Ví dụ khi dùng matplotlib của Python để vẽ legend, có những kỹ năng gì khi thiết lập coordinate axis, gặp những vấn đề phổ biến nào khi thiết lập, nếu sách của bạn có nhiều kinh nghiệm như thế này, hàm lượng gold của sách bạn sẽ cao hơn.
 
-此外，高级开发和架构师还可以写一些技术含量更高的书，比如就讲高并发场景下的实践经验，或者 k8s+docker 应对高并发的经验，这种书里，可以给出代码，更可以给出实施方案和架构实施技巧，比如就讲高并发场景里，缓存该如何选型，如何避免击穿，雪崩等场景，如何排查线上 redis 问题，如何设计故障应对预案。除了这条路之外，还可以深入细节，比如通过讲 dubbo 底层代码，告诉大家如何高效配置 dubbo，出了问题该如何排查。如果架构师或高级开发有这类书作为背书，外带大厂工作经验，那么就更可以打出自己的知名度。
+Ngoài ra, senior developer và architect còn có thể viết những cuốn sách kỹ thuật cao hơn, ví dụ chỉ nói về kinh nghiệm thực tiễn trong high concurrency scenarios, hoặc kinh nghiệm dùng k8s+docker để đối phó high concurrency. Trong loại sách này, có thể đưa ra code, còn có thể đưa ra implementation solutions và architecture implementation tips. Ví dụ trong high concurrency scenarios, cache nên chọn như thế nào, cách tránh cache penetration, avalanche và các scenarios như vậy, cách troubleshoot redis problems, cách thiết kế disaster recovery plans. Ngoài hướng này, còn có thể đi sâu vào chi tiết, ví dụ qua việc giải thích Dubbo underlying code, cho mọi người biết cách cấu hình Dubbo hiệu quả và cách troubleshoot khi có vấn đề. Nếu architect hay senior developer có loại sách này để làm background, kết hợp kinh nghiệm làm việc tại big tech, thì có thể tạo dựng tên tuổi cho bản thân.
 
-## 3.可以直接找出版社，也可以找出版公司
+## 3. Có thể tìm trực tiếp nhà xuất bản, hoặc tìm công ty sách
 
-在我的这篇博文里，[程序员副业那些事：聊聊出书和录视频](https://www.cnblogs.com/JavaArchitect/p/11616906.html)，给出了通过出版社出书和图书公司出书的差别，供大家参考，大家看了以后可以自行决定出书方式。
+Trong bài blog này của tôi, [Chuyện nghề tay trái của programmer: Nói về viết sách và quay video](https://www.cnblogs.com/JavaArchitect/p/11616906.html), đã đưa ra sự khác biệt giữa viết sách qua nhà xuất bản và qua công ty sách, mọi người có thể tham khảo và tự quyết định cách xuất bản.
 
-不过不管怎么选，在出书前你得搞明白一些事，或许个别图书出版公司的工作人员不会主动说，这需要你自己问清楚。
+Dù chọn cách nào, trước khi xuất bản bạn cần hiểu rõ một số điều. Có thể một số nhân viên công ty sách không chủ động nói, bạn cần tự hỏi rõ:
 
-- 你的合作方是谁？图书出版公司还是出版社？
-- 你的书将在哪个出版社出版？国内比较有名的是清华，人邮，电子和机械，同时其它出版社不能说不好，但业内比较认这四个。
-- 和你沟通的人，是最终有决定权的图书编辑吗？还是图书公司里的工作人员？再啰嗦下，最后能决定书能否出版，以及确定修改意见的，是出版社的编辑。
+- Đối tác của bạn là ai? Công ty xuất bản sách hay nhà xuất bản?
+- Sách của bạn sẽ được xuất bản tại nhà xuất bản nào? Những nhà xuất bản nổi tiếng trong nước là Tsinghua, Renmin Youdian, Electronic và Machinery. Các nhà xuất bản khác không phải là không tốt, nhưng ngành nghề công nhận bốn cái đó hơn.
+- Người đang trao đổi với bạn, có phải biên tập sách có quyền quyết định cuối cùng không? Hay là nhân viên tại công ty sách? Nhấn mạnh lại, người cuối cùng quyết định sách có xuất bản được không và xác định ý kiến chỉnh sửa là biên tập của nhà xuất bản.
 
-通过对比出版社和图书出版公司，在搞清楚诸多细节后，大家可以自己斟酌考虑合作的方式。而且，出版社和图书公司的联系方式，在官网上都有，大家可以自行通过邮件等方式联系。
+Sau khi so sánh nhà xuất bản và công ty xuất bản sách, tìm hiểu rõ các chi tiết, mọi người có thể tự cân nhắc cách hợp tác. Và thông tin liên hệ của nhà xuất bản và công ty sách đều có trên website chính thức, mọi người có thể tự liên hệ qua email.
 
-## 4.如果别人拿你做试错对象，或有不尊重，赶紧止损
+## 4. Nếu người khác dùng bạn để thử nghiệm, hoặc không tôn trọng, hãy dừng lại ngay
 
-我之前看到有图书出版公司招募面向 Java 初学者图书的作者，并且也主动联系过相关人员，得到的反馈大多是：“要重写”。
+Trước đây tôi thấy có công ty xuất bản sách tuyển tác giả cho sách hướng đến người mới học Java, và cũng đã chủ động liên hệ với nhân viên liên quan, phản hồi nhận được hầu hết là: "cần viết lại".
 
-比如我列了大纲发过去，反馈是“要重写”，原因是对方没学过 Java，但作为零基础的人看了我的大纲，发现学不会。至于要重写成什么样子 ，对方也说不上来，总之让我再给个大纲，再给一版后，同样没过，这次好些，给了我几本其它类似书的大纲，让我自行看别人有什么好的点。总之不提（或者说提不出）具体的改进点，要我自行尝试各种改进点，试到对方感觉可以为止。
+Ví dụ tôi gửi outline đi, phản hồi là "cần viết lại", lý do là đối phương chưa học Java, nhưng là người zero-knowledge đọc outline của tôi thấy không học được. Còn viết lại thành kiểu gì, đối phương cũng không nói được, cứ bảo tôi đưa outline mới. Gửi một bản nữa vẫn không pass, lần này tốt hơn một chút, gửi cho tôi outline của vài cuốn sách tương tự khác, bảo tôi tự xem người ta có điểm hay gì. Tóm lại không đưa ra (hoặc không đưa ra được) điểm cải thiện cụ thể, cứ bảo tôi tự thử các điểm cải thiện khác nhau cho đến khi đối phương thấy được mới thôi.
 
-相比我和几位出版社专业的编辑沟通时，哪怕大纲或稿件有问题，对方会指明到点，并给出具体的修改意见。我不知道图书出版公司里的组织结构，但出版社里，计算机图书有专门的部门，专门的编辑，对方提出的意见都是比较专业，且修改起来很有操作性。
+So sánh với khi tôi trao đổi với vài biên tập chuyên nghiệp của nhà xuất bản, dù outline hay bản thảo có vấn đề, đối phương sẽ chỉ ra điểm cụ thể và đưa ra ý kiến chỉnh sửa cụ thể. Tôi không biết cơ cấu tổ chức của công ty sách, nhưng trong nhà xuất bản, sách máy tính có phòng ban và biên tập chuyên trách, ý kiến đối phương đưa ra đều khá chuyên nghiệp và dễ thực hiện chỉnh sửa.
 
-另外，我在各种渠道，时不时看到有图书出版公司的人员，晒出别人交付的稿件，在众目睽睽之下，说其中有什么问题，意思让大家引以为戒。姑且不论这样做的动机，并且这位工作人员也涂掉了能表面作者身份的信息。但作者出于信任把稿件交到你手上，在不征得作者同意就公开稿件，说“不把作者当回事”，这并不为过。不然，完全可以用私信的方式和作者交流，而不是把作者无心之过公示于众。
+Ngoài ra, trên các kênh khác, thỉnh thoảng tôi thấy nhân viên của công ty xuất bản sách đăng bản thảo người khác giao lên, trước mặt đông đảo mọi người, nói nó có vấn đề gì, ý là để mọi người rút kinh nghiệm. Tạm gác lý do làm vậy là gì, và nhân viên này cũng đã che đi thông tin nhận dạng tác giả. Nhưng tác giả vì tin tưởng mà giao bản thảo cho bạn, công khai bản thảo mà không xin phép tác giả, nói "không coi tác giả ra gì" cũng không sai. Hoàn toàn có thể trao đổi với tác giả qua tin nhắn riêng, không cần công khai lỗi vô ý của tác giả trước mặt mọi người.
 
-我在和出版社合作时，这类事绝没发生过，而且我认识的出版社编辑，都对各位作者保持着足够的尊重。而且我和我的朋友和多位图书出版公司的朋友交流时，也能得到尊重和礼遇。所以，如果大家在写书时，尤其在写第一本书时，如果遇到被试错，或者从言辞等方面感觉对方不把你当会事，那么可以当即止损。其实也没有什么“损失”，你把当前的大纲和稿件再和出版社编辑交流时，或许你的收益还能提升。
+Khi tôi hợp tác với nhà xuất bản, chuyện như vậy chưa bao giờ xảy ra, và các biên tập nhà xuất bản tôi quen đều tôn trọng đầy đủ các tác giả. Và khi tôi và bạn bè trao đổi với nhiều bạn bè tại công ty sách, cũng được tôn trọng và đối xử lịch sự. Vì vậy, nếu khi viết sách, đặc biệt khi viết cuốn sách đầu tiên, nếu bạn gặp phải chuyện bị dùng để thử nghiệm, hoặc cảm thấy từ lời nói đối phương không coi trọng bạn, hãy dừng lại ngay. Thực ra cũng không có "thiệt thòi" gì, bạn đem outline và bản thảo hiện tại trao đổi với biên tập nhà xuất bản, thu nhập của bạn có thể còn tăng lên.
 
-## 5.如何写好 30 页篇幅的章节？
+## 5. Làm thế nào để viết tốt một chương 30 trang?
 
-在和出版社定好写作合同后，就可以创作了。书是由章节构成，这里讲下如何构思并创作一个章节。
+Sau khi ký hợp đồng viết với nhà xuất bản, bạn có thể bắt đầu sáng tác. Sách được cấu thành từ các chương, ở đây nói về cách cấu trúc và viết một chương.
 
-比如写爬虫章节，大概 30 页，先定节和目，比如 3.1 搭建爬虫环境是小节，3.1.1 下载 Python Scrapy 包，则是目。先定要写的内容，具体到爬虫小节，可以写 3.1 搭建环境，3.2 Scrapy 的重要模块，3.3 如何开发 Scrapy 爬虫，3.4 开发好以后如何运行，3.5 如何把爬到的信息放入数据库，这些都是小节。
+Ví dụ viết chương web scraping, khoảng 30 trang, trước tiên xác định mục và tiểu mục. Ví dụ 3.1 Thiết lập môi trường web scraping là mục nhỏ, 3.1.1 Tải Python Scrapy package là tiểu mục. Trước tiên xác định nội dung cần viết, cụ thể với mục web scraping, có thể viết 3.1 Thiết lập môi trường, 3.2 Các module quan trọng của Scrapy, 3.3 Cách phát triển Scrapy crawler, 3.4 Cách chạy sau khi phát triển xong, 3.5 Cách đưa thông tin đã scrape vào database, đây đều là các mục nhỏ.
 
-再具体到目，比如 3.5 里，3.5.1 里写如何搭建数据库环境 3.5.2 里写如何在 Scrapy 里连接数据库 3.5.3 里给出实际案例 3.5.4 里给出运行步骤和示例效果。
+Chi tiết hơn đến tiểu mục, ví dụ trong 3.5: 3.5.1 viết cách thiết lập môi trường database, 3.5.2 viết cách kết nối database trong Scrapy, 3.5.3 đưa ra case study thực tế, 3.5.4 đưa ra các bước chạy và hiệu quả demo.
 
-这样可以搭建好一个章的框架，在每个小节里，先给出可以运行通的，而且能说明问题的代码，再给出对代码的说明，再写下代码如何配置，开发时该注意哪些问题，必要时用表格和图来说明，用这样的条理，最多 3 个星期可以完成一个章节，快的话一周半就一个章节。
+Như vậy có thể xây dựng framework của một chương. Trong mỗi mục nhỏ, trước tiên đưa ra code có thể chạy được và có thể minh họa vấn đề, sau đó giải thích code, viết cách cấu hình code, những điều cần chú ý khi phát triển, khi cần thiết dùng bảng và hình để giải thích. Với cách tổ chức này, tối đa 3 tuần có thể hoàn thành một chương, nhanh thì một tuần rưỡi là xong một chương.
 
-以此类推，一本书大概有 12 个章节，第一章可以讲如何安装环境，以及基础语法，后面就可以由浅入深，一个章节一个主题，比如讲 Python 爬虫，第二章可以是讲基础语法，第三章讲 http 协议以及爬虫知识点，以此深入，讲全爬虫，数据分析，数据展示和机器学习等技能。
+Tương tự, một cuốn sách thường có khoảng 12 chương, chương đầu có thể giới thiệu cách cài đặt môi trường và cú pháp cơ bản, sau đó từ dễ đến khó, mỗi chương một chủ đề. Ví dụ viết về Python web scraping, chương 2 có thể là cú pháp cơ bản, chương 3 là giao thức HTTP và kiến thức web scraping, từ đó đi sâu, bao gồm web scraping, data analysis, data visualization và machine learning...
 
-按这样算，如果出第一本书，平均下来一个月 2 个章节，大概半年到八个月可以完成一本书，思路就是先搭建书的知识体系，写每个章节时再搭建某个知识点的框架，在小节和目里，用代码结合说明的方式，这样从简到难，大家就可以完成第一本属于自己的书了。
+Tính như vậy, nếu xuất bản cuốn sách đầu tiên, trung bình một tháng 2 chương, khoảng nửa năm đến tám tháng có thể hoàn thành một cuốn sách. Ý tưởng là trước tiên xây dựng hệ thống kiến thức của sách, khi viết mỗi chương lại xây dựng framework của một điểm kiến thức, trong các mục nhỏ và tiểu mục, dùng code kết hợp với giải thích, từ đơn giản đến khó, như vậy mọi người có thể hoàn thành cuốn sách đầu tiên của riêng mình.
 
-## 6.如何写出一本销量过 5 千的书
+## 6. Làm thế nào để viết một cuốn sách bán được hơn 5000 bản?
 
-目前纸质书一般一次印刷在 2500 册，大多数书一般就一次印刷，买完为止。如果能销调 5000 本，就属于受欢迎了，如果销量过万，就可以说是大神级书的。这里先不论大神级书，就说下如何写一本过 5000 的畅销书。
+Hiện tại sách giấy thường in một lần 2500 cuốn, hầu hết sách thường chỉ in một lần, hết là thôi. Nếu bán được 5000 cuốn thì thuộc loại được ưa chuộng, nếu bán hơn chục nghìn mới có thể gọi là sách tầm master. Ở đây trước tiên không bàn đến sách tầm master, nói về cách viết một cuốn sách bán chạy hơn 5000 cuốn.
 
-1 最好贴近热点，比如当前热点是全栈开发和机器学习等，如何找热点，就到京东等处去看热销书的关键字。具体操作起来，多和出版社编辑沟通，或许作者更多是从技术角度分析，但出版社的编辑是从市场角度来考虑问题。
+1. Tốt nhất là bám sát xu hướng hot, ví dụ xu hướng hiện tại là fullstack development và machine learning. Cách tìm xu hướng hot, lên các trang như JD.com xem từ khóa của sách bán chạy. Cụ thể hơn, trao đổi nhiều với biên tập nhà xuất bản, tác giả thường phân tích từ góc độ kỹ thuật, nhưng biên tập nhà xuất bản nhìn từ góc độ thị trường.
 
-2 如果你的书能被培训机构用作教材，那想不热都不行。培训机构一般用哪些教材呢？第一面向初学者，第二代码全面，第三在这个领域里涵盖知识点全。如果要达成这点，大家可以和出版社的编辑直接沟通，问下相关细节。
+2. Nếu sách của bạn được các cơ sở đào tạo dùng làm giáo trình, thì chắc chắn sẽ rất hot. Các cơ sở đào tạo thường dùng giáo trình nào? Thứ nhất hướng đến người mới học, thứ hai code đầy đủ, thứ ba bao phủ toàn diện các điểm kiến thức trong lĩnh vực đó. Để đạt được điều này, mọi người có thể trao đổi trực tiếp với biên tập nhà xuất bản, hỏi các chi tiết liên quan.
 
-3 可以文字生动，但不能用过于花哨的文字来掩盖书的内涵不足，也就是说畅销书一定要有干货，能解决初学者实际问题，比如 Python 机器学习方向，就写一本用案例涵盖目前常用的机器学习算法，一个章节一种算法，并且案例中有可视化，数据分析，爬虫等要素，可视化的效果如果再吸引人，这本书畅销的可能性也很大。
+3. Có thể dùng ngôn ngữ sinh động, nhưng không được dùng ngôn từ hoa mỹ để che đi sự thiếu hụt nội dung của sách. Nghĩa là sách bán chạy nhất định phải có kiến thức hữu ích thực tế, có thể giải quyết vấn đề thực tế của người mới học. Ví dụ về hướng Python machine learning, viết một cuốn sách dùng case study bao gồm các thuật toán machine learning phổ biến hiện tại, mỗi chương một thuật toán, và case study có các yếu tố như visualization, data analysis, web scraping, nếu hiệu quả visualization còn hấp dẫn, khả năng bán chạy của cuốn sách này cũng rất cao.
 
-4 一定不能心存敷衍，代码调通不算，更力求简洁，说明文字多面向读者，内容上，确保读者一看就会，而且看了有收获，或许这点说起来很抽象，但我写了几本书以后切身体会，要做到这很难，同时做到了，书哪怕不畅想，但至少不误人子弟。
+4. Tuyệt đối không được có tâm lý qua loa, code chạy được chưa đủ, còn phải cố gắng làm cho gọn gàng, lời giải thích đa phần hướng đến độc giả. Về nội dung, đảm bảo độc giả nhìn vào là hiểu, và đọc xong là học được gì đó. Điều này nghe có vẻ trừu tượng, nhưng sau khi tôi viết vài cuốn sách, cảm nhận thực sự, làm được điều này rất khó. Nhưng làm được rồi, dù sách không bán chạy, ít nhất không hại người ta.
 
-## 7.总结，出书仅是一个里程碑，程序员在上进路上应永不停息
+## 7. Tổng kết: Xuất bản sách chỉ là một cột mốc, programmer trên con đường tiến bộ không bao giờ được dừng lại
 
-出书不简单，因为不是每个人都愿意在半年到八个月里，每个晚上每个周末都费时费力写书。但出书也不难，毕竟时间用上去了，出书也只是调试代码加写文字的活，最多再外加些和人沟通的成本。
+Viết sách không đơn giản, vì không phải ai cũng sẵn sàng dành nửa năm đến tám tháng, mỗi tối mỗi cuối tuần bỏ thời gian công sức viết sách. Nhưng viết sách cũng không khó, vì cũng chỉ là debug code và viết văn, nhiều nhất thêm một chút chi phí giao tiếp với người khác.
 
-其实出书收益并不高，算下来月入大概能在 3k 左右，如果是和图书出版公司合作，估计更少，但这好歹能证明自己的实力。不过在出书后不能止步于此，因为在大厂里有太多的牛人，甚至不用靠出书来证明自己的实力。
+Thực ra thu nhập từ viết sách không cao, tính ra mỗi tháng khoảng 3k tệ, nếu hợp tác với công ty xuất bản sách, ước chừng còn ít hơn. Nhưng dù sao cũng là bằng chứng cho năng lực của mình. Tuy nhiên sau khi viết sách không thể dừng ở đó, vì trong big tech có quá nhiều người giỏi, thậm chí không cần dùng việc viết sách để chứng minh năng lực.
 
-那么如何让出书带来的利益最大化呢？第一可以靠这进大厂，面试时有自己的书绝对是加分项。第二可以用这个去各大网站开专栏，录视频，或者开公众号，毕竟有出版社的背书，能更让别人信服你的能力。第三更得用写书时积累的学习方法和上进的态势继续专研更高深技术，技术有了，不仅能到大厂挣更多的钱，还能通过企业培训等方式更高效地挣钱。
+Vậy làm thế nào để tối đa hóa lợi ích từ việc viết sách? Thứ nhất có thể dùng điều này để vào big tech, khi phỏng vấn có sách của riêng mình chắc chắn là điểm cộng. Thứ hai có thể dùng điều này để mở chuyên mục trên các website lớn, quay video, hoặc mở công khai, vì có nhà xuất bản bảo chứng, dễ thuyết phục người khác về năng lực của bạn. Thứ ba còn phải dùng phương pháp học và tinh thần tiến bộ tích lũy được khi viết sách để tiếp tục nghiên cứu công nghệ cao hơn. Có kỹ thuật tốt, không chỉ vào big tech kiếm được nhiều tiền hơn, còn có thể qua đào tạo doanh nghiệp... kiếm tiền hiệu quả hơn.
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,56 +1,56 @@
 ---
-title: 虚拟线程常见问题总结
-description: Java 21虚拟线程详解：全面解析Virtual Threads虚拟线程原理、与平台线程区别、Project Loom项目、适用IO密集型场景、使用注意事项与最佳实践。
+title: Tổng hợp câu hỏi phổ biến về Virtual Thread
+description: Giải thích chi tiết Java 21 Virtual Thread: phân tích toàn diện nguyên lý Virtual Threads, sự khác biệt với platform thread, Project Loom, tình huống I/O-intensive phù hợp, lưu ý sử dụng và best practice.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
-      content: Java虚拟线程,Virtual Threads,Project Loom,Java 21新特性,轻量级线程,协程,虚拟线程原理
+      content: Java virtual thread,Virtual Threads,Project Loom,Java 21 new features,lightweight thread,coroutine,nguyên lý virtual thread
 ---
 
-> 本文部分内容来自 [Lorin](https://github.com/Lorin-github) 的[PR](https://github.com/Snailclimb/JavaGuide/pull/2190)。
+> Một phần nội dung bài này đến từ [PR](https://github.com/Snailclimb/JavaGuide/pull/2190) của [Lorin](https://github.com/Lorin-github).
 
-虚拟线程在 Java 21 正式发布，这是一项重量级的更新。
+Virtual Thread được chính thức phát hành trong Java 21 — đây là một cập nhật trọng lượng nặng.
 
-## 什么是虚拟线程？
+## Virtual Thread là gì?
 
-虚拟线程（Virtual Thread）是 JDK 而不是 OS 实现的轻量级线程(Lightweight Process，LWP），由 JVM 调度。许多虚拟线程共享同一个操作系统线程，虚拟线程的数量可以远大于操作系统线程的数量。
+Virtual Thread (luồng ảo) là lightweight thread (LWP — Lightweight Process) được JDK chứ không phải OS triển khai, được schedule bởi JVM. Nhiều virtual thread chia sẻ cùng một OS thread. Số lượng virtual thread có thể lớn hơn rất nhiều so với OS thread.
 
-## 虚拟线程和平台线程有什么关系？
+## Mối quan hệ giữa Virtual Thread và Platform Thread là gì?
 
-在引入虚拟线程之前，`java.lang.Thread` 包已经支持所谓的平台线程（Platform Thread），也就是没有虚拟线程之前，我们一直使用的线程。JVM 调度程序通过平台线程（载体线程）来管理虚拟线程，一个平台线程可以在不同的时间执行不同的虚拟线程（多个虚拟线程挂载在一个平台线程上），当虚拟线程被阻塞或等待时，平台线程可以切换到执行另一个虚拟线程。
+Trước khi giới thiệu virtual thread, package `java.lang.Thread` đã hỗ trợ gọi là platform thread — tức thread mà chúng ta vẫn dùng trước khi có virtual thread. JVM scheduler quản lý virtual thread thông qua platform thread (carrier thread). Một platform thread có thể thực thi các virtual thread khác nhau vào các thời điểm khác nhau (nhiều virtual thread mount trên một platform thread). Khi virtual thread bị block hoặc chờ, platform thread có thể chuyển sang thực thi virtual thread khác.
 
-虚拟线程、平台线程和系统内核线程的关系图如下所示（图源：[How to Use Java 19 Virtual Threads](https://medium.com/javarevisited/how-to-use-java-19-virtual-threads-c16a32bad5f7)）：
+Sơ đồ quan hệ giữa virtual thread, platform thread và system kernel thread như dưới (nguồn: [How to Use Java 19 Virtual Threads](https://medium.com/javarevisited/how-to-use-java-19-virtual-threads-c16a32bad5f7)):
 
-![虚拟线程、平台线程和系统内核线程的关系](https://oss.javaguide.cn/github/javaguide/java/new-features/virtual-threads-platform-threads-kernel-threads-relationship.png)
+![Quan hệ giữa virtual thread, platform thread và system kernel thread](https://oss.javaguide.cn/github/javaguide/java/new-features/virtual-threads-platform-threads-kernel-threads-relationship.png)
 
-关于平台线程和系统内核线程的对应关系多提一点：在 Windows 和 Linux 等主流操作系统中，Java 线程采用的是一对一的线程模型，也就是一个平台线程对应一个系统内核线程。Solaris 系统是一个特例，HotSpot VM 在 Solaris 上支持多对多和一对一。具体可以参考 R 大的回答: [JVM 中的线程模型是用户级的么？](https://www.zhihu.com/question/23096638/answer/29617153)。
+Thêm một điểm về quan hệ tương ứng giữa platform thread và system kernel thread: Trên các OS phổ biến như Windows và Linux, Java thread dùng mô hình one-to-one — tức một platform thread tương ứng một system kernel thread. Solaris là ngoại lệ, HotSpot VM trên Solaris hỗ trợ cả many-to-many và one-to-one. Tham khảo câu trả lời của R: [Mô hình thread trong JVM có phải user-level không?](https://www.zhihu.com/question/23096638/answer/29617153).
 
-## 虚拟线程有什么优点和缺点？
+## Virtual Thread có ưu và nhược điểm gì?
 
-### 优点
+### Ưu điểm
 
-- **非常轻量级**：可以在单个线程中创建成百上千个虚拟线程而不会导致过多的线程创建和上下文切换。
-- **简化异步编程**： 虚拟线程可以简化异步编程，使代码更易于理解和维护。它可以将异步代码编写得更像同步代码，避免了回调地狱（Callback Hell）。
-- **减少资源开销**： 由于虚拟线程是由 JVM 实现的，它能够更高效地利用底层资源，例如 CPU 和内存。虚拟线程的上下文切换比平台线程更轻量，因此能够更好地支持高并发场景。
+- **Rất lightweight**: Có thể tạo hàng trăm nghìn virtual thread trong một thread mà không gây tạo quá nhiều thread và context switching.
+- **Đơn giản hóa async programming**: Virtual thread có thể đơn giản hóa async programming, giúp code dễ hiểu và bảo trì hơn. Có thể viết async code trông giống sync code, tránh được callback hell.
+- **Giảm resource overhead**: Vì virtual thread được JVM triển khai, nó có thể sử dụng underlying resource như CPU và memory hiệu quả hơn. Context switching của virtual thread nhẹ hơn platform thread, do đó hỗ trợ high concurrency tốt hơn.
 
-### 缺点
+### Nhược điểm
 
-- **不适用于计算密集型任务**： 虚拟线程适用于 I/O 密集型任务，但不适用于计算密集型任务，因为密集型计算始终需要 CPU 资源作为支持。
-- **与某些第三方库不兼容**： 虽然虚拟线程设计时考虑了与现有代码的兼容性，但某些依赖平台线程特性的第三方库可能不完全兼容虚拟线程。
+- **Không phù hợp cho compute-intensive task**: Virtual thread phù hợp với I/O-intensive task nhưng không phù hợp với compute-intensive task, vì tính toán dày đặc luôn cần CPU resource hỗ trợ.
+- **Không tương thích với một số third-party library**: Mặc dù virtual thread được thiết kế với khả năng tương thích code hiện có, nhưng một số third-party library phụ thuộc vào đặc tính platform thread có thể không hoàn toàn tương thích với virtual thread.
 
-## 如何创建虚拟线程？
+## Cách tạo Virtual Thread?
 
-官方提供了以下四种方式创建虚拟线程：
+Official cung cấp 4 cách tạo virtual thread sau:
 
-1. 使用 `Thread.startVirtualThread()` 创建
-2. 使用 `Thread.ofVirtual()` 创建
-3. 使用 `ThreadFactory` 创建
-4. 使用 `Executors.newVirtualThreadPerTaskExecutor()`创建
+1. Dùng `Thread.startVirtualThread()` để tạo
+2. Dùng `Thread.ofVirtual()` để tạo
+3. Dùng `ThreadFactory` để tạo
+4. Dùng `Executors.newVirtualThreadPerTaskExecutor()` để tạo
 
-**1、使用 `Thread.startVirtualThread()` 创建**
+**1. Dùng `Thread.startVirtualThread()` để tạo**
 
 ```java
 public class VirtualThreadTest {
@@ -68,16 +68,16 @@ static class CustomThread implements Runnable {
 }
 ```
 
-**2、使用 `Thread.ofVirtual()` 创建**
+**2. Dùng `Thread.ofVirtual()` để tạo**
 
 ```java
 public class VirtualThreadTest {
   public static void main(String[] args) {
     CustomThread customThread = new CustomThread();
-    // 创建不启动
+    // Tạo mà không start
     Thread unStarted = Thread.ofVirtual().unstarted(customThread);
     unStarted.start();
-    // 创建直接启动
+    // Tạo và start luôn
     Thread.ofVirtual().start(customThread);
   }
 }
@@ -89,7 +89,7 @@ static class CustomThread implements Runnable {
 }
 ```
 
-**3、使用 `ThreadFactory` 创建**
+**3. Dùng `ThreadFactory` để tạo**
 
 ```java
 public class VirtualThreadTest {
@@ -109,7 +109,7 @@ static class CustomThread implements Runnable {
 }
 ```
 
-**4、使用`Executors.newVirtualThreadPerTaskExecutor()`创建**
+**4. Dùng `Executors.newVirtualThreadPerTaskExecutor()` để tạo**
 
 ```java
 public class VirtualThreadTest {
@@ -127,19 +127,19 @@ static class CustomThread implements Runnable {
 }
 ```
 
-## 虚拟线程和平台线程性能对比
+## So sánh hiệu năng Virtual Thread và Platform Thread
 
-通过多线程和虚拟线程的方式处理相同的任务，对比创建的系统线程数和处理耗时。
+Xử lý cùng một task bằng multi-thread và virtual thread, so sánh số lượng OS thread được tạo và thời gian xử lý.
 
-**说明**：统计创建的系统线程中部分为后台线程（比如 GC 线程），两种场景下都一样，所以并不影响对比。
+**Lưu ý**: Trong số OS thread được đếm có một số là background thread (như GC thread), giống nhau ở cả hai tình huống nên không ảnh hưởng đến việc so sánh.
 
-**测试代码**：
+**Code test**:
 
 ```java
 public class VirtualThreadTest {
     static List<Integer> list = new ArrayList<>();
     public static void main(String[] args) {
-        // 开启线程 统计平台线程数
+        // Mở thread để đếm platform thread số lượng
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
@@ -148,14 +148,14 @@ public class VirtualThreadTest {
         }, 10, 10, TimeUnit.MILLISECONDS);
 
         long start = System.currentTimeMillis();
-        // 虚拟线程
+        // Virtual thread
         ExecutorService executor =  Executors.newVirtualThreadPerTaskExecutor();
-        // 使用平台线程
+        // Dùng platform thread
         // ExecutorService executor =  Executors.newFixedThreadPool(200);
         for (int i = 0; i < 10000; i++) {
             executor.submit(() -> {
                 try {
-                    // 线程睡眠 0.5 s，模拟业务处理
+                    // Thread sleep 0.5s, simulate business processing
                     TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException ignored) {
                 }
@@ -167,7 +167,7 @@ public class VirtualThreadTest {
 
 
     }
-    // 更新创建的平台最大线程数
+    // Cập nhật số lượng platform thread tối đa đã tạo
     private static void updateMaxThreadNum(int num) {
         if (list.isEmpty()) {
             list.add(num);
@@ -181,61 +181,59 @@ public class VirtualThreadTest {
 }
 ```
 
-**请求数 10000 单请求耗时 1s**：
+**10000 requests, mỗi request mất 1s**:
 
 ```plain
 // Virtual Thread
 max：22 platform thread/os thread
 totalMillis：1806ms
 
-// Platform Thread  线程数200
+// Platform Thread  200 threads
 max：209 platform thread/os thread
 totalMillis：50578ms
 
-// Platform Thread  线程数500
+// Platform Thread  500 threads
 max：509 platform thread/os thread
 totalMillis：20254ms
 
-// Platform Thread  线程数1000
+// Platform Thread  1000 threads
 max：1009 platform thread/os thread
 totalMillis：10214ms
 
-// Platform Thread  线程数2000
+// Platform Thread  2000 threads
 max：2009 platform thread/os thread
 totalMillis：5358ms
 ```
 
-**请求数 10000 单请求耗时 0.5s**：
+**10000 requests, mỗi request mất 0.5s**:
 
 ```plain
 // Virtual Thread
 max：22 platform thread/os thread
 totalMillis：1316ms
 
-// Platform Thread  线程数200
+// Platform Thread  200 threads
 max：209 platform thread/os thread
 totalMillis：25619ms
 
-// Platform Thread  线程数500
+// Platform Thread  500 threads
 max：509 platform thread/os thread
 totalMillis：10277ms
 
-// Platform Thread  线程数1000
+// Platform Thread  1000 threads
 max：1009 platform thread/os thread
 totalMillis：5197ms
 
-// Platform Thread  线程数2000
+// Platform Thread  2000 threads
 max：2009 platform thread/os thread
 totalMillis：2865ms
 ```
 
-- 可以看到在密集 IO 的场景下，需要创建大量的平台线程异步处理才能达到虚拟线程的处理速度。
-- 因此，在密集 IO 的场景，虚拟线程可以大幅提高线程的执行效率，减少线程资源的创建以及上下文切换。
+- Có thể thấy trong tình huống I/O-intensive, cần tạo nhiều platform thread async mới đạt được tốc độ xử lý của virtual thread.
+- Do đó, trong tình huống I/O-intensive, virtual thread có thể cải thiện đáng kể hiệu quả thực thi thread, giảm tạo thread resource và context switching.
 
-**注意**：有段时间 JDK 一直致力于 Reactor 响应式编程来提高 Java 性能，但响应式编程难以理解、调试、使用，最终又回到了同步编程，最终虚拟线程诞生。
+**Lưu ý**: Có giai đoạn JDK liên tục nỗ lực với Reactive programming để cải thiện hiệu năng Java, nhưng Reactive programming khó hiểu, debug và sử dụng, cuối cùng lại quay về sync programming — và cuối cùng virtual thread ra đời.
 
-## 虚拟线程的底层原理是什么？
+## Nguyên lý bên dưới của Virtual Thread là gì?
 
-如果你想要详细了解虚拟线程实现原理，推荐一篇文章：[虚拟线程 - VirtualThread 源码透视](https://www.cnblogs.com/throwable/p/16758997.html)。
-
-面试一般是不会问到这个问题的，仅供学有余力的同学进一步研究学习。
+Nếu muốn tìm hiểu chi tiết nguyên lý triển khai virtual thread, khuyến nghị bài: [Virtual Thread — VirtualThread Source Code Analysis](https://www.cnblogs.com/throwable/p/16758997.html).

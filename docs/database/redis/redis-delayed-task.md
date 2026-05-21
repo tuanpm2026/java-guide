@@ -1,87 +1,87 @@
 ---
-title: 如何基于Redis实现延时任务？
-description: 详解基于Redis实现延时任务的两种方案：过期事件监听和Redisson延时队列，分析各方案的优缺点、可靠性问题和适用场景。
-category: 数据库
+title: Làm thế nào để triển khai Delayed Task dựa trên Redis?
+description: Giải thích chi tiết hai phương án triển khai delayed task dựa trên Redis: lắng nghe sự kiện key expired và Redisson delayed queue, phân tích ưu nhược điểm, vấn đề độ tin cậy và tình huống sử dụng của mỗi phương án.
+category: Cơ sở dữ liệu
 tag:
   - Redis
 head:
   - - meta
     - name: keywords
-      content: Redis延时任务,延时队列,过期事件监听,Redisson DelayedQueue,订单超时,定时任务
+      content: Redis delayed task,delayed queue,lắng nghe sự kiện key expired,Redisson DelayedQueue,order timeout,scheduled task
 ---
 
-基于 Redis 实现延时任务的功能无非就下面两种方案：
+Để triển khai chức năng delayed task dựa trên Redis, về cơ bản có hai phương án:
 
-1. Redis 过期事件监听
-2. Redisson 内置的延时队列
+1. Redis expired event listener (lắng nghe sự kiện key expired)
+2. Delayed queue tích hợp sẵn trong Redisson
 
-面试的时候，你可以先说自己考虑了这两种方案，但最后发现 Redis 过期事件监听这种方案存在很多问题，因此你最终选择了 Redisson 内置的 DelayedQueue 这种方案。
+Khi phỏng vấn, bạn có thể nói đã cân nhắc cả hai phương án, nhưng cuối cùng phát hiện phương án Redis expired event listener có nhiều vấn đề, nên chọn phương án Redisson DelayedQueue tích hợp sẵn.
 
-这个时候面试官可能会追问你一些相关的问题，我们后面会提到，提前准备就好了。
+Lúc đó phỏng vấn viên có thể hỏi thêm một số câu hỏi liên quan, phần sau sẽ đề cập — chuẩn bị trước là tốt nhất.
 
-另外，除了下面介绍到的这些问题之外，Redis 相关的常见问题建议你都复习一遍，不排除面试官会顺带问你一些 Redis 的其他问题。
+Ngoài ra, ngoài các vấn đề được giới thiệu dưới đây, bạn nên ôn lại tất cả các câu hỏi phổ biến liên quan đến Redis, không loại trừ phỏng vấn viên sẽ hỏi thêm các câu hỏi Redis khác.
 
-### Redis 过期事件监听实现延时任务功能的原理？
+### Nguyên lý triển khai chức năng delayed task bằng Redis expired event listener?
 
-Redis 2.0 引入了发布订阅 (pub/sub) 功能。在 pub/sub 中，引入了一个叫做 **channel（频道）** 的概念，有点类似于消息队列中的 **topic（主题）**。
+Redis 2.0 giới thiệu chức năng pub/sub (publish/subscribe). Trong pub/sub, có khái niệm gọi là **channel (kênh)**, tương tự như **topic** trong message queue.
 
-pub/sub 涉及发布者（publisher）和订阅者（subscriber，也叫消费者）两个角色：
+Pub/sub liên quan đến hai vai trò: publisher (nhà xuất bản) và subscriber (người đăng ký, cũng gọi là consumer):
 
-- 发布者通过 `PUBLISH` 投递消息给指定 channel。
-- 订阅者通过`SUBSCRIBE`订阅它关心的 channel。并且，订阅者可以订阅一个或者多个 channel。
+- Publisher gửi message vào channel được chỉ định qua `PUBLISH`.
+- Subscriber đăng ký channel mình quan tâm qua `SUBSCRIBE`. Subscriber có thể đăng ký một hoặc nhiều channel.
 
-![Redis 发布订阅 (pub/sub) 功能](https://oss.javaguide.cn/github/javaguide/database/redis/redis-pub-sub.png)
+![Chức năng pub/sub của Redis](https://oss.javaguide.cn/github/javaguide/database/redis/redis-pub-sub.png)
 
-在 pub/sub 模式下，生产者需要指定消息发送到哪个 channel 中，而消费者则订阅对应的 channel 以获取消息。
+Trong chế độ pub/sub, producer cần chỉ định channel để gửi message, consumer đăng ký channel tương ứng để nhận message.
 
-Redis 中有很多默认的 channel，这些 channel 是由 Redis 本身向它们发送消息的，而不是我们自己编写的代码。其中，`__keyevent@0__:expired` 就是一个默认的 channel，负责监听 key 的过期事件。也就是说，当一个 key 过期之后，Redis 会发布一个 key 过期的事件到`__keyevent@<db>__:expired`这个 channel 中。
+Redis có nhiều channel mặc định, các channel này được Redis tự gửi message, không phải do code của chúng ta viết. Trong đó, `__keyevent@0__:expired` là một channel mặc định phụ trách lắng nghe sự kiện key expired. Tức là khi một key expired, Redis sẽ publish sự kiện key expired vào channel `__keyevent@<db>__:expired`.
 
-我们只需要监听这个 channel，就可以拿到过期的 key 的消息，进而实现了延时任务功能。
+Chúng ta chỉ cần lắng nghe channel này là có thể nhận được message về key đã expired, từ đó triển khai chức năng delayed task.
 
-这个功能被 Redis 官方称为 **keyspace notifications** ，作用是实时监控 Redis 键和值的变化。
+Chức năng này được Redis gọi chính thức là **keyspace notifications**, có tác dụng giám sát real-time các thay đổi của key và value trong Redis.
 
-### Redis 过期事件监听实现延时任务功能有什么缺陷？
+### Redis expired event listener có những hạn chế gì khi triển khai delayed task?
 
-**1、时效性差**
+**1. Độ kịp thời kém**
 
-官方文档的一段介绍解释了时效性差的原因，地址：<https://redis.io/docs/manual/keyspace-notifications/#timing-of-expired-events> 。
+Tài liệu chính thức giải thích nguyên nhân độ kịp thời kém tại: <https://redis.io/docs/manual/keyspace-notifications/#timing-of-expired-events>.
 
-![Redis 过期事件](https://oss.javaguide.cn/github/javaguide/database/redis/redis-timing-of-expired-events.png)
+![Redis expired event](https://oss.javaguide.cn/github/javaguide/database/redis/redis-timing-of-expired-events.png)
 
-这段话的核心是：过期事件消息是在 Redis 服务器删除 key 时发布的，而不是一个 key 过期之后就会就会直接发布。
+Điểm cốt lõi: message sự kiện expired được publish khi Redis server xóa key, chứ không phải ngay khi key expired.
 
-我们知道常用的过期数据的删除策略就两个：
+Có hai chiến lược xóa dữ liệu expired phổ biến:
 
-1. **惰性删除**：只会在取出 key 的时候才对数据进行过期检查。这样对 CPU 最友好，但是可能会造成太多过期 key 没有被删除。
-2. **定期删除**：每隔一段时间抽取一批 key 执行删除过期 key 操作。并且，Redis 底层会通过限制删除操作执行的时长和频率来减少删除操作对 CPU 时间的影响。
+1. **Lazy deletion**: Chỉ kiểm tra key expired khi lấy key ra. Thân thiện nhất với CPU nhưng có thể khiến quá nhiều key expired không được xóa.
+2. **Periodic deletion**: Định kỳ trích xuất một số key để thực hiện thao tác xóa key expired. Redis ở tầng dưới sẽ giới hạn thời gian thực thi và tần suất của thao tác xóa để giảm ảnh hưởng đến CPU.
 
-定期删除对内存更加友好，惰性删除对 CPU 更加友好。两者各有千秋，所以 Redis 采用的是 **定期删除+惰性/懒汉式删除** 。
+Periodic deletion thân thiện với memory hơn, lazy deletion thân thiện với CPU hơn. Mỗi cái có ưu điểm riêng, nên Redis áp dụng chiến lược **periodic deletion + lazy/lazy deletion**.
 
-因此，就会存在我设置了 key 的过期时间，但到了指定时间 key 还未被删除，进而没有发布过期事件的情况。
+Do đó, sẽ xảy ra tình huống: tôi đã đặt thời gian expired cho key, nhưng đến thời điểm đó key vẫn chưa bị xóa, dẫn đến sự kiện expired không được publish.
 
-**2、丢消息**
+**2. Mất message**
 
-Redis 的 pub/sub 模式中的消息并不支持持久化，这与消息队列不同。在 Redis 的 pub/sub 模式中，发布者将消息发送给指定的频道，订阅者监听相应的频道以接收消息。当没有订阅者时，消息会被直接丢弃，在 Redis 中不会存储该消息。
+Message trong chế độ pub/sub của Redis không hỗ trợ persistence, khác với message queue. Trong chế độ pub/sub của Redis, publisher gửi message đến channel, subscriber lắng nghe channel để nhận message. Khi không có subscriber, message bị bỏ qua thẳng và không được lưu trữ trong Redis.
 
-**3、多服务实例下消息重复消费**
+**3. Duplicate message consumption với nhiều service instance**
 
-Redis 的 pub/sub 模式目前只有广播模式，这意味着当生产者向特定频道发布一条消息时，所有订阅相关频道的消费者都能够收到该消息。
+Chế độ pub/sub của Redis hiện chỉ có broadcast mode, nghĩa là khi producer publish một message vào channel cụ thể, tất cả consumer đăng ký channel liên quan đều nhận được message đó.
 
-这个时候，我们需要注意多个服务实例重复处理消息的问题，这会增加代码开发量和维护难度。
+Lúc này cần chú ý vấn đề nhiều service instance xử lý trùng lặp message, điều này tăng workload phát triển và độ khó bảo trì.
 
-### Redisson 延迟队列原理是什么？有什么优势？
+### Nguyên lý của Redisson Delayed Queue là gì? Có những ưu điểm gì?
 
-Redisson 是一个开源的 Java 语言 Redis 客户端，提供了很多开箱即用的功能，比如多种分布式锁的实现、延时队列。
+Redisson là một Redis client mã nguồn mở cho ngôn ngữ Java, cung cấp nhiều chức năng out-of-the-box như nhiều loại distributed lock, delayed queue.
 
-我们可以借助 Redisson 内置的延时队列 RDelayedQueue 来实现延时任务功能。
+Chúng ta có thể dùng RDelayedQueue tích hợp sẵn của Redisson để triển khai chức năng delayed task.
 
-Redisson 的延迟队列 RDelayedQueue 是基于 Redis 的 SortedSet 来实现的。SortedSet 是一个有序集合，其中的每个元素都可以设置一个分数，代表该元素的权重。Redisson 利用这一特性，将需要延迟执行的任务插入到 SortedSet 中，并给它们设置相应的过期时间作为分数。
+Redisson RDelayedQueue được triển khai dựa trên SortedSet của Redis. SortedSet là một sorted collection, mỗi phần tử có thể đặt một score biểu thị trọng số. Redisson tận dụng đặc tính này, insert các task cần delay vào SortedSet và đặt thời gian expired tương ứng làm score.
 
-Redisson 定期使用 `zrangebyscore` 命令扫描 SortedSet 中过期的元素，然后将这些过期元素从 SortedSet 中移除，并将它们加入到就绪消息列表中。就绪消息列表是一个阻塞队列，有消息进入就会被消费者监听到。这样做可以避免消费者对整个 SortedSet 进行轮询，提高了执行效率。
+Redisson định kỳ dùng lệnh `zrangebyscore` để quét các phần tử đã expired trong SortedSet, sau đó xóa các phần tử expired này khỏi SortedSet và thêm chúng vào ready message list. Ready message list là một blocking queue, có message vào sẽ được consumer lắng nghe ngay. Cách này tránh consumer phải poll toàn bộ SortedSet, tăng hiệu quả thực thi.
 
-相比于 Redis 过期事件监听实现延时任务功能，这种方式具备下面这些优势：
+So với triển khai delayed task bằng Redis expired event listener, cách này có những ưu điểm sau:
 
-1. **减少了丢消息的可能**：DelayedQueue 中的消息会被持久化，即使 Redis 宕机了，根据持久化机制，也只可能丢失一点消息，影响不大。当然了，你也可以使用扫描数据库的方法作为补偿机制。
-2. **消息不存在重复消费问题**：每个客户端都是从同一个目标队列中获取任务的，不存在重复消费的问题。
+1. **Giảm khả năng mất message**: Message trong DelayedQueue được persist. Kể cả Redis bị down, dựa trên cơ chế persistence cũng chỉ có thể mất một chút message, ảnh hưởng không lớn. Tất nhiên bạn cũng có thể dùng phương pháp scan database làm compensation mechanism.
+2. **Message không có vấn đề duplicate consumption**: Mỗi client đều lấy task từ cùng một target queue, không có vấn đề duplicate consumption.
 
-跟 Redisson 内置的延时队列相比，消息队列可以通过保障消息消费的可靠性、控制消息生产者和消费者的数量等手段来实现更高的吞吐量和更强的可靠性，实际项目中首选使用消息队列的延时消息这种方案。
+So với delayed queue tích hợp sẵn của Redisson, message queue có thể đảm bảo độ tin cậy consume message, kiểm soát số lượng producer và consumer để đạt throughput cao hơn và độ tin cậy mạnh hơn. Trong dự án thực tế, ưu tiên dùng phương án delayed message của message queue.

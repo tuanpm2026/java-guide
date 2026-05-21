@@ -1,140 +1,139 @@
 ---
-title: Java IO 模型详解
-description: Java IO模型详解：深入剖析BIO阻塞IO、NIO非阻塞IO、AIO异步IO三种模型、多路复用机制、Reactor/Proactor模式、同步异步阻塞非阻塞概念辨析。
+title: Giải thích chi tiết Java IO Model
+description: Giải thích chi tiết Java IO Model: phân tích sâu ba model BIO blocking IO, NIO non-blocking IO, AIO async IO, cơ chế multiplexing, Reactor/Proactor pattern, phân biệt khái niệm synchronous/asynchronous/blocking/non-blocking.
 category: Java
 tag:
   - Java IO
-  - Java基础
+  - Java cơ bản
 head:
   - - meta
     - name: keywords
-      content: Java IO模型,BIO,NIO,AIO,阻塞IO,非阻塞IO,多路复用,Reactor模式,Proactor模式
+      content: Java IO model,BIO,NIO,AIO,blocking IO,non-blocking IO,multiplexing,Reactor pattern,Proactor pattern
 ---
 
-IO 模型这块确实挺难理解的，需要太多计算机底层知识。写这篇文章用了挺久，就非常希望能把我所知道的讲出来吧!希望朋友们能有收获！为了写这篇文章，还翻看了一下《UNIX 网络编程》这本书，太难了，我滴乖乖！心痛~
+IO model thực sự khó hiểu, đòi hỏi nhiều kiến thức nền tảng về máy tính. Viết bài này mất khá nhiều thời gian — hy vọng trình bày được những gì tôi biết! Chúc các bạn học được nhiều điều hữu ích! Để viết bài này còn lật lại cuốn 《UNIX Network Programming》 — khó quá trời!
 
-_个人能力有限。如果文章有任何需要补充/完善/修改的地方，欢迎在评论区指出，共同进步！_
+_Năng lực cá nhân có hạn. Nếu bài viết có bất kỳ chỗ nào cần bổ sung/hoàn thiện/chỉnh sửa, hoan nghênh nhận xét, cùng tiến bộ!_
 
-## 前言
+## Lời mở đầu
 
-I/O 一直是很多小伙伴难以理解的一个知识点，这篇文章我会将我所理解的 I/O 讲给你听，希望可以对你有所帮助。
+I/O luôn là điểm kiến thức khó hiểu với nhiều người. Bài này tôi sẽ kể lại I/O theo cách hiểu của mình, hy vọng có thể hữu ích cho bạn.
 
 ## I/O
 
-### 何为 I/O?
+### I/O là gì?
 
-I/O（**I**nput/**O**utput） 即**输入／输出** 。
+I/O (**I**nput/**O**utput) — **nhập/xuất**.
 
-**我们先从计算机结构的角度来解读一下 I/O。**
+**Trước tiên giải nghĩa I/O từ góc độ cấu trúc máy tính.**
 
-根据冯.诺依曼结构，计算机结构分为 5 大部分：运算器、控制器、存储器、输入设备、输出设备。
+Theo kiến trúc Von Neumann, cấu trúc máy tính chia thành 5 phần: ALU (Arithmetic Logic Unit), Control Unit, Memory, Input device, Output device.
 
-![冯诺依曼体系结构](https://oss.javaguide.cn/github/javaguide/java/io/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9pcy1jbG91ZC5ibG9nLmNzZG4ubmV0,size_16,color_FFFFFF,t_70.jpeg)
+![Kiến trúc Von Neumann](https://oss.javaguide.cn/github/javaguide/java/io/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9pcy1jbG91ZC5ibG9nLmNzZG4ubmV0,size_16,color_FFFFFF,t_70.jpeg)
 
-输入设备（比如键盘）和输出设备（比如显示器）都属于外部设备。网卡、硬盘这种既可以属于输入设备，也可以属于输出设备。
+Input device (như bàn phím) và output device (như màn hình) đều là thiết bị ngoại vi. Network card, HDD có thể vừa là input device vừa là output device.
 
-输入设备向计算机输入数据，输出设备接收计算机输出的数据。
+Input device nhập dữ liệu vào máy tính, output device nhận dữ liệu đầu ra từ máy tính.
 
-**从计算机结构的视角来看的话， I/O 描述了计算机系统与外部设备之间通信的过程。**
+**Từ góc độ cấu trúc máy tính, I/O mô tả quá trình giao tiếp giữa computer system và thiết bị ngoại vi.**
 
-**我们再先从应用程序的角度来解读一下 I/O。**
+**Bây giờ giải nghĩa I/O từ góc độ ứng dụng.**
 
-根据大学里学到的操作系统相关的知识：为了保证操作系统的稳定性和安全性，一个进程的地址空间划分为 **用户空间（User space）** 和 **内核空间（Kernel space ）** 。
+Theo kiến thức OS học ở đại học: Để đảm bảo tính ổn định và bảo mật của OS, address space của một process được chia thành **User space** và **Kernel space**.
 
-像我们平常运行的应用程序都是运行在用户空间，只有内核空间才能进行系统态级别的资源有关的操作，比如文件管理、进程通信、内存管理等等。也就是说，我们想要进行 IO 操作，一定是要依赖内核空间的能力。
+Các ứng dụng thông thường đều chạy trong user space. Chỉ kernel space mới có thể thực hiện các thao tác liên quan đến resource ở system level như file management, process communication, memory management, v.v. Tức là, để thực hiện IO operation nhất thiết phải dựa vào khả năng của kernel space.
 
-并且，用户空间的程序不能直接访问内核空间。
+Và, program trong user space không thể trực tiếp truy cập kernel space.
 
-当想要执行 IO 操作时，由于没有执行这些操作的权限，只能发起系统调用请求操作系统帮忙完成。
+Khi muốn thực thi IO operation, do không có quyền thực hiện trực tiếp, chỉ có thể phát system call để yêu cầu OS hỗ trợ.
 
-因此，用户进程想要执行 IO 操作的话，必须通过 **系统调用** 来间接访问内核空间
+Do đó, user process muốn thực thi IO operation phải truy cập gián tiếp kernel space qua **system call**.
 
-我们在平常开发过程中接触最多的就是 **磁盘 IO（读写文件）** 和 **网络 IO（网络请求和响应）**。
+Trong quá trình phát triển hàng ngày, chúng ta tiếp xúc nhiều nhất là **disk IO (đọc/ghi file)** và **network IO (network request và response)**.
 
-**从应用程序的视角来看的话，我们的应用程序对操作系统的内核发起 IO 调用（系统调用），操作系统负责的内核执行具体的 IO 操作。也就是说，我们的应用程序实际上只是发起了 IO 操作的调用而已，具体 IO 的执行是由操作系统的内核来完成的。**
+**Từ góc độ ứng dụng: Ứng dụng phát IO call (system call) đến kernel của OS. Kernel chịu trách nhiệm thực thi IO operation cụ thể. Tức là, ứng dụng thực ra chỉ phát call cho IO operation — IO thực sự được thực thi bởi kernel của OS.**
 
-当应用程序发起 I/O 调用后，会经历两个步骤：
+Sau khi ứng dụng phát I/O call, sẽ trải qua hai bước:
 
-1. 内核等待 I/O 设备准备好数据
-2. 内核将数据从内核空间拷贝到用户空间。
+1. Kernel chờ I/O device chuẩn bị dữ liệu.
+2. Kernel copy dữ liệu từ kernel space sang user space.
 
-### 有哪些常见的 IO 模型?
+### Có những IO model phổ biến nào?
 
-UNIX 系统下， IO 模型一共有 5 种：**同步阻塞 I/O**、**同步非阻塞 I/O**、**I/O 多路复用**、**信号驱动 I/O** 和**异步 I/O**。
+Trong UNIX system, IO model có 5 loại: **Synchronous Blocking I/O**, **Synchronous Non-blocking I/O**, **I/O Multiplexing**, **Signal-driven I/O** và **Asynchronous I/O**.
 
-这也是我们经常提到的 5 种 IO 模型。
+Đây cũng là 5 IO model chúng ta thường nhắc đến.
 
-## Java 中 3 种常见 IO 模型
+## 3 IO model phổ biến trong Java
 
 ### BIO (Blocking I/O)
 
-**BIO 属于同步阻塞 IO 模型** 。
+**BIO thuộc Synchronous Blocking IO model.**
 
-同步阻塞 IO 模型中，应用程序发起 read 调用后，会一直阻塞，直到内核把数据拷贝到用户空间。
+Trong Synchronous Blocking IO model, sau khi ứng dụng phát `read` call, sẽ block liên tục cho đến khi kernel copy dữ liệu sang user space.
 
-![图源：《深入拆解Tomcat & Jetty》](https://oss.javaguide.cn/p3-juejin/6a9e704af49b4380bb686f0c96d33b81~tplv-k3u1fbpfcp-watermark.png)
+![Nguồn hình: 《Deep Dive Tomcat & Jetty》](https://oss.javaguide.cn/p3-juejin/6a9e704af49b4380bb686f0c96d33b81~tplv-k3u1fbpfcp-watermark.png)
 
-在客户端连接数量不高的情况下，是没问题的。但是，当面对十万甚至百万级连接的时候，传统的 BIO 模型是无能为力的。因此，我们需要一种更高效的 I/O 处理模型来应对更高的并发量。
+Khi số client connection không cao thì không có vấn đề. Nhưng khi đối mặt với hàng trăm nghìn hay hàng triệu connection, BIO model truyền thống hoàn toàn bất lực. Do đó cần model I/O xử lý hiệu quả hơn để đáp ứng concurrency cao hơn.
 
 ### NIO (Non-blocking/New I/O)
 
-Java 中的 NIO 于 Java 1.4 中引入，对应 `java.nio` 包，提供了 `Channel` , `Selector`，`Buffer` 等抽象。NIO 中的 N 可以理解为 Non-blocking，不单纯是 New。它是支持面向缓冲的，基于通道的 I/O 操作方法。 对于高负载、高并发的（网络）应用，应使用 NIO 。
+NIO trong Java được giới thiệu trong Java 1.4, tương ứng với package `java.nio`, cung cấp các abstraction như `Channel`, `Selector`, `Buffer`. N trong NIO có thể hiểu là Non-blocking, không đơn thuần là New. Nó là phương pháp I/O operation dựa trên buffer và channel. Với ứng dụng (network) high-load, high-concurrency nên dùng NIO.
 
-Java 中的 NIO 可以看作是 **I/O 多路复用模型**。也有很多人认为，Java 中的 NIO 属于同步非阻塞 IO 模型。
+NIO trong Java có thể coi là **I/O Multiplexing model**. Cũng có nhiều người cho rằng NIO trong Java thuộc Synchronous Non-blocking IO model.
 
-跟着我的思路往下看看，相信你会得到答案！
+Hãy theo dõi tiếp, tin rằng bạn sẽ có câu trả lời!
 
-我们先来看看 **同步非阻塞 IO 模型**。
+Trước tiên xem **Synchronous Non-blocking IO model**.
 
-![图源：《深入拆解Tomcat & Jetty》](https://oss.javaguide.cn/p3-juejin/bb174e22dbe04bb79fe3fc126aed0c61~tplv-k3u1fbpfcp-watermark.png)
+![Nguồn hình: 《Deep Dive Tomcat & Jetty》](https://oss.javaguide.cn/p3-juejin/bb174e22dbe04bb79fe3fc126aed0c61~tplv-k3u1fbpfcp-watermark.png)
 
-同步非阻塞 IO 模型中，应用程序会一直发起 read 调用，等待数据从内核空间拷贝到用户空间的这段时间里，线程依然是阻塞的，直到在内核把数据拷贝到用户空间。
+Trong Synchronous Non-blocking IO model, ứng dụng liên tục phát `read` call. Trong khoảng thời gian chờ kernel copy dữ liệu sang user space, thread vẫn bị block cho đến khi kernel copy xong dữ liệu sang user space.
 
-相比于同步阻塞 IO 模型，同步非阻塞 IO 模型确实有了很大改进。通过轮询操作，避免了一直阻塞。
+So với Synchronous Blocking IO model, Synchronous Non-blocking IO model có cải thiện đáng kể. Thông qua polling, tránh được việc block liên tục.
 
-> 同步非阻塞 IO，发起一个 read 调用，如果数据没有准备好，这个时候应用程序可以不阻塞等待，而是切换去做一些小的计算任务，然后很快回来继续发起 read 调用，也就是轮询。这个
-> 轮询不是持续不断发起的，会有间隙, 这个间隙的利用就是同步非阻塞 IO 比同步阻塞 IO 高效的地方。
+> Synchronous non-blocking IO: Phát một `read` call; nếu dữ liệu chưa chuẩn bị sẵn, ứng dụng không cần block chờ mà có thể chuyển sang làm một số tính toán nhỏ, sau đó quay lại tiếp tục phát `read` call — đây là polling. Polling không phát liên tục mà có khoảng dừng. Việc tận dụng khoảng dừng này chính là điểm hiệu quả hơn của Synchronous Non-blocking IO so với Synchronous Blocking IO.
 
-但是，这种 IO 模型同样存在问题：**应用程序不断进行 I/O 系统调用轮询数据是否已经准备好的过程是十分消耗 CPU 资源的。**
+Nhưng IO model này cũng có vấn đề: **Quá trình ứng dụng liên tục thực hiện I/O system call để polling xem dữ liệu đã sẵn chưa tiêu tốn rất nhiều CPU resource.**
 
-这个时候，**I/O 多路复用模型** 就上场了。
+Lúc này **I/O Multiplexing model** xuất hiện.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/io/88ff862764024c3b8567367df11df6ab~tplv-k3u1fbpfcp-watermark.png)
 
-IO 多路复用模型中，线程首先发起 select 调用，询问内核数据是否准备就绪，等内核把数据准备好了，用户线程再发起 read 调用。read 调用的过程（数据从内核空间 -> 用户空间）还是阻塞的。
+Trong IO Multiplexing model, thread trước tiên phát `select` call, hỏi kernel xem dữ liệu đã sẵn chưa. Sau khi kernel chuẩn bị dữ liệu xong, user thread mới phát `read` call. Quá trình `read` call (dữ liệu từ kernel space → user space) vẫn bị block.
 
-> 目前支持 IO 多路复用的系统调用，有 select，epoll 等等。select 系统调用，目前几乎在所有的操作系统上都有支持。
+> Hiện tại các system call hỗ trợ IO multiplexing gồm select, epoll, v.v. System call `select` hiện được hỗ trợ trên hầu hết mọi OS.
 >
-> - **select 调用**：内核提供的系统调用，它支持一次查询多个系统调用的可用状态。几乎所有的操作系统都支持。
-> - **epoll 调用**：linux 2.6 内核，属于 select 调用的增强版本，优化了 IO 的执行效率。
+> - **select call**: System call do kernel cung cấp, hỗ trợ query trạng thái khả dụng của nhiều system call cùng lúc. Hầu hết OS đều hỗ trợ.
+> - **epoll call**: Linux 2.6 kernel, là phiên bản nâng cao của select call, tối ưu hiệu quả thực thi IO.
 
-**IO 多路复用模型，通过减少无效的系统调用，减少了对 CPU 资源的消耗。**
+**IO Multiplexing model giảm tiêu thụ CPU resource bằng cách giảm system call không hiệu quả.**
 
-Java 中的 NIO ，有一个非常重要的**选择器 ( Selector )** 的概念，也可以被称为 **多路复用器**。通过它，只需要一个线程便可以管理多个客户端连接。当客户端数据到了之后，才会为其服务。
+NIO trong Java có khái niệm **Selector (Bộ chọn)** rất quan trọng, còn gọi là **Multiplexer**. Thông qua nó, chỉ cần một thread có thể quản lý nhiều client connection. Chỉ khi dữ liệu từ client đến mới phục vụ.
 
-![Buffer、Channel和Selector三者之间的关系](https://oss.javaguide.cn/github/javaguide/java/nio/channel-buffer-selector.png)
+![Quan hệ giữa Buffer, Channel và Selector](https://oss.javaguide.cn/github/javaguide/java/nio/channel-buffer-selector.png)
 
 ### AIO (Asynchronous I/O)
 
-AIO 也就是 NIO 2。Java 7 中引入了 NIO 的改进版 NIO 2,它是异步 IO 模型。
+AIO chính là NIO 2. Java 7 giới thiệu NIO 2 — phiên bản cải tiến của NIO, là Asynchronous IO model.
 
-异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
+Async IO được triển khai dựa trên event và callback mechanism. Tức là ứng dụng sau khi thực hiện operation sẽ return ngay, không bị block ở đó. Khi backend xử lý xong, OS sẽ thông báo cho thread tương ứng để thực hiện các operation tiếp theo.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/io/3077e72a1af049559e81d18205b56fd7~tplv-k3u1fbpfcp-watermark.png)
 
-目前来说 AIO 的应用还不是很广泛。Netty 之前也尝试使用过 AIO，不过又放弃了。这是因为，Netty 使用了 AIO 之后，在 Linux 系统上的性能并没有多少提升。
+Hiện tại AIO chưa được ứng dụng rộng rãi. Netty trước đây cũng đã thử dùng AIO nhưng sau đó bỏ. Vì sau khi Netty dùng AIO, hiệu năng trên Linux system không tăng lên mấy.
 
-最后，来一张图，简单总结一下 Java 中的 BIO、NIO、AIO。
+Cuối cùng, một hình tóm tắt đơn giản về BIO, NIO, AIO trong Java.
 
-![BIO、NIO 和 AIO 对比](https://oss.javaguide.cn/github/javaguide/java/nio/bio-aio-nio.png)
+![So sánh BIO, NIO và AIO](https://oss.javaguide.cn/github/javaguide/java/nio/bio-aio-nio.png)
 
-## 参考
+## Tài liệu tham khảo
 
-- 《深入拆解 Tomcat & Jetty》
-- 如何完成一次 IO：<https://llc687.top/126.html>
-- 程序员应该这样理解 IO：[https://www.jianshu.com/p/fa7bdc4f3de7](https://www.jianshu.com/p/fa7bdc4f3de7)
-- 10 分钟看懂， Java NIO 底层原理：<https://www.cnblogs.com/crazymakercircle/p/10225159.html>
-- IO 模型知多少 | 理论篇：<https://www.cnblogs.com/sheng-jie/p/how-much-you-know-about-io-models.html>
-- 《UNIX 网络编程 卷 1；套接字联网 API 》6.2 节 IO 模型
+- 《Deep Dive Tomcat & Jetty》
+- Hoàn thành một IO như thế nào: <https://llc687.top/126.html>
+- Developer nên hiểu IO như thế này: <https://www.jianshu.com/p/fa7bdc4f3de7>
+- Hiểu nguyên lý tầng dưới Java NIO trong 10 phút: <https://www.cnblogs.com/crazymakercircle/p/10225159.html>
+- Biết bao nhiêu về IO model | Lý thuyết: <https://www.cnblogs.com/sheng-jie/p/how-much-you-know-about-io-models.html>
+- 《UNIX Network Programming Volume 1: The Sockets Networking API》 Section 6.2 IO Models
 
 <!-- @include: @article-footer.snippet.md -->

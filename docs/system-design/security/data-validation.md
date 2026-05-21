@@ -1,66 +1,66 @@
 ---
-title: 为什么前后端都要做数据校验？
-description: 前后端数据校验必要性详解，讲解参数校验、权限校验的重要性及防止绕过前端校验的安全防护措施。
-category: 系统设计
+title: Tại sao cả frontend lẫn backend đều phải validation data?
+description: Giải thích sự cần thiết của data validation ở cả frontend và backend, giải thích tầm quan trọng của parameter validation, permission validation và các biện pháp bảo mật ngăn bypass frontend validation.
+category: System Design
 tag:
-  - 安全
+  - Security
 head:
   - - meta
     - name: keywords
-      content: 数据校验,前端校验,后端校验,参数校验,权限校验,输入验证,安全防护,防注入
+      content: data validation,frontend validation,backend validation,parameter validation,permission validation,input validation,security protection,anti-injection
 ---
 
-> 相关面试题：
+> Câu hỏi phỏng vấn liên quan:
 >
-> - 前端做了校验，后端还还需要做校验吗？
-> - 前端已经做了数据校验，为什么后端还需要再做一遍同样（甚至更严格）的校验呢？
-> - 前端/后端需要对哪些内容进行校验？
+> - Frontend đã làm validation rồi, backend có cần làm không?
+> - Frontend đã làm data validation, tại sao backend vẫn cần làm lại (thậm chí nghiêm ngặt hơn)?
+> - Frontend/backend cần validation những gì?
 
-咱们平时做 Web 开发，不管是写前端页面还是后端接口，都离不开跟数据打交道。那怎么保证这些传来传去的数据是靠谱的、安全的呢？这就得靠**数据校验**了。而且，这活儿，前端得干，后端**更得干**，还得加上**权限校验**这道重要的“锁”，缺一不可！
+Khi phát triển Web, dù là viết frontend page hay backend interface, đều phải làm việc với data. Làm thế nào đảm bảo data qua lại đáng tin cậy và an toàn? Đó chính là **data validation**. Hơn nữa, việc này frontend phải làm, backend **càng phải làm**, còn phải thêm **permission validation** là "ổ khóa" quan trọng — thiếu một cũng không được!
 
-为啥这么说？你想啊，前端校验主要是为了用户体验和挡掉一些明显的“瞎填”数据，但懂点技术的人绕过前端校验简直不要太轻松（比如直接用 Postman 之类的工具发请求）。所以，**后端校验才是咱们系统安全和数据准确性的最后一道，也是最硬核的防线**。它得确保进到系统里的数据不仅格式对，还得符合业务规矩，最重要的是，执行这个操作的人得有**权限**！
+Tại sao nói vậy? Frontend validation chủ yếu là để user experience và chặn một số data "điền bừa" rõ ràng. Nhưng người hiểu kỹ thuật bypass frontend validation là chuyện quá đơn giản (như dùng Postman gửi request thẳng). Nên, **backend validation mới là phòng tuyến cuối cùng và cứng nhất** bảo vệ security và data accuracy của hệ thống. Nó phải đảm bảo data vào hệ thống không chỉ đúng format mà còn tuân thủ business rules. Và quan trọng nhất, người thực hiện thao tác đó phải có **permission**!
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/user-input-validation.png)
 
-## 前端校验
+## Frontend Validation
 
-前端校验就像个贴心的门卫，主要目的是在用户填数据的时候，就赶紧告诉他哪儿不对，让他改，省得提交了半天，结果后端说不行，还得重来。这样做的好处显而易见：
+Frontend validation giống như người gác cổng tận tình. Mục đích chính là khi user điền data, ngay lập tức báo chỗ nào sai để sửa — tránh submit xong rồi backend nói không được phải làm lại. Lợi ích của điều này rõ ràng:
 
-1. **用户体验好：** 输入时就有提示，错了马上知道，改起来方便，用户感觉流畅不闹心。
-2. **减轻后端压力：** 把一些明显格式错误、必填项没填的数据在前端就拦下来，减少了发往后端的无效请求，省了服务器资源和网络流量。需要注意的是，后端同样还是要校验，只是加上前端校验可以减少很多无效请求。
+1. **Trải nghiệm tốt**: Có gợi ý khi nhập, sai biết ngay, sửa tiện, user cảm thấy mượt mà không bực bội.
+2. **Giảm tải backend**: Chặn một số data lỗi format rõ ràng, thiếu required field ngay ở frontend — giảm invalid request gửi lên backend, tiết kiệm tài nguyên server và network traffic. Cần lưu ý backend vẫn phải validation — thêm frontend validation chỉ giảm nhiều invalid request.
 
-那前端一般都得校验点啥呢？
+Frontend thường validation những gì?
 
-- **必填项校验:** 最基本的，该填的地儿可不能空着。
-- **格式校验:** 比如邮箱得像个邮箱样儿 (xxx@xx.com)，手机号得是 11 位数字等。正则表达式这时候就派上用场了。
-- **重复输入校验：** 确保两次输入的内容一致，例如注册时的“确认密码”字段。
-- **范围/长度校验:** 年龄不能是负数吧？密码长度得在 6 到 20 位之间吧？这种都得看着。
-- **合法性/业务校验:** 比如用户名是不是已经被注册了？选的商品还有没有库存？这得根据具体业务来，需要配合后端来做。
-- **文件上传校验：**限制文件类型（如仅支持 `.jpg`、`.png` 格式）和文件大小。
-- **安全性校验:** 防范像 XSS（跨站脚本攻击）这种坏心思，对用户输入的东西做点处理，别让人家写的脚本在咱们页面上跑起来。
-- ...等等，根据业务需求来。
+- **Required field check**: Cơ bản nhất — chỗ nào cần điền không được để trống.
+- **Format check**: Ví dụ email phải có dạng (xxx@xx.com), số điện thoại phải là 11 chữ số, v.v. Lúc này regular expression phát huy tác dụng.
+- **Repeat input check**: Đảm bảo hai lần nhập giống nhau, ví dụ field "Confirm Password" khi đăng ký.
+- **Range/length check**: Tuổi không thể âm? Password dài từ 6 đến 20 ký tự? Loại này đều phải kiểm.
+- **Validity/business check**: Username có bị đăng ký chưa? Sản phẩm chọn còn hàng không? Loại này tùy theo nghiệp vụ, cần phối hợp với backend.
+- **File upload check**: Giới hạn loại file (như chỉ hỗ trợ `.jpg`, `.png`) và kích thước file.
+- **Security check**: Phòng chống tấn công XSS (Cross-site Scripting), xử lý input của user, đừng để script viết vào chạy trên trang của mình.
+- ...v.v., tùy theo yêu cầu nghiệp vụ.
 
-总之，前端校验的核心是 **引导用户正确输入** 和 **提升交互体验**。
+Tóm lại, core của frontend validation là **hướng dẫn user nhập đúng** và **cải thiện trải nghiệm tương tác**.
 
-## 后端校验
+## Backend Validation
 
-前端校验只是第一道防线，虽然提升了用户体验，但毕竟可以被绕过，真正起决定性作用的是后端校验。后端需要对所有前端传来的数据都抱着“可能有问题”的态度，进行全面审查。后端校验不仅要覆盖前端的基本检查（如格式、范围、长度等），还需要更严格、更深入的验证，确保系统的安全性和数据的一致性。以下是后端校验的重点内容：
+Frontend validation chỉ là phòng tuyến đầu tiên. Dù cải thiện user experience nhưng vẫn có thể bị bypass. Backend validation mới thực sự đóng vai trò quyết định. Backend cần coi tất cả data từ frontend với thái độ "có thể có vấn đề" và kiểm tra toàn diện. Backend validation không chỉ phải bao phủ kiểm tra cơ bản của frontend (như format, range, length, v.v.) mà còn cần validation nghiêm ngặt và sâu hơn, đảm bảo security và data consistency của hệ thống. Dưới đây là các nội dung trọng tâm của backend validation:
 
-1. **完整性校验:** 接口文档中明确要求的字段必须存在，例如 `userId` 和 `orderId`。如果缺失任何必需字段，后端应立即返回错误，拒绝处理请求。
-2. **合法性/存在性校验:** 验证传入的数据是否真实有效。例如，传过来的 `productId` 是否存在于数据库中？`couponId` 是否已经过期或被使用？这通常需要通过查库或调用其他服务来确认。
-3. **一致性校验:** 针对涉及多个数据对象的操作，验证它们是否符合业务逻辑。例如，更新订单状态前，需要确保订单的当前状态允许修改，不能直接从“未支付”跳到“已完成”。一致性校验是保证数据流转正确性的关键。
-4. **安全性校验:** 后端必须防范各种恶意攻击，包括但不限于 XSS、SQL 注入等。所有外部输入都应进行严格的过滤和验证，例如使用参数化查询防止 SQL 注入，或对返回的 HTML 数据进行转义，避免跨站脚本攻击。
-5. ...基本上，前端能做的校验，后端为了安全都得再来一遍。
+1. **Completeness check**: Các field được interface document yêu cầu rõ ràng phải tồn tại, ví dụ `userId` và `orderId`. Nếu thiếu required field, backend nên trả lỗi ngay và từ chối xử lý request.
+2. **Validity/existence check**: Verify xem data được truyền vào có thực sự hợp lệ không. Ví dụ `productId` truyền vào có tồn tại trong database không? `couponId` có hết hạn hay đã dùng chưa? Thường cần confirm bằng cách query database hay call service khác.
+3. **Consistency check**: Với operation liên quan đến nhiều data object, verify xem chúng có phù hợp với business logic không. Ví dụ trước khi update order status, cần đảm bảo current status của order cho phép sửa đổi — không thể nhảy thẳng từ "chưa thanh toán" sang "đã hoàn thành". Consistency check là key để đảm bảo data flow đúng đắn.
+4. **Security check**: Backend phải phòng chống nhiều loại tấn công độc hại bao gồm nhưng không giới hạn ở XSS, SQL injection, v.v. Tất cả external input phải được filter và validate nghiêm ngặt, ví dụ dùng parameterized query để ngăn SQL injection, hoặc escape HTML data trả về để tránh XSS.
+5. ...Về cơ bản, validation nào frontend làm được, backend vì an toàn đều phải làm lại.
 
-在 Java 后端，每次都手写 if-else 来做这些基础校验太累了。好在 Java 社区给我们提供了 **Bean Validation** 这套标准规范。它允许我们用**注解**的方式，直接在 JavaBean（比如我们的 DTO 对象）的属性上声明校验规则，非常方便。
+Trong Java backend, viết if-else mỗi lần để làm các validation cơ bản này rất mệt. May mắn thay Java community đã cung cấp standard specification **Bean Validation**. Nó cho phép dùng annotation để khai báo validation rule trực tiếp trên property của JavaBean (như DTO object), rất tiện.
 
-- **JSR 303 (1.0):** 打下了基础，引入了 `@NotNull`, `@Size`, `@Min`, `@Max` 这些老朋友。
-- **JSR 349 (1.1):** 增加了对方法参数和返回值的校验，还有分组校验等增强。
-- **JSR 380 (2.0):** 拥抱 Java 8，支持了新的日期时间 API，还加了 `@NotEmpty`, `@NotBlank`, `@Email` 等更实用的注解。
+- **JSR 303 (1.0)**: Đặt nền tảng, giới thiệu `@NotNull`, `@Size`, `@Min`, `@Max` và các annotation quen thuộc khác.
+- **JSR 349 (1.1)**: Thêm validation cho method parameter và return value, cùng các enhancement như group validation.
+- **JSR 380 (2.0)**: Đón nhận Java 8, hỗ trợ Date/Time API mới, bổ sung thêm các annotation thực dụng hơn như `@NotEmpty`, `@NotBlank`, `@Email`.
 
-早期的 Spring Boot (大概 2.3.x 之前): spring-boot-starter-web 里自带了 `hibernate-validator`，你啥都不用加。
+Spring Boot sớm (khoảng trước 2.3.x): `spring-boot-starter-web` đã tích hợp sẵn `hibernate-validator`, không cần thêm gì.
 
-Spring Boot 2.3.x 及之后: 为了更灵活，校验相关的依赖被单独拎出来了。你需要手动添加 `spring-boot-starter-validation` 依赖：
+Spring Boot 2.3.x trở đi: Để linh hoạt hơn, dependency liên quan đến validation được tách riêng. Cần thêm thủ công dependency `spring-boot-starter-validation`:
 
 ```xml
 <dependency>
@@ -69,43 +69,43 @@ Spring Boot 2.3.x 及之后: 为了更灵活，校验相关的依赖被单独拎
 </dependency>
 ```
 
-Bean Validation 规范及其实现（如 Hibernate Validator）提供了丰富的注解，用于声明式地定义校验规则。以下是一些常用的注解及其说明：
+Bean Validation specification và các implementation của nó (như Hibernate Validator) cung cấp nhiều annotation để khai báo validation rule theo dạng declarative. Dưới đây là một số annotation phổ biến:
 
-- `@NotNull`: 检查被注解的元素（任意类型）不能为 `null`。
-- `@NotEmpty`: 检查被注解的元素（如 `CharSequence`、`Collection`、`Map`、`Array`）不能为 `null` 且其大小/长度不能为 0。注意：对于字符串，`@NotEmpty` 允许包含空白字符的字符串，如 `" "`。
-- `@NotBlank`: 检查被注解的 `CharSequence`（如 `String`）不能为 `null`，并且去除首尾空格后的长度必须大于 0。（即，不能为空白字符串）。
-- `@Null`: 检查被注解的元素必须为 `null`。
-- `@AssertTrue` / `@AssertFalse`: 检查被注解的 `boolean` 或 `Boolean` 类型元素必须为 `true` / `false`。
-- `@Min(value)` / `@Max(value)`: 检查被注解的数字类型（或其字符串表示）的值必须大于等于 / 小于等于指定的 `value`。适用于整数类型（`byte`、`short`、`int`、`long`、`BigInteger` 等）。
-- `@DecimalMin(value)` / `@DecimalMax(value)`: 功能类似 `@Min` / `@Max`，但适用于包含小数的数字类型（`BigDecimal`、`BigInteger`、`CharSequence`、`byte`、`short`、`int`、`long`及其包装类）。 `value` 必须是数字的字符串表示。
-- `@Size(min=, max=)`: 检查被注解的元素（如 `CharSequence`、`Collection`、`Map`、`Array`）的大小/长度必须在指定的 `min` 和 `max` 范围之内（包含边界）。
-- `@Digits(integer=, fraction=)`: 检查被注解的数字类型（或其字符串表示）的值，其整数部分的位数必须 ≤ `integer`，小数部分的位数必须 ≤ `fraction`。
-- `@Pattern(regexp=, flags=)`: 检查被注解的 `CharSequence`（如 `String`）是否匹配指定的正则表达式 (`regexp`)。`flags` 可以指定匹配模式（如不区分大小写）。
-- `@Email`: 检查被注解的 `CharSequence`（如 `String`）是否符合 Email 格式（内置了一个相对宽松的正则表达式）。
-- `@Past` / `@Future`: 检查被注解的日期或时间类型（`java.util.Date`、`java.util.Calendar`、JSR 310 `java.time` 包下的类型）是否在当前时间之前 / 之后。
-- `@PastOrPresent` / `@FutureOrPresent`: 类似 `@Past` / `@Future`，但允许等于当前时间。
+- `@NotNull`: Kiểm tra element được annotate (bất kỳ kiểu nào) không thể là `null`.
+- `@NotEmpty`: Kiểm tra element được annotate (như `CharSequence`, `Collection`, `Map`, `Array`) không thể null và size/length không thể là 0. Lưu ý: Với string, `@NotEmpty` cho phép string chứa whitespace như `" "`.
+- `@NotBlank`: Kiểm tra `CharSequence` được annotate (như `String`) không thể null và length sau khi trim whitespace phải > 0 (tức không thể là blank string).
+- `@Null`: Kiểm tra element được annotate phải là `null`.
+- `@AssertTrue` / `@AssertFalse`: Kiểm tra element kiểu `boolean` hoặc `Boolean` được annotate phải là `true` / `false`.
+- `@Min(value)` / `@Max(value)`: Kiểm tra giá trị của kiểu số (hoặc string representation) được annotate phải >= / <= `value` được chỉ định. Áp dụng cho kiểu integer (`byte`, `short`, `int`, `long`, `BigInteger`, v.v.).
+- `@DecimalMin(value)` / `@DecimalMax(value)`: Chức năng tương tự `@Min` / `@Max`, nhưng áp dụng cho kiểu số có thể có decimal (`BigDecimal`, `BigInteger`, `CharSequence`, `byte`, `short`, `int`, `long` và wrapper class tương ứng). `value` phải là string representation của số.
+- `@Size(min=, max=)`: Kiểm tra size/length của element được annotate (như `CharSequence`, `Collection`, `Map`, `Array`) phải nằm trong range `min` và `max` được chỉ định (bao gồm boundary).
+- `@Digits(integer=, fraction=)`: Kiểm tra kiểu số (hoặc string representation) được annotate, số chữ số phần nguyên phải ≤ `integer`, số chữ số phần thập phân phải ≤ `fraction`.
+- `@Pattern(regexp=, flags=)`: Kiểm tra xem `CharSequence` (như `String`) được annotate có match regex (`regexp`) được chỉ định không. `flags` có thể chỉ định matching mode (như case-insensitive).
+- `@Email`: Kiểm tra xem `CharSequence` (như `String`) được annotate có đúng format Email không (tích hợp một regex tương đối lỏng lẻo).
+- `@Past` / `@Future`: Kiểm tra kiểu date hay time được annotate (`java.util.Date`, `java.util.Calendar`, các kiểu trong package `java.time` của JSR 310) có trước / sau thời điểm hiện tại không.
+- `@PastOrPresent` / `@FutureOrPresent`: Tương tự `@Past` / `@Future`, nhưng cho phép bằng thời điểm hiện tại.
 - ……
 
-当 Controller 方法使用 `@RequestBody` 注解来接收请求体并将其绑定到一个对象时，可以在该参数前添加 `@Valid` 注解来触发对该对象的校验。如果验证失败，它将抛出`MethodArgumentNotValidException`。
+Khi Controller method dùng annotation `@RequestBody` để nhận request body và bind vào một object, có thể thêm annotation `@Valid` trước parameter đó để trigger validation cho object đó. Nếu validation fail sẽ throw `MethodArgumentNotValidException`.
 
 ```java
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Person {
-    @NotNull(message = "classId 不能为空")
+    @NotNull(message = "classId không được để trống")
     private String classId;
 
     @Size(max = 33)
-    @NotNull(message = "name 不能为空")
+    @NotNull(message = "name không được để trống")
     private String name;
 
-    @Pattern(regexp = "((^Man$|^Woman$|^UGM$))", message = "sex 值不在可选范围")
-    @NotNull(message = "sex 不能为空")
+    @Pattern(regexp = "((^Man$|^Woman$|^UGM$))", message = "sex value không nằm trong range được chọn")
+    @NotNull(message = "sex không được để trống")
     private String sex;
 
-    @Email(message = "email 格式不正确")
-    @NotNull(message = "email 不能为空")
+    @Email(message = "email format không đúng")
+    @NotNull(message = "email không được để trống")
     private String email;
 }
 
@@ -120,35 +120,35 @@ public class PersonController {
 }
 ```
 
-对于直接映射到方法参数的简单类型数据（如路径变量 `@PathVariable` 或请求参数 `@RequestParam`），校验方式略有不同：
+Với data kiểu đơn giản được map trực tiếp vào method parameter (như path variable `@PathVariable` hay request parameter `@RequestParam`), cách validation hơi khác:
 
-1. **在 Controller 类上添加 `@Validated` 注解**：这个注解是 Spring 提供的（非 JSR 标准），它使得 Spring 能够处理方法级别的参数校验注解。**这是必需步骤。**
-2. **将校验注解直接放在方法参数上**：将 `@Min`, `@Max`, `@Size`, `@Pattern` 等校验注解直接应用于对应的 `@PathVariable` 或 `@RequestParam` 参数。
+1. **Thêm annotation `@Validated` lên class Controller**: Annotation này do Spring cung cấp (không phải chuẩn JSR), giúp Spring có thể xử lý các annotation validation cấp method parameter. **Đây là bước bắt buộc.**
+2. **Đặt annotation validation trực tiếp lên method parameter**: Apply các annotation validation như `@Min`, `@Max`, `@Size`, `@Pattern`, v.v. trực tiếp lên parameter `@PathVariable` hay `@RequestParam` tương ứng.
 
-一定一定不要忘记在类上加上 `@Validated` 注解了，这个参数可以告诉 Spring 去校验方法参数。
+Nhất định đừng quên thêm annotation `@Validated` lên class — parameter này báo cho Spring biết cần validate method parameter.
 
 ```java
 @RestController
 @RequestMapping("/api")
-@Validated // 关键步骤 1: 必须在类上添加 @Validated
+@Validated // Bước quan trọng 1: Phải thêm @Validated lên class
 public class PersonController {
 
     @GetMapping("/person/{id}")
     public ResponseEntity<Integer> getPersonByID(
             @PathVariable("id")
-            @Max(value = 5, message = "ID 不能超过 5") // 关键步骤 2: 校验注解直接放在参数上
+            @Max(value = 5, message = "ID không được vượt quá 5") // Bước quan trọng 2: Annotation validation đặt thẳng lên parameter
             Integer id
     ) {
-        // 如果传入的 id > 5，Spring 会在进入方法体前抛出 ConstraintViolationException 异常。
-        // 全局异常处理器同样需要处理此异常。
+        // Nếu id được truyền vào > 5, Spring sẽ throw ConstraintViolationException trước khi vào method body.
+        // Global exception handler cũng cần xử lý exception này.
         return ResponseEntity.ok().body(id);
     }
 
     @GetMapping("/person")
     public ResponseEntity<String> findPersonByName(
             @RequestParam("name")
-            @NotBlank(message = "姓名不能为空") // 同样适用于 @RequestParam
-            @Size(max = 10, message = "姓名长度不能超过 10")
+            @NotBlank(message = "Tên không được để trống") // Áp dụng tương tự với @RequestParam
+            @Size(max = 10, message = "Tên không được dài quá 10 ký tự")
             String name
     ) {
         return ResponseEntity.ok().body("Found person: " + name);
@@ -156,53 +156,52 @@ public class PersonController {
 }
 ```
 
-Bean Validation 主要解决的是**数据格式、语法层面**的校验。但光有这个还不够。
+Bean Validation chủ yếu giải quyết validation ở cấp độ **format và syntax của data**. Nhưng chỉ có điều này vẫn chưa đủ.
 
-## 权限校验
+## Permission Validation
 
-数据格式都验过了，没问题。但是，**这个操作，当前登录的这个用户，他有权做吗？** 这就是**权限校验**要解决的问题。比如：
+Data format đã được verify, không vấn đề. Nhưng, **thao tác này, user đang login hiện tại, họ có quyền làm không?** Đây là vấn đề **permission validation** cần giải quyết. Ví dụ:
 
-- 普通用户能修改别人的订单吗？（不行）
-- 游客能访问管理员后台接口吗？（不行）
-- 游客能管理其他用户的信息吗？（不行）
-- VIP 用户能使用专属的优惠券吗？（可以）
+- User thông thường có thể sửa order của người khác không? (Không được)
+- Khách vãng lai có thể truy cập interface admin backend không? (Không được)
+- Khách vãng lai có thể quản lý thông tin user khác không? (Không được)
+- VIP user có thể dùng coupon độc quyền không? (Được)
 - ……
 
-权限校验发生在**数据校验之后**，它关心的是“**谁 (Who)** 能对 **什么资源 (What)** 执行 **什么操作 (Action)**”。
+Permission validation xảy ra **sau data validation**. Nó quan tâm đến "**Who (Ai)** có thể thực hiện **Action (Thao tác gì)** trên **What resource (Tài nguyên nào)**".
 
-**为啥权限校验这么重要？**
+**Tại sao permission validation quan trọng?**
 
-- **安全基石：** 防止未经授权的访问和操作，保护用户数据和系统安全。
-- **业务隔离：** 确保不同角色（管理员、普通用户、VIP 用户等）只能访问和操作其权限范围内的功能。
-- **合规要求：** 很多行业法规对数据访问权限有严格要求。
+- **Nền tảng bảo mật**: Ngăn chặn truy cập và thao tác trái phép, bảo vệ data user và security hệ thống.
+- **Business isolation**: Đảm bảo các role khác nhau (admin, user thông thường, VIP user, v.v.) chỉ có thể truy cập và thao tác trong phạm vi permission của họ.
+- **Compliance requirement**: Nhiều quy định ngành có yêu cầu nghiêm ngặt về permission truy cập data.
 
-目前 Java 后端主流的方式是使用成熟的安全框架来实现权限校验，而不是自己手写（容易出错且难以维护）。
+Cách chính của Java backend hiện nay là dùng security framework trưởng thành để triển khai permission validation, chứ không tự viết (dễ lỗi và khó bảo trì).
 
-1. **Spring Security (业界标准，推荐):** 基于过滤器链（Filter Chain）拦截请求，进行认证（Authentication - 你是谁？）和授权（Authorization - 你能干啥？）。Spring Security 功能强大、社区活跃、与 Spring 生态无缝集成。不过，配置相对复杂，学习曲线较陡峭。
-2. **Apache Shiro:** 另一个流行的安全框架，相对 Spring Security 更轻量级，API 更直观易懂。同样提供认证、授权、会话管理、加密等功能。对于不熟悉 Spring 或觉得 Spring Security 太重的项目，是一个不错的选择。
-3. **Sa-Token:** 国产的轻量级 Java 权限认证框架。支持认证授权、单点登录、踢人下线、自动续签等功能。相比于 Spring Security 和 Shiro 来说，Sa-Token 内置的开箱即用的功能更多，使用也更简单。
-4. **手动检查 (不推荐用于复杂场景):** 在 Service 层或 Controller 层代码里，手动获取当前用户信息（例如从 SecurityContextHolder 或 Session 中），然后 if-else 判断用户角色或权限。权限逻辑与业务逻辑耦合、代码重复、难以维护、容易遗漏。只适用于非常简单的权限场景。
+1. **Spring Security (tiêu chuẩn ngành, khuyến nghị)**: Dựa trên Filter Chain để intercept request, thực hiện authentication (bạn là ai?) và authorization (bạn được làm gì?). Spring Security mạnh mẽ, community hoạt động, tích hợp liền mạch với Spring ecosystem. Tuy nhiên, cấu hình tương đối phức tạp, learning curve dốc.
+2. **Apache Shiro**: Security framework phổ biến khác. Nhẹ hơn Spring Security, API trực quan dễ hiểu hơn. Cũng cung cấp authentication, authorization, session management, encryption, v.v. Là lựa chọn tốt cho project không quen với Spring hoặc thấy Spring Security quá nặng.
+3. **Sa-Token**: Lightweight Java permission authentication framework trong nước. Hỗ trợ authentication authorization, SSO, kick offline, auto renewal, v.v. So với Spring Security và Shiro, Sa-Token tích hợp sẵn nhiều chức năng out-of-the-box hơn và cũng đơn giản hơn khi sử dụng.
+4. **Manual check (không khuyến nghị cho tình huống phức tạp)**: Trong code Service layer hoặc Controller layer, thủ công lấy thông tin user hiện tại (ví dụ từ SecurityContextHolder hoặc Session), rồi if-else kiểm tra role hay permission của user. Permission logic coupling với business logic, code duplicate, khó bảo trì, dễ bỏ sót. Chỉ phù hợp với permission scenario rất đơn giản.
 
-**权限模型简介:**
+**Giới thiệu ngắn về Permission Model**:
 
-- **RBAC (Role-Based Access Control):** 基于角色的访问控制。给用户分配角色，给角色分配权限。用户拥有其所有角色的权限总和。这是最常见的模型。
-- **ABAC (Attribute-Based Access Control):** 基于属性的访问控制。决策基于用户属性、资源属性、操作属性和环境属性。更灵活但也更复杂。
+- **RBAC (Role-Based Access Control)**: Kiểm soát truy cập dựa trên role. Gán role cho user, gán permission cho role. User có tổng hợp permission của tất cả role của mình. Đây là model phổ biến nhất.
+- **ABAC (Attribute-Based Access Control)**: Kiểm soát truy cập dựa trên attribute. Quyết định dựa trên user attribute, resource attribute, operation attribute và environment attribute. Linh hoạt hơn nhưng cũng phức tạp hơn.
 
-一般情况下，绝大部分系统都使用的是 RBAC 权限模型或者其简化版本。用一个图来描述如下：
+Thông thường, hầu hết hệ thống đều dùng RBAC permission model hoặc phiên bản đơn giản hóa của nó. Mô tả bằng hình như dưới:
 
-![RBAC 权限模型示意图](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
+![RBAC Permission Model Diagram](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
 
-关于权限系统设计的详细介绍，可以看这篇文章：[权限系统设计详解](https://javaguide.cn/system-design/security/design-of-authority-system.html)。
+Chi tiết về thiết kế permission system xem bài: [Thiết kế Permission System Explained](https://javaguide.cn/system-design/security/design-of-authority-system.html).
 
-## 总结
+## Tổng kết
 
-总而言之，要想构建一个安全、稳定、用户体验好的 Web 应用，前后端数据校验和后端权限校验这三道关卡，都得设好，而且各有侧重：
+Tóm lại, để xây dựng Web application an toàn, ổn định và user experience tốt, ba checkpoint của frontend data validation, backend data validation và backend permission validation đều phải setup tốt. Mỗi cái có trọng tâm riêng:
 
-- **前端数据校验：** 提升用户体验，减少无效请求，是第一道“友好”的防线。
-- **后端数据校验：** 保证数据格式正确、符合业务规则，是防止“脏数据”入库的“技术”防线。 Bean Validation 允许我们用注解的方式，直接在 JavaBean（比如我们的 DTO 对象）的属性上声明校验规则，非常方便。
-- **后端权限校验：** 确保“对的人”做“对的事”，是防止越权操作的“安全”防线。Spring Security、Shiro、Sa-Token 等框架可以帮助我们实现权限校验。
+- **Frontend data validation**: Cải thiện user experience, giảm invalid request — phòng tuyến "thân thiện" đầu tiên.
+- **Backend data validation**: Đảm bảo data format đúng và tuân thủ business rules — phòng tuyến "kỹ thuật" ngăn "dirty data" vào database. Bean Validation cho phép dùng annotation để khai báo validation rule trực tiếp trên property của JavaBean (như DTO object), rất tiện.
+- **Backend permission validation**: Đảm bảo "đúng người" làm "đúng việc" — phòng tuyến "bảo mật" ngăn unauthorized operation. Các framework như Spring Security, Shiro, Sa-Token có thể giúp triển khai permission validation.
 
-## 参考
+## Tài liệu tham khảo
 
-- 为什么前后端都需要进行数据校验？: <https://juejin.cn/post/7306045519099658240>
-- 权限系统设计详解：<https://javaguide.cn/system-design/security/design-of-authority-system.html>
+- Tại sao cả frontend lẫn backend đều cần data validation?: <https://juejin.cn/post/7306045519099658240>

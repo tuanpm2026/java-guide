@@ -1,6 +1,6 @@
 ---
-title: 大白话带你认识 JVM
-description: 用通俗方式介绍 JVM 的基本组成与类加载执行流程，帮助快速入门虚拟机原理。
+title: Tìm hiểu JVM bằng ngôn ngữ bình dân
+description: Giới thiệu các thành phần cơ bản của JVM và luồng thực thi tải class bằng cách thông dụng, giúp nhanh chóng nhập môn nguyên lý máy ảo.
 category: Java
 tag:
   - JVM
@@ -10,127 +10,127 @@ head:
       content: JVM 基础,类加载,方法区,堆栈,程序计数器,运行时数据区
 ---
 
-> 来自[说出你的愿望吧丷](https://juejin.im/user/5c2400afe51d45451758aa96)投稿，原文地址：<https://juejin.im/post/5e1505d0f265da5d5d744050>。
+> Bài viết được đóng góp bởi [说出你的愿望吧丷](https://juejin.im/user/5c2400afe51d45451758aa96), địa chỉ bài gốc: <https://juejin.im/post/5e1505d0f265da5d5d744050>.
 
-## 前言
+## Lời mở đầu
 
-如果在文中用词或者理解方面出现问题，欢迎指出。此文旨在提及而不深究，但会尽量效率地把知识点都抛出来
+Nếu trong bài có vấn đề về từ ngữ hoặc cách hiểu, xin hãy chỉ ra. Bài viết này nhằm đề cập nhưng không đi sâu, nhưng sẽ cố gắng trình bày các điểm kiến thức một cách hiệu quả.
 
-## 一、JVM 的基本介绍
+## I. Giới thiệu cơ bản về JVM
 
-JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，一种规范。通过在实际的计算机上仿真模拟各类计算机功能实现···
+JVM là viết tắt của Java Virtual Machine, là một máy tính ảo, một loại quy chuẩn. Thực hiện các chức năng máy tính khác nhau thông qua mô phỏng trên máy tính thực tế...
 
-好，其实抛开这么专业的句子不说，就知道 JVM 其实就类似于一台小电脑运行在 windows 或者 linux 这些操作系统环境下即可。它直接和操作系统进行交互，与硬件不直接交互，而操作系统可以帮我们完成和硬件进行交互的工作。
+Thực ra bỏ qua những câu chuyên nghiệp đó, chỉ cần biết rằng JVM thực chất giống như một chiếc máy tính nhỏ chạy trên môi trường hệ điều hành Windows hoặc Linux. Nó tương tác trực tiếp với hệ điều hành, không tương tác trực tiếp với phần cứng, còn hệ điều hành có thể giúp chúng ta hoàn thành công việc tương tác với phần cứng.
 
 ![](https://static001.geekbang.org/infoq/da/da0380a04d9c04facd2add5f6dba06fa.png)
 
-### 1.1 Java 文件是如何被运行的
+### 1.1 File Java được chạy như thế nào
 
-比如我们现在写了一个 HelloWorld.java 好了，那这个 HelloWorld.java 抛开所有东西不谈，那是不是就类似于一个文本文件，只是这个文本文件它写的都是英文，而且有一定的缩进而已。
+Ví dụ chúng ta vừa viết một file HelloWorld.java, thì file HelloWorld.java bỏ qua tất cả mọi thứ, nó giống như một file văn bản, chỉ là file văn bản này được viết bằng tiếng Anh và có một số thụt lề nhất định mà thôi.
 
-那我们的 **JVM** 是不认识文本文件的，所以它需要一个 **编译** ，让其成为一个它会读二进制文件的 **HelloWorld.class**
+Còn **JVM** của chúng ta không nhận biết được file văn bản, vì vậy nó cần **biên dịch**, tạo ra file nhị phân **HelloWorld.class** mà nó có thể đọc được.
 
-#### ① 类加载器
+#### ① Class loader (Bộ tải class)
 
-如果 **JVM** 想要执行这个 **.class** 文件，我们需要将其装进一个 **类加载器** 中，它就像一个搬运工一样，会把所有的 **.class** 文件全部搬进 JVM 里面来。
+Nếu **JVM** muốn thực thi file **.class** này, chúng ta cần nạp nó vào một **class loader**, nó giống như một công nhân bốc vác, sẽ đưa tất cả các file **.class** vào JVM.
 
 ![](https://static001.geekbang.org/infoq/2f/2f012fde94376f43a25dbe1dd07e0dd8.png)
 
-#### ② 方法区
+#### ② Method Area (Vùng phương thức)
 
-**方法区** 是用于存放类似于元数据信息方面的数据的，比如类信息，常量，静态变量，编译后代码···等
+**Method Area** được dùng để lưu trữ các dữ liệu như metadata của class, thông tin class, hằng số, biến tĩnh, code sau biên dịch, v.v.
 
-类加载器将 .class 文件搬过来就是先丢到这一块上
+Class loader đưa file .class vào thì trước tiên thả vào vùng này.
 
-#### ③ 堆
+#### ③ Heap (Vùng heap)
 
-**堆** 主要放了一些存储的数据，比如对象实例，数组···等，它和方法区都同属于 **线程共享区域** 。也就是说它们都是 **线程不安全** 的
+**Heap** chủ yếu chứa một số dữ liệu được lưu trữ, như instance đối tượng, mảng, v.v., nó và method area đều thuộc **vùng chia sẻ thread**. Nghĩa là chúng đều **không thread-safe**.
 
-#### ④ 栈
+#### ④ Stack (Ngăn xếp)
 
-**栈** 这是我们的代码运行空间。我们编写的每一个方法都会放到 **栈** 里面运行。
+**Stack** là không gian chạy code của chúng ta. Mỗi phương thức chúng ta viết đều được đặt vào **stack** để chạy.
 
-我们会听说过 本地方法栈 或者 本地方法接口 这两个名词，不过我们基本不会涉及这两块的内容，它俩底层是使用 C 来进行工作的，和 Java 没有太大的关系。
+Chúng ta có thể nghe đến Native Method Stack hoặc Native Method Interface hai thuật ngữ này, nhưng về cơ bản chúng ta ít liên quan đến hai phần này, chúng sử dụng C để làm việc ở tầng dưới, không liên quan nhiều đến Java.
 
-#### ⑤ 程序计数器
+#### ⑤ Program Counter (Bộ đếm chương trình)
 
-主要就是完成一个加载工作，类似于一个指针一样的，指向下一行我们需要执行的代码。和栈一样，都是 **线程独享** 的，就是说每一个线程都会有自己对应的一块区域而不会存在并发和多线程的问题。
+Chủ yếu hoàn thành công việc tải, giống như một con trỏ trỏ đến dòng code tiếp theo chúng ta cần thực thi. Giống với stack, đều là **riêng theo thread**, nghĩa là mỗi thread sẽ có vùng tương ứng của chính nó và không tồn tại vấn đề đồng thời và đa luồng.
 
 ![](https://static001.geekbang.org/infoq/c6/c602f57ea9297f50bbc265f1821d6263.png)
 
-#### 小总结
+#### Tóm tắt nhỏ
 
-1. Java 文件经过编译后变成 .class 字节码文件
-2. 字节码文件通过类加载器被搬运到 JVM 虚拟机中
-3. 虚拟机主要的 5 大块：方法区，堆都为线程共享区域，有线程安全问题，栈和本地方法栈和计数器都是独享区域，不存在线程安全问题，而 JVM 的调优主要就是围绕堆，栈两大块进行
+1. File Java sau biên dịch trở thành file bytecode .class
+2. File bytecode được class loader đưa vào JVM
+3. Năm vùng chính của máy ảo: Method Area, Heap đều là vùng chia sẻ thread, có vấn đề thread safety, Stack và Native Method Stack và Program Counter đều là vùng riêng, không tồn tại vấn đề thread safety, còn việc điều chỉnh JVM chủ yếu xoay quanh hai vùng Heap và Stack.
 
-### 1.2 简单的代码例子
+### 1.2 Ví dụ code đơn giản
 
-一个简单的学生类
+Một class Student đơn giản
 
 ![](https://static001.geekbang.org/infoq/12/12f0b239db65b8a95f0ce90e9a580e4d.png)
 
-一个 main 方法
+Một phương thức main
 
 ![](https://static001.geekbang.org/infoq/0c/0c6d94ab88a9f2b923f5fea3f95bc2eb.png)
 
-执行 main 方法的步骤如下:
+Các bước thực thi phương thức main như sau:
 
-1. 编译好 App.java 后得到 App.class 后，执行 App.class，系统会启动一个 JVM 进程，从 classpath 路径中找到一个名为 App.class 的二进制文件，将 App 的类信息加载到运行时数据区的方法区内，这个过程叫做 App 类的加载
-2. JVM 找到 App 的主程序入口，执行 main 方法
-3. 这个 main 中的第一条语句为 Student student = new Student("tellUrDream") ，就是让 JVM 创建一个 Student 对象，但是这个时候方法区中是没有 Student 类的信息的，所以 JVM 马上加载 Student 类，把 Student 类的信息放到方法区中
-4. 加载完 Student 类后，JVM 在堆中为一个新的 Student 实例分配内存，然后调用构造函数初始化 Student 实例，这个 Student 实例持有 **指向方法区中的 Student 类的类型信息** 的引用
-5. 执行 student.sayName();时，JVM 根据 student 的引用找到 student 对象，然后根据 student 对象持有的引用定位到方法区中 student 类的类型信息的方法表，获得 sayName() 的字节码地址。
-6. 执行 sayName()
+1. Sau khi biên dịch App.java được App.class, thực thi App.class, hệ thống sẽ khởi động một tiến trình JVM, tìm file nhị phân tên App.class trong đường dẫn classpath, tải thông tin class của App vào method area trong vùng dữ liệu runtime, quá trình này gọi là tải class App
+2. JVM tìm điểm nhập chính của App, thực thi phương thức main
+3. Câu lệnh đầu tiên trong main là `Student student = new Student("tellUrDream")`, tức là để JVM tạo một đối tượng Student, nhưng lúc này trong method area không có thông tin class Student, vì vậy JVM ngay lập tức tải class Student, đưa thông tin class Student vào method area
+4. Sau khi tải xong class Student, JVM phân bổ bộ nhớ cho một instance Student mới trong heap, sau đó gọi constructor để khởi tạo instance Student, instance Student này giữ **tham chiếu trỏ đến thông tin kiểu class Student trong method area**
+5. Khi thực thi `student.sayName()`, JVM tìm đối tượng student theo tham chiếu của student, sau đó theo tham chiếu mà đối tượng student giữ để định vị bảng phương thức của thông tin kiểu class student trong method area, lấy địa chỉ bytecode của `sayName()`.
+6. Thực thi `sayName()`
 
-其实也不用管太多，只需要知道对象实例初始化时会去方法区中找类信息，完成后再到栈那里去运行方法。找方法就在方法表中找。
+Thực ra cũng không cần quan tâm quá nhiều, chỉ cần biết khi khởi tạo instance đối tượng sẽ đi tìm thông tin class trong method area, sau khi hoàn thành thì chạy phương thức ở stack. Tìm phương thức thì tìm trong method table.
 
-## 二、类加载器的介绍
+## II. Giới thiệu về Class Loader
 
-之前也提到了它是负责加载.class 文件的，它们在文件开头会有特定的文件标示，将 class 文件字节码内容加载到内存中，并将这些内容转换成方法区中的运行时数据结构，并且 ClassLoader 只负责 class 文件的加载，而是否能够运行则由 Execution Engine 来决定
+Đề cập trước đó nó chịu trách nhiệm tải các file .class, chúng có ký hiệu đặc biệt ở đầu file, tải nội dung bytecode của file class vào bộ nhớ và chuyển đổi nội dung này thành cấu trúc dữ liệu runtime trong method area, và ClassLoader chỉ chịu trách nhiệm tải file class, còn việc có thể chạy hay không do Execution Engine quyết định.
 
-### 2.1 类加载器的流程
+### 2.1 Luồng class loader
 
-从类被加载到虚拟机内存中开始，到释放内存总共有 7 个步骤：加载，验证，准备，解析，初始化，使用，卸载。其中**验证，准备，解析三个部分统称为连接**
+Từ khi class được tải vào bộ nhớ máy ảo cho đến khi giải phóng bộ nhớ, tổng cộng có 7 bước: tải, xác minh, chuẩn bị, giải quyết, khởi tạo, sử dụng, hủy tải. Trong đó **xác minh, chuẩn bị, giải quyết ba phần gọi chung là liên kết**.
 
-#### 2.1.1 加载
+#### 2.1.1 Tải
 
-1. 将 class 文件加载到内存
-2. 将静态数据结构转化成方法区中运行时的数据结构
-3. 在堆中生成一个代表这个类的 java.lang.Class 对象作为数据访问的入口
+1. Tải file class vào bộ nhớ
+2. Chuyển đổi cấu trúc dữ liệu tĩnh thành cấu trúc dữ liệu runtime trong method area
+3. Tạo đối tượng java.lang.Class đại diện cho class này trong heap làm điểm truy cập dữ liệu
 
-#### 2.1.2 链接
+#### 2.1.2 Liên kết
 
-1. 验证：确保加载的类符合 JVM 规范和安全，保证被校验类的方法在运行时不会做出危害虚拟机的事件，其实就是一个安全检查
-2. 准备：为 static 变量在方法区中分配内存空间，设置变量的初始值，例如 static int a = 3 （注意：准备阶段只设置类中的静态变量（方法区中），不包括实例变量（堆内存中），实例变量是对象初始化时赋值的）
-3. 解析：虚拟机将常量池内的符号引用替换为直接引用的过程（符号引用比如我现在 import java.util.ArrayList 这就算符号引用，直接引用就是指针或者对象地址，注意引用对象一定是在内存进行）
+1. Xác minh: Đảm bảo class được tải phù hợp với quy chuẩn JVM và bảo mật, đảm bảo phương thức của class được xác minh không thực hiện các sự kiện gây hại cho máy ảo khi runtime, thực chất là một kiểm tra bảo mật
+2. Chuẩn bị: Phân bổ không gian bộ nhớ cho biến static trong method area, đặt giá trị khởi tạo của biến, ví dụ `static int a = 3` (lưu ý: giai đoạn chuẩn bị chỉ đặt biến tĩnh trong class (method area), không bao gồm biến instance (heap memory), biến instance được gán giá trị khi khởi tạo đối tượng)
+3. Giải quyết: Quá trình máy ảo thay thế symbolic reference trong constant pool thành direct reference (symbolic reference ví dụ như hiện tại tôi `import java.util.ArrayList` đó là symbolic reference, direct reference là con trỏ hoặc địa chỉ đối tượng, lưu ý đối tượng tham chiếu nhất định phải được thực hiện trong bộ nhớ)
 
-#### 2.1.3 初始化
+#### 2.1.3 Khởi tạo
 
-初始化其实就是执行类构造器方法的`<clinit>()`的过程，而且要保证执行前父类的`<clinit>()`方法执行完毕。这个方法由编译器收集，顺序执行所有类变量（static 修饰的成员变量）显式初始化和静态代码块中语句。此时准备阶段时的那个 `static int a` 由默认初始化的 0 变成了显式初始化的 3。 由于执行顺序缘故，初始化阶段类变量如果在静态代码块中又进行了更改，会覆盖类变量的显式初始化，最终值会为静态代码块中的赋值。
+Khởi tạo thực chất là quá trình thực thi phương thức constructor class `<clinit>()`, và phải đảm bảo phương thức `<clinit>()` của class cha được thực thi xong trước. Phương thức này được compiler thu thập, thực thi theo thứ tự tất cả khởi tạo tường minh của biến class (biến thành viên được đánh dấu static) và các câu lệnh trong khối static code. Lúc này `static int a` ở giai đoạn chuẩn bị từ giá trị khởi tạo mặc định 0 trở thành giá trị khởi tạo tường minh 3. Do thứ tự thực thi, nếu biến class trong giai đoạn khởi tạo được thay đổi lần nữa trong khối static code, sẽ ghi đè lên khởi tạo tường minh của biến class, giá trị cuối cùng sẽ là giá trị trong khối static code.
 
-> 注意：字节码文件中初始化方法有两种，非静态资源初始化的`<init>`和静态资源初始化的`<clinit>`，类构造器方法`<clinit>()`不同于类的构造器，这些方法都是字节码文件中只能给 JVM 识别的特殊方法。
+> Lưu ý: Trong file bytecode có hai loại phương thức khởi tạo, `<init>` khởi tạo tài nguyên phi tĩnh và `<clinit>` khởi tạo tài nguyên tĩnh, phương thức constructor class `<clinit>()` khác với constructor của class, những phương thức này đều là phương thức đặc biệt trong file bytecode chỉ JVM mới nhận biết được.
 
-#### 2.1.4 卸载
+#### 2.1.4 Hủy tải
 
-GC 将无用对象从内存中卸载
+GC hủy tải các đối tượng không sử dụng khỏi bộ nhớ.
 
-### 2.2 类加载器的加载顺序
+### 2.2 Thứ tự tải của class loader
 
-加载一个 Class 类的顺序也是有优先级的，类加载器从最底层开始往上的顺序是这样的
+Thứ tự tải một Class cũng có độ ưu tiên, class loader từ dưới lên trên theo thứ tự sau:
 
-1. BootStrap ClassLoader：rt.jar
-2. Extension ClassLoader: 加载扩展的 jar 包
-3. App ClassLoader：指定的 classpath 下面的 jar 包
-4. Custom ClassLoader：自定义的类加载器
+1. BootStrap ClassLoader: rt.jar
+2. Extension ClassLoader: tải các jar extension
+3. App ClassLoader: các jar trong classpath được chỉ định
+4. Custom ClassLoader: class loader tùy chỉnh
 
-### 2.3 双亲委派机制
+### 2.3 Cơ chế ủy quyền cha mẹ (双亲委派机制)
 
-当一个类收到了加载请求时，它是不会先自己去尝试加载的，而是委派给父类去完成，比如我现在要 new 一个 Person，这个 Person 是我们自定义的类，如果我们要加载它，就会先委派 App ClassLoader ，只有当父类加载器都反馈自己无法完成这个请求（也就是父类加载器都没有找到加载所需的 Class）时，子类加载器才会自行尝试加载。
+Khi một class nhận được yêu cầu tải, nó sẽ không tự mình thử tải trước, mà ủy quyền cho class cha hoàn thành, ví dụ hiện tại tôi muốn `new` một `Person`, Person này là class tùy chỉnh của chúng ta, nếu muốn tải nó, trước tiên sẽ ủy quyền lên App ClassLoader, chỉ khi tất cả class loader cha phản hồi rằng họ không thể hoàn thành yêu cầu này (tức là tất cả class loader cha đều không tìm thấy Class cần tải), class loader con mới tự thử tải.
 
-这样做的好处是，加载位于 rt.jar 包中的类时不管是哪个加载器加载，最终都会委托到 BootStrap ClassLoader 进行加载，这样保证了使用不同的类加载器得到的都是同一个结果。
+Điều này mang lại lợi ích là, khi tải class trong package rt.jar, dù là class loader nào tải, cuối cùng đều sẽ ủy quyền cho BootStrap ClassLoader để tải, điều này đảm bảo kết quả nhận được khi dùng các class loader khác nhau đều giống nhau.
 
-其实这个也是一个隔离的作用，避免了我们的代码影响了 JDK 的代码，比如我现在自己定义一个 `java.lang.String`：
+Thực ra điều này cũng có tác dụng cách ly, tránh code của chúng ta ảnh hưởng đến code JDK, ví dụ tôi tự định nghĩa một `java.lang.String`:
 
 ```java
 package java.lang;
@@ -141,29 +141,29 @@ public class String {
 }
 ```
 
-尝试运行当前类的 `main` 函数的时候，我们的代码肯定会报错。这是因为在加载的时候其实是找到了 rt.jar 中的`java.lang.String`，然而发现这个里面并没有 `main` 方法。
+Khi cố gắng chạy hàm `main` của class hiện tại, code của chúng ta chắc chắn sẽ báo lỗi. Điều này là vì khi tải thực sự tìm thấy `java.lang.String` trong rt.jar, nhưng phát hiện trong đó không có phương thức `main`.
 
-## 三、运行时数据区
+## III. Vùng dữ liệu Runtime
 
-### 3.1 本地方法栈和程序计数器
+### 3.1 Native Method Stack và Program Counter
 
-比如说我们现在点开 Thread 类的源码，会看到它的 start0 方法带有一个 native 关键字修饰，而且不存在方法体，这种用 native 修饰的方法就是本地方法，这是使用 C 来实现的，然后一般这些方法都会放到一个叫做本地方法栈的区域。
+Ví dụ chúng ta mở source code class Thread, sẽ thấy phương thức start0 của nó có từ khóa native và không có phần thân phương thức, loại phương thức được đánh dấu native này là native method, được triển khai bằng C, và thường những phương thức này được đặt trong một vùng gọi là native method stack.
 
-程序计数器其实就是一个指针，它指向了我们程序中下一句需要执行的指令，它也是内存区域中唯一一个不会出现 OutOfMemoryError 的区域，而且占用内存空间小到基本可以忽略不计。这个内存仅代表当前线程所执行的字节码的行号指示器，字节码解析器通过改变这个计数器的值选取下一条需要执行的字节码指令。
+Program counter thực chất là một con trỏ, trỏ đến lệnh tiếp theo chúng ta cần thực thi trong chương trình, nó cũng là vùng duy nhất trong vùng bộ nhớ sẽ không xảy ra OutOfMemoryError, và chiếm không gian bộ nhớ nhỏ đến mức cơ bản có thể bỏ qua. Bộ nhớ này chỉ đại diện cho chỉ số dòng của bytecode đang được thực thi bởi thread hiện tại, bộ phân tích bytecode thay đổi giá trị bộ đếm này để chọn bytecode tiếp theo cần thực thi.
 
-如果执行的是 native 方法，那这个指针就不工作了。
+Nếu thực thi là native method, con trỏ này không hoạt động.
 
-### 3.2 方法区
+### 3.2 Method Area (Vùng phương thức)
 
-方法区主要的作用是存放类的元数据信息，常量和静态变量···等。当它存储的信息过大时，会在无法满足内存分配时报错。
+Tác dụng chính của Method Area là lưu trữ metadata của class, hằng số và biến tĩnh, v.v. Khi thông tin lưu trữ quá lớn, sẽ báo lỗi khi không thể đáp ứng phân bổ bộ nhớ.
 
-### 3.3 虚拟机栈和虚拟机堆
+### 3.3 VM Stack và VM Heap
 
-一句话便是：栈管运行，堆管存储。则虚拟机栈负责运行代码，而虚拟机堆负责存储数据。
+Một câu tóm tắt: stack quản lý chạy, heap quản lý lưu trữ. Thì VM Stack chịu trách nhiệm chạy code, còn VM Heap chịu trách nhiệm lưu trữ dữ liệu.
 
-#### 3.3.1 虚拟机栈的概念
+#### 3.3.1 Khái niệm VM Stack
 
-它是 Java 方法执行的内存模型。里面会对局部变量，动态链表，方法出口，栈的操作（入栈和出栈）进行存储，且线程独享。同时如果我们听到局部变量表，那也是在说虚拟机栈
+Nó là model bộ nhớ thực thi phương thức Java. Trong đó lưu trữ các biến cục bộ, dynamic link, method exit, thao tác stack (push và pop), và riêng theo thread. Đồng thời nếu chúng ta nghe đến local variable table, thì cũng đang nói về VM Stack.
 
 ```java
 public class Person{
@@ -175,153 +175,153 @@ public class Person{
 }
 ```
 
-#### 3.3.2 虚拟机栈存在的异常
+#### 3.3.2 Các ngoại lệ tồn tại trong VM Stack
 
-如果线程请求的栈的深度大于虚拟机栈的最大深度，就会报 **StackOverflowError** （这种错误经常出现在递归中）。Java 虚拟机也可以动态扩展，但随着扩展会不断地申请内存，当无法申请足够内存时就会报错 **OutOfMemoryError**。
+Nếu độ sâu stack mà thread yêu cầu lớn hơn độ sâu tối đa của VM Stack, sẽ báo **StackOverflowError** (lỗi này thường xảy ra trong đệ quy). Java Virtual Machine cũng có thể mở rộng động, nhưng khi mở rộng sẽ liên tục xin bộ nhớ, khi không thể xin đủ bộ nhớ sẽ báo **OutOfMemoryError**.
 
-#### 3.3.3 虚拟机栈的生命周期
+#### 3.3.3 Vòng đời của VM Stack
 
-对于栈来说，不存在垃圾回收。只要程序运行结束，栈的空间自然就会释放了。栈的生命周期和所处的线程是一致的。
+Đối với stack, không tồn tại garbage collection. Chỉ cần chương trình chạy xong, không gian stack sẽ tự nhiên được giải phóng. Vòng đời của stack nhất quán với thread nơi nó tồn tại.
 
-这里补充一句：8 种基本类型的变量+对象的引用变量+实例方法都是在栈里面分配内存。
+Bổ sung thêm: biến 8 kiểu cơ bản + biến tham chiếu đối tượng + phương thức instance đều được phân bổ bộ nhớ trong stack.
 
-#### 3.3.4 虚拟机栈的执行
+#### 3.3.4 Thực thi VM Stack
 
-我们经常说的栈帧数据，说白了在 JVM 中叫栈帧，放到 Java 中其实就是方法，它也是存放在栈中的。
+Chúng ta thường nghe nói đến dữ liệu stack frame, nói thẳng ra trong JVM gọi là stack frame, đặt trong Java thực ra là phương thức, nó cũng được lưu trữ trong stack.
 
-栈中的数据都是以栈帧的格式存在，它是一个关于方法和运行期数据的数据集。比如我们执行一个方法 a，就会对应产生一个栈帧 A1，然后 A1 会被压入栈中。同理方法 b 会有一个 B1，方法 c 会有一个 C1，等到这个线程执行完毕后，栈会先弹出 C1，后 B1,A1。它是一个先进后出，后进先出原则。
+Dữ liệu trong stack đều tồn tại ở định dạng stack frame, nó là một tập dữ liệu về phương thức và dữ liệu runtime. Ví dụ chúng ta thực thi một phương thức a, sẽ tạo ra một stack frame A1 tương ứng, sau đó A1 được push vào stack. Tương tự phương thức b sẽ có B1, phương thức c sẽ có C1, sau khi thread này thực thi xong, stack sẽ trước tiên pop C1, sau B1, A1. Đây là nguyên tắc vào sau ra trước.
 
-#### 3.3.5 局部变量的复用
+#### 3.3.5 Tái sử dụng biến cục bộ
 
-局部变量表用于存放方法参数和方法内部所定义的局部变量。它的容量是以 Slot 为最小单位，一个 slot 可以存放 32 位以内的数据类型。
+Local variable table dùng để lưu trữ các tham số phương thức và biến cục bộ được định nghĩa trong phương thức. Dung lượng của nó lấy Slot làm đơn vị tối thiểu, một slot có thể lưu trữ kiểu dữ liệu không quá 32 bit.
 
-虚拟机通过索引定位的方式使用局部变量表，范围为 `[0,局部变量表的 slot 的数量]`。方法中的参数就会按一定顺序排列在这个局部变量表中，至于怎么排的我们可以先不关心。而为了节省栈帧空间，这些 slot 是可以复用的，当方法执行位置超过了某个变量，那么这个变量的 slot 可以被其它变量复用。当然如果需要复用，那我们的垃圾回收自然就不会去动这些内存。
+Máy ảo sử dụng local variable table theo cách định vị bằng chỉ số, phạm vi là `[0, số lượng slot trong local variable table]`. Các tham số trong phương thức sẽ được sắp xếp theo một thứ tự nhất định trong local variable table này, còn sắp xếp thế nào chúng ta có thể không cần quan tâm. Còn để tiết kiệm không gian stack frame, các slot này có thể được tái sử dụng, khi vị trí thực thi phương thức vượt qua một biến nào đó, slot của biến đó có thể được các biến khác tái sử dụng. Tất nhiên nếu cần tái sử dụng, thì garbage collection tự nhiên sẽ không động đến những bộ nhớ này.
 
-#### 3.3.6 虚拟机堆的概念
+#### 3.3.6 Khái niệm VM Heap
 
-JVM 内存会划分为堆内存和非堆内存，堆内存中也会划分为**年轻代**和**老年代**，而非堆内存则为**永久代**。年轻代又会分为**Eden**和**Survivor**区。Survivor 也会分为**FromPlace**和**ToPlace**，toPlace 的 survivor 区域是空的。Eden，FromPlace 和 ToPlace 的默认占比为 **8:1:1**。当然这个东西其实也可以通过一个 -XX:+UsePSAdaptiveSurvivorSizePolicy 参数来根据生成对象的速率动态调整
+Bộ nhớ JVM sẽ được chia thành heap memory và non-heap memory, trong heap memory cũng sẽ chia thành **young generation** và **old generation**, còn non-heap memory là **permanent generation**. Young generation lại chia thành **Eden** và **Survivor** zone. Survivor cũng chia thành **FromPlace** và **ToPlace**, vùng survivor ToPlace là trống. Tỷ lệ mặc định của Eden, FromPlace và ToPlace là **8:1:1**. Tất nhiên điều này thực ra cũng có thể được điều chỉnh động theo tốc độ tạo đối tượng thông qua tham số `-XX:+UsePSAdaptiveSurvivorSizePolicy`.
 
-堆内存中存放的是对象，垃圾收集就是收集这些对象然后交给 GC 算法进行回收。非堆内存其实我们已经说过了，就是方法区。在 1.8 中已经移除永久代，替代品是一个元空间(MetaSpace)，最大区别是 metaSpace 是不存在于 JVM 中的，它使用的是本地内存。并有两个参数
+Heap memory lưu trữ các đối tượng, garbage collection là thu thập những đối tượng này rồi giao cho thuật toán GC để thu hồi. Non-heap memory thực ra chúng ta đã nói, chính là method area. Trong phiên bản 1.8 đã loại bỏ permanent generation, thay thế là metaspace (MetaSpace), sự khác biệt lớn nhất là metaSpace không tồn tại trong JVM, nó sử dụng bộ nhớ local. Và có hai tham số:
 
 ```plain
 MetaspaceSize：初始化元空间大小，控制发生GC
 MaxMetaspaceSize：限制元空间大小上限，防止占用过多物理内存。
 ```
 
-移除的原因可以大致了解一下：融合 HotSpot JVM 和 JRockit VM 而做出的改变，因为 JRockit 是没有永久代的，不过这也间接性地解决了永久代的 OOM 问题。
+Lý do loại bỏ có thể hiểu sơ qua: thay đổi được thực hiện để hợp nhất HotSpot JVM và JRockit VM, vì JRockit không có permanent generation, nhưng điều này cũng gián tiếp giải quyết vấn đề OOM của permanent generation.
 
-#### 3.3.7 Eden 年轻代的介绍
+#### 3.3.7 Giới thiệu về Eden (Young Generation)
 
-当我们 new 一个对象后，会先放到 Eden 划分出来的一块作为存储空间的内存，但是我们知道对堆内存是线程共享的，所以有可能会出现两个对象共用一个内存的情况。这里 JVM 的处理是为每个线程都预先申请好一块连续的内存空间并规定了对象存放的位置，而如果空间不足会再申请多块内存空间。这个操作我们会称作 TLAB，有兴趣可以了解一下。
+Khi chúng ta `new` một đối tượng, trước tiên sẽ được đặt vào một vùng nhớ được chia ra trong Eden làm không gian lưu trữ, nhưng chúng ta biết heap memory là chia sẻ thread, vì vậy có thể xảy ra tình huống hai đối tượng dùng chung một bộ nhớ. Cách xử lý của JVM ở đây là trước tiên xin một vùng nhớ liên tục cho mỗi thread và quy định vị trí đặt đối tượng, còn nếu không đủ không gian sẽ xin thêm nhiều vùng nhớ nữa. Thao tác này chúng ta gọi là TLAB, có hứng thú có thể tìm hiểu thêm.
 
-当 Eden 空间满了之后，会触发一个叫做 Minor GC（就是一个发生在年轻代的 GC）的操作，存活下来的对象移动到 Survivor0 区。~~Survivor0 区满后触发 Minor GC，就会将存活对象移动到 Survivor1 区~~，此时还会把 from 和 to 两个指针交换，这样保证了一段时间内总有一个 survivor 区为空且 to 所指向的 survivor 区为空。经过多次的 Minor GC 后仍然存活的对象（**这里的存活判断是 15 次，对应到虚拟机参数为 -XX:MaxTenuringThreshold 。为什么是 15，因为 HotSpot 会在对象头中的标记字段里记录年龄，分配到的空间仅有 4 位，所以最多只能记录到 15**）会移动到老年代。
+Khi vùng Eden đầy, sẽ kích hoạt một thao tác gọi là Minor GC (GC xảy ra ở young generation), các đối tượng còn sống được di chuyển sang vùng Survivor0. ~~Sau khi vùng Survivor0 đầy kích hoạt Minor GC, sẽ di chuyển đối tượng còn sống sang vùng Survivor1~~, lúc này cũng sẽ hoán đổi hai con trỏ from và to, điều này đảm bảo trong một khoảng thời gian luôn có một vùng survivor trống và vùng survivor mà to trỏ đến là trống. Sau nhiều lần Minor GC mà vẫn còn sống (**ở đây tiêu chí còn sống là 15 lần, tương ứng với tham số máy ảo là `-XX:MaxTenuringThreshold`. Tại sao là 15, vì HotSpot sẽ ghi lại tuổi trong trường đánh dấu trong object header, không gian được phân bổ chỉ có 4 bit, vì vậy tối đa chỉ có thể ghi đến 15**) sẽ được chuyển sang old generation.
 
-> 🐛 修正：当 Eden 区内存空间满了的时候，就会触发 Minor GC，Survivor0 区满不会触发 Minor GC 。
+> 🐛 Sửa chính xác: Khi không gian bộ nhớ trong vùng Eden đầy, sẽ kích hoạt Minor GC, vùng Survivor0 đầy không kích hoạt Minor GC.
 >
-> **那 Survivor0 区 的对象什么时候垃圾回收呢？**
+> **Vậy khi nào đối tượng trong vùng Survivor0 mới được garbage collect?**
 >
-> 假设 Survivor0 区现在是满的，此时又触发了 Minor GC ，发现 Survivor0 区依旧是满的，存不下，此时会将 S0 区与 Eden 区的对象一起进行可达性分析，找出活跃的对象，将它复制到 S1 区并且将 S0 区域和 Eden 区的对象给清空，这样那些不可达的对象进行清除，并且将 S0 区 和 S1 区交换。
+> Giả sử vùng Survivor0 hiện tại đã đầy, lúc này lại kích hoạt Minor GC, phát hiện vùng Survivor0 vẫn đầy, không thể chứa nữa, lúc này sẽ cùng nhau phân tích khả năng tiếp cận của đối tượng trong vùng S0 và vùng Eden, tìm ra các đối tượng hoạt động, sao chép chúng sang vùng S1 và xóa sạch các đối tượng trong vùng S0 và vùng Eden, như vậy những đối tượng không thể tiếp cận sẽ bị xóa, và hoán đổi vùng S0 và vùng S1.
 
-老年代是存储长期存活的对象的，占满时就会触发我们最常听说的 Full GC，期间会停止所有线程等待 GC 的完成。所以对于响应要求高的应用应该尽量去减少发生 Full GC 从而避免响应超时的问题。
+Old generation lưu trữ các đối tượng sống lâu dài, khi đầy sẽ kích hoạt Full GC mà chúng ta hay nghe đến, trong thời gian đó sẽ dừng tất cả các thread chờ GC hoàn thành. Vì vậy đối với ứng dụng yêu cầu phản hồi cao nên cố gắng giảm thiểu Full GC xảy ra để tránh vấn đề timeout phản hồi.
 
-而且当老年区执行了 full gc 之后仍然无法进行对象保存的操作，就会产生 OOM，这时候就是虚拟机中的堆内存不足，原因可能会是堆内存设置的大小过小，这个可以通过参数-Xms、-Xmx 来调整。也可能是代码中创建的对象大且多，而且它们一直在被引用从而长时间垃圾收集无法收集它们。
+Và khi old generation thực thi full gc xong mà vẫn không thể thực hiện thao tác lưu đối tượng, sẽ sinh ra OOM, lúc này là heap memory trong máy ảo không đủ, nguyên nhân có thể là kích thước heap memory được cấu hình quá nhỏ, điều này có thể điều chỉnh thông qua tham số `-Xms`, `-Xmx`. Cũng có thể là trong code tạo ra các đối tượng lớn và nhiều, và chúng liên tục được tham chiếu nên garbage collection không thể thu hồi chúng trong thời gian dài.
 
 ![](https://static001.geekbang.org/infoq/39/398255141fde8ba208f6c99f4edaa9fe.png)
 
-补充说明：关于-XX:TargetSurvivorRatio 参数的问题。其实也不一定是要满足-XX:MaxTenuringThreshold 才移动到老年代。可以举个例子：如对象年龄 5 的占 30%，年龄 6 的占 36%，年龄 7 的占 34%，加入某个年龄段（如例子中的年龄 6）后，总占用超过 Survivor 空间\*TargetSurvivorRatio 的时候，从该年龄段开始及大于的年龄对象就要进入老年代（即例子中的年龄 6 对象，就是年龄 6 和年龄 7 晋升到老年代），这时候无需等到 MaxTenuringThreshold 中要求的 15
+Bổ sung: Về vấn đề tham số `-XX:TargetSurvivorRatio`. Thực ra cũng không nhất thiết phải thỏa mãn `-XX:MaxTenuringThreshold` mới chuyển sang old generation. Có thể lấy ví dụ: nếu đối tượng tuổi 5 chiếm 30%, tuổi 6 chiếm 36%, tuổi 7 chiếm 34%, sau khi thêm một đoạn tuổi nào đó (như tuổi 6 trong ví dụ), tổng chiếm dụng vượt quá Survivor space \* TargetSurvivorRatio, thì từ đoạn tuổi đó trở lên sẽ vào old generation (tức là đối tượng tuổi 6 trong ví dụ, nghĩa là tuổi 6 và tuổi 7 thăng lên old generation), lúc này không cần đợi đến 15 theo yêu cầu trong MaxTenuringThreshold.
 
-#### 3.3.8 如何判断一个对象需要被干掉
+#### 3.3.8 Làm sao xác định một đối tượng cần bị loại bỏ
 
 ![](https://static001.geekbang.org/infoq/1b/1ba7f3cff6e07c6e9c6765cc4ef74997.png)
 
-图中程序计数器、虚拟机栈、本地方法栈，3 个区域随着线程的生存而生存的。内存分配和回收都是确定的。随着线程的结束内存自然就被回收了，因此不需要考虑垃圾回收的问题。而 Java 堆和方法区则不一样，各线程共享，内存的分配和回收都是动态的。因此垃圾收集器所关注的都是堆和方法这部分内存。
+Program counter, VM Stack, Native Method Stack trong hình, 3 vùng này tồn tại cùng với thread. Việc phân bổ và thu hồi bộ nhớ đều được xác định. Cùng với sự kết thúc của thread, bộ nhớ tự nhiên được thu hồi, vì vậy không cần xem xét vấn đề garbage collection. Còn Java Heap và Method Area thì khác, các thread dùng chung, việc phân bổ và thu hồi bộ nhớ đều động. Do đó những gì garbage collector quan tâm đều là phần bộ nhớ heap và method này.
 
-在进行回收前就要判断哪些对象还存活，哪些已经死去。下面介绍两个基础的计算方法
+Trước khi thu hồi phải xác định đối tượng nào còn sống, đối tượng nào đã chết. Dưới đây giới thiệu hai phương pháp tính toán cơ bản:
 
-1.引用计数器计算：给对象添加一个引用计数器，每次引用这个对象时计数器加一，引用失效时减一，计数器等于 0 时就是不会再次使用的。不过这个方法有一种情况就是出现对象的循环引用时 GC 没法回收。
+1. Tính bằng reference counter: Thêm một reference counter vào đối tượng, mỗi lần tham chiếu đến đối tượng này counter tăng một, khi tham chiếu mất hiệu lực thì giảm một, counter bằng 0 thì là không còn sử dụng nữa. Tuy nhiên phương pháp này có một tình huống là khi xảy ra circular reference giữa các đối tượng, GC không thể thu hồi.
 
-2.可达性分析计算：这是一种类似于二叉树的实现，将一系列的 GC ROOTS 作为起始的存活对象集，从这个节点往下搜索，搜索所走过的路径成为引用链，把能被该集合引用到的对象加入到集合中。搜索当一个对象到 GC Roots 没有使用任何引用链时，则说明该对象是不可用的。主流的商用程序语言，例如 Java，C#等都是靠这招去判定对象是否存活的。
+2. Tính bằng reachability analysis: Đây là một triển khai tương tự cây nhị phân, lấy một loạt GC ROOTS làm tập đối tượng còn sống ban đầu, tìm kiếm từ node này xuống dưới, đường tìm kiếm được gọi là reference chain, thêm các đối tượng có thể được tập hợp này tham chiếu vào tập hợp. Khi tìm kiếm một đối tượng đến GC Roots mà không sử dụng bất kỳ reference chain nào, thì đối tượng đó là không thể sử dụng. Các ngôn ngữ lập trình thương mại chính, ví dụ Java, C# đều dựa vào cách này để xác định đối tượng có còn sống hay không.
 
-（了解一下即可）在 Java 语言汇总能作为 GC Roots 的对象分为以下几种：
+(Chỉ cần hiểu qua) Trong ngôn ngữ Java, các đối tượng có thể làm GC Roots chia thành các loại sau:
 
-1. 虚拟机栈（栈帧中的本地方法表）中引用的对象（局部变量）
-2. 方法区中静态变量所引用的对象（静态变量）
-3. 方法区中常量引用的对象
-4. 本地方法栈（即 native 修饰的方法）中 JNI 引用的对象（JNI 是 Java 虚拟机调用对应的 C 函数的方式，通过 JNI 函数也可以创建新的 Java 对象。且 JNI 对于对象的局部引用或者全局引用都会把它们指向的对象都标记为不可回收）
-5. 已启动的且未终止的 Java 线程
+1. Đối tượng được tham chiếu trong VM Stack (bảng phương thức cục bộ trong stack frame) (biến cục bộ)
+2. Đối tượng được tham chiếu bởi biến tĩnh trong Method Area (biến tĩnh)
+3. Đối tượng được tham chiếu bởi hằng số trong Method Area
+4. Đối tượng được tham chiếu JNI trong Native Method Stack (tức là phương thức được đánh dấu native) (JNI là cách Java Virtual Machine gọi hàm C tương ứng, thông qua hàm JNI cũng có thể tạo đối tượng Java mới. Và JNI đối với tham chiếu cục bộ hoặc tham chiếu toàn cục của đối tượng đều sẽ đánh dấu các đối tượng mà chúng trỏ đến là không thể thu hồi)
+5. Các Java thread đã khởi động và chưa kết thúc
 
-这种方法的优点是能够解决循环引用的问题，可它的实现需要耗费大量资源和时间，也需要 GC（它的分析过程引用关系不能发生变化，所以需要停止所有进程）
+Ưu điểm của phương pháp này là có thể giải quyết vấn đề circular reference, nhưng việc triển khai cần tiêu tốn nhiều tài nguyên và thời gian, cũng cần GC (quá trình phân tích của nó không thể thay đổi quan hệ tham chiếu, vì vậy cần dừng tất cả các tiến trình).
 
-#### 3.3.9 如何宣告一个对象的真正死亡
+#### 3.3.9 Làm thế nào để tuyên bố một đối tượng thực sự đã chết
 
-首先必须要提到的是一个名叫 **finalize()** 的方法
+Trước tiên phải đề cập đến một phương thức tên là **finalize()**
 
-finalize()是 Object 类的一个方法、一个对象的 finalize()方法只会被系统自动调用一次，经过 finalize()方法逃脱死亡的对象，第二次不会再调用。
+finalize() là một phương thức của class Object, phương thức finalize() của một đối tượng chỉ được hệ thống tự động gọi một lần, đối tượng thoát khỏi cái chết thông qua phương thức finalize(), lần thứ hai sẽ không gọi lại.
 
-补充一句：并不提倡在程序中调用 finalize()来进行自救。建议忘掉 Java 程序中该方法的存在。因为它执行的时间不确定，甚至是否被执行也不确定（Java 程序的不正常退出），而且运行代价高昂，无法保证各个对象的调用顺序（甚至有不同线程中调用）。在 Java9 中已经被标记为 **deprecated** ，且 `java.lang.ref.Cleaner`（也就是强、软、弱、幻象引用的那一套）中已经逐步替换掉它，会比 `finalize` 来的更加的轻量及可靠。
+Bổ sung: Không khuyến khích gọi finalize() trong chương trình để tự cứu. Khuyến nghị quên đi sự tồn tại của phương thức này trong chương trình Java. Vì thời gian thực thi của nó không xác định, thậm chí còn không chắc có được thực thi không (chương trình Java thoát bất thường), và chi phí chạy cao, không thể đảm bảo thứ tự gọi của các đối tượng (thậm chí được gọi trong các thread khác nhau). Trong Java 9 đã được đánh dấu **deprecated**, và `java.lang.ref.Cleaner` (tức là bộ strong, soft, weak, phantom reference) đã dần thay thế nó, sẽ nhẹ nhàng và đáng tin cậy hơn `finalize`.
 
 ![](https://static001.geekbang.org/infoq/8d/8d7f0381c7d857c7ceb8ae5a5fef0f4a.png)
 
-判断一个对象的死亡至少需要两次标记
+Việc xác định cái chết của một đối tượng cần ít nhất hai lần đánh dấu:
 
-1. 如果对象进行可达性分析之后没发现与 GC Roots 相连的引用链，那它将会第一次标记并且进行一次筛选。判断的条件是决定这个对象是否有必要执行 finalize()方法。如果对象有必要执行 finalize()方法，则被放入 F-Queue 队列中。
-2. GC 对 F-Queue 队列中的对象进行二次标记。如果对象在 finalize()方法中重新与引用链上的任何一个对象建立了关联，那么二次标记时则会将它移出“即将回收”集合。如果此时对象还没成功逃脱，那么只能被回收了。
+1. Nếu đối tượng sau khi phân tích khả năng tiếp cận không tìm thấy reference chain kết nối với GC Roots, thì nó sẽ được đánh dấu lần đầu và thực hiện một lần sàng lọc. Điều kiện xét là quyết định đối tượng này có cần thiết phải thực thi phương thức finalize() hay không. Nếu đối tượng cần thiết phải thực thi phương thức finalize(), thì được đặt vào hàng đợi F-Queue.
+2. GC đánh dấu lần hai các đối tượng trong hàng đợi F-Queue. Nếu đối tượng trong phương thức finalize() tái tạo liên kết với bất kỳ đối tượng nào trên reference chain, thì khi đánh dấu lần hai sẽ di chuyển nó ra khỏi tập hợp "sắp thu hồi". Nếu lúc này đối tượng vẫn không thoát được thành công, thì chỉ có thể bị thu hồi.
 
-如果确定对象已经死亡，我们又该如何回收这些垃圾呢
+Nếu xác định đối tượng đã chết, chúng ta nên thu hồi những rác này như thế nào?
 
-### 3.4 垃圾回收算法
+### 3.4 Thuật toán garbage collection
 
-关于常见垃圾回收算法的详细介绍，建议阅读这篇：[JVM 垃圾回收详解（重点）](https://javaguide.cn/java/jvm/jvm-garbage-collection.html)。
+Để xem giới thiệu chi tiết về các thuật toán garbage collection thường gặp, khuyến nghị đọc bài này: [JVM 垃圾回收详解（重点）](https://javaguide.cn/java/jvm/jvm-garbage-collection.html).
 
-### 3.5 （了解）各种各样的垃圾回收器
+### 3.5 (Tham khảo) Các loại garbage collector
 
-HotSpot VM 中的垃圾回收器，以及适用场景
+Garbage collector trong HotSpot VM và các trường hợp áp dụng:
 
 ![](https://static001.geekbang.org/infoq/9f/9ff72176ab0bf58bc43e142f69427379.png)
 
-到 jdk8 为止，默认的垃圾收集器是 Parallel Scavenge 和 Parallel Old
+Đến jdk8, garbage collector mặc định là Parallel Scavenge và Parallel Old.
 
-从 jdk9 开始，G1 收集器成为默认的垃圾收集器
-目前来看，G1 回收器停顿时间最短而且没有明显缺点，非常适合 Web 应用。在 jdk8 中测试 Web 应用，堆内存 6G，新生代 4.5G 的情况下，Parallel Scavenge 回收新生代停顿长达 1.5 秒。G1 回收器回收同样大小的新生代只停顿 0.2 秒。
+Từ jdk9 trở đi, G1 collector trở thành garbage collector mặc định.
+Hiện tại, G1 collector có thời gian dừng ngắn nhất và không có nhược điểm rõ ràng, rất phù hợp với ứng dụng Web. Khi kiểm tra ứng dụng Web trong jdk8, heap memory 6G, young generation 4.5G, Parallel Scavenge thu hồi young generation dừng lâu đến 1.5 giây. G1 collector thu hồi young generation cùng kích thước chỉ dừng 0.2 giây.
 
-### 3.6 （了解）JVM 的常用参数
+### 3.6 (Tham khảo) Các tham số thường dùng của JVM
 
-JVM 的参数非常之多，这里只列举比较重要的几个，通过各种各样的搜索引擎也可以得知这些信息。
+Tham số JVM rất nhiều, ở đây chỉ liệt kê một vài cái quan trọng hơn, thông qua các công cụ tìm kiếm khác nhau cũng có thể biết được thông tin này.
 
-| 参数名称                   | 含义                                                           | 默认值                | 说明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| -------------------------- | -------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| -Xms                       | 初始堆大小                                                     | 物理内存的 1/64(<1GB) | 默认(MinHeapFreeRatio 参数可以调整)空余堆内存小于 40%时，JVM 就会增大堆直到-Xmx 的最大限制.                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -Xmx                       | 最大堆大小                                                     | 物理内存的 1/4(<1GB)  | 默认(MaxHeapFreeRatio 参数可以调整)空余堆内存大于 70%时，JVM 会减少堆直到 -Xms 的最小限制                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -Xmn                       | 年轻代大小(1.4or later)                                        |                       | 注意：此处的大小是（eden+ 2 survivor space).与 jmap -heap 中显示的 New gen 是不同的。整个堆大小=年轻代大小 + 老年代大小 + 持久代（永久代）大小.增大年轻代后,将会减小年老代大小.此值对系统性能影响较大,Sun 官方推荐配置为整个堆的 3/8                                                                                                                                                                                                                                                                               |
-| -XX:NewSize                | 设置年轻代大小(for 1.3/1.4)                                    |                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -XX:MaxNewSize             | 年轻代最大值(for 1.3/1.4)                                      |                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -XX:PermSize               | 设置持久代(perm gen)初始值                                     | 物理内存的 1/64       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -XX:MaxPermSize            | 设置持久代最大值                                               | 物理内存的 1/4        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -Xss                       | 每个线程的堆栈大小                                             |                       | JDK5.0 以后每个线程堆栈大小为 1M,以前每个线程堆栈大小为 256K.根据应用的线程所需内存大小进行 调整.在相同物理内存下,减小这个值能生成更多的线程.但是操作系统对一个进程内的线程数还是有限制的,不能无限生成,经验值在 3000~5000 左右一般小的应用， 如果栈不是很深， 应该是 128k 够用的 大的应用建议使用 256k。这个选项对性能影响比较大，需要严格的测试。（校长）和 threadstacksize 选项解释很类似,官方文档似乎没有解释,在论坛中有这样一句话:-Xss is translated in a VM flag named ThreadStackSize”一般设置这个值就可以了 |
-| -XX:NewRatio               | 年轻代(包括 Eden 和两个 Survivor 区)与年老代的比值(除去持久代) |                       | -XX:NewRatio=4 表示年轻代与年老代所占比值为 1:4,年轻代占整个堆栈的 1/5Xms=Xmx 并且设置了 Xmn 的情况下，该参数不需要进行设置。                                                                                                                                                                                                                                                                                                                                                                                      |
-| -XX:SurvivorRatio          | Eden 区与 Survivor 区的大小比值                                |                       | 设置为 8,则两个 Survivor 区与一个 Eden 区的比值为 2:8,一个 Survivor 区占整个年轻代的 1/10                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -XX:+DisableExplicitGC     | 关闭 System.gc()                                               |                       | 这个参数需要严格的测试                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| -XX:PretenureSizeThreshold | 对象超过多大是直接在旧生代分配                                 | 0                     | 单位字节 新生代采用 Parallel ScavengeGC 时无效另一种直接在旧生代分配的情况是大的数组对象,且数组中无外部引用对象.                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -XX:ParallelGCThreads      | 并行收集器的线程数                                             |                       | 此值最好配置与处理器数目相等 同样适用于 CMS                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -XX:MaxGCPauseMillis       | 每次年轻代垃圾回收的最长时间(最大暂停时间)                     |                       | 如果无法满足此时间,JVM 会自动调整年轻代大小,以满足此值.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Tên tham số                | Ý nghĩa                                                                                   | Giá trị mặc định          | Ghi chú                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| -Xms                       | Kích thước heap ban đầu                                                                   | 1/64 bộ nhớ vật lý (<1GB) | Mặc định (có thể điều chỉnh tham số MinHeapFreeRatio) khi heap trống nhỏ hơn 40%, JVM sẽ tăng heap đến giới hạn tối đa -Xmx.                                                                                                                                                                                                                                                                                                                                                                     |
+| -Xmx                       | Kích thước heap tối đa                                                                    | 1/4 bộ nhớ vật lý (<1GB)  | Mặc định (có thể điều chỉnh tham số MaxHeapFreeRatio) khi heap trống lớn hơn 70%, JVM sẽ giảm heap đến giới hạn tối thiểu -Xms.                                                                                                                                                                                                                                                                                                                                                                  |
+| -Xmn                       | Kích thước young generation (1.4 trở lên)                                                 |                           | Lưu ý: kích thước ở đây là (eden + 2 survivor space). Khác với New gen hiển thị trong `jmap -heap`. Tổng kích thước heap = kích thước young generation + kích thước old generation + kích thước persistent generation. Tăng young generation sẽ giảm old generation. Giá trị này ảnh hưởng khá lớn đến hiệu suất hệ thống, Sun chính thức khuyến nghị cấu hình là 3/8 toàn bộ heap.                                                                                                              |
+| -XX:NewSize                | Đặt kích thước young generation (cho 1.3/1.4)                                             |                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -XX:MaxNewSize             | Giá trị tối đa của young generation (cho 1.3/1.4)                                         |                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -XX:PermSize               | Đặt giá trị ban đầu của permanent generation (perm gen)                                   | 1/64 bộ nhớ vật lý        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -XX:MaxPermSize            | Đặt giá trị tối đa của permanent generation                                               | 1/4 bộ nhớ vật lý         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -Xss                       | Kích thước heap stack của mỗi thread                                                      |                           | Từ JDK5.0 trở đi mỗi thread stack size là 1M, trước đó là 256K. Điều chỉnh theo kích thước bộ nhớ cần thiết của thread ứng dụng. Với cùng bộ nhớ vật lý, giảm giá trị này có thể tạo nhiều thread hơn. Nhưng hệ điều hành vẫn có giới hạn số thread trong một tiến trình, không thể tạo vô hạn, giá trị kinh nghiệm khoảng 3000~5000. Ứng dụng nhỏ, nếu stack không sâu, 128k nên đủ. Ứng dụng lớn khuyến nghị dùng 256k. Tùy chọn này ảnh hưởng khá lớn đến hiệu suất, cần kiểm tra nghiêm túc. |
+| -XX:NewRatio               | Tỷ lệ giữa young generation (gồm Eden và hai Survivor) và old generation (trừ persistent) |                           | -XX:NewRatio=4 nghĩa là tỷ lệ young generation với old generation là 1:4, young generation chiếm 1/5 toàn bộ heap. Khi Xms=Xmx và đã đặt Xmn, tham số này không cần đặt.                                                                                                                                                                                                                                                                                                                         |
+| -XX:SurvivorRatio          | Tỷ lệ kích thước vùng Eden và Survivor                                                    |                           | Đặt là 8, thì tỷ lệ giữa hai vùng Survivor và một vùng Eden là 2:8, một vùng Survivor chiếm 1/10 young generation.                                                                                                                                                                                                                                                                                                                                                                               |
+| -XX:+DisableExplicitGC     | Tắt System.gc()                                                                           |                           | Tham số này cần kiểm tra nghiêm túc                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -XX:PretenureSizeThreshold | Đối tượng vượt quá bao nhiêu thì phân bổ trực tiếp trong old generation                   | 0                         | Đơn vị byte. Không hiệu lực khi young generation dùng Parallel Scavenge GC. Một trường hợp khác phân bổ trực tiếp trong old generation là đối tượng mảng lớn và không có external reference trong mảng.                                                                                                                                                                                                                                                                                          |
+| -XX:ParallelGCThreads      | Số thread của parallel collector                                                          |                           | Giá trị này tốt nhất cấu hình bằng số processor. Cũng áp dụng cho CMS.                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -XX:MaxGCPauseMillis       | Thời gian tối đa của mỗi lần garbage collection young generation (thời gian dừng tối đa)  |                           | Nếu không thể đáp ứng thời gian này, JVM sẽ tự động điều chỉnh kích thước young generation để thỏa mãn giá trị này.                                                                                                                                                                                                                                                                                                                                                                              |
 
-其实还有一些打印及 CMS 方面的参数，这里就不以一一列举了
+Thực ra còn có một số tham số về in ấn và CMS, ở đây không liệt kê từng cái một nữa.
 
-## 四、关于 JVM 调优的一些方面
+## IV. Một số khía cạnh về điều chỉnh JVM
 
-根据刚刚涉及的 jvm 的知识点，我们可以尝试对 JVM 进行调优，主要就是堆内存那块
+Dựa trên các điểm kiến thức JVM vừa đề cập, chúng ta có thể thử điều chỉnh JVM, chủ yếu là phần heap memory.
 
-所有线程共享数据区大小=新生代大小 + 年老代大小 + 持久代大小。持久代一般固定大小为 64m。所以 java 堆中增大年轻代后，将会减小年老代大小（因为老年代的清理是使用 fullgc，所以老年代过小的话反而是会增多 fullgc 的）。此值对系统性能影响较大，Sun 官方推荐配置为 java 堆的 3/8。
+Kích thước vùng dữ liệu dùng chung của tất cả thread = kích thước young generation + kích thước old generation + kích thước persistent generation. Persistent generation thường có kích thước cố định là 64m. Vì vậy sau khi tăng young generation trong java heap, kích thước old generation sẽ giảm (vì việc dọn dẹp old generation dùng fullgc, nên old generation quá nhỏ lại sẽ làm tăng số lần fullgc). Giá trị này ảnh hưởng khá lớn đến hiệu suất hệ thống, Sun chính thức khuyến nghị cấu hình là 3/8 java heap.
 
-### 4.1 调整最大堆内存和最小堆内存
+### 4.1 Điều chỉnh heap memory tối đa và tối thiểu
 
--Xmx –Xms：指定 java 堆最大值（默认值是物理内存的 1/4(<1GB)）和初始 java 堆最小值（默认值是物理内存的 1/64(<1GB)）
+`-Xmx -Xms`: Chỉ định giá trị tối đa java heap (mặc định là 1/4 bộ nhớ vật lý (<1GB)) và giá trị tối thiểu java heap ban đầu (mặc định là 1/64 bộ nhớ vật lý (<1GB)).
 
-默认(MinHeapFreeRatio 参数可以调整)空余堆内存小于 40%时，JVM 就会增大堆直到-Xmx 的最大限制.，默认(MaxHeapFreeRatio 参数可以调整)空余堆内存大于 70%时，JVM 会减少堆直到 -Xms 的最小限制。简单点来说，你不停地往堆内存里面丢数据，等它剩余大小小于 40%了，JVM 就会动态申请内存空间不过会小于-Xmx，如果剩余大小大于 70%，又会动态缩小不过不会小于–Xms。就这么简单
+Mặc định (có thể điều chỉnh tham số MinHeapFreeRatio) khi heap trống nhỏ hơn 40%, JVM sẽ tăng heap đến giới hạn tối đa -Xmx. Mặc định (có thể điều chỉnh tham số MaxHeapFreeRatio) khi heap trống lớn hơn 70%, JVM sẽ giảm heap nhưng không nhỏ hơn -Xms. Nói đơn giản, bạn liên tục đẩy dữ liệu vào heap memory, khi kích thước còn lại nhỏ hơn 40%, JVM sẽ động xin không gian bộ nhớ nhưng sẽ nhỏ hơn -Xmx, nếu kích thước còn lại lớn hơn 70%, lại sẽ động thu nhỏ nhưng không nhỏ hơn -Xms. Đơn giản như vậy thôi.
 
-开发过程中，通常会将 -Xms 与 -Xmx 两个参数配置成相同的值，其目的是为了能够在 java 垃圾回收机制清理完堆区后不需要重新分隔计算堆区的大小而浪费资源。
+Trong quá trình phát triển, thường cấu hình hai tham số `-Xms` và `-Xmx` bằng nhau, mục đích là để sau khi cơ chế garbage collection Java dọn sạch vùng heap không cần phân chia lại tính toán kích thước vùng heap mà lãng phí tài nguyên.
 
-我们执行下面的代码
+Chúng ta thực thi code sau:
 
 ```java
 System.out.println("Xmx=" + Runtime.getRuntime().maxMemory() / 1024.0 / 1024 + "M");    //系统的最大空间
@@ -329,11 +329,11 @@ System.out.println("free mem=" + Runtime.getRuntime().freeMemory() / 1024.0 / 10
 System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 1024 + "M");  //当前可用的总空间
 ```
 
-注意：此处设置的是 Java 堆大小，也就是新生代大小 + 老年代大小
+Lưu ý: ở đây đặt là kích thước Java heap, tức là kích thước young generation + kích thước old generation.
 
 ![](https://static001.geekbang.org/infoq/11/114f32ddd295b2e30444f42f6180538c.png)
 
-设置一个 VM options 的参数
+Đặt một tham số VM options:
 
 ```plain
 -Xmx20m -Xms5m -XX:+PrintGCDetails
@@ -341,15 +341,15 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 ![](https://static001.geekbang.org/infoq/7e/7ea0bf0dec20e44bf95128c571d6ef0e.png)
 
-再次启动 main 方法
+Khởi động lại phương thức main:
 
 ![](https://static001.geekbang.org/infoq/c8/c89edbd0a147a791cfabdc37923c6836.png)
 
-这里 GC 弹出了一个 Allocation Failure 分配失败，这个事情发生在 PSYoungGen，也就是年轻代中
+Ở đây GC bật ra Allocation Failure (thất bại phân bổ), sự kiện này xảy ra ở PSYoungGen, tức là young generation.
 
-这时候申请到的内存为 18M，空闲内存为 4.214195251464844M
+Lúc này bộ nhớ đã xin được là 18M, free memory là 4.214195251464844M.
 
-我们此时创建一个字节数组看看，执行下面的代码
+Lúc này chúng ta tạo một byte array xem, thực thi code sau:
 
 ```java
 byte[] b = new byte[1 * 1024 * 1024];
@@ -361,7 +361,7 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 ![](https://static001.geekbang.org/infoq/db/dbeb6aea0a90949f7d7fe4746ddb11a3.png)
 
-此时 free memory 就又缩水了，不过 total memory 是没有变化的。Java 会尽可能将 total mem 的值维持在最小堆内存大小
+Lúc này free memory lại thu nhỏ, nhưng total memory không thay đổi. Java sẽ cố gắng duy trì giá trị total mem ở kích thước heap memory tối thiểu.
 
 ```java
 byte[] b = new byte[10 * 1024 * 1024];
@@ -373,9 +373,9 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 ![](https://static001.geekbang.org/infoq/b6/b6a7c522166dbd425dbb06eb56c9b071.png)
 
-这时候我们创建了一个 10M 的字节数据，这时候最小堆内存是顶不住的。我们会发现现在的 total memory 已经变成了 15M，这就是已经申请了一次内存的结果。
+Lúc này chúng ta tạo ra một dữ liệu byte 10M, lúc này heap memory tối thiểu không chịu được nữa. Chúng ta sẽ thấy total memory hiện tại đã trở thành 15M, đây là kết quả đã xin bộ nhớ một lần.
 
-此时我们再跑一下这个代码
+Lúc này chúng ta chạy thêm code này:
 
 ```java
 System.gc();
@@ -386,17 +386,17 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 ![](https://static001.geekbang.org/infoq/8d/8dd6e8fccfd1394b83251c136ee44ceb.png)
 
-此时我们手动执行了一次 fullgc，此时 total memory 的内存空间又变回 5.5M 了，此时又是把申请的内存释放掉的结果。
+Lúc này chúng ta thực thi thủ công một lần fullgc, total memory lại trở về 5.5M, lúc này lại là kết quả giải phóng bộ nhớ đã xin.
 
-### 4.2 调整新生代和老年代的比值
+### 4.2 Điều chỉnh tỷ lệ young generation và old generation
 
 ```plain
--XX:NewRatio --- 新生代（eden+2\*Survivor）和老年代（不包含永久区）的比值
+-XX:NewRatio --- 比值(新生代（eden+2*Survivor）和老年代（不包含永久区）的比值)
 
 例如：-XX:NewRatio=4，表示新生代:老年代=1:4，即新生代占整个堆的 1/5。在 Xms=Xmx 并且设置了 Xmn 的情况下，该参数不需要进行设置。
 ```
 
-### 4.3 调整 Survivor 区和 Eden 区的比值
+### 4.3 Điều chỉnh tỷ lệ vùng Survivor và vùng Eden
 
 ```plain
 -XX:SurvivorRatio（幸存代）--- 设置两个 Survivor 区和 eden 的比值
@@ -404,135 +404,135 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 例如：8，表示两个 Survivor:eden=2:8，即一个 Survivor 占年轻代的 1/10
 ```
 
-### 4.4 设置年轻代和老年代的大小
+### 4.4 Đặt kích thước young generation và old generation
 
 ```plain
 -XX:NewSize --- 设置年轻代大小
 -XX:MaxNewSize --- 设置年轻代最大值
 ```
 
-可以通过设置不同参数来测试不同的情况，反正最优解当然就是官方的 Eden 和 Survivor 的占比为 8:1:1，然后在刚刚介绍这些参数的时候都已经附带了一些说明，感兴趣的也可以看看。反正最大堆内存和最小堆内存如果数值不同会导致多次的 gc，需要注意。
+Có thể kiểm tra các tình huống khác nhau bằng cách đặt các tham số khác nhau, dù sao giải pháp tối ưu nhất tất nhiên là tỷ lệ Eden và Survivor chính thức là 8:1:1, và khi giới thiệu các tham số này đều đã kèm theo một số giải thích, ai muốn tìm hiểu cũng có thể xem qua. Dù sao heap memory tối đa và tối thiểu nếu giá trị khác nhau sẽ dẫn đến nhiều lần gc, cần chú ý.
 
-### 4.5 小总结
+### 4.5 Tóm tắt nhỏ
 
-根据实际事情调整新生代和幸存代的大小，官方推荐新生代占 java 堆的 3/8，幸存代占新生代的 1/10
+Điều chỉnh kích thước young generation và survivor generation theo tình huống thực tế, Sun chính thức khuyến nghị young generation chiếm 3/8 java heap, survivor generation chiếm 1/10 young generation.
 
-在 OOM 时，记得 Dump 出堆，确保可以排查现场问题，通过下面命令你可以输出一个.dump 文件，这个文件可以使用 VisualVM 或者 Java 自带的 Java VisualVM 工具。
+Khi OOM, hãy nhớ Dump heap ra, đảm bảo có thể gỡ lỗi tại chỗ, thông qua lệnh dưới đây bạn có thể xuất file .dump, file này có thể dùng VisualVM hoặc Java VisualVM đi kèm với Java.
 
 ```plain
--Xmx20m -Xms5m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=你要输出的日志路径
+-Xmx20m -Xms5m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=bạn muốn xuất log ở đường dẫn nào
 ```
 
-一般我们也可以通过编写脚本的方式来让 OOM 出现时给我们报个信，可以通过发送邮件或者重启程序等来解决。
+Thông thường chúng ta cũng có thể thông qua việc viết script để khi OOM xảy ra báo cho chúng ta biết, có thể thông qua gửi email hoặc restart chương trình để giải quyết.
 
-### 4.6 永久区的设置
+### 4.6 Cấu hình permanent generation
 
 ```plain
 -XX:PermSize -XX:MaxPermSize
 ```
 
-初始空间（默认为物理内存的 1/64）和最大空间（默认为物理内存的 1/4）。也就是说，jvm 启动时，永久区一开始就占用了 PermSize 大小的空间，如果空间还不够，可以继续扩展，但是不能超过 MaxPermSize，否则会 OOM。
+Không gian ban đầu (mặc định là 1/64 bộ nhớ vật lý) và không gian tối đa (mặc định là 1/4 bộ nhớ vật lý). Nghĩa là, khi jvm khởi động, permanent generation từ đầu đã chiếm không gian PermSize, nếu không gian vẫn không đủ, có thể tiếp tục mở rộng, nhưng không thể vượt quá MaxPermSize, ngược lại sẽ OOM.
 
-tips：如果堆空间没有用完也抛出了 OOM，有可能是永久区导致的。堆空间实际占用非常少，但是永久区溢出 一样抛出 OOM。
+Tips: Nếu không gian heap chưa dùng hết mà đã ném OOM, có thể là permanent generation gây ra. Không gian heap thực tế chiếm dụng rất ít, nhưng permanent generation tràn cũng ném OOM như nhau.
 
-### 4.7 JVM 的栈参数调优
+### 4.7 Điều chỉnh tham số stack của JVM
 
-#### 4.7.1 调整每个线程栈空间的大小
+#### 4.7.1 Điều chỉnh kích thước stack space của mỗi thread
 
-可以通过-Xss：调整每个线程栈空间的大小
+Có thể điều chỉnh kích thước stack space của mỗi thread thông qua `-Xss`.
 
-JDK5.0 以后每个线程堆栈大小为 1M，以前每个线程堆栈大小为 256K。在相同物理内存下,减小这个值能生成更多的线程。但是操作系统对一个进程内的线程数还是有限制的，不能无限生成，经验值在 3000~5000 左右
+Từ JDK5.0 trở đi mỗi thread stack size là 1M, trước đó là 256K. Với cùng bộ nhớ vật lý, giảm giá trị này có thể tạo nhiều thread hơn. Nhưng hệ điều hành vẫn có giới hạn số thread trong một tiến trình, không thể tạo vô hạn, giá trị kinh nghiệm khoảng 3000~5000.
 
-#### 4.7.2 设置线程栈的大小
+#### 4.7.2 Đặt kích thước thread stack
 
 ```plain
 -XXThreadStackSize：
 设置线程栈的大小(0 means use default stack size)
 ```
 
-这些参数都是可以通过自己编写程序去简单测试的，这里碍于篇幅问题就不再提供 demo 了
+Những tham số này đều có thể kiểm tra đơn giản thông qua tự viết chương trình, ở đây hạn chế về độ dài bài không cung cấp thêm demo nữa.
 
-### 4.8 (可以直接跳过了)JVM 其他参数介绍
+### 4.8 (Có thể bỏ qua) Giới thiệu các tham số JVM khác
 
-形形色色的参数很多，就不会说把所有都扯个遍了，因为大家其实也不会说一定要去深究到底。
+Tham số rất nhiều và đa dạng, sẽ không nói hết tất cả, vì mọi người thực ra cũng không cần thiết đi sâu đến tận cùng.
 
-#### 4.8.1 设置内存页的大小
+#### 4.8.1 Đặt kích thước trang bộ nhớ
 
 ```plain
 -XXThreadStackSize：
 设置内存页的大小，不可设置过大，会影响Perm的大小
 ```
 
-#### 4.8.2 设置原始类型的快速优化
+#### 4.8.2 Đặt tối ưu hóa nhanh cho kiểu nguyên thủy
 
 ```plain
 -XX:+UseFastAccessorMethods：
 设置原始类型的快速优化
 ```
 
-#### 4.8.3 设置关闭手动 GC
+#### 4.8.3 Đặt tắt GC thủ công
 
 ```plain
 -XX:+DisableExplicitGC：
 设置关闭System.gc()(这个参数需要严格的测试)
 ```
 
-#### 4.8.4 设置垃圾最大年龄
+#### 4.8.4 Đặt tuổi tối đa của rác
 
 ```plain
 -XX:MaxTenuringThreshold
 设置垃圾最大年龄。如果设置为0的话,则年轻代对象不经过Survivor区,直接进入年老代.对于年老代比较多的应用,可以提高效率。如果将此值设置为一个较大值,则年轻代对象会在Survivor区进行多次复制,这样可以增加对象再年轻代的存活时间,加在年轻代即被回收的概率。该参数只有在串行GC时才有效.
 ```
 
-#### 4.8.5 加快编译速度
+#### 4.8.5 Tăng tốc biên dịch
 
 ```plain
 -XX:+AggressiveOpts
 加快编译速度
 ```
 
-#### 4.8.6 改善锁机制性能
+#### 4.8.6 Cải thiện hiệu suất cơ chế khóa
 
 ```plain
 -XX:+UseBiasedLocking
 ```
 
-#### 4.8.7 禁用垃圾回收
+#### 4.8.7 Tắt garbage collection
 
 ```plain
 -Xnoclassgc
 ```
 
-#### 4.8.8 设置堆空间存活时间
+#### 4.8.8 Đặt thời gian tồn tại trong heap space
 
 ```plain
 -XX:SoftRefLRUPolicyMSPerMB
 设置每兆堆空闲空间中SoftReference的存活时间，默认值是1s。
 ```
 
-#### 4.8.9 设置对象直接分配在老年代
+#### 4.8.9 Đặt đối tượng phân bổ trực tiếp trong old generation
 
 ```plain
 -XX:PretenureSizeThreshold
 设置对象超过多大时直接在老年代分配，默认值是0。
 ```
 
-#### 4.8.10 设置 TLAB 占 eden 区的比例
+#### 4.8.10 Đặt tỷ lệ TLAB chiếm vùng eden
 
 ```plain
 -XX:TLABWasteTargetPercent
 设置TLAB占eden区的百分比，默认值是1% 。
 ```
 
-#### 4.8.11 设置是否优先 YGC
+#### 4.8.11 Đặt có ưu tiên YGC không
 
 ```plain
 -XX:+CollectGen0First
 设置FullGC时是否先YGC，默认值是false。
 ```
 
-## finally
+## Kết
 
-真的扯了很久这东西，参考了多方的资料，有极客时间的《深入拆解虚拟机》和《Java 核心技术面试精讲》，也有百度，也有自己在学习的一些线上课程的总结。希望对你有所帮助，谢谢。
+Thực sự đã nói rất lâu về điều này, tham khảo nhiều nguồn tài liệu, có "Phân tích sâu về máy ảo" và "Câu hỏi phỏng vấn kỹ thuật cốt lõi Java" của Geek Time, có Baidu, có một số tổng kết từ các khóa học online đang học. Hy vọng có ích cho bạn, cảm ơn.
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,7 +1,7 @@
 ---
-title: Dubbo面试题总结
-category: 分布式
-description: Dubbo核心知识与面试题详解，涵盖Dubbo架构原理、SPI扩展机制、负载均衡策略（随机/轮询/一致性哈希）、服务注册发现、集群容错、服务治理等核心内容。
+title: Tổng hợp câu hỏi phỏng vấn Dubbo
+category: Hệ thống phân tán
+description: Kiến thức cốt lõi và câu hỏi phỏng vấn Dubbo chi tiết, bao gồm nguyên lý kiến trúc Dubbo, cơ chế mở rộng SPI, chiến lược cân bằng tải (ngẫu nhiên/vòng robin/consistent hash), đăng ký và khám phá dịch vụ, dung sai lỗi cụm, quản trị dịch vụ và các nội dung cốt lõi khác.
 tag:
   - RPC
   - Dubbo
@@ -13,137 +13,137 @@ head:
 
 ::: tip
 
-- Dubbo3 已经发布，这篇文章是基于 Dubbo2 写的。Dubbo3 基于 Dubbo2 演进而来，在保持原有核心功能特性的同时， Dubbo3 在易用性、超大规模微服务实践、云原生基础设施适配、安全设计等几大方向上进行了全面升级。
-- 本文中的很多链接已经失效，主要原因是因为 Dubbo 官方文档进行了修改导致 URL 失效。
+- Dubbo3 đã được phát hành, bài viết này được viết dựa trên Dubbo2. Dubbo3 được phát triển từ Dubbo2, trong khi giữ nguyên các tính năng cốt lõi ban đầu, Dubbo3 đã nâng cấp toàn diện về tính dễ sử dụng, thực hành microservice quy mô lớn, thích ứng cơ sở hạ tầng cloud-native, thiết kế bảo mật và nhiều hướng khác.
+- Nhiều liên kết trong bài viết này đã hết hiệu lực, nguyên nhân chính là do tài liệu chính thức của Dubbo đã được sửa đổi dẫn đến URL hỏng.
 
 :::
 
-这篇文章是我根据官方文档以及自己平时的使用情况，对 Dubbo 所做的一个总结。欢迎补充！
+Bài viết này là tổng kết về Dubbo mà tôi đã thực hiện dựa trên tài liệu chính thức và kinh nghiệm sử dụng thực tế của bản thân. Chào mừng bổ sung!
 
-## Dubbo 基础
+## Cơ bản về Dubbo
 
-### 什么是 Dubbo?
+### Dubbo là gì?
 
-![Dubbo 官网](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo.org-overview.png)
+![Trang web chính thức Dubbo](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo.org-overview.png)
 
-[Apache Dubbo](https://github.com/apache/dubbo) |ˈdʌbəʊ| 是一款高性能、轻量级的开源 WEB 和 RPC 框架。
+[Apache Dubbo](https://github.com/apache/dubbo) |ˈdʌbəʊ| là một framework WEB và RPC mã nguồn mở hiệu suất cao, nhẹ.
 
-根据 [Dubbo 官方文档](https://dubbo.apache.org/zh/)的介绍，Dubbo 提供了六大核心能力
+Theo giới thiệu của [tài liệu chính thức Dubbo](https://dubbo.apache.org/zh/), Dubbo cung cấp sáu khả năng cốt lõi:
 
-1. 面向接口代理的高性能 RPC 调用。
-2. 智能容错和负载均衡。
-3. 服务自动注册和发现。
-4. 高度可扩展能力。
-5. 运行期流量调度。
-6. 可视化的服务治理与运维。
+1. Gọi RPC hiệu suất cao dựa trên proxy giao diện.
+2. Dung sai lỗi thông minh và cân bằng tải.
+3. Đăng ký và khám phá dịch vụ tự động.
+4. Khả năng mở rộng cao.
+5. Lập lịch luồng giao thông thời gian chạy.
+6. Quản trị và vận hành dịch vụ trực quan.
 
-![Dubbo提供的六大核心能力](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/dubbo%E6%8F%90%E4%BE%9B%E7%9A%84%E5%85%AD%E5%A4%A7%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B.png)
+![Sáu khả năng cốt lõi mà Dubbo cung cấp](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/dubbo%E6%8F%90%E4%BE%9B%E7%9A%84%E5%85%AD%E5%A4%A7%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B.png)
 
-简单来说就是：**Dubbo 不光可以帮助我们调用远程服务，还提供了一些其他开箱即用的功能比如智能负载均衡。**
+Nói một cách đơn giản: **Dubbo không chỉ có thể giúp chúng ta gọi dịch vụ từ xa, mà còn cung cấp một số tính năng sẵn dùng khác như cân bằng tải thông minh.**
 
-Dubbo 目前已经有接近 34.4 k 的 Star 。
+Dubbo hiện đã có gần 34.4k Star.
 
-在 **2020 年度 OSC 中国开源项目** 评选活动中，Dubbo 位列开发框架和基础组件类项目的第 7 名。相比几年前来说，热度和排名有所下降。
+Trong **hoạt động bình chọn dự án mã nguồn mở Trung Quốc OSC năm 2020**, Dubbo xếp thứ 7 trong danh mục dự án framework phát triển và thành phần cơ sở. So với vài năm trước, mức độ nổi tiếng và xếp hạng có phần giảm sút.
 
 ![](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/image-20210107153159545.png)
 
-Dubbo 是由阿里开源，后来加入了 Apache 。正是由于 Dubbo 的出现，才使得越来越多的公司开始使用以及接受分布式架构。
+Dubbo được Alibaba mã nguồn mở, sau đó gia nhập Apache. Chính sự ra đời của Dubbo đã khiến ngày càng nhiều công ty bắt đầu sử dụng và chấp nhận kiến trúc phân tán.
 
-### 为什么要用 Dubbo?
+### Tại sao nên dùng Dubbo?
 
-随着互联网的发展，网站的规模越来越大，用户数量越来越多。单一应用架构、垂直应用架构无法满足我们的需求，这个时候分布式服务架构就诞生了。
+Cùng với sự phát triển của Internet, quy mô website ngày càng lớn, số lượng người dùng ngày càng nhiều. Kiến trúc ứng dụng đơn lẻ, kiến trúc ứng dụng dọc không đáp ứng được nhu cầu của chúng ta, lúc này kiến trúc dịch vụ phân tán ra đời.
 
-分布式服务架构下，系统被拆分成不同的服务比如短信服务、安全服务，每个服务独立提供系统的某个核心服务。
+Dưới kiến trúc dịch vụ phân tán, hệ thống được tách thành các dịch vụ khác nhau như dịch vụ SMS, dịch vụ bảo mật, mỗi dịch vụ độc lập cung cấp một dịch vụ cốt lõi nào đó của hệ thống.
 
-我们可以使用 Java RMI（Java Remote Method Invocation）、Hessian 这种支持远程调用的框架来简单地暴露和引用远程服务。但是！当服务越来越多之后，服务调用关系越来越复杂。当应用访问压力越来越大后，负载均衡以及服务监控的需求也迫在眉睫。我们可以用 F5 这类硬件来做负载均衡，但这样增加了成本，并且存在单点故障的风险。
+Chúng ta có thể sử dụng Java RMI (Java Remote Method Invocation), Hessian — các framework hỗ trợ gọi từ xa — để đơn giản hóa việc expose và tham chiếu dịch vụ từ xa. Nhưng! Khi ngày càng nhiều dịch vụ ra đời, quan hệ gọi dịch vụ ngày càng phức tạp. Khi áp lực truy cập ứng dụng ngày càng lớn, nhu cầu về cân bằng tải và giám sát dịch vụ cũng trở nên cấp bách. Chúng ta có thể dùng phần cứng như F5 để làm cân bằng tải, nhưng điều đó làm tăng chi phí và có rủi ro điểm lỗi đơn.
 
-不过，Dubbo 的出现让上述问题得到了解决。**Dubbo 帮助我们解决了什么问题呢？**
+Tuy nhiên, sự ra đời của Dubbo đã giải quyết các vấn đề trên. **Dubbo giúp chúng ta giải quyết những vấn đề gì?**
 
-1. **负载均衡**：同一个服务部署在不同的机器时该调用哪一台机器上的服务。
-2. **服务调用链路生成**：随着系统的发展，服务越来越多，服务间依赖关系变得错踪复杂，甚至分不清哪个应用要在哪个应用之前启动，架构师都不能完整的描述应用的架构关系。Dubbo 可以为我们解决服务之间互相是如何调用的。
-3. **服务访问压力以及时长统计、资源调度和治理**：基于访问压力实时管理集群容量，提高集群利用率。
+1. **Cân bằng tải**: Khi cùng một dịch vụ được triển khai trên các máy khác nhau, nên gọi dịch vụ trên máy nào.
+2. **Tạo chuỗi gọi dịch vụ**: Khi hệ thống phát triển, ngày càng nhiều dịch vụ, quan hệ phụ thuộc giữa các dịch vụ trở nên phức tạp rối rắm, thậm chí không phân biệt được ứng dụng nào cần khởi động trước ứng dụng nào, ngay cả kiến trúc sư cũng không thể mô tả đầy đủ quan hệ kiến trúc ứng dụng. Dubbo có thể giải quyết cho chúng ta cách các dịch vụ gọi lẫn nhau.
+3. **Thống kê áp lực truy cập và thời gian dịch vụ, lập lịch và quản trị tài nguyên**: Quản lý dung lượng cụm theo thời gian thực dựa trên áp lực truy cập, nâng cao hiệu suất sử dụng cụm.
 4. ……
 
-![Dubbo 能力概览](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo-features-overview.jpg)
+![Tổng quan khả năng Dubbo](https://oss.javaguide.cn/github/javaguide/system-design/distributed-system/rpc/dubbo-features-overview.jpg)
 
-另外，Dubbo 除了能够应用在分布式系统中，也可以应用在现在比较火的微服务系统中。不过，由于 Spring Cloud 在微服务中应用更加广泛，所以，我觉得一般我们提 Dubbo 的话，大部分是分布式系统的情况。
+Ngoài ra, Dubbo ngoài việc có thể được áp dụng trong hệ thống phân tán, còn có thể được áp dụng trong hệ thống microservice đang rất phổ biến hiện nay. Tuy nhiên, vì Spring Cloud được sử dụng rộng rãi hơn trong microservice, tôi cho rằng thông thường khi nhắc đến Dubbo, phần lớn là trong bối cảnh hệ thống phân tán.
 
-**我们刚刚提到了分布式这个概念，下面再给大家介绍一下什么是分布式？为什么要分布式？**
+**Chúng ta vừa đề cập đến khái niệm phân tán, dưới đây hãy giới thiệu thêm về phân tán là gì và tại sao cần phân tán?**
 
-## 分布式基础
+## Cơ bản về phân tán
 
-### 什么是分布式?
+### Phân tán là gì?
 
-分布式或者说 SOA 分布式重要的就是面向服务，说简单的分布式就是我们把整个系统拆分成不同的服务然后将这些服务放在不同的服务器上减轻单体服务的压力提高并发量和性能。比如电商系统可以简单地拆分成订单系统、商品系统、登录系统等等，拆分之后的每个服务可以部署在不同的机器上，如果某一个服务的访问量比较大的话也可以将这个服务同时部署在多台机器上。
+Phân tán hay còn gọi là SOA phân tán, điều quan trọng là hướng dịch vụ. Nói đơn giản, phân tán là chúng ta chia toàn bộ hệ thống thành các dịch vụ khác nhau, sau đó đặt các dịch vụ này lên các máy chủ khác nhau để giảm áp lực cho dịch vụ đơn lẻ, nâng cao khả năng đồng thời và hiệu suất. Ví dụ hệ thống thương mại điện tử có thể được chia đơn giản thành hệ thống đơn hàng, hệ thống sản phẩm, hệ thống đăng nhập, v.v. Mỗi dịch vụ sau khi tách ra có thể được triển khai trên các máy khác nhau, nếu lượng truy cập của một dịch vụ nào đó khá lớn thì cũng có thể triển khai dịch vụ đó đồng thời trên nhiều máy.
 
-![分布式事务示意图](https://oss.javaguide.cn/java-guide-blog/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![Sơ đồ minh họa giao dịch phân tán](https://oss.javaguide.cn/java-guide-blog/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
-### 为什么要分布式?
+### Tại sao cần phân tán?
 
-从开发角度来讲单体应用的代码都集中在一起，而分布式系统的代码根据业务被拆分。所以，每个团队可以负责一个服务的开发，这样提升了开发效率。另外，代码根据业务拆分之后更加便于维护和扩展。
+Từ góc độ phát triển, code của ứng dụng đơn lẻ đều tập trung ở một chỗ, còn code của hệ thống phân tán được tách theo nghiệp vụ. Vì vậy, mỗi team có thể chịu trách nhiệm phát triển một dịch vụ, điều này nâng cao hiệu quả phát triển. Ngoài ra, code được tách theo nghiệp vụ cũng dễ bảo trì và mở rộng hơn.
 
-另外，我觉得将系统拆分成分布式之后不光便于系统扩展和维护，更能提高整个系统的性能。你想一想嘛？把整个系统拆分成不同的服务/系统，然后每个服务/系统 单独部署在一台服务器上，是不是很大程度上提高了系统性能呢？
+Ngoài ra, tôi cho rằng việc tách hệ thống thành phân tán không chỉ thuận tiện cho việc mở rộng và bảo trì hệ thống, mà còn nâng cao hiệu suất toàn bộ hệ thống. Hãy nghĩ xem? Chia toàn bộ hệ thống thành các dịch vụ/hệ thống khác nhau, sau đó mỗi dịch vụ/hệ thống riêng biệt được triển khai trên một máy chủ, chẳng phải điều đó nâng cao hiệu suất hệ thống rất nhiều hay sao?
 
-## Dubbo 架构
+## Kiến trúc Dubbo
 
-### Dubbo 架构中的核心角色有哪些？
+### Các vai trò cốt lõi trong kiến trúc Dubbo là gì?
 
-[官方文档中的框架设计章节](https://dubbo.apache.org/zh/docs/v2.7/dev/design/) 已经介绍的非常详细了，我这里把一些比较重要的点再提一下。
+[Chương thiết kế framework trong tài liệu chính thức](https://dubbo.apache.org/zh/docs/v2.7/dev/design/) đã giới thiệu rất chi tiết, tôi chỉ nhắc lại một số điểm khá quan trọng ở đây.
 
 ![dubbo-relation](https://oss.javaguide.cn/%E6%BA%90%E7%A0%81/dubbo/dubbo-relation.jpg)
 
-上述节点简单介绍以及他们之间的关系：
+Giới thiệu ngắn gọn về các node trên và mối quan hệ giữa chúng:
 
-- **Container：** 服务运行容器，负责加载、运行服务提供者。必须。
-- **Provider：** 暴露服务的服务提供方，会向注册中心注册自己提供的服务。必须。
-- **Consumer：** 调用远程服务的服务消费方，会向注册中心订阅自己所需的服务。必须。
-- **Registry：** 服务注册与发现的注册中心。注册中心会返回服务提供者地址列表给消费者。非必须。
-- **Monitor：** 统计服务的调用次数和调用时间的监控中心。服务消费者和提供者会定时发送统计数据到监控中心。 非必须。
+- **Container:** Container chạy dịch vụ, chịu trách nhiệm load và chạy service provider. Bắt buộc.
+- **Provider:** Service provider expose dịch vụ, sẽ đăng ký dịch vụ của mình cung cấp lên registry center. Bắt buộc.
+- **Consumer:** Service consumer gọi dịch vụ từ xa, sẽ đăng ký subscribe dịch vụ mà mình cần lên registry center. Bắt buộc.
+- **Registry:** Registry center đăng ký và khám phá dịch vụ. Registry center sẽ trả về danh sách địa chỉ service provider cho consumer. Không bắt buộc.
+- **Monitor:** Monitor center thống kê số lần gọi dịch vụ và thời gian gọi. Service consumer và provider sẽ định kỳ gửi dữ liệu thống kê đến monitor center. Không bắt buộc.
 
-### Dubbo 中的 Invoker 概念了解么？
+### Bạn có hiểu khái niệm Invoker trong Dubbo không?
 
-`Invoker` 是 Dubbo 领域模型中非常重要的一个概念，你如果阅读过 Dubbo 源码的话，你会无数次看到这玩意。就比如下面我要说的负载均衡这块的源码中就有大量 `Invoker` 的身影。
+`Invoker` là một khái niệm rất quan trọng trong mô hình domain của Dubbo, nếu bạn đã đọc source code Dubbo, bạn sẽ thấy nó vô số lần. Ví dụ trong phần source code cân bằng tải mà tôi sắp đề cập có rất nhiều bóng dáng của `Invoker`.
 
-简单来说，`Invoker` 就是 Dubbo 对远程调用的抽象。
+Nói đơn giản, `Invoker` là sự trừu tượng hóa của Dubbo đối với lời gọi từ xa.
 
 ![dubbo_rpc_invoke.jpg](https://oss.javaguide.cn/java-guide-blog/dubbo_rpc_invoke.jpg)
 
-按照 Dubbo 官方的话来说，`Invoker` 分为
+Theo cách nói của Dubbo chính thức, `Invoker` được chia thành:
 
-- 服务提供 `Invoker`
-- 服务消费 `Invoker`
+- `Invoker` cung cấp dịch vụ
+- `Invoker` tiêu thụ dịch vụ
 
-假如我们需要调用一个远程方法，我们需要动态代理来屏蔽远程调用的细节吧！我们屏蔽掉的这些细节就依赖对应的 `Invoker` 实现， `Invoker` 实现了真正的远程服务调用。
+Giả sử chúng ta cần gọi một phương thức từ xa, chúng ta cần dynamic proxy để che giấu các chi tiết của lời gọi từ xa phải không! Các chi tiết mà chúng ta che giấu đó phụ thuộc vào triển khai `Invoker` tương ứng, `Invoker` thực hiện lời gọi dịch vụ từ xa thực sự.
 
-### Dubbo 的工作原理了解么？
+### Bạn có hiểu nguyên lý hoạt động của Dubbo không?
 
-下图是 Dubbo 的整体设计，从下至上分为十层，各层均为单向依赖。
+Hình dưới đây là thiết kế tổng thể của Dubbo, từ dưới lên trên được chia thành mười tầng, các tầng đều phụ thuộc một chiều.
 
-> 左边淡蓝背景的为服务消费方使用的接口，右边淡绿色背景的为服务提供方使用的接口，位于中轴线上的为双方都用到的接口。
+> Phần nền xanh nhạt bên trái là các giao diện mà service consumer sử dụng, phần nền xanh lá nhạt bên phải là các giao diện mà service provider sử dụng, phần trên trục giữa là các giao diện mà cả hai bên đều dùng.
 
 ![dubbo-framework](https://oss.javaguide.cn/source-code/dubbo/dubbo-framework.jpg)
 
-- **config 配置层**：Dubbo 相关的配置。支持代码配置，同时也支持基于 Spring 来做配置，以 `ServiceConfig`, `ReferenceConfig` 为中心
-- **proxy 服务代理层**：调用远程方法像调用本地的方法一样简单的一个关键，真实调用过程依赖代理类，以 `ServiceProxy` 为中心。
-- **registry 注册中心层**：封装服务地址的注册与发现。
-- **cluster 路由层**：封装多个提供者的路由及负载均衡，并桥接注册中心，以 `Invoker` 为中心。
-- **monitor 监控层**：RPC 调用次数和调用时间监控，以 `Statistics` 为中心。
-- **protocol 远程调用层**：封装 RPC 调用，以 `Invocation`, `Result` 为中心。
-- **exchange 信息交换层**：封装请求响应模式，同步转异步，以 `Request`, `Response` 为中心。
-- **transport 网络传输层**：抽象 mina 和 netty 为统一接口，以 `Message` 为中心。
-- **serialize 数据序列化层**：对需要在网络传输的数据进行序列化。
+- **Tầng cấu hình config**: Cấu hình liên quan đến Dubbo. Hỗ trợ cấu hình bằng code, đồng thời cũng hỗ trợ cấu hình dựa trên Spring, lấy `ServiceConfig`, `ReferenceConfig` làm trung tâm.
+- **Tầng proxy dịch vụ proxy**: Một chìa khóa để gọi phương thức từ xa giống như gọi phương thức cục bộ, quá trình gọi thực sự phụ thuộc vào proxy class, lấy `ServiceProxy` làm trung tâm.
+- **Tầng registry center registry**: Đóng gói đăng ký và khám phá địa chỉ dịch vụ.
+- **Tầng định tuyến cụm cluster**: Đóng gói định tuyến và cân bằng tải của nhiều provider, cầu nối với registry center, lấy `Invoker` làm trung tâm.
+- **Tầng giám sát monitor**: Giám sát số lần gọi RPC và thời gian gọi, lấy `Statistics` làm trung tâm.
+- **Tầng gọi từ xa protocol**: Đóng gói lời gọi RPC, lấy `Invocation`, `Result` làm trung tâm.
+- **Tầng trao đổi thông tin exchange**: Đóng gói mô hình request-response, chuyển đồng bộ thành bất đồng bộ, lấy `Request`, `Response` làm trung tâm.
+- **Tầng truyền tải mạng transport**: Trừu tượng hóa mina và netty thành giao diện thống nhất, lấy `Message` làm trung tâm.
+- **Tầng serialization dữ liệu serialize**: Serialize dữ liệu cần được truyền qua mạng.
 
-### Dubbo 的 SPI 机制了解么？ 如何扩展 Dubbo 中的默认实现？
+### Bạn có hiểu cơ chế SPI của Dubbo không? Cách mở rộng triển khai mặc định trong Dubbo?
 
-SPI（Service Provider Interface） 机制被大量用在开源项目中，它可以帮助我们动态寻找服务/功能（比如负载均衡策略）的实现。
+Cơ chế SPI (Service Provider Interface) được sử dụng rộng rãi trong các dự án mã nguồn mở, nó có thể giúp chúng ta tìm kiếm động các triển khai của dịch vụ/chức năng (ví dụ như chiến lược cân bằng tải).
 
-SPI 的具体原理是这样的：我们将接口的实现类放在配置文件中，我们在程序运行过程中读取配置文件，通过反射加载实现类。这样，我们可以在运行的时候，动态替换接口的实现类。和 IoC 的解耦思想是类似的。
+Nguyên lý cụ thể của SPI như sau: Chúng ta đặt các lớp triển khai của giao diện vào file cấu hình, trong quá trình chạy chương trình chúng ta đọc file cấu hình, load các lớp triển khai thông qua reflection. Như vậy, chúng ta có thể thay thế động lớp triển khai của giao diện trong thời gian chạy. Tư tưởng tương tự như tách coupling IoC.
 
-Java 本身就提供了 SPI 机制的实现。不过，Dubbo 没有直接用，而是对 Java 原生的 SPI 机制进行了增强，以便更好满足自己的需求。
+Java bản thân đã cung cấp triển khai cơ chế SPI. Tuy nhiên, Dubbo không dùng trực tiếp, mà tăng cường cơ chế SPI gốc của Java để đáp ứng tốt hơn các nhu cầu của mình.
 
-**那我们如何扩展 Dubbo 中的默认实现呢？**
+**Vậy làm thế nào để mở rộng triển khai mặc định trong Dubbo?**
 
-比如说我们想要实现自己的负载均衡策略，我们创建对应的实现类 `XxxLoadBalance` 实现 `LoadBalance` 接口或者 `AbstractLoadBalance` 类。
+Ví dụ nếu chúng ta muốn triển khai chiến lược cân bằng tải của riêng mình, chúng ta tạo lớp triển khai tương ứng `XxxLoadBalance` triển khai giao diện `LoadBalance` hoặc lớp `AbstractLoadBalance`.
 
 ```java
 package com.xxx;
@@ -160,7 +160,7 @@ public class XxxLoadBalance implements LoadBalance {
 }
 ```
 
-我们将这个实现类的路径写入到`resources` 目录下的 `META-INF/dubbo/org.apache.dubbo.rpc.cluster.LoadBalance`文件中即可。
+Chúng ta ghi đường dẫn của lớp triển khai này vào file `META-INF/dubbo/org.apache.dubbo.rpc.cluster.LoadBalance` trong thư mục `resources` là xong.
 
 ```java
 src
@@ -181,63 +181,63 @@ src
 xxx=com.xxx.XxxLoadBalance
 ```
 
-其他还有很多可供扩展的选择，你可以在[官方文档](https://cn.dubbo.apache.org/zh-cn/overview/home/)中找到。
+Còn nhiều lựa chọn có thể mở rộng khác, bạn có thể tìm thấy trong [tài liệu chính thức](https://cn.dubbo.apache.org/zh-cn/overview/home/).
 
-### Dubbo 的微内核架构了解吗？
+### Bạn có biết kiến trúc microkernel của Dubbo không?
 
-Dubbo 采用 微内核（Microkernel） + 插件（Plugin） 模式，简单来说就是微内核架构。微内核只负责组装插件。
+Dubbo áp dụng mô hình Microkernel (vi nhân) + Plugin (plugin), nói đơn giản là kiến trúc microkernel. Microkernel chỉ chịu trách nhiệm lắp ghép các plugin.
 
-**何为微内核架构呢？** 《软件架构模式》 这本书是这样介绍的：
+**Kiến trúc microkernel là gì?** Cuốn sách 《Software Architecture Patterns》 giới thiệu như sau:
 
-> 微内核架构模式（有时被称为插件架构模式）是实现基于产品应用程序的一种自然模式。基于产品的应用程序是已经打包好并且拥有不同版本，可作为第三方插件下载的。然后，很多公司也在开发、发布自己内部商业应用像有版本号、说明及可加载插件式的应用软件（这也是这种模式的特征）。微内核系统可让用户添加额外的应用如插件，到核心应用，继而提供了可扩展性和功能分离的用法。
+> Mẫu kiến trúc microkernel (đôi khi được gọi là mẫu kiến trúc plugin) là một mẫu tự nhiên để triển khai các ứng dụng dựa trên sản phẩm. Ứng dụng dựa trên sản phẩm là những ứng dụng đã được đóng gói và có các phiên bản khác nhau, có thể tải xuống như plugin của bên thứ ba. Sau đó, nhiều công ty cũng phát triển và phát hành các ứng dụng thương mại nội bộ của mình như phần mềm ứng dụng có số phiên bản, mô tả và plugin có thể tải. Hệ thống microkernel cho phép người dùng thêm các ứng dụng bổ sung như plugin vào ứng dụng cốt lõi, từ đó cung cấp khả năng mở rộng và tách biệt chức năng.
 
-微内核架构包含两类组件：**核心系统（core system）** 和 **插件模块（plug-in modules）**。
+Kiến trúc microkernel bao gồm hai loại thành phần: **hệ thống cốt lõi (core system)** và **module plugin (plug-in modules)**.
 
 ![](https://oss.javaguide.cn/source-code/dubbo/%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
-核心系统提供系统所需核心能力，插件模块可以扩展系统的功能。因此， 基于微内核架构的系统，非常易于扩展功能。
+Hệ thống cốt lõi cung cấp khả năng cốt lõi mà hệ thống cần, module plugin có thể mở rộng chức năng của hệ thống. Do đó, hệ thống dựa trên kiến trúc microkernel rất dễ mở rộng chức năng.
 
-我们常见的一些 IDE，都可以看作是基于微内核架构设计的。绝大多数 IDE 比如 IDEA、VSCode 都提供了插件来丰富自己的功能。
+Một số IDE phổ biến mà chúng ta thấy đều có thể coi là được thiết kế dựa trên kiến trúc microkernel. Hầu hết các IDE như IDEA, VSCode đều cung cấp plugin để làm phong phú thêm chức năng của mình.
 
-正是因为 Dubbo 基于微内核架构，才使得我们可以随心所欲替换 Dubbo 的功能点。比如你觉得 Dubbo 的序列化模块实现的不满足自己要求，没关系啊！你自己实现一个序列化模块就好了啊！
+Chính vì Dubbo dựa trên kiến trúc microkernel, mới cho phép chúng ta tùy ý thay thế các tính năng của Dubbo. Ví dụ nếu bạn cảm thấy triển khai module serialization của Dubbo không đáp ứng yêu cầu của mình, không sao cả! Bạn tự triển khai một module serialization là được!
 
-通常情况下，微核心都会采用 Factory、IoC、OSGi 等方式管理插件生命周期。Dubbo 不想依赖 Spring 等 IoC 容器，也不想自己造一个小的 IoC 容器（过度设计），因此采用了一种最简单的 Factory 方式管理插件：**JDK 标准的 SPI 扩展机制** （`java.util.ServiceLoader`）。
+Thông thường, microkernel sẽ sử dụng các cách như Factory, IoC, OSGi để quản lý vòng đời plugin. Dubbo không muốn phụ thuộc vào IoC container như Spring, cũng không muốn tự tạo một IoC container nhỏ (over-engineering), vì vậy đã áp dụng cách quản lý plugin Factory đơn giản nhất: **Cơ chế mở rộng SPI tiêu chuẩn JDK** (`java.util.ServiceLoader`).
 
-### 关于 Dubbo 架构的一些自测小问题
+### Một số câu hỏi tự kiểm tra nhỏ về kiến trúc Dubbo
 
-#### 注册中心的作用了解么？
+#### Vai trò của registry center là gì?
 
-注册中心负责服务地址的注册与查找，相当于目录服务，服务提供者和消费者只在启动时与注册中心交互。
+Registry center chịu trách nhiệm đăng ký và tra cứu địa chỉ dịch vụ, tương đương với dịch vụ thư mục. Service provider và consumer chỉ tương tác với registry center khi khởi động.
 
-#### 服务提供者宕机后，注册中心会做什么？
+#### Sau khi service provider bị down, registry center sẽ làm gì?
 
-注册中心会立即推送事件通知消费者。
+Registry center sẽ ngay lập tức push sự kiện thông báo cho consumer.
 
-#### 监控中心的作用呢？
+#### Vai trò của monitor center là gì?
 
-监控中心负责统计各服务调用次数，调用时间等。
+Monitor center chịu trách nhiệm thống kê số lần gọi và thời gian gọi của từng dịch vụ.
 
-#### 注册中心和监控中心都宕机的话，服务都会挂掉吗？
+#### Nếu cả registry center và monitor center đều bị down, các dịch vụ có bị sập không?
 
-不会。两者都宕机也不影响已运行的提供者和消费者，消费者在本地缓存了提供者列表。注册中心和监控中心都是可选的，服务消费者可以直连服务提供者。
+Không. Cả hai đều down cũng không ảnh hưởng đến provider và consumer đang chạy, vì consumer đã cache danh sách provider cục bộ. Registry center và monitor center đều là tùy chọn, service consumer có thể kết nối trực tiếp với service provider.
 
-## Dubbo 的负载均衡策略
+## Chiến lược cân bằng tải của Dubbo
 
-### 什么是负载均衡？
+### Cân bằng tải là gì?
 
-先来看一下稍微官方点的解释。下面这段话摘自维基百科对负载均衡的定义：
+Trước tiên hãy xem giải thích mang tính chính thức hơn một chút. Đoạn dưới đây được trích từ định nghĩa cân bằng tải trên Wikipedia:
 
-> 负载均衡改善了跨多个计算资源（例如计算机，计算机集群，网络链接，中央处理单元或磁盘驱动）的工作负载分布。负载平衡旨在优化资源使用，最大化吞吐量，最小化响应时间，并避免任何单个资源的过载。使用具有负载平衡而不是单个组件的多个组件可以通过冗余提高可靠性和可用性。负载平衡通常涉及专用软件或硬件。
+> Cân bằng tải cải thiện phân phối tải công việc trên nhiều tài nguyên tính toán (ví dụ như máy tính, cụm máy tính, liên kết mạng, bộ vi xử lý trung tâm hoặc ổ đĩa). Cân bằng tải nhằm mục đích tối ưu hóa sử dụng tài nguyên, tối đa hóa thông lượng, tối thiểu hóa thời gian phản hồi, và tránh quá tải bất kỳ tài nguyên đơn lẻ nào. Sử dụng nhiều thành phần với cân bằng tải thay vì một thành phần duy nhất có thể tăng độ tin cậy và tính khả dụng thông qua dự phòng. Cân bằng tải thường liên quan đến phần mềm hoặc phần cứng chuyên dụng.
 
-**上面讲的大家可能不太好理解，再用通俗的话给大家说一下。**
+**Những gì trên có thể không dễ hiểu, hãy nói một cách thông tục hơn.**
 
-我们的系统中的某个服务的访问量特别大，我们将这个服务部署在了多台服务器上，当客户端发起请求的时候，多台服务器都可以处理这个请求。那么，如何正确选择处理该请求的服务器就很关键。假如，你就要一台服务器来处理该服务的请求，那该服务部署在多台服务器的意义就不复存在了。负载均衡就是为了避免单个服务器响应同一请求，容易造成服务器宕机、崩溃等问题，我们从负载均衡的这四个字就能明显感受到它的意义。
+Một dịch vụ nào đó trong hệ thống của chúng ta có lượng truy cập đặc biệt lớn, chúng ta đã triển khai dịch vụ này trên nhiều máy chủ, khi client gửi yêu cầu, nhiều máy chủ đều có thể xử lý yêu cầu này. Vậy, cách chọn đúng máy chủ xử lý yêu cầu là rất quan trọng. Giả sử bạn chỉ để một máy chủ xử lý yêu cầu cho dịch vụ đó, thì ý nghĩa của việc triển khai dịch vụ đó trên nhiều máy chủ không còn nữa. Cân bằng tải là để tránh một máy chủ duy nhất phải phản hồi cùng một yêu cầu, dễ gây ra sự cố máy chủ, crash, v.v. Từ bốn chữ "cân bằng tải" chúng ta có thể cảm nhận rõ ý nghĩa của nó.
 
-### Dubbo 提供的负载均衡策略有哪些？
+### Dubbo cung cấp những chiến lược cân bằng tải nào?
 
-在集群负载均衡时，Dubbo 提供了多种均衡策略，默认为 `random` 随机调用。我们还可以自行扩展负载均衡策略（参考 Dubbo SPI 机制）。
+Trong cân bằng tải cụm, Dubbo cung cấp nhiều chiến lược cân bằng, mặc định là gọi ngẫu nhiên `random`. Chúng ta cũng có thể tự mở rộng chiến lược cân bằng tải (tham khảo cơ chế SPI của Dubbo).
 
-在 Dubbo 中，所有负载均衡实现类均继承自 `AbstractLoadBalance`，该类实现了 `LoadBalance` 接口，并封装了一些公共的逻辑。
+Trong Dubbo, tất cả các lớp triển khai cân bằng tải đều kế thừa từ `AbstractLoadBalance`, lớp này triển khai giao diện `LoadBalance` và đóng gói một số logic chung.
 
 ```java
 public abstract class AbstractLoadBalance implements LoadBalance {
@@ -258,25 +258,25 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 }
 ```
 
-`AbstractLoadBalance` 的实现类有下面这些：
+Các lớp triển khai của `AbstractLoadBalance` bao gồm những lớp sau:
 
 ![](https://oss.javaguide.cn/java-guide-blog/image-20210326105257812.png)
 
-官方文档对负载均衡这部分的介绍非常详细，推荐小伙伴们看看，地址：[https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance) 。
+Tài liệu chính thức giới thiệu phần cân bằng tải này rất chi tiết, khuyến nghị bạn xem, địa chỉ: [https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#m-zhdocsv27devsourceloadbalance) .
 
 #### RandomLoadBalance
 
-根据权重随机选择（对加权随机算法的实现）。这是 Dubbo 默认采用的一种负载均衡策略。
+Chọn ngẫu nhiên theo trọng số (triển khai thuật toán random có trọng số). Đây là chiến lược cân bằng tải mặc định của Dubbo.
 
-`RandomLoadBalance` 具体的实现原理非常简单，假如有两个提供相同服务的服务器 S1,S2，S1 的权重为 7，S2 的权重为 3。
+Nguyên lý triển khai cụ thể của `RandomLoadBalance` rất đơn giản, giả sử có hai máy chủ S1, S2 cung cấp cùng dịch vụ, trọng số của S1 là 7, trọng số của S2 là 3.
 
-我们把这些权重值分布在坐标区间会得到：S1->[0, 7) ，S2->[7, 10)。我们生成[0, 10) 之间的随机数，随机数落到对应的区间，我们就选择对应的服务器来处理请求。
+Chúng ta phân phối các giá trị trọng số này trên khoảng tọa độ sẽ được: S1->[0, 7), S2->[7, 10). Chúng ta tạo số ngẫu nhiên trong khoảng [0, 10), số ngẫu nhiên rơi vào khoảng nào thì chọn máy chủ tương ứng để xử lý yêu cầu.
 
 ![RandomLoadBalance](https://oss.javaguide.cn/java-guide-blog/%20RandomLoadBalance.png)
 
-`RandomLoadBalance` 的源码非常简单，简单花几分钟时间看一下。
+Source code của `RandomLoadBalance` rất đơn giản, dành vài phút đọc qua.
 
-> 以下源码来自 Dubbo master 分支上的最新的版本 2.7.9。
+> Source code dưới đây đến từ phiên bản mới nhất 2.7.9 trên nhánh master của Dubbo.
 
 ```java
 public class RandomLoadBalance extends AbstractLoadBalance {
@@ -319,17 +319,17 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 
 #### LeastActiveLoadBalance
 
-`LeastActiveLoadBalance` 直译过来就是**最小活跃数负载均衡**。
+`LeastActiveLoadBalance` dịch trực tiếp là **cân bằng tải số hoạt động tối thiểu**.
 
-这个名字起得有点不直观，不仔细看官方对活跃数的定义，你压根不知道这玩意是干嘛的。
+Cái tên này hơi không trực quan, nếu không đọc kỹ định nghĩa về số hoạt động trong tài liệu chính thức, bạn sẽ không biết cái này dùng để làm gì.
 
-我这么说吧！初始状态下所有服务提供者的活跃数均为 0（每个服务提供者的中特定方法都对应一个活跃数，我在后面的源码中会提到），每收到一个请求后，对应的服务提供者的活跃数 +1，当这个请求处理完之后，活跃数 -1。
+Hãy nói thế này! Ban đầu số hoạt động của tất cả service provider đều là 0 (mỗi phương thức cụ thể của mỗi service provider có một số hoạt động tương ứng, tôi sẽ đề cập trong source code phần sau), mỗi khi nhận được một yêu cầu, số hoạt động của service provider tương ứng tăng +1, khi yêu cầu này được xử lý xong, số hoạt động giảm -1.
 
-因此，**Dubbo 就认为谁的活跃数越少，谁的处理速度就越快，性能也越好，这样的话，我就优先把请求给活跃数少的服务提供者处理。**
+Vì vậy, **Dubbo cho rằng ai có số hoạt động càng ít, tốc độ xử lý càng nhanh, hiệu suất càng tốt, khi đó tôi sẽ ưu tiên chuyển yêu cầu cho service provider có số hoạt động ít.**
 
-**如果有多个服务提供者的活跃数相等怎么办？**
+**Nếu có nhiều service provider có số hoạt động bằng nhau thì sao?**
 
-很简单，那就再走一遍 `RandomLoadBalance` 。
+Đơn giản, thì chạy lại một lần `RandomLoadBalance`.
 
 ```java
 public class LeastActiveLoadBalance extends AbstractLoadBalance {
@@ -391,7 +391,7 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
 
 ```
 
-活跃数是通过 `RpcStatus` 中的一个 `ConcurrentMap` 保存的，根据 URL 以及服务提供者被调用的方法的名称，我们便可以获取到对应的活跃数。也就是说服务提供者中的每一个方法的活跃数都是互相独立的。
+Số hoạt động được lưu thông qua một `ConcurrentMap` trong `RpcStatus`, dựa vào URL và tên phương thức được gọi của service provider, chúng ta có thể lấy được số hoạt động tương ứng. Tức là số hoạt động của mỗi phương thức trong service provider là độc lập với nhau.
 
 ```java
 public class RpcStatus {
@@ -413,55 +413,55 @@ public class RpcStatus {
 
 #### ConsistentHashLoadBalance
 
-`ConsistentHashLoadBalance` 小伙伴们应该也不会陌生，在分库分表、各种集群中就经常使用这个负载均衡策略。
+`ConsistentHashLoadBalance` chắc bạn cũng không xa lạ, trong phân vùng cơ sở dữ liệu, các cụm khác nhau, chiến lược cân bằng tải này được sử dụng thường xuyên.
 
-`ConsistentHashLoadBalance` 即**一致性 Hash 负载均衡策略**。 `ConsistentHashLoadBalance` 中没有权重的概念，具体是哪个服务提供者处理请求是由你的请求的参数决定的，也就是说相同参数的请求总是发到同一个服务提供者。
+`ConsistentHashLoadBalance` tức là **chiến lược cân bằng tải Consistent Hash**. Trong `ConsistentHashLoadBalance` không có khái niệm trọng số, cụ thể service provider nào xử lý yêu cầu được quyết định bởi tham số yêu cầu của bạn, tức là các yêu cầu có cùng tham số luôn được gửi đến cùng một service provider.
 
 ![](https://oss.javaguide.cn/java-guide-blog/consistent-hash-data-incline.jpg)
 
-另外，Dubbo 为了避免数据倾斜问题（节点不够分散，大量请求落到同一节点），还引入了虚拟节点的概念。通过虚拟节点可以让节点更加分散，有效均衡各个节点的请求量。
+Ngoài ra, để tránh vấn đề nghiêng dữ liệu (node không đủ phân tán, lượng lớn yêu cầu rơi vào cùng một node), Dubbo cũng giới thiệu khái niệm node ảo. Thông qua node ảo có thể làm cho các node phân tán hơn, cân bằng hiệu quả lượng yêu cầu của từng node.
 
 ![](https://oss.javaguide.cn/java-guide-blog/consistent-hash-invoker.jpg)
 
-官方有详细的源码分析：[https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance) 。这里还有一个相关的 [PR#5440](https://github.com/apache/dubbo/pull/5440) 来修复老版本中 ConsistentHashLoadBalance 存在的一些 Bug。感兴趣的小伙伴，可以多花点时间研究一下。我这里不多分析了，这个作业留给你们！
+Tài liệu chính thức có phân tích source code chi tiết: [https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance](https://dubbo.apache.org/zh/docs/v2.7/dev/source/loadbalance/#23-consistenthashloadbalance) . Còn có một [PR#5440](https://github.com/apache/dubbo/pull/5440) liên quan để sửa một số Bug tồn tại trong ConsistentHashLoadBalance phiên bản cũ. Bạn nào quan tâm có thể dành thêm thời gian nghiên cứu. Tôi sẽ không phân tích nhiều ở đây, bài tập này để lại cho các bạn!
 
 #### RoundRobinLoadBalance
 
-加权轮询负载均衡。
+Cân bằng tải vòng robin có trọng số.
 
-轮询就是把请求依次分配给每个服务提供者。加权轮询就是在轮询的基础上，让更多的请求落到权重更大的服务提供者上。比如假如有两个提供相同服务的服务器 S1,S2，S1 的权重为 7，S2 的权重为 3。
+Vòng robin là phân phối yêu cầu lần lượt cho từng service provider. Vòng robin có trọng số là trên cơ sở vòng robin, để nhiều yêu cầu hơn rơi vào service provider có trọng số lớn hơn. Ví dụ giả sử có hai máy chủ S1, S2 cung cấp cùng dịch vụ, trọng số của S1 là 7, trọng số của S2 là 3.
 
-如果我们有 10 次请求，那么 7 次会被 S1 处理，3 次被 S2 处理。
+Nếu chúng ta có 10 yêu cầu, thì 7 yêu cầu sẽ được S1 xử lý, 3 yêu cầu được S2 xử lý.
 
-但是，如果是 `RandomLoadBalance` 的话，很可能存在 10 次请求有 9 次都被 S1 处理的情况（概率性问题）。
+Nhưng, nếu là `RandomLoadBalance` thì rất có thể có trường hợp trong 10 yêu cầu có 9 yêu cầu đều được S1 xử lý (vấn đề xác suất).
 
-Dubbo 中的 `RoundRobinLoadBalance` 的代码实现被修改重建了好几次，Dubbo-2.6.5 版本的 `RoundRobinLoadBalance` 为平滑加权轮询算法。
+Code triển khai của `RoundRobinLoadBalance` trong Dubbo đã được sửa đổi và xây dựng lại nhiều lần, phiên bản Dubbo-2.6.5 của `RoundRobinLoadBalance` là thuật toán smooth weighted round robin.
 
-## Dubbo 序列化协议
+## Giao thức serialization của Dubbo
 
-### Dubbo 支持哪些序列化方式呢？
+### Dubbo hỗ trợ những phương thức serialization nào?
 
-![Dubbo 支持的序列化协议](https://oss.javaguide.cn/github/javaguide/csdn/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70-20230309234143460.png)
+![Các giao thức serialization mà Dubbo hỗ trợ](https://oss.javaguide.cn/github/javaguide/csdn/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70-20230309234143460.png)
 
-Dubbo 支持多种序列化方式：JDK 自带的序列化、hessian2、JSON、Kryo、FST、Protostuff，ProtoBuf 等等。
+Dubbo hỗ trợ nhiều phương thức serialization: serialization tích hợp sẵn của JDK, hessian2, JSON, Kryo, FST, Protostuff, ProtoBuf, v.v.
 
-Dubbo 默认使用的序列化方式是 hessian2。
+Phương thức serialization mặc định mà Dubbo sử dụng là hessian2.
 
-### 谈谈你对这些序列化协议了解？
+### Hãy nói về những gì bạn hiểu về các giao thức serialization này?
 
-一般我们不会直接使用 JDK 自带的序列化方式。主要原因有两个：
+Thông thường chúng ta sẽ không sử dụng trực tiếp phương thức serialization tích hợp sẵn của JDK. Nguyên nhân chính có hai:
 
-1. **不支持跨语言调用** : 如果调用的是其他语言开发的服务的时候就不支持了。
-2. **性能差**：相比于其他序列化框架性能更低，主要原因是序列化之后的字节数组体积较大，导致传输成本加大。
+1. **Không hỗ trợ gọi đa ngôn ngữ**: Nếu gọi dịch vụ phát triển bằng ngôn ngữ khác thì không hỗ trợ.
+2. **Hiệu suất kém**: Hiệu suất thấp hơn so với các framework serialization khác, nguyên nhân chính là kích thước mảng byte sau khi serialize khá lớn, dẫn đến chi phí truyền tải tăng.
 
-JSON 序列化由于性能问题，我们一般也不会考虑使用。
+JSON serialization do vấn đề hiệu suất, chúng ta thường cũng không cân nhắc sử dụng.
 
-像 Protostuff，ProtoBuf、hessian2 这些都是跨语言的序列化方式，如果有跨语言需求的话可以考虑使用。
+Như Protostuff, ProtoBuf, hessian2 đều là các phương thức serialization đa ngôn ngữ, nếu có nhu cầu đa ngôn ngữ thì có thể cân nhắc sử dụng.
 
-Kryo 和 FST 这两种序列化方式是 Dubbo 后来才引入的，性能非常好。不过，这两者都是专门针对 Java 语言的。Dubbo 官网的一篇文章中提到说推荐使用 Kryo 作为生产环境的序列化方式。
+Kryo và FST là hai phương thức serialization mà Dubbo giới thiệu sau này, hiệu suất rất tốt. Tuy nhiên, cả hai đều dành riêng cho ngôn ngữ Java. Trong một bài viết trên trang web chính thức của Dubbo có đề cập đến việc khuyến nghị sử dụng Kryo làm phương thức serialization cho môi trường production.
 
-Dubbo 官方文档中还有一个关于这些[序列化协议的性能对比图](https://dubbo.apache.org/zh/docs/v2.7/user/serialization/#m-zhdocsv27userserialization)可供参考。
+Trong tài liệu chính thức của Dubbo còn có một [biểu đồ so sánh hiệu suất của các giao thức serialization](https://dubbo.apache.org/zh/docs/v2.7/user/serialization/#m-zhdocsv27userserialization) để tham khảo.
 
-![序列化协议的性能对比](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/dubbo-serialization-protocol-performance-comparison.png)
+![So sánh hiệu suất giao thức serialization](https://oss.javaguide.cn/github/javaguide/distributed-system/rpc/dubbo-serialization-protocol-performance-comparison.png)
 
 <!-- @include: @article-footer.snippet.md -->

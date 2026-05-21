@@ -1,105 +1,105 @@
 ---
-title: 《Java 面试指北》
-description: Java 面试指北专栏，四年打磨的 Java 后端面试指南，涵盖核心知识点与高频面试题系统讲解。
-category: 知识星球
+title: 《Java Interview Guide》
+description: Java Interview Guide - Hướng dẫn phỏng vấn Java backend được mài giũa 4 năm, bao gồm giảng giải hệ thống các kiến thức cốt lõi và câu hỏi phỏng vấn tần suất cao.
+category: Knowledge Planet
 star: 5
 ---
 
-**四年磨一剑，只为打造最优质的 Java 面试指南。**
+**4 năm mài một kiếm, chỉ để tạo ra hướng dẫn phỏng vấn Java chất lượng nhất.**
 
-这本《Java 面试指北》（后端面试通用）的内容经过反复打磨，质量极高，旨在帮助每一位 Java/后端求职者从容应对面试挑战。
+Nội dung của 《Java Interview Guide》 (Backend General) này được mài giũa nhiều lần, chất lượng cực cao, nhằm giúp mỗi ứng viên Java/backend tự tin ứng phó với thách thức phỏng vấn.
 
-**用数据说话：** 截至目前，专栏累计阅读量已突破 **477.1W**，收获点赞 **5,118** 个，评论互动 **1,657** 条。值得一提的是，评论区不仅仅是留言板，更是答疑区——几乎每一条提问，我都会用心回复，确保无疑问遗留。
+**Con số biết nói:** Đến nay, chuyên mục đã tích lũy hơn **477.1W** lượt đọc, nhận **5,118** lượt thích, **1,657** lượt bình luận tương tác. Đáng chú ý là khu vực bình luận không chỉ là nơi để lại tin nhắn mà còn là khu vực giải đáp — hầu như mọi câu hỏi tôi đều trả lời tận tâm, đảm bảo không bỏ lại thắc mắc nào.
 
 ![](https://oss.javaguide.cn/xingqiu/java-interview-guide-statistics-2025.png)
 
-📅 **增长见证：** 下图记录了 2024 年时的成绩。对比当下，你会发现其增长速度可以用“惊人”来形容，这不仅是数据的攀升，更是无数读者认可的证明！
+📅 **Chứng kiến tăng trưởng:** Hình dưới ghi lại thành tích năm 2024. So với hiện tại, bạn sẽ thấy tốc độ tăng trưởng có thể gọi là "kinh ngạc" — không chỉ là con số leo thang mà còn là bằng chứng về sự công nhận của vô số độc giả!
 
 ![](https://oss.javaguide.cn/xingqiu/java-interview-guide-statistics.png)
 
-## 介绍
+## Giới thiệu
 
-**《Java 面试指北》** 是我的[知识星球](../about-the-author/zhishixingqiu-two-years.md)的一个内部小册，和 [JavaGuide 开源版](https://javaguide.cn/) 的内容互补。相比于开源版本来说，《Java 面试指北》添加了下面这些内容（不仅仅是这些内容）：
+**《Java Interview Guide》** là một e-book nội bộ trong [Knowledge Planet](../about-the-author/zhishixingqiu-two-years.md) của tôi, bổ sung nội dung cho [JavaGuide open source version](https://javaguide.cn/). So với phiên bản open source, 《Java Interview Guide》 bổ sung thêm các nội dung sau (không chỉ những nội dung này):
 
-- 17+ 篇文章手把手教你如何准备面试，50+ 准备面试过程中的常见问题详细解读，让你更高效地准备 Java 面试。
-- 更全面的八股文面试题（系统设计、场景题、常见框架、分布式&微服务、高并发 ……）。
-- 优质面经精选（相比于牛客网或者其他网站的面经，《Java 面试指北》中整理的面经质量更高，并且，我会提供优质的参考资料）。
-- 技术面试题自测（高效准备技术八股文的技巧之一在于多多自测，查漏补缺）。
-- 练级攻略（有助于个人成长的经验分享）。
+- 17+ bài viết hướng dẫn từng bước cách chuẩn bị phỏng vấn, giải đáp chi tiết 50+ câu hỏi thường gặp trong quá trình chuẩn bị, giúp bạn chuẩn bị Java interview hiệu quả hơn.
+- Technical questions phỏng vấn đầy đủ hơn (system design, scenario questions, common frameworks, distributed & microservices, high concurrency...).
+- Tổng hợp kinh nghiệm phỏng vấn chất lượng (so với kinh nghiệm trên Nowcoder hay các website khác, chất lượng cao hơn và có tài liệu tham khảo chất lượng).
+- Technical interview self-test (một trong những mẹo để chuẩn bị technical questions hiệu quả là tự kiểm tra thường xuyên và lấp đầy khoảng trống).
+- Level-up strategies (chia sẻ kinh nghiệm giúp phát triển cá nhân).
 
-《Java 面试指北》 会根据每一年的面试情况对内容进行更新完善，保证内容质量的时效性。并且，只需要加入[知识星球](../about-the-author/zhishixingqiu-two-years.md)一次，即可永久获取《Java 面试指北》的访问权限，持续同步更新完善。
+《Java Interview Guide》 sẽ cập nhật và hoàn thiện nội dung theo tình hình phỏng vấn mỗi năm, đảm bảo tính thời sự của nội dung. Và chỉ cần tham gia [Knowledge Planet](../about-the-author/zhishixingqiu-two-years.md) một lần, sẽ có quyền truy cập vĩnh viễn vào 《Java Interview Guide》 với cập nhật liên tục.
 
-下面是《Java 面试指北》 收到的部分球友的真实反馈：
+Dưới đây là một phần phản hồi thực của các thành viên về 《Java Interview Guide》:
 
-![《Java 面试指北》 收到的部分球友的真实反馈](https://oss.javaguide.cn/xingqiu/praise-that-the-mianshizhibei-received.png)
+![Phần phản hồi thực của các thành viên](https://oss.javaguide.cn/xingqiu/praise-that-the-mianshizhibei-received.png)
 
-## 内容概览
+## Tổng quan nội dung
 
-![《Java 面试指北》内容概览](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-content-overview.png)
+![《Java Interview Guide》 Content Overview](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-content-overview.png)
 
-### 面试准备篇
+### Interview Preparation Section
 
-在 **「面试准备篇」** ，我写了 17+ 篇文章手把手教你如何准备面试，50+ 准备面试过程中的常见问题详细解读。准备面试过程中常见的疑问这里都有解答，内容涵盖项目经验、简历编写、源码学习、算法准备、面试资源等等。
+Trong **「Interview Preparation Section」**, tôi viết 17+ bài viết hướng dẫn từng bước cách chuẩn bị phỏng vấn, giải đáp chi tiết 50+ câu hỏi thường gặp. Các thắc mắc thường gặp trong quá trình chuẩn bị đều có giải đáp ở đây, nội dung bao gồm project experience, resume writing, source code learning, algorithm preparation, interview resources v.v.
 
-![《Java 面试指北》面试准备篇](https://oss.javaguide.cn/javamianshizhibei/preparation-for-interview.png)
+![《Java Interview Guide》 Interview Preparation Section](https://oss.javaguide.cn/javamianshizhibei/preparation-for-interview.png)
 
-其中的 **「⭐Java 面试准备常见问题解答（补充）」** 和 **「⭐ 项目经验常见问题解答（补充）」** 强烈建议必看，信息密度非常高！
+Trong đó **「⭐Java Interview Preparation FAQs (Supplement)」** và **「⭐Project Experience FAQs (Supplement)」** đặc biệt khuyến nghị phải xem — thông tin cực kỳ phong phú!
 
 ![](https://oss.javaguide.cn/javamianshizhibei/java-project-experience-and-interview-faq.png)
 
-另外，考虑到很多同学项目经历不足，我还专门整理了一批**小众但优质的实战项目**：既有配套视频，也有高质量开源仓库，既包含完整业务系统，也有技术含量很高的轮子类项目，方便你快速补齐项目短板。
+Ngoài ra, xét đến việc nhiều bạn project experience không đủ, tôi còn tổng hợp riêng một batch **niche but quality practical projects**: Vừa có tutorial videos đi kèm, vừa có high-quality open source repositories. Bao gồm cả complete business systems lẫn các projects kỹ thuật cao kiểu wheel projects, giúp bạn nhanh chóng bổ sung điểm yếu về project.
 
-![《Java面试指北》-实战项目推荐](https://oss.javaguide.cn/javamianshizhibei/practical-project-recommendation.png)
+![《Java Interview Guide》 - Practical Project Recommendations](https://oss.javaguide.cn/javamianshizhibei/practical-project-recommendation.png)
 
-### 技术面试题篇
+### Technical Interview Questions Section
 
-**「技术面试题篇」** 的内容和 JavaGuide 开源版本互补，不仅仅包括最基本的 Java、常见框架等八股文，还包括系统设计、分布式、高并发等进阶内容。
+Nội dung **「Technical Interview Questions Section」** bổ sung cho JavaGuide open source version, không chỉ bao gồm Java cơ bản, common frameworks và các technical questions thông thường, còn có advanced content như system design, distributed, high concurrency.
 
-![《Java 面试指北》技术面试题篇](https://oss.javaguide.cn/javamianshizhibei/technical-interview-questions.png)
+![《Java Interview Guide》 Technical Interview Questions Section](https://oss.javaguide.cn/javamianshizhibei/technical-interview-questions.png)
 
-### 面经篇
+### Interview Experience Section
 
-古人云：“**他山之石，可以攻玉**”。善于学习借鉴别人的面试的成功经验或者失败的教训，可以让自己少走许多弯路。
+Người xưa có câu: "**Đá từ núi khác, có thể mài ngọc**". Giỏi học hỏi từ kinh nghiệm thành công hay bài học thất bại trong phỏng vấn của người khác có thể giúp mình ít đi vòng hơn.
 
-**「面经篇」** 主打高质量 Java 后端真实面经：校招 / 社招全覆盖，大厂、中小厂、央国企、外企，连大厂内包都有，不管你是哪种求职方向，都能找到适配的面经参考。
+**「Interview Experience Section」** tập trung vào Java backend real interview experiences chất lượng cao: bao phủ campus/social recruitment, big companies, SMEs, state-owned enterprises, foreign companies, thậm chí có cả in-house contractor của big company. Dù bạn tìm việc theo hướng nào cũng có thể tìm được kinh nghiệm phỏng vấn phù hợp để tham khảo.
 
-![《Java 面试指北》面经篇](https://oss.javaguide.cn/javamianshizhibei/real-interview-experience.png)
+![《Java Interview Guide》 Interview Experience Section](https://oss.javaguide.cn/javamianshizhibei/real-interview-experience.png)
 
-**为何选择《Java 面试指北》的面经？**
+**Tại sao chọn kinh nghiệm phỏng vấn trong 《Java Interview Guide》?**
 
-相比于网络上海量但杂乱的面经信息，《Java 面试指北》中提供的面经在质量筛选和价值挖掘上投入了更多精力。每一份收录的面经均力求做到：
+So với lượng kinh nghiệm phỏng vấn khổng lồ nhưng lộn xộn trên mạng, 《Java Interview Guide》 đầu tư nhiều công sức hơn vào quality filtering và value mining. Mỗi bài kinh nghiệm được tổng hợp đều cố gắng đảm bảo:
 
-- **内容真实、有启发性**： 优先选择那些能反映实际面试场景、考察重点和面试官思路的经验。
-- **提供深度学习资源**： 拒绝“只有问题没有答案”的焦虑。针对面经中的高频/核心难题，我精心关联了高质量的参考资料（通常是我撰写的深度解析文章）或直接提供核心参考答案，助你知其然更知其所以然。
+- **Nội dung chân thực và có tính gợi mở**: Ưu tiên chọn những kinh nghiệm phản ánh được actual interview scenarios, examination focus points và interviewer's thought process.
+- **Cung cấp tài nguyên học sâu**: Từ chối kiểu "chỉ có câu hỏi không có câu trả lời" gây lo lắng. Với những câu hỏi high-frequency/core trong interview experiences, tôi carefully liên kết các quality reference materials (thường là các bài phân tích sâu tôi viết) hoặc cung cấp trực tiếp core reference answers, giúp bạn biết cả việc làm lẫn lý do.
 
-另外，[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)还有专门分享面经和面试题的专题，持续更新优质的面经和面试题。
+Ngoài ra, [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) còn có chủ đề chuyên chia sẻ kinh nghiệm phỏng vấn và câu hỏi phỏng vấn, liên tục cập nhật chất lượng.
 
 ![](https://oss.javaguide.cn/javamianshizhibei/xingqiu-real-interview-experience.png)
 
-### 技术面试题自测篇
+### Technical Interview Self-test Section
 
-为了让小伙伴们自测以检查自己的掌握情况，我还推出了 **「技术面试题自测」** 系列。目前已经覆盖 Java 后端的核心高频考点，并在持续迭代更新中。
+Để các thành viên có thể tự kiểm tra mức độ nắm vững của mình, tôi còn ra mắt series **「Technical Interview Self-test」**. Hiện đã bao phủ các core high-frequency test points của Java backend và đang tiếp tục cập nhật.
 
-![《Java 面试指北》技术面试题自测篇](https://oss.javaguide.cn/javamianshizhibei/self-test.png)
+![《Java Interview Guide》 Technical Interview Self-test Section](https://oss.javaguide.cn/javamianshizhibei/self-test.png)
 
-每道题我都会给出**提示与思路**，并用 ⭐ 标注重要程度：⭐ 越多，说明面试越爱问，就越值得多花一些时间准备。
+Mỗi câu hỏi tôi đều đưa ra **gợi ý và hướng suy nghĩ**, và dùng ⭐ để đánh dấu mức độ quan trọng: ⭐ càng nhiều thì phỏng vấn càng hay hỏi, càng đáng dành nhiều thời gian chuẩn bị.
 
 ![](https://oss.javaguide.cn/javamianshizhibei/self-test-key-points.png)
 
-高效准备技术八股文的技巧之一在于多多自测，查漏补缺。
+Một trong những mẹo để chuẩn bị technical questions hiệu quả là tự kiểm tra thường xuyên và lấp đầy khoảng trống kiến thức.
 
-### 练级攻略篇
+### Level-up Strategies Section
 
-**「练级攻略篇」** 这个系列主要分享一些有助于个人成长的经验。
+Series **「Level-up Strategies Section」** chủ yếu chia sẻ một số kinh nghiệm giúp phát triển cá nhân.
 
-![《Java 面试指北》练级攻略篇](https://oss.javaguide.cn/javamianshizhibei/training-strategy-articles.png)
+![《Java Interview Guide》 Level-up Strategies Section](https://oss.javaguide.cn/javamianshizhibei/training-strategy-articles.png)
 
-每一篇内容都非常干货，不少球友看了之后表示收获满满。不过，最重要的还是知行合一。
+Mỗi bài nội dung đều rất chất lượng, không ít thành viên đọc xong đều nói thu hoạch rất nhiều. Tuy nhiên, quan trọng nhất vẫn là biết và làm đi đôi.
 
-### 工作篇
+### Work Section
 
-**「工作篇」** 这个系列主要分享有助于个人及职场发展的内容，以及在工作中经常会遇到的问题。
+Series **「Work Section」** chủ yếu chia sẻ nội dung giúp phát triển cá nhân và sự nghiệp, cùng các vấn đề thường gặp trong công việc.
 
-![《Java 面试指北》工作篇](https://oss.javaguide.cn/javamianshizhibei/gongzuopian.png)
+![《Java Interview Guide》 Work Section](https://oss.javaguide.cn/javamianshizhibei/gongzuopian.png)
 
 <!-- @include: @planet2.snippet.md -->

@@ -1,43 +1,43 @@
 ---
-title: JavaGuide 开源项目 100K Star 了！
-description: JavaGuide开源项目达成100K Star里程碑，从2018年创建到突破十万星标的复盘总结，分享开源维护心得与未来规划。
-category: 走近作者
+title: JavaGuide open source project đạt 100K Star!
+description: JavaGuide open source project đạt mốc 100K Star, từ khi tạo năm 2018 đến khi vượt một trăm nghìn stars - tổng kết review, chia sẻ kinh nghiệm duy trì open source và kế hoạch tương lai.
+category: Giới thiệu tác giả
 tag:
-  - 个人经历
+  - Kinh nghiệm cá nhân
 ---
 
-2021-03-21，晚上 12 点，肝完了我正在做的一个项目的前端的某块功能，我随手打开了[我的 GitHub 主页](https://github.com/Snailclimb)。
+2021-03-21, 12 giờ đêm, vừa xong một chức năng frontend của một project đang làm, tôi tùy tay mở [trang GitHub cá nhân của mình](https://github.com/Snailclimb).
 
-好家伙！几天没注意，[JavaGuide](https://github.com/Snailclimb/JavaGuide) 这个项目直接上了 100K star。
+Trời ơi! Mấy ngày không để ý, project [JavaGuide](https://github.com/Snailclimb/JavaGuide) này đã lên thẳng 100K star rồi.
 
-![JavaGuide 100k 里程碑](https://oss.javaguide.cn/github/javaguide/1&e=1643644799&token=kIxbL07-8jAj8w1n4s9zv64FuZZNEATmlU_Vm6zD:zANqh9HQEvvLPm6smyrjvjAt-Ik=.png)
+![JavaGuide 100k Milestone](https://oss.javaguide.cn/github/javaguide/1&e=1643644799&token=kIxbL07-8jAj8w1n4s9zv64FuZZNEATmlU_Vm6zD:zANqh9HQEvvLPm6smyrjvjAt-Ik=.png)
 
-其实，这个真没啥好嘚瑟的。因为，教程类的含金量其实是比较低的，Star 数量比较多主要也是因为受众面比较广，大家觉得不错，点个 star 就相当于收藏了。很多特别优秀的框架，star 数量可能只有几 K。所以，单纯看 star 数量没啥意思，就当看个笑话吧！
+Thực ra điều này chẳng có gì đáng tự hào. Vì hàm lượng vàng của tutorial-type projects thực ra khá thấp. Nhiều star chủ yếu vì đối tượng độc giả rộng, mọi người thấy không tệ, click star tức là đã bookmark. Nhiều framework xuất sắc có thể chỉ có vài K star. Vì vậy chỉ nhìn vào số star không có nghĩa gì — coi như một trò cười!
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/20210323132635635.png)
 
-维护这个项目的过程中，也被某些人 diss 过：“md 项目，没啥含金量，给国人丢脸！”。
+Trong quá trình duy trì project này, cũng bị một số người chỉ trích: "Project MD, không có hàm lượng gì, làm mất mặt người Trung!".
 
-对于说这类话的人，我觉得对我没啥影响，就持续完善，把 JavaGuide 做的更好吧！其实，国外的很多项目也是纯 MD 啊！就比如外国的朋友发起的 awesome 系列、求职面试系列。无需多说，行动自证！凎！
+Với những người nói những điều như vậy, tôi cảm thấy không ảnh hưởng gì đến tôi. Chỉ tiếp tục hoàn thiện, làm JavaGuide tốt hơn thôi! Thực ra nhiều project nước ngoài cũng là thuần MD! Như awesome series, job interview series do bạn bè nước ngoài khởi xướng. Không cần nói nhiều — hành động tự chứng minh!
 
-开源非常重要的一点就是协作。如果你开源了一个项目之后，就不再维护，别人给你提交 issue/pr，你都不处理，那开源也没啥意义了！
+Một điều rất quan trọng trong open source là cộng tác. Nếu bạn mã nguồn mở một project rồi không duy trì nữa, người khác submit issue/PR bạn không xử lý — thì open source cũng vô nghĩa!
 
-我的公号的小伙伴都是通过这个项目关注我的，趁着午休，简单复盘一下，也算是对关注这个项目的小伙伴负责。
+Các bạn trên Official Account của tôi đều follow tôi qua project này. Tranh thủ giờ nghỉ trưa, review lại đơn giản, cũng coi như có trách nhiệm với các bạn quan tâm project này.
 
-我在大三开始准备秋招面试的时候，创建了 JavaGuide 这个项目，**2018-05-07** 这一天我提交了**第 1 个 commit**。
+Khi đang chuẩn bị phỏng vấn fall recruitment năm ba đại học, tôi đã tạo project JavaGuide. **2018-05-07** ngày đó tôi commit **commit đầu tiên**.
 
-到今天（2021-03-23）为止，这个仓库已经累计有 **2933** 次 commit，累计有 **207** 位朋友参与到了项目中来。
+Đến hôm nay (2021-03-23), repository này đã tích lũy **2933** commits, có **207** bạn tham gia vào project.
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70.png)
 
-累计有 **511** 个 **issue** 和 **575** 个 **PR**。所有的 PR 都已经被处理，仅有 15 个左右的 issue 我还未抽出时间处理。
+Tích lũy **511** **issues** và **575** **PRs**. Tất cả PR đã được xử lý, chỉ còn khoảng 15 issues tôi chưa có thời gian xử lý.
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0MzM3Mjcy,size_16,color_FFFFFF,t_70-20230309224044850.png)
 
-其实，相比于 star 数量，你看看仓库的 issue 和 PR 更能说明你的项目是否有价值。
+Thực ra, so với số star, nhìn vào issue và PR của repository mới nói lên được project của bạn có giá trị không.
 
-那些到处骗 star 甚至是 刷 star 的行为，我就不多说了，有点丢人。人家觉得你的项目还不错，能提供价值，自然就给你点 star 了。
+Những hành vi lừa star hay thậm chí mua star ở khắp nơi, tôi không nói thêm — hơi xấu hổ. Khi người ta thấy project của bạn không tệ, có thể cung cấp giá trị, tự nhiên họ sẽ click star cho bạn.
 
-**未来几年，我还是会持续完善 JavaGuide。**
+**Những năm tới, tôi vẫn sẽ tiếp tục hoàn thiện JavaGuide.**
 
-**希望自己以后能开源一些有价值的轮子吧！继续加油！**
+**Hy vọng sau này có thể mã nguồn mở một số wheels có giá trị! Tiếp tục cố gắng!**

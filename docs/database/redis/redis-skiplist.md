@@ -1,7 +1,7 @@
 ---
-title: Redis为什么用跳表实现有序集合
-description: 深入讲解Redis有序集合Zset为何选择跳表而非红黑树、B+树实现，详解跳表的数据结构原理、时间复杂度分析和Redis源码实现。
-category: 数据库
+title: Tại sao Redis dùng Skip List để triển khai Sorted Set
+description: Giải thích chuyên sâu tại sao Sorted Set Zset của Redis chọn Skip List thay vì Red-Black Tree, B+ Tree, phân tích chi tiết nguyên lý cấu trúc dữ liệu Skip List, phân tích độ phức tạp thời gian và triển khai mã nguồn Redis.
+category: Cơ sở dữ liệu
 tag:
   - Redis
 head:
@@ -10,21 +10,21 @@ head:
       content: Redis跳表,SkipList,有序集合,Zset,跳表原理,平衡树对比,Redis数据结构
 ---
 
-## 前言
+## Lời mở đầu
 
-近几年针对 Redis 面试时会涉及常见数据结构的底层设计，其中就有这么一道比较有意思的面试题：“Redis 的有序集合底层为什么要用跳表，而不用平衡树、红黑树或者 B+树？”。
+Trong những năm gần đây, các cuộc phỏng vấn về Redis thường đề cập đến thiết kế nội bộ của các cấu trúc dữ liệu phổ biến, trong đó có một câu hỏi phỏng vấn khá thú vị: "Tại sao Sorted Set của Redis sử dụng Skip List ở tầng dưới, mà không dùng Balanced Tree, Red-Black Tree hay B+ Tree?".
 
-本文就以这道大厂常问的面试题为切入点，带大家详细了解一下跳表这个数据结构。
+Bài viết này lấy câu hỏi phỏng vấn thường gặp tại các công ty lớn này làm điểm khởi đầu, đưa mọi người tìm hiểu chi tiết về cấu trúc dữ liệu Skip List.
 
-本文整体脉络如下图所示，笔者会从有序集合的基本使用到跳表的源码分析和实现，让你会对 Redis 的有序集合底层实现的跳表有着更深刻的理解和掌握。
+Tổng thể bài viết được thể hiện như hình dưới đây, tác giả sẽ dẫn dắt từ cách sử dụng cơ bản của Sorted Set đến phân tích và triển khai mã nguồn của Skip List, giúp bạn hiểu và nắm vững sâu hơn về triển khai Skip List ở tầng dưới của Sorted Set trong Redis.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005468.png)
 
-## 跳表在 Redis 中的运用
+## Ứng dụng của Skip List trong Redis
 
-这里我们需要先了解一下 Redis 用到跳表的数据结构有序集合的使用，Redis 有个比较常用的数据结构叫**有序集合(sorted set，简称 zset)**，正如其名它是一个可以保证有序且元素唯一的集合，所以它经常用于排行榜等需要进行统计排列的场景。
+Ở đây chúng ta cần tìm hiểu trước về cấu trúc dữ liệu Sorted Set mà Redis sử dụng Skip List. Redis có một cấu trúc dữ liệu khá phổ biến gọi là **Sorted Set (tập hợp có thứ tự, viết tắt là zset)**, như tên gọi nó là một tập hợp có thể đảm bảo thứ tự và các phần tử là duy nhất, vì vậy nó thường được dùng cho bảng xếp hạng và các tình huống cần sắp xếp thống kê.
 
-这里我们通过命令行的形式演示一下排行榜的实现，可以看到笔者分别输入 3 名用户：**xiaoming**、**xiaohong**、**xiaowang**，它们的**score**分别是 60、80、60，最终按照成绩升级降序排列。
+Ở đây chúng ta dùng dòng lệnh để demo việc triển khai bảng xếp hạng. Tác giả lần lượt nhập 3 người dùng: **xiaoming**, **xiaohong**, **xiaowang**, với **score** lần lượt là 60, 80, 60, cuối cùng được xếp hạng giảm dần theo điểm.
 
 ```bash
 
@@ -45,23 +45,23 @@ head:
 6) "60"
 ```
 
-此时我们通过 `object` 指令查看 zset 的数据结构，可以看到当前有序集合存储的还是**ziplist(压缩列表)**。
+Lúc này chúng ta dùng lệnh `object` để xem cấu trúc dữ liệu của zset, có thể thấy Sorted Set hiện tại vẫn đang lưu trữ bằng **ziplist (danh sách nén)**.
 
 ```bash
 127.0.0.1:6379> object encoding rankList
 "ziplist"
 ```
 
-因为设计者考虑到 Redis 数据存放于内存，为了节约宝贵的内存空间，在有序集合元素小于 64 字节且个数小于 128 的时候，会使用 ziplist，而这个阈值的默认值的设置就来自下面这两个配置项。
+Vì nhà thiết kế xem xét rằng dữ liệu Redis được lưu trong bộ nhớ, để tiết kiệm bộ nhớ quý giá, khi số phần tử trong Sorted Set nhỏ hơn 64 byte và số lượng phần tử nhỏ hơn 128, sẽ dùng ziplist. Giá trị mặc định của ngưỡng này đến từ hai cấu hình dưới đây.
 
 ```bash
 zset-max-ziplist-value 64
 zset-max-ziplist-entries 128
 ```
 
-一旦有序集合中的某个元素超出这两个其中的一个阈值它就会转为 **skiplist**（实际是 dict+skiplist，还会借用字典来提高获取指定元素的效率）。
+Khi một phần tử nào đó trong Sorted Set vượt quá một trong hai ngưỡng này, nó sẽ chuyển thành **skiplist** (thực tế là dict+skiplist, còn sử dụng thêm dictionary để cải thiện hiệu quả lấy phần tử cụ thể).
 
-我们不妨在添加一个大于 64 字节的元素，可以看到有序集合的底层存储转为 skiplist。
+Hãy thêm một phần tử lớn hơn 64 byte, có thể thấy bộ lưu trữ nội bộ của Sorted Set đã chuyển sang skiplist.
 
 ```bash
 127.0.0.1:6379> zadd rankList 90 yigemingzihuichaoguo64zijiedeyonghumingchengyongyuceshitiaobiaodeshijiyunyong
@@ -72,68 +72,68 @@ zset-max-ziplist-entries 128
 "skiplist"
 ```
 
-也就是说，ZSet 有两种不同的实现，分别是 ziplist 和 skiplist，具体使用哪种结构进行存储的规则如下：
+Tức là ZSet có hai triển khai khác nhau, lần lượt là ziplist và skiplist, quy tắc cụ thể dùng cấu trúc nào để lưu như sau:
 
-- 当有序集合对象同时满足以下两个条件时，使用 ziplist：
-  1. ZSet 保存的键值对数量少于 128 个；
-  2. 每个元素的长度小于 64 字节。
-- 如果不满足上述两个条件，那么使用 skiplist 。
+- Khi đối tượng Sorted Set đồng thời thỏa mãn hai điều kiện sau, dùng ziplist:
+  1. Số cặp key-value được lưu bởi ZSet ít hơn 128;
+  2. Độ dài mỗi phần tử nhỏ hơn 64 byte.
+- Nếu không thỏa mãn cả hai điều kiện trên, dùng skiplist.
 
-## 手写一个跳表
+## Tự viết một Skip List
 
-为了更好的回答上述问题以及更好的理解和掌握跳表，这里可以通过手写一个简单的跳表的形式来帮助读者理解跳表这个数据结构。
+Để trả lời tốt hơn câu hỏi trên cũng như hiểu và nắm vững Skip List tốt hơn, ở đây có thể giúp độc giả hiểu cấu trúc dữ liệu Skip List thông qua việc tự viết một Skip List đơn giản.
 
-我们都知道有序链表在添加、查询、删除的平均时间复杂都都是 **O(n)** 即线性增长，所以一旦节点数量达到一定体量后其性能表现就会非常差劲。而跳表我们完全可以理解为在原始链表基础上，建立多级索引，通过多级索引检索定位将增删改查的时间复杂度变为 **O(log n)** 。
+Chúng ta đều biết Linked List có thứ tự có độ phức tạp thời gian trung bình là **O(n)** tức tăng tuyến tính cho thêm, truy vấn, xóa, nên khi số node đạt đến một khối lượng nhất định thì hiệu suất sẽ rất kém. Còn Skip List, chúng ta hoàn toàn có thể hiểu là trên cơ sở linked list gốc, xây dựng nhiều cấp chỉ mục, thông qua chỉ mục nhiều cấp để định vị và kiểm tra, làm cho độ phức tạp thời gian của thêm, xóa, sửa, tìm kiếm trở thành **O(log n)**.
 
-可能这里说的有些抽象，我们举个例子，以下图跳表为例，其原始链表存储按序存储 1-10，有 2 级索引，每级索引的索引个数都是基于下层元素个数的一半。
+Có thể điều này nghe còn khá trừu tượng, hãy lấy một ví dụ, với skip list dưới đây làm ví dụ, linked list gốc của nó lưu theo thứ tự 1-10, có 2 cấp chỉ mục, số chỉ mục ở mỗi cấp đều là một nửa số phần tử ở tầng dưới.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005436.png)
 
-假如我们需要查询元素 6，其工作流程如下：
+Giả sử chúng ta cần tìm phần tử 6, quy trình hoạt động như sau:
 
-1. 从 2 级索引开始，先来到节点 4。
-2. 查看 4 的后继节点，是 8 的 2 级索引，这个值大于 6，说明 2 级索引后续的索引都是大于 6 的，没有再往后搜寻的必要，我们索引向下查找。
-3. 来到 4 的 1 级索引，比对其后继节点为 6，查找结束。
+1. Bắt đầu từ chỉ mục cấp 2, đến node 4.
+2. Xem node kế tiếp của 4, là chỉ mục cấp 2 của 8, giá trị này lớn hơn 6, nghĩa là tất cả chỉ mục sau đó trong chỉ mục cấp 2 đều lớn hơn 6, không cần tiếp tục tìm kiếm về phía sau, chúng ta tìm kiếm xuống dưới.
+3. Đến chỉ mục cấp 1 của 4, so sánh node kế tiếp là 6, tìm kiếm kết thúc.
 
-相较于原始有序链表需要 6 次，我们的跳表通过建立多级索引，我们只需两次就直接定位到了目标元素，其查寻的复杂度被直接优化为**O(log n)**。
+So với linked list có thứ tự gốc cần 6 lần, Skip List của chúng ta thông qua việc xây dựng chỉ mục nhiều cấp, chỉ cần hai lần là trực tiếp định vị được phần tử mục tiêu, độ phức tạp tìm kiếm được tối ưu trực tiếp thành **O(log n)**.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005524.png)
 
-对应的添加也是一个道理，假如我们需要在这个有序集合中添加一个元素 7，那么我们就需要通过跳表找到**小于元素 7 的最大值**，也就是下图元素 6 的位置，将其插入到元素 6 的后面，让元素 6 的索引指向新插入的节点 7，其工作流程如下：
+Thêm phần tử cũng tương tự, giả sử chúng ta cần thêm phần tử 7 vào tập hợp có thứ tự này, chúng ta cần tìm qua skip list **giá trị lớn nhất nhỏ hơn phần tử 7**, tức là vị trí của phần tử 6 trong hình dưới, chèn nó vào sau phần tử 6, cho chỉ mục của phần tử 6 trỏ đến node mới chèn 7, quy trình hoạt động như sau:
 
-1. 从 2 级索引开始定位到了元素 4 的索引。
-2. 查看索引 4 的后继索引为 8，索引向下推进。
-3. 来到 1 级索引，发现索引 4 后继索引为 6，小于插入元素 7，指针推进到索引 6 位置。
-4. 继续比较 6 的后继节点为索引 8，大于元素 7，索引继续向下。
-5. 最终我们来到 6 的原始节点，发现其后继节点为 7，指针没有继续向下的空间，自此我们可知元素 6 就是小于插入元素 7 的最大值，于是便将元素 7 插入。
+1. Từ chỉ mục cấp 2 định vị được chỉ mục của phần tử 4.
+2. Xem chỉ mục kế tiếp của chỉ mục 4 là 8, chỉ mục tiến về phía trước.
+3. Đến chỉ mục cấp 1, thấy chỉ mục kế tiếp của chỉ mục 4 là 6, nhỏ hơn phần tử chèn 7, con trỏ tiến đến vị trí chỉ mục 6.
+4. Tiếp tục so sánh node kế tiếp của 6 là chỉ mục 8, lớn hơn phần tử 7, chỉ mục tiếp tục xuống dưới.
+5. Cuối cùng chúng ta đến node gốc của 6, thấy node kế tiếp là 7, con trỏ không có không gian để tiếp tục xuống dưới, từ đây chúng ta biết phần tử 6 là giá trị lớn nhất nhỏ hơn phần tử chèn 7, vì vậy chèn phần tử 7.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005480.png)
 
-这里我们又面临一个问题，我们是否需要为元素 7 建立索引，索引多高合适？
+Ở đây chúng ta lại đối mặt với một vấn đề, chúng ta có cần xây dựng chỉ mục cho phần tử 7 không, chiều cao bao nhiêu là phù hợp?
 
-我们上文提到，理想情况是每一层索引是下一层元素个数的二分之一，假设我们的总共有 16 个元素，对应各级索引元素个数应该是：
-
-```bash
-1. 一级索引:16/2=8
-2. 二级索引:8/2 =4
-3. 三级索引:4/2=2
-```
-
-由此我们用数学归纳法可知：
+Chúng ta đề cập ở trên, trong điều kiện lý tưởng mỗi cấp chỉ mục là một nửa số phần tử của cấp dưới, giả sử tổng cộng có 16 phần tử, số phần tử chỉ mục ở các cấp tương ứng nên là:
 
 ```bash
-1. 一级索引:16/2=16/2^1=8
-2. 二级索引:8/2 => 16/2^2 =4
-3. 三级索引:4/2=>16/2^3=2
+1. Chỉ mục cấp 1:16/2=8
+2. Chỉ mục cấp 2:8/2 =4
+3. Chỉ mục cấp 3:4/2=2
 ```
 
-假设元素个数为 n，那么对应 k 层索引的元素个数 r 计算公式为:
+Từ đây dùng quy nạp toán học có thể biết:
+
+```bash
+1. Chỉ mục cấp 1:16/2=16/2^1=8
+2. Chỉ mục cấp 2:8/2 => 16/2^2 =4
+3. Chỉ mục cấp 3:4/2=>16/2^3=2
+```
+
+Giả sử số phần tử là n, thì công thức tính số phần tử r trong chỉ mục cấp k là:
 
 ```bash
 r=n/2^k
 ```
 
-同理我们再来推断以下索引的最大高度，一般来说最高级索引的元素个数为 2，我们设元素总个数为 n，索引高度为 h，代入上述公式可得：
+Tương tự chúng ta suy ra chiều cao tối đa của chỉ mục, thông thường số phần tử của chỉ mục cấp cao nhất là 2, đặt tổng số phần tử là n, chiều cao chỉ mục là h, thay vào công thức trên có thể được:
 
 ```bash
 2= n/2^h
@@ -143,45 +143,45 @@ r=n/2^k
 => h=log2^n -1
 ```
 
-而 Redis 又是内存数据库，我们假设元素最大个数是**65536**，我们把**65536**代入上述公式可知最大高度为 16。所以我们建议添加一个元素后为其建立的索引高度不超过 16。
+Và Redis là cơ sở dữ liệu bộ nhớ, giả sử số phần tử tối đa là **65536**, thay **65536** vào công thức trên có thể biết chiều cao tối đa là 16. Vì vậy chúng ta khuyến nghị chiều cao chỉ mục được xây dựng sau khi thêm một phần tử không vượt quá 16.
 
-因为我们要求尽可能保证每一个上级索引都是下级索引的一半，在实现高度生成算法时，我们可以这样设计：
+Vì chúng ta yêu cầu đảm bảo mỗi chỉ mục cấp trên là một nửa chỉ mục cấp dưới, khi triển khai thuật toán tạo chiều cao, chúng ta có thể thiết kế như sau:
 
-1. 跳表的高度计算从原始链表开始，即默认情况下插入的元素的高度为 1，代表没有索引，只有元素节点。
-2. 设计一个为插入元素生成节点索引高度 level 的方法。
-3. 进行一次随机运算，随机数值范围为 0-1 之间。
-4. 如果随机数大于 0.5 则为当前元素添加一级索引，自此我们保证生成一级索引的概率为 **50%** ，这也就保证了 1 级索引理想情况下只有一半的元素会生成索引。
-5. 同理后续每次随机算法得到的值大于 0.5 时，我们的索引高度就加 1，这样就可以保证节点生成的 2 级索引概率为 **25%** ，3 级索引为 **12.5%** ……
+1. Tính chiều cao của skip list bắt đầu từ linked list gốc, tức là theo mặc định chiều cao của phần tử được chèn là 1, nghĩa là không có chỉ mục, chỉ có node phần tử.
+2. Thiết kế một phương thức để tạo chiều cao chỉ mục level cho phần tử chèn.
+3. Thực hiện một lần tính ngẫu nhiên, phạm vi giá trị ngẫu nhiên là từ 0 đến 1.
+4. Nếu số ngẫu nhiên lớn hơn 0.5 thì thêm một cấp chỉ mục cho phần tử hiện tại, từ đó chúng ta đảm bảo xác suất tạo chỉ mục cấp 1 là **50%**, điều này cũng đảm bảo trong điều kiện lý tưởng chỉ có một nửa phần tử tạo chỉ mục cấp 1.
+5. Tương tự mỗi lần thuật toán ngẫu nhiên tiếp theo cho giá trị lớn hơn 0.5, chiều cao chỉ mục của chúng ta tăng 1, như vậy có thể đảm bảo xác suất tạo chỉ mục cấp 2 cho node là **25%**, cấp 3 là **12.5%**……
 
-我们回过头，上述插入 7 之后，我们通过随机算法得到 2，即要为其建立 1 级索引：
+Quay lại phía trên, sau khi chèn 7, chúng ta dùng thuật toán ngẫu nhiên được 2, tức là cần xây dựng chỉ mục cấp 1 cho nó:
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005505.png)
 
-最后我们再来说说删除，假设我们这里要删除元素 10，我们必须定位到当前跳表**各层**元素小于 10 的最大值，索引执行步骤为：
+Cuối cùng hãy nói về xóa, giả sử ở đây chúng ta muốn xóa phần tử 10, chúng ta phải định vị **ở mỗi cấp** giá trị lớn nhất nhỏ hơn 10 của node hiện tại, các bước thực thi là:
 
-1. 2 级索引 4 的后继节点为 8，指针推进。
-2. 索引 8 无后继节点，该层无要删除的元素，指针直接向下。
-3. 1 级索引 8 后继节点为 10，说明 1 级索引 8 在进行删除时需要将自己的指针和 1 级索引 10 断开联系，将 10 删除。
-4. 1 级索引完成定位后，指针向下，后继节点为 9，指针推进。
-5. 9 的后继节点为 10，同理需要让其指向 null，将 10 删除。
+1. Chỉ mục cấp 2, node kế tiếp của 4 là 8, con trỏ tiến.
+2. Chỉ mục 8 không có node kế tiếp, cấp đó không có phần tử cần xóa, con trỏ trực tiếp xuống dưới.
+3. Chỉ mục cấp 1, node kế tiếp của 8 là 10, nghĩa là chỉ mục cấp 1 của 8 khi xóa cần ngắt kết nối với chỉ mục cấp 1 của 10, xóa 10.
+4. Sau khi hoàn thành định vị chỉ mục cấp 1, con trỏ xuống dưới, node kế tiếp là 9, con trỏ tiến.
+5. Node kế tiếp của 9 là 10, tương tự cần cho nó trỏ đến null, xóa 10.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005503.png)
 
-### 模板定义
+### Định nghĩa template
 
-有了整体的思路之后，我们可以开始实现一个跳表了，首先定义一下跳表中的节点**Node**，从上文的演示中可以看出每一个**Node**它都包含以下几个元素：
+Sau khi có ý tưởng tổng thể, chúng ta có thể bắt đầu triển khai một skip list, trước tiên định nghĩa **Node** trong skip list. Từ phần demo ở trên có thể thấy mỗi **Node** chứa các phần tử sau:
 
-1. 存储的**value**值。
-2. 后继节点的地址。
-3. 多级索引。
+1. Giá trị **value** được lưu trữ.
+2. Địa chỉ của node kế tiếp.
+3. Chỉ mục nhiều cấp.
 
-为了更方便统一管理**Node**后继节点地址和多级索引指向的元素地址，笔者在**Node**中设置了一个**forwards**数组，用于记录原始链表节点的后继节点和多级索引的后继节点指向。
+Để thuận tiện quản lý địa chỉ node kế tiếp và địa chỉ phần tử mà chỉ mục nhiều cấp trỏ đến trong **Node**, tác giả thiết lập một mảng **forwards** trong **Node**, dùng để ghi lại node kế tiếp của linked list gốc và hướng node kế tiếp của chỉ mục nhiều cấp.
 
-以下图为例，我们**forwards**数组长度为 5，其中**索引 0**记录的是原始链表节点的后继节点地址，而其余自底向上表示从 1 级索引到 4 级索引的后继节点指向。
+Lấy hình dưới làm ví dụ, độ dài mảng **forwards** của chúng ta là 5, trong đó **chỉ mục 0** ghi lại địa chỉ node kế tiếp của linked list gốc, còn các cái còn lại từ dưới lên trên biểu thị hướng node kế tiếp từ chỉ mục cấp 1 đến cấp 4.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005347.png)
 
-于是我们的就有了这样一个代码定义，可以看出笔者对于数组的长度设置为固定的 16**(上文的推算最大高度建议是 16)**，默认**data**为-1，节点最大高度**maxLevel**初始化为 1，注意这个**maxLevel**的值代表原始链表加上索引的总高度。
+Vì vậy chúng ta có định nghĩa code như sau, có thể thấy tác giả thiết lập độ dài mảng cố định là 16 **(chiều cao tối đa khuyến nghị theo tính toán ở trên là 16)**, mặc định **data** là -1, chiều cao tối đa node **maxLevel** được khởi tạo là 1, chú ý giá trị của **maxLevel** này biểu thị tổng chiều cao của linked list gốc cộng với chỉ mục.
 
 ```java
 /**
@@ -197,11 +197,11 @@ class Node {
 }
 ```
 
-### 元素添加
+### Thêm phần tử
 
-定义好节点之后，我们先实现以下元素的添加，添加元素时首先自然是设置**data**这一步我们直接根据将传入的**value**设置到**data**上即可。
+Sau khi định nghĩa node, trước tiên hãy triển khai việc thêm phần tử. Khi thêm phần tử, trước tiên là thiết lập **data**, chúng ta trực tiếp gán **value** được truyền vào cho **data**.
 
-然后就是高度**maxLevel**的设置 ，我们在上文也已经给出了思路，默认高度为 1，即只有一个原始链表节点，通过随机算法每次大于 0.5 索引高度加 1，由此我们得出高度计算的算法`randomLevel()`：
+Sau đó là thiết lập chiều cao **maxLevel**, chúng ta đã cung cấp ý tưởng ở trên, chiều cao mặc định là 1, tức là chỉ có một node linked list gốc, thông qua thuật toán ngẫu nhiên mỗi lần lớn hơn 0.5 thì chiều cao chỉ mục tăng 1, từ đó chúng ta có được thuật toán tính chiều cao `randomLevel()`:
 
 ```java
 /**
@@ -222,17 +222,17 @@ private int randomLevel() {
 }
 ```
 
-然后再设置当前要插入的**Node**和**Node**索引的后继节点地址，这一步稍微复杂一点，我们假设当前节点的高度为 4，即 1 个节点加 3 个索引，所以我们创建一个长度为 4 的数组**maxOfMinArr** ，遍历各级索引节点中小于当前**value**的最大值。
+Sau đó thiết lập địa chỉ node kế tiếp của **Node** và chỉ mục **Node** cần chèn, bước này hơi phức tạp hơn một chút, giả sử chiều cao của node hiện tại là 4, tức là 1 node cộng 3 chỉ mục, vì vậy chúng ta tạo một mảng **maxOfMinArr** có độ dài 4, duyệt giá trị lớn nhất nhỏ hơn **value** hiện tại trong các node chỉ mục ở mỗi cấp.
 
-假设我们要插入的**value**为 5，我们的数组查找结果当前节点的前驱节点和 1 级索引、2 级索引的前驱节点都为 4，三级索引为空。
+Giả sử **value** chúng ta muốn chèn là 5, kết quả tìm kiếm mảng là node tiền nhiệm của node hiện tại và node tiền nhiệm của chỉ mục cấp 1, cấp 2 đều là 4, chỉ mục cấp 3 là null.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005299.png)
 
-然后我们基于这个数组**maxOfMinArr** 定位到各级的后继节点，让插入的元素 5 指向这些后继节点，而**maxOfMinArr**指向 5，结果如下图：
+Sau đó dựa trên mảng **maxOfMinArr** định vị các node kế tiếp ở mỗi cấp, cho phần tử 5 chèn vào trỏ đến các node kế tiếp này, còn **maxOfMinArr** trỏ đến 5, kết quả như hình:
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005369.png)
 
-转化成代码就是下面这个形式，是不是很简单呢？我们继续：
+Chuyển thành code là dạng dưới đây, có đơn giản không nào? Hãy tiếp tục:
 
 ```java
 /**
@@ -283,18 +283,18 @@ public void add(int value) {
 }
 ```
 
-### 元素查询
+### Tìm kiếm phần tử
 
-查询逻辑比较简单，从跳表最高级的索引开始定位找到小于要查的 value 的最大值，以下图为例，我们希望查找到节点 8：
+Logic tìm kiếm khá đơn giản, bắt đầu từ chỉ mục cấp cao nhất của skip list định vị giá trị lớn nhất nhỏ hơn value cần tìm, lấy hình dưới làm ví dụ, chúng ta muốn tìm node 8:
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005323.png)
 
-- **从最高层级开始 (3 级索引)** ：查找指针 `p` 从头节点开始。在 3 级索引上，`p` 的后继 `forwards[2]`（假设最高 3 层，索引从 0 开始）指向节点 `5`。由于 `5 < 8`，指针 `p` 向右移动到节点 `5`。节点 `5` 在 3 级索引上的后继 `forwards[2]` 为 `null`（或指向一个大于 `8` 的节点，图中未画出）。当前层级向右查找结束，指针 `p` 保持在节点 `5`，**向下移动到 2 级索引**。
-- **在 2 级索引**：当前指针 `p` 为节点 `5`。`p` 的后继 `forwards[1]` 指向节点 `8`。由于 `8` 不小于 `8`（即 `8 < 8` 为 `false`），当前层级向右查找结束（`p` 不会移动到节点 `8`）。指针 `p` 保持在节点 `5`，**向下移动到 1 级索引**。
-- **在 1 级索引** ：当前指针 `p` 为节点 `5`。`p` 的后继 `forwards[0]` 指向最底层的节点 `5`。由于 `5 < 8`，指针 `p` 向右移动到最底层的节点 `5`。此时，当前指针 `p` 为最底层的节点 `5`。其后继 `forwards[0]` 指向最底层的节点 `6`。由于 `6 < 8`，指针 `p` 向右移动到最底层的节点 `6`。当前指针 `p` 为最底层的节点 `6`。其后继 `forwards[0]` 指向最底层的节点 `7`。由于 `7 < 8`，指针 `p` 向右移动到最底层的节点 `7`。当前指针 `p` 为最底层的节点 `7`。其后继 `forwards[0]` 指向最底层的节点 `8`。由于 `8` 不小于 `8`（即 `8 < 8` 为 `false`），当前层级向右查找结束。此时，已经遍历完所有层级，`for` 循环结束。
-- **最终定位与检查** ：经过所有层级的查找，指针 `p` 最终停留在最底层（0 级索引）的节点 `7`。这个节点是整个跳表中值小于目标值 `8` 的那个最大的节点。检查节点 `7` 的**后继节点**（即 `p.forwards[0]`）：`p.forwards[0]` 指向节点 `8`。判断 `p.forwards[0].data`（即节点 `8` 的值）是否等于目标值 `8`。条件满足（`8 == 8`），**查找成功，找到节点 `8`**。
+- **Bắt đầu từ cấp cao nhất (chỉ mục cấp 3)**: Con trỏ tìm kiếm `p` bắt đầu từ head node. Ở chỉ mục cấp 3, `forwards[2]` (giả sử cấp cao nhất là 3, chỉ mục bắt đầu từ 0) của `p` trỏ đến node `5`. Vì `5 < 8`, con trỏ `p` di chuyển sang phải đến node `5`. `forwards[2]` của node `5` ở chỉ mục cấp 3 là `null` (hoặc trỏ đến một node lớn hơn `8`, không vẽ trong hình). Tìm kiếm về phía phải ở cấp hiện tại kết thúc, con trỏ `p` giữ nguyên tại node `5`, **di chuyển xuống cấp chỉ mục 2**.
+- **Ở chỉ mục cấp 2**: Con trỏ hiện tại `p` là node `5`. `forwards[1]` của `p` trỏ đến node `8`. Vì `8` không nhỏ hơn `8` (tức `8 < 8` là `false`), tìm kiếm về phía phải ở cấp hiện tại kết thúc (`p` sẽ không di chuyển đến node `8`). Con trỏ `p` giữ nguyên tại node `5`, **di chuyển xuống chỉ mục cấp 1**.
+- **Ở chỉ mục cấp 1**: Con trỏ hiện tại `p` là node `5`. `forwards[0]` của `p` trỏ đến node `5` ở tầng thấp nhất. Vì `5 < 8`, con trỏ `p` di chuyển sang phải đến node `5` ở tầng thấp nhất. Lúc này, con trỏ hiện tại `p` là node `5` ở tầng thấp nhất. `forwards[0]` của nó trỏ đến node `6` ở tầng thấp nhất. Vì `6 < 8`, con trỏ `p` di chuyển sang phải đến node `6` ở tầng thấp nhất. Con trỏ hiện tại `p` là node `6` ở tầng thấp nhất. `forwards[0]` của nó trỏ đến node `7` ở tầng thấp nhất. Vì `7 < 8`, con trỏ `p` di chuyển sang phải đến node `7` ở tầng thấp nhất. Con trỏ hiện tại `p` là node `7` ở tầng thấp nhất. `forwards[0]` của nó trỏ đến node `8` ở tầng thấp nhất. Vì `8` không nhỏ hơn `8` (tức `8 < 8` là `false`), tìm kiếm về phía phải ở cấp hiện tại kết thúc. Lúc này, vòng lặp `for` kết thúc.
+- **Định vị và kiểm tra cuối cùng**: Sau khi tìm kiếm ở tất cả các cấp, con trỏ `p` cuối cùng dừng lại ở node `7` của tầng thấp nhất (chỉ mục cấp 0). Node này là node lớn nhất có giá trị nhỏ hơn giá trị mục tiêu `8` trong toàn bộ skip list. Kiểm tra **node kế tiếp** của node `7` (tức `p.forwards[0]`): `p.forwards[0]` trỏ đến node `8`. Kiểm tra `p.forwards[0].data` (tức giá trị của node `8`) có bằng giá trị mục tiêu `8` không. Điều kiện thỏa mãn (`8 == 8`), **tìm kiếm thành công, tìm thấy node `8`**.
 
-所以我们的代码实现也很上述步骤差不多，从最高级索引开始向前查找，如果不为空且小于要查找的值，则继续向前搜寻，遇到不小于的节点则继续向下，如此往复，直到得到当前跳表中小于查找值的最大节点，查看其前驱是否等于要查找的值：
+Vì vậy triển khai code của chúng ta cũng khá giống với các bước trên, bắt đầu từ chỉ mục cấp cao nhất để tìm về phía trước, nếu không null và nhỏ hơn giá trị cần tìm thì tiếp tục tìm về phía trước, gặp node không nhỏ hơn thì tiếp tục xuống dưới, cứ lặp lại cho đến khi lấy được node lớn nhất nhỏ hơn giá trị cần tìm trong skip list hiện tại, kiểm tra node kế tiếp của nó có bằng giá trị cần tìm không:
 
 ```java
 public Node get(int value) {
@@ -323,15 +323,15 @@ public Node get(int value) {
 }
 ```
 
-### 元素删除
+### Xóa phần tử
 
-最后是删除逻辑，需要查找各层级小于要删除节点的最大值，假设我们要删除 10：
+Cuối cùng là logic xóa, cần tìm giá trị lớn nhất nhỏ hơn node cần xóa ở mỗi cấp, giả sử chúng ta muốn xóa 10:
 
-1. 3 级索引得到小于 10 的最大值为 5，继续向下。
-2. 2 级索引从索引 5 开始查找，发现小于 10 的最大值为 8，继续向下。
-3. 同理 1 级索引得到 8，继续向下。
-4. 原始节点找到 9。
-5. 从最高级索引开始，查看每个小于 10 的节点后继节点是否为 10，如果等于 10，则让这个节点指向 10 的后继节点，将节点 10 及其索引交由 GC 回收。
+1. Chỉ mục cấp 3 tìm được giá trị lớn nhất nhỏ hơn 10 là 5, tiếp tục xuống dưới.
+2. Chỉ mục cấp 2 bắt đầu tìm từ chỉ mục 5, thấy giá trị lớn nhất nhỏ hơn 10 là 8, tiếp tục xuống dưới.
+3. Tương tự chỉ mục cấp 1 tìm được 8, tiếp tục xuống dưới.
+4. Node gốc tìm thấy 9.
+5. Bắt đầu từ chỉ mục cấp cao nhất, kiểm tra node kế tiếp của mỗi node nhỏ hơn 10 có phải là 10 không, nếu bằng 10 thì cho node đó trỏ đến node kế tiếp của 10, giao node 10 và chỉ mục của nó cho GC thu hồi.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005350.png)
 
@@ -369,9 +369,9 @@ public void delete(int value) {
 }
 ```
 
-### 完整代码以及测试
+### Code đầy đủ và kiểm tra
 
-完整代码如下，读者可自行参阅:
+Code đầy đủ như sau, độc giả có thể tự tham khảo:
 
 ```java
 public class SkipList {
@@ -530,7 +530,7 @@ public class SkipList {
 
 ```
 
-测试代码：
+Code kiểm tra:
 
 ```java
 public static void main(String[] args) {
@@ -553,33 +553,33 @@ public static void main(String[] args) {
     }
 ```
 
-**Redis 跳表的特点**：
+**Đặc điểm của Skip List trong Redis**:
 
-1. 采用**双向链表**，不同于上面的示例，存在一个回退指针。主要用于简化操作，例如删除某个元素时，还需要找到该元素的前驱节点，使用回退指针会非常方便。
-2. `score` 值可以重复，如果 `score` 值一样，则按照 ele（节点存储的值，为 sds）字典排序
-3. Redis 跳跃表默认允许最大的层数是 32，被源码中 `ZSKIPLIST_MAXLEVEL` 定义。
+1. Sử dụng **danh sách liên kết đôi (doubly linked list)**, khác với ví dụ ở trên, có một con trỏ quay lui. Chủ yếu dùng để đơn giản hóa các thao tác, ví dụ khi xóa một phần tử, cần tìm node tiền nhiệm của phần tử đó, sử dụng con trỏ quay lui rất tiện.
+2. Giá trị `score` có thể trùng lặp, nếu `score` giống nhau thì sắp xếp theo thứ tự từ điển của ele (giá trị được lưu trong node, là sds).
+3. Redis mặc định cho phép số cấp tối đa là 32, được định nghĩa bởi `ZSKIPLIST_MAXLEVEL` trong mã nguồn.
 
-## 和其余三种数据结构的比较
+## So sánh với ba cấu trúc dữ liệu khác
 
-最后，我们再来回答一下文章开头的那道面试题: “Redis 的有序集合底层为什么要用跳表，而不用平衡树、红黑树或者 B+树？”。
+Cuối cùng, hãy trả lời câu hỏi phỏng vấn ở đầu bài: "Tại sao Sorted Set của Redis sử dụng Skip List ở tầng dưới, mà không dùng Balanced Tree, Red-Black Tree hay B+ Tree?".
 
-### 平衡树 vs 跳表
+### Balanced Tree vs Skip List
 
-先来说说它和平衡树的比较，平衡树我们又会称之为 **AVL 树**，是一个严格的平衡二叉树，平衡条件必须满足（所有节点的左右子树高度差不超过 1，即平衡因子为范围为 `[-1,1]`）。平衡树的插入、删除和查询的时间复杂度和跳表一样都是 **O(log n)** 。
+Đầu tiên nói về so sánh với Balanced Tree. Balanced Tree còn được gọi là **AVL Tree**, là cây nhị phân cân bằng chặt chẽ, điều kiện cân bằng phải thỏa mãn (độ chênh lệch chiều cao giữa cây con trái và phải của tất cả node không vượt quá 1, tức hệ số cân bằng trong phạm vi `[-1,1]`). Độ phức tạp thời gian của chèn, xóa và truy vấn của Balanced Tree cũng giống Skip List, đều là **O(log n)**.
 
-对于范围查询来说，它也可以通过中序遍历的方式达到和跳表一样的效果。但是它的每一次插入或者删除操作都需要保证整颗树左右节点的绝对平衡，只要不平衡就要通过旋转操作来保持平衡，这个过程是比较耗时的。
+Về truy vấn phạm vi, nó cũng có thể đạt được hiệu quả tương tự Skip List thông qua duyệt theo thứ tự. Nhưng mỗi lần chèn hoặc xóa đều cần đảm bảo sự cân bằng tuyệt đối của node trái và phải của toàn bộ cây, chỉ cần mất cân bằng là phải xoay để duy trì cân bằng, quá trình này khá tốn thời gian.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005312.png)
 
-跳表诞生的初衷就是为了克服平衡树的一些缺点，跳表的发明者在论文[《Skip lists: a probabilistic alternative to balanced trees》](https://15721.courses.cs.cmu.edu/spring2018/papers/08-oltpindexes1/pugh-skiplists-cacm1990.pdf)中有详细提到：
+Skip List ra đời với mục đích khắc phục một số nhược điểm của Balanced Tree. Người phát minh Skip List trong bài báo [《Skip lists: a probabilistic alternative to balanced trees》](https://15721.courses.cs.cmu.edu/spring2018/papers/08-oltpindexes1/pugh-skiplists-cacm1990.pdf) có đề cập chi tiết:
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/skiplist-a-probabilistic-alternative-to-balanced-trees.png)
 
 > Skip lists are a data structure that can be used in place of balanced trees. Skip lists use probabilistic balancing rather than strictly enforced balancing and as a result the algorithms for insertion and deletion in skip lists are much simpler and significantly faster than equivalent algorithms for balanced trees.
 >
-> 跳表是一种可以用来代替平衡树的数据结构。跳表使用概率平衡而不是严格强制的平衡，因此，跳表中的插入和删除算法比平衡树的等效算法简单得多，速度也快得多。
+> Skip List là một cấu trúc dữ liệu có thể dùng thay thế cho cây cân bằng. Skip List sử dụng cân bằng theo xác suất thay vì cân bằng được thực thi nghiêm ngặt, vì vậy các thuật toán chèn và xóa trong Skip List đơn giản hơn nhiều và nhanh hơn đáng kể so với các thuật toán tương đương trong cây cân bằng.
 
-笔者这里也贴出了 AVL 树插入操作的核心代码，可以看出每一次添加操作都需要进行一次递归定位插入位置，然后还需要根据回溯到根节点检查沿途的各层节点是否失衡，再通过旋转节点的方式进行调整。
+Tác giả cũng trích dẫn code cốt lõi của thao tác chèn AVL Tree, có thể thấy mỗi lần thêm cần thực hiện một lần đệ quy định vị vị trí chèn, sau đó còn cần kiểm tra backtrack lên root node xem các node ở mỗi cấp có mất cân bằng không, rồi điều chỉnh bằng cách xoay node.
 
 ```java
 // 向二分搜索树中添加新的元素(key, value)
@@ -632,17 +632,17 @@ private Node add(Node node, K key, V value) {
 }
 ```
 
-### 红黑树 vs 跳表
+### Red-Black Tree vs Skip List
 
-红黑树（Red Black Tree）也是一种自平衡二叉查找树，它的查询性能略微逊色于 AVL 树，但插入和删除效率更高。红黑树的插入、删除和查询的时间复杂度和跳表一样都是 **O(log n)** 。
+Red-Black Tree (Cây đỏ đen) cũng là một loại cây tìm kiếm nhị phân tự cân bằng, hiệu suất truy vấn của nó kém hơn AVL Tree một chút, nhưng hiệu quả chèn và xóa cao hơn. Độ phức tạp thời gian của chèn, xóa và truy vấn của Red-Black Tree cũng giống Skip List, đều là **O(log n)**.
 
-红黑树是一个**黑平衡树**，即从任意节点到另外一个叶子叶子节点，它所经过的黑节点是一样的。当对它进行插入操作时，需要通过旋转和染色（红黑变换）来保证黑平衡。不过，相较于 AVL 树为了维持平衡的开销要小一些。关于红黑树的详细介绍，可以查看这篇文章：[红黑树](https://javaguide.cn/cs-basics/data-structure/red-black-tree.html)。
+Red-Black Tree là một **cây cân bằng đen**, tức là từ bất kỳ node nào đến node lá khác, số node đen nó đi qua là như nhau. Khi thực hiện thao tác chèn, cần xoay và tô màu (biến đổi đỏ đen) để duy trì cân bằng đen. Tuy nhiên, so với AVL Tree, chi phí để duy trì cân bằng nhỏ hơn một chút. Để tìm hiểu chi tiết về Red-Black Tree, có thể xem bài viết: [Red-Black Tree](https://javaguide.cn/cs-basics/data-structure/red-black-tree.html).
 
-相比较于红黑树来说，跳表的实现也更简单一些。并且，按照区间来查找数据这个操作，红黑树的效率没有跳表高。
+So với Red-Black Tree, triển khai của Skip List cũng đơn giản hơn. Hơn nữa, thao tác tìm kiếm dữ liệu theo phạm vi, hiệu quả của Red-Black Tree không cao bằng Skip List.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005709.png)
 
-对应红黑树添加的核心代码如下，读者可自行参阅理解：
+Code cốt lõi tương ứng khi thêm vào Red-Black Tree như sau, độc giả có thể tự tham khảo hiểu:
 
 ```java
 private Node < K, V > add(Node < K, V > node, K key, V val) {
@@ -680,48 +680,48 @@ private Node < K, V > add(Node < K, V > node, K key, V val) {
 }
 ```
 
-### B+树 vs 跳表
+### B+ Tree vs Skip List
 
-想必使用 MySQL 的读者都知道 B+树这个数据结构，B+树是一种常用的数据结构，具有以下特点：
+Chắc hẳn những độc giả dùng MySQL đều biết cấu trúc dữ liệu B+ Tree, B+ Tree là một cấu trúc dữ liệu phổ biến với những đặc điểm sau:
 
-1. **多叉树结构**：它是一棵多叉树，每个节点可以包含多个子节点，减小了树的高度，查询效率高。
-2. **存储效率高**:其中非叶子节点存储多个 key，叶子节点存储 value，使得每个节点更够存储更多的键，根据索引进行范围查询时查询效率更高。-
-3. **平衡性**：它是绝对的平衡，即树的各个分支高度相差不大，确保查询和插入时间复杂度为 **O(log n)** 。
-4. **顺序访问**：叶子节点间通过链表指针相连，范围查询表现出色。
-5. **数据均匀分布**：B+树插入时可能会导致数据重新分布，使得数据在整棵树分布更加均匀，保证范围查询和删除效率。
+1. **Cấu trúc cây nhiều nhánh**: Đây là cây nhiều nhánh, mỗi node có thể chứa nhiều node con, giảm chiều cao của cây, hiệu quả truy vấn cao.
+2. **Hiệu quả lưu trữ cao**: Trong đó các node không phải lá lưu nhiều key, node lá lưu value, làm cho mỗi node có thể lưu nhiều khóa hơn, hiệu quả truy vấn phạm vi dựa trên chỉ mục cao hơn.
+3. **Tính cân bằng**: Nó là cân bằng tuyệt đối, tức là chiều cao của các nhánh của cây không chênh lệch nhiều, đảm bảo độ phức tạp thời gian truy vấn và chèn là **O(log n)**.
+4. **Truy cập tuần tự**: Các node lá được kết nối qua con trỏ linked list, truy vấn phạm vi xuất sắc.
+5. **Phân phối dữ liệu đồng đều**: Khi B+ Tree chèn có thể gây ra phân phối lại dữ liệu, làm cho dữ liệu được phân phối đồng đều hơn trong toàn bộ cây, đảm bảo hiệu quả truy vấn phạm vi và xóa.
 
 ![](https://oss.javaguide.cn/javaguide/database/redis/skiplist/202401222005649.png)
 
-所以，B+树更适合作为数据库和文件系统中常用的索引结构之一，它的核心思想是通过可能少的 IO 定位到尽可能多的索引来获得查询数据。对于 Redis 这种内存数据库来说，它对这些并不感冒，因为 Redis 作为内存数据库它不可能存储大量的数据，所以对于索引不需要通过 B+树这种方式进行维护，只需按照概率进行随机维护即可，节约内存。而且使用跳表实现 zset 时相较前者来说更简单一些，在进行插入时只需通过索引将数据插入到链表中合适的位置再随机维护一定高度的索引即可，也不需要像 B+树那样插入时发现失衡时还需要对节点分裂与合并。
+Vì vậy B+ Tree phù hợp hơn làm một trong những cấu trúc chỉ mục thường dùng trong cơ sở dữ liệu và hệ thống file. Ý tưởng cốt lõi của nó là thông qua IO ít nhất có thể để định vị đến chỉ mục nhiều nhất có thể để lấy dữ liệu truy vấn. Đối với Redis là cơ sở dữ liệu bộ nhớ, nó không quan tâm đến những điều này, vì Redis là cơ sở dữ liệu bộ nhớ nên không thể lưu trữ lượng lớn dữ liệu, vì vậy đối với chỉ mục không cần duy trì theo cách B+ Tree, chỉ cần duy trì ngẫu nhiên theo xác suất là được, tiết kiệm bộ nhớ. Hơn nữa dùng Skip List để triển khai zset so với phương án trước đơn giản hơn, khi chèn chỉ cần thông qua chỉ mục để chèn dữ liệu vào vị trí thích hợp trong linked list rồi duy trì chỉ mục ngẫu nhiên có độ cao nhất định là được, không cần như B+ Tree khi chèn mà phát hiện mất cân bằng còn cần tách và trộn node.
 
-### Redis 作者给出的理由
+### Lý do tác giả Redis đưa ra
 
-当然我们也可以通过 Redis 的作者自己给出的理由:
+Tất nhiên chúng ta cũng có thể tham khảo lý do tác giả Redis tự đưa ra:
 
 > There are a few reasons:
 > 1、They are not very memory intensive. It's up to you basically. Changing parameters about the probability of a node to have a given number of levels will make then less memory intensive than btrees.
 > 2、A sorted set is often target of many ZRANGE or ZREVRANGE operations, that is, traversing the skip list as a linked list. With this operation the cache locality of skip lists is at least as good as with other kind of balanced trees.
 > 3、They are simpler to implement, debug, and so forth. For instance thanks to the skip list simplicity I received a patch (already in Redis master) with augmented skip lists implementing ZRANK in O(log(N)). It required little changes to the code.
 
-翻译过来的意思就是:
+Dịch ra có nghĩa là:
 
-> 有几个原因：
+> Có một vài lý do:
 >
-> 1、它们不是很占用内存。这主要取决于你。改变节点拥有给定层数的概率的参数，会使它们比 B 树更节省内存。
+> 1、Chúng không tốn nhiều bộ nhớ. Điều này chủ yếu phụ thuộc vào bạn. Thay đổi các tham số về xác suất để một node có số cấp nhất định sẽ làm chúng tiết kiệm bộ nhớ hơn B Tree.
 >
-> 2、有序集合经常是许多 ZRANGE 或 ZREVRANGE 操作的目标，也就是说，以链表的方式遍历跳表。通过这种操作，跳表的缓存局部性至少和其他类型的平衡树一样好。
+> 2、Sorted Set thường là mục tiêu của nhiều thao tác ZRANGE hoặc ZREVRANGE, tức là duyệt skip list như một linked list. Thông qua thao tác này, tính cục bộ cache của skip list ít nhất cũng tốt bằng các loại cây cân bằng khác.
 >
-> 3、它们更容易实现、调试等等。例如，由于跳表的简单性，我收到了一个补丁（已经在 Redis 主分支中），用增强的跳表实现了 O(log(N))的 ZRANK。它只需要对代码做很少的修改。
+> 3、Chúng dễ triển khai, debug, v.v. hơn. Ví dụ, nhờ tính đơn giản của skip list, tôi đã nhận được một bản vá (đã có trong nhánh chính Redis) với skip list mở rộng triển khai ZRANK trong O(log(N)). Nó chỉ cần thay đổi rất ít code.
 
-## 小结
+## Tổng kết
 
-本文通过大量篇幅介绍跳表的工作原理和实现，帮助读者更进一步的熟悉跳表这一数据结构的优劣，最后再结合各个数据结构操作的特点进行比对，从而帮助读者更好的理解这道面试题，建议读者实现理解跳表时，尽可能配合执笔模拟来了解跳表的增删改查详细过程。
+Bài viết này thông qua nhiều nội dung giới thiệu nguyên lý hoạt động và triển khai của skip list, giúp độc giả làm quen sâu hơn với điểm mạnh yếu của cấu trúc dữ liệu Skip List, cuối cùng kết hợp so sánh các đặc điểm thao tác của từng cấu trúc dữ liệu, từ đó giúp độc giả hiểu tốt hơn câu hỏi phỏng vấn này. Khuyến nghị độc giả khi hiểu Skip List, nên kết hợp vừa đọc vừa mô phỏng bằng bút để nắm bắt chi tiết quá trình thêm, xóa, sửa, tìm kiếm của skip list.
 
-## 参考
+## Tài liệu tham khảo
 
-- 为啥 redis 使用跳表(skiplist)而不是使用 red-black？:<https://www.zhihu.com/question/20202931/answer/16086538>
-- Skip List--跳表（全网最详细的跳表文章没有之一）:<https://www.jianshu.com/p/9d8296562806>
-- Redis 对象与底层数据结构详解:<https://blog.csdn.net/shark_chili3007/article/details/104171986>
-- Redis 有序集合(sorted set):<https://www.runoob.com/redis/redis-sorted-sets.html>
-- 红黑树和跳表比较:<https://zhuanlan.zhihu.com/p/576984787>
-- 为什么 redis 的 zset 用跳跃表而不用 b+ tree？:<https://blog.csdn.net/f80407515/article/details/129136998>
+- Tại sao redis dùng skiplist mà không dùng red-black?: <https://www.zhihu.com/question/20202931/answer/16086538>
+- Skip List--跳表（全网最详细的跳表文章没有之一）: <https://www.jianshu.com/p/9d8296562806>
+- Redis 对象与底层数据结构详解: <https://blog.csdn.net/shark_chili3007/article/details/104171986>
+- Redis Sorted Set: <https://www.runoob.com/redis/redis-sorted-sets.html>
+- So sánh Red-Black Tree và Skip List: <https://zhuanlan.zhihu.com/p/576984787>
+- Tại sao zset của redis dùng skip list mà không dùng b+ tree?: <https://blog.csdn.net/f80407515/article/details/129136998>

@@ -1,37 +1,37 @@
 ---
-title: Java 11 新特性概览（重要）
-description: 总结 JDK 11 的更新，关注新 HTTP 客户端与字符串增强等实用特性。
+title: Tổng quan các tính năng mới trong Java 11 (Quan trọng)
+description: Tổng kết các cập nhật của JDK 11, tập trung vào HTTP client mới và các tính năng thực dụng khác như cải tiến String.
 category: Java
 tag:
-  - Java新特性
+  - Java tính năng mới
 head:
   - - meta
     - name: keywords
-      content: Java 11,JDK11,LTS,HTTP 客户端,字符串 API,移除特性
+      content: Java 11,JDK11,LTS,HTTP client,String API,removed features
 ---
 
-Java 11 于 2018 年 9 月 25 日正式发布，这是很重要的一个版本！Java 11 是继 Java 8 之后的第一个长期支持（Long-Term-Support）版本，Oracle 表示会对 Java 11 提供大力支持，这一支持将会持续至 2026 年 9 月。
+Java 11 phát hành chính thức ngày 25/9/2018 — đây là phiên bản rất quan trọng! Java 11 là phiên bản Long-Term-Support (LTS) đầu tiên sau Java 8. Oracle tuyên bố sẽ hỗ trợ mạnh mẽ Java 11, hỗ trợ này sẽ kéo dài đến tháng 9/2026.
 
-下面这张图是 Oracle 官方给出的 Oracle JDK 支持的时间线。
+Hình dưới là timeline hỗ trợ Oracle JDK chính thức từ Oracle.
 
-![Oracle 官方给出的 Oracle JDK 支持的时间线](https://oss.javaguide.cn/github/javaguide/java/new-features/4c1611fad59449edbbd6e233690e9fa7.png)
+![Timeline hỗ trợ Oracle JDK chính thức từ Oracle](https://oss.javaguide.cn/github/javaguide/java/new-features/4c1611fad59449edbbd6e233690e9fa7.png)
 
-下图是从 JDK 8 到 JDK 25 每个版本的更新带来的新特性数量和更新时间：
+Hình dưới là số lượng tính năng mới và thời gian cập nhật từng phiên bản từ JDK 8 đến JDK 25:
 
-![ JDK 8 到 JDK 25 每个版本的更新带来的新特性数量和更新时间](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![Số lượng tính năng mới và thời gian cập nhật mỗi phiên bản từ JDK 8 đến JDK 25](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
 
-这篇文章会挑选其中较为重要的一些新特性进行详细介绍：
+Bài này sẽ chọn giới thiệu chi tiết một số tính năng quan trọng hơn:
 
 - [JEP 321: HTTP Client (Standard)](https://openjdk.org/jeps/321)
 - [JEP 323: Local-Variable Syntax for Lambda Parameters](https://openjdk.org/jeps/323)
 - [JEP 330: Launch Single-File Source-Code Programs](https://openjdk.org/jeps/330)
 - [JEP 333: ZGC: A Scalable Low-Latency Garbage Collector (Experimental)](https://openjdk.org/jeps/333)
 
-## JEP 321: HTTP Client（HTTP 客户端，标准版）
+## JEP 321: HTTP Client (Phiên bản chuẩn)
 
-Java 11 对 Java 9 中引入并在 Java 10 中进行了更新的 HTTP Client API 进行了标准化，在前两个版本中进行孵化的同时，HTTP Client 几乎被完全重写，并且现在完全支持异步非阻塞。
+Java 11 chuẩn hóa HTTP Client API được giới thiệu trong Java 9 và cập nhật trong Java 10. Trong khi ở giai đoạn incubation ở hai phiên bản trước, HTTP Client gần như được viết lại hoàn toàn, và hiện đã hỗ trợ đầy đủ async non-blocking.
 
-并且，Java 11 中，HTTP Client 的包名由 `jdk.incubator.http` 改为 `java.net.http`，该 API 通过 `CompletableFuture` 提供非阻塞请求和响应语义。使用起来也很简单，如下：
+Hơn nữa, trong Java 11, tên package của HTTP Client thay đổi từ `jdk.incubator.http` thành `java.net.http`. API này cung cấp non-blocking request và response semantics thông qua `CompletableFuture`. Cách dùng cũng rất đơn giản:
 
 ```java
 var request = HttpRequest.newBuilder()
@@ -40,107 +40,107 @@ var request = HttpRequest.newBuilder()
     .build();
 var client = HttpClient.newHttpClient();
 
-// 同步
+// Đồng bộ
 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 System.out.println(response.body());
 
-// 异步
+// Bất đồng bộ
 client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
     .thenApply(HttpResponse::body)
     .thenAccept(System.out::println);
 ```
 
-## JEP 333: ZGC（可扩展的低延迟垃圾收集器，实验性）
+## JEP 333: ZGC (Garbage collector độ trễ thấp có khả năng mở rộng — Thực nghiệm)
 
-**ZGC 即 Z Garbage Collector**，是一个可伸缩的、低延迟的垃圾收集器。
+**ZGC tức là Z Garbage Collector** — garbage collector có khả năng mở rộng, độ trễ thấp.
 
-ZGC 主要为了满足如下目标进行设计：
+ZGC được thiết kế chủ yếu để đáp ứng các mục tiêu sau:
 
-- GC 停顿时间不超过 10ms
-- 既能处理几百 MB 的小堆，也能处理几个 TB 的大堆
-- 应用吞吐能力不会下降超过 15%（与 G1 回收算法相比）
-- 方便在此基础上引入新的 GC 特性和利用 colored 针以及 Load barriers 优化奠定基础
-- 当前只支持 Linux/x64 位平台
+- GC pause time không vượt quá 10ms
+- Xử lý được cả heap nhỏ vài trăm MB lẫn heap lớn vài TB
+- Throughput ứng dụng không giảm quá 15% (so với G1 collection algorithm)
+- Đặt nền tảng để dễ dàng đưa vào GC feature mới và tận dụng colored pointer và Load barrier để tối ưu
+- Hiện chỉ hỗ trợ nền tảng Linux/x64
 
-ZGC 目前 **处在实验阶段**，只支持 Linux/x64 平台。注意：ZGC 在 Java 15 成为正式特性，在 Java 21 引入分代 ZGC。
+ZGC hiện **đang ở giai đoạn thực nghiệm**, chỉ hỗ trợ nền tảng Linux/x64. Lưu ý: ZGC trở thành official feature trong Java 15, Java 21 giới thiệu Generational ZGC.
 
-与 CMS 中的 ParNew 和 G1 类似，ZGC 也采用标记-复制算法，不过 ZGC 对该算法做了重大改进。
+Tương tự ParNew trong CMS và G1, ZGC cũng dùng mark-copy algorithm, nhưng ZGC đã cải tiến đáng kể thuật toán này.
 
-在 ZGC 中出现 Stop The World 的情况会更少！
+ZGC xuất hiện Stop The World ít hơn nhiều!
 
-详情可以看：[《新一代垃圾回收器 ZGC 的探索与实践》](https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html)
+Chi tiết xem: [《Khám phá và thực chiến ZGC — Garbage Collector thế hệ mới》](https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html)
 
-## JEP 323: Local-Variable Syntax for Lambda Parameters（Lambda 参数的局部变量语法）
+## JEP 323: Local-Variable Syntax for Lambda Parameters
 
-从 Java 10 开始，便引入了局部变量类型推断这一关键特性。类型推断允许使用关键字 var 作为局部变量的类型而不是实际类型，编译器根据分配给变量的值推断出类型。
+Từ Java 10, local variable type inference đã được giới thiệu như một key feature. Type inference cho phép dùng keyword `var` làm kiểu của biến cục bộ thay vì kiểu thực tế — compiler suy luận kiểu dựa trên giá trị gán cho biến.
 
-Java 10 中对 var 关键字存在几个限制
+Trong Java 10, keyword `var` có một số hạn chế:
 
-- 只能用于局部变量上
-- 声明时必须初始化
-- 不能用作方法参数
-- 不能在 Lambda 表达式中使用
+- Chỉ dùng cho local variable
+- Khi khai báo phải khởi tạo
+- Không dùng làm method parameter được
+- Không dùng trong Lambda expression được
 
-Java11 开始允许开发者在 Lambda 表达式中使用 var 进行参数声明。
+Java 11 cho phép developer dùng `var` để khai báo tham số trong Lambda expression.
 
 ```java
-// 下面两者是等价的
+// Hai cách dưới đây tương đương
 Consumer<String> consumer = (var i) -> System.out.println(i);
 Consumer<String> consumer = (String i) -> System.out.println(i);
 ```
 
-## JEP 330: Launch Single-File Source-Code Programs（启动单文件源代码程序）
+## JEP 330: Launch Single-File Source-Code Programs
 
-这意味着我们可以运行单一文件的 Java 源代码。此功能允许使用 Java 解释器直接执行 Java 源代码。源代码在内存中编译，然后由解释器执行，不需要在磁盘上生成 `.class` 文件了。唯一的约束在于所有相关的类必须定义在同一个 Java 文件中。
+Điều này có nghĩa là chúng ta có thể chạy Java source code của single file. Tính năng này cho phép dùng Java interpreter để thực thi trực tiếp Java source code. Source code được compile trong memory, sau đó được interpreter thực thi — không cần tạo file `.class` trên disk. Hạn chế duy nhất là tất cả class liên quan phải được định nghĩa trong cùng một Java file.
 
-对于 Java 初学者并希望尝试简单程序的人特别有用，并且能和 jshell 一起使用，一定程度上增强了使用 Java 来写脚本程序的能力。
+Đặc biệt hữu ích cho người mới học Java muốn thử các chương trình đơn giản. Kết hợp với jshell, đến mức độ nhất định tăng cường khả năng dùng Java để viết script.
 
-## API 增强
+## Cải tiến API
 
-并不是所有的 API 改动都会通过 JEP（Java Enhancement Proposal）来发布。
+Không phải tất cả thay đổi API đều được phát hành qua JEP (Java Enhancement Proposal).
 
-在 JDK 的开发流程中：**JEP** 通常用于重大的改变，例如引入新的语言特性（如 `var`）、新的 JVM 机制（如 ZGC）或者大规模的库重构。像 `String.isBlank()` 这种在现有类中增加几个方法的操作，通常被视为常规的库维护。它们由 JDK 开发者直接通过 **JBS (JDK Bug System)** 的工单（Ticket）进行提交和评审，然后随版本直接发布。
+Trong development flow của JDK: **JEP** thường dùng cho các thay đổi lớn như giới thiệu language feature mới (như `var`), JVM mechanism mới (như ZGC), hay tái cấu trúc library quy mô lớn. Các thao tác như thêm vài method vào class hiện có (như `String.isBlank()`) thường được coi là library maintenance thông thường — được submit và review trực tiếp qua ticket của **JBS (JDK Bug System)**, sau đó phát hành trực tiếp theo version.
 
-### String 增强
+### Cải tiến String
 
-Java 11 增加了一系列的字符串处理方法：
+Java 11 bổ sung một loạt method xử lý string:
 
 ```java
-//判断字符串是否为空
-" ".isBlank();//true
-//去除字符串首尾空格
-" Java ".strip();// "Java"
-//去除字符串首部空格
+// Kiểm tra string có blank không
+" ".isBlank(); // true
+// Xóa khoảng trắng đầu và cuối string
+" Java ".strip(); // "Java"
+// Xóa khoảng trắng đầu string
 " Java ".stripLeading();   // "Java "
-//去除字符串尾部空格
+// Xóa khoảng trắng cuối string
 " Java ".stripTrailing();  // "Java"
-//重复字符串多少次
+// Lặp string bao nhiêu lần
 "Java".repeat(3);             // "JavaJavaJava"
-//返回由行终止符分隔的字符串集合。
+// Trả về collection của string được phân tách bằng line terminator
 "A\nB\nC".lines().count();    // 3
 "A\nB\nC".lines().collect(Collectors.toList());
 ```
 
-### Optional 增强
+### Cải tiến Optional
 
-新增了`isEmpty()`方法来判断指定的 `Optional` 对象是否为空。
+Bổ sung method `isEmpty()` để kiểm tra xem `Optional` chỉ định có rỗng không.
 
 ```java
 var op = Optional.empty();
-System.out.println(op.isEmpty());//判断指定的 Optional 对象是否为空
+System.out.println(op.isEmpty()); // Kiểm tra Optional chỉ định có rỗng không
 ```
 
-## 其他新特性
+## Các tính năng mới khác
 
-- **新的垃圾回收器 Epsilon**：一个完全消极的 GC 实现，分配有限的内存资源，最大限度的降低内存占用和内存吞吐延迟时间
-- **低开销的 Heap Profiling**：Java 11 中提供一种低开销的 Java 堆分配采样方法，能够得到堆分配的 Java 对象信息，并且能够通过 JVMTI 访问堆信息
-- **TLS1.3 协议**：Java 11 中包含了传输层安全性（TLS）1.3 规范（RFC 8446）的实现，替换了之前版本中包含的 TLS，包括 TLS 1.2，同时还改进了其他 TLS 功能，例如 OCSP 装订扩展（RFC 6066，RFC 6961），以及会话散列和扩展主密钥扩展（RFC 7627），在安全性和性能方面也做了很多提升
-- **飞行记录器(Java Flight Recorder)**：飞行记录器之前是商业版 JDK 的一项分析工具，但在 Java 11 中，其代码被包含到公开代码库中，这样所有人都能使用该功能了。
-- ......
+- **Garbage collector mới Epsilon**: GC hoàn toàn passive, cấp phát tài nguyên memory hữu hạn, giảm tối đa memory footprint và memory throughput latency.
+- **Low-overhead Heap Profiling**: Java 11 cung cấp phương pháp sampling phân bổ Java heap overhead thấp, có thể lấy thông tin về Java object được phân bổ trên heap, và có thể truy cập heap info qua JVMTI.
+- **TLS 1.3 Protocol**: Java 11 bao gồm triển khai TLS 1.3 specification (RFC 8446), thay thế TLS trong các phiên bản trước kể cả TLS 1.2. Cũng cải thiện các tính năng TLS khác như OCSP stapling extension (RFC 6066, RFC 6961) và session hash, extended master secret extension (RFC 7627). Cũng có nhiều cải tiến về bảo mật và hiệu năng.
+- **Java Flight Recorder**: Trước đây là công cụ phân tích trong commercial JDK, nhưng trong Java 11 code của nó được đưa vào public codebase — tất cả mọi người đều có thể dùng tính năng này.
+- ……
 
-## 参考
+## Tài liệu tham khảo
 
-- JDK 11 Release Notes：<https://www.oracle.com/java/technologies/javase/11-relnote-issues.html>
-- Java 11 – Features and Comparison：<https://www.geeksforgeeks.org/java-11-features-and-comparison/>
+- JDK 11 Release Notes: <https://www.oracle.com/java/technologies/javase/11-relnote-issues.html>
+- Java 11 – Features and Comparison: <https://www.geeksforgeeks.org/java-11-features-and-comparison/>
 
 <!-- @include: @article-footer.snippet.md -->

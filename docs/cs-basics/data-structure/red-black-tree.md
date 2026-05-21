@@ -1,46 +1,46 @@
 ---
-title: 红黑树
-description: 深入讲解红黑树的五大性质与旋转调整过程，理解自平衡机制及在标准库与索引结构中的应用。
-category: 计算机基础
+title: Red-Black Tree
+description: Giải thích sâu năm tính chất và quá trình điều chỉnh xoay của Red-Black Tree, hiểu cơ chế self-balancing và ứng dụng trong standard library và cấu trúc index.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 数据结构
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
-      content: 红黑树,自平衡,旋转,插入删除,性质,黑高,时间复杂度
+      content: red-black tree,self-balancing,rotation,insert delete,properties,black height,time complexity
 ---
 
-## 红黑树介绍
+## Giới thiệu Red-Black Tree
 
-红黑树（Red Black Tree）是一种自平衡二叉查找树。它是在 1972 年由 Rudolf Bayer 发明的，当时被称为平衡二叉 B 树（symmetric binary B-trees）。后来，在 1978 年被 Leo J. Guibas 和 Robert Sedgewick 修改为如今的“红黑树”。
+Red-Black Tree (Cây đỏ-đen) là loại cây tìm kiếm nhị phân tự cân bằng (self-balancing binary search tree). Nó được Rudolf Bayer phát minh năm 1972, lúc đó được gọi là "symmetric binary B-trees". Sau đó, năm 1978 được Leo J. Guibas và Robert Sedgewick sửa đổi thành "Red-Black Tree" như ngày nay.
 
-由于其自平衡的特性，保证了最坏情形下在 O(logn) 时间复杂度内完成查找、增加、删除等操作，性能表现稳定。
+Nhờ tính chất self-balancing, nó đảm bảo hoàn thành các thao tác tìm kiếm, thêm, xóa trong time complexity O(logn) trong trường hợp xấu nhất — hiệu năng ổn định.
 
-在 JDK 中，`TreeMap`、`TreeSet` 以及 JDK1.8 的 `HashMap` 底层都用到了红黑树。
+Trong JDK, `TreeMap`, `TreeSet` và `HashMap` từ JDK 1.8 đều sử dụng Red-Black Tree ở tầng dưới.
 
-## 为什么需要红黑树？
+## Tại sao cần Red-Black Tree?
 
-红黑树的诞生就是为了解决二叉查找树的缺陷。
+Red-Black Tree ra đời để giải quyết nhược điểm của Binary Search Tree (BST).
 
-二叉查找树是一种基于比较的数据结构，它的每个节点都有一个键值，而且左子节点的键值小于父节点的键值，右子节点的键值大于父节点的键值。这样的结构可以方便地进行查找、插入和删除操作，因为只需要比较节点的键值就可以确定目标节点的位置。但是，二叉查找树有一个很大的问题，就是它的形状取决于节点插入的顺序。如果节点是按照升序或降序的方式插入的，那么二叉查找树就会退化成一个线性结构，也就是一个链表。这样的情况下，二叉查找树的性能就会大大降低，时间复杂度就会从 O(logn) 变为 O(n)。
+BST là cấu trúc dữ liệu dựa trên so sánh. Mỗi node có một key value, và key của left child nhỏ hơn key của parent node, key của right child lớn hơn key của parent. Cấu trúc này tiện cho tìm kiếm, insert và delete vì chỉ cần so sánh key là xác định được vị trí target node. Tuy nhiên BST có một vấn đề lớn: hình dạng của nó phụ thuộc vào thứ tự insert node. Nếu node được insert theo thứ tự tăng dần hoặc giảm dần, BST sẽ degenerate thành cấu trúc linear — tức linked list. Trong trường hợp này, hiệu năng BST giảm mạnh, time complexity từ O(logn) thành O(n).
 
-红黑树的诞生就是为了解决二叉查找树的缺陷，因为二叉查找树在某些情况下会退化成一个线性结构。
+Red-Black Tree ra đời để giải quyết nhược điểm của BST — BST trong một số trường hợp có thể degenerate thành cấu trúc linear.
 
-## **红黑树特点**
+## Đặc điểm của Red-Black Tree
 
-1. 每个节点非红即黑。黑色决定平衡，红色不决定平衡。这对应了 2-3 树中一个节点内可以存放 1~2 个节点。
-2. 根节点总是黑色的。
-3. 每个叶子节点都是黑色的空节点（NIL 节点）。这里指的是红黑树都会有一个空的叶子节点，是红黑树自己的规则。
-4. 如果节点是红色的，则它的子节点必须是黑色的（反之不一定）。通常这条规则也叫不会有连续的红色节点。一个节点最多临时会有 3 个子节点，中间是黑色节点，左右是红色节点。
-5. 从任意节点到它的叶子节点或空子节点的每条路径，必须包含相同数目的黑色节点（即相同的黑色高度）。每一层都只是有一个节点贡献了树高决定平衡性，也就是对应红黑树中的黑色节点。
+1. Mỗi node hoặc là đỏ hoặc là đen. Màu đen quyết định cân bằng, màu đỏ không quyết định cân bằng. Điều này tương ứng với việc một node trong cây 2-3 có thể chứa 1~2 node.
+2. Root node luôn là màu đen.
+3. Mỗi leaf node đều là black empty node (NIL node). Ở đây ý nói Red-Black Tree luôn có empty leaf node — đây là quy tắc của bản thân Red-Black Tree.
+4. Nếu node là đỏ thì child node của nó phải là đen (ngược lại không nhất thiết). Quy tắc này thường còn gọi là "không có hai red node liên tiếp". Một node có thể có tối đa 3 child node tạm thời — node ở giữa là black, node trái và phải là red.
+5. Mọi đường đi từ bất kỳ node nào đến leaf node hay empty child node của nó đều phải chứa cùng số black node (cùng black height). Chỉ có một node ở mỗi tầng đóng góp vào tree height quyết định cân bằng — đó chính là black node trong Red-Black Tree.
 
-正是这些特点才保证了红黑树的平衡，让红黑树的高度不会超过 2log(n+1)。
+Chính những đặc điểm này đảm bảo sự cân bằng của Red-Black Tree, giữ cho chiều cao không vượt quá 2log(n+1).
 
-## 红黑树数据结构
+## Cấu trúc dữ liệu Red-Black Tree
 
-建立在 BST 二叉搜索树的基础上，AVL、2-3 树、红黑树都是自平衡二叉树（统称 B-树）。但相比于 AVL 树，高度平衡所带来的时间复杂度，红黑树对平衡的控制要宽松一些，红黑树只需要保证黑色节点平衡即可。
+Xây dựng trên nền BST binary search tree, AVL tree, 2-3 tree, Red-Black Tree đều là self-balancing binary search tree (gọi chung là B-tree). Nhưng so với AVL tree, time complexity do height balancing mang lại, Red-Black Tree kiểm soát cân bằng lỏng hơn một chút — chỉ cần đảm bảo black node cân bằng là đủ.
 
-## 红黑树结构实现
+## Triển khai cấu trúc Red-Black Tree
 
 ```java
 public class Node {
@@ -51,48 +51,48 @@ public class Node {
     public Node left;
     public Node right;
 
-    // AVL 树所需属性
+    // Thuộc tính cần cho AVL tree
     public int height;
-    // 红黑树所需属性
+    // Thuộc tính cần cho Red-Black Tree
     public Color color = Color.RED;
 
 }
 ```
 
-### 1.左倾染色
+### 1. Left-leaning recoloring
 
-![幻灯片1](./pictures/红黑树/红黑树1.png)
+![Slide 1](./pictures/红黑树/红黑树1.png)
 
-- 染色时根据当前节点的爷爷节点，找到当前节点的叔叔节点。
-- 再把父节点染黑、叔叔节点染黑，爷爷节点染红。但爷爷节点染红是临时的，当平衡树高操作后会把根节点染黑。
+- Khi recolor, dựa vào grandparent node của node hiện tại, tìm uncle node của node hiện tại.
+- Sau đó đổi parent node thành đen, uncle node thành đen, grandparent node thành đỏ. Nhưng grandparent node đổi thành đỏ chỉ là tạm thời — sau khi thao tác cân bằng tree height xong sẽ đổi root node thành đen.
 
-### 2.右倾染色
+### 2. Right-leaning recoloring
 
-![幻灯片2](./pictures/红黑树/红黑树2.png)
+![Slide 2](./pictures/红黑树/红黑树2.png)
 
-### 3.左旋调衡
+### 3. Left rotation rebalancing
 
-#### 3.1 一次左旋
+#### 3.1 Một lần left rotation
 
-![幻灯片3](./pictures/红黑树/红黑树3.png)
+![Slide 3](./pictures/红黑树/红黑树3.png)
 
-#### 3.2 右旋+左旋
+#### 3.2 Right rotation + Left rotation
 
-![幻灯片4](./pictures/红黑树/红黑树4.png)
+![Slide 4](./pictures/红黑树/红黑树4.png)
 
-### 4.右旋调衡
+### 4. Right rotation rebalancing
 
-#### 4.1 一次右旋
+#### 4.1 Một lần right rotation
 
-![幻灯片5](./pictures/红黑树/红黑树5.png)
+![Slide 5](./pictures/红黑树/红黑树5.png)
 
-#### 4.2 左旋+右旋
+#### 4.2 Left rotation + Right rotation
 
-![幻灯片6](./pictures/红黑树/红黑树6.png)
+![Slide 6](./pictures/红黑树/红黑树6.png)
 
-## 文章推荐
+## Bài đọc thêm
 
-- [《红黑树深入剖析及 Java 实现》 - 美团点评技术团队](https://zhuanlan.zhihu.com/p/24367771)
-- [漫画：什么是红黑树？ - 程序员小灰](https://juejin.im/post/5a27c6946fb9a04509096248#comment)（也介绍到了二叉查找树，非常推荐）
+- [《Phân tích sâu Red-Black Tree và triển khai Java》- Meituan Tech Team](https://zhuanlan.zhihu.com/p/24367771)
+- [Truyện tranh: Red-Black Tree là gì? - Programmer Xiao Hui](https://juejin.im/post/5a27c6946fb9a04509096248#comment) (cũng giới thiệu BST, rất khuyến nghị)
 
 <!-- @include: @article-footer.snippet.md -->

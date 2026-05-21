@@ -1,9 +1,9 @@
 ---
-title: Linux 基础知识总结
-description: 简单介绍一下 Java 程序员必知的 Linux 的一些概念以及常见命令。
-category: 计算机基础
+title: Tổng hợp kiến thức cơ bản về Linux
+description: Giới thiệu ngắn gọn một số khái niệm Linux và các lệnh thường dùng mà lập trình viên Java cần biết.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 操作系统
+  - Hệ điều hành
   - Linux
 head:
   - - meta
@@ -13,419 +13,420 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-简单介绍一下 Java 程序员必知的 Linux 的一些概念以及常见命令。
+Giới thiệu ngắn gọn một số khái niệm Linux và các lệnh thường dùng mà lập trình viên Java cần biết.
 
-## 初探 Linux
+## Khám phá Linux
 
-### Linux 简介
+### Giới thiệu về Linux
 
-通过以下三点可以概括 Linux 到底是什么：
+Có thể tóm tắt Linux là gì qua ba điểm sau:
 
-- **类 Unix 系统**：Linux 是一种自由、开放源码的类似 Unix 的操作系统
-- **Linux 本质是指 Linux 内核**：严格来讲，Linux 这个词本身只表示 Linux 内核，单独的 Linux 内核并不能成为一个可以正常工作的操作系统。所以，就有了各种 Linux 发行版。
-- **Linux 之父(林纳斯·本纳第克特·托瓦兹 Linus Benedict Torvalds)**：一个编程领域的传奇式人物，真大佬！我辈崇拜敬仰之楷模。他是 **Linux 内核** 的最早作者，随后发起了这个开源项目，担任 Linux 内核的首要架构师。他还发起了 Git 这个开源项目，并为主要的开发者。
+- **Hệ thống tương tự Unix**: Linux là hệ điều hành tự do, mã nguồn mở, tương tự Unix.
+- **Bản chất Linux là Linux kernel**: Nói chính xác, từ "Linux" chỉ đề cập đến Linux kernel. Chỉ riêng Linux kernel không thể tạo thành một hệ điều hành hoạt động bình thường. Do đó, có nhiều bản phân phối Linux khác nhau ra đời.
+- **Cha đẻ của Linux (Linus Benedict Torvalds)**: Một nhân vật huyền thoại trong lĩnh vực lập trình, thực sự là bậc thầy! Là hình mẫu chúng ta ngưỡng mộ và tôn kính. Ông là tác giả đầu tiên của **Linux kernel**, sau đó khởi xướng dự án mã nguồn mở này và đảm nhận vai trò kiến trúc sư trưởng của Linux kernel. Ông cũng khởi xướng dự án mã nguồn mở Git và là nhà phát triển chính.
 
-![Linux 之父](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-father.png)
+![Cha đẻ của Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-father.png)
 
-### Linux 诞生
+### Lịch sử ra đời Linux
 
-1989 年，Linus Torvalds 进入芬兰陆军新地区旅，服 11 个月的国家义务兵役，军衔为少尉，主要服务于计算机部门，任务是弹道计算。服役期间，购买了安德鲁·斯图尔特·塔能鲍姆所著的教科书及 minix 源代码，开始研究操作系统。1990 年，他退伍后回到大学，开始接触 Unix。
+Năm 1989, Linus Torvalds nhập ngũ phục vụ trong Lữ đoàn Tân binh Finland trong 11 tháng, mang quân hàm Thiếu úy, chủ yếu phục vụ tại bộ phận máy tính với nhiệm vụ tính toán đạn đạo. Trong thời gian tại ngũ, ông mua giáo trình của Giáo sư Andrew Stuart Tanenbaum và mã nguồn minix, bắt đầu nghiên cứu hệ điều hành. Năm 1990, sau khi xuất ngũ trở về đại học, ông bắt đầu tiếp xúc với Unix.
 
-> **Minix** 是一个迷你版本的类 Unix 操作系统，由塔能鲍姆教授为了教学之用而创作，采用微核心设计。它启发了 Linux 内核的创作。
+> **Minix** là một hệ điều hành mini tương tự Unix, được Giáo sư Tanenbaum tạo ra cho mục đích giảng dạy, sử dụng kiến trúc vi nhân (microkernel). Nó đã truyền cảm hứng cho sự ra đời của Linux kernel.
 
-1991 年，Linus Torvalds 开源了 Linux 内核。Linux 以一只可爱的企鹅作为标志，象征着敢作敢为、热爱生活。
+Năm 1991, Linus Torvalds đã mã nguồn mở Linux kernel. Linux lấy hình ảnh một chú chim cánh cụt đáng yêu làm biểu tượng, tượng trưng cho sự dám nghĩ dám làm và yêu cuộc sống.
 
 ![OPINION: Make the switch to a Linux operating system | Opinion ...](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/Linux-Logo.png)
 
-### 常见的 Linux 发行版本
+### Các bản phân phối Linux thường gặp
 
-![Linux 操作系统](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux.png)
+![Hệ điều hành Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux.png)
 
-Linus Torvalds 开源的只是 Linux 内核，我们上面也提到了操作系统内核的作用。一些组织或厂商将 Linux 内核与各种软件和文档包装起来，并提供系统安装界面和系统配置、设定与管理工具，就构成了 Linux 的发行版本。
+Linus Torvalds chỉ mã nguồn mở Linux kernel. Như đã đề cập ở trên về vai trò của kernel hệ điều hành, một số tổ chức hoặc nhà sản xuất đóng gói Linux kernel với các phần mềm và tài liệu khác nhau, đồng thời cung cấp giao diện cài đặt hệ thống, công cụ cấu hình, cài đặt và quản lý hệ thống — tạo thành các bản phân phối Linux.
 
-> 内核主要负责系统的内存管理，硬件设备的管理，文件系统的管理以及应用程序的管理。
+> Kernel chủ yếu chịu trách nhiệm quản lý bộ nhớ hệ thống, quản lý thiết bị phần cứng, quản lý hệ thống tệp và quản lý ứng dụng.
 
-Linux 的发行版本可以大体分为两类：
+Các bản phân phối Linux có thể chia thành hai loại chính:
 
-- **商业公司维护的发行版本**：比如 Red Hat 公司维护支持的 Red Hat Enterprise Linux (RHEL)。
-- **社区组织维护的发行版本**：比如基于 Red Hat Enterprise Linux（RHEL）的 CentOS、基于 Debian 的 Ubuntu。
+- **Bản phân phối do công ty thương mại duy trì**: Ví dụ Red Hat Enterprise Linux (RHEL) được công ty Red Hat duy trì và hỗ trợ.
+- **Bản phân phối do tổ chức cộng đồng duy trì**: Ví dụ CentOS (dựa trên Red Hat Enterprise Linux) và Ubuntu (dựa trên Debian).
 
-对于初学者学习 Linux ，推荐选择 CentOS，原因如下：
+Với người mới học Linux, tôi khuyến nghị chọn CentOS vì những lý do sau:
 
-- CentOS 免费且开放源代码；
-- CentOS 基于 RHEL，功能与 RHEL 高度一致，安全稳定、性能优秀。
+- CentOS miễn phí và mã nguồn mở;
+- CentOS dựa trên RHEL, chức năng nhất quán cao với RHEL, ổn định và bảo mật, hiệu năng xuất sắc.
 
-## Linux 文件系统
+## Hệ thống tệp Linux
 
-### Linux 文件系统简介
+### Giới thiệu về hệ thống tệp Linux
 
-在 Linux 操作系统中，一切被操作系统管理的资源，如网络接口卡、磁盘驱动器、打印机、输入输出设备、普通文件或目录等，都被视为文件。这是 Linux 系统中一个重要的概念，即"一切都是文件"。
+Trong hệ điều hành Linux, tất cả các tài nguyên được hệ điều hành quản lý — như card mạng, ổ đĩa, máy in, thiết bị đầu vào/đầu ra, tệp thông thường hay thư mục — đều được coi là tệp. Đây là một khái niệm quan trọng trong hệ thống Linux: "Mọi thứ đều là tệp".
 
-这种概念源自 UNIX 哲学，即将所有资源都抽象为文件的方式来进行管理和访问。Linux 的文件系统也借鉴了 UNIX 文件系统的设计理念。这种设计使得 Linux 系统可以通过统一的文件接口来管理和操作不同类型的资源，从而实现了一种统一的文件操作方式。例如，可以使用类似于读写文件的方式来对待网络接口、磁盘驱动器、设备文件等，使得操作和管理这些资源更加统一和简便。
+Khái niệm này xuất phát từ triết lý UNIX — trừu tượng hóa tất cả tài nguyên thành tệp để quản lý và truy cập. Hệ thống tệp Linux cũng kế thừa ý tưởng thiết kế hệ thống tệp UNIX. Thiết kế này cho phép hệ thống Linux quản lý và thao tác các loại tài nguyên khác nhau thông qua giao diện tệp thống nhất, thực hiện phương thức hoạt động tệp thống nhất. Ví dụ, có thể đối xử với card mạng, ổ đĩa, tệp thiết bị tương tự như đọc ghi tệp, làm cho việc thao tác và quản lý các tài nguyên này trở nên thống nhất và thuận tiện hơn.
 
-这种文件为中心的设计理念为 Linux 系统带来了灵活性和可扩展性，使得 Linux 成为一种强大的操作系统。同时，这也是 Linux 系统的一大特点，深受广大用户和开发者的喜欢和推崇。
+Ý tưởng thiết kế lấy tệp làm trung tâm này mang lại tính linh hoạt và khả năng mở rộng cho hệ thống Linux, làm cho Linux trở thành một hệ điều hành mạnh mẽ. Đồng thời đây cũng là một đặc điểm lớn của hệ thống Linux, được đông đảo người dùng và nhà phát triển yêu thích và tán dương.
 
-### inode 介绍
+### Giới thiệu về inode
 
-inode 是 Linux/Unix 文件系统的基础。那 inode 到是什么?有什么作用呢?
+inode là nền tảng của hệ thống tệp Linux/Unix. Vậy inode thực sự là gì? Có tác dụng gì?
 
-通过以下五点可以概括 inode 到底是什么：
+Có thể tóm tắt inode qua năm điểm sau:
 
-1. 硬盘以扇区 (Sector) 为最小物理存储单位，而操作系统和文件系统以块 (Block) 为单位进行读写，块由多个扇区组成。文件数据存储在这些块中。现代硬盘扇区通常为 4KB，与一些常见块大小相同，但操作系统也支持更大的块大小，以提升大文件读写性能。文件元信息（例如权限、大小、修改时间以及数据块位置）存储在 inode（索引节点）中。每个文件都有唯一的 inode。inode 本身不存储文件数据，而是存储指向数据块的指针，操作系统通过这些指针找到并读取文件数据。 固态硬盘 (SSD) 虽然没有物理扇区，但使用逻辑块，其概念与传统硬盘的块类似。
-2. inode 是一种固定大小的数据结构，其大小在文件系统创建时就确定了，并且在文件的生命周期内保持不变。
-3. inode 的访问速度非常快，因为系统可以直接通过 inode 号码定位到文件的元数据信息，无需遍历整个文件系统。
-4. inode 的数量是有限的，每个文件系统只能包含固定数量的 inode。这意味着当文件系统中的 inode 用完时，无法再创建新的文件或目录，即使磁盘上还有可用空间。因此，在创建文件系统时，需要根据文件和目录的预期数量来合理分配 inode 的数量。
-5. 可以使用 `stat` 命令可以查看文件的 inode 信息，包括文件的 inode 号、文件类型、权限、所有者、文件大小、修改时间。
+1. Đĩa cứng lấy sector (Sector) làm đơn vị lưu trữ vật lý nhỏ nhất, còn hệ điều hành và hệ thống tệp lấy block làm đơn vị đọc ghi, block gồm nhiều sector. Dữ liệu tệp được lưu trong các block này. Sector đĩa cứng hiện đại thường là 4KB, bằng với một số kích thước block thường gặp, nhưng hệ điều hành cũng hỗ trợ block lớn hơn để nâng cao hiệu năng đọc ghi tệp lớn. Thông tin metadata của tệp (như quyền, kích thước, thời gian sửa đổi và vị trí block dữ liệu) được lưu trong inode (index node - node chỉ mục). Mỗi tệp có một inode duy nhất. inode không lưu dữ liệu tệp mà lưu các con trỏ trỏ đến các block dữ liệu, hệ điều hành tìm và đọc dữ liệu tệp qua các con trỏ này. Ổ đĩa trạng thái rắn (SSD) tuy không có sector vật lý nhưng sử dụng block logic, khái niệm tương tự như block của đĩa cứng truyền thống.
+2. inode là cấu trúc dữ liệu có kích thước cố định, kích thước được xác định khi tạo hệ thống tệp và không thay đổi trong suốt vòng đời của tệp.
+3. Tốc độ truy cập inode rất nhanh vì hệ thống có thể định vị thẳng đến thông tin metadata của tệp qua số inode mà không cần duyệt toàn bộ hệ thống tệp.
+4. Số lượng inode có giới hạn, mỗi hệ thống tệp chỉ chứa số lượng inode cố định. Điều này có nghĩa là khi inode trong hệ thống tệp dùng hết, không thể tạo thêm tệp hoặc thư mục mới dù đĩa vẫn còn không gian trống. Vì vậy khi tạo hệ thống tệp cần phân bổ số lượng inode hợp lý dựa trên số lượng dự kiến của tệp và thư mục.
+5. Có thể dùng lệnh `stat` để xem thông tin inode của tệp, bao gồm số inode, loại tệp, quyền, chủ sở hữu, kích thước tệp, thời gian sửa đổi.
 
-简单来说：inode 就是用来维护某个文件被分成几块、每一块在的地址、文件拥有者，创建时间，权限，大小等信息。
+Nói đơn giản: inode dùng để lưu thông tin về tệp bị chia thành mấy block, địa chỉ mỗi block ở đâu, chủ sở hữu tệp, thời gian tạo, quyền, kích thước, v.v.
 
-再总结一下 inode 和 block：
+Tóm tắt về inode và block:
 
-- **inode**：记录文件的属性信息，可以使用 `stat` 命令查看 inode 信息。
-- **block**：实际文件的内容，如果一个文件大于一个块时候，那么将占用多个 block，但是一个块只能存放一个文件。（因为数据是由 inode 指向的，如果有两个文件的数据存放在同一个块中，就会乱套了）
+- **inode**: Ghi lại thông tin thuộc tính của tệp, có thể dùng lệnh `stat` để xem thông tin inode.
+- **block**: Nội dung thực tế của tệp. Nếu một tệp lớn hơn một block thì chiếm nhiều block, nhưng một block chỉ lưu được một tệp. (Vì dữ liệu được trỏ bởi inode — nếu dữ liệu hai tệp lưu trong cùng một block thì sẽ loạn)
 
-![文件inode信息](./images/文件inode信息.png)
+![Thông tin inode của tệp](./images/文件inode信息.png)
 
-可以看出，Linux/Unix 操作系统使用 inode 区分不同的文件。这样做的好处是，即使文件名被修改或删除，文件的 inode 号码不会改变，从而可以避免一些因文件重命名、移动或删除导致的错误。同时，inode 也可以提供更高的文件系统性能，因为 inode 的访问速度非常快，可以直接通过 inode 号码定位到文件的元数据信息，无需遍历整个文件系统。
+Có thể thấy, hệ điều hành Linux/Unix sử dụng inode để phân biệt các tệp khác nhau. Lợi ích của cách làm này là dù tên tệp bị thay đổi hay xóa, số inode của tệp không thay đổi, từ đó tránh được một số lỗi do đổi tên, di chuyển hoặc xóa tệp gây ra. Đồng thời, inode cũng cung cấp hiệu năng hệ thống tệp cao hơn vì tốc độ truy cập inode rất nhanh, có thể định vị thẳng đến thông tin metadata của tệp qua số inode mà không cần duyệt toàn bộ hệ thống tệp.
 
-不过，使用 inode 号码也使得文件系统在用户和应用程序层面更加抽象和复杂，需要通过系统命令或文件系统接口来访问和管理文件的 inode 信息。
+Tuy nhiên, sử dụng số inode cũng làm cho hệ thống tệp trở nên trừu tượng và phức tạp hơn ở tầng người dùng và ứng dụng, cần truy cập và quản lý thông tin inode của tệp thông qua lệnh hệ thống hoặc giao diện hệ thống tệp.
 
-### 硬链接和软链接
+### Hard link và soft link
 
-在 Linux/类 Unix 系统上，文件链接（File Link）是一种特殊的文件类型，可以在文件系统中指向另一个文件。常见的文件链接类型有两种：
+Trên hệ thống Linux/Unix, file link (liên kết tệp) là một loại tệp đặc biệt, có thể trỏ đến một tệp khác trong hệ thống tệp. Có hai loại file link thường gặp:
 
-**1、硬链接（Hard Link）**
+**1. Hard link (Liên kết cứng)**
 
-- 在 Linux/类 Unix 文件系统中，每个文件和目录都有一个唯一的索引节点（inode）号，用来标识该文件或目录。硬链接通过 inode 节点号建立连接，硬链接和源文件的 inode 节点号相同，两者对文件系统来说是完全平等的（可以看作是互为硬链接，源头是同一份文件），删除其中任何一个对另外一个没有影响，可以通过给文件设置硬链接文件来防止重要文件被误删。
-- 只有删除了源文件和所有对应的硬链接文件，该文件才会被真正删除。
-- 硬链接具有一些限制，不能对目录以及不存在的文件创建硬链接，并且，硬链接也不能跨越文件系统。
-- `ln` 命令用于创建硬链接。
+- Trong hệ thống tệp Linux/Unix, mỗi tệp và thư mục có một số inode (index node) duy nhất để xác định tệp hoặc thư mục đó. Hard link thiết lập kết nối qua số inode, hard link và tệp nguồn có cùng số inode — hai tệp này hoàn toàn bình đẳng với hệ thống tệp (có thể xem là liên kết cứng với nhau, nguồn gốc là cùng một tệp). Xóa một trong hai không ảnh hưởng đến cái còn lại, có thể đặt hard link cho tệp để ngăn tệp quan trọng bị xóa nhầm.
+- Chỉ khi xóa cả tệp nguồn lẫn tất cả các hard link tương ứng, tệp đó mới bị xóa thực sự.
+- Hard link có một số giới hạn — không thể tạo hard link cho thư mục và tệp không tồn tại, hơn nữa hard link cũng không thể vượt qua hệ thống tệp.
+- Lệnh `ln` dùng để tạo hard link.
 
-**2、软链接（Symbolic Link 或 Symlink）**
+**2. Soft link (Liên kết mềm - Symbolic Link hoặc Symlink)**
 
-- 软链接和源文件的 inode 节点号不同，而是指向一个文件路径。
-- 源文件删除后，软链接依然存在，但是指向的是一个无效的文件路径。
-- 软连接类似于 Windows 系统中的快捷方式。
-- 不同于硬链接，可以对目录或者不存在的文件创建软链接，并且，软链接可以跨越文件系统。
-- `ln -s` 命令用于创建软链接。
+- Soft link và tệp nguồn có số inode khác nhau, thay vào đó trỏ đến một đường dẫn tệp.
+- Sau khi tệp nguồn bị xóa, soft link vẫn tồn tại, nhưng trỏ đến một đường dẫn tệp không hợp lệ.
+- Soft link tương tự như shortcut trong hệ thống Windows.
+- Khác với hard link, có thể tạo soft link cho thư mục hoặc tệp không tồn tại, và soft link có thể vượt qua hệ thống tệp.
+- Lệnh `ln -s` dùng để tạo soft link.
 
-**硬链接为什么不能跨文件系统？**
+**Tại sao hard link không thể vượt qua hệ thống tệp?**
 
-我们之前提到过，硬链接是通过 inode 节点号建立连接的，而硬链接和源文件共享相同的 inode 节点号。
+Như đã đề cập, hard link được thiết lập thông qua số inode, và hard link cùng tệp nguồn chia sẻ số inode giống nhau.
 
-然而，每个文件系统都有自己的独立 inode 表，且每个 inode 表只维护该文件系统内的 inode。如果在不同的文件系统之间创建硬链接，可能会导致 inode 节点号冲突的问题，即目标文件的 inode 节点号已经在该文件系统中被使用。
+Tuy nhiên, mỗi hệ thống tệp có bảng inode độc lập riêng, và mỗi bảng inode chỉ duy trì các inode trong hệ thống tệp đó. Nếu tạo hard link giữa các hệ thống tệp khác nhau, có thể dẫn đến xung đột số inode, tức là số inode của tệp đích đã được sử dụng trong hệ thống tệp đó.
 
-### Linux 文件类型
+### Các loại tệp trong Linux
 
-Linux 支持很多文件类型，其中非常重要的文件类型有: **普通文件**，**目录文件**，**链接文件**，**设备文件**，**管道文件**，**Socket 套接字文件** 等。
+Linux hỗ trợ nhiều loại tệp. Các loại tệp quan trọng bao gồm: **tệp thông thường**, **tệp thư mục**, **tệp liên kết**, **tệp thiết bị**, **tệp pipe**, **tệp Socket**, v.v.
 
-- **普通文件（-）**：用于存储信息和数据， Linux 用户可以根据访问权限对普通文件进行查看、更改和删除。比如：图片、声音、PDF、text、视频、源代码等等。
-- **目录文件（d，directory file）**：目录也是文件的一种，用于表示和管理系统中的文件，目录文件中包含一些文件名和子目录名。打开目录事实上就是打开目录文件。
-- **符号链接文件（l，symbolic link）**：保留了指向文件的地址而不是文件本身。
-- **字符设备（c，char）**：用来访问字符设备比如键盘。
-- **设备文件（b，block）**：用来访问块设备比如硬盘、软盘。
-- **管道文件(p，pipe)** : 一种特殊类型的文件，用于进程之间的通信。
-- **套接字文件(s，socket)**：用于进程间的网络通信，也可以用于本机之间的非网络通信。
+- **Tệp thông thường (-)**: Dùng để lưu trữ thông tin và dữ liệu, người dùng Linux có thể xem, sửa đổi và xóa tệp thông thường tùy theo quyền truy cập. Ví dụ: hình ảnh, âm thanh, PDF, text, video, mã nguồn, v.v.
+- **Tệp thư mục (d, directory file)**: Thư mục cũng là một loại tệp, dùng để biểu thị và quản lý các tệp trong hệ thống, tệp thư mục chứa một số tên tệp và tên thư mục con. Mở thư mục thực chất là mở tệp thư mục.
+- **Tệp liên kết tượng trưng (l, symbolic link)**: Lưu địa chỉ trỏ đến tệp chứ không phải bản thân tệp.
+- **Thiết bị ký tự (c, char)**: Dùng để truy cập thiết bị ký tự như bàn phím.
+- **Tệp thiết bị (b, block)**: Dùng để truy cập thiết bị khối như đĩa cứng, đĩa mềm.
+- **Tệp pipe (p, pipe)**: Một loại tệp đặc biệt dùng cho giao tiếp giữa các tiến trình.
+- **Tệp socket (s, socket)**: Dùng cho giao tiếp mạng giữa các tiến trình, cũng có thể dùng cho giao tiếp phi mạng trên cùng máy.
 
-每种文件类型都有不同的用途和属性，可以通过命令如`ls`、`file`等来查看文件的类型信息。
+Mỗi loại tệp có công dụng và thuộc tính khác nhau, có thể dùng lệnh như `ls`, `file` để xem thông tin loại tệp.
 
 ```bash
-# 普通文件（-）
+# Tệp thông thường (-)
 -rw-r--r--  1 user  group  1024 Apr 14 10:00 file.txt
 
-# 目录文件（d，directory file）*
+# Tệp thư mục (d, directory file)
 drwxr-xr-x  2 user  group  4096 Apr 14 10:00 directory/
 
-# 套接字文件(s，socket)
+# Tệp socket (s, socket)
 srwxrwxrwx  1 user  group    0 Apr 14 10:00 socket
 ```
 
-### Linux 目录树
+### Cây thư mục Linux
 
-Linux 使用一种称为目录树的层次结构来组织文件和目录。目录树由根目录（/）作为起始点，向下延伸，形成一系列的目录和子目录。每个目录可以包含文件和其他子目录。结构层次鲜明，就像一棵倒立的树。
-![Linux的目录结构](./images/Linux目录树.png)
+Linux sử dụng cấu trúc phân cấp gọi là cây thư mục để tổ chức tệp và thư mục. Cây thư mục lấy thư mục gốc (/) làm điểm bắt đầu, mở rộng xuống dưới tạo thành một loạt thư mục và thư mục con. Mỗi thư mục có thể chứa tệp và các thư mục con khác. Cấu trúc phân cấp rõ ràng, giống như một cây lộn ngược.
 
-**常见目录说明：**
+![Cấu trúc thư mục Linux](./images/Linux目录树.png)
 
-- **/bin：** 存放二进制可执行文件(ls、cat、mkdir 等)，常用命令一般都在这里；
-- **/etc：** 存放系统管理和配置文件；
-- **/home：** 存放所有用户文件的根目录，是用户主目录的基点，比如用户 user 的主目录就是/home/user，可以用~user 表示；
-- **/usr：** 用于存放系统应用程序；
-- **/opt：** 额外安装的可选应用程序包所放置的位置。一般情况下，我们可以把 tomcat 等都安装到这里；
-- **/proc：** 虚拟文件系统目录，是系统内存的映射。可直接访问这个目录来获取系统信息；
-- **/root：** 超级用户（系统管理员）的主目录（特权阶级^o^）；
-- **/sbin:** 存放二进制可执行文件，只有 root 才能访问。这里存放的是系统管理员使用的系统级别的管理命令和程序。如 ifconfig 等；
-- **/dev：** 用于存放设备文件；
-- **/mnt：** 系统管理员安装临时文件系统的安装点，系统提供这个目录是让用户临时挂载其他的文件系统；
-- **/boot：** 存放用于系统引导时使用的各种文件；
-- **/lib 和/lib64：** 存放着和系统运行相关的库文件 ；
-- **/tmp：** 用于存放各种临时文件，是公用的临时文件存储点；
-- **/var：** 用于存放运行时需要改变数据的文件，也是某些大文件的溢出区，比方说各种服务的日志文件（系统启动日志等。）等；
-- **/lost+found：** 这个目录平时是空的，系统非正常关机而留下“无家可归”的文件（windows 下叫什么.chk）就在这里。
+**Giải thích các thư mục thường gặp:**
 
-## Linux 常用命令
+- **/bin:** Chứa các tệp thực thi nhị phân (ls, cat, mkdir, v.v.), các lệnh thường dùng thường ở đây;
+- **/etc:** Chứa các tệp quản lý và cấu hình hệ thống;
+- **/home:** Thư mục gốc chứa các tệp của tất cả người dùng, là điểm cơ sở của thư mục home người dùng, ví dụ thư mục home của user là /home/user, có thể dùng ~user để biểu thị;
+- **/usr:** Dùng để lưu ứng dụng hệ thống;
+- **/opt:** Vị trí đặt các gói ứng dụng tùy chọn được cài thêm. Thông thường có thể cài tomcat, v.v. ở đây;
+- **/proc:** Thư mục hệ thống tệp ảo, là ánh xạ của bộ nhớ hệ thống. Có thể truy cập thư mục này trực tiếp để lấy thông tin hệ thống;
+- **/root:** Thư mục home của super user (quản trị viên hệ thống) (tầng lớp đặc quyền ^o^);
+- **/sbin:** Chứa các tệp thực thi nhị phân, chỉ root mới có thể truy cập. Ở đây lưu các lệnh quản lý cấp hệ thống dành cho quản trị viên hệ thống, như ifconfig, v.v.;
+- **/dev:** Dùng để lưu tệp thiết bị;
+- **/mnt:** Điểm mount để quản trị viên hệ thống cài hệ thống tệp tạm thời, hệ thống cung cấp thư mục này để người dùng mount tạm thời các hệ thống tệp khác;
+- **/boot:** Chứa các tệp dùng khi khởi động hệ thống;
+- **/lib và /lib64:** Chứa các tệp thư viện liên quan đến hoạt động hệ thống;
+- **/tmp:** Dùng để lưu các tệp tạm thời khác nhau, là điểm lưu trữ tệp tạm thời chung;
+- **/var:** Dùng để lưu các tệp cần thay đổi dữ liệu khi chạy, cũng là vùng tràn cho một số tệp lớn, ví dụ các tệp log của các dịch vụ (log khởi động hệ thống, v.v.);
+- **/lost+found:** Thư mục này thường trống, các tệp "vô gia cư" bị bỏ lại khi hệ thống tắt đột ngột (trên Windows gọi là file .chk) ở đây.
 
-下面只是给出了一些比较常用的命令。
+## Các lệnh Linux thường dùng
 
-推荐一个 Linux 命令快查网站，非常不错，大家如果遗忘某些命令或者对某些命令不理解都可以在这里得到解决。Linux 命令在线速查手册：<https://wangchujiang.com/linux-command/> 。
+Dưới đây chỉ liệt kê một số lệnh thường dùng hơn.
 
-![ Linux 命令快查](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-command-search.png)
+Khuyến nghị một website tra cứu nhanh lệnh Linux rất hay — nếu quên lệnh nào hay không hiểu lệnh nào đều có thể tìm ở đây. Tra cứu nhanh lệnh Linux online: <https://wangchujiang.com/linux-command/>.
 
-另外，[shell.how](https://www.shell.how/) 这个网站可以用来解释常见命令的意思，对你学习 Linux 基本命令以及其他常用命令（如 Git、NPM）。
+![Tra cứu nhanh lệnh Linux](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/linux-command-search.png)
 
-![shell.how 使用示例](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/shell-now.png)
+Ngoài ra, website [shell.how](https://www.shell.how/) có thể dùng để giải thích ý nghĩa các lệnh thường gặp, hữu ích khi học các lệnh cơ bản Linux cũng như các lệnh thường dùng khác (như Git, NPM).
 
-### 目录切换
+![Ví dụ sử dụng shell.how](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux/shell-now.png)
 
-- `cd usr`：切换到该目录下 usr 目录
-- `cd ..（或cd../）`：切换到上一层目录
-- `cd /`：切换到系统根目录
-- `cd ~`：切换到用户主目录
-- **`cd -`：** 切换到上一个操作所在目录
+### Chuyển đổi thư mục
 
-### 目录操作
+- `cd usr`: Chuyển đến thư mục usr trong thư mục hiện tại
+- `cd ..（hoặc cd../）`: Chuyển đến thư mục cha
+- `cd /`: Chuyển đến thư mục gốc hệ thống
+- `cd ~`: Chuyển đến thư mục home của người dùng
+- **`cd -`:** Chuyển đến thư mục của thao tác trước
 
-- `ls`：显示目录中的文件和子目录的列表。例如：`ls /home`，显示 `/home` 目录下的文件和子目录列表。
-- `ll`：`ll` 是 `ls -l` 的别名，ll 命令可以看到该目录下的所有目录和文件的详细信息。
-- `mkdir [选项] 目录名`：创建新目录（增）。例如：`mkdir -m 755 my_directory`，创建一个名为 `my_directory` 的新目录，并将其权限设置为 755，其中所有者拥有读、写、执行权限，所属组和其他用户只有读、执行权限，无法修改目录内容（如创建或删除文件）。如果希望所有用户（包括所属组和其他用户）对目录都拥有读、写、执行权限，则应设置权限为 `777`，即：`mkdir -m 777 my_directory`。
-- `find [路径] [表达式]`：在指定目录及其子目录中搜索文件或目录（查），非常强大灵活。例如：① 列出当前目录及子目录下所有文件和文件夹: `find .`；② 在`/home`目录下查找以 `.txt` 结尾的文件名:`find /home -name "*.txt"` ,忽略大小写: `find /home -i name "*.txt"` ；③ 当前目录及子目录下查找所有以 `.txt` 和 `.pdf` 结尾的文件:`find . \( -name "*.txt" -o -name "*.pdf" \)`或`find . -name "*.txt" -o -name "*.pdf"`。
-- `pwd`：显示当前工作目录的路径。
-- `rmdir [选项] 目录名`：删除空目录（删）。例如：`rmdir -p my_directory`，删除名为 `my_directory` 的空目录，并且会递归删除`my_directory`的空父目录，直到遇到非空目录或根目录。
-- `rm [选项] 文件或目录名`：删除文件/目录（删）。例如：`rm -r my_directory`，删除名为 `my_directory` 的目录，`-r`(recursive,递归) 表示会递归删除指定目录及其所有子目录和文件。
-- `cp [选项] 源文件/目录 目标文件/目录`：复制文件或目录（移）。例如：`cp file.txt /home/file.txt`，将 `file.txt` 文件复制到 `/home` 目录下，并重命名为 `file.txt`。`cp -r source destination`，将 `source` 目录及其下的所有子目录和文件复制到 `destination` 目录下，并保留源文件的属性和目录结构。
-- `mv [选项] 源文件/目录 目标文件/目录`：移动文件或目录（移），也可以用于重命名文件或目录。例如：`mv file.txt /home/file.txt`，将 `file.txt` 文件移动到 `/home` 目录下，并重命名为 `file.txt`。`mv` 与 `cp` 的结果不同，`mv` 好像文件“搬家”，文件个数并未增加。而 `cp` 对文件进行复制，文件个数增加了。
+### Thao tác thư mục
 
-### 文件操作
+- `ls`: Hiển thị danh sách tệp và thư mục con trong thư mục. Ví dụ: `ls /home`, hiển thị danh sách tệp và thư mục con trong thư mục `/home`.
+- `ll`: `ll` là alias của `ls -l`, lệnh ll có thể xem thông tin chi tiết của tất cả thư mục và tệp trong thư mục đó.
+- `mkdir [tùy chọn] tên_thư_mục`: Tạo thư mục mới (thêm). Ví dụ: `mkdir -m 755 my_directory`, tạo thư mục mới tên `my_directory` với quyền 755, chủ sở hữu có quyền đọc, ghi, thực thi, nhóm và người dùng khác chỉ có quyền đọc và thực thi. Nếu muốn tất cả người dùng (kể cả nhóm và người dùng khác) đều có quyền đọc, ghi, thực thi cho thư mục, cần đặt quyền là `777`: `mkdir -m 777 my_directory`.
+- `find [đường_dẫn] [biểu_thức]`: Tìm kiếm tệp hoặc thư mục trong thư mục chỉ định và các thư mục con (tra cứu), rất mạnh mẽ và linh hoạt. Ví dụ: ① Liệt kê tất cả tệp và thư mục trong thư mục hiện tại và thư mục con: `find .`; ② Tìm tên tệp kết thúc bằng `.txt` trong thư mục `/home`: `find /home -name "*.txt"`, bỏ qua hoa thường: `find /home -iname "*.txt"`; ③ Tìm tất cả tệp kết thúc bằng `.txt` và `.pdf` trong thư mục hiện tại: `find . \( -name "*.txt" -o -name "*.pdf" \)` hoặc `find . -name "*.txt" -o -name "*.pdf"`.
+- `pwd`: Hiển thị đường dẫn thư mục làm việc hiện tại.
+- `rmdir [tùy chọn] tên_thư_mục`: Xóa thư mục rỗng (xóa). Ví dụ: `rmdir -p my_directory`, xóa thư mục rỗng `my_directory` và đệ quy xóa các thư mục cha rỗng của `my_directory` cho đến khi gặp thư mục không rỗng hoặc thư mục gốc.
+- `rm [tùy chọn] tên_tệp_hoặc_thư_mục`: Xóa tệp/thư mục (xóa). Ví dụ: `rm -r my_directory`, xóa thư mục `my_directory`, `-r` (recursive, đệ quy) nghĩa là đệ quy xóa thư mục chỉ định và tất cả thư mục con và tệp.
+- `cp [tùy chọn] tệp/thư_mục_nguồn tệp/thư_mục_đích`: Sao chép tệp hoặc thư mục (di chuyển). Ví dụ: `cp file.txt /home/file.txt`, sao chép tệp `file.txt` vào thư mục `/home` và đổi tên thành `file.txt`. `cp -r source destination`, sao chép thư mục `source` và tất cả thư mục con và tệp vào thư mục `destination`, giữ nguyên thuộc tính và cấu trúc thư mục của tệp nguồn.
+- `mv [tùy chọn] tệp/thư_mục_nguồn tệp/thư_mục_đích`: Di chuyển tệp hoặc thư mục (di chuyển), cũng có thể dùng để đổi tên tệp hoặc thư mục. Ví dụ: `mv file.txt /home/file.txt`, di chuyển tệp `file.txt` vào thư mục `/home` và đổi tên thành `file.txt`. Kết quả của `mv` và `cp` khác nhau — `mv` giống như tệp "dọn nhà", số tệp không tăng. Còn `cp` sao chép tệp, số tệp tăng.
 
-像 `mv`、`cp`、`rm` 等文件和目录都适用的命令，这里就不重复列举了。
+### Thao tác tệp
 
-- `touch [选项] 文件名..`：创建新文件或更新已存在文件（增）。例如：`touch file1.txt file2.txt file3.txt` ，创建 3 个文件。
-- `ln [选项] <源文件> <硬链接/软链接文件>`：创建硬链接/软链接。例如：`ln -s file.txt file_link`，创建名为 `file_link` 的软链接，指向 `file.txt` 文件。`-s` 选项代表的就是创建软链接，s 即 symbolic（软链接又名符号链接） 。
-- `cat/more/less/tail 文件名`：文件的查看（查） 。命令 `tail -f 文件` 可以对某个文件进行动态监控，例如 Tomcat 的日志文件， 会随着程序的运行，日志会变化，可以使用 `tail -f catalina-2016-11-11.log` 监控 文 件的变化 。
-- `vim 文件名`：修改文件的内容（改）。vim 编辑器是 Linux 中的强大组件，是 vi 编辑器的加强版，vim 编辑器的命令和快捷方式有很多，但此处不一一阐述，大家也无需研究的很透彻，使用 vim 编辑修改文件的方式基本会使用就可以了。在实际开发中，使用 vim 编辑器主要作用就是修改配置文件，下面是一般步骤：`vim 文件------>进入文件----->命令模式------>按i进入编辑模式----->编辑文件 ------->按Esc进入底行模式----->输入：wq/q!` （输入 wq 代表写入内容并退出，即保存；输入 q!代表强制退出不保存）。
+Các lệnh như `mv`, `cp`, `rm` áp dụng cho cả tệp và thư mục nên không liệt kê lại ở đây.
 
-### 文件压缩
+- `touch [tùy chọn] tên_tệp..`: Tạo tệp mới hoặc cập nhật tệp đã tồn tại (thêm). Ví dụ: `touch file1.txt file2.txt file3.txt`, tạo 3 tệp.
+- `ln [tùy chọn] <tệp_nguồn> <tệp_hard_link/soft_link>`: Tạo hard link/soft link. Ví dụ: `ln -s file.txt file_link`, tạo soft link tên `file_link` trỏ đến tệp `file.txt`. Tùy chọn `-s` biểu thị tạo soft link, s tức là symbolic (soft link còn gọi là symbolic link).
+- `cat/more/less/tail tên_tệp`: Xem tệp (tra cứu). Lệnh `tail -f tệp` có thể theo dõi động một tệp, ví dụ tệp log của Tomcat sẽ thay đổi khi chương trình chạy, có thể dùng `tail -f catalina-2016-11-11.log` để theo dõi thay đổi tệp.
+- `vim tên_tệp`: Chỉnh sửa nội dung tệp (sửa). vim là thành phần mạnh mẽ trong Linux, là phiên bản nâng cao của vi editor. Lệnh và phím tắt của vim editor rất nhiều, nhưng ở đây không liệt kê hết, bạn cũng không cần nghiên cứu quá sâu — biết dùng vim để chỉnh sửa tệp là được. Trong phát triển thực tế, vim chủ yếu dùng để sửa tệp cấu hình, các bước cơ bản: `vim tên_tệp -----> vào tệp -----> chế độ lệnh -----> nhấn i vào chế độ chỉnh sửa -----> chỉnh sửa tệp ------> nhấn Esc vào chế độ dòng cuối -----> nhập: wq/q!` (nhập wq nghĩa là ghi nội dung và thoát, tức là lưu; nhập q! nghĩa là buộc thoát không lưu).
 
-**1）打包并压缩文件：**
+### Nén tệp
 
-Linux 中的打包文件一般是以 `.tar` 结尾的，压缩的命令一般是以 `.gz` 结尾的。而一般情况下打包和压缩是一起进行的，打包并压缩后的文件的后缀名一般 `.tar.gz`。
+**1) Đóng gói và nén tệp:**
 
-命令：`tar -zcvf 打包压缩后的文件名 要打包压缩的文件` ，其中：
+Tệp đóng gói trong Linux thường kết thúc bằng `.tar`, lệnh nén thường kết thúc bằng `.gz`. Thông thường đóng gói và nén được thực hiện cùng lúc, tệp sau khi đóng gói và nén có đuôi `.tar.gz`.
 
-- z：调用 gzip 压缩命令进行压缩
-- c：打包文件
-- v：显示运行过程
-- f：指定文件名
+Lệnh: `tar -zcvf tên_tệp_sau_nén tệp_cần_nén`, trong đó:
 
-比如：假如 test 目录下有三个文件分别是：`aaa.txt`、 `bbb.txt`、`ccc.txt`，如果我们要打包 `test` 目录并指定压缩后的压缩包名称为 `test.tar.gz` 可以使用命令：`tar -zcvf test.tar.gz aaa.txt bbb.txt ccc.txt` 或 `tar -zcvf test.tar.gz /test/` 。
+- z: Gọi lệnh nén gzip để nén
+- c: Đóng gói tệp
+- v: Hiển thị quá trình chạy
+- f: Chỉ định tên tệp
 
-**2）解压压缩包：**
+Ví dụ: Giả sử thư mục test có ba tệp: `aaa.txt`, `bbb.txt`, `ccc.txt`. Nếu muốn đóng gói thư mục `test` và đặt tên tệp nén là `test.tar.gz` có thể dùng lệnh: `tar -zcvf test.tar.gz aaa.txt bbb.txt ccc.txt` hoặc `tar -zcvf test.tar.gz /test/`.
 
-命令：`tar [-xvf] 压缩文件`
+**2) Giải nén:**
 
-其中 x 代表解压
+Lệnh: `tar [-xvf] tệp_nén`
 
-示例：
+Trong đó x đại diện cho giải nén
 
-- 将 `/test` 下的 `test.tar.gz` 解压到当前目录下可以使用命令：`tar -xvf test.tar.gz`
-- 将 /test 下的 test.tar.gz 解压到根目录/usr 下:`tar -xvf test.tar.gz -C /usr`（`-C` 代表指定解压的位置）
+Ví dụ:
 
-### 文件传输
+- Giải nén `test.tar.gz` trong `/test` vào thư mục hiện tại: `tar -xvf test.tar.gz`
+- Giải nén test.tar.gz trong /test vào thư mục /usr: `tar -xvf test.tar.gz -C /usr` (`-C` đại diện cho chỉ định vị trí giải nén)
 
-- `scp [选项] 源文件 远程文件` （scp 即 secure copy，安全复制）：用于通过 SSH 协议进行安全的文件传输，可以实现从本地到远程主机的上传和从远程主机到本地的下载。例如：`scp -r my_directory user@remote:/home/user` ，将本地目录`my_directory`上传到远程服务器 `/home/user` 目录下。`scp -r user@remote:/home/user/my_directory` ，将远程服务器的 `/home/user` 目录下的`my_directory`目录下载到本地。需要注意的是，`scp` 命令需要在本地和远程系统之间建立 SSH 连接进行文件传输，因此需要确保远程服务器已经配置了 SSH 服务，并且具有正确的权限和认证方式。
-- `rsync [选项] 源文件 远程文件` : 可以在本地和远程系统之间高效地进行文件复制，并且能够智能地处理增量复制，节省带宽和时间。例如：`rsync -r my_directory user@remote:/home/user`，将本地目录`my_directory`上传到远程服务器 `/home/user` 目录下。
-- `ftp` (File Transfer Protocol)：提供了一种简单的方式来连接到远程 FTP 服务器并进行文件上传、下载、删除等操作。使用之前需要先连接登录远程 FTP 服务器，进入 FTP 命令行界面后，可以使用 `put` 命令将本地文件上传到远程主机，可以使用`get`命令将远程主机的文件下载到本地，可以使用 `delete` 命令删除远程主机的文件。这里就不进行演示了。
+### Truyền tệp
 
-### 文件权限
+- `scp [tùy chọn] tệp_nguồn tệp_từ_xa` (scp tức là secure copy, sao chép bảo mật): Dùng để truyền tệp bảo mật qua giao thức SSH, có thể thực hiện tải lên từ local đến remote host và tải xuống từ remote host về local. Ví dụ: `scp -r my_directory user@remote:/home/user`, tải thư mục local `my_directory` lên thư mục `/home/user` của máy chủ từ xa. `scp -r user@remote:/home/user/my_directory`, tải thư mục `my_directory` trong `/home/user` của máy chủ từ xa về local. Lưu ý rằng lệnh `scp` cần thiết lập kết nối SSH giữa hệ thống local và từ xa để truyền tệp, vì vậy cần đảm bảo máy chủ từ xa đã cấu hình SSH và có quyền và phương thức xác thực đúng.
+- `rsync [tùy chọn] tệp_nguồn tệp_từ_xa`: Có thể sao chép tệp hiệu quả giữa hệ thống local và từ xa, và có thể xử lý thông minh việc sao chép gia tăng, tiết kiệm băng thông và thời gian. Ví dụ: `rsync -r my_directory user@remote:/home/user`, tải thư mục local `my_directory` lên thư mục `/home/user` của máy chủ từ xa.
+- `ftp` (File Transfer Protocol): Cung cấp cách đơn giản để kết nối đến máy chủ FTP từ xa và thực hiện các thao tác tải lên, tải xuống, xóa tệp. Trước khi dùng cần kết nối và đăng nhập máy chủ FTP từ xa. Sau khi vào giao diện dòng lệnh FTP, có thể dùng lệnh `put` để tải tệp local lên máy chủ từ xa, dùng lệnh `get` để tải tệp từ máy chủ từ xa về local, dùng lệnh `delete` để xóa tệp trên máy chủ từ xa. Ở đây không demo thêm.
 
-操作系统中每个文件都拥有特定的权限、所属用户和所属组。权限是操作系统用来限制资源访问的机制，在 Linux 中权限一般分为读(readable)、写(writable)和执行(executable)，分为三组。分别对应文件的属主(owner)，属组(group)和其他用户(other)，通过这样的机制来限制哪些用户、哪些组可以对特定的文件进行什么样的操作。
+### Quyền tệp
 
-通过 **`ls -l`** 命令我们可以 查看某个目录下的文件或目录的权限
+Trong hệ điều hành, mỗi tệp có quyền, người dùng sở hữu và nhóm sở hữu cụ thể. Quyền là cơ chế hệ điều hành dùng để giới hạn truy cập tài nguyên. Trong Linux quyền thường chia thành đọc (readable), ghi (writable) và thực thi (executable), chia thành ba nhóm tương ứng với chủ sở hữu tệp (owner), nhóm (group) và người dùng khác (other). Qua cơ chế này giới hạn người dùng nào, nhóm nào có thể thực hiện thao tác gì trên tệp cụ thể.
 
-示例：在随意某个目录下`ls -l`
+Qua lệnh **`ls -l`** có thể xem quyền của tệp hoặc thư mục trong một thư mục nào đó.
+
+Ví dụ: Chạy `ls -l` trong bất kỳ thư mục nào
 
 ![](./images/Linux权限命令.png)
 
-第一列的内容的信息解释如下：
+Nội dung cột đầu tiên giải thích như sau:
 
 ![](./images/Linux权限解读.png)
 
-> 下面将详细讲解文件的类型、Linux 中权限以及文件有所有者、所在组、其它组具体是什么？
+> Dưới đây sẽ giải thích chi tiết loại tệp, quyền trong Linux và khái niệm chủ sở hữu, nhóm sở hữu, nhóm khác của tệp.
 
-**文件的类型：**
+**Loại tệp:**
 
-- d：代表目录
-- -：代表文件
-- l：代表软链接（可以认为是 window 中的快捷方式）
+- d: Đại diện cho thư mục
+- -: Đại diện cho tệp
+- l: Đại diện cho soft link (có thể hiểu là shortcut trong Windows)
 
-**Linux 中权限分为以下几种：**
+**Các loại quyền trong Linux:**
 
-- r：代表权限是可读，r 也可以用数字 4 表示
-- w：代表权限是可写，w 也可以用数字 2 表示
-- x：代表权限是可执行，x 也可以用数字 1 表示
+- r: Đại diện cho quyền đọc, r cũng có thể biểu thị bằng số 4
+- w: Đại diện cho quyền ghi, w cũng có thể biểu thị bằng số 2
+- x: Đại diện cho quyền thực thi, x cũng có thể biểu thị bằng số 1
 
-**文件和目录权限的区别：**
+**Sự khác biệt về quyền của tệp và thư mục:**
 
-对文件和目录而言，读写执行表示不同的意义。
+Đối với tệp và thư mục, đọc ghi thực thi có ý nghĩa khác nhau.
 
-对于文件：
+Với tệp:
 
-| 权限名称 |                  可执行操作 |
-| :------- | --------------------------: |
-| r        | 可以使用 cat 查看文件的内容 |
-| w        |          可以修改文件的内容 |
-| x        |    可以将其运行为二进制文件 |
+| Tên quyền |           Thao tác có thể thực hiện |
+| :-------- | ----------------------------------: |
+| r         | Có thể dùng cat để xem nội dung tệp |
+| w         |         Có thể sửa đổi nội dung tệp |
+| x         |        Có thể chạy như tệp nhị phân |
 
-对于目录：
+Với thư mục:
 
-| 权限名称 |               可执行操作 |
-| :------- | -----------------------: |
-| r        |       可以查看目录下列表 |
-| w        | 可以创建和删除目录下文件 |
-| x        |     可以使用 cd 进入目录 |
+| Tên quyền |           Thao tác có thể thực hiện |
+| :-------- | ----------------------------------: |
+| r         |  Có thể xem danh sách trong thư mục |
+| w         | Có thể tạo và xóa tệp trong thư mục |
+| x         |          Có thể dùng cd vào thư mục |
 
-需要注意的是：**超级用户可以无视普通用户的权限，即使文件目录权限是 000，依旧可以访问。**
+Cần lưu ý: **Super user có thể bỏ qua quyền của người dùng thông thường, kể cả quyền tệp thư mục là 000, vẫn có thể truy cập.**
 
-**在 Linux 中的每个用户必须属于一个组，不能独立于组外。在 linux 中每个文件有所有者、所在组、其它组的概念。**
+**Trong Linux mỗi người dùng nhất định phải thuộc một nhóm, không thể đứng ngoài nhóm. Trong linux mỗi tệp có khái niệm chủ sở hữu, nhóm sở hữu, nhóm khác.**
 
-- **所有者(u)** ：一般为文件的创建者，谁创建了该文件，就天然的成为该文件的所有者，用 `ls ‐ahl` 命令可以看到文件的所有者 也可以使用 chown 用户名 文件名来修改文件的所有者 。
-- **文件所在组(g)** ：当某个用户创建了一个文件后，这个文件的所在组就是该用户所在的组用 `ls ‐ahl`命令可以看到文件的所有组也可以使用 chgrp 组名 文件名来修改文件所在的组。
-- **其它组(o)** ：除开文件的所有者和所在组的用户外，系统的其它用户都是文件的其它组。
+- **Chủ sở hữu (u)**: Thường là người tạo tệp. Ai tạo tệp đó tự nhiên trở thành chủ sở hữu của tệp. Dùng lệnh `ls ‐ahl` có thể xem chủ sở hữu của tệp. Cũng có thể dùng `chown tên_người_dùng tên_tệp` để sửa đổi chủ sở hữu tệp.
+- **Nhóm sở hữu (g)**: Khi một người dùng tạo tệp, nhóm sở hữu của tệp là nhóm của người dùng đó. Dùng lệnh `ls ‐ahl` có thể xem nhóm sở hữu của tệp. Cũng có thể dùng `chgrp tên_nhóm tên_tệp` để sửa đổi nhóm sở hữu tệp.
+- **Nhóm khác (o)**: Ngoài chủ sở hữu và người dùng trong nhóm sở hữu của tệp, tất cả người dùng khác trong hệ thống là nhóm khác của tệp.
 
-> 我们再来看看如何修改文件/目录的权限。
+> Hãy xem lại cách sửa đổi quyền của tệp/thư mục.
 
-**修改文件/目录的权限的命令：`chmod`**
+**Lệnh sửa đổi quyền tệp/thư mục: `chmod`**
 
-示例：修改/test 下的 aaa.txt 的权限为文件所有者有全部权限，文件所有者所在的组有读写权限，其他用户只有读的权限。
+Ví dụ: Sửa đổi quyền của aaa.txt trong /test thành chủ sở hữu tệp có toàn quyền, nhóm sở hữu có quyền đọc ghi, người dùng khác chỉ có quyền đọc.
 
-**`chmod u=rwx,g=rw,o=r aaa.txt`** 或者 **`chmod 764 aaa.txt`**
+**`chmod u=rwx,g=rw,o=r aaa.txt`** hoặc **`chmod 764 aaa.txt`**
 
 ![](./images/修改文件权限.png)
 
-**补充一个比较常用的东西:**
+**Thêm một thứ khá thường dùng:**
 
-假如我们装了一个 zookeeper，我们每次开机到要求其自动启动该怎么办？
+Giả sử chúng ta cài zookeeper, mỗi lần khởi động máy muốn nó tự khởi động thì làm thế nào?
 
-1. 新建一个脚本 zookeeper
-2. 为新建的脚本 zookeeper 添加可执行权限，命令是:`chmod +x zookeeper`
-3. 把 zookeeper 这个脚本添加到开机启动项里面，命令是：`chkconfig --add zookeeper`
-4. 如果想看看是否添加成功，命令是：`chkconfig --list`
+1. Tạo script mới tên zookeeper
+2. Thêm quyền thực thi cho script zookeeper mới tạo, lệnh là: `chmod +x zookeeper`
+3. Thêm zookeeper vào mục khởi động cùng hệ thống, lệnh là: `chkconfig --add zookeeper`
+4. Nếu muốn kiểm tra đã thêm thành công chưa, lệnh là: `chkconfig --list`
 
-### 用户管理
+### Quản lý người dùng
 
-Linux 系统是一个多用户多任务的分时操作系统，任何一个要使用系统资源的用户，都必须首先向系统管理员申请一个账号，然后以这个账号的身份进入系统。
+Hệ điều hành Linux là hệ điều hành phân tán đa người dùng đa nhiệm. Bất kỳ người dùng nào muốn sử dụng tài nguyên hệ thống đều phải đăng ký tài khoản với quản trị viên hệ thống trước, sau đó dùng tài khoản đó để vào hệ thống.
 
-用户的账号一方面可以帮助系统管理员对使用系统的用户进行跟踪，并控制他们对系统资源的访问；另一方面也可以帮助用户组织文件，并为用户提供安全性保护。
+Tài khoản người dùng một mặt có thể giúp quản trị viên hệ thống theo dõi người dùng đang sử dụng hệ thống và kiểm soát quyền truy cập tài nguyên; mặt khác cũng giúp người dùng tổ chức tệp và cung cấp bảo vệ bảo mật cho người dùng.
 
-**Linux 用户管理相关命令:**
+**Các lệnh quản lý người dùng Linux:**
 
-- `useradd [选项] 用户名`:创建用户账号。使用`useradd`指令所建立的帐号，实际上是保存在 `/etc/passwd`文本文件中。
-- `userdel [选项] 用户名`:删除用户帐号。
-- `usermod [选项] 用户名`:修改用户账号的属性和配置比如用户名、用户 ID、家目录。
-- `passwd [选项] 用户名`: 设置用户的认证信息，包括用户密码、密码过期时间等。。例如：`passwd -S 用户名` ，显示用户账号密码信息。`passwd -d 用户名`: 清除用户密码，会导致用户无法登录。`passwd 用户名`，修改用户密码，随后系统会提示输入新密码并确认密码。
-- `su [选项] 用户名`（su 即 Switch User，切换用户）：在当前登录的用户和其他用户之间切换身份。
+- `useradd [tùy chọn] tên_người_dùng`: Tạo tài khoản người dùng. Tài khoản được tạo bởi lệnh `useradd` thực sự được lưu trong tệp văn bản `/etc/passwd`.
+- `userdel [tùy chọn] tên_người_dùng`: Xóa tài khoản người dùng.
+- `usermod [tùy chọn] tên_người_dùng`: Sửa đổi thuộc tính và cấu hình tài khoản người dùng như tên người dùng, ID người dùng, thư mục home.
+- `passwd [tùy chọn] tên_người_dùng`: Đặt thông tin xác thực người dùng, bao gồm mật khẩu, thời gian hết hạn mật khẩu, v.v. Ví dụ: `passwd -S tên_người_dùng`, hiển thị thông tin mật khẩu tài khoản. `passwd -d tên_người_dùng`: Xóa mật khẩu người dùng, sẽ khiến người dùng không thể đăng nhập. `passwd tên_người_dùng`, sửa đổi mật khẩu người dùng, hệ thống sẽ nhắc nhập mật khẩu mới và xác nhận.
+- `su [tùy chọn] tên_người_dùng` (su tức là Switch User, chuyển đổi người dùng): Chuyển đổi danh tính giữa người dùng hiện đang đăng nhập và người dùng khác.
 
-### 用户组管理
+### Quản lý nhóm người dùng
 
-每个用户都有一个用户组，系统可以对一个用户组中的所有用户进行集中管理。不同 Linux 系统对用户组的规定有所不同，如 Linux 下的用户属于与它同名的用户组，这个用户组在创建用户时同时创建。
+Mỗi người dùng có một nhóm người dùng, hệ thống có thể quản lý tập trung tất cả người dùng trong một nhóm. Các hệ thống Linux khác nhau có quy định khác nhau về nhóm người dùng, ví dụ trong Linux người dùng thuộc nhóm cùng tên với mình, nhóm này được tạo đồng thời khi tạo người dùng.
 
-用户组的管理涉及用户组的添加、删除和修改。组的增加、删除和修改实际上就是对`/etc/group`文件的更新。
+Quản lý nhóm người dùng bao gồm thêm, xóa và sửa đổi nhóm. Thêm, xóa và sửa đổi nhóm thực ra là cập nhật tệp `/etc/group`.
 
-**Linux 系统用户组的管理相关命令:**
+**Các lệnh quản lý nhóm người dùng trong hệ thống Linux:**
 
-- `groupadd [选项] 用户组` :增加一个新的用户组。
-- `groupdel 用户组`:要删除一个已有的用户组。
-- `groupmod [选项] 用户组` : 修改用户组的属性。
+- `groupadd [tùy chọn] nhóm_người_dùng`: Thêm một nhóm người dùng mới.
+- `groupdel nhóm_người_dùng`: Xóa một nhóm người dùng đã tồn tại.
+- `groupmod [tùy chọn] nhóm_người_dùng`: Sửa đổi thuộc tính của nhóm người dùng.
 
-### 系统状态
+### Trạng thái hệ thống
 
-- `top [选项]`：用于实时查看系统的 CPU 使用率、内存使用率、进程信息等。
-- `htop [选项]`：类似于 `top`，但提供了更加交互式和友好的界面，可让用户交互式操作，支持颜色主题，可横向或纵向滚动浏览进程列表，并支持鼠标操作。
-- `uptime [选项]`：用于查看系统总共运行了多长时间、系统的平均负载等信息。
-- `vmstat [间隔时间] [重复次数]`：vmstat （Virtual Memory Statistics） 的含义为显示虚拟内存状态，但是它可以报告关于进程、内存、I/O 等系统整体运行状态。
-- `free [选项]`：用于查看系统的内存使用情况，包括已用内存、可用内存、缓冲区和缓存等。
-- `df [选项] [文件系统]`：用于查看系统的磁盘空间使用情况，包括磁盘空间的总量、已使用量和可用量等，可以指定文件系统上。例如：`df -a`，查看全部文件系统。
-- `du [选项] [文件]`：用于查看指定目录或文件的磁盘空间使用情况，可以指定不同的选项来控制输出格式和单位。
-- `sar [选项] [时间间隔] [重复次数]`：用于收集、报告和分析系统的性能统计信息，包括系统的 CPU 使用、内存使用、磁盘 I/O、网络活动等详细信息。它的特点是可以连续对系统取样，获得大量的取样数据。取样数据和分析的结果都可以存入文件，使用它时消耗的系统资源很小。
-- `ps [选项]`：用于查看系统中的进程信息，包括进程的 ID、状态、资源使用情况等。`ps -ef`/`ps -aux`：这两个命令都是查看当前系统正在运行进程，两者的区别是展示格式不同。如果想要查看特定的进程可以使用这样的格式：`ps aux|grep redis` （查看包括 redis 字符串的进程），也可使用 `pgrep redis -a`。
-- `systemctl [命令] [服务名称]`：用于管理系统的服务和单元，可以查看系统服务的状态、启动、停止、重启等。
+- `top [tùy chọn]`: Dùng để xem theo thời gian thực tỷ lệ sử dụng CPU, tỷ lệ sử dụng bộ nhớ, thông tin tiến trình, v.v. của hệ thống.
+- `htop [tùy chọn]`: Tương tự `top` nhưng cung cấp giao diện tương tác và thân thiện hơn, cho phép người dùng thao tác tương tác, hỗ trợ chủ đề màu, có thể cuộn ngang hoặc dọc để duyệt danh sách tiến trình, và hỗ trợ thao tác chuột.
+- `uptime [tùy chọn]`: Dùng để xem tổng thời gian hệ thống đã chạy, tải trung bình của hệ thống và các thông tin khác.
+- `vmstat [khoảng_thời_gian] [số_lần_lặp]`: vmstat (Virtual Memory Statistics) có nghĩa là hiển thị trạng thái bộ nhớ ảo, nhưng nó có thể báo cáo trạng thái chạy tổng thể hệ thống về tiến trình, bộ nhớ, I/O, v.v.
+- `free [tùy chọn]`: Dùng để xem tình trạng sử dụng bộ nhớ của hệ thống, bao gồm bộ nhớ đã dùng, khả dụng, bộ đệm và cache, v.v.
+- `df [tùy chọn] [hệ_thống_tệp]`: Dùng để xem tình trạng sử dụng không gian đĩa của hệ thống, bao gồm tổng dung lượng, đã sử dụng và khả dụng của không gian đĩa. Ví dụ: `df -a`, xem tất cả hệ thống tệp.
+- `du [tùy chọn] [tệp]`: Dùng để xem tình trạng sử dụng không gian đĩa của thư mục hoặc tệp chỉ định, có thể chỉ định các tùy chọn khác nhau để kiểm soát định dạng và đơn vị đầu ra.
+- `sar [tùy chọn] [khoảng_thời_gian] [số_lần_lặp]`: Dùng để thu thập, báo cáo và phân tích thống kê hiệu năng của hệ thống, bao gồm thông tin chi tiết về sử dụng CPU, bộ nhớ, đĩa I/O, hoạt động mạng của hệ thống. Đặc điểm của nó là có thể liên tục lấy mẫu hệ thống để thu được lượng lớn dữ liệu mẫu. Dữ liệu mẫu và kết quả phân tích đều có thể lưu vào tệp, tiêu thụ tài nguyên hệ thống rất ít khi dùng.
+- `ps [tùy chọn]`: Dùng để xem thông tin tiến trình trong hệ thống, bao gồm ID, trạng thái, tình trạng sử dụng tài nguyên của tiến trình. `ps -ef`/`ps -aux`: Hai lệnh này đều xem các tiến trình đang chạy trong hệ thống hiện tại, điểm khác nhau là định dạng hiển thị khác nhau. Nếu muốn xem tiến trình cụ thể có thể dùng định dạng này: `ps aux|grep redis` (xem tiến trình chứa chuỗi redis), cũng có thể dùng `pgrep redis -a`.
+- `systemctl [lệnh] [tên_dịch_vụ]`: Dùng để quản lý các dịch vụ và đơn vị hệ thống, có thể xem trạng thái, khởi động, dừng, khởi động lại các dịch vụ hệ thống.
 
-### 网络通信
+### Giao tiếp mạng
 
-- `ping [选项] 目标主机`：测试与目标主机的网络连接。
-- `ifconfig` 或 `ip`：用于查看系统的网络接口信息，包括网络接口的 IP 地址、MAC 地址、状态等。
-- `netstat [选项]`：用于查看系统的网络连接状态和网络统计信息，可以查看当前的网络连接情况、监听端口、网络协议等。
-- `ss [选项]`：比 `netstat` 更好用，提供了更快速、更详细的网络连接信息。
-- `nload`：`sar` 和 `nload` 都可以监控网络流量，但`sar` 的输出是文本形式的数据，不够直观。`nload` 则是一个专门用于实时监控网络流量的工具，提供图形化的终端界面，更加直观。不过，`nload` 不保存历史数据，所以它不适合用于长期趋势分析。并且，系统并没有默认安装它，需要手动安装。
-- `sudo hostnamectl set-hostname 新主机名`:更改主机名，并且重启后依然有效。`sudo hostname 新主机名`也可以更改主机名。不过需要注意的是，使用 `hostname` 命令直接更改主机名只是临时生效，系统重启后会恢复为原来的主机名。
+- `ping [tùy chọn] máy_chủ_đích`: Kiểm tra kết nối mạng với máy chủ đích.
+- `ifconfig` hoặc `ip`: Dùng để xem thông tin giao diện mạng của hệ thống, bao gồm địa chỉ IP, địa chỉ MAC, trạng thái của giao diện mạng.
+- `netstat [tùy chọn]`: Dùng để xem trạng thái kết nối mạng và thống kê mạng của hệ thống, có thể xem tình trạng kết nối mạng hiện tại, các cổng đang lắng nghe, giao thức mạng.
+- `ss [tùy chọn]`: Tốt hơn `netstat`, cung cấp thông tin kết nối mạng nhanh và chi tiết hơn.
+- `nload`: Cả `sar` và `nload` đều có thể theo dõi lưu lượng mạng, nhưng đầu ra của `sar` là dữ liệu dạng text, không đủ trực quan. `nload` là công cụ chuyên dùng để theo dõi lưu lượng mạng theo thời gian thực, cung cấp giao diện terminal đồ họa, trực quan hơn. Tuy nhiên, `nload` không lưu dữ liệu lịch sử nên không phù hợp để phân tích xu hướng dài hạn. Hơn nữa hệ thống không cài mặc định, cần cài thủ công.
+- `sudo hostnamectl set-hostname tên_máy_chủ_mới`: Thay đổi tên máy chủ và vẫn có hiệu lực sau khi khởi động lại. `sudo hostname tên_máy_chủ_mới` cũng có thể thay đổi tên máy chủ. Tuy nhiên lưu ý rằng thay đổi tên máy chủ trực tiếp bằng lệnh `hostname` chỉ có hiệu lực tạm thời, sau khi khởi động lại hệ thống sẽ trở lại tên máy chủ ban đầu.
 
-### 其他
+### Khác
 
-- `sudo + 其他命令`：以系统管理者的身份执行指令，也就是说，经由 sudo 所执行的指令就好像是 root 亲自执行。
-- `grep [选项] "搜索内容" 文件路径`：非常强大且常用的文本搜索命令，它可以根据指定的字符串或正则表达式，在文件或命令输出中进行匹配查找，适用于日志分析、文本过滤、快速定位等多种场景。示例：忽略大小写搜索 syslog 中所有包含 error 的行：`grep -i "error" /var/log/syslog`，查找所有与 java 相关的进程：`ps -ef | grep "java"`。
-- `kill -9 进程的pid`：杀死进程（-9 表示强制终止）先用 ps 查找进程，然后用 kill 杀掉。
-- `shutdown`：`shutdown -h now`：指定现在立即关机；`shutdown +5 "System will shutdown after 5 minutes"`：指定 5 分钟后关机，同时送出警告信息给登入用户。
-- `reboot`：`reboot`：重开机。`reboot -w`：做个重开机的模拟（只有纪录并不会真的重开机）。
+- `sudo + lệnh_khác`: Thực thi lệnh với quyền quản trị viên hệ thống, tức là lệnh được thực thi qua sudo giống như root trực tiếp thực hiện.
+- `grep [tùy chọn] "nội_dung_tìm_kiếm" đường_dẫn_tệp`: Lệnh tìm kiếm văn bản mạnh mẽ và thường dùng, có thể tìm kiếm khớp trong tệp hoặc đầu ra lệnh dựa trên chuỗi chỉ định hoặc biểu thức chính quy, phù hợp với nhiều tình huống như phân tích log, lọc văn bản, định vị nhanh. Ví dụ: Tìm kiếm bỏ qua hoa thường tất cả dòng chứa "error" trong syslog: `grep -i "error" /var/log/syslog`; tìm tất cả tiến trình liên quan đến java: `ps -ef | grep "java"`.
+- `kill -9 pid_tiến_trình`: Giết tiến trình (-9 nghĩa là buộc dừng). Trước tiên dùng ps để tìm tiến trình, sau đó dùng kill để giết.
+- `shutdown`: `shutdown -h now`: Chỉ định tắt máy ngay lập tức; `shutdown +5 "System will shutdown after 5 minutes"`: Chỉ định tắt máy sau 5 phút, đồng thời gửi thông báo cảnh báo đến người dùng đang đăng nhập.
+- `reboot`: `reboot`: Khởi động lại máy. `reboot -w`: Mô phỏng khởi động lại (chỉ ghi log mà không thực sự khởi động lại).
 
-## Linux 环境变量
+## Biến môi trường Linux
 
-在 Linux 系统中，环境变量是用来定义系统运行环境的一些参数，比如每个用户不同的主目录（HOME）。
+Trong hệ thống Linux, biến môi trường là một số tham số dùng để định nghĩa môi trường chạy hệ thống, ví dụ thư mục home khác nhau của mỗi người dùng (HOME).
 
-### 环境变量分类
+### Phân loại biến môi trường
 
-按照作用域来分，环境变量可以简单的分成:
+Theo phạm vi, biến môi trường có thể chia đơn giản thành:
 
-- 用户级别环境变量 : `~/.bashrc`、`~/.bash_profile`。
-- 系统级别环境变量 : `/etc/bashrc`、`/etc/environment`、`/etc/profile`、`/etc/profile.d`。
+- Biến môi trường cấp người dùng: `~/.bashrc`, `~/.bash_profile`.
+- Biến môi trường cấp hệ thống: `/etc/bashrc`, `/etc/environment`, `/etc/profile`, `/etc/profile.d`.
 
-上述配置文件执行先后顺序为：`/etc/environment` –> `/etc/profile` –> `/etc/profile.d` –> `~/.bash_profile` –> `/etc/bashrc` –> `~/.bashrc`
+Thứ tự thực thi các tệp cấu hình trên là: `/etc/environment` -> `/etc/profile` -> `/etc/profile.d` -> `~/.bash_profile` -> `/etc/bashrc` -> `~/.bashrc`
 
-如果要修改系统级别环境变量文件，需要管理员具备对该文件的写入权限。
+Nếu muốn sửa đổi tệp biến môi trường cấp hệ thống, cần quản trị viên có quyền ghi vào tệp đó.
 
-建议用户级别环境变量在 `~/.bash_profile`中配置，系统级别环境变量在 `/etc/profile.d` 中配置。
+Khuyến nghị cấu hình biến môi trường cấp người dùng trong `~/.bash_profile`, cấu hình biến môi trường cấp hệ thống trong `/etc/profile.d`.
 
-按照生命周期来分，环境变量可以简单的分成:
+Theo vòng đời, biến môi trường có thể chia đơn giản thành:
 
-- 永久的：需要用户修改相关的配置文件，变量永久生效。
-- 临时的：用户利用 `export` 命令，在当前终端下声明环境变量，关闭 shell 终端失效。
+- Vĩnh viễn: Cần người dùng sửa đổi tệp cấu hình liên quan, biến có hiệu lực vĩnh viễn.
+- Tạm thời: Người dùng dùng lệnh `export` để khai báo biến môi trường trong terminal hiện tại, đóng terminal shell thì mất hiệu lực.
 
-### 读取环境变量
+### Đọc biến môi trường
 
-通过 `export` 命令可以输出当前系统定义的所有环境变量。
+Lệnh `export` có thể xuất tất cả biến môi trường được định nghĩa trong hệ thống hiện tại.
 
 ```bash
-# 列出当前的环境变量值
+# Liệt kê giá trị biến môi trường hiện tại
 export -p
 ```
 
-除了 `export` 命令之外， `env` 命令也可以列出所有环境变量。
+Ngoài lệnh `export`, lệnh `env` cũng có thể liệt kê tất cả biến môi trường.
 
-`echo` 命令可以输出指定环境变量的值。
+Lệnh `echo` có thể xuất giá trị biến môi trường chỉ định.
 
 ```bash
-# 输出当前的PATH环境变量的值
+# Xuất giá trị biến môi trường PATH hiện tại
 echo $PATH
-# 输出当前的HOME环境变量的值
+# Xuất giá trị biến môi trường HOME hiện tại
 echo $HOME
 ```
 
-### 环境变量修改
+### Sửa đổi biến môi trường
 
-通过 `export`命令可以修改指定的环境变量。不过，这种方式修改环境变量仅仅对当前 shell 终端生效，关闭 shell 终端就会失效。修改完成之后，立即生效。
+Lệnh `export` có thể sửa đổi biến môi trường chỉ định. Tuy nhiên cách này chỉ có hiệu lực với terminal shell hiện tại, đóng terminal shell sẽ mất hiệu lực. Sau khi sửa đổi xong, có hiệu lực ngay lập tức.
 
 ```bash
 export CLASSPATH=./JAVA_HOME/lib;$JAVA_HOME/jre/lib
 ```
 
-通过 `vim` 命令修改环境变量配置文件。这种方式修改环境变量永久有效。
+Sửa đổi tệp cấu hình biến môi trường bằng lệnh `vim`. Cách này sửa đổi biến môi trường có hiệu lực vĩnh viễn.
 
 ```bash
 vim ~/.bash_profile
 ```
 
-如果修改的是系统级别环境变量则对所有用户生效，如果修改的是用户级别环境变量则仅对当前用户生效。
+Nếu sửa đổi biến môi trường cấp hệ thống thì có hiệu lực với tất cả người dùng, nếu sửa đổi biến môi trường cấp người dùng thì chỉ có hiệu lực với người dùng hiện tại.
 
-修改完成之后，需要 `source` 命令让其生效或者关闭 shell 终端重新登录。
+Sau khi sửa đổi xong, cần dùng lệnh `source` để áp dụng hoặc đóng terminal shell và đăng nhập lại.
 
 ```bash
 source /etc/profile

@@ -1,95 +1,95 @@
 ---
-title: 贡献指南
-description: JavaGuide开源项目贡献指南，讲解如何参与项目维护、提交PR及成为Contributor的完整流程。
-category: 走近项目
+title: Contribution Guidelines
+description: Hướng dẫn đóng góp cho JavaGuide open source project, giải thích cách tham gia duy trì project, submit PR và quy trình đầy đủ để trở thành Contributor.
+category: Giới thiệu project
 icon: guide
 ---
 
-你好，我是 Guide！欢迎来到 JavaGuide 的“开源实验室”。
+Xin chào, tôi là Guide! Chào mừng đến với "open source lab" của JavaGuide.
 
-参与开源项目的维护，不仅是一次技术实战，更是一场“技术反哺”的修行。
+Tham gia duy trì open source project không chỉ là một lần thực hành kỹ thuật, mà còn là một hành trình "kỹ thuật phản hồi cộng đồng".
 
-在这里，你的每一行文字和代码，都会被全球几十万的开发者看到。
+Ở đây, mỗi dòng chữ và code của bạn sẽ được hàng chục triệu developer trên toàn cầu nhìn thấy.
 
-## 为什么要参与 JavaGuide 的维护？
+## Tại sao tham gia duy trì JavaGuide?
 
-很多小伙伴觉得开源社区门槛高，其实不然。参与 JavaGuide 维护的收益非常务实：
+Nhiều bạn cảm thấy threshold của open source community cao, thực ra không phải vậy. Lợi ích khi tham gia duy trì JavaGuide rất thiết thực:
 
-1. **深度对齐知识点**：在纠错或完善内容的过程中，你会强迫自己进行“穿透式学习”，这种记忆远比死记硬背八股文要深刻。
-2. **影响力背书**：JavaGuide 已经接近 160k Star 了。如果你的 `PR` 被采纳，你的名字将永久留在 `Contributor` 列表中。这在求职面试时，是一份非常有说服力的**“开源实战证明”**。
-3. **实物奖励**：我会不定期给高频贡献的小伙伴寄送耳机、机械键盘等硬核周边，甚至还有直接的现金激励。
+1. **Học kiến thức sâu hơn**: Trong quá trình sửa lỗi hay hoàn thiện nội dung, bạn sẽ buộc mình phải "học xuyên thấu", loại ký ức này sâu sắc hơn nhiều so với thuộc lòng machine technical questions.
+2. **Credibility endorsement**: JavaGuide đã gần 160k Star. Nếu `PR` của bạn được chấp nhận, tên bạn sẽ lưu vĩnh viễn trong danh sách `Contributor`. Trong phỏng vấn tìm việc, đây là một **"chứng minh thực hành open source"** rất có sức thuyết phục.
+3. **Phần thưởng hiện vật**: Tôi sẽ định kỳ gửi tai nghe, mechanical keyboard và các peripheral khác cho những bạn đóng góp thường xuyên, thậm chí còn có cash incentive trực tiếp.
 
-## 可以从哪些方向进行贡献？
+## Có thể đóng góp theo hướng nào?
 
-你可以根据自己的精力，选择以下三个维度的贡献：
+Bạn có thể chọn đóng góp theo ba chiều sau tùy vào sức lực của mình:
 
-- **纠错（初级）**：发现文档中的错别字、标点误用或代码格式混乱。这类贡献最简单，但最有温度。
-- **完善（进阶）**：对现有的面试题答案进行重构。比如某篇文章的逻辑有断层，或者缺少了最新的技术特性分析。
-- **新增（专家）**：根据大厂最新的面试动向，新增高频面试题详解或硬核知识点的深度剖析。
+- **Error correction (Beginner)**: Phát hiện lỗi chính tả, dấu câu sai hoặc code format lộn xộn trong tài liệu. Loại đóng góp này đơn giản nhất nhưng có ý nghĩa nhất.
+- **Improvement (Intermediate)**: Tái cấu trúc câu trả lời interview question hiện có. Ví dụ một bài viết nào đó có logic đứt đoạn, hoặc thiếu phân tích về các tech features mới nhất.
+- **New content (Expert)**: Dựa trên xu hướng phỏng vấn mới nhất của big company, thêm giải thích chi tiết về high-frequency interview questions mới hoặc phân tích sâu về các kiến thức hardcore.
 
-## 如何丝滑地提交贡献？
+## Làm thế nào để submit contribution mượt mà?
 
-### 极简模式：点击“编辑此页”（3 分钟上手）
+### Minimal Mode: Click "Edit this page" (3 minutes to get started)
 
-本站每个页面的**左下角**都有一个 **「编辑此页」** 按钮。
+Ở **góc dưới bên trái** của mỗi trang trên website có một nút **「Edit this page」**.
 
-1. **点击跳转**：直接进入 GitHub 在线编辑界面。
-2. **在线修改**：在浏览器里直接改内容，省去 `git clone` 的麻烦。
-3. **提交申请**：填写提交信息（Commit Message），点击提交即可自动触发 `Pull Request`。
+1. **Click to jump**: Trực tiếp vào GitHub online editing interface.
+2. **Online modification**: Sửa nội dung trực tiếp trong browser, tiết kiệm phiền hà của `git clone`.
+3. **Submit request**: Điền commit message, click submit sẽ tự động trigger `Pull Request`.
 
-这种方式最适合修正笔误或小范围的内容优化。
+Cách này phù hợp nhất để sửa lỗi chính tả hoặc tối ưu nội dung quy mô nhỏ.
 
 ![](https://oss.javaguide.cn/github/javaguide/about/javaguide-contribution-edit-page.png)
 
-### 进阶模式：Fork + PR（标准开源流程）
+### Advanced Mode: Fork + PR (Standard open source workflow)
 
-如果你想进行大篇幅的重构或新增内容，建议走标准的 GitHub 工作流：
+Nếu bạn muốn thực hiện tái cấu trúc quy mô lớn hoặc thêm nội dung mới, khuyến nghị dùng standard GitHub workflow:
 
-1. **Fork 仓库**：点击[原仓库](https://github.com/Snailclimb/JavaGuide)右上角的 `Fork`，将 JavaGuide 复制一份副本到你的账户名下。
-2. **本地开发**：你可以将项目克隆到本地，在本地自由修改，编写内容。内容修改或者编写完成之后，直接提交到副本仓库即可。
-3. **发起 PR**：提交完成后，点击 `New Pull Request`，将你的修改请求合并到 JavaGuide 的主分支。
+1. **Fork repository**: Click `Fork` ở góc trên bên phải của [main repository](https://github.com/Snailclimb/JavaGuide), copy một bản JavaGuide về account của bạn.
+2. **Local development**: Bạn có thể clone project về local, tự do sửa đổi và viết nội dung local. Sau khi hoàn thành sửa đổi hay viết nội dung, submit vào forked repository là được.
+3. **Initiate PR**: Sau khi submit, click `New Pull Request` để request merge thay đổi của bạn vào main branch của JavaGuide.
 
 ![](https://oss.javaguide.cn/github/javaguide/about/javaguide-contribution-pr.png)
 
-Git 相关的技能非常重要，建议在正式工作之前一定要熟练掌握。
+Git skills rất quan trọng. Khuyến nghị nhất định phải thành thạo trước khi làm việc chính thức.
 
-我写过两篇相关的文章，推荐看看：
+Tôi đã viết hai bài liên quan, khuyến nghị đọc:
 
-- [Git 核心概念总结](https://javaguide.cn/tools/git/git-intro.html)
-- [Github 实用小技巧总结](https://javaguide.cn/tools/git/github-tips.html)
+- [Git Core Concepts Summary](https://javaguide.cn/tools/git/git-intro.html)
+- [Github Useful Tips Summary](https://javaguide.cn/tools/git/github-tips.html)
 
-### 提交 Issue 开启讨论
+### Submit Issue để mở thảo luận
 
-如果你发现某些地方需要改进，但暂时没空写代码，或者想提议新增某个专题，请直接通过 **Issue** 发起讨论。
+Nếu bạn phát hiện chỗ nào cần cải thiện nhưng tạm thời chưa có thời gian viết code, hoặc muốn đề xuất thêm một chủ đề mới, hãy trực tiếp mở thảo luận qua **Issue**.
 
-推荐的模板如下：
+Template được khuyến nghị:
 
-> **标题**：建议新增 Redis 与数据库双写一致性方案的对比与选型指南
+> **Title**: Đề xuất thêm hướng dẫn so sánh và lựa chọn các giải pháp dual-write consistency của Redis và database
 >
-> **内容描述**：缓存一致性是面试和实战中的重难点，目前文档中缺乏系统性的方案对比。建议补充：
+> **Content description**: Cache consistency là điểm khó và quan trọng cả trong phỏng vấn lẫn thực tế. Hiện tại tài liệu thiếu so sánh giải pháp có hệ thống. Đề xuất bổ sung:
 >
-> 1. **方案对比**：详细对比“先更新数据库再删缓存”、“延迟双删”、“订阅 binlog 异步删除”等方案的优缺点。
-> 2. **极端场景分析**：分析在主从延迟或网络抖动下，如何最大程度保障最终一致性。
+> 1. **Solution comparison**: So sánh chi tiết ưu nhược điểm của các giải pháp như "update database then delete cache", "delayed double delete", "subscribe binlog async delete" v.v.
+> 2. **Extreme scenario analysis**: Phân tích cách đảm bảo eventual consistency tối đa khi gặp master-slave delay hoặc network jitter.
 >
-> **认领意向**：我对该领域有深入研究，并整理了一份对比表格和流程图，希望能将其贡献到 JavaGuide。
+> **Claim intention**: Tôi có nghiên cứu sâu về lĩnh vực này, đã tổng hợp một bảng so sánh và flow diagram, hy vọng đóng góp vào JavaGuide.
 
-## 贡献要求
+## Yêu cầu đóng góp
 
-### 排版是第一生产力
+### Layout là năng suất đầu tiên
 
-中英文之间要加空格，标点符号要规范。请参考（任选一篇阅读即可）：
+Giữa chữ và chữ số Latin phải có dấu cách, dấu câu phải chuẩn. Tham khảo (chọn đọc một bài):
 
-- [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines)
-- [中文技术文档写作风格指南](https://github.com/yikeke/zh-style-guide/)
-- [中文文案排版细则 - Dawner](https://dawner.top/posts/chinese-copywriting-rules/)
-- [写给大家看的中文排版指南 - 知乎](https://zhuanlan.zhihu.com/p/20506092)
+- [Chinese Copywriting Guidelines](https://github.com/sparanoid/chinese-copywriting-guidelines)
+- [Chinese Technical Documentation Writing Style Guide](https://github.com/yikeke/zh-style-guide/)
+- [Chinese Copywriting Details - Dawner](https://dawner.top/posts/chinese-copywriting-rules/)
+- [Chinese Layout Guide for Everyone - Zhihu](https://zhuanlan.zhihu.com/p/20506092)
 
-### 内容原创
+### Original content
 
-你可以参考学习别人的文章，但**一定、一定、一定不要复制粘贴**！
+Bạn có thể tham khảo và học từ bài viết của người khác, nhưng **nhất định, nhất định, nhất định không copy-paste**!
 
-你要做的不是“信息的搬运工”，而是“知识的过滤器”。用你自己的话讲出来，努力写得比别人更通俗易懂，突出核心重点。**这种“穿透式”的表达，才是对读者最大的负责。**
+Việc bạn cần làm không phải là "người vận chuyển thông tin", mà là "bộ lọc kiến thức". Diễn đạt bằng lời của mình, cố gắng viết dễ hiểu hơn người khác, làm nổi bật trọng điểm. **Cách biểu đạt "xuyên thấu" như vậy mới là trách nhiệm lớn nhất với độc giả.**
 
-## 写在最后
+## Viết ở cuối
 
-开源不是一个人的单打独斗，而是一群人的砥砺前行。 **准备 Java 面试，首选 JavaGuide！** 期待在 Contributor 列表中看到你的名字。
+Open source không phải là cuộc chiến đơn độc của một người, mà là hành trình vươn lên của một nhóm người. **Chuẩn bị Java interview — lựa chọn đầu tiên là JavaGuide!** Mong chờ thấy tên bạn trong danh sách Contributor.

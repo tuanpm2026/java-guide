@@ -1,9 +1,9 @@
 ---
-title: HashMap 源码分析
-description: HashMap源码深度剖析：详解JDK1.7/1.8结构差异、hash扰动函数、0.75负载因子、扩容rehash机制、链表转红黑树阈值等HashMap核心原理。
+title: Phân tích mã nguồn HashMap
+description: Phân tích chuyên sâu mã nguồn HashMap：Giải thích chi tiết sự khác biệt cấu trúc JDK1.7/1.8, hàm nhiễu hash, load factor 0.75, cơ chế mở rộng rehash, ngưỡng chuyển đổi từ linked list sang red-black tree và các nguyên lý cốt lõi của HashMap.
 category: Java
 tag:
-  - Java集合
+  - Java Collections
 head:
   - - meta
     - name: keywords
@@ -12,31 +12,31 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-> 感谢 [changfubai](https://github.com/changfubai) 对本文的改进做出的贡献！
+> Cảm ơn [changfubai](https://github.com/changfubai) đã đóng góp cải thiện bài viết này!
 
-## HashMap 简介
+## Giới thiệu HashMap
 
-HashMap 主要用来存放键值对，它基于哈希表的 Map 接口实现，是常用的 Java 集合之一，是非线程安全的。
+HashMap chủ yếu được dùng để lưu trữ các cặp key-value, được triển khai dựa trên Map interface sử dụng bảng băm (hash table), là một trong những Java Collection được sử dụng phổ biến nhất và không an toàn luồng (non-thread-safe).
 
-`HashMap` 可以存储 null 的 key 和 value，但 null 作为键只能有一个，null 作为值可以有多个
+`HashMap` có thể lưu trữ null cho cả key và value, nhưng null làm key chỉ có thể có một, còn null làm value có thể có nhiều.
 
-JDK1.8 之前 HashMap 由 数组+链表 组成的，数组是 HashMap 的主体，链表则是主要为了解决哈希冲突而存在的（“拉链法”解决冲突）。 JDK1.8 以后的 `HashMap` 在解决哈希冲突时有了较大的变化，当链表长度大于等于阈值（默认为 8）（将链表转换成红黑树前会判断，如果当前数组的长度小于 64，那么会选择先进行数组扩容，而不是转换为红黑树）时，将链表转化为红黑树，以减少搜索时间。
+Trước JDK1.8, HashMap được cấu tạo từ **mảng + linked list**, trong đó mảng là thành phần chính của HashMap, còn linked list chủ yếu tồn tại để giải quyết xung đột băm (hash collision) theo phương pháp "chaining". Từ JDK1.8 trở đi, `HashMap` có sự thay đổi lớn trong việc giải quyết xung đột băm: khi độ dài linked list lớn hơn hoặc bằng ngưỡng (mặc định là 8) (trước khi chuyển đổi linked list thành red-black tree, sẽ kiểm tra nếu độ dài mảng hiện tại nhỏ hơn 64 thì sẽ ưu tiên mở rộng mảng thay vì chuyển đổi sang red-black tree), linked list sẽ được chuyển đổi thành red-black tree để giảm thời gian tìm kiếm.
 
-`HashMap` 默认的初始化大小为 16。之后每次扩充，容量变为原来的 2 倍。并且， `HashMap` 总是使用 2 的幂作为哈希表的大小。
+Kích thước khởi tạo mặc định của `HashMap` là 16. Mỗi lần mở rộng, dung lượng sẽ gấp đôi. Và `HashMap` luôn sử dụng lũy thừa của 2 làm kích thước bảng băm.
 
-## 底层数据结构分析
+## Phân tích cấu trúc dữ liệu bên dưới
 
-### JDK1.8 之前
+### Trước JDK1.8
 
-JDK1.8 之前 HashMap 底层是 **数组和链表** 结合在一起使用也就是 **链表散列**。
+Trước JDK1.8, phần dưới của HashMap là sự kết hợp của **mảng và linked list**, hay còn gọi là **linked list scatter** (phân tán linked list).
 
-HashMap 通过 key 的 hashCode 经过扰动函数处理过后得到 hash 值，然后通过 `(n - 1) & hash` 判断当前元素存放的位置（这里的 n 指的是数组的长度），如果当前位置存在元素的话，就判断该元素与要存入的元素的 hash 值以及 key 是否相同，如果相同的话，直接覆盖，不相同就通过拉链法解决冲突。
+HashMap lấy hashCode của key, qua hàm nhiễu (perturbation function) để tạo ra giá trị hash, sau đó dùng `(n - 1) & hash` để xác định vị trí lưu phần tử hiện tại (n là độ dài mảng). Nếu vị trí đó đã có phần tử, thì so sánh hash value và key của phần tử đó với phần tử cần chèn: nếu giống nhau thì ghi đè trực tiếp, nếu khác nhau thì giải quyết xung đột bằng chaining (kéo chuỗi).
 
-所谓扰动函数指的就是 HashMap 的 hash 方法。使用 hash 方法也就是扰动函数是为了防止一些实现比较差的 hashCode() 方法，换句话说使用扰动函数之后可以减少碰撞。
+Cái gọi là hàm nhiễu chính là phương thức hash của HashMap. Sử dụng phương thức hash tức là sử dụng hàm nhiễu là để ngăn các triển khai hashCode() kém chất lượng, nói cách khác việc sử dụng hàm nhiễu có thể giảm bớt các va chạm (collision).
 
-**JDK 1.8 HashMap 的 hash 方法源码:**
+**Mã nguồn phương thức hash của HashMap trong JDK 1.8:**
 
-JDK 1.8 的 hash 方法 相比于 JDK 1.7 hash 方法更加简化，但是原理不变。
+Phương thức hash trong JDK 1.8 đơn giản hơn so với phương thức hash trong JDK 1.7, nhưng nguyên lý không thay đổi.
 
 ```java
     static final int hash(Object key) {
@@ -48,7 +48,7 @@ JDK 1.8 的 hash 方法 相比于 JDK 1.7 hash 方法更加简化，但是原理
   }
 ```
 
-对比一下 JDK1.7 的 HashMap 的 hash 方法源码.
+So sánh với mã nguồn phương thức hash của HashMap trong JDK1.7.
 
 ```java
 static int hash(int h) {
@@ -61,21 +61,21 @@ static int hash(int h) {
 }
 ```
 
-相比于 JDK1.8 的 hash 方法 ，JDK 1.7 的 hash 方法的性能会稍差一点点，因为毕竟扰动了 4 次。
+So với phương thức hash của JDK1.8, phương thức hash của JDK 1.7 có hiệu suất kém hơn một chút, vì dù sao cũng đã nhiễu tới 4 lần.
 
-所谓 **“拉链法”** 就是：将链表和数组相结合。也就是说创建一个链表数组，数组中每一格就是一个链表。若遇到哈希冲突，则将冲突的值加到链表中即可。
+**"Chaining" (phương pháp kéo chuỗi)** là: kết hợp linked list và mảng lại với nhau. Tức là tạo một mảng linked list, mỗi ô trong mảng là một linked list. Khi gặp xung đột băm, chỉ cần thêm giá trị bị xung đột vào linked list là được.
 
-![jdk1.8 之前的内部结构-HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.7_hashmap.png)
+![Cấu trúc nội bộ trước JDK1.8 - HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.7_hashmap.png)
 
-### JDK1.8 之后
+### Từ JDK1.8 trở đi
 
-相比于之前的版本，JDK1.8 以后在解决哈希冲突时有了较大的变化。
+So với các phiên bản trước, JDK1.8 trở đi có sự thay đổi lớn trong việc giải quyết xung đột băm.
 
-当链表长度大于阈值（默认为 8）时，会首先调用 `treeifyBin()`方法。这个方法会根据 HashMap 数组来决定是否转换为红黑树。只有当数组长度大于或者等于 64 的情况下，才会执行转换红黑树操作，以减少搜索时间。否则，就是只是执行 `resize()` 方法对数组扩容。相关源码这里就不贴了，重点关注 `treeifyBin()`方法即可！
+Khi độ dài linked list lớn hơn ngưỡng (mặc định là 8), phương thức `treeifyBin()` sẽ được gọi đầu tiên. Phương thức này sẽ quyết định có chuyển đổi sang red-black tree hay không dựa trên độ dài mảng của HashMap. Chỉ khi độ dài mảng lớn hơn hoặc bằng 64 mới thực hiện chuyển đổi sang red-black tree để giảm thời gian tìm kiếm. Ngược lại, chỉ thực hiện `resize()` để mở rộng mảng. Phần mã nguồn liên quan sẽ không trích dẫn ở đây, hãy tập trung vào phương thức `treeifyBin()` là được!
 
-![jdk1.8之后的内部结构-HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.8_hashmap.png)
+![Cấu trúc nội bộ từ JDK1.8 trở đi - HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/jdk1.8_hashmap.png)
 
-**类的属性：**
+**Các thuộc tính của class:**
 
 ```java
 public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable {
@@ -108,19 +108,19 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
 }
 ```
 
-- **loadFactor 负载因子**
+- **loadFactor (hệ số tải)**
 
-  loadFactor 负载因子是控制数组存放数据的疏密程度，loadFactor 越趋近于 1，那么 数组中存放的数据(entry)也就越多，也就越密，也就是会让链表的长度增加，loadFactor 越小，也就是趋近于 0，数组中存放的数据(entry)也就越少，也就越稀疏。
+  loadFactor là hệ số tải, kiểm soát mức độ dày/thưa của dữ liệu được lưu trong mảng. loadFactor càng gần 1, dữ liệu (entry) được lưu trong mảng càng nhiều, càng dày đặc, tức là độ dài linked list sẽ tăng lên. loadFactor càng nhỏ, tức là càng gần 0, dữ liệu (entry) được lưu trong mảng càng ít, càng thưa thớt.
 
-  **loadFactor 太大导致查找元素效率低，太小导致数组的利用率低，存放的数据会很分散。loadFactor 的默认值为 0.75f 是官方给出的一个比较好的临界值**。
+  **loadFactor quá lớn làm giảm hiệu quả tìm kiếm phần tử, quá nhỏ làm giảm tỷ lệ sử dụng mảng và dữ liệu sẽ rất phân tán. Giá trị mặc định của loadFactor là 0.75f là một giá trị ngưỡng tốt được đưa ra bởi phía chính thức**.
 
-  给定的默认容量为 16，负载因子为 0.75。Map 在使用过程中不断的往里面存放数据，当数量超过了 16 \* 0.75 = 12 就需要将当前 16 的容量进行扩容，而扩容这个过程涉及到 rehash、复制数据等操作，所以非常消耗性能。
+  Dung lượng mặc định là 16, hệ số tải là 0.75. Trong quá trình sử dụng Map liên tục thêm dữ liệu, khi số lượng vượt quá 16 \* 0.75 = 12 thì cần mở rộng dung lượng hiện tại từ 16, và quá trình mở rộng này liên quan đến rehash, sao chép dữ liệu, v.v., nên rất tốn hiệu suất.
 
 - **threshold**
 
-  **threshold = capacity \* loadFactor**，**当 Size>threshold**的时候，那么就要考虑对数组的扩增了，也就是说，这个的意思就是 **衡量数组是否需要扩增的一个标准**。
+  **threshold = capacity \* loadFactor**, **khi Size > threshold** thì cần xem xét mở rộng mảng, tức là đây là **tiêu chuẩn để đánh giá liệu mảng có cần mở rộng hay không**.
 
-**Node 节点类源码:**
+**Mã nguồn class Node:**
 
 ```java
 // 继承自 Map.Entry<K,V>
@@ -164,7 +164,7 @@ static class Node<K,V> implements Map.Entry<K,V> {
 }
 ```
 
-**树节点类源码:**
+**Mã nguồn class TreeNode:**
 
 ```java
 static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
@@ -185,11 +185,11 @@ static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
        }
 ```
 
-## HashMap 源码分析
+## Phân tích mã nguồn HashMap
 
-### 构造方法
+### Các phương thức khởi tạo (Constructor)
 
-HashMap 中有四个构造方法，它们分别如下：
+HashMap có bốn phương thức khởi tạo như sau:
 
 ```java
     // 默认构造函数。
@@ -197,18 +197,18 @@ HashMap 中有四个构造方法，它们分别如下：
         this.loadFactor = DEFAULT_LOAD_FACTOR; // all   other fields defaulted
      }
 
-     // 包含另一个“Map”的构造函数
+     // 包含另一个"Map"的构造函数
      public HashMap(Map<? extends K, ? extends V> m) {
          this.loadFactor = DEFAULT_LOAD_FACTOR;
          putMapEntries(m, false);//下面会分析到这个方法
      }
 
-     // 指定“容量大小”的构造函数
+     // 指定"容量大小"的构造函数
      public HashMap(int initialCapacity) {
          this(initialCapacity, DEFAULT_LOAD_FACTOR);
      }
 
-     // 指定“容量大小”和“负载因子”的构造函数
+     // 指定"容量大小"和"负载因子"的构造函数
      public HashMap(int initialCapacity, float loadFactor) {
          if (initialCapacity < 0)
              throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
@@ -222,11 +222,11 @@ HashMap 中有四个构造方法，它们分别如下：
      }
 ```
 
-> 需要特别注意的是：传入的 `initialCapacity` 并不是最终的数组容量。`HashMap` 会调用 `tableSizeFor()` 将其**向上取整为大于或等于该值的最小 2 的幂次方**，并暂时保存到 `threshold` 字段。真正的 `table` 数组会在第一次扩容（`resize()`）时才初始化为这个大小。
+> Cần đặc biệt lưu ý: `initialCapacity` được truyền vào không phải là dung lượng mảng cuối cùng. `HashMap` sẽ gọi `tableSizeFor()` để **làm tròn lên thành lũy thừa của 2 nhỏ nhất lớn hơn hoặc bằng giá trị đó**, và tạm thời lưu vào trường `threshold`. Mảng `table` thực sự sẽ được khởi tạo với kích thước này chỉ khi lần mở rộng đầu tiên (`resize()`) xảy ra.
 >
-> 例如：`initialCapacity = 9` → `threshold = 16` → `table` 长度最终为 16。
+> Ví dụ: `initialCapacity = 9` → `threshold = 16` → độ dài `table` cuối cùng là 16.
 
-**putMapEntries 方法：**
+**Phương thức putMapEntries:**
 
 ```java
 final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
@@ -262,14 +262,14 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
 }
 ```
 
-### put 方法
+### Phương thức put
 
-HashMap 只提供了 put 用于添加元素，putVal 方法只是给 put 方法调用的一个方法，并没有提供给用户使用。
+HashMap chỉ cung cấp phương thức put để thêm phần tử; phương thức putVal chỉ là một phương thức được gọi bởi put, không được cung cấp cho người dùng sử dụng trực tiếp.
 
-**对 putVal 方法添加元素的分析如下：**
+**Phân tích phương thức putVal khi thêm phần tử như sau:**
 
-1. 如果定位到的数组位置没有元素 就直接插入。
-2. 如果定位到的数组位置有元素就和要插入的 key 比较，如果 key 相同就直接覆盖，如果 key 不相同，就判断 p 是否是一个树节点，如果是就调用`e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)`将元素添加进入。如果不是就遍历链表插入(插入的是链表尾部)。
+1. Nếu vị trí mảng được xác định không có phần tử thì chèn trực tiếp.
+2. Nếu vị trí mảng được xác định đã có phần tử, so sánh key của phần tử đó với key cần chèn: nếu key giống nhau thì ghi đè trực tiếp, nếu key khác nhau thì kiểm tra xem p có phải là tree node hay không, nếu có thì gọi `e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)` để thêm phần tử vào cây. Nếu không thì duyệt linked list để chèn (chèn vào cuối linked list).
 
 ![ ](https://oss.javaguide.cn/github/javaguide/database/sql/put.png)
 
@@ -348,12 +348,12 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 }
 ```
 
-**我们再来对比一下 JDK1.7 put 方法的代码**
+**Hãy so sánh thêm với mã nguồn phương thức put trong JDK1.7**
 
-**对于 put 方法的分析如下：**
+**Phân tích phương thức put như sau:**
 
-- ① 如果定位到的数组位置没有元素 就直接插入。
-- ② 如果定位到的数组位置有元素，遍历以这个元素为头结点的链表，依次和插入的 key 比较，如果 key 相同就直接覆盖，不同就采用头插法插入元素。
+- ① Nếu vị trí mảng được xác định không có phần tử thì chèn trực tiếp.
+- ② Nếu vị trí mảng được xác định đã có phần tử, duyệt linked list với phần tử đó là đầu, lần lượt so sánh với key cần chèn: nếu key giống nhau thì ghi đè trực tiếp, nếu khác nhau thì sử dụng phương thức chèn đầu (head insertion) để chèn phần tử.
 
 ```java
 public V put(K key, V value)
@@ -380,7 +380,7 @@ public V put(K key, V value)
 }
 ```
 
-### get 方法
+### Phương thức get
 
 ```java
 public V get(Object key) {
@@ -413,9 +413,9 @@ final Node<K,V> getNode(int hash, Object key) {
 }
 ```
 
-### resize 方法
+### Phương thức resize
 
-进行扩容，会伴随着一次重新 hash 分配，并且会遍历 hash 表中所有的元素，是非常耗时的。在编写程序中，要尽量避免 resize。resize 方法实际上是将 table 初始化和 table 扩容 进行了整合，底层的行为都是给 table 赋值一个新的数组。
+Khi mở rộng, sẽ đi kèm với một lần phân phối lại hash và duyệt tất cả các phần tử trong bảng hash, rất tốn thời gian. Khi viết chương trình, cần cố gắng tránh resize. Phương thức resize thực chất là tích hợp khởi tạo table và mở rộng table lại với nhau, hành vi bên dưới đều là gán cho table một mảng mới.
 
 ```java
 final Node<K,V>[] resize() {
@@ -505,7 +505,7 @@ final Node<K,V>[] resize() {
 }
 ```
 
-## HashMap 常用方法测试
+## Kiểm thử các phương thức thường dùng của HashMap
 
 ```java
 package map;

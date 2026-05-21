@@ -1,457 +1,457 @@
 ---
 icon: creative
-title: JavaGuide（Java 面试 & 后端通用面试指南）
-description: Java 面试指南（Java 八股文/面试题总结）：覆盖 Java 基础、集合、并发、JVM、Spring、MySQL、Redis、系统设计与分布式等核心知识，适用于校招/社招后端面试复习。
+title: JavaGuide（Hướng dẫn phỏng vấn Java & Backend tổng hợp）
+description: Hướng dẫn phỏng vấn Java（Tổng hợp câu hỏi phỏng vấn Java）：Bao phủ các kiến thức cốt lõi như Java cơ bản, Collections, Concurrency, JVM, Spring, MySQL, Redis, System Design và Distributed Systems, phù hợp cho việc ôn thi phỏng vấn backend.
 head:
   - - meta
     - name: keywords
       content: Java面试,Java面试指南,Java八股文,Java面试题,Java基础面试,JVM面试,并发面试,线程池面试,Spring面试,MySQL面试,Redis面试,系统设计面试,分布式面试,后端面试
 ---
 
-::: tip 友情提示
+::: tip Lưu ý
 
-- **AI 面试**：[AI 应用开发面试指南](../ai/) - 深入浅出掌握大模型基础、Agent、RAG、MCP 协议等高频面试考点。
-- **实战项目**：
-  - [⭐AI 智能面试辅助平台 + RAG 知识库](https://javaguide.cn/zhuanlan/interview-guide.html)：基于 Spring Boot 4.0 + Java 21 + Spring AI 2.0 开发。非常适合作为学习和简历项目，学习门槛低，帮助提升求职竞争力，是主打就业的实战项目。
-  - [手写 RPC 框架](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html)：从零开始基于 Netty+Kyro+Zookeeper 实现一个简易的 RPC 框架。麻雀虽小五脏俱全，项目代码注释详细，结构清晰。
-- **面试资料补充**：
-  - [《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)：四年打磨，和 JavaGuide 开源版的内容互补，带你从零开始系统准备后端面试！
-  - [《后端面试高频系统设计&场景题》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html)：30+ 道高频系统设计和场景面试，助你应对当下中大厂面试趋势。
-- **使用建议** ：如果你想要系统准备 Java 后端面试但又不知道如何开始的，可以参考 [Java 后端面试通关计划（后端通用）](https://javaguide.cn/interview-preparation/backend-interview-plan.html)。
-- **求个 Star**：如果觉得 JavaGuide 的内容对你有帮助的话，还请点个免费的 Star，这是对我最大的鼓励，感谢各位一起同行，共勉！传送门：[GitHub](https://github.com/Snailclimb/JavaGuide) | [Gitee](https://gitee.com/SnailClimb/JavaGuide)。
-- **转载须知**：以下所有文章如非文首说明为转载皆为 JavaGuide 原创，转载请在文首注明出处。如发现恶意抄袭/搬运，会动用法律武器维护自己的权益。让我们一起维护一个良好的技术创作环境！
+- **Phỏng vấn AI**: [Hướng dẫn phỏng vấn phát triển ứng dụng AI](../ai/) - Nắm vững các điểm thi phỏng vấn quan trọng như nền tảng mô hình lớn, Agent, RAG, giao thức MCP.
+- **Dự án thực chiến**:
+  - [⭐Nền tảng hỗ trợ phỏng vấn thông minh AI + RAG Knowledge Base](https://javaguide.cn/zhuanlan/interview-guide.html)：Phát triển dựa trên Spring Boot 4.0 + Java 21 + Spring AI 2.0. Rất phù hợp làm dự án học tập và dự án CV, ngưỡng học thấp, giúp nâng cao khả năng cạnh tranh tìm việc.
+  - [Tự viết RPC Framework](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html)：Xây dựng từ đầu một RPC framework đơn giản dựa trên Netty+Kyro+Zookeeper. Dự án nhỏ nhưng đầy đủ, chú thích chi tiết, cấu trúc rõ ràng.
+- **Tài liệu phỏng vấn bổ sung**:
+  - [《Cẩm nang phỏng vấn Java》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)：Được đánh bóng 4 năm, bổ sung nội dung cho phiên bản mã nguồn mở JavaGuide, dẫn bạn từ đầu chuẩn bị có hệ thống cho phỏng vấn backend!
+  - [《Câu hỏi System Design & Tình huống phỏng vấn Backend tần suất cao》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html)：30+ câu hỏi system design và tình huống tần suất cao, giúp bạn đối phó xu hướng phỏng vấn các công ty lớn hiện nay.
+- **Gợi ý sử dụng**：Nếu bạn muốn chuẩn bị có hệ thống cho phỏng vấn Java backend nhưng không biết bắt đầu từ đâu, có thể tham khảo [Kế hoạch chinh phục phỏng vấn Java Backend（dành cho backend tổng hợp）](https://javaguide.cn/interview-preparation/backend-interview-plan.html).
+- **Cho xin một Star**：Nếu bạn thấy nội dung của JavaGuide hữu ích, hãy cho một Star miễn phí, đó là sự khích lệ lớn nhất với mình. Cảm ơn mọi người đã đồng hành！Cổng vào: [GitHub](https://github.com/Snailclimb/JavaGuide) | [Gitee](https://gitee.com/SnailClimb/JavaGuide).
+- **Lưu ý khi dẫn nguồn**：Tất cả các bài viết dưới đây nếu không ghi là đăng lại thì đều là bản gốc của JavaGuide. Khi dẫn nguồn vui lòng ghi rõ nguồn ở đầu bài. Nếu phát hiện sao chép/đạo văn độc hại, sẽ sử dụng các biện pháp pháp lý để bảo vệ quyền lợi. Hãy cùng nhau duy trì một môi trường sáng tạo kỹ thuật lành mạnh!
 
 :::
 
-## 面试准备
+## Chuẩn bị phỏng vấn
 
-- [⭐Java 后端面试通关计划（涵盖后端通用体系）](./interview-preparation/backend-interview-plan.md) (一定要看 :+1:)
-- [如何高效准备 Java 面试？](./interview-preparation/teach-you-how-to-prepare-for-the-interview-hand-in-hand.md)
-- [Java 后端面试重点总结](./interview-preparation/key-points-of-interview.md)
-- [Java 学习路线（最新版，4w+ 字）](./interview-preparation/java-roadmap.md)
-- [程序员简历编写指南](./interview-preparation/resume-guide.md)
-- [项目经验指南](./interview-preparation/project-experience-guide.md)
-- [面试太紧张怎么办？](./interview-preparation/how-to-handle-interview-nerves.md)
-- [校招没有实习经历怎么办？实习经历怎么写？](./interview-preparation/internship-experience.md)
+- [⭐Kế hoạch chinh phục phỏng vấn Java Backend（bao gồm hệ thống backend tổng hợp）](./interview-preparation/backend-interview-plan.md) (Bắt buộc phải xem :+1:)
+- [Làm thế nào để chuẩn bị phỏng vấn Java hiệu quả?](./interview-preparation/teach-you-how-to-prepare-for-the-interview-hand-in-hand.md)
+- [Tổng kết các điểm trọng tâm phỏng vấn Java Backend](./interview-preparation/key-points-of-interview.md)
+- [Lộ trình học Java（phiên bản mới nhất, 4w+ chữ）](./interview-preparation/java-roadmap.md)
+- [Hướng dẫn viết CV cho lập trình viên](./interview-preparation/resume-guide.md)
+- [Hướng dẫn kinh nghiệm dự án](./interview-preparation/project-experience-guide.md)
+- [Bị run trong phỏng vấn thì phải làm gì?](./interview-preparation/how-to-handle-interview-nerves.md)
+- [Tuyển sinh không có kinh nghiệm thực tập thì sao? Viết kinh nghiệm thực tập như thế nào?](./interview-preparation/internship-experience.md)
 
 ## Java
 
-### 基础
+### Cơ bản
 
-**知识点/面试题总结** : (必看:+1: )：
+**Tổng hợp kiến thức/câu hỏi phỏng vấn** : (Bắt buộc xem :+1: )：
 
-- [Java 基础常见知识点&面试题总结(上)](./java/basis/java-basic-questions-01.md)
-- [Java 基础常见知识点&面试题总结(中)](./java/basis/java-basic-questions-02.md)
-- [Java 基础常见知识点&面试题总结(下)](./java/basis/java-basic-questions-03.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java cơ bản thường gặp (Phần 1)](./java/basis/java-basic-questions-01.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java cơ bản thường gặp (Phần 2)](./java/basis/java-basic-questions-02.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java cơ bản thường gặp (Phần 3)](./java/basis/java-basic-questions-03.md)
 
-**重要知识点详解**：
+**Giải thích chi tiết các kiến thức quan trọng**：
 
-- [为什么 Java 中只有值传递？](./java/basis/why-there-only-value-passing-in-java.md)
-- [Java 序列化详解](./java/basis/serialization.md)
-- [泛型&通配符详解](./java/basis/generics-and-wildcards.md)
-- [Java 反射机制详解](./java/basis/reflection.md)
-- [Java 代理模式详解](./java/basis/proxy.md)
-- [BigDecimal 详解](./java/basis/bigdecimal.md)
-- [Java 魔法类 Unsafe 详解](./java/basis/unsafe.md)
-- [Java SPI 机制详解](./java/basis/spi.md)
-- [Java 语法糖详解](./java/basis/syntactic-sugar.md)
+- [Tại sao trong Java chỉ có truyền theo giá trị?](./java/basis/why-there-only-value-passing-in-java.md)
+- [Giải thích chi tiết Java Serialization](./java/basis/serialization.md)
+- [Giải thích chi tiết Generics & Wildcards](./java/basis/generics-and-wildcards.md)
+- [Giải thích chi tiết cơ chế Reflection của Java](./java/basis/reflection.md)
+- [Giải thích chi tiết Proxy Pattern trong Java](./java/basis/proxy.md)
+- [Giải thích chi tiết BigDecimal](./java/basis/bigdecimal.md)
+- [Giải thích chi tiết lớp ma thuật Unsafe của Java](./java/basis/unsafe.md)
+- [Giải thích chi tiết cơ chế SPI của Java](./java/basis/spi.md)
+- [Giải thích chi tiết Syntactic Sugar trong Java](./java/basis/syntactic-sugar.md)
 
-### 集合
+### Collections
 
-**知识点/面试题总结**：
+**Tổng hợp kiến thức/câu hỏi phỏng vấn**：
 
-- [Java 集合常见知识点&面试题总结(上)](./java/collection/java-collection-questions-01.md) (必看 :+1:)
-- [Java 集合常见知识点&面试题总结(下)](./java/collection/java-collection-questions-02.md) (必看 :+1:)
-- [Java 集合使用注意事项总结](./java/collection/java-collection-precautions-for-use.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java Collections thường gặp (Phần 1)](./java/collection/java-collection-questions-01.md) (Bắt buộc xem :+1:)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java Collections thường gặp (Phần 2)](./java/collection/java-collection-questions-02.md) (Bắt buộc xem :+1:)
+- [Tổng hợp các lưu ý khi sử dụng Java Collections](./java/collection/java-collection-precautions-for-use.md)
 
-**源码分析**：
+**Phân tích mã nguồn**：
 
-- [ArrayList 核心源码+扩容机制分析](./java/collection/arraylist-source-code.md)
-- [LinkedList 核心源码分析](./java/collection/linkedlist-source-code.md)
-- [HashMap 核心源码+底层数据结构分析](./java/collection/hashmap-source-code.md)
-- [ConcurrentHashMap 核心源码+底层数据结构分析](./java/collection/concurrent-hash-map-source-code.md)
-- [LinkedHashMap 核心源码分析](./java/collection/linkedhashmap-source-code.md)
-- [CopyOnWriteArrayList 核心源码分析](./java/collection/copyonwritearraylist-source-code.md)
-- [ArrayBlockingQueue 核心源码分析](./java/collection/arrayblockingqueue-source-code.md)
-- [PriorityQueue 核心源码分析](./java/collection/priorityqueue-source-code.md)
-- [DelayQueue 核心源码分析](./java/collection/priorityqueue-source-code.md)
+- [Phân tích mã nguồn cốt lõi ArrayList + cơ chế mở rộng](./java/collection/arraylist-source-code.md)
+- [Phân tích mã nguồn cốt lõi LinkedList](./java/collection/linkedlist-source-code.md)
+- [Phân tích mã nguồn cốt lõi HashMap + cấu trúc dữ liệu bên dưới](./java/collection/hashmap-source-code.md)
+- [Phân tích mã nguồn cốt lõi ConcurrentHashMap + cấu trúc dữ liệu bên dưới](./java/collection/concurrent-hash-map-source-code.md)
+- [Phân tích mã nguồn cốt lõi LinkedHashMap](./java/collection/linkedhashmap-source-code.md)
+- [Phân tích mã nguồn cốt lõi CopyOnWriteArrayList](./java/collection/copyonwritearraylist-source-code.md)
+- [Phân tích mã nguồn cốt lõi ArrayBlockingQueue](./java/collection/arrayblockingqueue-source-code.md)
+- [Phân tích mã nguồn cốt lõi PriorityQueue](./java/collection/priorityqueue-source-code.md)
+- [Phân tích mã nguồn cốt lõi DelayQueue](./java/collection/priorityqueue-source-code.md)
 
 ### IO
 
-- [IO 基础知识总结](./java/io/io-basis.md)
-- [IO 设计模式总结](./java/io/io-design-patterns.md)
-- [IO 模型详解](./java/io/io-model.md)
-- [NIO 核心知识总结](./java/io/nio-basis.md)
+- [Tổng hợp kiến thức cơ bản về IO](./java/io/io-basis.md)
+- [Tổng hợp Design Patterns trong IO](./java/io/io-design-patterns.md)
+- [Giải thích chi tiết IO Model](./java/io/io-model.md)
+- [Tổng hợp kiến thức cốt lõi về NIO](./java/io/nio-basis.md)
 
-### 并发
+### Concurrency (Lập trình đồng thời)
 
-**知识点/面试题总结** : (必看 :+1:)
+**Tổng hợp kiến thức/câu hỏi phỏng vấn** : (Bắt buộc xem :+1:)
 
-- [Java 并发常见知识点&面试题总结（上）](./java/concurrent/java-concurrent-questions-01.md)
-- [Java 并发常见知识点&面试题总结（中）](./java/concurrent/java-concurrent-questions-02.md)
-- [Java 并发常见知识点&面试题总结（下）](./java/concurrent/java-concurrent-questions-03.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java Concurrency thường gặp (Phần 1)](./java/concurrent/java-concurrent-questions-01.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java Concurrency thường gặp (Phần 2)](./java/concurrent/java-concurrent-questions-02.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Java Concurrency thường gặp (Phần 3)](./java/concurrent/java-concurrent-questions-03.md)
 
-**重要知识点详解**：
+**Giải thích chi tiết các kiến thức quan trọng**：
 
-- [乐观锁和悲观锁详解](./java/concurrent/optimistic-lock-and-pessimistic-lock.md)
-- [CAS 详解](./java/concurrent/cas.md)
-- [JMM（Java 内存模型）详解](./java/concurrent/jmm.md)
-- **线程池**：[Java 线程池详解](./java/concurrent/java-thread-pool-summary.md)、[Java 线程池最佳实践](./java/concurrent/java-thread-pool-best-practices.md)
-- [ThreadLocal 详解](./java/concurrent/threadlocal.md)
-- [Java 并发容器总结](./java/concurrent/java-concurrent-collections.md)
-- [Atomic 原子类总结](./java/concurrent/atomic-classes.md)
-- [AQS 详解](./java/concurrent/aqs.md)
-- [CompletableFuture 详解](./java/concurrent/completablefuture-intro.md)
+- [Giải thích chi tiết Optimistic Lock và Pessimistic Lock](./java/concurrent/optimistic-lock-and-pessimistic-lock.md)
+- [Giải thích chi tiết CAS](./java/concurrent/cas.md)
+- [Giải thích chi tiết JMM（Java Memory Model）](./java/concurrent/jmm.md)
+- **Thread Pool**：[Giải thích chi tiết Java Thread Pool](./java/concurrent/java-thread-pool-summary.md)、[Best Practices cho Java Thread Pool](./java/concurrent/java-thread-pool-best-practices.md)
+- [Giải thích chi tiết ThreadLocal](./java/concurrent/threadlocal.md)
+- [Tổng hợp các Concurrent Collections trong Java](./java/concurrent/java-concurrent-collections.md)
+- [Tổng hợp các Atomic Classes](./java/concurrent/atomic-classes.md)
+- [Giải thích chi tiết AQS](./java/concurrent/aqs.md)
+- [Giải thích chi tiết CompletableFuture](./java/concurrent/completablefuture-intro.md)
 
-### JVM (必看 :+1:)
+### JVM (Bắt buộc xem :+1:)
 
-JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.com/javase/specs/jvms/se8/html/index.html) 和周志明老师的[《深入理解 Java 虚拟机（第 3 版）》](https://book.douban.com/subject/34907497/) （强烈建议阅读多遍！）。
+Phần nội dung JVM chủ yếu tham khảo [Đặc tả JVM-Java8](https://docs.oracle.com/javase/specs/jvms/se8/html/index.html) và cuốn sách [《Hiểu sâu về Java Virtual Machine (Tái bản lần 3)》](https://book.douban.com/subject/34907497/) của thầy Chu Chí Minh （Rất khuyến khích đọc nhiều lần!）.
 
-- **[Java 内存区域](./java/jvm/memory-area.md)**
-- **[JVM 垃圾回收](./java/jvm/jvm-garbage-collection.md)**
-- [类文件结构](./java/jvm/class-file-structure.md)
-- **[类加载过程](./java/jvm/class-loading-process.md)**
-- [类加载器](./java/jvm/classloader.md)
-- [【待完成】最重要的 JVM 参数总结（翻译完善了一半）](./java/jvm/jvm-parameters-intro.md)
-- [【加餐】大白话带你认识 JVM](./java/jvm/jvm-intro.md)
-- [JDK 监控和故障处理工具](./java/jvm/jdk-monitoring-and-troubleshooting-tools.md)
+- **[Vùng nhớ Java](./java/jvm/memory-area.md)**
+- **[JVM Garbage Collection](./java/jvm/jvm-garbage-collection.md)**
+- [Cấu trúc tệp Class](./java/jvm/class-file-structure.md)
+- **[Quá trình nạp Class](./java/jvm/class-loading-process.md)**
+- [Class Loader](./java/jvm/classloader.md)
+- [【Chưa hoàn thành】Tổng hợp các tham số JVM quan trọng nhất（đã dịch được một nửa）](./java/jvm/jvm-parameters-intro.md)
+- [【Bổ sung】Giới thiệu JVM bằng ngôn ngữ đơn giản](./java/jvm/jvm-intro.md)
+- [Công cụ giám sát và xử lý sự cố JDK](./java/jvm/jdk-monitoring-and-troubleshooting-tools.md)
 
-### 新特性
+### Tính năng mới
 
-- **Java 8**：[Java 8 新特性总结（翻译）](./java/new-features/java8-tutorial-translate.md)、[Java8 常用新特性总结](./java/new-features/java8-common-new-features.md)
-- [Java 9 新特性概览](./java/new-features/java9.md)
-- [Java 10 新特性概览](./java/new-features/java10.md)
-- [Java 11 新特性概览](./java/new-features/java11.md)
-- [Java 12 & 13 新特性概览](./java/new-features/java12-13.md)
-- [Java 14 & 15 新特性概览](./java/new-features/java14-15.md)
-- [Java 16 新特性概览](./java/new-features/java16.md)
-- [Java 17 新特性概览](./java/new-features/java17.md)
-- [Java 18 新特性概览](./java/new-features/java18.md)
-- [Java 19 新特性概览](./java/new-features/java19.md)
-- [Java 20 新特性概览](./java/new-features/java20.md)
-- [Java 21 新特性概览](./java/new-features/java21.md)
-- [Java 22 & 23 新特性概览](./java/new-features/java22-23.md)
-- [Java 24 新特性概览](./java/new-features/java24.md)
-- [Java 25 新特性概览](./java/new-features/java25.md)
+- **Java 8**：[Tổng hợp tính năng mới của Java 8（dịch）](./java/new-features/java8-tutorial-translate.md)、[Tổng hợp các tính năng mới thường dùng trong Java 8](./java/new-features/java8-common-new-features.md)
+- [Tổng quan tính năng mới Java 9](./java/new-features/java9.md)
+- [Tổng quan tính năng mới Java 10](./java/new-features/java10.md)
+- [Tổng quan tính năng mới Java 11](./java/new-features/java11.md)
+- [Tổng quan tính năng mới Java 12 & 13](./java/new-features/java12-13.md)
+- [Tổng quan tính năng mới Java 14 & 15](./java/new-features/java14-15.md)
+- [Tổng quan tính năng mới Java 16](./java/new-features/java16.md)
+- [Tổng quan tính năng mới Java 17](./java/new-features/java17.md)
+- [Tổng quan tính năng mới Java 18](./java/new-features/java18.md)
+- [Tổng quan tính năng mới Java 19](./java/new-features/java19.md)
+- [Tổng quan tính năng mới Java 20](./java/new-features/java20.md)
+- [Tổng quan tính năng mới Java 21](./java/new-features/java21.md)
+- [Tổng quan tính năng mới Java 22 & 23](./java/new-features/java22-23.md)
+- [Tổng quan tính năng mới Java 24](./java/new-features/java24.md)
+- [Tổng quan tính năng mới Java 25](./java/new-features/java25.md)
 
-## 计算机基础
+## Kiến thức máy tính cơ bản
 
-### 操作系统
+### Hệ điều hành
 
-- [操作系统常见知识点&面试题总结(上)](./cs-basics/operating-system/operating-system-basic-questions-01.md)
-- [操作系统常见知识点&面试题总结(下)](./cs-basics/operating-system/operating-system-basic-questions-02.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Hệ điều hành thường gặp (Phần 1)](./cs-basics/operating-system/operating-system-basic-questions-01.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Hệ điều hành thường gặp (Phần 2)](./cs-basics/operating-system/operating-system-basic-questions-02.md)
 - **Linux**：
-  - [后端程序员必备的 Linux 基础知识总结](./cs-basics/operating-system/linux-intro.md)
-  - [Shell 编程基础知识总结](./cs-basics/operating-system/shell-intro.md)
+  - [Tổng hợp kiến thức Linux cơ bản bắt buộc cho lập trình viên backend](./cs-basics/operating-system/linux-intro.md)
+  - [Tổng hợp kiến thức cơ bản về Shell Programming](./cs-basics/operating-system/shell-intro.md)
 
-### 网络
+### Mạng máy tính
 
-**知识点/面试题总结**：
+**Tổng hợp kiến thức/câu hỏi phỏng vấn**：
 
-- [计算机网络常见知识点&面试题总结(上)](./cs-basics/network/other-network-questions.md)
-- [计算机网络常见知识点&面试题总结(下)](./cs-basics/network/other-network-questions2.md)
-- [谢希仁老师的《计算机网络》内容总结（补充）](./cs-basics/network/computer-network-xiexiren-summary.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Mạng máy tính thường gặp (Phần 1)](./cs-basics/network/other-network-questions.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Mạng máy tính thường gặp (Phần 2)](./cs-basics/network/other-network-questions2.md)
+- [Tổng kết nội dung sách《Mạng máy tính》của thầy Tạ Hi Nhân（bổ sung）](./cs-basics/network/computer-network-xiexiren-summary.md)
 
-**重要知识点详解**：
+**Giải thích chi tiết các kiến thức quan trọng**：
 
-- [OSI 和 TCP/IP 网络分层模型详解（基础）](./cs-basics/network/osi-and-tcp-ip-model.md)
-- [应用层常见协议总结（应用层）](./cs-basics/network/application-layer-protocol.md)
-- [HTTP vs HTTPS（应用层）](./cs-basics/network/http-vs-https.md)
-- [HTTP 1.0 vs HTTP 1.1（应用层）](./cs-basics/network/http1.0-vs-http1.1.md)
-- [HTTP 常见状态码（应用层）](./cs-basics/network/http-status-codes.md)
-- [DNS 域名系统详解（应用层）](./cs-basics/network/dns.md)
-- [TCP 三次握手和四次挥手（传输层）](./cs-basics/network/tcp-connection-and-disconnection.md)
-- [TCP 传输可靠性保障（传输层）](./cs-basics/network/tcp-reliability-guarantee.md)
-- [ARP 协议详解(网络层)](./cs-basics/network/arp.md)
-- [NAT 协议详解(网络层)](./cs-basics/network/nat.md)
-- [网络攻击常见手段总结（安全）](./cs-basics/network/network-attack-means.md)
+- [Giải thích chi tiết mô hình phân lớp OSI và TCP/IP（cơ bản）](./cs-basics/network/osi-and-tcp-ip-model.md)
+- [Tổng hợp các giao thức phổ biến ở tầng ứng dụng](./cs-basics/network/application-layer-protocol.md)
+- [HTTP vs HTTPS（tầng ứng dụng）](./cs-basics/network/http-vs-https.md)
+- [HTTP 1.0 vs HTTP 1.1（tầng ứng dụng）](./cs-basics/network/http1.0-vs-http1.1.md)
+- [Các mã trạng thái HTTP phổ biến（tầng ứng dụng）](./cs-basics/network/http-status-codes.md)
+- [Giải thích chi tiết DNS（tầng ứng dụng）](./cs-basics/network/dns.md)
+- [Bắt tay 3 bước và kết thúc 4 bước TCP（tầng vận chuyển）](./cs-basics/network/tcp-connection-and-disconnection.md)
+- [Đảm bảo độ tin cậy truyền tải TCP（tầng vận chuyển）](./cs-basics/network/tcp-reliability-guarantee.md)
+- [Giải thích chi tiết giao thức ARP（tầng mạng）](./cs-basics/network/arp.md)
+- [Giải thích chi tiết giao thức NAT（tầng mạng）](./cs-basics/network/nat.md)
+- [Tổng hợp các hình thức tấn công mạng phổ biến（bảo mật）](./cs-basics/network/network-attack-means.md)
 
-### 数据结构
+### Cấu trúc dữ liệu
 
-**图解数据结构：**
+**Minh họa trực quan cấu trúc dữ liệu:**
 
-- [线性数据结构 :数组、链表、栈、队列](./cs-basics/data-structure/linear-data-structure.md)
-- [图](./cs-basics/data-structure/graph.md)
-- [堆](./cs-basics/data-structure/heap.md)
-- [树](./cs-basics/data-structure/tree.md)：重点关注[红黑树](./cs-basics/data-structure/red-black-tree.md)、B-，B+，B\*树、LSM 树
+- [Cấu trúc dữ liệu tuyến tính: Mảng, Danh sách liên kết, Stack, Queue](./cs-basics/data-structure/linear-data-structure.md)
+- [Đồ thị](./cs-basics/data-structure/graph.md)
+- [Heap](./cs-basics/data-structure/heap.md)
+- [Cây](./cs-basics/data-structure/tree.md)：Tập trung vào [Cây đỏ-đen](./cs-basics/data-structure/red-black-tree.md), cây B-, B+, B\*, LSM Tree
 
-其他常用数据结构：
+Các cấu trúc dữ liệu thường dùng khác:
 
-- [布隆过滤器](./cs-basics/data-structure/bloom-filter.md)
+- [Bloom Filter](./cs-basics/data-structure/bloom-filter.md)
 
-### 算法
+### Thuật toán
 
-算法这部分内容非常重要，如果你不知道如何学习算法的话，可以看下我写的：
+Phần thuật toán rất quan trọng. Nếu bạn không biết cách học thuật toán, có thể xem:
 
-- [算法学习书籍+资源推荐](https://www.zhihu.com/question/323359308/answer/1545320858) 。
-- [如何刷 Leetcode?](https://www.zhihu.com/question/31092580/answer/1534887374)
+- [Gợi ý sách + tài nguyên học thuật toán](https://www.zhihu.com/question/323359308/answer/1545320858).
+- [Làm thế nào để luyện Leetcode?](https://www.zhihu.com/question/31092580/answer/1534887374)
 
-**常见算法问题总结**：
+**Tổng hợp các bài toán thuật toán phổ biến**：
 
-- [几道常见的字符串算法题总结](./cs-basics/algorithms/string-algorithm-problems.md)
-- [几道常见的链表算法题总结](./cs-basics/algorithms/linkedlist-algorithm-problems.md)
-- [剑指 offer 部分编程题](./cs-basics/algorithms/the-sword-refers-to-offer.md)
-- [十大经典排序算法](./cs-basics/algorithms/10-classical-sorting-algorithms.md)
+- [Tổng hợp một số bài toán thuật toán chuỗi phổ biến](./cs-basics/algorithms/string-algorithm-problems.md)
+- [Tổng hợp một số bài toán thuật toán danh sách liên kết phổ biến](./cs-basics/algorithms/linkedlist-algorithm-problems.md)
+- [Một số bài lập trình trong Kiếm chỉ Offer](./cs-basics/algorithms/the-sword-refers-to-offer.md)
+- [10 thuật toán sắp xếp cổ điển](./cs-basics/algorithms/10-classical-sorting-algorithms.md)
 
-另外，[GeeksforGeeks](https://www.geeksforgeeks.org/fundamentals-of-algorithms/) 这个网站总结了常见的算法 ，比较全面系统。
+Ngoài ra, trang web [GeeksforGeeks](https://www.geeksforgeeks.org/fundamentals-of-algorithms/) tổng hợp các thuật toán phổ biến khá toàn diện và có hệ thống.
 
 [![Banner](https://oss.javaguide.cn/xingqiu/xingqiu.png)](./about-the-author/zhishixingqiu-two-years.md)
 
-## 数据库
+## Cơ sở dữ liệu
 
-### 基础
+### Cơ bản
 
-- [数据库基础知识总结](./database/basis.md)
-- [NoSQL 基础知识总结](./database/nosql.md)
-- [字符集详解](./database/character-set.md)
-- SQL :
-  - [SQL 语法基础知识总结](./database/sql/sql-syntax-summary.md)
-  - [SQL 常见面试题总结](./database/sql/sql-questions-01.md)
+- [Tổng hợp kiến thức cơ bản về cơ sở dữ liệu](./database/basis.md)
+- [Tổng hợp kiến thức cơ bản về NoSQL](./database/nosql.md)
+- [Giải thích chi tiết bộ ký tự](./database/character-set.md)
+- SQL:
+  - [Tổng hợp kiến thức cơ bản về cú pháp SQL](./database/sql/sql-syntax-summary.md)
+  - [Tổng hợp các câu hỏi phỏng vấn SQL phổ biến](./database/sql/sql-questions-01.md)
 
 ### MySQL
 
-**知识点/面试题总结：**
+**Tổng hợp kiến thức/câu hỏi phỏng vấn:**
 
-- **[MySQL 常见知识点&面试题总结](./database/mysql/mysql-questions-01.md)** (必看 :+1:)
-- [MySQL 高性能优化规范建议总结](./database/mysql/mysql-high-performance-optimization-specification-recommendations.md)
+- **[Tổng hợp kiến thức & câu hỏi phỏng vấn MySQL thường gặp](./database/mysql/mysql-questions-01.md)** (Bắt buộc xem :+1:)
+- [Tổng hợp gợi ý tối ưu hóa hiệu suất cao MySQL](./database/mysql/mysql-high-performance-optimization-specification-recommendations.md)
 
-**重要知识点：**
+**Kiến thức quan trọng:**
 
-- [MySQL 索引详解](./database/mysql/mysql-index.md)
-- [MySQL 索引失效场景总结](./database/mysql/mysql-index-invalidation.md)
-- [MySQL 事务隔离级别图文详解)](./database/mysql/transaction-isolation-level.md)
-- [MySQL 三大日志(binlog、redo log 和 undo log)详解](./database/mysql/mysql-logs.md)
-- [InnoDB 存储引擎对 MVCC 的实现](./database/mysql/innodb-implementation-of-mvcc.md)
-- [SQL 语句在 MySQL 中的执行过程](./database/mysql/how-sql-executed-in-mysql.md)
-- [MySQL 查询缓存详解](./database/mysql/mysql-query-cache.md)
-- [MySQL 执行计划分析](./database/mysql/mysql-query-execution-plan.md)
-- [MySQL 自增主键一定是连续的吗](./database/mysql/mysql-auto-increment-primary-key-continuous.md)
-- [MySQL 时间类型数据存储建议](./database/mysql/some-thoughts-on-database-storage-time.md)
-- [MySQL 隐式转换造成索引失效](./database/mysql/index-invalidation-caused-by-implicit-conversion.md)
+- [Giải thích chi tiết MySQL Index](./database/mysql/mysql-index.md)
+- [Tổng hợp các tình huống index không hoạt động trong MySQL](./database/mysql/mysql-index-invalidation.md)
+- [Giải thích chi tiết mức độ cô lập transaction trong MySQL](./database/mysql/transaction-isolation-level.md)
+- [Giải thích chi tiết 3 loại log MySQL (binlog, redo log và undo log)](./database/mysql/mysql-logs.md)
+- [Cách InnoDB Storage Engine triển khai MVCC](./database/mysql/innodb-implementation-of-mvcc.md)
+- [Quá trình thực thi câu lệnh SQL trong MySQL](./database/mysql/how-sql-executed-in-mysql.md)
+- [Giải thích chi tiết Query Cache trong MySQL](./database/mysql/mysql-query-cache.md)
+- [Phân tích Execution Plan trong MySQL](./database/mysql/mysql-query-execution-plan.md)
+- [Primary key tự tăng trong MySQL có luôn liên tục không?](./database/mysql/mysql-auto-increment-primary-key-continuous.md)
+- [Gợi ý lưu trữ dữ liệu kiểu thời gian trong MySQL](./database/mysql/some-thoughts-on-database-storage-time.md)
+- [Implicit conversion trong MySQL gây index không hoạt động](./database/mysql/index-invalidation-caused-by-implicit-conversion.md)
 
 ### Redis
 
-**知识点/面试题总结** : (必看:+1: )：
+**Tổng hợp kiến thức/câu hỏi phỏng vấn** : (Bắt buộc xem :+1: )：
 
-- [Redis 常见知识点&面试题总结(上)](./database/redis/redis-questions-01.md)
-- [Redis 常见知识点&面试题总结(下)](./database/redis/redis-questions-02.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Redis thường gặp (Phần 1)](./database/redis/redis-questions-01.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Redis thường gặp (Phần 2)](./database/redis/redis-questions-02.md)
 
-**重要知识点：**
+**Kiến thức quan trọng:**
 
-- [3 种常用的缓存读写策略详解](./database/redis/3-commonly-used-cache-read-and-write-strategies.md)
-- [Redis 能做消息队列吗？怎么实现？](./database/redis/redis-stream-mq.md)
-- [Redis 5 种基本数据结构详解](./database/redis/redis-data-structures-01.md)
-- [Redis 3 种特殊数据结构详解](./database/redis/redis-data-structures-02.md)
-- [Redis 持久化机制详解](./database/redis/redis-persistence.md)
-- [Redis 内存碎片详解](./database/redis/redis-memory-fragmentation.md)
-- [Redis 常见阻塞原因总结](./database/redis/redis-common-blocking-problems-summary.md)
-- [Redis 集群详解](./database/redis/redis-cluster.md)
+- [Giải thích chi tiết 3 chiến lược đọc/ghi cache phổ biến](./database/redis/3-commonly-used-cache-read-and-write-strategies.md)
+- [Redis có thể làm Message Queue không? Làm thế nào?](./database/redis/redis-stream-mq.md)
+- [Giải thích chi tiết 5 kiểu dữ liệu cơ bản trong Redis](./database/redis/redis-data-structures-01.md)
+- [Giải thích chi tiết 3 kiểu dữ liệu đặc biệt trong Redis](./database/redis/redis-data-structures-02.md)
+- [Giải thích chi tiết cơ chế Persistence trong Redis](./database/redis/redis-persistence.md)
+- [Giải thích chi tiết Memory Fragmentation trong Redis](./database/redis/redis-memory-fragmentation.md)
+- [Tổng hợp các nguyên nhân blocking phổ biến trong Redis](./database/redis/redis-common-blocking-problems-summary.md)
+- [Giải thích chi tiết Redis Cluster](./database/redis/redis-cluster.md)
 
 ### MongoDB
 
-- [MongoDB 常见知识点&面试题总结(上)](./database/mongodb/mongodb-questions-01.md)
-- [MongoDB 常见知识点&面试题总结(下)](./database/mongodb/mongodb-questions-02.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn MongoDB thường gặp (Phần 1)](./database/mongodb/mongodb-questions-01.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn MongoDB thường gặp (Phần 2)](./database/mongodb/mongodb-questions-02.md)
 
-## 搜索引擎
+## Search Engine (Công cụ tìm kiếm)
 
-[Elasticsearch 常见面试题总结(付费)](./database/elasticsearch/elasticsearch-questions-01.md)
+[Tổng hợp câu hỏi phỏng vấn Elasticsearch phổ biến (trả phí)](./database/elasticsearch/elasticsearch-questions-01.md)
 
-![JavaGuide 官方公众号](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Public Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
 
-## 开发工具
+## Công cụ phát triển
 
 ### Maven
 
-- [Maven 核心概念总结](./tools/maven/maven-core-concepts.md)
-- [Maven 最佳实践](./tools/maven/maven-best-practices.md)
+- [Tổng hợp các khái niệm cốt lõi về Maven](./tools/maven/maven-core-concepts.md)
+- [Best Practices Maven](./tools/maven/maven-best-practices.md)
 
 ### Gradle
 
-[Gradle 核心概念总结](./tools/gradle/gradle-core-concepts.md)（可选，目前国内还是使用 Maven 普遍一些）
+[Tổng hợp các khái niệm cốt lõi về Gradle](./tools/gradle/gradle-core-concepts.md)（Tùy chọn, hiện tại ở trong nước Maven vẫn phổ biến hơn）
 
 ### Docker
 
-- [Docker 核心概念总结](./tools/docker/docker-intro.md)
-- [Docker 实战](./tools/docker/docker-in-action.md)
+- [Tổng hợp các khái niệm cốt lõi về Docker](./tools/docker/docker-intro.md)
+- [Thực chiến Docker](./tools/docker/docker-in-action.md)
 
 ### Git
 
-- [Git 核心概念总结](./tools/git/git-intro.md)
-- [GitHub 实用小技巧总结](./tools/git/github-tips.md)
+- [Tổng hợp các khái niệm cốt lõi về Git](./tools/git/git-intro.md)
+- [Tổng hợp các mẹo hữu ích trên GitHub](./tools/git/github-tips.md)
 
-## 系统设计
+## Thiết kế hệ thống
 
-- [⭐系统设计常见面试题总结](./system-design/system-design-questions.md)
-- [⭐设计模式常见面试题总结](https://interview.javaguide.cn/system-design/design-pattern.html)
+- [⭐Tổng hợp câu hỏi phỏng vấn System Design phổ biến](./system-design/system-design-questions.md)
+- [⭐Tổng hợp câu hỏi phỏng vấn Design Patterns phổ biến](https://interview.javaguide.cn/system-design/design-pattern.html)
 
-### 基础
+### Cơ bản
 
-- [RestFul API 简明教程](./system-design/basis/RESTfulAPI.md)
-- [软件工程简明教程](./system-design/basis/software-engineering.md)
-- [代码命名指南](./system-design/basis/naming.md)
-- [代码重构指南](./system-design/basis/refactoring.md)
-- [单元测试指南](./system-design/basis/unit-test.md)
+- [Hướng dẫn ngắn gọn về RESTful API](./system-design/basis/RESTfulAPI.md)
+- [Hướng dẫn ngắn gọn về Software Engineering](./system-design/basis/software-engineering.md)
+- [Hướng dẫn đặt tên code](./system-design/basis/naming.md)
+- [Hướng dẫn tái cấu trúc code](./system-design/basis/refactoring.md)
+- [Hướng dẫn Unit Test](./system-design/basis/unit-test.md)
 
-### 常用框架
+### Các Framework thường dùng
 
-#### Spring/SpringBoot (必看 :+1:)
+#### Spring/SpringBoot (Bắt buộc xem :+1:)
 
-**知识点/面试题总结** :
+**Tổng hợp kiến thức/câu hỏi phỏng vấn** :
 
-- [Spring 常见知识点&面试题总结](./system-design/framework/spring/spring-knowledge-and-questions-summary.md)
-- [SpringBoot 常见知识点&面试题总结](./system-design/framework/spring/springboot-knowledge-and-questions-summary.md)
-- [Spring/Spring Boot 常用注解总结](./system-design/framework/spring/spring-common-annotations.md)
-- [SpringBoot 入门指南](https://github.com/Snailclimb/springboot-guide)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Spring thường gặp](./system-design/framework/spring/spring-knowledge-and-questions-summary.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn SpringBoot thường gặp](./system-design/framework/spring/springboot-knowledge-and-questions-summary.md)
+- [Tổng hợp các annotation thường dùng trong Spring/Spring Boot](./system-design/framework/spring/spring-common-annotations.md)
+- [Hướng dẫn nhập môn SpringBoot](https://github.com/Snailclimb/springboot-guide)
 
-**重要知识点详解**：
+**Giải thích chi tiết các kiến thức quan trọng**：
 
-- [IoC & AOP 详解（快速搞懂）](./system-design/framework/spring/ioc-and-aop.md)
-- [Spring 事务详解](./system-design/framework/spring/spring-transaction.md)
-- [Spring 中的设计模式详解](./system-design/framework/spring/spring-design-patterns-summary.md)
-- [SpringBoot 自动装配原理详解](./system-design/framework/spring/spring-boot-auto-assembly-principles.md)
+- [Giải thích chi tiết IoC & AOP（hiểu nhanh）](./system-design/framework/spring/ioc-and-aop.md)
+- [Giải thích chi tiết Spring Transaction](./system-design/framework/spring/spring-transaction.md)
+- [Giải thích chi tiết Design Patterns trong Spring](./system-design/framework/spring/spring-design-patterns-summary.md)
+- [Giải thích chi tiết nguyên lý Auto Configuration trong SpringBoot](./system-design/framework/spring/spring-boot-auto-assembly-principles.md)
 
 #### MyBatis
 
-[MyBatis 常见面试题总结](./system-design/framework/mybatis/mybatis-interview.md)
+[Tổng hợp câu hỏi phỏng vấn MyBatis phổ biến](./system-design/framework/mybatis/mybatis-interview.md)
 
-### 安全
+### Bảo mật
 
-#### 认证授权
+#### Xác thực & Phân quyền
 
-- [认证授权基础概念详解](./system-design/security/basis-of-authority-certification.md)
-- [JWT 基础概念详解](./system-design/security/jwt-intro.md)
-- [JWT 优缺点分析以及常见问题解决方案](./system-design/security/advantages-and-disadvantages-of-jwt.md)
-- [SSO 单点登录详解](./system-design/security/sso-intro.md)
-- [权限系统设计详解](./system-design/security/design-of-authority-system.md)
+- [Giải thích chi tiết các khái niệm cơ bản về xác thực và phân quyền](./system-design/security/basis-of-authority-certification.md)
+- [Giải thích chi tiết các khái niệm cơ bản về JWT](./system-design/security/jwt-intro.md)
+- [Phân tích ưu nhược điểm của JWT và giải pháp cho các vấn đề phổ biến](./system-design/security/advantages-and-disadvantages-of-jwt.md)
+- [Giải thích chi tiết SSO Single Sign-On](./system-design/security/sso-intro.md)
+- [Giải thích chi tiết thiết kế hệ thống phân quyền](./system-design/security/design-of-authority-system.md)
 
-#### 数据安全
+#### Bảo mật dữ liệu
 
-- [常见加密算法总结](./system-design/security/encryption-algorithms.md)
-- [敏感词过滤方案总结](./system-design/security/sentive-words-filter.md)
-- [数据脱敏方案总结](./system-design/security/data-desensitization.md)
-- [为什么前后端都要做数据校验](./system-design/security/data-validation.md)
-- [为什么忘记密码时只能重置，不能告诉你原密码？](./system-design/security/why-password-reset-instead-of-retrieval.md)
+- [Tổng hợp các thuật toán mã hóa phổ biến](./system-design/security/encryption-algorithms.md)
+- [Tổng hợp các giải pháp lọc từ nhạy cảm](./system-design/security/sentive-words-filter.md)
+- [Tổng hợp các giải pháp ẩn danh hóa dữ liệu](./system-design/security/data-desensitization.md)
+- [Tại sao cả frontend và backend đều cần xác thực dữ liệu](./system-design/security/data-validation.md)
+- [Tại sao khi quên mật khẩu chỉ có thể đặt lại, không thể cho biết mật khẩu cũ?](./system-design/security/why-password-reset-instead-of-retrieval.md)
 
-### 定时任务
+### Tác vụ theo lịch (Scheduled Task)
 
-[Java 定时任务详解](./system-design/schedule-task.md)
+[Giải thích chi tiết Java Scheduled Task](./system-design/schedule-task.md)
 
-### Web 实时消息推送
+### Web Real-time Message Push
 
-[Web 实时消息推送详解](./system-design/web-real-time-message-push.md)
+[Giải thích chi tiết Web Real-time Message Push](./system-design/web-real-time-message-push.md)
 
-## 分布式
+## Hệ thống phân tán (Distributed)
 
-- [⭐分布式高频面试题](https://interview.javaguide.cn/distributed-system/distributed-system.html)
+- [⭐Câu hỏi phỏng vấn Distributed Systems tần suất cao](https://interview.javaguide.cn/distributed-system/distributed-system.html)
 
-### 理论&算法&协议
+### Lý thuyết & Thuật toán & Giao thức
 
-- [CAP 理论和 BASE 理论解读](./distributed-system/protocol/cap-and-base-theorem.md)
-- [Paxos 算法解读](./distributed-system/protocol/paxos-algorithm.md)
-- [Raft 算法解读](./distributed-system/protocol/raft-algorithm.md)
-- [ZAB 协议解读](./distributed-system/protocol/zab.md)
-- [Gossip 协议详解](./distributed-system/protocol/gossip-protocol.md)
-- [一致性哈希算法详解](./distributed-system/protocol/consistent-hashing.md)
+- [Giải thích lý thuyết CAP và BASE](./distributed-system/protocol/cap-and-base-theorem.md)
+- [Giải thích thuật toán Paxos](./distributed-system/protocol/paxos-algorithm.md)
+- [Giải thích thuật toán Raft](./distributed-system/protocol/raft-algorithm.md)
+- [Giải thích giao thức ZAB](./distributed-system/protocol/zab.md)
+- [Giải thích chi tiết giao thức Gossip](./distributed-system/protocol/gossip-protocol.md)
+- [Giải thích chi tiết thuật toán Consistent Hashing](./distributed-system/protocol/consistent-hashing.md)
 
 ### RPC
 
-- [RPC 基础知识总结](./distributed-system/rpc/rpc-intro.md)
-- [Dubbo 常见知识点&面试题总结](./distributed-system/rpc/dubbo.md)
+- [Tổng hợp kiến thức cơ bản về RPC](./distributed-system/rpc/rpc-intro.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Dubbo thường gặp](./distributed-system/rpc/dubbo.md)
 
 ### ZooKeeper
 
-> 这两篇文章可能有内容重合部分，推荐都看一遍。
+> Hai bài viết này có thể có nội dung trùng lặp, khuyến khích đọc cả hai.
 
-- [ZooKeeper 相关概念总结(入门)](./distributed-system/distributed-process-coordination/zookeeper/zookeeper-intro.md)
-- [ZooKeeper 相关概念总结(进阶)](./distributed-system/distributed-process-coordination/zookeeper/zookeeper-plus.md)
+- [Tổng hợp các khái niệm liên quan đến ZooKeeper (Nhập môn)](./distributed-system/distributed-process-coordination/zookeeper/zookeeper-intro.md)
+- [Tổng hợp các khái niệm liên quan đến ZooKeeper (Nâng cao)](./distributed-system/distributed-process-coordination/zookeeper/zookeeper-plus.md)
 
-### API 网关
+### API Gateway
 
-- [API 网关基础知识总结](./distributed-system/api-gateway.md)
-- [Spring Cloud Gateway 常见知识点&面试题总结](./distributed-system/spring-cloud-gateway-questions.md)
+- [Tổng hợp kiến thức cơ bản về API Gateway](./distributed-system/api-gateway.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Spring Cloud Gateway thường gặp](./distributed-system/spring-cloud-gateway-questions.md)
 
-### 分布式 ID
+### Distributed ID
 
-- [分布式 ID 常见知识点&面试题总结](./distributed-system/distributed-id.md)
-- [分布式 ID 设计指南](./distributed-system/distributed-id-design.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Distributed ID thường gặp](./distributed-system/distributed-id.md)
+- [Hướng dẫn thiết kế Distributed ID](./distributed-system/distributed-id-design.md)
 
-### 分布式锁
+### Distributed Lock
 
-- [分布式锁介绍](https://javaguide.cn/distributed-system/distributed-lock.html)
-- [分布式锁常见实现方案总结](https://javaguide.cn/distributed-system/distributed-lock-implementations.html)
+- [Giới thiệu về Distributed Lock](https://javaguide.cn/distributed-system/distributed-lock.html)
+- [Tổng hợp các giải pháp triển khai Distributed Lock phổ biến](https://javaguide.cn/distributed-system/distributed-lock-implementations.html)
 
-### 分布式事务
+### Distributed Transaction
 
-[分布式事务常见知识点&面试题总结](./distributed-system/distributed-transaction.md)
+[Tổng hợp kiến thức & câu hỏi phỏng vấn Distributed Transaction thường gặp](./distributed-system/distributed-transaction.md)
 
-### 分布式配置中心
+### Distributed Configuration Center
 
-[分布式配置中心常见知识点&面试题总结](./distributed-system/distributed-configuration-center.md)
+[Tổng hợp kiến thức & câu hỏi phỏng vấn Distributed Configuration Center thường gặp](./distributed-system/distributed-configuration-center.md)
 
-## 高性能
+## Hiệu suất cao (High Performance)
 
-### 数据库优化
+### Tối ưu hóa cơ sở dữ liệu
 
-- [数据库读写分离和分库分表](./high-performance/read-and-write-separation-and-library-subtable.md)
-- [数据冷热分离](./high-performance/data-cold-hot-separation.md)
-- [常见 SQL 优化手段总结](./high-performance/sql-optimization.md)
-- [深度分页介绍及优化建议](./high-performance/deep-pagination-optimization.md)
+- [Phân tách đọc/ghi và sharding cơ sở dữ liệu](./high-performance/read-and-write-separation-and-library-subtable.md)
+- [Phân tách dữ liệu nóng/lạnh](./high-performance/data-cold-hot-separation.md)
+- [Tổng hợp các kỹ thuật tối ưu SQL phổ biến](./high-performance/sql-optimization.md)
+- [Giới thiệu và gợi ý tối ưu Deep Pagination](./high-performance/deep-pagination-optimization.md)
 
-### 负载均衡
+### Load Balancing
 
-[负载均衡常见知识点&面试题总结](./high-performance/load-balancing.md)
+[Tổng hợp kiến thức & câu hỏi phỏng vấn Load Balancing thường gặp](./high-performance/load-balancing.md)
 
 ### CDN
 
-[CDN（内容分发网络）常见知识点&面试题总结](./high-performance/cdn.md)
+[Tổng hợp kiến thức & câu hỏi phỏng vấn CDN（Content Delivery Network）thường gặp](./high-performance/cdn.md)
 
-### 消息队列
+### Message Queue
 
-- [消息队列基础知识总结](./high-performance/message-queue/message-queue.md)
-- [Disruptor 常见知识点&面试题总结](./high-performance/message-queue/disruptor-questions.md)
-- [RabbitMQ 常见知识点&面试题总结](./high-performance/message-queue/rabbitmq-questions.md)
-- [RocketMQ 常见知识点&面试题总结](./high-performance/message-queue/rocketmq-questions.md)
-- [Kafka 常见知识点&面试题总结](./high-performance/message-queue/kafka-questions-01.md)
+- [Tổng hợp kiến thức cơ bản về Message Queue](./high-performance/message-queue/message-queue.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Disruptor thường gặp](./high-performance/message-queue/disruptor-questions.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn RabbitMQ thường gặp](./high-performance/message-queue/rabbitmq-questions.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn RocketMQ thường gặp](./high-performance/message-queue/rocketmq-questions.md)
+- [Tổng hợp kiến thức & câu hỏi phỏng vấn Kafka thường gặp](./high-performance/message-queue/kafka-questions-01.md)
 
-## 高可用
+## Khả dụng cao (High Availability)
 
-[高可用系统设计指南](./high-availability/high-availability-system-design.md)
+[Hướng dẫn thiết kế hệ thống khả dụng cao](./high-availability/high-availability-system-design.md)
 
-### 冗余设计
+### Thiết kế dự phòng (Redundancy)
 
-[冗余设计详解](./high-availability/redundancy.md)
+[Giải thích chi tiết thiết kế dự phòng](./high-availability/redundancy.md)
 
-### 限流
+### Rate Limiting (Giới hạn tốc độ)
 
-[服务限流详解](./high-availability/limit-request.md)
+[Giải thích chi tiết Rate Limiting](./high-availability/limit-request.md)
 
-### 降级&熔断
+### Degradation & Circuit Breaker
 
-[降级&熔断详解](./high-availability/fallback-and-circuit-breaker.md)
+[Giải thích chi tiết Degradation & Circuit Breaker](./high-availability/fallback-and-circuit-breaker.md)
 
-### 超时&重试
+### Timeout & Retry
 
-[超时&重试详解](./high-availability/timeout-and-retry.md)
+[Giải thích chi tiết Timeout & Retry](./high-availability/timeout-and-retry.md)
 
-### 集群
+### Cluster (Cụm)
 
-相同的服务部署多份，避免单点故障。
+Triển khai nhiều bản sao của cùng một dịch vụ để tránh điểm lỗi đơn (single point of failure).
 
-### 灾备设计和异地多活
+### Disaster Recovery và Multi-Active Deployment
 
-**灾备** = 容灾 + 备份。
+**Disaster Recovery** = Khắc phục thảm họa + Sao lưu.
 
-- **备份**：将系统所产生的所有重要数据多备份几份。
-- **容灾**：在异地建立两个完全相同的系统。当某个地方的系统突然挂掉，整个应用系统可以切换到另一个，这样系统就可以正常提供服务了。
+- **Sao lưu**：Sao lưu nhiều bản tất cả dữ liệu quan trọng do hệ thống tạo ra.
+- **Khắc phục thảm họa**：Xây dựng hai hệ thống hoàn toàn giống nhau ở các địa điểm khác nhau. Khi hệ thống ở một nơi nào đó bị sự cố đột ngột, toàn bộ hệ thống ứng dụng có thể chuyển sang hệ thống kia để tiếp tục cung cấp dịch vụ bình thường.
 
-**异地多活** 描述的是将服务部署在异地并且服务同时对外提供服务。和传统的灾备设计的最主要区别在于“多活”，即所有站点都是同时在对外提供服务的。异地多活是为了应对突发状况比如火灾、地震等自然或者人为灾害。
+**Multi-Active Deployment** mô tả việc triển khai dịch vụ ở nhiều địa điểm khác nhau và tất cả đều đồng thời cung cấp dịch vụ ra ngoài. Điểm khác biệt chính so với thiết kế disaster recovery truyền thống nằm ở "multi-active", tức là tất cả các site đều đồng thời cung cấp dịch vụ. Multi-Active Deployment được thiết kế để đối phó với các tình huống bất ngờ như hỏa hoạn, động đất và các thảm họa tự nhiên hay nhân tạo khác.
 
-## Star 趋势
+## Xu hướng Star
 
 ![Stars](https://api.star-history.com/svg?repos=Snailclimb/JavaGuide&type=Date)
 
-## 公众号
+## Tài khoản chính thức
 
-如果大家想要实时关注我更新的文章以及分享的干货的话，可以关注我的公众号“**JavaGuide**”。
+Nếu mọi người muốn theo dõi real-time các bài viết cập nhật và các tài liệu hay mình chia sẻ, có thể quan tâm tài khoản chính thức của mình "**JavaGuide**".
 
-![JavaGuide 官方公众号](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Public Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)

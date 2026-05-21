@@ -1,85 +1,85 @@
 ---
-title: 布隆过滤器
-description: 解析 Bloom Filter 的原理与误判特性，结合哈希与位数组实现，适用于海量数据去重与缓存穿透防护。
-category: 计算机基础
+title: Bloom Filter (Bộ lọc Bloom)
+description: Phân tích nguyên lý và đặc tính false positive của Bloom Filter, kết hợp hash và bit array để triển khai, phù hợp với dedup big data và phòng chống cache penetration.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 数据结构
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
-      content: 布隆过滤器,Bloom Filter,误判率,哈希函数,位数组,去重,缓存穿透
+      content: Bloom filter,Bloom Filter,false positive rate,hash function,bit array,dedup,cache penetration
 ---
 
-布隆过滤器相信大家没用过的话，也已经听过了。
+Bloom filter chắc ai cũng đã nghe tên dù chưa dùng.
 
-布隆过滤器主要是为了解决海量数据的存在性问题。对于海量数据中判定某个数据是否存在且容忍轻微误差这一场景（比如缓存穿透、海量数据去重）来说，非常适合。
+Bloom filter chủ yếu để giải quyết vấn đề existence query trên big data. Rất phù hợp với tình huống cần xác định xem data nào đó có tồn tại trong big data không và có thể chấp nhận sai sót nhỏ (như cache penetration, dedup big data).
 
-文章内容概览：
+Nội dung bài:
 
-1. 什么是布隆过滤器？
-2. 布隆过滤器的原理介绍。
-3. 布隆过滤器使用场景。
-4. 通过 Java 编程手动实现布隆过滤器。
-5. 利用 Google 开源的 Guava 中自带的布隆过滤器。
-6. Redis 中的布隆过滤器。
+1. Bloom filter là gì?
+2. Giới thiệu nguyên lý Bloom filter.
+3. Tình huống sử dụng Bloom filter.
+4. Tự triển khai Bloom filter bằng Java.
+5. Dùng Bloom filter tích hợp sẵn trong Guava open source của Google.
+6. Bloom filter trong Redis.
 
-## 什么是布隆过滤器？
+## Bloom Filter là gì?
 
-首先，我们需要了解布隆过滤器的概念。
+Trước tiên cần hiểu khái niệm Bloom filter.
 
-布隆过滤器（Bloom Filter，BF）是一个叫做 Bloom 的老哥于 1970 年提出的。我们可以把它看作由二进制向量（或者说位数组）和一系列随机映射函数（哈希函数）两部分组成的数据结构。相比于我们平时常用的 List、Map、Set 等数据结构，它占用空间更少并且效率更高，但是缺点是其返回的结果是概率性的，而不是非常准确的。理论情况下添加到集合中的元素越多，误报的可能性就越大。并且，存放在布隆过滤器的数据不容易删除。
+Bloom Filter (BF) được đề xuất bởi Bloom năm 1970. Có thể coi nó là cấu trúc dữ liệu gồm hai phần: binary vector (hay nói cách khác là bit array) và một loạt các random mapping function (hash function). So với các cấu trúc dữ liệu thường dùng như List, Map, Set, v.v. — Bloom filter chiếm ít không gian hơn và hiệu quả hơn. Nhưng nhược điểm là kết quả trả về mang tính xác suất, không chính xác hoàn toàn. Về lý thuyết càng nhiều element được thêm vào collection thì xác suất false positive càng cao. Hơn nữa, data lưu trong Bloom filter khó xóa.
 
-Bloom Filter 会使用一个较大的 bit 数组来保存所有的数据，数组中的每个元素都只占用 1 bit ，并且每个元素只能是 0 或者 1（代表 false 或者 true），这也是 Bloom Filter 节省内存的核心所在。这样来算的话，申请一个 100w 个元素的位数组只占用 1000000Bit / 8 = 125000 Byte = 125000/1024 KB ≈ 122KB 的空间。
+Bloom Filter dùng một bit array lớn để lưu tất cả data. Mỗi element trong mảng chỉ chiếm 1 bit, và mỗi element chỉ có thể là 0 hoặc 1 (biểu thị false hoặc true) — đây là cốt lõi giúp Bloom Filter tiết kiệm memory. Tính toán như sau: Tạo bit array với 1 triệu element chỉ chiếm 1000000 bit / 8 = 125000 byte = 125000/1024 KB ≈ 122KB không gian.
 
-![位数组](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/bloom-filter-bit-table.png)
+![Bit Array](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/bloom-filter-bit-table.png)
 
-总结：**一个名叫 Bloom 的人提出了一种来检索元素是否在给定大集合中的数据结构，这种数据结构是高效且性能很好的，但缺点是具有一定的错误识别率和删除难度。并且，理论情况下，添加到集合中的元素越多，误报的可能性就越大。**
+Tóm lại: **Một người tên Bloom đề xuất cấu trúc dữ liệu để kiểm tra xem element có trong một tập dữ liệu lớn cho trước không. Cấu trúc dữ liệu này hiệu quả và hiệu năng tốt. Nhưng nhược điểm là có một tỷ lệ lỗi nhất định và khó xóa. Hơn nữa về lý thuyết, càng thêm nhiều element vào collection thì xác suất false positive càng cao.**
 
-## 布隆过滤器的原理介绍
+## Giới thiệu nguyên lý Bloom Filter
 
-**当一个元素加入布隆过滤器中的时候，会进行如下操作：**
+**Khi một element được thêm vào Bloom filter, sẽ thực hiện các thao tác sau:**
 
-1. 使用布隆过滤器中的哈希函数对元素值进行计算，得到哈希值（有几个哈希函数得到几个哈希值）。
-2. 根据得到的哈希值，在位数组中把对应下标的值置为 1。
+1. Dùng các hash function trong Bloom filter để tính hash value của element (bao nhiêu hash function thì được bấy nhiêu hash value).
+2. Dựa trên hash value nhận được, đặt giá trị tại index tương ứng trong bit array thành 1.
 
-**当我们需要判断一个元素是否存在于布隆过滤器的时候，会进行如下操作：**
+**Khi cần xác định một element có tồn tại trong Bloom filter không, sẽ thực hiện:**
 
-1. 对给定元素再次进行相同的哈希计算；
-2. 得到值之后判断位数组中的每个元素是否都为 1，如果值都为 1，那么说明这个值在布隆过滤器中，如果存在一个值不为 1，说明该元素不在布隆过滤器中。
+1. Thực hiện cùng phép tính hash cho element đã cho.
+2. Sau khi có giá trị, kiểm tra xem mỗi element trong bit array có đều là 1 không. Nếu đều là 1 thì element này có trong Bloom filter. Nếu có một giá trị không phải 1 thì element không có trong Bloom filter.
 
-Bloom Filter 的简单原理图如下：
+Sơ đồ nguyên lý đơn giản của Bloom Filter:
 
-![Bloom Filter 的简单原理示意图](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/bloom-filter-simple-schematic-diagram.png)
+![Sơ đồ nguyên lý đơn giản của Bloom Filter](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/bloom-filter-simple-schematic-diagram.png)
 
-如图所示，当字符串存储要加入到布隆过滤器中时，该字符串首先由多个哈希函数生成不同的哈希值，然后将对应的位数组的下标设置为 1（当位数组初始化时，所有位置均为 0）。当第二次存储相同字符串时，因为先前的对应位置已设置为 1，所以很容易知道此值已经存在（去重非常方便）。
+Như hình, khi string cần lưu được thêm vào Bloom filter, string đó trước tiên được nhiều hash function tạo ra các hash value khác nhau, sau đó đặt index tương ứng trong bit array thành 1 (khi bit array được khởi tạo, tất cả vị trí đều là 0). Khi lưu cùng string lần thứ hai, vì các vị trí tương ứng trước đó đã là 1, rất dễ biết value này đã tồn tại (dedup rất tiện lợi).
 
-如果我们需要判断某个字符串是否在布隆过滤器中时，只需要对给定字符串再次进行相同的哈希计算，得到值之后判断位数组中的每个元素是否都为 1，如果值都为 1，那么说明这个值在布隆过滤器中，如果存在一个值不为 1，说明该元素不在布隆过滤器中。
+Nếu cần xác định một string có trong Bloom filter không — chỉ cần thực hiện cùng phép tính hash, sau khi có giá trị kiểm tra xem mỗi element trong bit array có đều là 1 không. Nếu đều là 1 thì value có trong Bloom filter. Nếu có một giá trị không phải 1 thì element không có trong Bloom filter.
 
-**不同的字符串可能哈希出来的位置相同，这种情况我们可以适当增加位数组大小或者调整我们的哈希函数。**
+**Các string khác nhau có thể hash ra cùng vị trí — trong trường hợp này có thể tăng kích thước bit array hoặc điều chỉnh hash function.**
 
-综上，我们可以得出：**布隆过滤器说某个元素存在，小概率会误判。布隆过滤器说某个元素不在，那么这个元素一定不在。**
+Tóm lại: **Bloom filter nói element tồn tại thì có xác suất nhỏ là false positive. Bloom filter nói element không tồn tại thì element đó chắc chắn không có.**
 
-## 布隆过滤器使用场景
+## Tình huống sử dụng Bloom Filter
 
-1. 判断给定数据是否存在：比如判断一个数字是否存在于包含大量数字的数字集中（数字集很大，上亿）、 防止缓存穿透（判断请求的数据是否有效避免直接绕过缓存请求数据库）等等、邮箱的垃圾邮件过滤（判断一个邮件地址是否在垃圾邮件列表中）、黑名单功能（判断一个 IP 地址或手机号码是否在黑名单中）等等。
-2. 去重：比如爬给定网址的时候对已经爬取过的 URL 去重、对巨量的 QQ 号/订单号去重。
+1. Xác định xem data cho trước có tồn tại không: Ví dụ xác định một số có tồn tại trong tập hợp chứa lượng lớn số (tập hợp rất lớn, hàng trăm triệu); phòng chống cache penetration (xác định xem data được request có hợp lệ để tránh trực tiếp bypass cache và request database); spam filter (xác định xem địa chỉ email có trong danh sách spam không); chức năng blacklist (xác định IP hoặc số điện thoại có trong blacklist không), v.v.
+2. Dedup: Ví dụ dedup URL đã crawl khi crawl website; dedup QQ number/order number với số lượng khổng lồ.
 
-去重场景也需要用到判断给定数据是否存在，因此布隆过滤器主要是为了解决海量数据的存在性问题。
+Tình huống dedup cũng cần xác định data cho trước có tồn tại không. Do đó Bloom filter chủ yếu giải quyết vấn đề existence query trên big data.
 
-## 编码实战
+## Thực hành Code
 
-### 通过 Java 编程手动实现布隆过滤器
+### Tự triển khai Bloom Filter bằng Java
 
-我们上面已经说了布隆过滤器的原理，知道了布隆过滤器的原理之后就可以自己手动实现一个了。
+Đã giải thích nguyên lý Bloom filter ở trên. Nắm được nguyên lý là có thể tự triển khai một cái.
 
-如果你想要手动实现一个的话，你需要：
+Nếu muốn tự triển khai, cần:
 
-1. 一个合适大小的位数组保存数据
-2. 几个不同的哈希函数
-3. 添加元素到位数组（布隆过滤器）的方法实现
-4. 判断给定元素是否存在于位数组（布隆过滤器）的方法实现。
+1. Bit array kích thước phù hợp để lưu data.
+2. Một số hash function khác nhau.
+3. Triển khai method thêm element vào bit array (Bloom filter).
+4. Triển khai method xác định element cho trước có tồn tại trong bit array (Bloom filter) không.
 
-下面给出一个我觉得写的还算不错的代码（参考网上已有代码改进得到，对于所有类型对象皆适用）：
+Dưới đây là code tôi cho là viết tương đối tốt (tham khảo code có sẵn trên mạng và cải tiến — áp dụng cho mọi loại object):
 
 ```java
 import java.util.BitSet;
@@ -87,36 +87,36 @@ import java.util.BitSet;
 public class MyBloomFilter {
 
     /**
-     * 位数组的大小
+     * Kích thước bit array
      */
     private static final int DEFAULT_SIZE = 2 << 24;
     /**
-     * 通过这个数组可以创建 6 个不同的哈希函数
+     * Qua mảng này có thể tạo 6 hash function khác nhau
      */
     private static final int[] SEEDS = new int[]{3, 13, 46, 71, 91, 134};
 
     /**
-     * 位数组。数组中的元素只能是 0 或者 1
+     * Bit array. Phần tử trong mảng chỉ có thể là 0 hoặc 1
      */
     private BitSet bits = new BitSet(DEFAULT_SIZE);
 
     /**
-     * 存放包含 hash 函数的类的数组
+     * Mảng chứa các class có hash function
      */
     private SimpleHash[] func = new SimpleHash[SEEDS.length];
 
     /**
-     * 初始化多个包含 hash 函数的类的数组，每个类中的 hash 函数都不一样
+     * Khởi tạo mảng nhiều class chứa hash function. Hash function trong mỗi class đều khác nhau
      */
     public MyBloomFilter() {
-        // 初始化多个不同的 Hash 函数
+        // Khởi tạo nhiều hash function khác nhau
         for (int i = 0; i < SEEDS.length; i++) {
             func[i] = new SimpleHash(DEFAULT_SIZE, SEEDS[i]);
         }
     }
 
     /**
-     * 添加元素到位数组
+     * Thêm element vào bit array
      */
     public void add(Object value) {
         for (SimpleHash f : func) {
@@ -125,7 +125,7 @@ public class MyBloomFilter {
     }
 
     /**
-     * 判断指定元素是否存在于位数组
+     * Xác định element chỉ định có tồn tại trong bit array không
      */
     public boolean contains(Object value) {
         boolean ret = true;
@@ -138,7 +138,7 @@ public class MyBloomFilter {
     }
 
     /**
-     * 静态内部类。用于 hash 操作！
+     * Static inner class. Dùng để hash!
      */
     public static class SimpleHash {
 
@@ -151,7 +151,7 @@ public class MyBloomFilter {
         }
 
         /**
-         * 计算 hash 值
+         * Tính hash value
          */
         public int hash(Object value) {
             int h;
@@ -162,7 +162,7 @@ public class MyBloomFilter {
 }
 ```
 
-测试：
+Test:
 
 ```java
 String value1 = "https://javaguide.cn/";
@@ -185,7 +185,7 @@ true
 true
 ```
 
-测试：
+Test:
 
 ```java
 Integer value1 = 13423;
@@ -208,11 +208,11 @@ true
 true
 ```
 
-### 利用 Google 开源的 Guava 中自带的布隆过滤器
+### Dùng Bloom Filter tích hợp trong Guava open source của Google
 
-自己实现的目的主要是为了让自己搞懂布隆过滤器的原理，Guava 中布隆过滤器的实现算是比较权威的，所以实际项目中我们不需要手动实现一个布隆过滤器。
+Mục đích tự triển khai chủ yếu là để hiểu nguyên lý Bloom filter. Triển khai Bloom filter trong Guava khá chính thống, nên trong project thực tế không cần tự triển khai.
 
-首先我们需要在项目中引入 Guava 的依赖：
+Trước tiên thêm dependency Guava vào project:
 
 ```java
 <dependency>
@@ -222,50 +222,51 @@ true
 </dependency>
 ```
 
-实际使用如下：
+Sử dụng thực tế như sau:
 
-我们创建了一个最多存放 最多 1500 个整数的布隆过滤器，并且我们可以容忍误判的概率为百分之（0.01）
+Tạo Bloom filter có thể chứa tối đa 1500 integer và có thể chấp nhận false positive rate là 1% (0.01):
 
 ```java
-// 创建布隆过滤器对象
+// Tạo Bloom filter object
 BloomFilter<Integer> filter = BloomFilter.create(
     Funnels.integerFunnel(),
     1500,
     0.01);
-// 判断指定元素是否存在
+// Xác định element chỉ định có tồn tại không
 System.out.println(filter.mightContain(1));
 System.out.println(filter.mightContain(2));
-// 将元素添加进布隆过滤器
+// Thêm element vào Bloom filter
 filter.put(1);
 filter.put(2);
 System.out.println(filter.mightContain(1));
 System.out.println(filter.mightContain(2));
 ```
 
-在我们的示例中，当 `mightContain()` 方法返回 _true_ 时，我们可以 99％确定该元素在过滤器中，当过滤器返回 _false_ 时，我们可以 100％确定该元素不存在于过滤器中。
+Trong ví dụ, khi `mightContain()` trả về _true_, chúng ta có thể 99% chắc chắn element đó trong filter. Khi filter trả về _false_, có thể 100% chắc chắn element không tồn tại trong filter.
 
-**Guava 提供的布隆过滤器的实现还是很不错的（想要详细了解的可以看一下它的源码实现），但是它有一个重大的缺陷就是只能单机使用（另外，容量扩展也不容易），而现在互联网一般都是分布式的场景。为了解决这个问题，我们就需要用到 Redis 中的布隆过滤器了。**
+**Triển khai Bloom filter do Guava cung cấp khá tốt (muốn tìm hiểu chi tiết có thể xem source code). Nhưng nó có một nhược điểm lớn là chỉ dùng được trên single machine (ngoài ra capacity scaling cũng không dễ). Còn internet hiện nay thường là distributed scenario. Để giải quyết vấn đề này cần dùng Bloom filter trong Redis.**
 
-## Redis 中的布隆过滤器
+## Bloom Filter trong Redis
 
-### 介绍
+### Giới thiệu
 
-Redis v4.0 之后有了 Module（模块/插件） 功能，Redis Modules 让 Redis 可以使用外部模块扩展其功能 。布隆过滤器就是其中的 Module。详情可以查看 Redis 官方对 Redis Modules 的介绍：<https://redis.io/modules>
+Redis v4.0 trở đi có chức năng Module (plugin). Redis Modules cho phép Redis mở rộng tính năng bằng external module. Bloom filter là một trong các Module đó. Chi tiết xem giới thiệu chính thức của Redis về Redis Modules: <https://redis.io/modules>
 
-另外，官网推荐了一个 RedisBloom 作为 Redis 布隆过滤器的 Module，地址：<https://github.com/RedisBloom/RedisBloom>
-其他还有：
+Ngoài ra, official website khuyến nghị RedisBloom làm Bloom filter Module cho Redis. Link: <https://github.com/RedisBloom/RedisBloom>
 
-- redis-lua-scaling-bloom-filter（lua 脚本实现）：<https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter>
-- pyreBloom（Python 中的快速 Redis 布隆过滤器）：<https://github.com/seomoz/pyreBloom>
+Còn có:
+
+- redis-lua-scaling-bloom-filter (Lua script implementation): <https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter>
+- pyreBloom (Fast Redis Bloom filter trong Python): <https://github.com/seomoz/pyreBloom>
 - ……
 
-RedisBloom 提供了多种语言的客户端支持，包括：Python、Java、JavaScript 和 PHP。
+RedisBloom cung cấp client support cho nhiều ngôn ngữ bao gồm: Python, Java, JavaScript và PHP.
 
-### 使用 Docker 安装
+### Cài đặt qua Docker
 
-如果我们需要体验 Redis 中的布隆过滤器非常简单，通过 Docker 就可以了！我们直接在 Google 搜索 **docker redis bloomfilter** 然后在排除广告的第一条搜素结果就找到了我们想要的答案（这是我平常解决问题的一种方式，分享一下），具体地址：<https://hub.docker.com/r/redislabs/rebloom/> （介绍的很详细 ）。
+Để trải nghiệm Bloom filter trong Redis rất đơn giản — chỉ cần Docker! Tìm kiếm trên Google **docker redis bloomfilter** và kết quả tìm kiếm đầu tiên (loại quảng cáo) sẽ tìm được câu trả lời. Link cụ thể: <https://hub.docker.com/r/redislabs/rebloom/> (giới thiệu rất chi tiết).
 
-**具体操作如下：**
+**Thao tác cụ thể:**
 
 ```bash
 ➜  ~ docker run -p 6379:6379 --name redis-redisbloom redislabs/rebloom:latest
@@ -274,34 +275,34 @@ root@21396d02c252:/data# redis-cli
 127.0.0.1:6379>
 ```
 
-**注意：当前 rebloom 镜像已经被废弃，官方推荐使用[redis-stack](https://hub.docker.com/r/redis/redis-stack)**
+**Lưu ý: Image rebloom hiện đã bị deprecated, official khuyến nghị dùng [redis-stack](https://hub.docker.com/r/redis/redis-stack)**
 
-### 常用命令一览
+### Tổng quan các lệnh phổ biến
 
-> 注意：key : 布隆过滤器的名称，item : 添加的元素。
+> Lưu ý: key là tên Bloom filter, item là element cần thêm.
 
-1. `BF.ADD`：将元素添加到布隆过滤器中，如果该过滤器尚不存在，则创建该过滤器。格式：`BF.ADD {key} {item}`。
-2. `BF.MADD` : 将一个或多个元素添加到“布隆过滤器”中，并创建一个尚不存在的过滤器。该命令的操作方式`BF.ADD`与之相同，只不过它允许多个输入并返回多个值。格式：`BF.MADD {key} {item} [item ...]` 。
-3. `BF.EXISTS` : 确定元素是否在布隆过滤器中存在。格式：`BF.EXISTS {key} {item}`。
-4. `BF.MEXISTS`：确定一个或者多个元素是否在布隆过滤器中存在格式：`BF.MEXISTS {key} {item} [item ...]`。
+1. `BF.ADD`: Thêm element vào Bloom filter. Nếu filter chưa tồn tại thì tạo mới. Format: `BF.ADD {key} {item}`.
+2. `BF.MADD`: Thêm một hoặc nhiều element vào "Bloom filter" và tạo filter chưa tồn tại. Thao tác giống `BF.ADD` nhưng cho phép nhiều input và trả về nhiều value. Format: `BF.MADD {key} {item} [item ...]`.
+3. `BF.EXISTS`: Xác định element có tồn tại trong Bloom filter không. Format: `BF.EXISTS {key} {item}`.
+4. `BF.MEXISTS`: Xác định một hoặc nhiều element có tồn tại trong Bloom filter không. Format: `BF.MEXISTS {key} {item} [item ...]`.
 
-另外， `BF.RESERVE` 命令需要单独介绍一下：
+Ngoài ra, lệnh `BF.RESERVE` cần giới thiệu riêng:
 
-这个命令的格式如下：
+Format của lệnh này:
 
-`BF.RESERVE {key} {error_rate} {capacity} [EXPANSION expansion]` 。
+`BF.RESERVE {key} {error_rate} {capacity} [EXPANSION expansion]`.
 
-下面简单介绍一下每个参数的具体含义：
+Giải thích ngắn gọn từng tham số:
 
-1. key：布隆过滤器的名称
-2. error_rate : 期望的误报率。该值必须介于 0 到 1 之间。例如，对于期望的误报率 0.1％（1000 中为 1），error_rate 应该设置为 0.001。该数字越接近零，则每个项目的内存消耗越大，并且每个操作的 CPU 使用率越高。
-3. capacity: 过滤器的容量。当实际存储的元素个数超过这个值之后，性能将开始下降。实际的降级将取决于超出限制的程度。随着过滤器元素数量呈指数增长，性能将线性下降。
+1. key: Tên Bloom filter.
+2. error_rate: False positive rate mong muốn. Giá trị này phải từ 0 đến 1. Ví dụ với false positive rate 0.1% (1 trong 1000), error_rate nên đặt là 0.001. Số này càng gần 0, memory consumption mỗi item càng lớn và CPU usage mỗi thao tác càng cao.
+3. capacity: Capacity của filter. Khi số element thực tế lưu vượt quá giá trị này, performance sẽ bắt đầu giảm. Mức giảm thực tế phụ thuộc vào mức độ vượt giới hạn. Khi số element tăng theo hàm mũ, performance giảm tuyến tính.
 
-可选参数：
+Tham số tùy chọn:
 
-- expansion：如果创建了一个新的子过滤器，则其大小将是当前过滤器的大小乘以`expansion`。默认扩展值为 2。这意味着每个后续子过滤器将是前一个子过滤器的两倍。
+- expansion: Nếu sub-filter mới được tạo, kích thước của nó sẽ là kích thước filter hiện tại nhân với `expansion`. Giá trị expansion mặc định là 2 — tức mỗi sub-filter tiếp theo sẽ là gấp đôi sub-filter trước.
 
-### 实际使用
+### Sử dụng thực tế
 
 ```shell
 127.0.0.1:6379> BF.ADD myFilter java
@@ -315,5 +316,3 @@ root@21396d02c252:/data# redis-cli
 127.0.0.1:6379> BF.EXISTS myFilter github
 (integer) 0
 ```
-
-<!-- @include: @article-footer.snippet.md -->

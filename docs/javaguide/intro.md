@@ -1,41 +1,41 @@
 ---
-title: 项目介绍
-description: JavaGuide项目介绍，一个涵盖Java核心知识体系的学习与面试指南，助力Java开发者成长。
-category: 走近项目
+title: Giới thiệu project
+description: Giới thiệu project JavaGuide - Hướng dẫn học tập và phỏng vấn về hệ thống kiến thức cốt lõi Java, giúp developer Java phát triển.
+category: Giới thiệu project
 icon: about
 ---
 
-我是 19 年大学毕业的，在大三准备面试的时候，我开源了 JavaGuide 。我把自己准备面试过程中的一些总结都毫不保留地通过 JavaGuide 分享了出来。
+Tôi tốt nghiệp năm 2019, khi đang chuẩn bị phỏng vấn ở năm 3 đại học, tôi đã mã nguồn mở JavaGuide. Tôi đã chia sẻ không giữ lại tất cả những gì tôi tổng kết trong quá trình chuẩn bị phỏng vấn thông qua JavaGuide.
 
-开源 JavaGuide 初始想法源于自己的个人那一段比较迷茫的学习经历，主要目的是为了通过这个开源平台来帮助一些在学习 Java 或者面试过程中遇到问题的小伙伴。
+Ý tưởng ban đầu để mã nguồn mở JavaGuide xuất phát từ giai đoạn học tập khá mông lung của bản thân, mục đích chính là thông qua nền tảng mã nguồn mở này để giúp đỡ một số bạn gặp khó khăn khi học Java hoặc trong quá trình phỏng vấn.
 
-- **对于 Java 初学者来说：** 本文档倾向于给你提供一个比较详细的学习路径，目录清晰，让你对于 Java 整体的知识体系有一个清晰认识。你可以跟着视频或者书籍学习完某个知识点之后，然后来这里找对应的总结，帮助你更好地掌握对应的知识点。
-- **对于非 Java 初学者来说：** 本文档更适合回顾知识，准备面试，让你搞清面试应该把重心放在哪些问题上。
+- **Đối với người mới học Java:** Tài liệu này thiên về cung cấp cho bạn lộ trình học tập khá chi tiết, mục lục rõ ràng, giúp bạn có cái nhìn tổng quan rõ ràng về toàn bộ hệ thống kiến thức Java. Bạn có thể học xong một kiến thức nào đó qua video hoặc sách, sau đó đến đây tìm tổng kết tương ứng, giúp bạn nắm vững kiến thức tốt hơn.
+- **Đối với người không phải mới học Java:** Tài liệu này phù hợp hơn để ôn lại kiến thức, chuẩn bị phỏng vấn, giúp bạn biết nên tập trung vào vấn đề nào trong phỏng vấn.
 
-**由于本网站的内容完全开源，由大家共同维护完善，因此内容质量比较高。** 如果你也想要参与 JavaGuide 的维护建设工作，请查阅[贡献指南](./contribution-guideline.md)。
+**Vì nội dung của website này hoàn toàn mã nguồn mở, được cộng đồng cùng nhau duy trì và hoàn thiện, nên chất lượng nội dung khá cao.** Nếu bạn cũng muốn tham gia vào công việc duy trì và xây dựng JavaGuide, vui lòng xem [Contribution Guidelines](./contribution-guideline.md).
 
-相比于其他通过 JavaGuide 学到东西或者说助力获得 offer 的朋友来说 ， JavaGuide 对我的意义更加重大。不夸张的说，有时候真的感觉像是自己的孩子一点一点长大一样，我一直用心呵护着它。虽然，我花了很长时间来维护它，但是，我觉得非常值得！非常有意义！
+So với những người bạn học được gì đó từ JavaGuide hay nhờ nó mà có được offer, JavaGuide có ý nghĩa lớn hơn với tôi. Không ngoa khi nói, đôi khi thực sự cảm giác như nhìn đứa con của mình lớn lên từng chút một, tôi luôn chăm sóc nó tận tâm. Dù tôi đã dành rất nhiều thời gian để duy trì nó, nhưng tôi cảm thấy rất xứng đáng! Rất có ý nghĩa!
 
-不过，希望大家对面试不要抱有侥幸的心理，打铁还需自身硬！ **我希望这个文档是为你学习 Java 指明方向，而不仅仅是用来应付面试用的。**
+Tuy nhiên, hy vọng mọi người đừng có tâm lý may rủi với phỏng vấn, muốn giỏi phải từ bản thân! **Tôi hy vọng tài liệu này là để chỉ đường cho bạn học Java, chứ không chỉ đơn thuần là dùng để đối phó phỏng vấn.**
 
-另外，JavaGuide 不可能把面试中的所有内容都给涵盖住，尤其是阿里、美团这种挖的比较深入的面试。你可以根据你的目标公司进行针对性的深入学习，多看一些目标公司的面经进行查漏补缺，没事就自测一下，多多思考总结。
+Ngoài ra, JavaGuide không thể bao quát tất cả nội dung trong phỏng vấn, đặc biệt là những phỏng vấn đào sâu như Alibaba, Meituan. Bạn có thể học sâu có mục tiêu theo công ty mục tiêu của mình, đọc nhiều kinh nghiệm phỏng vấn của công ty đó để bù đắp điểm thiếu, rảnh thì tự kiểm tra, thường xuyên suy nghĩ tổng kết.
 
-加油！奥利给！
+Cố lên!
 
-## 官方知识星球
+## Official Knowledge Planet
 
-对于准备面试的同学来说，强烈推荐我创建的一个纯粹的[Java 面试知识星球](../about-the-author/zhishixingqiu-two-years.md)，干货非常多，学习氛围也很不错！
+Đối với những bạn đang chuẩn bị phỏng vấn, tôi rất khuyến nghị [Java Interview Knowledge Planet](../about-the-author/zhishixingqiu-two-years.md) tôi đã tạo — nội dung chất lượng rất nhiều, không khí học tập cũng rất tốt!
 
-下面是星球提供的部分服务（点击下方图片即可获取知识星球的详细介绍）：
+Dưới đây là một số dịch vụ mà Planet cung cấp (click vào hình dưới để xem giới thiệu chi tiết về Knowledge Planet):
 
-[![星球服务](https://oss.javaguide.cn/xingqiu/xingqiufuwu.png)](../about-the-author/zhishixingqiu-two-years.md)
+[![Planet services](https://oss.javaguide.cn/xingqiu/xingqiufuwu.png)](../about-the-author/zhishixingqiu-two-years.md)
 
-## 项目说明
+## Thông tin project
 
-- [在线阅读网站](https://javaguide.cn)基于 Vuepress 搭建，使用的是主题是 [vuepress-theme-hope](https://github.com/vuepress-theme-hope/vuepress-theme-hope)（很 Nice 的一个主题）。
-- 项目的 Markdown 格式参考：[GitHub Markdown 格式](https://guides.github.com/features/mastering-markdown/)，表情素材来自：[EMOJI CHEAT SHEET](https://www.webpagefx.com/tools/emoji-cheat-sheet/)。
-- Logo 下的小图标是使用[Shields.IO](https://shields.io/) 生成的。
+- [Website đọc online](https://javaguide.cn) được xây dựng trên Vuepress, sử dụng theme [vuepress-theme-hope](https://github.com/vuepress-theme-hope/vuepress-theme-hope) (một theme rất tuyệt vời).
+- Format Markdown của project tham khảo: [GitHub Markdown Format](https://guides.github.com/features/mastering-markdown/), emoji từ: [EMOJI CHEAT SHEET](https://www.webpagefx.com/tools/emoji-cheat-sheet/).
+- Các biểu tượng nhỏ dưới Logo được tạo bằng [Shields.IO](https://shields.io/).
 
-## 贡献者
+## Contributors
 
-[你可以点此链接查看 JavaGuide 的所有贡献者。](https://github.com/Snailclimb/JavaGuide/graphs/contributors) 感谢你们让 JavaGuide 变得更好！如果你们来到武汉一定要找我，我请你们吃饭玩耍。
+[Bạn có thể click vào link này để xem tất cả contributor của JavaGuide.](https://github.com/Snailclimb/JavaGuide/graphs/contributors) Cảm ơn các bạn đã giúp JavaGuide trở nên tốt hơn! Nếu các bạn đến Vũ Hán nhớ tìm tôi nhé, tôi mời ăn uống chơi bời.

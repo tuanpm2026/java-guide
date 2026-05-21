@@ -1,274 +1,272 @@
 ---
-title: 计算机网络常见面试题总结(下)
-description: 最新计算机网络高频面试题总结（下）：TCP/UDP深度对比、三次握手四次挥手、HTTP/3 QUIC优化、IPv6优势、NAT/ARP详解，附表格+⭐️重点标注，一文掌握传输层&网络层核心考点，快速通关后端技术面试！
-category: 计算机基础
+title: Tổng hợp câu hỏi phỏng vấn về mạng máy tính (Phần dưới)
+description: Tổng hợp câu hỏi phỏng vấn mạng máy tính tần suất cao mới nhất (Phần dưới) - So sánh sâu TCP/UDP, Three-way Handshake Four-way Teardown, tối ưu HTTP/3 QUIC, ưu điểm IPv6, giải thích NAT/ARP. Kèm bảng + đánh dấu ⭐️ điểm trọng tâm, một bài nắm vững kiến thức cốt lõi Transport Layer & Network Layer.
+category: CS Basics
 tag:
-  - 计算机网络
+  - Computer Network
 head:
   - - meta
     - name: keywords
-      content: 计算机网络面试题,TCP vs UDP,TCP三次握手,HTTP/3 QUIC,IPv4 vs IPv6,TCP可靠性,IP地址,NAT协议,ARP协议,传输层面试,网络层高频题,基于TCP协议,基于UDP协议,队头阻塞,四次挥手
+      content: computer network interview,TCP vs UDP,TCP three-way handshake,HTTP/3 QUIC,IPv4 vs IPv6,TCP reliability,IP address,NAT protocol,ARP protocol,transport layer interview,network layer questions
 ---
 
 <!-- @include: @article-header.snippet.md -->
 
-下篇主要是传输层和网络层相关的内容。
+Phần dưới chủ yếu là nội dung liên quan đến transport layer và network layer.
 
-## TCP 与 UDP
+## TCP và UDP
 
-### ⭐️TCP 与 UDP 的区别（重要）
+### ⭐️Sự khác biệt giữa TCP và UDP (Quan trọng)
 
-1. **是否面向连接**：
-   - TCP 是面向连接的。在传输数据之前，必须先通过“三次握手”建立连接；数据传输完成后，还需要通过“四次挥手”来释放连接。这保证了双方都准备好通信。
-   - UDP 是无连接的。发送数据前不需要建立任何连接，直接把数据包（数据报）扔出去。
-2. **是否是可靠传输**：
-   - TCP 提供可靠的数据传输服务。它通过序列号、确认应答 (ACK)、超时重传、流量控制、拥塞控制等一系列机制，来确保数据能够无差错、不丢失、不重复且按顺序地到达目的地。
-   - UDP 提供不可靠的传输。它尽最大努力交付 (best-effort delivery)，但不保证数据一定能到达，也不保证到达的顺序，更不会自动重传。收到报文后，接收方也不会主动发确认。
-3. **是否有状态**：
-   - TCP 是有状态的。因为要保证可靠性，TCP 需要在连接的两端维护连接状态信息，比如序列号、窗口大小、哪些数据发出去了、哪些收到了确认等。
-   - UDP 是无状态的。它不维护连接状态，发送方发出数据后就不再关心它是否到达以及如何到达，因此开销更小（**这很“渣男”！**）。
-4. **传输效率**：
-   - TCP 因为需要建立连接、发送确认、处理重传等，其开销较大，传输效率相对较低。
-   - UDP 结构简单，没有复杂的控制机制，开销小，传输效率更高，速度更快。
-5. **传输形式**：
-   - TCP 是面向字节流 (Byte Stream) 的。它将应用程序交付的数据视为一连串无结构的字节流，可能会对数据进行拆分或合并。
-   - UDP 是面向报文 (Message Oriented) 的。应用程序交给 UDP 多大的数据块，UDP 就照样发送，既不拆分也不合并，保留了应用程序消息的边界。
-6. **首部开销**：
-   - TCP 的头部至少需要 20 字节，如果包含选项字段，最多可达 60 字节。
-   - UDP 的头部非常简单，固定只有 8 字节。
-7. **是否提供广播或多播服务**：
-   - TCP 只支持点对点 (Point-to-Point) 的单播通信。
-   - UDP 支持一对一 (单播)、一对多 (多播/Multicast) 和一对所有 (广播/Broadcast) 的通信方式。
+1. **Có kết nối hay không**:
+   - TCP là connection-oriented. Trước khi truyền dữ liệu, phải thiết lập kết nối qua "three-way handshake"; sau khi truyền dữ liệu xong, cần giải phóng kết nối qua "four-way teardown". Điều này đảm bảo cả hai bên đều sẵn sàng giao tiếp.
+   - UDP là connectionless. Không cần thiết lập bất kỳ kết nối nào trước khi gửi dữ liệu, ném gói dữ liệu (datagram) trực tiếp ra.
+2. **Có phải reliable transmission không**:
+   - TCP cung cấp dịch vụ truyền dữ liệu đáng tin cậy. Nó đảm bảo dữ liệu đến đích không có lỗi, không mất mát, không trùng lặp và theo đúng thứ tự thông qua một loạt cơ chế như sequence number, ACK, timeout retransmission, flow control, congestion control.
+   - UDP cung cấp truyền không đáng tin cậy. Nó cố gắng tối đa để giao (best-effort delivery), nhưng không đảm bảo dữ liệu nhất định đến nơi, không đảm bảo thứ tự đến, và không tự động retransmit. Sau khi nhận được message, bên nhận cũng không chủ động gửi xác nhận.
+3. **Có trạng thái hay không**:
+   - TCP là stateful. Vì phải đảm bảo độ tin cậy, TCP cần duy trì thông tin trạng thái kết nối ở cả hai đầu, như sequence number, window size, dữ liệu nào đã gửi, dữ liệu nào đã được confirm.
+   - UDP là stateless. Nó không duy trì trạng thái kết nối, sau khi bên gửi gửi dữ liệu xong không còn quan tâm nó có đến không và đến như thế nào, vì vậy overhead nhỏ hơn (**Điều này rất "phũ"!**).
+4. **Hiệu quả truyền**:
+   - TCP vì cần thiết lập kết nối, gửi xác nhận, xử lý retransmit v.v. nên overhead lớn hơn, hiệu quả truyền tương đối thấp hơn.
+   - UDP cấu trúc đơn giản, không có cơ chế kiểm soát phức tạp, overhead nhỏ, hiệu quả truyền cao hơn, tốc độ nhanh hơn.
+5. **Hình thức truyền**:
+   - TCP là byte stream oriented. Nó coi dữ liệu do application giao là một chuỗi byte không có cấu trúc, có thể chia nhỏ hoặc gộp dữ liệu.
+   - UDP là message oriented. Application giao cho UDP bao nhiêu data block, UDP gửi bấy nhiêu, không chia nhỏ cũng không gộp, giữ nguyên ranh giới message của application.
+6. **Header overhead**:
+   - Header của TCP ít nhất cần 20 byte, nếu chứa option field có thể lên đến 60 byte.
+   - Header của UDP rất đơn giản, cố định chỉ có 8 byte.
+7. **Có cung cấp broadcast hoặc multicast không**:
+   - TCP chỉ hỗ trợ unicast Point-to-Point.
+   - UDP hỗ trợ one-to-one (unicast), one-to-many (multicast) và one-to-all (broadcast).
 8. ……
 
-为了更直观地对比，可以看下面这个表格：
+Để so sánh trực quan hơn, xem bảng dưới:
 
-| 特性         | TCP                        | UDP                                 |
-| ------------ | -------------------------- | ----------------------------------- |
-| **连接性**   | 面向连接                   | 无连接                              |
-| **可靠性**   | 可靠                       | 不可靠 (尽力而为)                   |
-| **状态维护** | 有状态                     | 无状态                              |
-| **传输效率** | 较低                       | 较高                                |
-| **传输形式** | 面向字节流                 | 面向数据报 (报文)                   |
-| **头部开销** | 20 - 60 字节               | 8 字节                              |
-| **通信模式** | 点对点 (单播)              | 单播、多播、广播                    |
-| **常见应用** | HTTP/HTTPS, FTP, SMTP, SSH | DNS, DHCP, SNMP, TFTP, VoIP, 视频流 |
+| Đặc điểm                | TCP                        | UDP                                          |
+| ----------------------- | -------------------------- | -------------------------------------------- |
+| **Connectivity**        | Connection-oriented        | Connectionless                               |
+| **Reliability**         | Reliable                   | Unreliable (best-effort)                     |
+| **State**               | Stateful                   | Stateless                                    |
+| **Efficiency**          | Lower                      | Higher                                       |
+| **Transfer Form**       | Byte stream                | Datagram (Message)                           |
+| **Header Overhead**     | 20-60 bytes                | 8 bytes                                      |
+| **Communication Mode**  | Point-to-point (unicast)   | Unicast, multicast, broadcast                |
+| **Common Applications** | HTTP/HTTPS, FTP, SMTP, SSH | DNS, DHCP, SNMP, TFTP, VoIP, video streaming |
 
-### ⭐️什么时候选择 TCP，什么时候选 UDP?
+### ⭐️Khi nào chọn TCP, khi nào chọn UDP?
 
-选择 TCP 还是 UDP，主要取决于你的应用**对数据传输的可靠性要求有多高，以及对实时性和效率的要求有多高**。
+Việc chọn TCP hay UDP phụ thuộc chủ yếu vào **yêu cầu về độ tin cậy truyền dữ liệu của application và yêu cầu về tính thời gian thực, hiệu quả**.
 
-当**数据准确性和完整性至关重要，一点都不能出错**时，通常选择 TCP。因为 TCP 提供了一整套机制（三次握手、确认应答、重传、流量控制等）来保证数据能够可靠、有序地送达。典型应用场景如下：
+Khi **tính chính xác và toàn vẹn dữ liệu cực kỳ quan trọng, không thể có bất kỳ sai sót nào**, thường chọn TCP. Vì TCP cung cấp một bộ cơ chế hoàn chỉnh (three-way handshake, ACK, retransmit, flow control v.v.) để đảm bảo dữ liệu đến đích đáng tin cậy và có thứ tự. Scenario điển hình:
 
-- **Web 浏览 (HTTP/HTTPS):** 网页内容、图片、脚本必须完整加载才能正确显示。
-- **文件传输 (FTP, SCP):** 文件内容不允许有任何字节丢失或错序。
-- **邮件收发 (SMTP, POP3, IMAP):** 邮件内容需要完整无误地送达。
-- **远程登录 (SSH, Telnet):** 命令和响应需要准确传输。
+- **Web browsing (HTTP/HTTPS)**: Nội dung webpage, hình ảnh, script phải tải hoàn chỉnh mới hiển thị đúng.
+- **File transfer (FTP, SCP)**: Nội dung file không cho phép mất bất kỳ byte nào hoặc sai thứ tự.
+- **Email (SMTP, POP3, IMAP)**: Nội dung email cần đến đích hoàn toàn không có lỗi.
+- **Remote login (SSH, Telnet)**: Command và response cần truyền chính xác.
 - ……
 
-当**实时性、速度和效率优先，并且应用能容忍少量数据丢失或乱序**时，通常选择 UDP。UDP 开销小、传输快，没有建立连接和保证可靠性的复杂过程。典型应用场景如下：
+Khi **tính thời gian thực, tốc độ và hiệu quả được ưu tiên, và application có thể chấp nhận một lượng nhỏ mất mát dữ liệu hoặc sai thứ tự**, thường chọn UDP. UDP overhead nhỏ, truyền nhanh, không có quy trình phức tạp để thiết lập kết nối và đảm bảo độ tin cậy. Scenario điển hình:
 
-- **实时音视频通信 (VoIP, 视频会议, 直播):** 偶尔丢失一两个数据包（可能导致画面或声音短暂卡顿）通常比因为等待重传（TCP 机制）导致长时间延迟更可接受。应用层可能会有自己的补偿机制。
-- **在线游戏:** 需要快速传输玩家位置、状态等信息，对实时性要求极高，旧的数据很快就没用了，丢失少量数据影响通常不大。
-- **DHCP (动态主机配置协议):** 客户端在请求 IP 时自身没有 IP 地址，无法满足 TCP 建立连接的前提条件，并且 DHCP 有广播需求、交互模式简单以及自带可靠性机制。
-- **物联网 (IoT) 数据上报:** 某些场景下，传感器定期上报数据，丢失个别数据点可能不影响整体趋势分析。
+- **Real-time audio/video communication (VoIP, video conferencing, live streaming)**: Mất đi một vài gói dữ liệu (có thể gây ra màn hình hoặc âm thanh bị giật ngắn) thường chấp nhận được hơn là delay dài do chờ retransmit (cơ chế TCP). Application layer có thể có cơ chế bù riêng.
+- **Online games**: Cần truyền nhanh thông tin vị trí, trạng thái của player, yêu cầu tính thời gian thực cực cao, dữ liệu cũ nhanh chóng trở nên vô dụng, mất một ít dữ liệu thường không ảnh hưởng nhiều.
+- **DHCP (Dynamic Host Configuration Protocol)**: Client khi request IP chưa có IP, không thể đáp ứng điều kiện tiên quyết của TCP để thiết lập kết nối, và DHCP có nhu cầu broadcast, interaction mode đơn giản và có cơ chế reliability riêng.
+- **IoT data reporting**: Trong một số scenario, sensor định kỳ báo cáo dữ liệu, mất vài data point đơn lẻ có thể không ảnh hưởng đến phân tích xu hướng tổng thể.
 - ……
 
-### HTTP 基于 TCP 还是 UDP？
+### HTTP dựa trên TCP hay UDP?
 
-~~**HTTP 协议是基于 TCP 协议的**，所以发送 HTTP 请求之前首先要建立 TCP 连接也就是要经历 3 次握手。~~
+~~**HTTP protocol dựa trên TCP protocol**, vì vậy trước khi gửi HTTP request cần thiết lập kết nối TCP tức là phải trải qua 3-way handshake.~~
 
-🐛 修正（参见 [issue#1915](https://github.com/Snailclimb/JavaGuide/issues/1915)）：
+🐛 Cập nhật (xem [issue#1915](https://github.com/Snailclimb/JavaGuide/issues/1915)):
 
-HTTP/3.0 之前是基于 TCP 协议的，而 HTTP/3.0 将弃用 TCP，改用 **基于 UDP 的 QUIC 协议** ：
+HTTP/3.0 trở về trước dựa trên TCP protocol, còn HTTP/3.0 sẽ bỏ TCP, chuyển sang **QUIC protocol dựa trên UDP**:
 
-- **HTTP/1.x 和 HTTP/2.0**：这两个版本的 HTTP 协议都明确建立在 TCP 之上。TCP 提供了可靠的、面向连接的传输，确保数据按序、无差错地到达，这对于网页内容的正确展示非常重要。发送 HTTP 请求前，需要先通过 TCP 的三次握手建立连接。
-- **HTTP/3.0**：这是一个重大的改变。HTTP/3 弃用了 TCP，转而使用 QUIC 协议，而 QUIC 是构建在 UDP 之上的。
+- **HTTP/1.x và HTTP/2.0**: Hai phiên bản này của HTTP protocol đều rõ ràng xây dựng trên TCP. TCP cung cấp truyền đáng tin cậy, connection-oriented, đảm bảo dữ liệu đến theo thứ tự, không có lỗi — điều này rất quan trọng cho việc hiển thị đúng nội dung webpage. Trước khi gửi HTTP request, cần thiết lập kết nối qua TCP three-way handshake.
+- **HTTP/3.0**: Đây là thay đổi lớn. HTTP/3 bỏ TCP, chuyển sang dùng QUIC protocol, còn QUIC được xây dựng trên UDP.
 
 ![http-3-implementation](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-3-implementation.png)
 
-**为什么 HTTP/3 要做这个改变呢？主要有两大原因：**
+**Tại sao HTTP/3 thực hiện thay đổi này? Chủ yếu có hai lý do:**
 
-1. 解决队头阻塞 (Head-of-Line Blocking，简写：HOL blocking) 问题。
-2. 减少连接建立的延迟。
+1. Giải quyết vấn đề Head-of-Line Blocking (HOL blocking).
+2. Giảm độ trễ thiết lập kết nối.
 
-下面我们来详细介绍这两大优化。
+Dưới đây giới thiệu chi tiết hai tối ưu này.
 
-在 HTTP/2 中，虽然可以在一个 TCP 连接上并发传输多个请求/响应流（多路复用），但 TCP 本身的特性（保证有序、可靠）意味着如果其中一个流的某个 TCP 报文丢失或延迟，整个 TCP 连接都会被阻塞，等待该报文重传。这会导致所有在这个 TCP 连接上的 HTTP/2 流都受到影响，即使其他流的数据包已经到达。**QUIC (运行在 UDP 上) 解决了这个问题**。QUIC 内部实现了自己的多路复用和流控制机制。不同的 HTTP 请求/响应流在 QUIC 层面是真正独立的。如果一个流的数据包丢失，它只会阻塞该流，而不会影响同一 QUIC 连接上的其他流（本质上是多路复用+轮询），大大提高了并发传输的效率。
+Trong HTTP/2, mặc dù có thể truyền đồng thời nhiều request/response stream trên một kết nối TCP (multiplexing), nhưng đặc điểm của bản thân TCP (đảm bảo thứ tự, đáng tin cậy) có nghĩa là nếu một TCP segment của một stream bị mất hoặc delay, toàn bộ kết nối TCP sẽ bị block chờ segment đó được retransmit. Điều này sẽ ảnh hưởng đến tất cả HTTP/2 stream trên kết nối TCP đó, dù các gói dữ liệu của stream khác đã đến. **QUIC (chạy trên UDP) giải quyết vấn đề này**. QUIC triển khai cơ chế multiplexing và flow control riêng. Các HTTP request/response stream khác nhau thực sự độc lập ở tầng QUIC. Nếu data packet của một stream bị mất, nó chỉ block stream đó, không ảnh hưởng đến các stream khác trên cùng kết nối QUIC (về bản chất là multiplexing + polling), cải thiện đáng kể hiệu quả concurrent transmission.
 
-除了解决队头阻塞问题，HTTP/3.0 还可以减少握手过程的延迟。在 HTTP/2.0 中，如果要建立一个安全的 HTTPS 连接，需要经过 TCP 三次握手和 TLS 握手：
+Ngoài giải quyết HOL blocking, HTTP/3.0 còn giảm độ trễ của quá trình handshake. Trong HTTP/2.0, để thiết lập một kết nối HTTPS an toàn, cần qua TCP three-way handshake và TLS handshake:
 
-1. TCP 三次握手：客户端和服务器交换 SYN 和 ACK 包，建立一个 TCP 连接。这个过程需要 1.5 个 RTT（round-trip time），即一个数据包从发送到接收的时间。
-2. TLS 握手：客户端和服务器交换密钥和证书，建立一个 TLS 加密层。这个过程需要至少 1 个 RTT（TLS 1.3）或者 2 个 RTT（TLS 1.2）。
+1. TCP three-way handshake: Client và server trao đổi SYN và ACK packet, thiết lập kết nối TCP. Quá trình này cần 1.5 RTT (round-trip time) — thời gian từ khi gửi đến khi nhận gói dữ liệu.
+2. TLS handshake: Client và server trao đổi key và certificate, thiết lập TLS encryption layer. Quá trình này cần ít nhất 1 RTT (TLS 1.3) hoặc 2 RTT (TLS 1.2).
 
-所以，HTTP/2.0 的连接建立就至少需要 2.5 个 RTT（TLS 1.3）或者 3.5 个 RTT（TLS 1.2）。而在 HTTP/3.0 中，使用的 QUIC 协议（TLS 1.3，TLS 1.3 除了支持 1 个 RTT 的握手，还支持 0 个 RTT 的握手）连接建立仅需 0-RTT 或者 1-RTT。这意味着 QUIC 在最佳情况下不需要任何的额外往返时间就可以建立新连接。
+Vì vậy, thiết lập kết nối HTTP/2.0 cần ít nhất 2.5 RTT (TLS 1.3) hoặc 3.5 RTT (TLS 1.2). Còn trong HTTP/3.0, QUIC protocol (TLS 1.3, TLS 1.3 ngoài hỗ trợ 1-RTT handshake còn hỗ trợ 0-RTT handshake) chỉ cần 0-RTT hoặc 1-RTT để thiết lập kết nối. Điều này có nghĩa là trong trường hợp tốt nhất, QUIC có thể thiết lập kết nối mới mà không cần bất kỳ RTT nào.
 
-相关证明可以参考下面这两个链接：
+Tham khảo chứng minh liên quan:
 
 - <https://zh.wikipedia.org/zh/HTTP/3>
 - <https://datatracker.ietf.org/doc/rfc9114/>
 
-### 你知道哪些基于 TCP/UDP 的协议？
+### Bạn biết những protocol nào dựa trên TCP/UDP?
 
-TCP (传输控制协议) 和 UDP (用户数据报协议) 是互联网传输层的两大核心协议，它们为各种应用层协议提供了基础的通信服务。以下是一些常见的、分别构建在 TCP 和 UDP 之上的应用层协议：
+TCP (Transmission Control Protocol) và UDP (User Datagram Protocol) là hai core protocol của internet transport layer, cung cấp dịch vụ communication cơ bản cho các application layer protocol. Dưới đây là một số application layer protocol phổ biến xây dựng trên TCP và UDP:
 
-**运行于 TCP 协议之上的协议 (强调可靠、有序传输)：**
+**Protocol chạy trên TCP (Nhấn mạnh reliable, ordered transmission):**
 
-| 中文全称 (缩写)            | 英文全称                           | 主要用途                     | 说明与特性                                                                                                                  |
-| -------------------------- | ---------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 超文本传输协议 (HTTP)      | HyperText Transfer Protocol        | 传输网页、超文本、多媒体内容 | **HTTP/1.x 和 HTTP/2 基于 TCP**。早期版本不加密，是 Web 通信的基础。                                                        |
-| 安全超文本传输协议 (HTTPS) | HyperText Transfer Protocol Secure | 加密的网页传输               | 在 HTTP 和 TCP 之间增加了 SSL/TLS 加密层，确保数据传输的机密性和完整性。                                                    |
-| 文件传输协议 (FTP)         | File Transfer Protocol             | 文件传输                     | 传统的 FTP **明文传输**，不安全。推荐使用其安全版本 **SFTP (SSH File Transfer Protocol)** 或 **FTPS (FTP over SSL/TLS)** 。 |
-| 简单邮件传输协议 (SMTP)    | Simple Mail Transfer Protocol      | **发送**电子邮件             | 负责将邮件从客户端发送到服务器，或在邮件服务器之间传递。可通过 **STARTTLS** 升级到加密传输。                                |
-| 邮局协议第 3 版 (POP3)     | Post Office Protocol version 3     | **接收**电子邮件             | 通常将邮件从服务器**下载到本地设备后删除服务器副本** (可配置保留)。**POP3S** 是其 SSL/TLS 加密版本。                        |
-| 互联网消息访问协议 (IMAP)  | Internet Message Access Protocol   | **接收和管理**电子邮件       | 邮件保留在服务器，支持多设备同步邮件状态、文件夹管理、在线搜索等。**IMAPS** 是其 SSL/TLS 加密版本。现代邮件服务首选。       |
-| 远程终端协议 (Telnet)      | Teletype Network                   | 远程终端登录                 | **明文传输**所有数据 (包括密码)，安全性极差，基本已被 SSH 完全替代。                                                        |
-| 安全外壳协议 (SSH)         | Secure Shell                       | 安全远程管理、加密数据传输   | 提供了加密的远程登录和命令执行，以及安全的文件传输 (SFTP) 等功能，是 Telnet 的安全替代品。                                  |
+| Tên đầy đủ (Viết tắt)                      | Tên tiếng Anh                      | Mục đích chính                               | Mô tả và đặc điểm                                                                                                                                                                               |
+| ------------------------------------------ | ---------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP (HyperText Transfer Protocol)         | HyperText Transfer Protocol        | Truyền webpage, hypertext, multimedia        | **HTTP/1.x và HTTP/2 dựa trên TCP**. Các phiên bản cũ không mã hóa, là nền tảng Web communication.                                                                                              |
+| HTTPS (HyperText Transfer Protocol Secure) | HyperText Transfer Protocol Secure | Truyền webpage được mã hóa                   | Thêm SSL/TLS encryption layer giữa HTTP và TCP, đảm bảo tính confidential và integrity của transmission.                                                                                        |
+| FTP (File Transfer Protocol)               | File Transfer Protocol             | Truyền file                                  | FTP truyền thống là **plain text**, không an toàn. Khuyến nghị dùng **SFTP (SSH File Transfer Protocol)** hoặc **FTPS (FTP over SSL/TLS)**.                                                     |
+| SMTP (Simple Mail Transfer Protocol)       | Simple Mail Transfer Protocol      | **Gửi** email                                | Chịu trách nhiệm gửi email từ client đến server, hoặc truyền giữa các mail server. Có thể nâng cấp lên encrypted transmission qua **STARTTLS**.                                                 |
+| POP3 (Post Office Protocol v3)             | Post Office Protocol version 3     | **Nhận** email                               | Thường **download email từ server về thiết bị local rồi xóa bản sao trên server** (có thể cấu hình giữ lại). **POP3S** là phiên bản SSL/TLS.                                                    |
+| IMAP (Internet Message Access Protocol)    | Internet Message Access Protocol   | **Nhận và quản lý** email                    | Email được giữ trên server, hỗ trợ đồng bộ trạng thái email trên nhiều thiết bị, quản lý folder, tìm kiếm online. **IMAPS** là phiên bản SSL/TLS. Lựa chọn đầu tiên cho dịch vụ email hiện đại. |
+| Telnet                                     | Teletype Network                   | Đăng nhập terminal từ xa                     | **Plain text** tất cả dữ liệu (bao gồm password), bảo mật cực kém, cơ bản đã bị SSH thay thế hoàn toàn.                                                                                         |
+| SSH (Secure Shell)                         | Secure Shell                       | Quản lý từ xa an toàn, truyền dữ liệu mã hóa | Cung cấp remote login và command execution mã hóa, cùng SFTP và các chức năng khác, là phương án an toàn thay thế Telnet.                                                                       |
 
-**运行于 UDP 协议之上的协议 (强调快速、低开销传输)：**
+**Protocol chạy trên UDP (Nhấn mạnh fast, low-overhead transmission):**
 
-| 中文全称 (缩写)         | 英文全称                              | 主要用途                   | 说明与特性                                                                                                   |
-| ----------------------- | ------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 超文本传输协议 (HTTP/3) | HyperText Transfer Protocol version 3 | 新一代网页传输             | 基于 **QUIC** 协议 (QUIC 本身构建于 UDP 之上)，旨在减少延迟、解决 TCP 队头阻塞问题，支持 0-RTT 连接建立。    |
-| 动态主机配置协议 (DHCP) | Dynamic Host Configuration Protocol   | 动态分配 IP 地址及网络配置 | 客户端从服务器自动获取 IP 地址、子网掩码、网关、DNS 服务器等信息。                                           |
-| 域名系统 (DNS)          | Domain Name System                    | 域名到 IP 地址的解析       | **通常使用 UDP** 进行快速查询。当响应数据包过大或进行区域传送 (AXFR) 时，会**切换到 TCP** 以保证数据完整性。 |
-| 实时传输协议 (RTP)      | Real-time Transport Protocol          | 实时音视频数据流传输       | 常用于 VoIP、视频会议、直播等。追求低延迟，允许少量丢包。通常与 RTCP 配合使用。                              |
-| RTP 控制协议 (RTCP)     | RTP Control Protocol                  | RTP 流的质量监控和控制信息 | 配合 RTP 工作，提供丢包、延迟、抖动等统计信息，辅助流量控制和拥塞管理。                                      |
-| 简单文件传输协议 (TFTP) | Trivial File Transfer Protocol        | 简化的文件传输             | 功能简单，常用于局域网内无盘工作站启动、网络设备固件升级等小文件传输场景。                                   |
-| 简单网络管理协议 (SNMP) | Simple Network Management Protocol    | 网络设备的监控与管理       | 允许网络管理员查询和修改网络设备的状态信息。                                                                 |
-| 网络时间协议 (NTP)      | Network Time Protocol                 | 同步计算机时钟             | 用于在网络中的计算机之间同步时间，确保时间的一致性。                                                         |
+| Tên đầy đủ (Viết tắt)                      | Tên tiếng Anh                         | Mục đích chính                               | Mô tả và đặc điểm                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP/3                                     | HyperText Transfer Protocol version 3 | Truyền webpage thế hệ mới                    | Dựa trên **QUIC** protocol (QUIC xây dựng trên UDP), nhằm giảm latency, giải quyết TCP HOL blocking, hỗ trợ 0-RTT connection establishment.           |
+| DHCP (Dynamic Host Configuration Protocol) | Dynamic Host Configuration Protocol   | Cấp phát dynamic IP và cấu hình mạng         | Client tự động lấy IP address, subnet mask, gateway, DNS server và thông tin khác từ server.                                                          |
+| DNS (Domain Name System)                   | Domain Name System                    | Phân giải domain name sang IP address        | **Thường dùng UDP** để query nhanh. Khi response packet quá lớn hoặc thực hiện zone transfer (AXFR), **chuyển sang TCP** để đảm bảo toàn vẹn dữ liệu. |
+| RTP (Real-time Transport Protocol)         | Real-time Transport Protocol          | Truyền real-time audio/video stream          | Thường dùng cho VoIP, video conferencing, live streaming. Tối đa giảm latency, chấp nhận một ít mất gói. Thường dùng kết hợp với RTCP.                |
+| RTCP (RTP Control Protocol)                | RTP Control Protocol                  | Quality monitoring và control của RTP stream | Phối hợp với RTP, cung cấp thông tin thống kê như packet loss, latency, jitter, hỗ trợ traffic control và congestion management.                      |
+| TFTP (Trivial File Transfer Protocol)      | Trivial File Transfer Protocol        | Truyền file đơn giản                         | Chức năng đơn giản, thường dùng trong LAN để diskless workstation khởi động, network device firmware upgrade và các scenario truyền file nhỏ.         |
+| SNMP (Simple Network Management Protocol)  | Simple Network Management Protocol    | Monitoring và quản lý thiết bị mạng          | Cho phép network admin query và sửa đổi thông tin trạng thái của thiết bị mạng.                                                                       |
+| NTP (Network Time Protocol)                | Network Time Protocol                 | Đồng bộ đồng hồ máy tính                     | Dùng để đồng bộ thời gian giữa các máy tính trong mạng, đảm bảo tính nhất quán thời gian.                                                             |
 
-**总结一下：**
+**Tóm lại:**
 
-- **TCP** 更适合那些对数据**可靠性、完整性和顺序性**要求高的应用，如网页浏览 (HTTP/HTTPS)、文件传输 (FTP/SFTP)、邮件收发 (SMTP/POP3/IMAP)。
-- **UDP** 则更适用于那些对**实时性要求高、能容忍少量数据丢失**的应用，如域名解析 (DNS)、实时音视频 (RTP)、在线游戏、网络管理 (SNMP) 等。
+- **TCP** phù hợp hơn với các application có yêu cầu cao về **độ tin cậy, toàn vẹn và thứ tự dữ liệu**, như web browsing (HTTP/HTTPS), file transfer (FTP/SFTP), email (SMTP/POP3/IMAP).
+- **UDP** phù hợp hơn với các application có **yêu cầu thời gian thực cao, chấp nhận một ít mất dữ liệu**, như DNS resolution, real-time audio/video (RTP), online games, network management (SNMP).
 
-### ⭐️TCP 三次握手和四次挥手（非常重要）
+### ⭐️TCP Three-way Handshake và Four-way Teardown (Rất quan trọng)
 
-**相关面试题**：
+**Câu hỏi phỏng vấn liên quan**:
 
-- 为什么要三次握手?
-- 第 2 次握手传回了 ACK，为什么还要传回 SYN？
-- 为什么要四次挥手？
-- 为什么不能把服务器发送的 ACK 和 FIN 合并起来，变成三次挥手？
-- 如果第二次挥手时服务器的 ACK 没有送达客户端，会怎样？
-- 为什么第四次挥手客户端需要等待 2\*MSL（报文段最长寿命）时间后才进入 CLOSED 状态？
+- Tại sao cần three-way handshake?
+- Three-way handshake lần 2 truyền lại ACK, tại sao còn phải truyền lại SYN?
+- Tại sao cần four-way teardown?
+- Tại sao không thể gộp ACK và FIN mà server gửi lại, biến thành three-way teardown?
+- Nếu ACK của server trong lần teardown thứ 2 không đến được client, thì sao?
+- Tại sao sau lần teardown thứ 4, client cần chờ thêm 2\*MSL (Maximum Segment Lifetime) mới vào trạng thái CLOSED?
 
-**参考答案**：[TCP 三次握手和四次挥手（传输层）](https://javaguide.cn/cs-basics/network/tcp-connection-and-disconnection.html) 。
+**Tham khảo đáp án**: [TCP Three-way Handshake và Four-way Teardown (Transport Layer)](https://javaguide.cn/cs-basics/network/tcp-connection-and-disconnection.html).
 
-### ⭐️TCP 如何保证传输的可靠性？（重要）
+### ⭐️TCP đảm bảo độ tin cậy truyền tải như thế nào? (Quan trọng)
 
-[TCP 传输可靠性保障（传输层）](https://javaguide.cn/cs-basics/network/tcp-reliability-guarantee.html)
+[Đảm bảo độ tin cậy TCP (Transport Layer)](https://javaguide.cn/cs-basics/network/tcp-reliability-guarantee.html)
 
 ## IP
 
-### IP 协议的作用是什么？
+### Vai trò của IP protocol là gì?
 
-**IP（Internet Protocol，网际协议）** 是 TCP/IP 协议中最重要的协议之一，属于网络层的协议，主要作用是定义数据包的格式、对数据包进行路由和寻址，以便它们可以跨网络传播并到达正确的目的地。
+**IP (Internet Protocol)** là một trong những protocol quan trọng nhất trong TCP/IP protocol suite, thuộc về network layer protocol. Vai trò chính là định nghĩa định dạng data packet, routing và addressing data packet, để chúng có thể truyền qua mạng và đến đúng đích.
 
-目前 IP 协议主要分为两种，一种是过去的 IPv4，另一种是较新的 IPv6，目前这两种协议都在使用，但后者已经被提议来取代前者。
+Hiện tại IP protocol chủ yếu có hai loại: IPv4 cũ hơn và IPv6 mới hơn. Cả hai protocol đều đang được sử dụng, nhưng IPv6 đã được đề xuất để thay thế IPv4.
 
-### 什么是 IP 地址？IP 寻址如何工作？
+### IP address là gì? IP addressing hoạt động như thế nào?
 
-每个连入互联网的设备或域（如计算机、服务器、路由器等）都被分配一个 **IP 地址（Internet Protocol address）**，作为唯一标识符。每个 IP 地址都是一个字符序列，如 192.168.1.1（IPv4）、2001:0db8:85a3:0000:0000:8a2e:0370:7334（IPv6） 。
+Mỗi thiết bị hoặc domain kết nối internet (như máy tính, server, router v.v.) đều được cấp một **IP address (Internet Protocol address)** làm unique identifier. Mỗi IP address là một chuỗi ký tự, như 192.168.1.1 (IPv4), 2001:0db8:85a3:0000:0000:8a2e:0370:7334 (IPv6).
 
-当网络设备发送 IP 数据包时，数据包中包含了 **源 IP 地址** 和 **目的 IP 地址** 。源 IP 地址用于标识数据包的发送方设备或域，而目的 IP 地址则用于标识数据包的接收方设备或域。这类似于一封邮件中同时包含了目的地地址和回邮地址。
+Khi thiết bị mạng gửi IP data packet, packet chứa **source IP address** và **destination IP address**. Source IP address dùng để xác định thiết bị hoặc domain gửi packet, còn destination IP address dùng để xác định thiết bị hoặc domain nhận packet. Điều này tương tự như một bức thư chứa cả địa chỉ đích và địa chỉ trả lại.
 
-网络设备根据目的 IP 地址来判断数据包的目的地，并将数据包转发到正确的目的地网络或子网络，从而实现了设备间的通信。
+Thiết bị mạng dựa vào destination IP address để xác định đích đến của packet và forward packet đến đúng mạng hoặc subnet đích, từ đó thực hiện giao tiếp giữa các thiết bị.
 
-这种基于 IP 地址的寻址方式是互联网通信的基础，它允许数据包在不同的网络之间传递，从而实现了全球范围内的网络互联互通。IP 地址的唯一性和全局性保证了网络中的每个设备都可以通过其独特的 IP 地址进行标识和寻址。
+Cách addressing dựa trên IP address này là nền tảng của internet communication, cho phép packet truyền giữa các mạng khác nhau, thực hiện kết nối mạng phạm vi toàn cầu. Tính duy nhất và toàn cầu của IP address đảm bảo mỗi thiết bị trong mạng có thể được nhận dạng và addressing thông qua IP address độc đáo của nó.
 
-![IP 地址使数据包到达其目的地](https://oss.javaguide.cn/github/javaguide/cs-basics/network/internet_protocol_ip_address_diagram.png)
+![IP address helps packets reach their destination](https://oss.javaguide.cn/github/javaguide/cs-basics/network/internet_protocol_ip_address_diagram.png)
 
-### 什么是 IP 地址过滤？
+### IP address filtering là gì?
 
-**IP 地址过滤（IP Address Filtering）** 简单来说就是限制或阻止特定 IP 地址或 IP 地址范围的访问。例如，你有一个图片服务突然被某一个 IP 地址攻击，那我们就可以禁止这个 IP 地址访问图片服务。
+**IP Address Filtering** nói đơn giản là giới hạn hoặc chặn truy cập từ IP address hoặc dải IP address cụ thể. Ví dụ, image service của bạn đột nhiên bị tấn công từ một IP address, thì có thể cấm IP address đó truy cập image service.
 
-IP 地址过滤是一种简单的网络安全措施，实际应用中一般会结合其他网络安全措施，如认证、授权、加密等一起使用。单独使用 IP 地址过滤并不能完全保证网络的安全。
+IP address filtering là một biện pháp bảo mật mạng đơn giản, trong ứng dụng thực tế thường được kết hợp với các biện pháp bảo mật mạng khác như authentication, authorization, encryption. Chỉ dùng IP address filtering một mình không thể đảm bảo hoàn toàn an toàn mạng.
 
-### ⭐️IPv4 和 IPv6 有什么区别？
+### ⭐️Sự khác biệt giữa IPv4 và IPv6 là gì?
 
-**IPv4（Internet Protocol version 4）** 是目前广泛使用的 IP 地址版本，其格式是四组由点分隔的数字，例如：123.89.46.72。IPv4 使用 32 位地址作为其 Internet 地址，这意味着共有约 42 亿（ 2^32）个可用 IP 地址。
+**IPv4 (Internet Protocol version 4)** là phiên bản IP address được sử dụng rộng rãi hiện tại, định dạng là bốn nhóm số cách nhau bằng dấu chấm, ví dụ: 123.89.46.72. IPv4 dùng 32-bit address làm Internet address, có nghĩa là có khoảng 4.2 tỷ ($2^{32}$) IP address khả dụng.
 
 ![IPv4](https://oss.javaguide.cn/github/javaguide/cs-basics/network/Figure-1-IPv4Addressformatwithdotteddecimalnotation-29c824f6a451d48d8c27759799f0c995.png)
 
-这么少当然不够用啦！为了解决 IP 地址耗尽的问题，最根本的办法是采用具有更大地址空间的新版本 IP 协议 - **IPv6（Internet Protocol version 6）**。IPv6 地址使用更复杂的格式，该格式使用由单或双冒号分隔的一组数字和字母，例如：2001:0db8:85a3:0000:0000:8a2e:0370:7334 。IPv6 使用 128 位互联网地址，这意味着越有 2^128（3 开头的 39 位数字，恐怖如斯） 个可用 IP 地址。
+Ít vậy tất nhiên không đủ dùng! Để giải quyết vấn đề cạn kiệt IP address, giải pháp căn bản nhất là dùng phiên bản IP protocol mới với không gian địa chỉ lớn hơn — **IPv6 (Internet Protocol version 6)**. IPv6 address dùng định dạng phức tạp hơn, sử dụng nhóm số và chữ cái cách nhau bởi dấu hai chấm đơn hoặc đôi, ví dụ: 2001:0db8:85a3:0000:0000:8a2e:0370:7334. IPv6 dùng 128-bit internet address, có nghĩa là có tới $2^{128}$ IP address khả dụng (số 39 chữ số bắt đầu bằng 3, kinh khủng thật!).
 
 ![IPv6](https://oss.javaguide.cn/github/javaguide/cs-basics/network/Figure-2-IPv6Addressformatwithhexadecimalnotation-7da3a419bd81627a9b2cef3b0efb4940.png)
 
-除了更大的地址空间之外，IPv6 的优势还包括：
+Ngoài không gian address lớn hơn, ưu điểm của IPv6 còn bao gồm:
 
-- **无状态地址自动配置（Stateless Address Autoconfiguration，简称 SLAAC）**：主机可以直接通过根据接口标识和网络前缀生成全局唯一的 IPv6 地址，而无需依赖 DHCP（Dynamic Host Configuration Protocol）服务器，简化了网络配置和管理。
-- **NAT（Network Address Translation，网络地址转换） 成为可选项**：IPv6 地址资源充足，可以给全球每个设备一个独立的地址。
-- **对标头结构进行了改进**：IPv6 标头结构相较于 IPv4 更加简化和高效，减少了处理开销，提高了网络性能。
-- **可选的扩展头**：允许在 IPv6 标头中添加不同的扩展头（Extension Headers），用于实现不同类型的功能和选项。
-- **ICMPv6（Internet Control Message Protocol for IPv6）**：IPv6 中的 ICMPv6 相较于 IPv4 中的 ICMP 有了一些改进，如邻居发现、路径 MTU 发现等功能的改进，从而提升了网络的可靠性和性能。
+- **SLAAC (Stateless Address Autoconfiguration)**: Host có thể tạo trực tiếp IPv6 address toàn cục duy nhất dựa trên interface identifier và network prefix mà không cần phụ thuộc vào DHCP server, đơn giản hóa cấu hình và quản lý mạng.
+- **NAT (Network Address Translation) trở thành tùy chọn**: Tài nguyên IPv6 address đủ dùng, có thể cho mỗi thiết bị trên toàn cầu một địa chỉ độc lập.
+- **Header structure được cải tiến**: Cấu trúc IPv6 header đơn giản và hiệu quả hơn IPv4, giảm processing overhead, cải thiện network performance.
+- **Optional extension header**: Cho phép thêm các extension header khác nhau vào IPv6 header để triển khai các loại chức năng và option khác nhau.
+- **ICMPv6 (Internet Control Message Protocol for IPv6)**: ICMPv6 trong IPv6 có một số cải tiến so với ICMP trong IPv4, như cải tiến neighbor discovery, path MTU discovery v.v., nâng cao độ tin cậy và performance của mạng.
 - ……
 
-### 如何获取客户端真实 IP？
+### Làm thế nào để lấy IP thực của client?
 
-获取客户端真实 IP 的方法有多种，主要分为应用层方法、传输层方法和网络层方法。
+Có nhiều cách để lấy IP thực của client, chủ yếu chia thành phương pháp application layer, transport layer và network layer.
 
-**应用层方法** ：
+**Application layer method**:
 
-通过 [X-Forwarded-For](https://en.wikipedia.org/wiki/X-Forwarded-For) 请求头获取，简单方便。不过，这种方法无法保证获取到的是真实 IP，这是因为 X-Forwarded-For 字段可能会被伪造。如果经过多个代理服务器，X-Forwarded-For 字段可能会有多个值（附带了整个请求链中的所有代理服务器 IP 地址）。并且，这种方法只适用于 HTTP 和 SMTP 协议。
+Lấy qua request header [X-Forwarded-For](https://en.wikipedia.org/wiki/X-Forwarded-For), đơn giản và tiện lợi. Tuy nhiên, phương pháp này không thể đảm bảo IP lấy được là thực, vì trường X-Forwarded-For có thể bị giả mạo. Nếu qua nhiều proxy server, trường X-Forwarded-For có thể có nhiều giá trị (mang tất cả địa chỉ proxy server trong chuỗi request). Ngoài ra, phương pháp này chỉ áp dụng cho HTTP và SMTP protocol.
 
-**传输层方法**：
+**Transport layer method**:
 
-利用 TCP Options 字段承载真实源 IP 信息。这种方法适用于任何基于 TCP 的协议，不受应用层的限制。不过，这并非是 TCP 标准所支持的，所以需要通信双方都进行改造。也就是：对于发送方来说，需要有能力把真实源 IP 插入到 TCP Options 里面。对于接收方来说，需要有能力把 TCP Options 里面的 IP 地址读取出来。
+Sử dụng TCP Options field để mang thông tin source IP thực. Phương pháp này áp dụng cho bất kỳ protocol dựa trên TCP nào, không bị giới hạn bởi application layer. Tuy nhiên, đây không phải là điều TCP standard hỗ trợ, vì vậy cần cả hai bên đều thực hiện thay đổi. Nghĩa là: Bên gửi cần có khả năng chèn source IP thực vào TCP Options. Bên nhận cần có khả năng đọc IP address từ TCP Options.
 
-也可以通过 Proxy Protocol 协议来传递客户端 IP 和 Port 信息。这种方法可以利用 Nginx 或者其他支持该协议的反向代理服务器来获取真实 IP 或者在业务服务器解析真实 IP。
+Cũng có thể truyền client IP và Port thông qua Proxy Protocol. Phương pháp này có thể sử dụng Nginx hoặc các reverse proxy server hỗ trợ protocol này để lấy IP thực hoặc parse IP thực ở business server.
 
-**网络层方法**：
+**Network layer method**:
 
-隧道 +DSR 模式。这种方法可以适用于任何协议，就是实施起来会比较麻烦，也存在一定限制，实际应用中一般不会使用这种方法。
+Tunnel + DSR mode. Phương pháp này có thể áp dụng cho bất kỳ protocol nào, nhưng triển khai sẽ khá phức tạp và có một số hạn chế, trong ứng dụng thực tế thường không dùng phương pháp này.
 
-### NAT 的作用是什么？
+### Vai trò của NAT là gì?
 
-**NAT（Network Address Translation，网络地址转换）** 主要用于在不同网络之间转换 IP 地址。它允许将私有 IP 地址（如在局域网中使用的 IP 地址）映射为公有 IP 地址（在互联网中使用的 IP 地址）或者反向映射，从而实现局域网内的多个设备通过单一公有 IP 地址访问互联网。
+**NAT (Network Address Translation)** chủ yếu được dùng để chuyển đổi IP address giữa các mạng khác nhau. Nó cho phép map private IP address (như IP address dùng trong LAN) sang public IP address (dùng trên internet) hoặc ngược lại, từ đó cho phép nhiều thiết bị trong LAN truy cập internet qua một public IP duy nhất.
 
-NAT 不光可以缓解 IPv4 地址资源短缺的问题，还可以隐藏内部网络的实际拓扑结构，使得外部网络无法直接访问内部网络中的设备，从而提高了内部网络的安全性。
+NAT không chỉ giúp giảm bớt vấn đề thiếu hụt tài nguyên IPv4 address, mà còn có thể ẩn cấu trúc topo thực tế của internal network, khiến external network không thể truy cập trực tiếp các thiết bị trong internal network, từ đó nâng cao tính bảo mật của internal network.
 
-![NAT 实现 IP地址转换](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-address-translation.png)
+![NAT implements IP address translation](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-address-translation.png)
 
-相关阅读：[NAT 协议详解（网络层）](https://javaguide.cn/cs-basics/network/nat.html)。
+Đọc liên quan: [Giải thích chi tiết NAT Protocol (Network Layer)](https://javaguide.cn/cs-basics/network/nat.html).
 
 ## ARP
 
-### 什么是 Mac 地址？
+### MAC address là gì?
 
-MAC 地址的全称是 **媒体访问控制地址（Media Access Control Address）**。如果说，互联网中每一个资源都由 IP 地址唯一标识（IP 协议内容），那么一切网络设备都由 MAC 地址唯一标识。
+Tên đầy đủ của MAC address là **Media Access Control Address**. Nếu nói rằng mỗi tài nguyên trên internet được định danh duy nhất bởi IP address (nội dung IP protocol), thì mọi thiết bị mạng đều được định danh duy nhất bởi MAC address.
 
-![路由器的背面就会注明 MAC 位址](https://oss.javaguide.cn/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
+![Mặt sau của router sẽ ghi MAC address](https://oss.javaguide.cn/github/javaguide/cs-basics/network/router-back-will-indicate-mac-address.png)
 
-可以理解为，MAC 地址是一个网络设备真正的身份证号，IP 地址只是一种不重复的定位方式（比如说住在某省某市某街道的张三，这种逻辑定位是 IP 地址，他的身份证号才是他的 MAC 地址），也可以理解为 MAC 地址是身份证号，IP 地址是邮政地址。MAC 地址也有一些别称，如 LAN 地址、物理地址、以太网地址等。
+Có thể hiểu rằng MAC address là số CMND thực sự của một thiết bị mạng, còn IP address chỉ là một cách định vị không trùng lặp (ví dụ như Zhang San sống ở tỉnh X, thành phố Y, đường Z, cách định vị logic này là IP address, số CMND của anh ta mới là MAC address). MAC address cũng có một số tên gọi khác như LAN address, physical address, ethernet address.
 
-> 还有一点要知道的是，不仅仅是网络资源才有 IP 地址，网络设备也有 IP 地址，比如路由器。但从结构上说，路由器等网络设备的作用是组成一个网络，而且通常是内网，所以它们使用的 IP 地址通常是内网 IP，内网的设备在与内网以外的设备进行通信时，需要用到 NAT 协议。
+> Một điều nữa cần biết: Không chỉ network resource mới có IP address, network device cũng có IP address, như router. Nhưng về mặt cấu trúc, vai trò của network device như router là tạo thành một mạng và thường là internal network, vì vậy IP address của chúng thường là internal IP. Thiết bị trong internal network khi giao tiếp với thiết bị bên ngoài internal network cần dùng NAT protocol.
 
-MAC 地址的长度为 6 字节（48 比特），地址空间大小有 280 万亿之多（ $2^{48}$ ），MAC 地址由 IEEE 统一管理与分配，理论上，一个网络设备中的网卡上的 MAC 地址是永久的。不同的网卡生产商从 IEEE 那里购买自己的 MAC 地址空间（MAC 的前 24 比特），也就是前 24 比特由 IEEE 统一管理，保证不会重复。而后 24 比特，由各家生产商自己管理，同样保证生产的两块网卡的 MAC 地址不会重复。
+MAC address có độ dài 6 byte (48 bit), không gian địa chỉ có tới 280 nghìn tỷ ($2^{48}$). MAC address được IEEE thống nhất quản lý và cấp phát. Về lý thuyết, MAC address trên network card trong một thiết bị mạng là vĩnh viễn. Các nhà sản xuất network card khác nhau mua không gian MAC address từ IEEE (24 bit đầu của MAC), tức là 24 bit đầu do IEEE thống nhất quản lý, đảm bảo không trùng lặp. Còn 24 bit sau, do từng nhà sản xuất tự quản lý, cũng đảm bảo MAC address của hai network card được sản xuất ra không trùng nhau.
 
-MAC 地址具有可携带性、永久性，身份证号永久地标识一个人的身份，不论他到哪里都不会改变。而 IP 地址不具有这些性质，当一台设备更换了网络，它的 IP 地址也就可能发生改变，也就是它在互联网中的定位发生了变化。
+MAC address có tính portable và permanent. Số CMND vĩnh viễn xác định danh tính của một người, dù đi đâu cũng không thay đổi. Còn IP address không có những thuộc tính này, khi một thiết bị thay đổi mạng, IP address của nó có thể thay đổi — tức là vị trí của nó trên internet đã thay đổi.
 
-最后，记住，MAC 地址有一个特殊地址：FF-FF-FF-FF-FF-FF（全 1 地址），该地址表示广播地址。
+Cuối cùng, nhớ rằng MAC address có một địa chỉ đặc biệt: FF-FF-FF-FF-FF-FF (địa chỉ toàn 1), địa chỉ này đại diện cho broadcast address.
 
-### ⭐️ARP 协议解决了什么问题？
+### ⭐️ARP protocol giải quyết vấn đề gì?
 
-ARP 协议，全称 **地址解析协议（Address Resolution Protocol）**，它解决的是网络层地址和链路层地址之间的转换问题。因为一个 IP 数据报在物理上传输的过程中，总是需要知道下一跳（物理上的下一个目的地）该去往何处，但 IP 地址属于逻辑地址，而 MAC 地址才是物理地址，ARP 协议解决了 IP 地址转 MAC 地址的一些问题。
+ARP protocol, tên đầy đủ là **Address Resolution Protocol**, giải quyết vấn đề chuyển đổi giữa network layer address và link layer address. Vì quá trình truyền vật lý của một IP datagram, luôn cần biết hop tiếp theo (điểm đích vật lý tiếp theo) đi đâu, nhưng IP address thuộc logical address, còn MAC address mới là physical address. ARP protocol giải quyết một số vấn đề chuyển đổi IP address sang MAC address.
 
-### ARP 协议的工作原理？
+### Nguyên lý hoạt động của ARP protocol?
 
-[ARP 协议详解(网络层)](https://javaguide.cn/cs-basics/network/arp.html)
+[Giải thích chi tiết ARP Protocol (Network Layer)](https://javaguide.cn/cs-basics/network/arp.html)
 
-## 复习建议
+## Gợi ý ôn tập
 
-非常推荐大家看一下 《图解 HTTP》 这本书，这本书页数不多，但是内容很是充实，不管是用来系统的掌握网络方面的一些知识还是说纯粹为了应付面试都有很大帮助。下面的一些文章只是参考。大二学习这门课程的时候，我们使用的教材是 《计算机网络第七版》（谢希仁编著），不推荐大家看这本教材，书非常厚而且知识偏理论，不确定大家能不能心平气和的读完。
+Rất khuyến nghị mọi người đọc cuốn 《Illustrated HTTP》, cuốn sách không nhiều trang nhưng nội dung rất phong phú, dù để nắm vững hệ thống kiến thức mạng hay thuần túy để đối phó phỏng vấn đều rất hữu ích. Các bài viết dưới đây chỉ là tài liệu tham khảo. Khi học môn này ở năm 2 đại học, chúng tôi dùng giáo trình 《Computer Networks 7th Edition》 (Xie Xiren biên soạn), không khuyến nghị đọc giáo trình này, sách rất dày và kiến thức thiên về lý thuyết, không chắc mọi người có thể đọc hết với tâm thế bình tĩnh hay không.
 
-## 参考
+## Tài liệu tham khảo
 
-- 《图解 HTTP》
-- 《计算机网络自顶向下方法》（第七版）
-- 什么是 Internet 协议（IP）？：<https://www.cloudflare.com/zh-cn/learning/network-layer/internet-protocol/>
-- 透传真实源 IP 的各种方法 - 极客时间：<https://time.geekbang.org/column/article/497864>
-- What Is NAT and What Are the Benefits of NAT Firewalls?：<https://community.fs.com/blog/what-is-nat-and-what-are-the-benefits-of-nat-firewalls.html>
-
-<!-- @include: @article-footer.snippet.md -->
+- 《Illustrated HTTP》
+- 《Computer Networking: A Top-Down Approach》 (7th Edition)
+- What is Internet Protocol (IP)?: <https://www.cloudflare.com/zh-cn/learning/network-layer/internet-protocol/>
+- Various methods for passing real source IP - Geek Time: <https://time.geekbang.org/column/article/497864>
+- What Is NAT and What Are the Benefits of NAT Firewalls?: <https://community.fs.com/blog/what-is-nat-and-what-are-the-benefits-of-nat-firewalls.html>

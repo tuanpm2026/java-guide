@@ -1,9 +1,9 @@
 ---
-title: 操作系统常见面试题总结(下)
-description: 最新操作系统高频面试题总结（下）：虚拟内存映射、内存碎片/伙伴系统、TLB+页缺失处理、分页分段对比、页面置换算法详解、文件系统&磁盘调度，附图表+⭐️重点标注，一文掌握OS内存/文件考点，快速通关后端面试！
-category: 计算机基础
+title: Tổng hợp câu hỏi phỏng vấn hệ điều hành thường gặp (Phần 2)
+description: Tổng hợp câu hỏi phỏng vấn hệ điều hành tần suất cao mới nhất (Phần 2)：ánh xạ bộ nhớ ảo, phân mảnh bộ nhớ/Buddy System, TLB + xử lý page fault, so sánh phân trang và phân đoạn, thuật toán thay thế trang, hệ thống tệp & điều phối đĩa, kèm sơ đồ + chú thích điểm quan trọng, nắm vững kiến thức bộ nhớ/tệp OS trong một bài, vượt qua phỏng vấn backend nhanh chóng!
+category: Kiến thức cơ bản máy tính
 tag:
-  - 操作系统
+  - Hệ điều hành
 head:
   - - meta
     - name: keywords
@@ -12,406 +12,406 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-## 内存管理
+## Quản lý bộ nhớ
 
-### 内存管理主要做了什么？
+### Quản lý bộ nhớ làm gì chủ yếu?
 
-![内存管理主要做的事情](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/memory-management-roles.png)
+![Những việc chính mà quản lý bộ nhớ thực hiện](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/memory-management-roles.png)
 
-操作系统的内存管理非常重要，主要负责下面这些事情：
+Quản lý bộ nhớ của hệ điều hành rất quan trọng, chủ yếu chịu trách nhiệm các công việc sau:
 
-- **内存的分配与回收**：对进程所需的内存进行分配和释放，malloc 函数：申请内存，free 函数：释放内存。
-- **地址转换**：将程序中的虚拟地址转换成内存中的物理地址。
-- **内存扩充**：当系统没有足够的内存时，利用虚拟内存技术或自动覆盖技术，从逻辑上扩充内存。
-- **内存映射**：将一个文件直接映射到进程的进程空间中，这样可以通过内存指针用读写内存的办法直接存取文件内容，速度更快。
-- **内存优化**：通过调整内存分配策略和回收算法来优化内存使用效率。
-- **内存安全**：保证进程之间使用内存互不干扰，避免一些恶意程序通过修改内存来破坏系统的安全性。
+- **Cấp phát và thu hồi bộ nhớ**: Cấp phát và giải phóng bộ nhớ theo nhu cầu của tiến trình, hàm malloc: xin cấp phát bộ nhớ, hàm free: giải phóng bộ nhớ.
+- **Dịch địa chỉ**: Chuyển đổi địa chỉ ảo trong chương trình thành địa chỉ vật lý trong bộ nhớ.
+- **Mở rộng bộ nhớ**: Khi hệ thống không đủ bộ nhớ, sử dụng kỹ thuật bộ nhớ ảo hoặc kỹ thuật overlay tự động để mở rộng bộ nhớ về mặt logic.
+- **Ánh xạ bộ nhớ**: Ánh xạ trực tiếp một tệp vào không gian tiến trình, cho phép đọc và ghi nội dung tệp trực tiếp qua con trỏ bộ nhớ, tốc độ nhanh hơn.
+- **Tối ưu bộ nhớ**: Tối ưu hiệu quả sử dụng bộ nhớ thông qua điều chỉnh chiến lược cấp phát và thuật toán thu hồi.
+- **Bảo mật bộ nhớ**: Đảm bảo bộ nhớ được các tiến trình sử dụng không gây cản trở lẫn nhau, tránh một số chương trình độc hại phá hoại tính bảo mật của hệ thống thông qua sửa đổi bộ nhớ.
 - ……
 
-### 什么是内存碎片？
+### Phân mảnh bộ nhớ là gì?
 
-内存碎片是由内存的申请和释放产生的，通常分为下面两种：
+Phân mảnh bộ nhớ được tạo ra từ quá trình xin cấp phát và giải phóng bộ nhớ, thường chia thành hai loại sau:
 
-- **内部内存碎片(Internal Memory Fragmentation，简称为内存碎片)**：已经分配给进程使用但未被使用的内存。导致内部内存碎片的主要原因是，当采用固定比例比如 2 的幂次方进行内存分配时，进程所分配的内存可能会比其实际所需要的大。举个例子，一个进程只需要 65 字节的内存，但为其分配了 128（2^7） 大小的内存，那 63 字节的内存就成为了内部内存碎片。
-- **外部内存碎片(External Memory Fragmentation，简称为外部碎片)**：由于未分配的连续内存区域太小，以至于不能满足任意进程所需要的内存分配请求，这些小片段且不连续的内存空间被称为外部碎片。也就是说，外部内存碎片指的是那些并未分配给进程但又不能使用的内存。我们后面介绍的分段机制就会导致外部内存碎片。
+- **Phân mảnh bộ nhớ bên trong (Internal Memory Fragmentation)**: Bộ nhớ đã được cấp phát cho tiến trình nhưng không được sử dụng. Nguyên nhân chính gây ra phân mảnh bộ nhớ bên trong là khi cấp phát bộ nhớ theo tỷ lệ cố định như lũy thừa của 2, bộ nhớ được cấp phát cho tiến trình có thể lớn hơn nhu cầu thực tế. Ví dụ, một tiến trình chỉ cần 65 byte bộ nhớ nhưng được cấp phát 128 (2^7) byte, thì 63 byte bộ nhớ trở thành phân mảnh bộ nhớ bên trong.
+- **Phân mảnh bộ nhớ bên ngoài (External Memory Fragmentation)**: Do các vùng bộ nhớ liên tục chưa được cấp phát quá nhỏ, không thể đáp ứng bất kỳ yêu cầu cấp phát bộ nhớ nào của tiến trình. Các mảnh nhỏ và không liên tục này được gọi là phân mảnh bên ngoài. Tức là, phân mảnh bộ nhớ bên ngoài chỉ các vùng bộ nhớ chưa được cấp phát cho tiến trình nhưng cũng không thể sử dụng. Cơ chế phân đoạn được giới thiệu sau sẽ dẫn đến phân mảnh bộ nhớ bên ngoài.
 
-![内存碎片](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/internal-and-external-fragmentation.png)
+![Phân mảnh bộ nhớ](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/internal-and-external-fragmentation.png)
 
-内存碎片会导致内存利用率下降，如何减少内存碎片是内存管理要非常重视的一件事情。
+Phân mảnh bộ nhớ dẫn đến giảm hiệu quả sử dụng bộ nhớ. Giảm thiểu phân mảnh bộ nhớ là điều quản lý bộ nhớ cần rất chú trọng.
 
-### 常见的内存管理方式有哪些？
+### Các phương pháp quản lý bộ nhớ thường gặp là gì?
 
-内存管理方式可以简单分为下面两种：
+Phương pháp quản lý bộ nhớ có thể chia đơn giản thành hai loại:
 
-- **连续内存管理**：为一个用户程序分配一个连续的内存空间，内存利用率一般不高。
-- **非连续内存管理**：允许一个程序使用的内存分布在离散或者说不相邻的内存中，相对更加灵活一些。
+- **Quản lý bộ nhớ liên tục**: Cấp phát một không gian bộ nhớ liên tục cho một chương trình người dùng, hiệu quả sử dụng bộ nhớ thường không cao.
+- **Quản lý bộ nhớ không liên tục**: Cho phép bộ nhớ mà một chương trình sử dụng được phân bố trong các vùng bộ nhớ rời rạc hoặc không kề nhau, linh hoạt hơn tương đối.
 
-#### 连续内存管理
+#### Quản lý bộ nhớ liên tục
 
-**块式管理** 是早期计算机操作系统的一种连续内存管理方式，存在严重的内存碎片问题。块式管理会将内存分为几个固定大小的块，每个块中只包含一个进程。如果程序运行需要内存的话，操作系统就分配给它一块，如果程序运行只需要很小的空间的话，分配的这块内存很大一部分几乎被浪费了。这些在每个块中未被利用的空间，我们称之为内部内存碎片。除了内部内存碎片之外，由于两个内存块之间可能还会有外部内存碎片，这些不连续的外部内存碎片由于太小了无法再进行分配。
+**Quản lý theo khối** là một phương pháp quản lý bộ nhớ liên tục của hệ điều hành máy tính thời kỳ đầu, tồn tại vấn đề phân mảnh bộ nhớ nghiêm trọng. Quản lý theo khối chia bộ nhớ thành một số khối có kích thước cố định, mỗi khối chỉ chứa một tiến trình. Nếu chương trình cần bộ nhớ để chạy, hệ điều hành cấp phát cho nó một khối; nếu chương trình chỉ cần không gian rất nhỏ, phần lớn khối bộ nhớ được cấp phát đó hầu như bị lãng phí. Những không gian chưa được sử dụng trong mỗi khối được gọi là phân mảnh bộ nhớ bên trong. Ngoài phân mảnh bộ nhớ bên trong, do giữa hai khối bộ nhớ có thể còn có phân mảnh bộ nhớ bên ngoài, những phân mảnh bên ngoài không liên tục này quá nhỏ nên không thể cấp phát tiếp.
 
-在 Linux 系统中，连续内存管理采用了 **伙伴系统（Buddy System）算法** 来实现，这是一种经典的连续内存分配算法，可以有效解决外部内存碎片的问题。伙伴系统的主要思想是将内存按 2 的幂次划分（每一块内存大小都是 2 的幂次比如 2^6=64 KB），并将相邻的内存块组合成一对伙伴（注意：**必须是相邻的才是伙伴**）。
+Trong hệ thống Linux, quản lý bộ nhớ liên tục sử dụng **thuật toán Buddy System (Hệ thống bạn đồng hành)** để triển khai — đây là thuật toán cấp phát bộ nhớ liên tục kinh điển, có thể giải quyết hiệu quả vấn đề phân mảnh bộ nhớ bên ngoài. Tư tưởng chính của Buddy System là chia bộ nhớ theo lũy thừa của 2 (kích thước mỗi khối bộ nhớ đều là lũy thừa của 2, ví dụ 2^6 = 64 KB), và kết hợp các khối bộ nhớ liền kề thành một cặp "bạn đồng hành" (lưu ý: **chỉ những khối liền kề mới là bạn đồng hành**).
 
-当进行内存分配时，伙伴系统会尝试找到大小最合适的内存块。如果找到的内存块过大，就将其一分为二，分成两个大小相等的伙伴块。如果还是大的话，就继续切分，直到到达合适的大小为止。
+Khi cấp phát bộ nhớ, Buddy System sẽ cố gắng tìm khối bộ nhớ có kích thước phù hợp nhất. Nếu khối bộ nhớ tìm được quá lớn, sẽ chia đôi thành hai khối có kích thước bằng nhau. Nếu vẫn còn lớn thì tiếp tục chia, cho đến khi đạt kích thước phù hợp.
 
-假设两块相邻的内存块都被释放，系统会将这两个内存块合并，进而形成一个更大的内存块，以便后续的内存分配。这样就可以减少内存碎片的问题，提高内存利用率。
+Giả sử hai khối bộ nhớ liền kề đều được giải phóng, hệ thống sẽ hợp nhất hai khối bộ nhớ đó thành một khối lớn hơn, để thuận tiện cho việc cấp phát bộ nhớ sau. Như vậy có thể giảm vấn đề phân mảnh bộ nhớ, nâng cao hiệu quả sử dụng bộ nhớ.
 
-![伙伴系统（Buddy System）内存管理](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux-buddy-system.png)
+![Quản lý bộ nhớ Buddy System](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/linux-buddy-system.png)
 
-虽然解决了外部内存碎片的问题，但伙伴系统仍然存在内存利用率不高的问题（内部内存碎片）。这主要是因为伙伴系统只能分配大小为 2^n 的内存块，因此当需要分配的内存大小不是 2^n 的整数倍时，会浪费一定的内存空间。举个例子：如果要分配 65 大小的内存快，依然需要分配 2^7=128 大小的内存块。
+Dù đã giải quyết vấn đề phân mảnh bộ nhớ bên ngoài, Buddy System vẫn tồn tại vấn đề hiệu quả sử dụng bộ nhớ không cao (phân mảnh bộ nhớ bên trong). Chủ yếu là vì Buddy System chỉ có thể cấp phát khối bộ nhớ có kích thước 2^n, nên khi kích thước bộ nhớ cần cấp phát không phải bội số nguyên của 2^n, sẽ lãng phí một lượng bộ nhớ nhất định. Ví dụ: nếu cần cấp phát 65 byte bộ nhớ, vẫn phải cấp phát khối bộ nhớ có kích thước 2^7 = 128 byte.
 
-![伙伴系统内存浪费问题](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/buddy-system-memory-waste.png)
+![Vấn đề lãng phí bộ nhớ của Buddy System](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/buddy-system-memory-waste.png)
 
-对于内部内存碎片的问题，Linux 采用 **SLAB** 进行解决。由于这部分内容不是本篇文章的重点，这里就不详细介绍了。
+Với vấn đề phân mảnh bộ nhớ bên trong, Linux sử dụng **SLAB** để giải quyết. Vì nội dung này không phải trọng tâm của bài viết, nên sẽ không giới thiệu chi tiết ở đây.
 
-#### 非连续内存管理
+#### Quản lý bộ nhớ không liên tục
 
-非连续内存管理存在下面 3 种方式：
+Quản lý bộ nhớ không liên tục có 3 phương pháp:
 
-- **段式管理**：以段(一段连续的物理内存)的形式管理/分配物理内存。应用程序的虚拟地址空间被分为大小不等的段，段是有实际意义的，每个段定义了一组逻辑信息，例如有主程序段 MAIN、子程序段 X、数据段 D 及栈段 S 等。
-- **页式管理**：把物理内存分为连续等长的物理页，应用程序的虚拟地址空间也被划分为连续等长的虚拟页，是现代操作系统广泛使用的一种内存管理方式。
-- **段页式管理机制**：结合了段式管理和页式管理的一种内存管理机制，把物理内存先分成若干段，每个段又继续分成若干大小相等的页。
+- **Quản lý theo đoạn (Segmentation)**: Quản lý/cấp phát bộ nhớ vật lý dưới dạng đoạn (một đoạn bộ nhớ vật lý liên tục). Không gian địa chỉ ảo của ứng dụng được chia thành các đoạn có kích thước không bằng nhau; đoạn có ý nghĩa thực tế, mỗi đoạn định nghĩa một nhóm thông tin logic, ví dụ có đoạn chương trình chính MAIN, đoạn chương trình con X, đoạn dữ liệu D và đoạn stack S.
+- **Quản lý theo trang (Paging)**: Chia bộ nhớ vật lý thành các trang vật lý liên tục có độ dài bằng nhau, không gian địa chỉ ảo của ứng dụng cũng được chia thành các trang ảo liên tục có độ dài bằng nhau, là phương pháp quản lý bộ nhớ được các hệ điều hành hiện đại sử dụng rộng rãi.
+- **Cơ chế quản lý đoạn-trang**: Cơ chế quản lý bộ nhớ kết hợp quản lý theo đoạn và theo trang, chia bộ nhớ vật lý thành một số đoạn trước, mỗi đoạn tiếp tục chia thành nhiều trang có kích thước bằng nhau.
 
-### 虚拟内存
+### Bộ nhớ ảo
 
-#### 什么是虚拟内存?有什么用？
+#### Bộ nhớ ảo là gì? Có tác dụng gì?
 
-**虚拟内存(Virtual Memory)** 是计算机系统内存管理非常重要的一个技术，本质上来说它只是逻辑存在的，是一个假想出来的内存空间，主要作用是作为进程访问主存（物理内存）的桥梁并简化内存管理。
+**Bộ nhớ ảo (Virtual Memory)** là một kỹ thuật rất quan trọng trong quản lý bộ nhớ của hệ thống máy tính. Về bản chất, nó chỉ tồn tại về mặt logic — là một không gian bộ nhớ tưởng tượng, chủ yếu đóng vai trò là cầu nối để tiến trình truy cập bộ nhớ chính (bộ nhớ vật lý) và đơn giản hóa việc quản lý bộ nhớ.
 
-![虚拟内存作为进程访问主存的桥梁](https://oss.javaguide.cn/xingqiu/virtual-memory.png)
+![Bộ nhớ ảo như cầu nối để tiến trình truy cập bộ nhớ chính](https://oss.javaguide.cn/xingqiu/virtual-memory.png)
 
-总结来说，虚拟内存主要提供了下面这些能力：
+Tóm lại, bộ nhớ ảo cung cấp các khả năng sau:
 
-- **隔离进程**：物理内存通过虚拟地址空间访问，虚拟地址空间与进程一一对应。每个进程都认为自己拥有了整个物理内存，进程之间彼此隔离，一个进程中的代码无法更改正在由另一进程或操作系统使用的物理内存。
-- **提升物理内存利用率**：有了虚拟地址空间后，操作系统只需要将进程当前正在使用的部分数据或指令加载入物理内存。
-- **简化内存管理**：进程都有一个一致且私有的虚拟地址空间，程序员不用和真正的物理内存打交道，而是借助虚拟地址空间访问物理内存，从而简化了内存管理。
-- **多个进程共享物理内存**：进程在运行过程中，会加载许多操作系统的动态库。这些库对于每个进程而言都是公用的，它们在内存中实际只会加载一份，这部分称为共享内存。
-- **提高内存使用安全性**：控制进程对物理内存的访问，隔离不同进程的访问权限，提高系统的安全性。
-- **提供更大的可使用内存空间**：可以让程序拥有超过系统物理内存大小的可用内存空间。这是因为当物理内存不够用时，可以利用磁盘充当，将物理内存页（通常大小为 4 KB）保存到磁盘文件（会影响读写速度），数据或代码页会根据需要在物理内存与磁盘之间移动。
+- **Cô lập tiến trình**: Bộ nhớ vật lý được truy cập thông qua không gian địa chỉ ảo, không gian địa chỉ ảo tương ứng 1-1 với tiến trình. Mỗi tiến trình đều nghĩ mình sở hữu toàn bộ bộ nhớ vật lý; các tiến trình cách ly với nhau, code trong một tiến trình không thể thay đổi bộ nhớ vật lý đang được tiến trình khác hoặc hệ điều hành sử dụng.
+- **Nâng cao hiệu quả sử dụng bộ nhớ vật lý**: Với không gian địa chỉ ảo, hệ điều hành chỉ cần nạp vào bộ nhớ vật lý phần dữ liệu hoặc lệnh mà tiến trình đang sử dụng.
+- **Đơn giản hóa quản lý bộ nhớ**: Mỗi tiến trình đều có không gian địa chỉ ảo nhất quán và riêng tư, lập trình viên không cần làm việc trực tiếp với bộ nhớ vật lý thực sự, mà truy cập bộ nhớ vật lý qua không gian địa chỉ ảo, đơn giản hóa quản lý bộ nhớ.
+- **Nhiều tiến trình chia sẻ bộ nhớ vật lý**: Trong quá trình chạy, tiến trình sẽ nạp nhiều thư viện động của hệ điều hành. Những thư viện này là chung cho mỗi tiến trình, thực tế chỉ nạp một lần trong bộ nhớ — phần này được gọi là shared memory.
+- **Nâng cao tính bảo mật khi sử dụng bộ nhớ**: Kiểm soát quyền truy cập bộ nhớ vật lý của tiến trình, cô lập quyền truy cập của các tiến trình khác nhau, nâng cao tính bảo mật của hệ thống.
+- **Cung cấp không gian bộ nhớ khả dụng lớn hơn**: Có thể cho phép chương trình có không gian bộ nhớ khả dụng vượt quá kích thước bộ nhớ vật lý của hệ thống. Vì khi bộ nhớ vật lý không đủ, có thể sử dụng đĩa thay thế, lưu các trang bộ nhớ vật lý (thường 4 KB) vào tệp đĩa (ảnh hưởng đến tốc độ đọc ghi). Dữ liệu hoặc trang code sẽ được di chuyển giữa bộ nhớ vật lý và đĩa theo nhu cầu.
 
-#### 没有虚拟内存有什么问题？
+#### Không có bộ nhớ ảo thì có vấn đề gì?
 
-如果没有虚拟内存的话，程序直接访问和操作的都是物理内存，看似少了一层中介，但多了很多问题。
+Nếu không có bộ nhớ ảo, chương trình truy cập và thao tác trực tiếp trên bộ nhớ vật lý — dường như ít một lớp trung gian hơn, nhưng lại phát sinh nhiều vấn đề hơn.
 
-**具体有什么问题呢？** 这里举几个例子说明(参考虚拟内存提供的能力回答这个问题)：
+**Cụ thể có những vấn đề gì?** Đây là một số ví dụ (tham chiếu các khả năng bộ nhớ ảo cung cấp để trả lời câu hỏi này):
 
-1. 用户程序可以访问任意物理内存，可能会不小心操作到系统运行必需的内存，进而造成操作系统崩溃，严重影响系统的安全。
-2. 同时运行多个程序容易崩溃。比如你想同时运行一个微信和一个 QQ 音乐，微信在运行的时候给内存地址 1xxx 赋值后，QQ 音乐也同样给内存地址 1xxx 赋值，那么 QQ 音乐对内存的赋值就会覆盖微信之前所赋的值，这就可能会造成微信这个程序会崩溃。
-3. 程序运行过程中使用的所有数据或指令都要载入物理内存，根据局部性原理，其中很大一部分可能都不会用到，白白占用了宝贵的物理内存资源。
+1. Chương trình người dùng có thể truy cập bất kỳ bộ nhớ vật lý nào, có thể vô tình thao tác vào bộ nhớ cần thiết cho hệ điều hành, dẫn đến crash hệ điều hành, ảnh hưởng nghiêm trọng đến tính bảo mật hệ thống.
+2. Chạy nhiều chương trình cùng lúc dễ crash. Ví dụ bạn muốn chạy cùng lúc WeChat và QQ Music, WeChat khi chạy gán giá trị cho địa chỉ bộ nhớ 1xxx, QQ Music cũng gán giá trị cho địa chỉ bộ nhớ 1xxx, thì giá trị gán của QQ Music sẽ ghi đè lên giá trị WeChat đã gán trước đó, điều này có thể khiến chương trình WeChat crash.
+3. Tất cả dữ liệu và lệnh sử dụng trong quá trình chạy chương trình đều phải nạp vào bộ nhớ vật lý. Theo nguyên lý cục bộ, trong đó có một phần lớn có thể không bao giờ được sử dụng đến, lãng phí tài nguyên bộ nhớ vật lý quý báu.
 4. ……
 
-#### 什么是虚拟地址和物理地址？
+#### Địa chỉ ảo và địa chỉ vật lý là gì?
 
-**物理地址（Physical Address）** 是真正的物理内存中地址，更具体点来说是内存地址寄存器中的地址。程序中访问的内存地址不是物理地址，而是 **虚拟地址（Virtual Address）** 。
+**Địa chỉ vật lý (Physical Address)** là địa chỉ trong bộ nhớ vật lý thực sự, cụ thể hơn là địa chỉ trong thanh ghi địa chỉ bộ nhớ. Địa chỉ bộ nhớ được truy cập trong chương trình không phải là địa chỉ vật lý, mà là **địa chỉ ảo (Virtual Address)**.
 
-也就是说，我们编程开发的时候实际就是在和虚拟地址打交道。比如在 C 语言中，指针里面存储的数值就可以理解成为内存里的一个地址，这个地址也就是我们说的虚拟地址。
+Tức là, khi lập trình phát triển, thực ra chúng ta đang làm việc với địa chỉ ảo. Ví dụ trong ngôn ngữ C, giá trị số lưu trong con trỏ có thể hiểu là một địa chỉ trong bộ nhớ — địa chỉ đó chính là địa chỉ ảo chúng ta nói đến.
 
-操作系统一般通过 CPU 芯片中的一个重要组件 **MMU(Memory Management Unit，内存管理单元)** 将虚拟地址转换为物理地址，这个过程被称为 **地址翻译/地址转换（Address Translation）** 。
+Hệ điều hành thường chuyển đổi địa chỉ ảo thành địa chỉ vật lý thông qua một thành phần quan trọng trong chip CPU là **MMU (Memory Management Unit - Đơn vị quản lý bộ nhớ)**. Quá trình này được gọi là **dịch địa chỉ/chuyển đổi địa chỉ (Address Translation)**.
 
-![地址翻译过程](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation.png)
+![Quá trình dịch địa chỉ](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation.png)
 
-通过 MMU 将虚拟地址转换为物理地址后，再通过总线传到物理内存设备，进而完成相应的物理内存读写请求。
+Sau khi MMU chuyển đổi địa chỉ ảo thành địa chỉ vật lý, tiếp tục truyền qua bus đến thiết bị bộ nhớ vật lý, từ đó hoàn thành yêu cầu đọc ghi bộ nhớ vật lý tương ứng.
 
-MMU 将虚拟地址翻译为物理地址的主要机制有两种: **分段机制** 和 **分页机制** 。
+Hai cơ chế chính để MMU dịch địa chỉ ảo thành địa chỉ vật lý là: **cơ chế phân đoạn** và **cơ chế phân trang**.
 
-#### 什么是虚拟地址空间和物理地址空间？
+#### Không gian địa chỉ ảo và không gian địa chỉ vật lý là gì?
 
-- 虚拟地址空间是虚拟地址的集合，是虚拟内存的范围。每一个进程都有一个一致且私有的虚拟地址空间。
-- 物理地址空间是物理地址的集合，是物理内存的范围。
+- Không gian địa chỉ ảo là tập hợp các địa chỉ ảo, là phạm vi của bộ nhớ ảo. Mỗi tiến trình có một không gian địa chỉ ảo nhất quán và riêng tư.
+- Không gian địa chỉ vật lý là tập hợp các địa chỉ vật lý, là phạm vi của bộ nhớ vật lý.
 
-#### 虚拟地址与物理内存地址是如何映射的？
+#### Địa chỉ ảo và địa chỉ bộ nhớ vật lý được ánh xạ như thế nào?
 
-MMU 将虚拟地址翻译为物理地址的主要机制有 3 种:
+MMU có 3 cơ chế chính để dịch địa chỉ ảo thành địa chỉ vật lý:
 
-1. 分段机制
-2. 分页机制
-3. 段页机制
+1. Cơ chế phân đoạn
+2. Cơ chế phân trang
+3. Cơ chế đoạn-trang
 
-其中，现代操作系统广泛采用分页机制，需要重点关注！
+Trong đó, hệ điều hành hiện đại sử dụng rộng rãi cơ chế phân trang — cần chú trọng đặc biệt!
 
-### 分段机制
+### Cơ chế phân đoạn
 
-**分段机制（Segmentation）** 以段(一段 **连续** 的物理内存)的形式管理/分配物理内存。应用程序的虚拟地址空间被分为大小不等的段，段是有实际意义的，每个段定义了一组逻辑信息，例如有主程序段 MAIN、子程序段 X、数据段 D 及栈段 S 等。
+**Cơ chế phân đoạn (Segmentation)** quản lý/cấp phát bộ nhớ vật lý dưới dạng đoạn (một đoạn bộ nhớ vật lý **liên tục**). Không gian địa chỉ ảo của ứng dụng được chia thành các đoạn có kích thước không bằng nhau; đoạn có ý nghĩa thực tế, mỗi đoạn định nghĩa một nhóm thông tin logic, ví dụ có đoạn chương trình chính MAIN, đoạn chương trình con X, đoạn dữ liệu D và đoạn stack S.
 
-#### 段表有什么用？地址翻译过程是怎样的？
+#### Bảng đoạn có tác dụng gì? Quá trình dịch địa chỉ diễn ra như thế nào?
 
-分段管理通过 **段表（Segment Table）** 映射虚拟地址和物理地址。
+Quản lý phân đoạn ánh xạ địa chỉ ảo và địa chỉ vật lý thông qua **Bảng đoạn (Segment Table)**.
 
-分段机制下的虚拟地址由两部分组成：
+Địa chỉ ảo trong cơ chế phân đoạn gồm hai phần:
 
-- **段号**：标识着该虚拟地址属于整个虚拟地址空间中的哪一个段。
-- **段内偏移量**：相对于该段起始地址的偏移量。
+- **Số đoạn (Segment Number)**: Xác định địa chỉ ảo này thuộc đoạn nào trong toàn bộ không gian địa chỉ ảo.
+- **Offset trong đoạn**: Offset so với địa chỉ bắt đầu của đoạn đó.
 
-具体的地址翻译过程如下：
+Quá trình dịch địa chỉ cụ thể như sau:
 
-1. MMU 首先解析得到虚拟地址中的段号；
-2. 通过段号去该应用程序的段表中取出对应的段信息（找到对应的段表项）；
-3. 从段信息中取出该段的起始地址（物理地址）加上虚拟地址中的段内偏移量得到最终的物理地址。
+1. MMU trước tiên phân tích lấy số đoạn trong địa chỉ ảo;
+2. Dùng số đoạn tra trong bảng đoạn của ứng dụng để lấy thông tin đoạn tương ứng (tìm mục bảng đoạn tương ứng);
+3. Lấy địa chỉ bắt đầu (địa chỉ vật lý) của đoạn đó từ thông tin đoạn, cộng với offset trong đoạn trong địa chỉ ảo để ra địa chỉ vật lý cuối cùng.
 
-![分段机制下的地址翻译过程](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-virtual-address-composition.png)
+![Quá trình dịch địa chỉ trong cơ chế phân đoạn](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-virtual-address-composition.png)
 
-段表中还存有诸如段长(可用于检查虚拟地址是否超出合法范围)、段类型（该段的类型，例如代码段、数据段等）等信息。
+Bảng đoạn còn lưu thông tin như độ dài đoạn (có thể dùng để kiểm tra địa chỉ ảo có vượt quá phạm vi hợp lệ không), loại đoạn (ví dụ đoạn code, đoạn dữ liệu) và các thông tin khác.
 
-**通过段号一定要找到对应的段表项吗？得到最终的物理地址后对应的物理内存一定存在吗？**
+**Dùng số đoạn nhất định tìm được mục bảng đoạn tương ứng không? Tìm được địa chỉ vật lý cuối cùng rồi, bộ nhớ vật lý tương ứng nhất định tồn tại không?**
 
-不一定。段表项可能并不存在：
+Không nhất thiết. Mục bảng đoạn có thể không tồn tại:
 
-- **段表项被删除**：软件错误、软件恶意行为等情况可能会导致段表项被删除。
-- **段表项还未创建**：如果系统内存不足或者无法分配到连续的物理内存块就会导致段表项无法被创建。
+- **Mục bảng đoạn bị xóa**: Lỗi phần mềm, hành vi phần mềm độc hại và các tình huống khác có thể dẫn đến mục bảng đoạn bị xóa.
+- **Mục bảng đoạn chưa được tạo**: Nếu hệ thống thiếu bộ nhớ hoặc không thể cấp phát khối bộ nhớ vật lý liên tục thì mục bảng đoạn không thể được tạo ra.
 
-#### 分段机制为什么会导致内存外部碎片？
+#### Tại sao cơ chế phân đoạn gây ra phân mảnh bộ nhớ bên ngoài?
 
-分段机制容易出现外部内存碎片，即在段与段之间留下碎片空间(不足以映射给虚拟地址空间中的段)。从而造成物理内存资源利用率的降低。
+Cơ chế phân đoạn dễ xuất hiện phân mảnh bộ nhớ bên ngoài, tức là để lại các khoảng trống phân mảnh giữa các đoạn (không đủ để ánh xạ cho các đoạn trong không gian địa chỉ ảo), dẫn đến giảm hiệu quả sử dụng tài nguyên bộ nhớ vật lý.
 
-举个例子：假设可用物理内存为 5G 的系统使用分段机制分配内存。现在有 4 个进程，每个进程的内存占用情况如下：
+Ví dụ: Giả sử hệ thống có 5GB bộ nhớ vật lý khả dụng sử dụng cơ chế phân đoạn để cấp phát bộ nhớ. Hiện có 4 tiến trình, mỗi tiến trình chiếm dụng bộ nhớ như sau:
 
-- 进程 1：0~1G（第 1 段）
-- 进程 2：1~3G（第 2 段）
-- 进程 3：3~4.5G（第 3 段）
-- 进程 4：4.5~5G（第 4 段）
+- Tiến trình 1: 0~1GB (đoạn 1)
+- Tiến trình 2: 1~3GB (đoạn 2)
+- Tiến trình 3: 3~4,5GB (đoạn 3)
+- Tiến trình 4: 4,5~5GB (đoạn 4)
 
-此时，我们关闭了进程 1 和进程 4，则第 1 段和第 4 段的内存会被释放，空闲物理内存还有 1.5G。由于这 1.5G 物理内存并不是连续的，导致没办法将空闲的物理内存分配给一个需要 1.5G 物理内存的进程。
+Lúc này, chúng ta đóng tiến trình 1 và tiến trình 4, thì bộ nhớ đoạn 1 và đoạn 4 sẽ được giải phóng, còn 1,5GB bộ nhớ vật lý trống. Vì 1,5GB bộ nhớ vật lý này không liên tục, nên không thể cấp phát bộ nhớ trống cho một tiến trình cần 1,5GB bộ nhớ vật lý.
 
-![分段机制导致外部内存碎片](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-external-memory-fragmentation.png)
+![Phân mảnh bộ nhớ bên ngoài do cơ chế phân đoạn](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/segment-external-memory-fragmentation.png)
 
-### 分页机制
+### Cơ chế phân trang
 
-**分页机制（Paging）** 把主存（物理内存）分为连续等长的物理页，应用程序的虚拟地址空间划也被分为连续等长的虚拟页。现代操作系统广泛采用分页机制。
+**Cơ chế phân trang (Paging)** chia bộ nhớ chính (bộ nhớ vật lý) thành các trang vật lý liên tục có độ dài bằng nhau, không gian địa chỉ ảo của ứng dụng cũng được chia thành các trang ảo liên tục có độ dài bằng nhau. Các hệ điều hành hiện đại sử dụng rộng rãi cơ chế phân trang.
 
-**注意：这里的页是连续等长的，不同于分段机制下不同长度的段。**
+**Lưu ý: Các trang ở đây có độ dài bằng nhau và liên tục, khác với các đoạn có độ dài khác nhau trong cơ chế phân đoạn.**
 
-在分页机制下，应用程序虚拟地址空间中的任意虚拟页可以被映射到物理内存中的任意物理页上，因此可以实现物理内存资源的离散分配。分页机制按照固定页大小分配物理内存，使得物理内存资源易于管理，可有效避免分段机制中外部内存碎片的问题。
+Trong cơ chế phân trang, bất kỳ trang ảo nào trong không gian địa chỉ ảo của ứng dụng đều có thể được ánh xạ đến bất kỳ trang vật lý nào trong bộ nhớ vật lý, do đó có thể thực hiện phân bổ rời rạc tài nguyên bộ nhớ vật lý. Cơ chế phân trang cấp phát bộ nhớ vật lý theo kích thước trang cố định, giúp tài nguyên bộ nhớ vật lý dễ quản lý, có thể tránh hiệu quả vấn đề phân mảnh bộ nhớ bên ngoài trong cơ chế phân đoạn.
 
-#### 页表有什么用？地址翻译过程是怎样的？
+#### Bảng trang có tác dụng gì? Quá trình dịch địa chỉ diễn ra như thế nào?
 
-分页管理通过 **页表（Page Table）** 映射虚拟地址和物理地址。我这里画了一张基于单级页表进行地址翻译的示意图。
+Quản lý phân trang ánh xạ địa chỉ ảo và địa chỉ vật lý thông qua **Bảng trang (Page Table)**. Đây là sơ đồ minh họa quá trình dịch địa chỉ dựa trên bảng trang đơn cấp.
 
-![单级页表](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table.png)
+![Bảng trang đơn cấp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table.png)
 
-在分页机制下，每个进程都会有一个对应的页表。
+Trong cơ chế phân trang, mỗi tiến trình sẽ có một bảng trang tương ứng.
 
-分页机制下的虚拟地址由两部分组成：
+Địa chỉ ảo trong cơ chế phân trang gồm hai phần:
 
-- **页号**：通过虚拟页号可以从页表中取出对应的物理页号；
-- **页内偏移量**：物理页起始地址+页内偏移量=物理内存地址。
+- **Số trang (Page Number)**: Qua số trang ảo có thể tra trong bảng trang để lấy số trang vật lý tương ứng;
+- **Offset trong trang**: Địa chỉ bắt đầu trang vật lý + offset trong trang = địa chỉ bộ nhớ vật lý.
 
-具体的地址翻译过程如下：
+Quá trình dịch địa chỉ cụ thể như sau:
 
-1. MMU 首先解析得到虚拟地址中的虚拟页号；
-2. 通过虚拟页号去该应用程序的页表中取出对应的物理页号（找到对应的页表项）；
-3. 用该物理页号对应的物理页起始地址（物理地址）加上虚拟地址中的页内偏移量得到最终的物理地址。
+1. MMU trước tiên phân tích lấy số trang ảo trong địa chỉ ảo;
+2. Dùng số trang ảo tra trong bảng trang của ứng dụng để lấy số trang vật lý tương ứng (tìm mục bảng trang tương ứng);
+3. Dùng địa chỉ bắt đầu trang vật lý (địa chỉ vật lý) tương ứng với số trang vật lý đó cộng với offset trong trang trong địa chỉ ảo để ra địa chỉ vật lý cuối cùng.
 
-![分页机制下的地址翻译过程](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/paging-virtual-address-composition.png)
+![Quá trình dịch địa chỉ trong cơ chế phân trang](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/paging-virtual-address-composition.png)
 
-页表中还存有诸如访问标志（标识该页面有没有被访问过）、脏数据标识位等信息。
+Bảng trang còn lưu các thông tin như flag truy cập (xác định trang đó đã được truy cập chưa), bit đánh dấu dữ liệu dirty và các thông tin khác.
 
-**通过虚拟页号一定要找到对应的物理页号吗？找到了物理页号得到最终的物理地址后对应的物理页一定存在吗？**
+**Dùng số trang ảo nhất định tìm được số trang vật lý tương ứng không? Tìm được số trang vật lý rồi có ra địa chỉ vật lý cuối cùng, trang vật lý tương ứng nhất định tồn tại không?**
 
-不一定！可能会存在 **页缺失** 。也就是说，物理内存中没有对应的物理页或者物理内存中有对应的物理页但虚拟页还未和物理页建立映射（对应的页表项不存在）。关于页缺失的内容，后面会详细介绍到。
+Không nhất thiết! Có thể xuất hiện **page fault (lỗi trang)**. Tức là bộ nhớ vật lý không có trang vật lý tương ứng, hoặc bộ nhớ vật lý có trang vật lý tương ứng nhưng trang ảo chưa thiết lập ánh xạ với trang vật lý (mục bảng trang tương ứng không tồn tại). Về page fault, phần sau sẽ giới thiệu chi tiết.
 
-#### 单级页表有什么问题？为什么需要多级页表？
+#### Bảng trang đơn cấp có vấn đề gì? Tại sao cần bảng trang đa cấp?
 
-以 32 位的环境为例，虚拟地址空间范围共有 2^32（4G）。假设 一个页的大小是 2^12（4KB），那页表项共有 4G / 4K = 2^20 个。每个页表项为一个地址，占用 4 字节，`(2^20 * 2^2) / (1024 * 1024)= 4MB`。也就是说一个程序啥都不干，页表大小就得占用 4M。
+Lấy môi trường 32 bit làm ví dụ, phạm vi không gian địa chỉ ảo là 2^32 (4GB). Giả sử kích thước một trang là 2^12 (4KB), thì tổng số mục bảng trang là 4G / 4K = 2^20. Mỗi mục bảng trang là một địa chỉ, chiếm 4 byte: `(2^20 × 2^2) / (1024 × 1024) = 4MB`. Tức là một chương trình chưa làm gì mà kích thước bảng trang đã chiếm 4MB.
 
-系统运行的应用程序多起来的话，页表的开销还是非常大的。而且，绝大部分应用程序可能只能用到页表中的几项，其他的白白浪费了。
+Khi có nhiều ứng dụng đang chạy trong hệ thống, chi phí bảng trang vẫn rất lớn. Hơn nữa, phần lớn ứng dụng có thể chỉ dùng một vài mục trong bảng trang, các mục còn lại bị lãng phí.
 
-为了解决这个问题，操作系统引入了 **多级页表** ，多级页表对应多个页表，每个页表与前一个页表相关联。32 位系统一般为二级页表，64 位系统一般为四级页表。
+Để giải quyết vấn đề này, hệ điều hành giới thiệu **bảng trang đa cấp** — bảng trang đa cấp tương ứng với nhiều bảng trang, mỗi bảng trang liên kết với bảng trang trước đó. Hệ thống 32 bit thường dùng bảng trang hai cấp, hệ thống 64 bit thường dùng bảng trang bốn cấp.
 
-这里以二级页表为例进行介绍：二级列表分为一级页表和二级页表。一级页表共有 1024 个页表项，一级页表又关联二级页表，二级页表同样共有 1024 个页表项。二级页表中的一级页表项是一对多的关系，二级页表按需加载（只会用到很少一部分二级页表），进而节省空间占用。
+Lấy bảng trang hai cấp làm ví dụ: Bảng trang hai cấp chia thành bảng trang cấp một và bảng trang cấp hai. Bảng trang cấp một có 1024 mục bảng trang, bảng trang cấp một liên kết với bảng trang cấp hai, bảng trang cấp hai cũng có 1024 mục bảng trang. Mối quan hệ giữa mục bảng trang cấp một và bảng trang cấp hai là một-nhiều; bảng trang cấp hai được nạp theo nhu cầu (chỉ dùng đến một phần nhỏ bảng trang cấp hai), từ đó tiết kiệm không gian.
 
-假设只需要 2 个二级页表，那两级页表的内存占用情况为: 4KB（一级页表占用） + 4KB \* 2（二级页表占用） = 12 KB。
+Giả sử chỉ cần 2 bảng trang cấp hai, thì bộ nhớ chiếm dụng của bảng trang hai cấp là: 4KB (bảng trang cấp một) + 4KB × 2 (bảng trang cấp hai) = 12 KB.
 
-![多级页表](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/multilevel-page-table.png)
+![Bảng trang đa cấp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/multilevel-page-table.png)
 
-多级页表属于时间换空间的典型场景，利用增加页表查询的次数减少页表占用的空间。
+Bảng trang đa cấp là kịch bản điển hình của đánh đổi thời gian lấy không gian — dùng cách tăng số lần tra bảng trang để giảm không gian mà bảng trang chiếm dụng.
 
-#### TLB 有什么用？使用 TLB 之后的地址翻译流程是怎样的？
+#### TLB có tác dụng gì? Luồng dịch địa chỉ sau khi sử dụng TLB là thế nào?
 
-为了提高虚拟地址到物理地址的转换速度，操作系统在 **页表方案** 基础之上引入了 **转址旁路缓存(Translation Lookaside Buffer，TLB，也被称为快表)** 。
+Để nâng cao tốc độ chuyển đổi từ địa chỉ ảo sang địa chỉ vật lý, hệ điều hành giới thiệu **TLB (Translation Lookaside Buffer - Bộ đệm dịch địa chỉ nhanh, còn gọi là bảng tra nhanh)** trên nền **giải pháp bảng trang**.
 
-![加入 TLB 之后的地址翻译](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
+![Dịch địa chỉ sau khi thêm TLB](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
 
-在主流的 AArch64 和 x86-64 体系结构下，TLB 属于 (Memory Management Unit，内存管理单元) 内部的单元，本质上就是一块高速缓存（Cache），缓存了虚拟页号到物理页号的映射关系，你可以将其简单看作是存储着键（虚拟页号）值（物理页号）对的哈希表。
+Trong kiến trúc AArch64 và x86-64 chủ lưu, TLB thuộc về đơn vị bên trong MMU (Memory Management Unit), về bản chất là một bộ nhớ cache tốc độ cao, lưu cache ánh xạ từ số trang ảo đến số trang vật lý — bạn có thể xem nó đơn giản như một bảng hash lưu các cặp key (số trang ảo) - value (số trang vật lý).
 
-使用 TLB 之后的地址翻译流程是这样的：
+Luồng dịch địa chỉ sau khi sử dụng TLB như sau:
 
-1. 用虚拟地址中的虚拟页号作为 key 去 TLB 中查询；
-2. 如果能查到对应的物理页的话，就不用再查询页表了，这种情况称为 TLB 命中（TLB hit)。
-3. 如果不能查到对应的物理页的话，还是需要去查询主存中的页表，同时将页表中的该映射表项添加到 TLB 中，这种情况称为 TLB 未命中（TLB miss)。
-4. 当 TLB 填满后，又要登记新页时，就按照一定的淘汰策略淘汰掉快表中的一个页。
+1. Dùng số trang ảo trong địa chỉ ảo làm key để tra trong TLB;
+2. Nếu tra được trang vật lý tương ứng thì không cần tra bảng trang nữa, trường hợp này gọi là TLB hit (TLB trúng).
+3. Nếu không tra được trang vật lý tương ứng thì vẫn phải tra bảng trang trong bộ nhớ chính, đồng thời thêm mục ánh xạ đó trong bảng trang vào TLB; trường hợp này gọi là TLB miss (TLB không trúng).
+4. Khi TLB đầy mà cần đăng ký trang mới, sẽ loại bỏ một trang trong TLB theo chiến lược loại bỏ nhất định.
 
-![使用 TLB 之后的地址翻译流程](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table-tlb.png)
+![Luồng dịch địa chỉ sau khi sử dụng TLB](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/page-table-tlb.png)
 
-由于页表也在主存中，因此在没有 TLB 之前，每次读写内存数据时 CPU 要访问两次主存。有了 TLB 之后，对于存在于 TLB 中的页表数据只需要访问一次主存即可。
+Vì bảng trang cũng ở trong bộ nhớ chính, nên trước khi có TLB, mỗi lần đọc ghi dữ liệu bộ nhớ CPU phải truy cập bộ nhớ chính hai lần. Với TLB, dữ liệu bảng trang tồn tại trong TLB chỉ cần truy cập bộ nhớ chính một lần.
 
-TLB 的设计思想非常简单，但命中率往往非常高，效果很好。这就是因为被频繁访问的页就是其中的很小一部分。
+Ý tưởng thiết kế TLB rất đơn giản, nhưng tỷ lệ hit thường rất cao và hiệu quả tốt. Đây là vì các trang được truy cập thường xuyên chỉ là một phần rất nhỏ.
 
-看完了之后你会发现快表和我们平时经常在开发系统中使用的缓存（比如 Redis）很像，的确是这样的，操作系统中的很多思想、很多经典的算法，你都可以在我们日常开发使用的各种工具或者框架中找到它们的影子。
+Sau khi đọc xong bạn sẽ thấy bảng tra nhanh rất giống với cache (ví dụ Redis) mà chúng ta thường dùng trong phát triển hệ thống — đúng vậy, nhiều tư tưởng trong hệ điều hành, nhiều thuật toán kinh điển, bạn đều có thể tìm thấy bóng dáng của chúng trong các công cụ hoặc framework mà chúng ta dùng hàng ngày.
 
-#### 换页机制有什么用？
+#### Cơ chế swap có tác dụng gì?
 
-换页机制的思想是当物理内存不够用的时候，操作系统选择将一些物理页的内容放到磁盘上去，等要用到的时候再将它们读取到物理内存中。也就是说，换页机制利用磁盘这种较低廉的存储设备扩展的物理内存。
+Tư tưởng của cơ chế swap (hoán đổi trang) là khi bộ nhớ vật lý không đủ, hệ điều hành chọn đưa nội dung một số trang vật lý ra đĩa, khi cần dùng lại thì đọc chúng trở lại bộ nhớ vật lý. Tức là, cơ chế swap dùng thiết bị lưu trữ đĩa giá rẻ hơn để mở rộng bộ nhớ vật lý.
 
-这也就解释了一个日常使用电脑常见的问题：为什么操作系统中所有进程运行所需的物理内存即使比真实的物理内存要大一些，这些进程也是可以正常运行的，只是运行速度会变慢。
+Điều này cũng giải thích một vấn đề thường gặp khi dùng máy tính: Tại sao ngay cả khi tổng bộ nhớ vật lý cần thiết để chạy tất cả tiến trình trong hệ điều hành lớn hơn bộ nhớ vật lý thực tế, các tiến trình đó vẫn có thể chạy bình thường — chỉ là tốc độ chạy sẽ chậm hơn.
 
-这同样是一种时间换空间的策略，你用 CPU 的计算时间，页的调入调出花费的时间，换来了一个虚拟的更大的物理内存空间来支持程序的运行。
+Đây cũng là chiến lược đánh đổi thời gian lấy không gian — bạn dùng thời gian tính toán của CPU, thời gian tốn vào việc nạp và xuất trang, để đổi lấy một không gian bộ nhớ vật lý ảo lớn hơn để hỗ trợ chương trình chạy.
 
-#### 什么是页缺失？
+#### Page fault là gì?
 
-根据维基百科:
+Theo Wikipedia:
 
-> 页缺失（Page Fault，又名硬错误、硬中断、分页错误、寻页缺失、缺页中断、页故障等）指的是当软件试图访问已映射在虚拟地址空间中，但是目前并未被加载在物理内存中的一个分页时，由 MMU 所发出的中断。
+> Page fault (lỗi trang, còn gọi là hard error, hard interrupt, paging error, page miss, page interrupt, page fault, v.v.) là ngắt do MMU phát sinh khi phần mềm cố gắng truy cập một trang đã được ánh xạ trong không gian địa chỉ ảo nhưng hiện tại chưa được nạp vào bộ nhớ vật lý.
 
-常见的页缺失有下面这两种：
+Hai loại page fault thường gặp:
 
-- **硬性页缺失（Hard Page Fault）**：物理内存中没有对应的物理页。于是，Page Fault Handler 会指示 CPU 从已经打开的磁盘文件中读取相应的内容到物理内存，而后交由 MMU 建立相应的虚拟页和物理页的映射关系。
-- **软性页缺失（Soft Page Fault）**：物理内存中有对应的物理页，但虚拟页还未和物理页建立映射。于是，Page Fault Handler 会指示 MMU 建立相应的虚拟页和物理页的映射关系。
+- **Hard Page Fault**: Bộ nhớ vật lý không có trang vật lý tương ứng. Khi đó, Page Fault Handler sẽ chỉ định CPU đọc nội dung tương ứng từ tệp đĩa đã mở vào bộ nhớ vật lý, sau đó giao cho MMU thiết lập ánh xạ giữa trang ảo và trang vật lý tương ứng.
+- **Soft Page Fault**: Bộ nhớ vật lý có trang vật lý tương ứng, nhưng trang ảo chưa thiết lập ánh xạ với trang vật lý. Khi đó, Page Fault Handler sẽ chỉ định MMU thiết lập ánh xạ giữa trang ảo và trang vật lý tương ứng.
 
-发生上面这两种缺页错误的时候，应用程序访问的是有效的物理内存，只是出现了物理页缺失或者虚拟页和物理页的映射关系未建立的问题。如果应用程序访问的是无效的物理内存的话，还会出现 **无效缺页错误（Invalid Page Fault）** 。
+Khi xảy ra hai loại page fault trên, ứng dụng đang truy cập bộ nhớ vật lý hợp lệ, chỉ là xuất hiện vấn đề trang vật lý bị thiếu hoặc chưa thiết lập ánh xạ giữa trang ảo và trang vật lý. Nếu ứng dụng truy cập bộ nhớ vật lý không hợp lệ, sẽ còn xuất hiện **Invalid Page Fault (lỗi trang không hợp lệ)**.
 
-#### 常见的页面置换算法有哪些?
+#### Các thuật toán thay thế trang thường gặp là gì?
 
-当发生硬性页缺失时，如果物理内存中没有空闲的物理页面可用的话。操作系统就必须将物理内存中的一个物理页淘汰出去，这样就可以腾出空间来加载新的页面了。
+Khi xảy ra hard page fault, nếu bộ nhớ vật lý không có trang vật lý trống nào khả dụng, hệ điều hành phải loại bỏ một trang vật lý trong bộ nhớ vật lý, như vậy có thể nhường không gian để nạp trang mới.
 
-用来选择淘汰哪一个物理页的规则叫做 **页面置换算法** ，我们可以把页面置换算法看成是淘汰物物理页的规则。
+Quy tắc để chọn loại bỏ trang vật lý nào được gọi là **thuật toán thay thế trang** — có thể xem thuật toán thay thế trang là quy tắc loại bỏ trang vật lý.
 
-页缺失太频繁的发生会非常影响性能，一个好的页面置换算法应该是可以减少页缺失出现的次数。
+Nếu page fault xảy ra quá thường xuyên sẽ ảnh hưởng rất nhiều đến hiệu năng. Một thuật toán thay thế trang tốt nên giảm được số lần xuất hiện page fault.
 
-常见的页面置换算法有下面这 5 种（其他还有很多页面置换算法都是基于这些算法改进得来的）：
+Có 5 thuật toán thay thế trang thường gặp sau (các thuật toán khác phần lớn được cải tiến từ các thuật toán này):
 
-![常见的页面置换算法](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/image-20230409113009139.png)
+![Các thuật toán thay thế trang thường gặp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/image-20230409113009139.png)
 
-1. **最佳页面置换算法（OPT，Optimal）**：优先选择淘汰的页面是以后永不使用的，或者是在最长时间内不再被访问的页面，这样可以保证获得最低的缺页率。但由于人们目前无法预知进程在内存下的若干页面中哪个是未来最长时间内不再被访问的，因而该算法无法实现，只是理论最优的页面置换算法，可以作为衡量其他置换算法优劣的标准。
-2. **先进先出页面置换算法（FIFO，First In First Out）** : 最简单的一种页面置换算法，总是淘汰最先进入内存的页面，即选择在内存中驻留时间最久的页面进行淘汰。该算法易于实现和理解，一般只需要通过一个 FIFO 队列即可满足需求。不过，它的性能并不是很好。
-3. **最近最久未使用页面置换算法（LRU ，Least Recently Used）**：LRU 算法赋予每个页面一个访问字段，用来记录一个页面自上次被访问以来所经历的时间 T，当须淘汰一个页面时，选择现有页面中其 T 值最大的，即最近最久未使用的页面予以淘汰。LRU 算法是根据各页之前的访问情况来实现，因此是易于实现的。OPT 算法是根据各页未来的访问情况来实现，因此是不可实现的。
-4. **最少使用页面置换算法（LFU，Least Frequently Used）** : 和 LRU 算法比较像，不过该置换算法选择的是之前一段时间内使用最少的页面作为淘汰页。
-5. **时钟页面置换算法（Clock）**：可以认为是一种最近未使用算法，即逐出的页面都是最近没有使用的那个。
+1. **Thuật toán thay thế trang tối ưu (OPT, Optimal)**: Ưu tiên loại bỏ trang không bao giờ được dùng lại trong tương lai, hoặc trang không được truy cập trong thời gian dài nhất, như vậy có thể đảm bảo tỷ lệ page fault thấp nhất. Nhưng vì hiện tại không thể dự đoán trước trang nào trong số các trang bộ nhớ của tiến trình sẽ không được truy cập trong thời gian dài nhất trong tương lai, nên thuật toán này không thể triển khai, chỉ là thuật toán thay thế trang tối ưu về mặt lý thuyết, có thể dùng làm tiêu chuẩn để đánh giá các thuật toán thay thế khác.
+2. **Thuật toán thay thế trang vào trước ra trước (FIFO, First In First Out)**: Thuật toán thay thế trang đơn giản nhất, luôn loại bỏ trang vào bộ nhớ sớm nhất, tức là chọn trang lưu trú trong bộ nhớ lâu nhất để loại bỏ. Thuật toán này dễ triển khai và hiểu, thường chỉ cần một hàng đợi FIFO là đủ. Tuy nhiên hiệu năng của nó không tốt lắm.
+3. **Thuật toán thay thế trang ít được dùng gần đây nhất (LRU, Least Recently Used)**: LRU gán cho mỗi trang một trường truy cập, dùng để ghi lại thời gian T kể từ lần truy cập cuối cùng của trang đó. Khi cần loại bỏ một trang, chọn trang có giá trị T lớn nhất trong các trang hiện tại, tức là trang ít được dùng gần đây nhất để loại bỏ. LRU triển khai dựa trên lịch sử truy cập các trang trước đó, nên dễ triển khai. OPT triển khai dựa trên lịch sử truy cập các trang trong tương lai, nên không thể triển khai.
+4. **Thuật toán thay thế trang ít sử dụng nhất (LFU, Least Frequently Used)**: Khá giống LRU, nhưng thuật toán thay thế này chọn trang được sử dụng ít nhất trong một khoảng thời gian trước đó làm trang loại bỏ.
+5. **Thuật toán thay thế trang Clock**: Có thể xem là một loại thuật toán gần đây chưa dùng (NRU - Not Recently Used), tức là trang bị loại bỏ là trang gần đây chưa được sử dụng.
 
-**FIFO 页面置换算法性能为何不好？**
+**Tại sao hiệu năng của thuật toán thay thế trang FIFO không tốt?**
 
-主要原因主要有二：
+Có hai nguyên nhân chính:
 
-1. **经常访问或者需要长期存在的页面会被频繁调入调出**：较早调入的页往往是经常被访问或者需要长期存在的页，这些页会被反复调入和调出。
-2. **存在 Belady 现象**：被置换的页面并不是进程不会访问的，有时就会出现分配的页面数增多但缺页率反而提高的异常现象。出现该异常的原因是因为 FIFO 算法只考虑了页面进入内存的顺序，而没有考虑页面访问的频率和紧迫性。
+1. **Các trang được truy cập thường xuyên hoặc cần tồn tại lâu dài sẽ bị nạp và xuất liên tục**: Các trang được nạp sớm hơn thường là những trang được truy cập thường xuyên hoặc cần tồn tại lâu dài, những trang này sẽ bị nạp và xuất liên tục.
+2. **Tồn tại hiện tượng Belady**: Trang bị thay thế không phải là trang tiến trình không truy cập, đôi khi sẽ xuất hiện hiện tượng bất thường khi số trang được cấp phát tăng lên nhưng tỷ lệ page fault lại tăng. Nguyên nhân xuất hiện hiện tượng bất thường này là vì thuật toán FIFO chỉ xét thứ tự vào bộ nhớ của trang, mà không xét tần suất và mức độ cấp bách khi truy cập trang.
 
-**哪一种页面置换算法实际用的比较多？**
+**Thuật toán thay thế trang nào được dùng nhiều trong thực tế?**
 
-LRU 算法是实际使用中应用的比较多，也被认为是最接近 OPT 的页面置换算法。
+LRU là thuật toán được dùng nhiều trong thực tế, và được xem là thuật toán thay thế trang gần nhất với OPT.
 
-不过，需要注意的是，实际应用中这些算法会被做一些改进，就比如 InnoDB Buffer Pool（ InnoDB 缓冲池，MySQL 数据库中用于管理缓存页面的机制）就改进了传统的 LRU 算法，使用了一种称为"Adaptive LRU"的算法（同时结合了 LRU 和 LFU 算法的思想）。
+Tuy nhiên cần lưu ý rằng trong ứng dụng thực tế, các thuật toán này sẽ được cải tiến. Ví dụ InnoDB Buffer Pool (bộ đệm InnoDB, cơ chế quản lý trang cache trong cơ sở dữ liệu MySQL) đã cải tiến thuật toán LRU truyền thống, sử dụng thuật toán gọi là "Adaptive LRU" (kết hợp tư tưởng của cả LRU và LFU).
 
-### 分页机制和分段机制有哪些共同点和区别？
+### Cơ chế phân trang và cơ chế phân đoạn có điểm chung và khác biệt gì?
 
-**共同点**：
+**Điểm chung**:
 
-- 都是非连续内存管理的方式。
-- 都采用了地址映射的方法，将虚拟地址映射到物理地址，以实现对内存的管理和保护。
+- Đều là phương pháp quản lý bộ nhớ không liên tục.
+- Đều sử dụng phương pháp ánh xạ địa chỉ, ánh xạ địa chỉ ảo sang địa chỉ vật lý để thực hiện quản lý và bảo vệ bộ nhớ.
 
-**区别**：
+**Khác biệt**:
 
-- 分页机制以页面为单位进行内存管理，而分段机制以段为单位进行内存管理。页的大小是固定的，由操作系统决定，通常为 2 的幂次方。而段的大小不固定，取决于我们当前运行的程序。
-- 页是物理单位，即操作系统将物理内存划分成固定大小的页面，每个页面的大小通常是 2 的幂次方，例如 4KB、8KB 等等。而段则是逻辑单位，是为了满足程序对内存空间的逻辑需求而设计的，通常根据程序中数据和代码的逻辑结构来划分。
-- 分段机制容易出现外部内存碎片，即在段与段之间留下碎片空间(不足以映射给虚拟地址空间中的段)。分页机制解决了外部内存碎片的问题，但仍然可能会出现内部内存碎片。
-- 分页机制采用了页表来完成虚拟地址到物理地址的映射，页表通过一级页表和二级页表来实现多级映射；而分段机制则采用了段表来完成虚拟地址到物理地址的映射，每个段表项中记录了该段的起始地址和长度信息。
-- 分页机制对程序没有任何要求，程序只需要按照虚拟地址进行访问即可；而分段机制需要程序员将程序分为多个段，并且显式地使用段寄存器来访问不同的段。
+- Cơ chế phân trang quản lý bộ nhớ theo đơn vị trang, còn cơ chế phân đoạn quản lý bộ nhớ theo đơn vị đoạn. Kích thước trang là cố định, do hệ điều hành quyết định, thường là lũy thừa của 2. Còn kích thước đoạn không cố định, phụ thuộc vào chương trình đang chạy.
+- Trang là đơn vị vật lý, tức là hệ điều hành chia bộ nhớ vật lý thành các trang có kích thước cố định, thường là lũy thừa của 2 như 4KB, 8KB, v.v. Còn đoạn là đơn vị logic, được thiết kế để đáp ứng nhu cầu logic của chương trình về không gian bộ nhớ, thường được chia dựa trên cấu trúc logic của dữ liệu và code trong chương trình.
+- Cơ chế phân đoạn dễ xuất hiện phân mảnh bộ nhớ bên ngoài, tức là để lại các khoảng trống phân mảnh giữa các đoạn (không đủ để ánh xạ cho các đoạn trong không gian địa chỉ ảo). Cơ chế phân trang giải quyết vấn đề phân mảnh bộ nhớ bên ngoài, nhưng vẫn có thể xuất hiện phân mảnh bộ nhớ bên trong.
+- Cơ chế phân trang sử dụng bảng trang để hoàn thành ánh xạ từ địa chỉ ảo sang địa chỉ vật lý, bảng trang thực hiện ánh xạ đa cấp thông qua bảng trang cấp một và cấp hai; còn cơ chế phân đoạn sử dụng bảng đoạn để hoàn thành ánh xạ từ địa chỉ ảo sang địa chỉ vật lý, trong mỗi mục bảng đoạn ghi thông tin địa chỉ bắt đầu và độ dài của đoạn đó.
+- Cơ chế phân trang không có yêu cầu gì đối với chương trình, chương trình chỉ cần truy cập theo địa chỉ ảo là được; còn cơ chế phân đoạn yêu cầu lập trình viên chia chương trình thành nhiều đoạn, và sử dụng thanh ghi đoạn để truy cập các đoạn khác nhau một cách tường minh.
 
-### 段页机制
+### Cơ chế đoạn-trang
 
-结合了段式管理和页式管理的一种内存管理机制。程序视角中，内存被划分为多个逻辑段，每个逻辑段进一步被划分为固定大小的页。
+Cơ chế quản lý bộ nhớ kết hợp quản lý theo đoạn và theo trang. Từ góc nhìn của chương trình, bộ nhớ được chia thành nhiều đoạn logic, mỗi đoạn logic tiếp tục được chia thành các trang có kích thước cố định.
 
-在段页式机制下，地址翻译的过程分为两个步骤：
+Trong cơ chế đoạn-trang, quá trình dịch địa chỉ chia thành hai bước:
 
-1. **段式地址映射（虚拟地址 → 线性地址）：**
-   - 虚拟地址 = 段选择符（段号）+ 段内偏移。
-   - 根据段号查段表，找到段基址，加上段内偏移得到线性地址。
-2. **页式地址映射（线性地址 → 物理地址）：**
-   - 线性地址 = 页号 + 页内偏移。
-   - 根据页号查页表，找到物理页框号，加上页内偏移得到物理地址。
+1. **Ánh xạ địa chỉ kiểu đoạn (địa chỉ ảo → địa chỉ tuyến tính):**
+   - Địa chỉ ảo = Bộ chọn đoạn (số đoạn) + Offset trong đoạn.
+   - Tra bảng đoạn theo số đoạn, tìm địa chỉ cơ sở đoạn, cộng với offset trong đoạn để ra địa chỉ tuyến tính.
+2. **Ánh xạ địa chỉ kiểu trang (địa chỉ tuyến tính → địa chỉ vật lý):**
+   - Địa chỉ tuyến tính = Số trang + Offset trong trang.
+   - Tra bảng trang theo số trang, tìm số khung trang vật lý, cộng với offset trong trang để ra địa chỉ vật lý.
 
-### 局部性原理
+### Nguyên lý cục bộ
 
-要想更好地理解虚拟内存技术，必须要知道计算机中著名的 **局部性原理（Locality Principle）**。另外，局部性原理既适用于程序结构，也适用于数据结构，是非常重要的一个概念。
+Để hiểu tốt hơn kỹ thuật bộ nhớ ảo, nhất thiết phải biết **Nguyên lý cục bộ (Locality Principle)** nổi tiếng trong máy tính. Ngoài ra, nguyên lý cục bộ áp dụng được cho cả cấu trúc chương trình lẫn cấu trúc dữ liệu, là một khái niệm rất quan trọng.
 
-局部性原理是指在程序执行过程中，数据和指令的访问存在一定的空间和时间上的局部性特点。其中，时间局部性是指一个数据项或指令在一段时间内被反复使用的特点，空间局部性是指一个数据项或指令在一段时间内与其相邻的数据项或指令被反复使用的特点。
+Nguyên lý cục bộ chỉ rằng trong quá trình thực thi chương trình, việc truy cập dữ liệu và lệnh tồn tại tính cục bộ nhất định về không gian và thời gian. Trong đó, tính cục bộ thời gian (temporal locality) là đặc điểm một mục dữ liệu hoặc lệnh được sử dụng lặp lại nhiều lần trong một khoảng thời gian; tính cục bộ không gian (spatial locality) là đặc điểm một mục dữ liệu hoặc lệnh và các mục dữ liệu hoặc lệnh kề cận với nó được sử dụng lặp lại nhiều lần trong một khoảng thời gian.
 
-在分页机制中，页表的作用是将虚拟地址转换为物理地址，从而完成内存访问。在这个过程中，局部性原理的作用体现在两个方面：
+Trong cơ chế phân trang, vai trò của bảng trang là chuyển đổi địa chỉ ảo sang địa chỉ vật lý, từ đó hoàn thành truy cập bộ nhớ. Trong quá trình này, nguyên lý cục bộ thể hiện ở hai khía cạnh:
 
-- **时间局部性**：由于程序中存在一定的循环或者重复操作，因此会反复访问同一个页或一些特定的页，这就体现了时间局部性的特点。为了利用时间局部性，分页机制中通常采用缓存机制来提高页面的命中率，即将最近访问过的一些页放入缓存中，如果下一次访问的页已经在缓存中，就不需要再次访问内存，而是直接从缓存中读取。
-- **空间局部性**：由于程序中数据和指令的访问通常是具有一定的空间连续性的，因此当访问某个页时，往往会顺带访问其相邻的一些页。为了利用空间局部性，分页机制中通常采用预取技术来预先将相邻的一些页读入内存缓存中，以便在未来访问时能够直接使用，从而提高访问速度。
+- **Tính cục bộ thời gian**: Do trong chương trình tồn tại một số vòng lặp hoặc thao tác lặp lại, nên sẽ truy cập lặp lại cùng một trang hoặc một số trang cụ thể. Để tận dụng tính cục bộ thời gian, cơ chế phân trang thường dùng cơ chế cache để nâng cao tỷ lệ hit của trang — tức là đưa một số trang được truy cập gần đây vào cache; nếu trang cần truy cập lần sau đã ở trong cache thì không cần truy cập bộ nhớ một lần nữa mà đọc trực tiếp từ cache.
+- **Tính cục bộ không gian**: Do việc truy cập dữ liệu và lệnh trong chương trình thường có tính liên tục không gian nhất định, nên khi truy cập một trang, thường truy cập kèm theo các trang kề cận. Để tận dụng tính cục bộ không gian, cơ chế phân trang thường dùng kỹ thuật prefetch (tải trước) để đọc trước một số trang kề cận vào cache bộ nhớ, để khi truy cập trong tương lai có thể sử dụng trực tiếp, từ đó nâng cao tốc độ truy cập.
 
-总之，局部性原理是计算机体系结构设计的重要原则之一，也是许多优化算法的基础。在分页机制中，利用时间局部性和空间局部性，采用缓存和预取技术，可以提高页面的命中率，从而提高内存访问效率
+Tóm lại, nguyên lý cục bộ là một trong những nguyên tắc thiết kế quan trọng của kiến trúc máy tính, và là nền tảng của nhiều thuật toán tối ưu. Trong cơ chế phân trang, tận dụng tính cục bộ thời gian và không gian, dùng kỹ thuật cache và prefetch, có thể nâng cao tỷ lệ hit của trang, từ đó nâng cao hiệu quả truy cập bộ nhớ.
 
-## 文件系统
+## Hệ thống tệp
 
-### 文件系统主要做了什么？
+### Hệ thống tệp làm gì chủ yếu?
 
-文件系统主要负责管理和组织计算机存储设备上的文件和目录，其功能包括以下几个方面：
+Hệ thống tệp chủ yếu chịu trách nhiệm quản lý và tổ chức các tệp và thư mục trên thiết bị lưu trữ máy tính, các chức năng bao gồm:
 
-1. **存储管理**：将文件数据存储到物理存储介质中，并且管理空间分配，以确保每个文件都有足够的空间存储，并避免文件之间发生冲突。
-2. **文件管理**：文件的创建、删除、移动、重命名、压缩、加密、共享等等。
-3. **目录管理**：目录的创建、删除、移动、重命名等等。
-4. **文件访问控制**：管理不同用户或进程对文件的访问权限，以确保用户只能访问其被授权访问的文件，以保证文件的安全性和保密性。
+1. **Quản lý lưu trữ**: Lưu dữ liệu tệp vào phương tiện lưu trữ vật lý, và quản lý phân bổ không gian để đảm bảo mỗi tệp có đủ không gian lưu trữ, tránh xung đột giữa các tệp.
+2. **Quản lý tệp**: Tạo, xóa, di chuyển, đổi tên, nén, mã hóa, chia sẻ tệp, v.v.
+3. **Quản lý thư mục**: Tạo, xóa, di chuyển, đổi tên thư mục, v.v.
+4. **Kiểm soát truy cập tệp**: Quản lý quyền truy cập tệp của các người dùng hoặc tiến trình khác nhau, để đảm bảo người dùng chỉ có thể truy cập tệp được ủy quyền, nhằm đảm bảo tính bảo mật và bí mật của tệp.
 
-### 硬链接和软链接有什么区别？
+### Hard link và soft link có gì khác nhau?
 
-在 Linux/类 Unix 系统上，文件链接（File Link）是一种特殊的文件类型，可以在文件系统中指向另一个文件。常见的文件链接类型有两种：
+Trên hệ thống Linux/Unix, file link (liên kết tệp) là một loại tệp đặc biệt, có thể trỏ đến một tệp khác trong hệ thống tệp. Có hai loại file link thường gặp:
 
-**1、硬链接（Hard Link）**
+**1. Hard link (Liên kết cứng)**
 
-- 在 Linux/类 Unix 文件系统中，每个文件和目录都有一个唯一的索引节点（inode）号，用来标识该文件或目录。硬链接通过 inode 节点号建立连接，硬链接和源文件的 inode 节点号相同，两者对文件系统来说是完全平等的（可以看作是互为硬链接，源头是同一份文件），删除其中任何一个对另外一个没有影响，可以通过给文件设置硬链接文件来防止重要文件被误删。
-- 只有删除了源文件和所有对应的硬链接文件，该文件才会被真正删除。
-- 硬链接具有一些限制，不能对目录以及不存在的文件创建硬链接，并且，硬链接也不能跨越文件系统。
-- `ln` 命令用于创建硬链接。
+- Trong hệ thống tệp Linux/Unix, mỗi tệp và thư mục có một số inode (index node) duy nhất để xác định tệp hoặc thư mục đó. Hard link thiết lập kết nối qua số inode, hard link và tệp nguồn có cùng số inode — hai tệp này hoàn toàn bình đẳng với hệ thống tệp (có thể xem là liên kết cứng với nhau, nguồn gốc là cùng một tệp). Xóa một trong hai không ảnh hưởng đến cái còn lại, có thể đặt hard link cho tệp để ngăn tệp quan trọng bị xóa nhầm.
+- Chỉ khi xóa cả tệp nguồn lẫn tất cả các hard link tương ứng, tệp đó mới bị xóa thực sự.
+- Hard link có một số giới hạn — không thể tạo hard link cho thư mục và tệp không tồn tại, hơn nữa hard link cũng không thể vượt qua hệ thống tệp.
+- Lệnh `ln` dùng để tạo hard link.
 
-**2、软链接（Symbolic Link 或 Symlink）**
+**2. Soft link (Liên kết mềm - Symbolic Link hoặc Symlink)**
 
-- 软链接和源文件的 inode 节点号不同，而是指向一个文件路径。
-- 源文件删除后，软链接依然存在，但是指向的是一个无效的文件路径。
-- 软连接类似于 Windows 系统中的快捷方式。
-- 不同于硬链接，可以对目录或者不存在的文件创建软链接，并且，软链接可以跨越文件系统。
-- `ln -s` 命令用于创建软链接。
+- Soft link và tệp nguồn có số inode khác nhau, thay vào đó trỏ đến một đường dẫn tệp.
+- Sau khi tệp nguồn bị xóa, soft link vẫn tồn tại, nhưng trỏ đến một đường dẫn tệp không hợp lệ.
+- Soft link tương tự như shortcut trong hệ thống Windows.
+- Khác với hard link, có thể tạo soft link cho thư mục hoặc tệp không tồn tại, và soft link có thể vượt qua hệ thống tệp.
+- Lệnh `ln -s` dùng để tạo soft link.
 
-### 硬链接为什么不能跨文件系统？
+### Tại sao hard link không thể vượt qua hệ thống tệp?
 
-我们之前提到过，硬链接是通过 inode 节点号建立连接的，而硬链接和源文件共享相同的 inode 节点号。
+Như đã đề cập, hard link được thiết lập thông qua số inode, và hard link cùng tệp nguồn chia sẻ số inode giống nhau.
 
-然而，每个文件系统都有自己的独立 inode 表，且每个 inode 表只维护该文件系统内的 inode。如果在不同的文件系统之间创建硬链接，可能会导致 inode 节点号冲突的问题，即目标文件的 inode 节点号已经在该文件系统中被使用。
+Tuy nhiên, mỗi hệ thống tệp có bảng inode độc lập riêng, và mỗi bảng inode chỉ duy trì các inode trong hệ thống tệp đó. Nếu tạo hard link giữa các hệ thống tệp khác nhau, có thể dẫn đến xung đột số inode, tức là số inode của tệp đích đã được sử dụng trong hệ thống tệp đó.
 
-### 提高文件系统性能的方式有哪些？
+### Các cách nâng cao hiệu năng hệ thống tệp là gì?
 
-- **优化硬件**：使用高速硬件设备（如 SSD、NVMe）替代传统的机械硬盘，使用 RAID（Redundant Array of Independent Disks）等技术提高磁盘性能。
-- **选择合适的文件系统选型**：不同的文件系统具有不同的特性，对于不同的应用场景选择合适的文件系统可以提高系统性能。
-- **运用缓存**：访问磁盘的效率比较低，可以运用缓存来减少磁盘的访问次数。不过，需要注意缓存命中率，缓存命中率过低的话，效果太差。
-- **避免磁盘过度使用**：注意磁盘的使用率，避免将磁盘用满，尽量留一些剩余空间，以免对文件系统的性能产生负面影响。
-- **对磁盘进行合理的分区**：合理的磁盘分区方案，能够使文件系统在不同的区域存储文件，从而减少文件碎片，提高文件读写性能。
+- **Tối ưu phần cứng**: Sử dụng thiết bị phần cứng tốc độ cao (như SSD, NVMe) thay thế đĩa cứng cơ học truyền thống, sử dụng công nghệ RAID (Redundant Array of Independent Disks) để nâng cao hiệu năng đĩa.
+- **Chọn hệ thống tệp phù hợp**: Các hệ thống tệp khác nhau có đặc điểm khác nhau, chọn hệ thống tệp phù hợp cho các trường hợp ứng dụng khác nhau có thể nâng cao hiệu năng hệ thống.
+- **Sử dụng cache**: Hiệu quả truy cập đĩa tương đối thấp, có thể dùng cache để giảm số lần truy cập đĩa. Tuy nhiên cần chú ý tỷ lệ hit của cache — tỷ lệ hit quá thấp thì hiệu quả quá kém.
+- **Tránh sử dụng đĩa quá mức**: Chú ý tỷ lệ sử dụng đĩa, tránh lấp đầy đĩa, cố gắng để lại một số không gian dư, để tránh ảnh hưởng tiêu cực đến hiệu năng hệ thống tệp.
+- **Phân vùng đĩa hợp lý**: Phương án phân vùng đĩa hợp lý giúp hệ thống tệp lưu tệp ở các vùng khác nhau, từ đó giảm phân mảnh tệp, nâng cao hiệu năng đọc ghi tệp.
 
-### 常见的磁盘调度算法有哪些？
+### Các thuật toán điều phối đĩa thường gặp là gì?
 
-磁盘调度算法是操作系统中对磁盘访问请求进行排序和调度的算法，其目的是提高磁盘的访问效率。
+Thuật toán điều phối đĩa là thuật toán sắp xếp và điều phối các yêu cầu truy cập đĩa trong hệ điều hành, mục đích là nâng cao hiệu quả truy cập đĩa.
 
-一次磁盘读写操作的时间由磁盘寻道/寻找时间、延迟时间和传输时间决定。磁盘调度算法可以通过改变到达磁盘请求的处理顺序，减少磁盘寻道时间和延迟时间。
+Thời gian của một lần đọc ghi đĩa được quyết định bởi thời gian tìm đầu đọc/ghi đĩa, thời gian trễ quay và thời gian truyền dữ liệu. Thuật toán điều phối đĩa có thể giảm thời gian tìm đầu đọc/ghi và thời gian trễ bằng cách thay đổi thứ tự xử lý các yêu cầu đĩa đến.
 
-常见的磁盘调度算法有下面这 6 种（其他还有很多磁盘调度算法都是基于这些算法改进得来的）：
+Có 6 thuật toán điều phối đĩa thường gặp sau (các thuật toán khác phần lớn được cải tiến từ các thuật toán này):
 
-![常见的磁盘调度算法](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/disk-scheduling-algorithms.png)
+![Các thuật toán điều phối đĩa thường gặp](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/disk-scheduling-algorithms.png)
 
-1. **先来先服务算法（First-Come First-Served，FCFS）**：按照请求到达磁盘调度器的顺序进行处理，先到达的请求的先被服务。FCFS 算法实现起来比较简单，不存在算法开销。不过，由于没有考虑磁头移动的路径和方向，平均寻道时间较长。同时，该算法容易出现饥饿问题，即一些后到的磁盘请求可能需要等待很长时间才能得到服务。
-2. **最短寻道时间优先算法（Shortest Seek Time First，SSTF）**：也被称为最佳服务优先（Shortest Service Time First，SSTF）算法，优先选择距离当前磁头位置最近的请求进行服务。SSTF 算法能够最小化磁头的寻道时间，但容易出现饥饿问题，即磁头附近的请求不断被服务，远离磁头的请求长时间得不到响应。实际应用中，需要优化一下该算法的实现，避免出现饥饿问题。
-3. **扫描算法（SCAN）**：也被称为电梯（Elevator）算法，基本思想和电梯非常类似。磁头沿着一个方向扫描磁盘，如果经过的磁道有请求就处理，直到到达磁盘的边界，然后改变移动方向，依此往复。SCAN 算法能够保证所有的请求得到服务，解决了饥饿问题。但是，如果磁头从一个方向刚扫描完，请求才到的话。这个请求就需要等到磁头从相反方向过来之后才能得到处理。
-4. **循环扫描算法（Circular Scan，C-SCAN）**：SCAN 算法的变体，只在磁盘的一侧进行扫描，并且只按照一个方向扫描，直到到达磁盘边界，然后回到磁盘起点，重新开始循环。
-5. **边扫描边观察算法（LOOK）**：SCAN 算法中磁头到了磁盘的边界才改变移动方向，这样可能会做很多无用功，因为磁头移动方向上可能已经没有请求需要处理了。LOOK 算法对 SCAN 算法进行了改进，如果磁头移动方向上已经没有别的请求，就可以立即改变磁头移动方向，依此往复。也就是边扫描边观察指定方向上还有无请求，因此叫 LOOK。
-6. **均衡循环扫描算法（C-LOOK）**：C-SCAN 只有到达磁盘边界时才能改变磁头移动方向，并且磁头返回时也需要返回到磁盘起点，这样可能会做很多无用功。C-LOOK 算法对 C-SCAN 算法进行了改进，如果磁头移动的方向上已经没有磁道访问请求了，就可以立即让磁头返回，并且磁头只需要返回到有磁道访问请求的位置即可。
+1. **Thuật toán đến trước phục vụ trước (First-Come First-Served, FCFS)**: Xử lý theo thứ tự các yêu cầu đến bộ điều phối đĩa, yêu cầu đến trước được phục vụ trước. Thuật toán FCFS khá đơn giản để triển khai, không có chi phí thuật toán. Tuy nhiên vì không xét đến đường dẫn và hướng di chuyển của đầu đọc/ghi, thời gian tìm đầu đọc/ghi trung bình khá dài. Đồng thời thuật toán này dễ gây ra vấn đề starvation (chờ đợi vô thời hạn), tức là một số yêu cầu đĩa đến sau có thể phải chờ rất lâu mới được phục vụ.
+2. **Thuật toán ưu tiên thời gian tìm đầu đọc ngắn nhất (Shortest Seek Time First, SSTF)**: Còn gọi là Shortest Service Time First (SSTF), ưu tiên phục vụ yêu cầu gần vị trí đầu đọc/ghi hiện tại nhất. Thuật toán SSTF có thể tối thiểu hóa thời gian tìm đầu đọc, nhưng dễ gây ra vấn đề starvation — các yêu cầu gần đầu đọc/ghi liên tục được phục vụ, còn các yêu cầu xa đầu đọc/ghi không được hồi đáp trong thời gian dài. Trong ứng dụng thực tế cần tối ưu hóa triển khai của thuật toán này để tránh starvation.
+3. **Thuật toán quét (SCAN)**: Còn gọi là thuật toán Elevator (thang máy), ý tưởng cơ bản rất giống thang máy. Đầu đọc/ghi quét đĩa theo một hướng, gặp track nào có yêu cầu thì xử lý, cho đến khi đến biên của đĩa thì đổi hướng di chuyển, cứ thế lặp lại. Thuật toán SCAN có thể đảm bảo tất cả yêu cầu được phục vụ, giải quyết vấn đề starvation. Nhưng nếu đầu đọc/ghi vừa quét xong từ một hướng mà yêu cầu mới đến, yêu cầu đó phải đợi đầu đọc/ghi đi từ hướng ngược lại về mới được xử lý.
+4. **Thuật toán quét vòng (Circular Scan, C-SCAN)**: Biến thể của thuật toán SCAN, chỉ quét ở một phía của đĩa, và chỉ quét theo một hướng, cho đến khi đến biên đĩa thì quay lại điểm bắt đầu của đĩa, bắt đầu lại từ đầu.
+5. **Thuật toán LOOK**: Trong thuật toán SCAN, đầu đọc/ghi phải đến biên đĩa mới đổi hướng, điều này có thể làm nhiều việc vô ích vì trên hướng di chuyển của đầu đọc/ghi có thể đã không còn yêu cầu nào cần xử lý. Thuật toán LOOK cải tiến thuật toán SCAN, nếu trên hướng di chuyển của đầu đọc/ghi không còn yêu cầu nào khác thì có thể lập tức đổi hướng, cứ thế lặp lại. Tức là vừa quét vừa quan sát có còn yêu cầu theo hướng đã chỉ định không, vì vậy gọi là LOOK.
+6. **Thuật toán C-LOOK**: C-SCAN chỉ khi đến biên đĩa mới đổi hướng đầu đọc/ghi, và khi đầu đọc/ghi quay về cũng cần quay về điểm bắt đầu của đĩa, điều này có thể làm nhiều việc vô ích. Thuật toán C-LOOK cải tiến thuật toán C-SCAN, nếu trên hướng di chuyển của đầu đọc/ghi không còn yêu cầu truy cập track nào thì có thể lập tức cho đầu đọc/ghi quay về, và đầu đọc/ghi chỉ cần quay về vị trí có yêu cầu truy cập track.
 
-## 参考
+## Tài liệu tham khảo
 
-- 《计算机操作系统—汤小丹》第四版
-- 《深入理解计算机系统》
-- 《重学操作系统》
-- 《现代操作系统原理与实现》
-- 王道考研操作系统知识点整理：<https://wizardforcel.gitbooks.io/wangdaokaoyan-os/content/13.html>
-- 内存管理之伙伴系统与 SLAB：<https://blog.csdn.net/qq_44272681/article/details/124199068>
-- 为什么 Linux 需要虚拟内存：<https://draveness.me/whys-the-design-os-virtual-memory/>
-- 程序员的自我修养（七）：内存缺页错误：<https://liam.page/2017/09/01/page-fault/>
-- 虚拟内存的那点事儿：<https://juejin.cn/post/6844903507594575886>
+- 《Hệ điều hành máy tính — Thang Tiểu Đan》phiên bản thứ 4
+- 《Hiểu sâu về hệ thống máy tính》
+- 《Học lại hệ điều hành》
+- 《Nguyên lý và triển khai hệ điều hành hiện đại》
+- Tổng hợp kiến thức hệ điều hành ôn thi Wang Dao: <https://wizardforcel.gitbooks.io/wangdaokaoyan-os/content/13.html>
+- Quản lý bộ nhớ Buddy System và SLAB: <https://blog.csdn.net/qq_44272681/article/details/124199068>
+- Tại sao Linux cần bộ nhớ ảo: <https://draveness.me/whys-the-design-os-virtual-memory/>
+- Tự tu dưỡng của lập trình viên (7): Lỗi trang bộ nhớ: <https://liam.page/2017/09/01/page-fault/>
+- Chuyện của bộ nhớ ảo: <https://juejin.cn/post/6844903507594575886>
 
 <!-- @include: @article-footer.snippet.md -->

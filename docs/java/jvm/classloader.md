@@ -1,37 +1,37 @@
 ---
-title: 类加载器详解（重点）
-description: Java类加载器详解：深入剖析ClassLoader类加载机制、双亲委派模型原理、启动类加载器/扩展类加载器/应用类加载器、自定义类加载器实现、打破双亲委派场景。
+title: Giải thích chi tiết Class Loader (Quan trọng)
+description: Giải thích chi tiết Java class loader: phân tích sâu cơ chế class loading của ClassLoader, nguyên lý Parent Delegation Model, Bootstrap ClassLoader/Extension ClassLoader/Application ClassLoader, triển khai custom class loader, tình huống phá vỡ Parent Delegation Model.
 category: Java
 tag:
   - JVM
 head:
   - - meta
     - name: keywords
-      content: 类加载器,ClassLoader,双亲委派模型,类加载过程,自定义类加载器,打破双亲委派
+      content: class loader,ClassLoader,parent delegation model,class loading process,custom class loader,break parent delegation
 ---
 
-## 回顾一下类加载过程
+## Ôn lại quá trình Class Loading
 
-开始介绍类加载器和双亲委派模型之前，简单回顾一下类加载过程。
+Trước khi giới thiệu class loader và parent delegation model, ôn lại nhanh quá trình class loading.
 
-- 类加载过程：**加载->连接->初始化**。
-- 连接过程又可分为三步：**验证->准备->解析**。
+- Quá trình class loading: **Loading → Linking → Initialization**.
+- Quá trình Linking lại chia thành ba bước: **Verification → Preparation → Resolution**.
 
-![类加载过程](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loading-procedure.png)
+![Quá trình Class Loading](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loading-procedure.png)
 
-加载是类加载过程的第一步，主要完成下面 3 件事情：
+Loading là bước đầu tiên của quá trình class loading, chủ yếu hoàn thành 3 việc:
 
-1. 通过全类名获取定义此类的二进制字节流
-2. 将字节流所代表的静态存储结构转换为方法区的运行时数据结构
-3. 在内存中生成一个代表该类的 `Class` 对象，作为方法区这些数据的访问入口
+1. Lấy binary byte stream định nghĩa class thông qua fully qualified class name.
+2. Chuyển đổi cấu trúc lưu trữ tĩnh do byte stream biểu thị thành cấu trúc dữ liệu runtime của method area.
+3. Tạo `Class` object đại diện cho class trong memory, làm access entry cho các data này trong method area.
 
-## 类加载器
+## Class Loader
 
-### 类加载器介绍
+### Giới thiệu Class Loader
 
-类加载器从 JDK 1.0 就出现了，最初只是为了满足 Java Applet（已经被淘汰） 的需要。后来，慢慢成为 Java 程序中的一个重要组成部分，赋予了 Java 类可以被动态加载到 JVM 中并执行的能力。
+Class loader xuất hiện từ JDK 1.0, ban đầu chỉ để đáp ứng nhu cầu Java Applet (đã bị loại bỏ). Sau đó dần trở thành một phần quan trọng của Java program, mang lại khả năng dynamic load Java class vào JVM và thực thi.
 
-根据官方 API 文档的介绍：
+Theo giới thiệu của official API documentation:
 
 > A class loader is an object that is responsible for loading classes. The class ClassLoader is an abstract class. Given the binary name of a class, a class loader should attempt to locate or generate data that constitutes a definition for the class. A typical strategy is to transform the name into a file name and then read a "class file" of that name from a file system.
 >
@@ -39,17 +39,17 @@ head:
 >
 > Class objects for array classes are not created by class loaders, but are created automatically as required by the Java runtime. The class loader for an array class, as returned by Class.getClassLoader() is the same as the class loader for its element type; if the element type is a primitive type, then the array class has no class loader.
 
-翻译过来大概的意思是：
+Dịch nghĩa:
 
-> 类加载器是一个负责加载类的对象。`ClassLoader` 是一个抽象类。给定类的二进制名称，类加载器应尝试定位或生成构成类定义的数据。典型的策略是将名称转换为文件名，然后从文件系统中读取该名称的“类文件”。
+> Class loader là object chịu trách nhiệm load class. `ClassLoader` là abstract class. Cho binary name của class, class loader sẽ cố gắng locate hoặc generate data cấu thành định nghĩa của class. Chiến lược điển hình là convert tên thành file name rồi đọc "class file" có tên đó từ file system.
 >
-> 每个 Java 类都有一个引用指向加载它的 `ClassLoader`。不过，数组类不是通过 `ClassLoader` 创建的，而是 JVM 在需要的时候自动创建的，数组类通过`getClassLoader()`方法获取 `ClassLoader` 的时候和该数组的元素类型的 `ClassLoader` 是一致的。
+> Mỗi Java class đều có reference trỏ đến `ClassLoader` đã load nó. Tuy nhiên array class không được tạo thông qua `ClassLoader` mà được JVM tự động tạo khi cần. `ClassLoader` của array class lấy qua method `getClassLoader()` giống với `ClassLoader` của element type của array đó.
 
-从上面的介绍可以看出:
+Từ giới thiệu trên có thể thấy:
 
-- 类加载器是一个负责加载类的对象，用于实现类加载过程中的加载这一步。
-- 每个 Java 类都有一个引用指向加载它的 `ClassLoader`。
-- 数组类不是通过 `ClassLoader` 创建的（数组类没有对应的二进制字节流），是由 JVM 直接生成的。
+- Class loader là object chịu trách nhiệm load class, dùng để triển khai bước Loading trong quá trình class loading.
+- Mỗi Java class đều có reference trỏ đến `ClassLoader` đã load nó.
+- Array class không được tạo thông qua `ClassLoader` (array class không có binary byte stream tương ứng) — được JVM trực tiếp tạo ra.
 
 ```java
 class Class<T> {
@@ -63,23 +63,23 @@ class Class<T> {
 }
 ```
 
-简单来说，**类加载器的主要作用就是动态加载 Java 类的字节码（ `.class` 文件）到 JVM 中（在内存中生成一个代表该类的 `Class` 对象）。** 字节码可以是 Java 源程序（`.java`文件）经过 `javac` 编译得来，也可以是通过工具动态生成或者通过网络下载得来。
+Nói đơn giản: **Chức năng chính của class loader là dynamic load bytecode (file `.class`) của Java class vào JVM (tạo `Class` object đại diện cho class đó trong memory).** Bytecode có thể được compile từ Java source program (file `.java`) bởi `javac`, cũng có thể được generate động bằng công cụ hoặc download qua network.
 
-其实除了加载类之外，类加载器还可以加载 Java 应用所需的资源如文本、图像、配置文件、视频等等文件资源。本文只讨论其核心功能：加载类。
+Thực ra ngoài load class, class loader còn có thể load resource của Java application như text, image, config file, video, v.v. Bài này chỉ thảo luận về chức năng cốt lõi của nó: load class.
 
-### 类加载器加载规则
+### Quy tắc load của Class Loader
 
-JVM 启动的时候，并不会一次性加载所有的类，而是根据需要去动态加载。也就是说，大部分类在具体用到的时候才会去加载，这样对内存更加友好。
+Khi JVM khởi động, không load tất cả class cùng lúc mà load động theo nhu cầu. Tức hầu hết class chỉ được load khi thực sự cần dùng — thân thiện với memory hơn.
 
-对于已经加载的类会被放在 `ClassLoader` 中。在类加载的时候，系统会首先判断当前类是否被加载过。已经被加载的类会直接返回，否则才会尝试加载。也就是说，对于一个类加载器来说，相同二进制名称的类只会被加载一次。
+Các class đã được load sẽ được đặt trong `ClassLoader`. Khi load class, hệ thống trước tiên kiểm tra xem class hiện tại đã được load chưa. Class đã load sẽ được trả về trực tiếp, ngược lại mới cố load. Tức là với một class loader, class có cùng binary name chỉ được load một lần.
 
 ```java
 public abstract class ClassLoader {
   ...
   private final ClassLoader parent;
-  // 由这个类加载器加载的类。
+  // Class do class loader này load.
   private final Vector<Class<?>> classes = new Vector<>();
-  // 由VM调用，用此类加载器记录每个已加载类。
+  // Được VM gọi, dùng class loader này để ghi lại mỗi class đã load.
   void addClass(Class<?> c) {
         classes.addElement(c);
    }
@@ -87,31 +87,31 @@ public abstract class ClassLoader {
 }
 ```
 
-### 类加载器总结
+### Tổng kết Class Loader
 
-JVM 中内置了三个重要的 `ClassLoader`：
+JVM tích hợp sẵn ba `ClassLoader` quan trọng:
 
-1. **`BootstrapClassLoader`(启动类加载器)**：最顶层的加载类，由 C++实现，通常表示为 null，并且没有父级，主要用来加载 JDK 内部的核心类库（ `%JAVA_HOME%/lib`目录下的 `rt.jar`、`resources.jar`、`charsets.jar`等 jar 包和类）以及被 `-Xbootclasspath`参数指定的路径下的所有类。
-2. **`ExtensionClassLoader`(扩展类加载器)**：主要负责加载 `%JRE_HOME%/lib/ext` 目录下的 jar 包和类以及被 `java.ext.dirs` 系统变量所指定的路径下的所有类。
-3. **`AppClassLoader`(应用程序类加载器)**：面向我们用户的加载器，负责加载当前应用 classpath 下的所有 jar 包和类。
+1. **`BootstrapClassLoader` (Bootstrap class loader)**: Class loader ở tầng cao nhất, được triển khai bằng C++, thường biểu thị là null và không có parent. Chủ yếu dùng để load core class library nội bộ JDK (các jar package như `rt.jar`, `resources.jar`, `charsets.jar` trong thư mục `%JAVA_HOME%/lib` và tất cả class trong path được chỉ định bởi tham số `-Xbootclasspath`).
+2. **`ExtensionClassLoader` (Extension class loader)**: Chủ yếu load các jar package và class trong thư mục `%JRE_HOME%/lib/ext` và tất cả class trong path được chỉ định bởi system variable `java.ext.dirs`.
+3. **`AppClassLoader` (Application class loader)**: Class loader hướng đến user — load tất cả jar package và class dưới classpath của application hiện tại.
 
-> 🌈 拓展一下：
+> 🌈 Mở rộng thêm:
 >
-> - **`rt.jar`**：rt 代表“RunTime”，`rt.jar`是 Java 基础类库，包含 Java doc 里面看到的所有的类的类文件。也就是说，我们常用内置库 `java.xxx.*`都在里面，比如`java.util.*`、`java.io.*`、`java.nio.*`、`java.lang.*`、`java.sql.*`、`java.math.*`。
-> - Java 9 引入了模块系统，并且略微更改了上述的类加载器。扩展类加载器被改名为平台类加载器（platform class loader）。Java SE 中除了少数几个关键模块，比如说 `java.base` 是由启动类加载器加载之外，其他的模块均由平台类加载器所加载。
+> - **`rt.jar`**: rt là viết tắt "RunTime". `rt.jar` là Java base class library, chứa class file của tất cả class trong Java doc. Tức các built-in library `java.xxx.*` thường dùng đều ở trong đó như `java.util.*`, `java.io.*`, `java.nio.*`, `java.lang.*`, `java.sql.*`, `java.math.*`.
+> - Java 9 giới thiệu module system và thay đổi một chút các class loader trên. Extension class loader đổi tên thành Platform class loader. Trong Java SE ngoài một số module quan trọng như `java.base` được load bởi Bootstrap class loader, các module khác đều được load bởi Platform class loader.
 
-除了这三种类加载器之外，用户还可以加入自定义的类加载器来进行拓展，以满足自己的特殊需求。就比如说，我们可以对 Java 类的字节码（ `.class` 文件）进行加密，加载时再利用自定义的类加载器对其解密。
+Ngoài ba loại class loader này, user còn có thể thêm custom class loader để mở rộng, đáp ứng nhu cầu đặc biệt. Ví dụ có thể mã hóa bytecode (file `.class`) của Java class, khi load dùng custom class loader để giải mã.
 
-![类加载器层次关系图](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
+![Sơ đồ quan hệ phân cấp giữa các class loader](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
 
-除了 `BootstrapClassLoader` 是 JVM 自身的一部分之外，其他所有的类加载器都是在 JVM 外部实现的，并且全都继承自 `ClassLoader`抽象类。这样做的好处是用户可以自定义类加载器，以便让应用程序自己决定如何去获取所需的类。
+Ngoài `BootstrapClassLoader` là một phần của JVM, tất cả class loader khác đều được triển khai bên ngoài JVM và đều kế thừa từ abstract class `ClassLoader`. Lợi ích là user có thể custom class loader để application quyết định cách lấy class cần thiết.
 
-每个 `ClassLoader` 可以通过`getParent()`获取其父 `ClassLoader`，如果获取到的 `ClassLoader` 为`null`的话，那么该类加载器的父类加载器是 `BootstrapClassLoader` 。
+Mỗi `ClassLoader` có thể lấy parent `ClassLoader` qua `getParent()`. Nếu `ClassLoader` lấy được là `null` thì parent class loader của class loader đó là `BootstrapClassLoader`.
 
 ```java
 public abstract class ClassLoader {
   ...
-  // 父加载器
+  // Parent loader
   private final ClassLoader parent;
   @CallerSensitive
   public final ClassLoader getParent() {
@@ -121,9 +121,9 @@ public abstract class ClassLoader {
 }
 ```
 
-**为什么获取到 `ClassLoader` 为`null`就是 `BootstrapClassLoader` 加载的呢？** 这是因为`BootstrapClassLoader` 由 C++ 实现，由于这个 C++ 实现的类加载器在 Java 中是没有与之对应的类的，所以拿到的结果是 null。
+**Tại sao lấy `ClassLoader` là `null` thì là do `BootstrapClassLoader` load?** Vì `BootstrapClassLoader` được triển khai bằng C++. Vì C++ class loader này không có class tương ứng trong Java, nên kết quả lấy được là null.
 
-下面我们来看一个获取 `ClassLoader` 的小案例：
+Dưới đây là ví dụ nhỏ lấy `ClassLoader`:
 
 ```java
 public class PrintClassLoaderTree {
@@ -148,7 +148,7 @@ public class PrintClassLoaderTree {
 }
 ```
 
-输出结果(JDK 8 )：
+Output (JDK 8):
 
 ```plain
 |--sun.misc.Launcher$AppClassLoader@18b4aac2
@@ -156,64 +156,64 @@ public class PrintClassLoaderTree {
         |--null
 ```
 
-从输出结果可以看出：
+Từ output có thể thấy:
 
-- 我们编写的 Java 类 `PrintClassLoaderTree` 的 `ClassLoader` 是`AppClassLoader`；
-- `AppClassLoader`的父 `ClassLoader` 是`ExtClassLoader`；
-- `ExtClassLoader`的父`ClassLoader`是`Bootstrap ClassLoader`，因此输出结果为 null。
+- `ClassLoader` của Java class `PrintClassLoaderTree` chúng ta viết là `AppClassLoader`.
+- Parent `ClassLoader` của `AppClassLoader` là `ExtClassLoader`.
+- Parent `ClassLoader` của `ExtClassLoader` là `Bootstrap ClassLoader` — nên output là null.
 
-### 自定义类加载器
+### Custom Class Loader
 
-我们前面也说说了，除了 `BootstrapClassLoader` 其他类加载器均由 Java 实现且全部继承自`java.lang.ClassLoader`。如果我们要自定义自己的类加载器，很明显需要继承 `ClassLoader`抽象类。
+Như đã nói ở trên, ngoài `BootstrapClassLoader` tất cả class loader đều được triển khai bằng Java và đều kế thừa `java.lang.ClassLoader`. Nếu muốn custom class loader, rõ ràng cần kế thừa abstract class `ClassLoader`.
 
-`ClassLoader` 类有两个关键的方法：
+Class `ClassLoader` có hai method quan trọng:
 
-- `protected Class loadClass(String name, boolean resolve)`：加载指定二进制名称的类，实现了双亲委派机制 。`name` 为类的二进制名称，`resolve` 如果为 true，在加载时调用 `resolveClass(Class<?> c)` 方法解析该类。
-- `protected Class findClass(String name)`：根据类的二进制名称来查找类，默认实现是空方法。
+- `protected Class loadClass(String name, boolean resolve)`: Load class với binary name được chỉ định, triển khai parent delegation mechanism. `name` là binary name của class. Nếu `resolve` là true, sẽ gọi method `resolveClass(Class<?> c)` để resolve class khi load.
+- `protected Class findClass(String name)`: Tìm class theo binary name, implementation mặc định là empty method.
 
-官方 API 文档中写到：
+Official API documentation viết:
 
 > Subclasses of `ClassLoader` are encouraged to override `findClass(String name)`, rather than this method.
 >
-> 建议 `ClassLoader`的子类重写 `findClass(String name)`方法而不是`loadClass(String name, boolean resolve)` 方法。
+> Khuyến nghị subclass của `ClassLoader` override method `findClass(String name)` thay vì method `loadClass(String name, boolean resolve)`.
 
-如果我们不想打破双亲委派模型，就重写 `ClassLoader` 类中的 `findClass()` 方法即可，无法被父类加载器加载的类最终会通过这个方法被加载。但是，如果想打破双亲委派模型则需要重写 `loadClass()` 方法。
+Nếu không muốn phá vỡ Parent Delegation Model, chỉ cần override method `findClass()` trong class `ClassLoader`. Class không thể được parent class loader load cuối cùng sẽ được load qua method này. Nhưng nếu muốn phá vỡ Parent Delegation Model thì cần override method `loadClass()`.
 
-## 双亲委派模型
+## Parent Delegation Model
 
-### 双亲委派模型介绍
+### Giới thiệu Parent Delegation Model
 
-类加载器有很多种，当我们想要加载一个类的时候，具体是哪个类加载器加载呢？这就需要提到双亲委派模型了。
+Có rất nhiều loại class loader. Khi muốn load một class, class loader cụ thể nào sẽ load? Đây là lúc cần đề cập đến Parent Delegation Model.
 
-根据官网介绍：
+Theo giới thiệu của official website:
 
 > The ClassLoader class uses a delegation model to search for classes and resources. Each instance of ClassLoader has an associated parent class loader. When requested to find a class or resource, a ClassLoader instance will delegate the search for the class or resource to its parent class loader before attempting to find the class or resource itself. The virtual machine's built-in class loader, called the "bootstrap class loader", does not itself have a parent but may serve as the parent of a ClassLoader instance.
 
-翻译过来大概的意思是：
+Dịch nghĩa:
 
-> `ClassLoader` 类使用委托模型来搜索类和资源。每个 `ClassLoader` 实例都有一个相关的父类加载器。需要查找类或资源时，`ClassLoader` 实例会在试图亲自查找类或资源之前，将搜索类或资源的任务委托给其父类加载器。
-> 虚拟机中被称为 "bootstrap class loader"的内置类加载器本身没有父类加载器，但是可以作为 `ClassLoader` 实例的父类加载器。
+> `ClassLoader` class dùng delegation model để tìm class và resource. Mỗi instance `ClassLoader` đều có parent class loader liên kết. Khi được yêu cầu tìm class hoặc resource, `ClassLoader` instance sẽ ủy thác việc tìm cho parent class loader của nó trước khi tự cố tìm.
+> Built-in class loader trong virtual machine gọi là "bootstrap class loader" — bản thân không có parent nhưng có thể là parent của `ClassLoader` instance.
 
-从上面的介绍可以看出：
+Từ giới thiệu trên có thể thấy:
 
-- `ClassLoader` 类使用委托模型来搜索类和资源。
-- 双亲委派模型要求除了顶层的启动类加载器外，其余的类加载器都应有自己的父类加载器。
-- `ClassLoader` 实例会在试图亲自查找类或资源之前，将搜索类或资源的任务委托给其父类加载器。
+- `ClassLoader` class dùng delegation model để tìm class và resource.
+- Parent Delegation Model yêu cầu ngoài Bootstrap class loader ở tầng cao nhất, tất cả class loader còn lại đều phải có parent class loader.
+- `ClassLoader` instance sẽ ủy thác cho parent class loader trước khi tự cố tìm class hoặc resource.
 
-下图展示的各种类加载器之间的层次关系被称为类加载器的“**双亲委派模型(Parents Delegation Model)**”。
+Quan hệ phân cấp giữa các class loader trong hình dưới được gọi là "**Parent Delegation Model**" của class loader.
 
-![类加载器层次关系图](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
+![Sơ đồ quan hệ phân cấp giữa các class loader](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
 
-注意 ⚠️：双亲委派模型并不是一种强制性的约束，只是 JDK 官方推荐的一种方式。如果我们因为某些特殊需求想要打破双亲委派模型，也是可以的，后文会介绍具体的方法。
+Lưu ý ⚠️: Parent Delegation Model không phải ràng buộc bắt buộc — chỉ là cách JDK official khuyến nghị. Nếu vì yêu cầu đặc biệt nào đó muốn phá vỡ Parent Delegation Model, cũng được — phần sau sẽ giới thiệu method cụ thể.
 
-其实这个双亲翻译的容易让别人误解，我们一般理解的双亲都是父母，这里的双亲更多地表达的是“父母这一辈”的人而已，并不是说真的有一个 `MotherClassLoader` 和一个`FatherClassLoader` 。个人觉得翻译成单亲委派模型更好一些，不过，国内既然翻译成了双亲委派模型并流传了，按照这个来也没问题，不要被误解了就好。
+Thực ra "dual parent" (cha mẹ) trong tên gọi này dễ gây hiểu lầm. Parent Delegation Model ở đây không có nghĩa thực sự có một `MotherClassLoader` và một `FatherClassLoader`. Tôi cho rằng dịch là "single parent delegation model" tốt hơn. Tuy nhiên đã được gọi là "Parent Delegation Model" và lan truyền trong nước, cứ theo cái tên đó không sao — miễn là không bị hiểu nhầm.
 
-另外，类加载器之间的父子关系一般不是以继承的关系来实现的，而是通常使用组合关系来复用父加载器的代码。
+Ngoài ra, quan hệ parent-child giữa các class loader thường không được triển khai bằng kế thừa mà thường dùng composition relationship để tái sử dụng code của parent loader.
 
 ```java
 public abstract class ClassLoader {
   ...
-  // 组合
+  // Composition
   private final ClassLoader parent;
   protected ClassLoader(ClassLoader parent) {
        this(checkCreateClassLoader(), parent);
@@ -222,48 +222,48 @@ public abstract class ClassLoader {
 }
 ```
 
-在面向对象编程中，有一条非常经典的设计原则：**组合优于继承，多用组合少用继承。**
+Trong OOP có một design principle rất kinh điển: **Prefer composition over inheritance — use more composition, less inheritance.**
 
-### 双亲委派模型的执行流程
+### Execution flow của Parent Delegation Model
 
-双亲委派模型的实现代码非常简单，逻辑非常清晰，都集中在 `java.lang.ClassLoader` 的 `loadClass()` 中，相关代码如下所示。
+Code triển khai Parent Delegation Model rất đơn giản, logic rất rõ ràng — tập trung trong method `loadClass()` của `java.lang.ClassLoader`. Code liên quan như sau:
 
 ```java
 protected Class<?> loadClass(String name, boolean resolve)
     throws ClassNotFoundException
 {
     synchronized (getClassLoadingLock(name)) {
-        //首先，检查该类是否已经加载过
+        // Trước tiên kiểm tra xem class đã được load chưa
         Class c = findLoadedClass(name);
         if (c == null) {
-            //如果 c 为 null，则说明该类没有被加载过
+            // Nếu c là null, class chưa được load
             long t0 = System.nanoTime();
             try {
                 if (parent != null) {
-                    //当父类的加载器不为空，则通过父类的loadClass来加载该类
+                    // Nếu parent class loader không null, dùng loadClass của parent để load class
                     c = parent.loadClass(name, false);
                 } else {
-                    //当父类的加载器为空，则调用启动类加载器来加载该类
+                    // Nếu parent class loader null, gọi bootstrap class loader để load
                     c = findBootstrapClassOrNull(name);
                 }
             } catch (ClassNotFoundException e) {
-                //非空父类的类加载器无法找到相应的类，则抛出异常
+                // Non-null parent class loader không tìm thấy class tương ứng, throw exception
             }
 
             if (c == null) {
-                //当父类加载器无法加载时，则调用findClass方法来加载该类
-                //用户可通过覆写该方法，来自定义类加载器
+                // Khi parent class loader không thể load, gọi method findClass để load
+                // User có thể override method này để custom class loader
                 long t1 = System.nanoTime();
                 c = findClass(name);
 
-                //用于统计类加载器相关的信息
+                // Dùng để thống kê thông tin liên quan đến class loader
                 sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
                 sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
                 sun.misc.PerfCounter.getFindClasses().increment();
             }
         }
         if (resolve) {
-            //对类进行link操作
+            // Link operation trên class
             resolveClass(c);
         }
         return c;
@@ -271,52 +271,52 @@ protected Class<?> loadClass(String name, boolean resolve)
 }
 ```
 
-每当一个类加载器接收到加载请求时，它会先将请求转发给父类加载器。在父类加载器没有找到所请求的类的情况下，该类加载器才会尝试去加载。
+Mỗi khi class loader nhận request load, nó sẽ trước tiên forward request đến parent class loader. Chỉ khi parent class loader không tìm thấy class được request, class loader đó mới tự cố load.
 
-结合上面的源码，简单总结一下双亲委派模型的执行流程：
+Kết hợp source code trên, tóm tắt ngắn gọn execution flow của Parent Delegation Model:
 
-- 在类加载的时候，系统会首先判断当前类是否被加载过。已经被加载的类会直接返回，否则才会尝试加载（每个父类加载器都会走一遍这个流程）。
-- 类加载器在进行类加载的时候，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成（调用父加载器 `loadClass()`方法来加载类）。这样的话，所有的请求最终都会传送到顶层的启动类加载器 `BootstrapClassLoader` 中。
-- 只有当父加载器反馈自己无法完成这个加载请求（它的搜索范围中没有找到所需的类）时，子加载器才会尝试自己去加载（调用自己的 `findClass()` 方法来加载类）。
-- 如果子类加载器也无法加载这个类，那么它会抛出一个 `ClassNotFoundException` 异常。
+- Khi load class, hệ thống trước tiên xem class hiện tại đã được load chưa. Class đã load trả về trực tiếp, ngược lại mới cố load (mỗi parent class loader đều đi qua flow này).
+- Khi class loader load class, nó không tự cố load class trước mà ủy thác request đó cho parent class loader (gọi method `loadClass()` của parent loader để load class). Như vậy tất cả request cuối cùng đều được chuyển đến `BootstrapClassLoader` ở tầng cao nhất.
+- Chỉ khi parent loader phản hồi rằng mình không thể hoàn thành request load này (không tìm thấy class cần thiết trong search range của nó), child loader mới tự cố load (gọi method `findClass()` của chính nó để load class).
+- Nếu child class loader cũng không thể load class này, nó sẽ throw `ClassNotFoundException`.
 
-🌈 拓展一下：
+🌈 Mở rộng thêm:
 
-**JVM 判定两个 Java 类是否相同的具体规则**：JVM 不仅要看类的全名是否相同，还要看加载此类的类加载器是否一样。只有两者都相同的情况，才认为两个类是相同的。即使两个类来源于同一个 `Class` 文件，被同一个虚拟机加载，只要加载它们的类加载器不同，那这两个类就必定不相同。
+**Quy tắc cụ thể JVM xác định hai Java class có giống nhau không**: JVM không chỉ xem fully qualified name có giống nhau không mà còn xem class loader load class đó có giống nhau không. Chỉ khi cả hai đều giống nhau mới coi hai class là giống nhau. Dù hai class đến từ cùng file `.class`, được load bởi cùng virtual machine, chỉ cần class loader load chúng khác nhau thì hai class đó nhất định khác nhau.
 
-### 双亲委派模型的好处
+### Lợi ích của Parent Delegation Model
 
-双亲委派模型是 Java 类加载机制的重要组成部分，它通过委派父加载器优先加载类的方式，实现了两个关键的安全目标：避免类的重复加载和防止核心 API 被篡改。
+Parent Delegation Model là phần quan trọng của Java class loading mechanism. Nó thực hiện hai mục tiêu bảo mật quan trọng thông qua cơ chế ưu tiên ủy thác parent loader load class: tránh class bị load trùng lặp và ngăn core API bị giả mạo.
 
-JVM 区分不同类的依据是类名加上加载该类的类加载器，即使类名相同，如果由不同的类加载器加载，也会被视为不同的类。 双亲委派模型确保核心类总是由 `BootstrapClassLoader` 加载，保证了核心类的唯一性。
+JVM phân biệt các class khác nhau dựa trên tên class cộng với class loader load class đó. Dù cùng tên class, nếu được load bởi class loader khác nhau cũng được coi là class khác nhau. Parent Delegation Model đảm bảo core class luôn được load bởi `BootstrapClassLoader`, đảm bảo tính duy nhất của core class.
 
-例如，JVM 会优先将 `java.lang.Object` 这类核心类的加载请求交给 `BootstrapClassLoader` 处理；但实际上，`ClassLoader#preDefineClass` 还会在定义阶段校验类名，任何以 `java.` 开头的类名都会被拒绝，因此不能通过自定义加载器去伪造核心类。
+Ví dụ: JVM sẽ ưu tiên giao request load core class như `java.lang.Object` cho `BootstrapClassLoader` xử lý. Nhưng thực tế, `ClassLoader#preDefineClass` còn validate tên class ở giai đoạn define — bất kỳ tên class nào bắt đầu bằng `java.` đều bị từ chối, nên không thể dùng custom loader để fake core class.
 
-有很多小伙伴就要说了：“那我绕过双亲委派模型不就可以了么？”。
+Nhiều bạn sẽ nói: "Vậy nếu tôi bypass Parent Delegation Model thì sao?"
 
-然而，即使攻击者绕过了双亲委派模型，Java 仍然具备更底层的安全机制来保护核心类库。`ClassLoader` 的 `preDefineClass` 方法会在定义类之前进行类名校验。任何以 `"java."` 开头的类名都会触发 `SecurityException`，阻止恶意代码定义或加载伪造的核心类。
+Tuy nhiên, dù attacker bypass được Parent Delegation Model, Java vẫn có cơ chế bảo mật tầng dưới hơn để bảo vệ core class library. Method `preDefineClass` của `ClassLoader` validate tên class trước khi define class. Bất kỳ tên class nào bắt đầu bằng `"java."` đều trigger `SecurityException`, ngăn malicious code define hoặc load fake core class.
 
-JDK 8 中`ClassLoader#preDefineClass` 方法源码如下：
+Source code của `ClassLoader#preDefineClass` trong JDK 8 như sau:
 
 ```java
 private ProtectionDomain preDefineClass(String name,
                                             ProtectionDomain pd)
     {
-        // 检查类名是否合法
+        // Kiểm tra tên class có hợp lệ không
         if (!checkName(name)) {
             throw new NoClassDefFoundError("IllegalName: " + name);
         }
 
-        // 防止在 "java.*" 包中定义类。
-        // 此检查对于安全性至关重要，因为它可以防止恶意代码替换核心 Java 类。
-        // JDK 9 利用平台类加载器增强了 preDefineClass 方法的安全性
+        // Ngăn define class trong package "java.*".
+        // Check này quan trọng về bảo mật vì ngăn malicious code thay thế core Java class.
+        // JDK 9 tăng cường bảo mật của preDefineClass bằng platform class loader
         if ((name != null) && name.startsWith("java.")) {
             throw new SecurityException
-                ("禁止的包名: " +
+                ("Prohibited package name: " +
                  name.substring(0, name.lastIndexOf('.')));
         }
 
-         // 如果未指定 ProtectionDomain，则使用默认域（defaultDomain）。
+         // Nếu không chỉ định ProtectionDomain, dùng default domain.
         if (pd == null) {
             pd = defaultDomain;
         }
@@ -329,44 +329,44 @@ private ProtectionDomain preDefineClass(String name,
     }
 ```
 
-JDK 9 中这部分逻辑有所改变，多了平台类加载器（`getPlatformClassLoader()` 方法获取），增强了 `preDefineClass` 方法的安全性。这里就不贴源码了，感兴趣的话，可以自己去看看。
+Trong JDK 9 phần logic này có thay đổi — thêm Platform class loader (lấy qua method `getPlatformClassLoader()`), tăng cường bảo mật của method `preDefineClass`. Không paste source code ở đây, bạn có thể tự xem nếu quan tâm.
 
-### 打破双亲委派模型方法
+### Cách phá vỡ Parent Delegation Model
 
-~~为了避免双亲委托机制，我们可以自己定义一个类加载器，然后重写 `loadClass()` 即可。~~
+~~Để tránh cơ chế parent delegation, ta có thể tự define một class loader, rồi override `loadClass()` là xong.~~
 
-**🐛 修正（参见：[issue871](https://github.com/Snailclimb/JavaGuide/issues/871) ）**：自定义加载器的话，需要继承 `ClassLoader` 。如果我们不想打破双亲委派模型，就重写 `ClassLoader` 类中的 `findClass()` 方法即可，无法被父类加载器加载的类最终会通过这个方法被加载。但是，如果想打破双亲委派模型则需要重写 `loadClass()` 方法。
+**🐛 Đính chính (xem: [issue871](https://github.com/Snailclimb/JavaGuide/issues/871))**: Để custom loader cần kế thừa `ClassLoader`. Nếu không muốn phá vỡ Parent Delegation Model, chỉ cần override method `findClass()` trong class `ClassLoader`. Class không thể được parent class loader load cuối cùng sẽ được load qua method này. Nhưng nếu muốn phá vỡ Parent Delegation Model thì cần override method `loadClass()`.
 
-为什么是重写 `loadClass()` 方法打破双亲委派模型呢？双亲委派模型的执行流程已经解释了：
+Tại sao override method `loadClass()` mới phá vỡ Parent Delegation Model? Execution flow của Parent Delegation Model đã giải thích:
 
-> 类加载器在进行类加载的时候，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成（调用父加载器 `loadClass()`方法来加载类）。
+> Class loader khi load class, không tự cố load class trước mà ủy thác request đó cho parent class loader (gọi method `loadClass()` của parent loader để load class).
 
-重写 `loadClass()`方法之后，我们就可以改变传统双亲委派模型的执行流程。例如，子类加载器可以在委派给父类加载器之前，先自己尝试加载这个类，或者在父类加载器返回之后，再尝试从其他地方加载这个类。具体的规则由我们自己实现，根据项目需求定制化。
+Sau khi override method `loadClass()`, có thể thay đổi execution flow truyền thống của Parent Delegation Model. Ví dụ child class loader có thể trước tiên tự cố load class trước khi ủy thác cho parent class loader, hoặc sau khi parent class loader trả về, thử load từ nơi khác. Quy tắc cụ thể do chúng ta tự triển khai, tùy chỉnh theo yêu cầu project.
 
-我们比较熟悉的 Tomcat 服务器为了能够优先加载 Web 应用目录下的类，然后再加载其他目录下的类，就自定义了类加载器 `WebAppClassLoader` 来打破双亲委托机制。这也是 Tomcat 下 Web 应用之间的类实现隔离的具体原理。
+Tomcat server mà chúng ta khá quen thuộc đã custom class loader `WebAppClassLoader` để phá vỡ parent delegation mechanism — nhằm ưu tiên load class dưới thư mục Web application, sau đó mới load class ở thư mục khác. Đây cũng là nguyên lý cụ thể để cách ly class giữa các Web application trong Tomcat.
 
-Tomcat 的类加载器的层次结构如下：
+Cấu trúc phân cấp class loader của Tomcat như sau:
 
-![Tomcat 的类加载器的层次结构](https://oss.javaguide.cn/github/javaguide/java/jvm/tomcat-class-loader-parents-delegation-model.png)
+![Cấu trúc phân cấp class loader của Tomcat](https://oss.javaguide.cn/github/javaguide/java/jvm/tomcat-class-loader-parents-delegation-model.png)
 
-Tomcat 这四个自定义的类加载器对应的目录如下：
+Bốn custom class loader của Tomcat tương ứng với các thư mục:
 
-- `CommonClassLoader`对应`<Tomcat>/common/*`
-- `CatalinaClassLoader`对应`<Tomcat >/server/*`
-- `SharedClassLoader`对应 `<Tomcat >/shared/*`
-- `WebAppClassloader`对应 `<Tomcat >/webapps/<app>/WEB-INF/*`
+- `CommonClassLoader` tương ứng `<Tomcat>/common/*`
+- `CatalinaClassLoader` tương ứng `<Tomcat>/server/*`
+- `SharedClassLoader` tương ứng `<Tomcat>/shared/*`
+- `WebAppClassloader` tương ứng `<Tomcat>/webapps/<app>/WEB-INF/*`
 
-从图中的委派关系中可以看出：
+Từ quan hệ delegation trong hình có thể thấy:
 
-- `CommonClassLoader`作为 `CatalinaClassLoader` 和 `SharedClassLoader` 的父加载器。`CommonClassLoader` 能加载的类都可以被 `CatalinaClassLoader` 和 `SharedClassLoader` 使用。因此，`CommonClassLoader` 是为了实现公共类库（可以被所有 Web 应用和 Tomcat 内部组件使用的类库）的共享和隔离。
-- `CatalinaClassLoader` 和 `SharedClassLoader` 能加载的类则与对方相互隔离。`CatalinaClassLoader` 用于加载 Tomcat 自身的类，为了隔离 Tomcat 本身的类和 Web 应用的类。`SharedClassLoader` 作为 `WebAppClassLoader` 的父加载器，专门来加载 Web 应用之间共享的类，但是在Tomcat的默认配置下`catalina.properties`配置文件的`shared.loader= `值为空，所以`SharedClassLoader` 并不生效，`SharedClassLoader` 实际上会退化为 `CommonClassLoader`，`SharedClassLoader`比较合适用来加载多个web应用间共享的类库，比如整个公司级别的监控、日志等。
-- 每个 Web 应用都会创建一个单独的 `WebAppClassLoader`，并在启动 Web 应用的线程里设置线程线程上下文类加载器为 `WebAppClassLoader`。各个 `WebAppClassLoader` 实例之间相互隔离，进而实现 Web 应用之间的类隔。
+- `CommonClassLoader` là parent loader của `CatalinaClassLoader` và `SharedClassLoader`. Class mà `CommonClassLoader` có thể load đều có thể được `CatalinaClassLoader` và `SharedClassLoader` dùng. Do đó `CommonClassLoader` là để triển khai sharing và isolation của common class library (class library có thể được tất cả Web application và Tomcat internal component dùng).
+- Class mà `CatalinaClassLoader` và `SharedClassLoader` load độc lập và cách ly nhau. `CatalinaClassLoader` dùng để load class của Tomcat bản thân — để cách ly class của Tomcat với class của Web application. `SharedClassLoader` là parent loader của `WebAppClassLoader`, chuyên load class được chia sẻ giữa các Web application. Nhưng trong cấu hình mặc định của Tomcat, giá trị `shared.loader=` trong file config `catalina.properties` là empty nên `SharedClassLoader` không có hiệu lực. `SharedClassLoader` thực chất sẽ degrade thành `CommonClassLoader`. `SharedClassLoader` phù hợp hơn để load class library được chia sẻ giữa nhiều web application, như monitoring, logging cấp toàn công ty.
+- Mỗi Web application đều tạo riêng một `WebAppClassLoader`, và trong thread khởi động Web application đặt thread context class loader thành `WebAppClassLoader`. Các instance `WebAppClassLoader` khác nhau cách ly nhau — từ đó triển khai class isolation giữa các Web application.
 
-单纯依靠自定义类加载器没办法满足某些场景的要求，例如，有些情况下，高层的类加载器需要加载低层的加载器才能加载的类。
+Chỉ dựa vào custom class loader không thể đáp ứng yêu cầu của một số tình huống. Ví dụ trong một số trường hợp, high-level class loader cần load class chỉ có thể được low-level loader load.
 
-比如，SPI 中，SPI 的接口（如 `java.sql.Driver`）是由 Java 核心库提供的，由`BootstrapClassLoader` 加载。而 SPI 的实现（如`com.mysql.cj.jdbc.Driver`）是由第三方供应商提供的，它们是由应用程序类加载器或者自定义类加载器来加载的。默认情况下，一个类及其依赖类由同一个类加载器加载。所以，加载 SPI 的接口的类加载器（`BootstrapClassLoader`）也会用来加载 SPI 的实现。按照双亲委派模型，`BootstrapClassLoader` 是无法找到 SPI 的实现类的，因为它无法委托给子类加载器去尝试加载。
+Ví dụ trong SPI, interface SPI (như `java.sql.Driver`) được cung cấp bởi Java core library và được load bởi `BootstrapClassLoader`. Còn implementation của SPI (như `com.mysql.cj.jdbc.Driver`) được cung cấp bởi third-party vendor — được load bởi application class loader hoặc custom class loader. Mặc định, một class và class dependency được load bởi cùng class loader. Nên class loader load SPI interface (`BootstrapClassLoader`) cũng sẽ dùng để load SPI implementation. Theo Parent Delegation Model, `BootstrapClassLoader` không thể tìm thấy SPI implementation class vì nó không thể ủy thác cho child class loader để cố load.
 
-这里需要注意：JDK 9+ 之后引入模块化，JDBC API 被拆分到 `java.sql` 模块中，不再是 `BootstrapClassLoader` 直接加载，而是由 `PlatformClassLoader` 加载。
+Lưu ý: JDK 9+ giới thiệu modularization. JDBC API được tách vào module `java.sql`, không còn được `BootstrapClassLoader` load trực tiếp nữa mà là `PlatformClassLoader`.
 
 ```java
 public class ClassLoaderTest {
@@ -375,38 +375,36 @@ public class ClassLoaderTest {
         ClassLoader loader = clazz.getClassLoader();
         System.out.println("Loader for java.sql.Driver: " + loader);
 
-        // .jdks/corretto-1.8.0_442/bin/java 环境下为 Loader for java.sql.Driver: null
+        // Trên môi trường .jdks/corretto-1.8.0_442/bin/java: Loader for java.sql.Driver: null
 
-        // .jdks/jbr-17.0.12/bin/java 环境下为 Loader for java.sql.Driver: jdk.internal.loader.ClassLoaders$PlatformClassLoader@30f39991
+        // Trên môi trường .jdks/jbr-17.0.12/bin/java: Loader for java.sql.Driver: jdk.internal.loader.ClassLoaders$PlatformClassLoader@30f39991
     }
 }
 ```
 
-再比如，假设我们的项目中有 Spring 的 jar 包，由于其是 Web 应用之间共享的，因此会由 `SharedClassLoader` 加载（Web 服务器是 Tomcat）。我们项目中有一些用到了 Spring 的业务类，比如实现了 Spring 提供的接口、用到了 Spring 提供的注解。所以，加载 Spring 的类加载器（也就是 `SharedClassLoader`）也会用来加载这些业务类。但是业务类在 Web 应用目录下，不在 `SharedClassLoader` 的加载路径下，所以 `SharedClassLoader` 无法找到业务类，也就无法加载它们。
+Ví dụ khác: Giả sử project có Spring jar package. Vì được chia sẻ giữa các Web application, sẽ được load bởi `SharedClassLoader` (Web server là Tomcat). Project có một số business class dùng Spring như implement interface Spring cung cấp, dùng annotation Spring cung cấp. Nên class loader load Spring (`SharedClassLoader`) cũng sẽ dùng để load các business class này. Nhưng business class nằm dưới thư mục Web application, không nằm trong load path của `SharedClassLoader`, nên `SharedClassLoader` không tìm thấy business class và không thể load chúng.
 
-如何解决这个问题呢？ 这个时候就需要用到 **线程上下文类加载器（`ThreadContextClassLoader`）** 了。
+Làm thế nào giải quyết vấn đề này? Lúc này cần dùng đến **Thread Context Class Loader (`ThreadContextClassLoader`)**.
 
-拿 Spring 这个例子来说，当 Spring 需要加载业务类的时候，它不是用自己的类加载器，而是用当前线程的上下文类加载器。还记得我上面说的吗？每个 Web 应用都会创建一个单独的 `WebAppClassLoader`，并在启动 Web 应用的线程里设置线程线程上下文类加载器为 `WebAppClassLoader`。这样就可以让高层的类加载器（`SharedClassLoader`）借助子类加载器（ `WebAppClassLoader`）来加载业务类，破坏了 Java 的类加载委托机制，让应用逆向使用类加载器。
+Lấy ví dụ Spring: Khi Spring cần load business class, nó không dùng class loader của chính mình mà dùng thread context class loader của thread hiện tại. Như đã nói ở trên, mỗi Web application đều tạo riêng một `WebAppClassLoader`, và trong thread khởi động Web application đặt thread context class loader thành `WebAppClassLoader`. Như vậy high-level class loader (`SharedClassLoader`) có thể nhờ child class loader (`WebAppClassLoader`) để load business class — phá vỡ Java class loading delegation mechanism, cho phép application dùng class loader ngược chiều.
 
-线程上下文类加载器的原理是将一个类加载器保存在线程私有数据里，跟线程绑定，然后在需要的时候取出来使用。这个类加载器通常是由应用程序或者容器（如 Tomcat）设置的。
+Nguyên lý của thread context class loader là lưu class loader trong thread private data, bind với thread. Khi cần lấy ra dùng. Class loader này thường được set bởi application hoặc container (như Tomcat).
 
-`Java.lang.Thread` 中的`getContextClassLoader()`和 `setContextClassLoader(ClassLoader cl)`分别用来获取和设置线程的上下文类加载器。如果没有通过`setContextClassLoader(ClassLoader cl)`进行设置的话，线程将继承其父线程的上下文类加载器。
+`getContextClassLoader()` và `setContextClassLoader(ClassLoader cl)` trong `Java.lang.Thread` lần lượt dùng để lấy và đặt thread context class loader. Nếu không đặt qua `setContextClassLoader(ClassLoader cl)`, thread sẽ kế thừa thread context class loader của parent thread.
 
-Spring 获取线程线程上下文类加载器的代码如下：
+Code Spring lấy thread context class loader:
 
 ```java
 cl = Thread.currentThread().getContextClassLoader();
 ```
 
-感兴趣的小伙伴可以自行深入研究一下 Tomcat 打破双亲委派模型的原理，推荐资料：[《深入拆解 Tomcat & Jetty》](http://gk.link/a/10Egr)。
+Bạn có thể tự tìm hiểu sâu hơn về nguyên lý Tomcat phá vỡ Parent Delegation Model. Tài liệu khuyến nghị: [《Deep Dive Tomcat & Jetty》](http://gk.link/a/10Egr).
 
-## 推荐阅读
+## Đọc thêm
 
-- 《深入拆解 Java 虚拟机》
-- 深入分析 Java ClassLoader 原理：<https://blog.csdn.net/xyang81/article/details/7292380>
-- Java 类加载器(ClassLoader)：<http://gityuan.com/2016/01/24/java-classloader/>
-- Class Loaders in Java：<https://www.baeldung.com/java-classloaders>
-- Class ClassLoader - Oracle 官方文档：<https://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html>
-- 老大难的 Java ClassLoader 再不理解就老了：<https://zhuanlan.zhihu.com/p/51374915>
-
-<!-- @include: @article-footer.snippet.md -->
+- 《Deep Understanding Java Virtual Machine》
+- Phân tích sâu nguyên lý Java ClassLoader: <https://blog.csdn.net/xyang81/article/details/7292380>
+- Java ClassLoader: <http://gityuan.com/2016/01/24/java-classloader/>
+- Class Loaders in Java: <https://www.baeldung.com/java-classloaders>
+- Class ClassLoader - Oracle official docs: <https://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html>
+- Old and difficult Java ClassLoader — understand it before you get old: <https://zhuanlan.zhihu.com/p/51374915>

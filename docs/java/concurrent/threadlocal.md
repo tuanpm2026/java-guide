@@ -1,45 +1,45 @@
 ---
-title: ThreadLocal 详解
-description: ThreadLocal深度解析：详解ThreadLocal线程本地变量原理、ThreadLocalMap实现机制、弱引用与内存泄漏问题、使用场景与最佳实践。
+title: Giải thích chi tiết ThreadLocal
+description: Phân tích chuyên sâu ThreadLocal: giải thích nguyên lý biến cục bộ luồng, cơ chế ThreadLocalMap, vấn đề tham chiếu yếu và rò rỉ bộ nhớ, các trường hợp sử dụng và thực hành tốt nhất.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrency
 head:
   - - meta
     - name: keywords
       content: ThreadLocal,线程本地变量,ThreadLocalMap,内存泄漏,弱引用,ThreadLocal原理,线程隔离
 ---
 
-> 本文来自一枝花算不算浪漫投稿， 原文地址：[https://juejin.cn/post/6844904151567040519](https://juejin.cn/post/6844904151567040519)。
+> Bài viết này được đóng góp bởi 一枝花算不算浪漫, địa chỉ bài gốc: [https://juejin.cn/post/6844904151567040519](https://juejin.cn/post/6844904151567040519).
 
-### 前言
+### Lời mở đầu
 
 ![](./images/thread-local/1.png)
 
-**全文共 10000+字，31 张图，这篇文章同样耗费了不少的时间和精力才创作完成，原创不易，请大家点点关注+在看，感谢。**
+**Toàn bài có hơn 10000 chữ, 31 hình ảnh. Bài viết này cũng tốn khá nhiều thời gian và công sức để hoàn thành. Sáng tạo không dễ, mong mọi người quan tâm và ủng hộ, cảm ơn.**
 
-对于`ThreadLocal`，大家的第一反应可能是很简单呀，线程的变量副本，每个线程隔离。那这里有几个问题大家可以思考一下：
+Đối với `ThreadLocal`, phản ứng đầu tiên của nhiều người có thể là: đơn giản thôi, biến bản sao của luồng, mỗi luồng cách ly nhau. Vậy có một số câu hỏi mọi người có thể suy nghĩ:
 
-- `ThreadLocal`的 key 是**弱引用**，那么在 `ThreadLocal.get()`的时候，发生**GC**之后，key 是否为**null**？
-- `ThreadLocal`中`ThreadLocalMap`的**数据结构**？
-- `ThreadLocalMap`的**Hash 算法**？
-- `ThreadLocalMap`中**Hash 冲突**如何解决？
-- `ThreadLocalMap`的**扩容机制**？
-- `ThreadLocalMap`中**过期 key 的清理机制**？**探测式清理**和**启发式清理**流程？
-- `ThreadLocalMap.set()`方法实现原理？
-- `ThreadLocalMap.get()`方法实现原理？
-- 项目中`ThreadLocal`使用情况？遇到的坑？
+- Key của `ThreadLocal` là **tham chiếu yếu (weak reference)**, vậy khi thực hiện `ThreadLocal.get()`, sau khi **GC** xảy ra, key có phải là **null** không?
+- **Cấu trúc dữ liệu** của `ThreadLocalMap` trong `ThreadLocal` là gì?
+- **Thuật toán Hash** của `ThreadLocalMap`?
+- Cách giải quyết **xung đột Hash** trong `ThreadLocalMap`?
+- **Cơ chế mở rộng** của `ThreadLocalMap`?
+- **Cơ chế dọn dẹp key hết hạn** trong `ThreadLocalMap`? Quy trình **dọn dẹp thăm dò (exploratory cleanup)** và **dọn dẹp heuristic (heuristic cleanup)**?
+- Nguyên lý triển khai phương thức `ThreadLocalMap.set()`?
+- Nguyên lý triển khai phương thức `ThreadLocalMap.get()`?
+- Tình huống sử dụng `ThreadLocal` trong dự án? Các vấn đề gặp phải?
 - ……
 
-上述的一些问题你是否都已经掌握的很清楚了呢？本文将围绕这些问题使用图文方式来剖析`ThreadLocal`的**点点滴滴**。
+Bạn đã nắm vững tất cả các câu hỏi trên chưa? Bài viết này sẽ phân tích **chi tiết** `ThreadLocal` bằng hình ảnh và văn bản xung quanh những câu hỏi đó.
 
-### 目录
+### Mục lục
 
-**注明：** 本文源码基于`JDK 1.8`
+**Lưu ý:** Mã nguồn trong bài viết này dựa trên `JDK 1.8`
 
-### `ThreadLocal`代码演示
+### Ví dụ mã `ThreadLocal`
 
-我们先看下`ThreadLocal`使用示例：
+Trước tiên hãy xem ví dụ sử dụng `ThreadLocal`:
 
 ```java
 public class ThreadLocalTest {
@@ -67,41 +67,41 @@ public class ThreadLocalTest {
 }
 ```
 
-打印结果：
+Kết quả in:
 
 ```java
 [一枝花算不算浪漫]
 size: 0
 ```
 
-`ThreadLocal`对象可以提供线程局部变量，每个线程`Thread`拥有一份自己的**副本变量**，多个线程互不干扰。
+Đối tượng `ThreadLocal` có thể cung cấp biến cục bộ luồng, mỗi luồng `Thread` có một **biến bản sao** riêng, nhiều luồng không ảnh hưởng lẫn nhau.
 
-### `ThreadLocal`的数据结构
+### Cấu trúc dữ liệu của `ThreadLocal`
 
 ![](./images/thread-local/2.png)
 
-`Thread`类有一个类型为`ThreadLocal.ThreadLocalMap`的实例变量`threadLocals`，也就是说每个线程有一个自己的`ThreadLocalMap`。
+Lớp `Thread` có biến thể hiện `threadLocals` kiểu `ThreadLocal.ThreadLocalMap`, nghĩa là mỗi luồng có `ThreadLocalMap` riêng của mình.
 
-`ThreadLocalMap`有自己的独立实现，可以简单地将它的`key`视作`ThreadLocal`，`value`为代码中放入的值（实际上`key`并不是`ThreadLocal`本身，而是它的一个**弱引用**）。
+`ThreadLocalMap` có cài đặt độc lập của riêng nó, ta có thể đơn giản coi `key` của nó là `ThreadLocal`, `value` là giá trị được đặt vào trong mã (thực ra `key` không phải là bản thân `ThreadLocal`, mà là một **tham chiếu yếu** của nó).
 
-每个线程在往`ThreadLocal`里放值的时候，都会往自己的`ThreadLocalMap`里存，读也是以`ThreadLocal`作为引用，在自己的`map`里找对应的`key`，从而实现了**线程隔离**。
+Mỗi luồng khi đặt giá trị vào `ThreadLocal` đều sẽ lưu vào `ThreadLocalMap` của chính mình, khi đọc cũng dùng `ThreadLocal` làm tham chiếu để tìm `key` tương ứng trong `map` của mình, từ đó thực hiện **cách ly luồng**.
 
-`ThreadLocalMap`有点类似`HashMap`的结构，只是`HashMap`是由**数组+链表**实现的，而`ThreadLocalMap`中并没有**链表**结构。
+`ThreadLocalMap` có cấu trúc hơi giống `HashMap`, chỉ là `HashMap` được triển khai bằng **mảng + danh sách liên kết**, còn `ThreadLocalMap` không có cấu trúc **danh sách liên kết**.
 
-我们还要注意`Entry`， 它的`key`是`ThreadLocal<?> k` ，继承自`WeakReference`， 也就是我们常说的弱引用类型。
+Cần chú ý đến `Entry`, key của nó là `ThreadLocal<?> k`, kế thừa từ `WeakReference`, tức là loại tham chiếu yếu mà chúng ta thường nói đến.
 
-### GC 之后 key 是否为 null？
+### Sau GC, key có phải là null không?
 
-回应开头的那个问题， `ThreadLocal` 的`key`是弱引用，那么在`ThreadLocal.get()`的时候，发生`GC`之后，`key`是否是`null`？
+Trả lời câu hỏi đầu bài, key của `ThreadLocal` là tham chiếu yếu, vậy khi thực hiện `ThreadLocal.get()`, sau khi xảy ra `GC`, key có phải là `null` không?
 
-为了搞清楚这个问题，我们需要搞清楚`Java`的**四种引用类型**：
+Để hiểu rõ vấn đề này, ta cần hiểu **bốn loại tham chiếu** trong `Java`:
 
-- **强引用**：我们常常 new 出来的对象就是强引用类型，只要强引用存在，垃圾回收器将永远不会回收被引用的对象，哪怕内存不足的时候
-- **软引用**：使用 SoftReference 修饰的对象被称为软引用，软引用指向的对象在内存要溢出的时候被回收
-- **弱引用**：使用 WeakReference 修饰的对象被称为弱引用，只要发生垃圾回收，若这个对象只被弱引用指向，那么就会被回收
-- **虚引用**：虚引用是最弱的引用，在 Java 中使用 PhantomReference 进行定义。虚引用中唯一的作用就是用队列接收对象即将死亡的通知
+- **Tham chiếu mạnh (Strong Reference)**: Các đối tượng được tạo bằng new thường là loại tham chiếu mạnh. Khi tham chiếu mạnh còn tồn tại, garbage collector sẽ không bao giờ thu hồi đối tượng được tham chiếu, dù bộ nhớ có thiếu
+- **Tham chiếu mềm (Soft Reference)**: Đối tượng được trang trí bằng SoftReference được gọi là tham chiếu mềm, đối tượng được tham chiếu mềm trỏ đến sẽ bị thu hồi khi bộ nhớ sắp tràn
+- **Tham chiếu yếu (Weak Reference)**: Đối tượng được trang trí bằng WeakReference được gọi là tham chiếu yếu, miễn là xảy ra thu gom rác, nếu đối tượng này chỉ được trỏ bởi tham chiếu yếu thì sẽ bị thu hồi
+- **Tham chiếu ảo (Phantom Reference)**: Tham chiếu ảo là loại tham chiếu yếu nhất trong Java, được định nghĩa bằng PhantomReference. Tác dụng duy nhất của tham chiếu ảo là dùng hàng đợi để nhận thông báo khi đối tượng sắp chết
 
-接着再来看下代码，我们使用反射的方式来看看`GC`后`ThreadLocal`中的数据情况：(下面代码来源自：<https://blog.csdn.net/thewindkee/article/details/103726942> 本地运行演示 GC 回收场景)
+Tiếp theo hãy xem mã, ta dùng reflection để xem dữ liệu trong `ThreadLocal` sau `GC`: (mã dưới đây có nguồn từ: <https://blog.csdn.net/thewindkee/article/details/103726942> chạy cục bộ để demo kịch bản thu hồi GC)
 
 ```java
 public class ThreadLocalDemo {
@@ -148,7 +148,7 @@ public class ThreadLocalDemo {
 }
 ```
 
-结果如下：
+Kết quả như sau:
 
 ```java
 弱引用key:java.lang.ThreadLocal@433619b6,值:abc
@@ -159,31 +159,31 @@ public class ThreadLocalDemo {
 
 ![](./images/thread-local/3.png)
 
-如图所示，因为这里创建的`ThreadLocal`并没有指向任何值，也就是没有任何引用：
+Như hình, vì `ThreadLocal` được tạo ở đây không trỏ đến bất kỳ giá trị nào, tức là không có tham chiếu nào:
 
 ```java
 new ThreadLocal<>().set(s);
 ```
 
-所以这里在`GC`之后，`key`就会被回收，我们看到上面`debug`中的`referent=null`, 如果**改动一下代码：**
+Vì vậy sau `GC`, `key` sẽ bị thu hồi, ta thấy trong debug ở trên `referent=null`. Nếu **thay đổi mã một chút:**
 
 ![](./images/thread-local/4.png)
 
-这个问题刚开始看，如果没有过多思考，**弱引用**，还有**垃圾回收**，那么肯定会觉得是`null`。
+Câu hỏi này lúc mới nhìn, nếu không suy nghĩ nhiều, **tham chiếu yếu**, và **thu gom rác**, chắc chắn sẽ nghĩ là `null`.
 
-其实是不对的，因为题目说的是在做 `ThreadLocal.get()` 操作，证明其实还是有**强引用**存在的，所以 `key` 并不为 `null`，如下图所示，`ThreadLocal`的**强引用**仍然是存在的。
+Thực ra không đúng, vì đề bài nói đang thực hiện `ThreadLocal.get()`, chứng tỏ thực ra vẫn có **tham chiếu mạnh** tồn tại, vì vậy `key` không phải là `null`. Như hình dưới, **tham chiếu mạnh** đến `ThreadLocal` vẫn còn tồn tại.
 
 ![](./images/thread-local/5.png)
 
-如果我们的**强引用**不存在的话，那么 `key` 就会被回收，也就是会出现我们 `value` 没被回收，`key` 被回收，导致 `value` 永远存在，出现内存泄漏。
+Nếu **tham chiếu mạnh** của ta không tồn tại, thì `key` sẽ bị thu hồi, tức là sẽ xảy ra tình trạng `value` không bị thu hồi, `key` bị thu hồi, dẫn đến `value` tồn tại mãi mãi, gây ra rò rỉ bộ nhớ.
 
-### `ThreadLocal.set()`方法源码详解
+### Phân tích mã nguồn phương thức `ThreadLocal.set()`
 
 ![](./images/thread-local/6.png)
 
-`ThreadLocal`中的`set`方法原理如上图所示，很简单，主要是判断`ThreadLocalMap`是否存在，然后使用`ThreadLocal`中的`set`方法进行数据处理。
+Nguyên lý của phương thức `set` trong `ThreadLocal` như hình trên, rất đơn giản, chủ yếu là kiểm tra xem `ThreadLocalMap` có tồn tại hay không, sau đó dùng phương thức `set` trong `ThreadLocal` để xử lý dữ liệu.
 
-代码如下：
+Mã như sau:
 
 ```java
 public void set(T value) {
@@ -200,19 +200,19 @@ void createMap(Thread t, T firstValue) {
 }
 ```
 
-主要的核心逻辑还是在`ThreadLocalMap`中的，一步步往下看，后面还有更详细的剖析。
+Logic cốt lõi chính vẫn nằm trong `ThreadLocalMap`, hãy tiếp tục xem xuống, phía sau sẽ có phân tích chi tiết hơn.
 
-### `ThreadLocalMap` Hash 算法
+### Thuật toán Hash của `ThreadLocalMap`
 
-既然是`Map`结构，那么`ThreadLocalMap`当然也要实现自己的`hash`算法来解决散列表数组冲突问题。
+Vì là cấu trúc `Map`, `ThreadLocalMap` tất nhiên cũng phải triển khai thuật toán `hash` riêng để giải quyết vấn đề xung đột mảng bảng băm.
 
 ```java
 int i = key.threadLocalHashCode & (len-1);
 ```
 
-`ThreadLocalMap`中`hash`算法很简单，这里`i`就是当前 key 在散列表中对应的数组下标位置。
+Thuật toán `hash` trong `ThreadLocalMap` rất đơn giản, ở đây `i` chính là chỉ số mảng tương ứng của key hiện tại trong bảng băm.
 
-这里最关键的就是`threadLocalHashCode`值的计算，`ThreadLocal`中有一个属性为`HASH_INCREMENT = 0x61c88647`
+Điều quan trọng nhất ở đây là cách tính giá trị `threadLocalHashCode`. Trong `ThreadLocal` có một thuộc tính `HASH_INCREMENT = 0x61c88647`
 
 ```java
 public class ThreadLocal<T> {
@@ -239,99 +239,101 @@ public class ThreadLocal<T> {
 }
 ```
 
-每当创建一个`ThreadLocal`对象，这个`ThreadLocal.nextHashCode` 这个值就会增长 `0x61c88647` 。
+Mỗi khi tạo một đối tượng `ThreadLocal`, giá trị `ThreadLocal.nextHashCode` này sẽ tăng thêm `0x61c88647`.
 
-这个值很特殊，它是**斐波那契数** 也叫 **黄金分割数**。`hash`增量为 这个数字，带来的好处就是 `hash` **分布非常均匀**。
+Giá trị này rất đặc biệt, đó là **số Fibonacci** hay còn gọi là **tỷ lệ vàng**. Increment hash là số này mang lại lợi ích là hash **phân bố rất đều**.
 
-我们自己可以尝试下：
+Ta có thể tự thử:
 
 ![](./images/thread-local/8.png)
 
-可以看到产生的哈希码分布很均匀，这里不去细纠**斐波那契**具体算法，感兴趣的可以自行查阅相关资料。
+Có thể thấy các mã hash được tạo ra phân bố rất đều. Ở đây không đi sâu vào thuật toán **Fibonacci** cụ thể, những ai quan tâm có thể tự tìm hiểu.
 
-### `ThreadLocalMap` Hash 冲突
+### Xung đột Hash trong `ThreadLocalMap`
 
-> **注明：** 下面所有示例图中，**绿色块**`Entry`代表**正常数据**，**灰色块**代表`Entry`的`key`值为`null`，**已被垃圾回收**。**白色块**表示`Entry`为`null`。
+> **Lưu ý:** Trong tất cả các hình ví dụ dưới đây, **khối xanh** `Entry` đại diện cho **dữ liệu bình thường**, **khối xám** đại diện cho `Entry` có giá trị `key` là `null`, **đã bị thu gom rác**. **Khối trắng** đại diện cho `Entry` là `null`.
 
-虽然`ThreadLocalMap`中使用了**黄金分割数**来作为`hash`计算因子，大大减少了`Hash`冲突的概率，但是仍然会存在冲突。
+Mặc dù `ThreadLocalMap` sử dụng **tỷ lệ vàng** làm hệ số tính hash, giảm đáng kể xác suất xung đột `Hash`, nhưng vẫn sẽ có xung đột.
 
-`HashMap`中解决冲突的方法是在数组上构造一个**链表**结构，冲突的数据挂载到链表上，如果链表长度超过一定数量则会转化成**红黑树**。
+Cách giải quyết xung đột trong `HashMap` là xây dựng cấu trúc **danh sách liên kết** trên mảng, dữ liệu xung đột được treo vào danh sách liên kết, nếu độ dài danh sách liên kết vượt quá một số nhất định sẽ chuyển đổi thành **cây đỏ-đen**.
 
-而 `ThreadLocalMap` 中并没有链表结构，所以这里不能使用 `HashMap` 解决冲突的方式了。
+Còn `ThreadLocalMap` không có cấu trúc danh sách liên kết, vì vậy không thể dùng cách giải quyết xung đột của `HashMap`.
 
 ![](./images/thread-local/7.png)
 
-如上图所示，如果我们插入一个`value=27`的数据，通过 `hash` 计算后应该落入槽位 4 中，而槽位 4 已经有了 `Entry` 数据。
+Như hình trên, nếu ta chèn dữ liệu `value=27`, sau khi tính `hash` nên rơi vào slot 4, nhưng slot 4 đã có dữ liệu `Entry`.
 
-此时就会线性向后查找，一直找到 `Entry` 为 `null` 的槽位才会停止查找，将当前元素放入此槽位中。当然迭代过程中还有其他的情况，比如遇到了 `Entry` 不为 `null` 且 `key` 值相等的情况，还有 `Entry` 中的 `key` 值为 `null` 的情况等等都会有不同的处理，后面会一一详细讲解。
+Lúc này sẽ tìm kiếm tuyến tính về phía sau, cho đến khi tìm thấy slot có `Entry` là `null` mới dừng tìm kiếm và đặt phần tử hiện tại vào slot đó. Tất nhiên trong quá trình lặp cũng có các tình huống khác, như gặp `Entry` không phải `null` mà `key` bằng nhau, hoặc tình huống `key` trong `Entry` là `null`, v.v., đều có xử lý khác nhau, sẽ giải thích chi tiết từng cái sau.
 
-这里还画了一个`Entry`中的`key`为`null`的数据（**Entry=2 的灰色块数据**），因为`key`值是**弱引用**类型，所以会有这种数据存在。在`set`过程中，如果遇到了`key`过期的`Entry`数据，实际上是会进行一轮**探测式清理**操作的，具体操作方式后面会讲到。
+Ở đây cũng vẽ một dữ liệu có `key` là `null` trong `Entry` (**dữ liệu khối xám Entry=2**), vì loại `key` là **tham chiếu yếu**, nên sẽ có loại dữ liệu này. Trong quá trình `set`, nếu gặp dữ liệu `Entry` với key đã hết hạn, thực ra sẽ thực hiện một vòng **dọn dẹp thăm dò**, cách thực hiện cụ thể sẽ nói sau.
 
-### `ThreadLocalMap.set()`详解
+### Chi tiết về `ThreadLocalMap.set()`
 
-#### `ThreadLocalMap.set()`原理图解
+#### Giải thích nguyên lý `ThreadLocalMap.set()` bằng sơ đồ
 
-看完了`ThreadLocal` **hash 算法**后，我们再来看`set`是如何实现的。
+Sau khi xem **thuật toán hash** của `ThreadLocal`, hãy xem cách `set` được triển khai.
 
-往`ThreadLocalMap`中`set`数据（**新增**或者**更新**数据）分为好几种情况，针对不同的情况我们画图来说明。
+Việc `set` dữ liệu vào `ThreadLocalMap` (**thêm mới** hoặc **cập nhật** dữ liệu) chia thành nhiều trường hợp, ta dùng hình vẽ để minh họa từng trường hợp.
 
-**第一种情况：** 通过`hash`计算后的槽位对应的`Entry`数据为空：
+**Trường hợp 1:** Dữ liệu `Entry` ở vị trí slot sau khi tính `hash` là rỗng:
 
 ![](./images/thread-local/9.png)
 
-这里直接将数据放到该槽位即可。
+Ở đây đặt trực tiếp dữ liệu vào slot đó.
 
-**第二种情况：** 槽位数据不为空，`key`值与当前`ThreadLocal`通过`hash`计算获取的`key`值一致：
+**Trường hợp 2:** Dữ liệu slot không rỗng, giá trị `key` nhất quán với giá trị `key` lấy được qua `hash` của `ThreadLocal` hiện tại:
 
 ![](./images/thread-local/10.png)
 
-这里直接更新该槽位的数据。
+Ở đây cập nhật trực tiếp dữ liệu của slot đó.
 
-**第三种情况：** 槽位数据不为空，往后遍历过程中，在找到`Entry`为`null`的槽位之前，没有遇到`key`过期的`Entry`：
+**Trường hợp 3:** Dữ liệu slot không rỗng, trong quá trình duyệt về phía sau, trước khi tìm thấy slot có `Entry` là `null`, không gặp `Entry` với key hết hạn:
 
 ![](./images/thread-local/11.png)
 
-遍历散列数组，线性往后查找，如果找到`Entry`为`null`的槽位，则将数据放入该槽位中，或者往后遍历过程中，遇到了**key 值相等**的数据，直接更新即可。
+Duyệt mảng băm, tìm kiếm tuyến tính về phía sau. Nếu tìm thấy slot có `Entry` là `null`, đặt dữ liệu vào slot đó; hoặc trong quá trình duyệt gặp dữ liệu có **key bằng nhau**, cập nhật trực tiếp.
 
-**第四种情况：** 槽位数据不为空，往后遍历过程中，在找到`Entry`为`null`的槽位之前，遇到`key`过期的`Entry`，如下图，往后遍历过程中，遇到了`index=7`的槽位数据`Entry`的`key=null`：
+**Trường hợp 4:** Dữ liệu slot không rỗng, trong quá trình duyệt về phía sau, trước khi tìm thấy slot có `Entry` là `null`, gặp `Entry` với key hết hạn. Như hình dưới, trong quá trình duyệt về phía sau, gặp dữ liệu `Entry` ở slot có chỉ số `index=7` với `key=null`:
 
 ![](./images/thread-local/12.png)
 
-散列数组下标为 7 位置对应的`Entry`数据`key`为`null`，表明此数据`key`值已经被垃圾回收掉了，此时就会执行`replaceStaleEntry()`方法，该方法含义是**替换过期数据的逻辑**，以**index=7**位起点开始遍历，进行探测式数据清理工作。
+Dữ liệu `Entry` tại chỉ số mảng băm 7 có `key` là `null`, cho thấy giá trị `key` của dữ liệu này đã bị garbage collector thu hồi. Lúc này sẽ thực hiện phương thức `replaceStaleEntry()`, phương thức này có nghĩa là **logic thay thế dữ liệu hết hạn**. Bắt đầu duyệt từ **index=7** làm điểm khởi đầu, thực hiện công việc dọn dẹp dữ liệu hết hạn bằng thăm dò.
 
-初始化探测式清理过期数据扫描的开始位置：`slotToExpunge = staleSlot = 7`
+Khởi tạo vị trí bắt đầu quét dọn dẹp dữ liệu hết hạn bằng thăm dò: `slotToExpunge = staleSlot = 7`
 
-以当前`staleSlot`开始 向前迭代查找，找其他过期的数据，然后更新过期数据起始扫描下标`slotToExpunge`。`for`循环迭代，直到碰到`Entry`为`null`结束。
+Từ `staleSlot` hiện tại duyệt **về phía trước** tìm các dữ liệu hết hạn khác, sau đó cập nhật chỉ số bắt đầu quét `slotToExpunge`. Vòng lặp `for` lặp cho đến khi gặp `Entry` là `null` mới kết thúc.
 
-如果找到了过期的数据，继续向前迭代，直到遇到`Entry=null`的槽位才停止迭代，如下图所示，**slotToExpunge 被更新为 0**：
+Nếu tìm thấy dữ liệu hết hạn, tiếp tục duyệt về phía trước cho đến khi gặp slot có `Entry=null` mới dừng lặp. Như hình dưới, **slotToExpunge được cập nhật thành 0**:
 
 ![](./images/thread-local/13.png)
 
-以当前节点(`index=7`)向前迭代，检测是否有过期的`Entry`数据，如果有则更新`slotToExpunge`值。碰到`null`则结束探测。以上图为例`slotToExpunge`被更新为 0。
+Duyệt về phía trước từ nút hiện tại (`index=7`), kiểm tra xem có dữ liệu `Entry` hết hạn không, nếu có thì cập nhật giá trị `slotToExpunge`. Gặp `null` thì kết thúc thăm dò. Lấy ví dụ hình trên, `slotToExpunge` được cập nhật thành 0.
 
-上面向前迭代的操作是为了更新探测清理过期数据的起始下标`slotToExpunge`的值，这个值在后面会讲解，它是用来判断当前过期槽位`staleSlot`之前是否还有过期元素。
+Thao tác duyệt về phía trước ở trên là để cập nhật giá trị chỉ số bắt đầu `slotToExpunge` của việc dọn dẹp dữ liệu hết hạn. Giá trị này sẽ được giải thích sau, nó dùng để xác định xem trước slot hết hạn `staleSlot` có còn phần tử hết hạn nào không.
 
-接着开始以`staleSlot`位置(`index=7`)向后迭代，**如果找到了相同 key 值的 Entry 数据：**
+Tiếp theo bắt đầu duyệt về phía sau từ vị trí `staleSlot` (`index=7`). **Nếu tìm thấy dữ liệu Entry có cùng giá trị key:**
 
 ![](./images/thread-local/14.png)
 
-从当前节点`staleSlot`向后查找`key`值相等的`Entry`元素，找到后更新`Entry`的值并交换`staleSlot`元素的位置(`staleSlot`位置为过期元素)，更新`Entry`数据，然后开始进行过期`Entry`的清理工作，如下图所示：
+Từ nút hiện tại `staleSlot` tìm phần tử `Entry` có `key` bằng nhau về phía sau. Sau khi tìm thấy, cập nhật giá trị `Entry` và trao đổi vị trí của phần tử `staleSlot` (`staleSlot` là phần tử hết hạn), cập nhật dữ liệu `Entry`, sau đó bắt đầu dọn dẹp các `Entry` hết hạn như hình:
 
-![](https://oss.javaguide.cn/java-guide-blog/view.png)向后遍历过程中，如果没有找到相同 key 值的 Entry 数据：
+![](https://oss.javaguide.cn/java-guide-blog/view.png)
+
+Trong quá trình duyệt về phía sau, nếu không tìm thấy dữ liệu Entry có cùng giá trị key:
 
 ![](./images/thread-local/15.png)
 
-从当前节点`staleSlot`向后查找`key`值相等的`Entry`元素，直到`Entry`为`null`则停止寻找。通过上图可知，此时`table`中没有`key`值相同的`Entry`。
+Từ nút hiện tại `staleSlot` tìm phần tử `Entry` có giá trị `key` bằng nhau về phía sau, cho đến khi `Entry` là `null` mới dừng tìm kiếm. Qua hình trên, lúc này trong `table` không có `Entry` có `key` giống nhau.
 
-创建新的`Entry`，替换`table[stableSlot]`位置：
+Tạo `Entry` mới, thay thế vị trí `table[stableSlot]`:
 
 ![](./images/thread-local/16.png)
 
-替换完成后也是进行过期元素清理工作，清理工作主要是有两个方法：`expungeStaleEntry()`和`cleanSomeSlots()`，具体细节后面会讲到，请继续往后看。
+Sau khi thay thế xong cũng tiến hành dọn dẹp các phần tử hết hạn. Công việc dọn dẹp chủ yếu có hai phương thức: `expungeStaleEntry()` và `cleanSomeSlots()`, chi tiết sẽ nói sau, hãy tiếp tục đọc.
 
-#### `ThreadLocalMap.set()`源码详解
+#### Phân tích mã nguồn `ThreadLocalMap.set()`
 
-上面已经用图的方式解析了`set()`实现的原理，其实已经很清晰了，我们接着再看下源码：
+Ở trên đã phân tích nguyên lý triển khai của `set()` bằng hình ảnh, thực ra đã khá rõ ràng rồi. Tiếp tục xem mã nguồn:
 
 `java.lang.ThreadLocal`.`ThreadLocalMap.set()`:
 
@@ -364,7 +366,7 @@ private void set(ThreadLocal<?> key, Object value) {
 }
 ```
 
-这里会通过`key`来计算在散列表中的对应位置，然后以当前`key`对应的桶的位置向后查找，找到可以使用的桶。
+Ở đây sẽ tính vị trí tương ứng trong bảng băm qua `key`, sau đó từ vị trí bucket tương ứng của `key` hiện tại tìm về phía sau, tìm bucket có thể sử dụng.
 
 ```java
 Entry[] tab = table;
@@ -372,13 +374,13 @@ int len = tab.length;
 int i = key.threadLocalHashCode & (len-1);
 ```
 
-什么情况下桶才是可以使用的呢？
+Khi nào bucket mới có thể sử dụng?
 
-1. `k = key` 说明是替换操作，可以使用
-2. 碰到一个过期的桶，执行替换逻辑，占用过期桶
-3. 查找过程中，碰到桶中`Entry=null`的情况，直接使用
+1. `k = key` nghĩa là thao tác thay thế, có thể sử dụng
+2. Gặp bucket hết hạn, thực hiện logic thay thế, chiếm bucket hết hạn
+3. Trong quá trình tìm kiếm, gặp trường hợp `Entry=null` trong bucket, sử dụng trực tiếp
 
-接着就是执行`for`循环遍历，向后查找，我们先看下`nextIndex()`、`prevIndex()`方法实现：
+Tiếp theo thực hiện vòng lặp `for` duyệt về phía sau. Trước tiên xem cài đặt của `nextIndex()`, `prevIndex()`:
 
 ![](./images/thread-local/17.png)
 
@@ -392,20 +394,20 @@ private static int prevIndex(int i, int len) {
 }
 ```
 
-接着看剩下`for`循环中的逻辑：
+Tiếp tục xem logic còn lại trong vòng lặp `for`:
 
-1. 遍历当前`key`值对应的桶中`Entry`数据为空，这说明散列数组这里没有数据冲突，跳出`for`循环，直接`set`数据到对应的桶中
-2. 如果`key`值对应的桶中`Entry`数据不为空  
-   2.1 如果`k = key`，说明当前`set`操作是一个替换操作，做替换逻辑，直接返回  
-   2.2 如果`key = null`，说明当前桶位置的`Entry`是过期数据，执行`replaceStaleEntry()`方法(核心方法)，然后返回
-3. `for`循环执行完毕，继续往下执行说明向后迭代的过程中遇到了`entry`为`null`的情况  
-   3.1 在`Entry`为`null`的桶中创建一个新的`Entry`对象  
-   3.2 执行`++size`操作
-4. 调用`cleanSomeSlots()`做一次启发式清理工作，清理散列数组中`Entry`的`key`过期的数据  
-   4.1 如果清理工作完成后，未清理到任何数据，且`size`超过了阈值(数组长度的 2/3)，进行`rehash()`操作  
-   4.2 `rehash()`中会先进行一轮探测式清理，清理过期`key`，清理完成后如果**size >= threshold - threshold / 4**，就会执行真正的扩容逻辑(扩容逻辑往后看)
+1. Dữ liệu `Entry` trong bucket tương ứng với giá trị `key` hiện tại là rỗng, điều này cho thấy không có xung đột dữ liệu ở mảng băm này. Thoát khỏi vòng lặp `for`, trực tiếp `set` dữ liệu vào bucket tương ứng
+2. Nếu dữ liệu `Entry` trong bucket tương ứng với `key` không rỗng
+   - 2.1 Nếu `k = key`, thao tác `set` hiện tại là thao tác thay thế, thực hiện logic thay thế, trả về trực tiếp
+   - 2.2 Nếu `key = null`, dữ liệu `Entry` ở vị trí bucket hiện tại là dữ liệu hết hạn, thực hiện phương thức `replaceStaleEntry()` (phương thức cốt lõi), sau đó trả về
+3. Vòng lặp `for` thực hiện xong, tiếp tục đi xuống cho thấy trong quá trình lặp về phía sau gặp tình huống `entry` là `null`
+   - 3.1 Trong bucket có `Entry` là `null`, tạo đối tượng `Entry` mới
+   - 3.2 Thực hiện thao tác `++size`
+4. Gọi `cleanSomeSlots()` để thực hiện một lần dọn dẹp heuristic, dọn dẹp dữ liệu `Entry` có `key` hết hạn trong mảng băm
+   - 4.1 Nếu sau khi dọn dẹp không dọn được dữ liệu nào, và `size` vượt quá ngưỡng (2/3 độ dài mảng), thực hiện thao tác `rehash()`
+   - 4.2 Trong `rehash()` trước tiên sẽ thực hiện một vòng dọn dẹp thăm dò, dọn dẹp các `key` hết hạn. Sau khi dọn dẹp xong nếu **size >= threshold - threshold / 4**, sẽ thực hiện logic mở rộng thực sự (logic mở rộng xem phía sau)
 
-接着重点看下`replaceStaleEntry()`方法，`replaceStaleEntry()`方法提供替换过期数据的功能，我们可以对应上面**第四种情况**的原理图来再回顾下，具体代码如下：
+Tiếp theo tập trung vào phương thức `replaceStaleEntry()`. Phương thức này cung cấp chức năng thay thế dữ liệu hết hạn, ta có thể kết hợp với sơ đồ nguyên lý **trường hợp 4** ở trên để xem lại. Mã cụ thể như sau:
 
 `java.lang.ThreadLocal.ThreadLocalMap.replaceStaleEntry()`:
 
@@ -454,7 +456,7 @@ private void replaceStaleEntry(ThreadLocal<?> key, Object value,
 }
 ```
 
-`slotToExpunge`表示开始探测式清理过期数据的开始下标，默认从当前的`staleSlot`开始。以当前的`staleSlot`开始，向前迭代查找，找到没有过期的数据，`for`循环一直碰到`Entry`为`null`才会结束。如果向前找到了过期数据，更新探测清理过期数据的开始下标为 i，即`slotToExpunge=i`
+`slotToExpunge` biểu thị chỉ số bắt đầu của việc dọn dẹp dữ liệu hết hạn bằng thăm dò, mặc định bắt đầu từ `staleSlot` hiện tại. Từ `staleSlot` hiện tại, duyệt về phía trước tìm dữ liệu không hết hạn, vòng lặp `for` tiếp tục cho đến khi gặp `Entry` là `null` mới kết thúc. Nếu tìm thấy dữ liệu hết hạn khi duyệt về phía trước, cập nhật chỉ số bắt đầu dọn dẹp thành i, tức là `slotToExpunge=i`
 
 ```java
 for (int i = prevIndex(staleSlot, len);
@@ -467,8 +469,8 @@ for (int i = prevIndex(staleSlot, len);
 }
 ```
 
-接着开始从`staleSlot`向后查找，也是碰到`Entry`为`null`的桶结束。
-如果迭代过程中，**碰到 k == key**，这说明这里是替换逻辑，替换新数据并且交换当前`staleSlot`位置。如果`slotToExpunge == staleSlot`，这说明`replaceStaleEntry()`一开始向前查找过期数据时并未找到过期的`Entry`数据，接着向后查找过程中也未发现过期数据，修改开始探测式清理过期数据的下标为当前循环的 index，即`slotToExpunge = i`。最后调用`cleanSomeSlots(expungeStaleEntry(slotToExpunge), len);`进行启发式过期数据清理。
+Tiếp theo bắt đầu tìm về phía sau từ `staleSlot`, cũng kết thúc ở bucket có `Entry` là `null`.
+Nếu trong quá trình lặp, **gặp k == key**, cho thấy đây là logic thay thế. Thay thế dữ liệu mới và trao đổi vị trí `staleSlot` hiện tại. Nếu `slotToExpunge == staleSlot`, điều này có nghĩa là khi `replaceStaleEntry()` tìm về phía trước ban đầu không tìm thấy dữ liệu `Entry` hết hạn nào. Sau đó trong quá trình tìm về phía sau cũng không phát hiện dữ liệu hết hạn, cập nhật chỉ số bắt đầu dọn dẹp thăm dò thành chỉ số vòng lặp hiện tại, tức là `slotToExpunge = i`. Cuối cùng gọi `cleanSomeSlots(expungeStaleEntry(slotToExpunge), len);` để thực hiện dọn dẹp dữ liệu hết hạn theo heuristic.
 
 ```java
 if (k == key) {
@@ -485,66 +487,66 @@ if (k == key) {
 }
 ```
 
-`cleanSomeSlots()`和`expungeStaleEntry()`方法后面都会细讲，这两个是和清理相关的方法，一个是过期`key`相关`Entry`的启发式清理(`Heuristically scan`)，另一个是过期`key`相关`Entry`的探测式清理。
+Cả `cleanSomeSlots()` lẫn `expungeStaleEntry()` sẽ được giải thích chi tiết sau. Đây là hai phương thức liên quan đến dọn dẹp, một cái là dọn dẹp heuristic (Heuristically scan) cho `Entry` liên quan đến `key` hết hạn, cái còn lại là dọn dẹp thăm dò cho `Entry` liên quan đến `key` hết hạn.
 
-**如果 k != key**则会接着往下走，`k == null`说明当前遍历的`Entry`是一个过期数据，`slotToExpunge == staleSlot`说明，一开始的向前查找数据并未找到过期的`Entry`。如果条件成立，则更新`slotToExpunge` 为当前位置，这个前提是前驱节点扫描时未发现过期数据。
+**Nếu k != key** thì tiếp tục đi xuống, `k == null` cho thấy `Entry` đang duyệt là dữ liệu hết hạn, `slotToExpunge == staleSlot` cho thấy khi tìm dữ liệu về phía trước ban đầu không tìm thấy `Entry` hết hạn nào. Nếu điều kiện thỏa mãn, cập nhật `slotToExpunge` thành vị trí hiện tại, điều kiện tiên quyết là nút tiền nhiệm không có dữ liệu hết hạn khi quét.
 
 ```java
 if (k == null && slotToExpunge == staleSlot)
     slotToExpunge = i;
 ```
 
-往后迭代的过程中如果没有找到`k == key`的数据，且碰到`Entry`为`null`的数据，则结束当前的迭代操作。此时说明这里是一个添加的逻辑，将新的数据添加到`table[staleSlot]` 对应的`slot`中。
+Trong quá trình lặp về phía sau nếu không tìm thấy dữ liệu `k == key` và gặp dữ liệu `Entry` là `null`, kết thúc thao tác lặp hiện tại. Lúc này cho thấy đây là logic thêm mới, thêm dữ liệu mới vào `slot` tương ứng với `table[staleSlot]`.
 
 ```java
 tab[staleSlot].value = null;
 tab[staleSlot] = new Entry(key, value);
 ```
 
-最后判断除了`staleSlot`以外，还发现了其他过期的`slot`数据，就要开启清理数据的逻辑：
+Cuối cùng kiểm tra xem ngoài `staleSlot`, còn có dữ liệu slot hết hạn khác không. Nếu có thì bắt đầu logic dọn dẹp dữ liệu:
 
 ```java
 if (slotToExpunge != staleSlot)
     cleanSomeSlots(expungeStaleEntry(slotToExpunge), len);
 ```
 
-### `ThreadLocalMap`过期 key 的探测式清理流程
+### Quy trình dọn dẹp thăm dò key hết hạn của `ThreadLocalMap`
 
-上面我们有提及`ThreadLocalMap`的两种过期`key`数据清理方式：**探测式清理**和**启发式清理**。
+Ở trên đã đề cập đến hai cách dọn dẹp dữ liệu `key` hết hạn của `ThreadLocalMap`: **dọn dẹp thăm dò** và **dọn dẹp heuristic**.
 
-我们先讲下探测式清理，也就是`expungeStaleEntry`方法，遍历散列数组，从开始位置向后探测清理过期数据，将过期数据的`Entry`设置为`null`，沿途中碰到未过期的数据则将此数据`rehash`后重新在`table`数组中定位，如果定位的位置已经有了数据，则会将未过期的数据放到最靠近此位置的`Entry=null`的桶中，使`rehash`后的`Entry`数据距离正确的桶的位置更近一些。操作逻辑如下：
+Trước tiên nói về dọn dẹp thăm dò, tức là phương thức `expungeStaleEntry`. Duyệt mảng băm, thăm dò và dọn dẹp dữ liệu hết hạn từ vị trí bắt đầu về phía sau, đặt `Entry` của dữ liệu hết hạn thành `null`. Dọc đường gặp dữ liệu chưa hết hạn sẽ `rehash` lại và tìm vị trí trong mảng `table`, nếu vị trí tìm được đã có dữ liệu rồi, sẽ đặt dữ liệu chưa hết hạn vào bucket `Entry=null` gần nhất với vị trí này, giúp `Entry` sau `rehash` gần hơn với vị trí bucket đúng. Logic thao tác như sau:
 
 ![](./images/thread-local/18.png)
 
-如上图，`set(27)` 经过 hash 计算后应该落到`index=4`的桶中，由于`index=4`桶已经有了数据，所以往后迭代最终数据放入到`index=7`的桶中，放入后一段时间后`index=5`中的`Entry`数据`key`变为了`null`
+Như hình, `set(27)` sau khi tính hash nên rơi vào bucket `index=4`. Do bucket `index=4` đã có dữ liệu rồi, nên duyệt về phía sau và cuối cùng đặt dữ liệu vào bucket `index=7`. Sau một thời gian, `key` của dữ liệu `Entry` trong `index=5` trở thành `null`
 
 ![](./images/thread-local/19.png)
 
-如果再有其他数据`set`到`map`中，就会触发**探测式清理**操作。
+Nếu có dữ liệu khác được `set` vào `map`, sẽ kích hoạt thao tác **dọn dẹp thăm dò**.
 
-如上图，执行**探测式清理**后，`index=5`的数据被清理掉，继续往后迭代，到`index=7`的元素时，经过`rehash`后发现该元素正确的`index=4`，而此位置已经有了数据，往后查找离`index=4`最近的`Entry=null`的节点(刚被探测式清理掉的数据：`index=5`)，找到后移动`index= 7`的数据到`index=5`中，此时桶的位置离正确的位置`index=4`更近了。
+Như hình trên, sau khi thực hiện **dọn dẹp thăm dò**, dữ liệu tại `index=5` được dọn sạch. Tiếp tục lặp về phía sau, đến phần tử `index=7`, sau khi `rehash` phát hiện `index` đúng của phần tử này là 4, nhưng vị trí này đã có dữ liệu rồi. Tìm nút `Entry=null` gần `index=4` nhất (dữ liệu vừa được dọn bằng thăm dò: `index=5`), sau đó di chuyển dữ liệu `index=7` sang `index=5`. Lúc này vị trí bucket gần hơn với vị trí đúng `index=4`.
 
-经过一轮探测式清理后，`key`过期的数据会被清理掉，没过期的数据经过`rehash`重定位后所处的桶位置理论上更接近`i= key.hashCode & (tab.len - 1)`的位置。这种优化会提高整个散列表查询性能。
+Sau một vòng dọn dẹp thăm dò, dữ liệu có `key` hết hạn sẽ được dọn sạch, dữ liệu không hết hạn sau khi `rehash` định vị lại sẽ ở vị trí bucket gần hơn về lý thuyết với vị trí `i= key.hashCode & (tab.len - 1)`. Tối ưu hóa này sẽ cải thiện hiệu suất truy vấn của toàn bộ bảng băm.
 
-接着看下`expungeStaleEntry()`具体流程，我们还是以先原理图后源码讲解的方式来一步步梳理：
+Tiếp theo xem quy trình cụ thể của `expungeStaleEntry()`, vẫn theo cách giải thích bằng sơ đồ nguyên lý trước rồi mới xem mã nguồn:
 
 ![](./images/thread-local/20.png)
 
-我们假设`expungeStaleEntry(3)` 来调用此方法，如上图所示，我们可以看到`ThreadLocalMap`中`table`的数据情况，接着执行清理操作：
+Ta giả sử gọi `expungeStaleEntry(3)` để gọi phương thức này. Như hình trên, ta có thể thấy tình trạng dữ liệu của `table` trong `ThreadLocalMap`. Tiếp theo thực hiện thao tác dọn dẹp:
 
 ![](./images/thread-local/21.png)
 
-第一步是清空当前`staleSlot`位置的数据，`index=3`位置的`Entry`变成了`null`。然后接着往后探测：
+Bước đầu tiên là xóa dữ liệu ở vị trí `tab[staleSlot]` hiện tại, `Entry` ở vị trí `index=3` trở thành `null`. Sau đó tiếp tục thăm dò về phía sau:
 
 ![](./images/thread-local/22.png)
 
-执行完第二步后，index=4 的元素挪到 index=3 的槽位中。
+Sau khi thực hiện bước hai, phần tử tại index=4 được di chuyển sang slot index=3.
 
-继续往后迭代检查，碰到正常数据，计算该数据位置是否偏移，如果被偏移，则重新计算`slot`位置，目的是让正常数据尽可能存放在正确位置或离正确位置更近的位置
+Tiếp tục lặp kiểm tra về phía sau, gặp dữ liệu bình thường, tính xem vị trí dữ liệu này có bị lệch không, nếu bị lệch thì tính lại vị trí `slot`, mục đích là để dữ liệu bình thường được lưu ở vị trí đúng hoặc gần vị trí đúng hơn
 
 ![](./images/thread-local/23.png)
 
-在往后迭代的过程中碰到空的槽位，终止探测，这样一轮探测式清理工作就完成了，接着我们继续看看具体**实现源代码**：
+Trong quá trình lặp về phía sau gặp slot rỗng, kết thúc thăm dò. Như vậy một vòng dọn dẹp thăm dò hoàn tất. Tiếp tục xem **mã nguồn triển khai** cụ thể:
 
 ```java
 private int expungeStaleEntry(int staleSlot) {
@@ -580,8 +582,8 @@ private int expungeStaleEntry(int staleSlot) {
 }
 ```
 
-这里我们还是以`staleSlot=3` 来做示例说明，首先是将`tab[staleSlot]`槽位的数据清空，然后设置`size--`
-接着以`staleSlot`位置往后迭代，如果遇到`k==null`的过期数据，也是清空该槽位数据，然后`size--`
+Ở đây ta vẫn lấy `staleSlot=3` làm ví dụ. Trước tiên xóa dữ liệu ở slot `tab[staleSlot]`, sau đó đặt `size--`
+Tiếp theo lặp về phía sau từ vị trí `staleSlot`. Nếu gặp dữ liệu hết hạn `k==null`, cũng xóa dữ liệu slot đó, rồi `size--`
 
 ```java
 ThreadLocal<?> k = e.get();
@@ -593,7 +595,7 @@ if (k == null) {
 }
 ```
 
-如果`key`没有过期，重新计算当前`key`的下标位置是不是当前槽位下标位置，如果不是，那么说明产生了`hash`冲突，此时以新计算出来正确的槽位位置往后迭代，找到最近一个可以存放`entry`的位置。
+Nếu `key` chưa hết hạn, tính lại xem chỉ số vị trí của `key` hiện tại có phải là chỉ số slot hiện tại không. Nếu không, cho thấy đã xảy ra xung đột `hash`, lúc này từ chỉ số slot đúng đã tính lại mới đó, lặp về phía sau tìm vị trí gần nhất có thể lưu `entry`.
 
 ```java
 int h = k.threadLocalHashCode & (len - 1);
@@ -607,18 +609,18 @@ if (h != i) {
 }
 ```
 
-这里是处理正常的产生`Hash`冲突的数据，经过迭代后，有过`Hash`冲突数据的`Entry`位置会更靠近正确位置，这样的话，查询的时候 效率才会更高。
+Đây là xử lý dữ liệu bình thường có xung đột `Hash`. Sau khi lặp, `Entry` có xung đột `Hash` sẽ ở vị trí gần vị trí đúng hơn, điều này giúp hiệu quả truy vấn cao hơn.
 
-### `ThreadLocalMap`扩容机制
+### Cơ chế mở rộng của `ThreadLocalMap`
 
-在`ThreadLocalMap.set()`方法的最后，如果执行完启发式清理工作后，未清理到任何数据，且当前散列数组中`Entry`的数量已经达到了列表的扩容阈值`(len*2/3)`，就开始执行`rehash()`逻辑：
+Ở cuối phương thức `ThreadLocalMap.set()`, nếu sau khi thực hiện dọn dẹp heuristic mà không dọn được dữ liệu nào, và số lượng `Entry` trong mảng băm hiện tại đã đạt đến ngưỡng mở rộng `(len*2/3)`, bắt đầu thực hiện logic `rehash()`:
 
 ```java
 if (!cleanSomeSlots(i, sz) && sz >= threshold)
     rehash();
 ```
 
-接着看下`rehash()`具体实现：
+Tiếp theo xem cài đặt cụ thể của `rehash()`:
 
 ```java
 private void rehash() {
@@ -639,17 +641,17 @@ private void expungeStaleEntries() {
 }
 ```
 
-这里首先是会进行探测式清理工作，从`table`的起始位置往后清理，上面有分析清理的详细流程。清理完成之后，`table`中可能有一些`key`为`null`的`Entry`数据被清理掉，所以此时通过判断`size >= threshold - threshold / 4` 也就是`size >= threshold * 3/4` 来决定是否扩容。
+Ở đây trước tiên thực hiện dọn dẹp thăm dò, dọn dẹp từ vị trí bắt đầu của `table` về phía sau. Ở trên đã phân tích chi tiết về quy trình dọn dẹp. Sau khi dọn dẹp xong, trong `table` có thể có một số dữ liệu `Entry` với `key` là `null` đã được dọn sạch. Vì vậy lúc này dùng phán đoán `size >= threshold - threshold / 4` tức là `size >= threshold * 3/4` để quyết định có mở rộng hay không.
 
-我们还记得上面进行`rehash()`的阈值是`size >= threshold`，所以当面试官套路我们`ThreadLocalMap`扩容机制的时候 我们一定要说清楚这两个步骤：
+Ta nhớ ngưỡng để thực hiện `rehash()` ở trên là `size >= threshold`. Vì vậy khi người phỏng vấn hỏi về cơ chế mở rộng của `ThreadLocalMap`, ta nhất định phải nói rõ hai bước này:
 
 ![](./images/thread-local/24.png)
 
-接着看看具体的`resize()`方法，为了方便演示，我们以`oldTab.len=8`来举例：
+Tiếp theo xem phương thức `resize()` cụ thể. Để tiện minh họa, ta lấy `oldTab.len=8` làm ví dụ:
 
 ![](./images/thread-local/25.png)
 
-扩容后的`tab`的大小为`oldLen * 2`，然后遍历老的散列表，重新计算`hash`位置，然后放到新的`tab`数组中，如果出现`hash`冲突则往后寻找最近的`entry`为`null`的槽位，遍历完成之后，`oldTab`中所有的`entry`数据都已经放入到新的`tab`中了。重新计算`tab`下次扩容的**阈值**，具体代码如下：
+Kích thước của `tab` sau khi mở rộng là `oldLen * 2`. Sau đó duyệt bảng băm cũ, tính lại vị trí `hash`, đặt vào mảng `tab` mới. Nếu có xung đột `hash` thì tìm vị trí `entry` là `null` gần nhất phía sau. Sau khi duyệt xong, tất cả dữ liệu `entry` trong `oldTab` đã được đưa vào `tab` mới. Tính lại **ngưỡng** mở rộng lần sau của `tab`. Mã cụ thể như sau:
 
 ```java
 private void resize() {
@@ -681,27 +683,27 @@ private void resize() {
 }
 ```
 
-### `ThreadLocalMap.get()`详解
+### Chi tiết về `ThreadLocalMap.get()`
 
-上面已经看完了`set()`方法的源码，其中包括`set`数据、清理数据、优化数据桶的位置等操作，接着看看`get()`操作的原理。
+Ở trên đã xem xong mã nguồn của phương thức `set()`, bao gồm các thao tác set dữ liệu, dọn dẹp dữ liệu, tối ưu hóa vị trí bucket. Tiếp theo xem nguyên lý thao tác `get()`.
 
-#### `ThreadLocalMap.get()`图解
+#### Sơ đồ giải thích `ThreadLocalMap.get()`
 
-**第一种情况：** 通过查找`key`值计算出散列表中`slot`位置，然后该`slot`位置中的`Entry.key`和查找的`key`一致，则直接返回：
+**Trường hợp 1:** Tính vị trí `slot` trong bảng băm qua giá trị `key`, sau đó `Entry.key` ở vị trí `slot` đó nhất quán với `key` cần tìm, trả về trực tiếp:
 
 ![](./images/thread-local/26.png)
 
-**第二种情况：** `slot`位置中的`Entry.key`和要查找的`key`不一致：
+**Trường hợp 2:** `Entry.key` ở vị trí `slot` không nhất quán với `key` cần tìm:
 
 ![](./images/thread-local/27.png)
 
-我们以`get(ThreadLocal1)`为例，通过`hash`计算后，正确的`slot`位置应该是 4，而`index=4`的槽位已经有了数据，且`key`值不等于`ThreadLocal1`，所以需要继续往后迭代查找。
+Ta lấy `get(ThreadLocal1)` làm ví dụ. Sau khi tính `hash`, vị trí `slot` đúng phải là 4. Nhưng slot `index=4` đã có dữ liệu, và giá trị `key` không bằng `ThreadLocal1`, nên cần tiếp tục lặp về phía sau để tìm.
 
-迭代到`index=5`的数据时，此时`Entry.key=null`，触发一次探测式数据回收操作，执行`expungeStaleEntry()`方法，执行完后，`index 5,8`的数据都会被回收，而`index 6,7`的数据都会前移。`index 6,7`前移之后，继续从 `index=5` 往后迭代，于是就在 `index=6` 找到了`key`值相等的`Entry`数据，如下图所示：
+Khi lặp đến dữ liệu `index=5`, lúc này `Entry.key=null`, kích hoạt một thao tác thu hồi dữ liệu thăm dò. Thực hiện phương thức `expungeStaleEntry()`. Sau khi thực hiện xong, dữ liệu tại `index 5,8` sẽ bị thu hồi, còn dữ liệu tại `index 6,7` sẽ được dịch lên trước. Sau khi `index 6,7` dịch lên, tiếp tục lặp từ `index=5` về phía sau. Do đó tìm thấy dữ liệu `Entry` có giá trị `key` bằng nhau tại `index=6`, như hình:
 
 ![](./images/thread-local/28.png)
 
-#### `ThreadLocalMap.get()`源码详解
+#### Phân tích mã nguồn `ThreadLocalMap.get()`
 
 `java.lang.ThreadLocal.ThreadLocalMap.getEntry()`:
 
@@ -733,17 +735,17 @@ private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
 }
 ```
 
-### `ThreadLocalMap`过期 key 的启发式清理流程
+### Quy trình dọn dẹp heuristic key hết hạn của `ThreadLocalMap`
 
-上面多次提及到`ThreadLocalMap`过期 key 的两种清理方式：**探测式清理(expungeStaleEntry())**、**启发式清理(cleanSomeSlots())**
+Ở trên đã đề cập nhiều đến hai cách dọn dẹp key hết hạn của `ThreadLocalMap`: **dọn dẹp thăm dò (expungeStaleEntry())**, **dọn dẹp heuristic (cleanSomeSlots())**
 
-探测式清理是以当前`Entry` 往后清理，遇到值为`null`则结束清理，属于**线性探测清理**。
+Dọn dẹp thăm dò là dọn dẹp về phía sau từ `Entry` hiện tại, gặp giá trị `null` thì kết thúc dọn dẹp, thuộc loại **dọn dẹp thăm dò tuyến tính**.
 
-而启发式清理被作者定义为：**Heuristically scan some cells looking for stale entries**.
+Còn dọn dẹp heuristic được tác giả định nghĩa là: **Heuristically scan some cells looking for stale entries**.
 
 ![](./images/thread-local/29.png)
 
-具体代码如下：
+Mã cụ thể như sau:
 
 ```java
 private boolean cleanSomeSlots(int i, int n) {
@@ -765,9 +767,9 @@ private boolean cleanSomeSlots(int i, int n) {
 
 ### `InheritableThreadLocal`
 
-我们使用`ThreadLocal`的时候，在异步场景下是无法给子线程共享父线程中创建的线程副本数据的。
+Khi sử dụng `ThreadLocal`, trong các kịch bản bất đồng bộ, không thể chia sẻ dữ liệu bản sao luồng được tạo trong luồng cha cho luồng con.
 
-为了解决这个问题，JDK 中还有一个`InheritableThreadLocal`类，我们来看一个例子：
+Để giải quyết vấn đề này, JDK còn có lớp `InheritableThreadLocal`. Hãy xem một ví dụ:
 
 ```java
 public class InheritableThreadLocalDemo {
@@ -788,14 +790,14 @@ public class InheritableThreadLocalDemo {
 }
 ```
 
-打印结果：
+Kết quả in:
 
 ```java
 子线程获取父类ThreadLocal数据：null
 子线程获取父类inheritableThreadLocal数据：父类数据:inheritableThreadLocal
 ```
 
-实现原理是子线程是通过在父线程中通过调用`new Thread()`方法来创建子线程，`Thread#init`方法在`Thread`的构造方法中被调用。在`init`方法中拷贝父线程数据到子线程中：
+Nguyên lý triển khai là luồng con được tạo ra trong luồng cha bằng cách gọi phương thức `new Thread()`. Phương thức `Thread#init` được gọi trong constructor của `Thread`. Trong phương thức `init` sao chép dữ liệu luồng cha sang luồng con:
 
 ```java
 private void init(ThreadGroup g, Runnable target, String name,
@@ -813,33 +815,33 @@ private void init(ThreadGroup g, Runnable target, String name,
 }
 ```
 
-但`InheritableThreadLocal`仍然有缺陷，一般我们做异步化处理都是使用的线程池，而`InheritableThreadLocal`是在`new Thread`中的`init()`方法给赋值的，而线程池是线程复用的逻辑，所以这里会存在问题。
+Nhưng `InheritableThreadLocal` vẫn có nhược điểm. Thông thường xử lý bất đồng bộ ta dùng thread pool, còn `InheritableThreadLocal` được gán giá trị trong phương thức `init()` của `new Thread`. Thread pool tái sử dụng luồng, nên sẽ có vấn đề ở đây.
 
-当然，有问题出现就会有解决问题的方案，阿里巴巴开源了一个`TransmittableThreadLocal`组件就可以解决这个问题，这里就不再延伸，感兴趣的可自行查阅资料。
+Tất nhiên, khi có vấn đề thì sẽ có giải pháp. Alibaba đã mã nguồn mở một thành phần `TransmittableThreadLocal` có thể giải quyết vấn đề này. Ở đây không đi sâu thêm, những ai quan tâm có thể tự tìm hiểu.
 
-### `ThreadLocal`项目中使用实战
+### Thực chiến sử dụng `ThreadLocal` trong dự án
 
-#### `ThreadLocal`使用场景
+#### Các trường hợp sử dụng `ThreadLocal`
 
-我们现在项目中日志记录用的是`ELK+Logstash`，最后在`Kibana`中进行展示和检索。
+Trong dự án hiện tại, ta dùng `ELK+Logstash` để ghi log, và cuối cùng hiển thị và tìm kiếm trong `Kibana`.
 
-现在都是分布式系统统一对外提供服务，项目间调用的关系可以通过 `traceId` 来关联，但是不同项目之间如何传递 `traceId` 呢？
+Hiện tại đều là hệ thống phân tán cung cấp dịch vụ thống nhất ra bên ngoài. Mối quan hệ giữa các dự án có thể liên kết qua `traceId`. Nhưng làm thế nào để truyền `traceId` giữa các dự án khác nhau?
 
-这里我们使用 `org.slf4j.MDC` 来实现此功能，内部就是通过 `ThreadLocal` 来实现的，具体实现如下：
+Ở đây ta dùng `org.slf4j.MDC` để thực hiện chức năng này, bên trong nó được triển khai bằng `ThreadLocal`. Cài đặt cụ thể như sau:
 
-当前端发送请求到**服务 A**时，**服务 A**会生成一个类似`UUID`的`traceId`字符串，将此字符串放入当前线程的`ThreadLocal`中，在调用**服务 B**的时候，将`traceId`写入到请求的`Header`中，**服务 B**在接收请求时会先判断请求的`Header`中是否有`traceId`，如果存在则写入自己线程的`ThreadLocal`中。
+Khi frontend gửi request đến **dịch vụ A**, **dịch vụ A** sẽ tạo một chuỗi `traceId` tương tự `UUID`, đặt chuỗi này vào `ThreadLocal` của luồng hiện tại. Khi gọi **dịch vụ B**, ghi `traceId` vào `Header` của request. Khi **dịch vụ B** nhận request, trước tiên sẽ kiểm tra xem `Header` của request có `traceId` không. Nếu có thì ghi vào `ThreadLocal` của luồng mình.
 
 ![](./images/thread-local/30.png)
 
-图中的`requestId`即为我们各个系统链路关联的`traceId`，系统间互相调用，通过这个`requestId`即可找到对应链路，这里还有会有一些其他场景：
+`requestId` trong hình chính là `traceId` liên kết các hệ thống của ta. Các hệ thống gọi lẫn nhau, qua `requestId` này có thể tìm thấy liên kết tương ứng. Ở đây cũng có một số tình huống khác:
 
 ![](./images/thread-local/31.png)
 
-针对于这些场景，我们都可以有相应的解决方案，如下所示
+Với những tình huống này, ta đều có giải pháp tương ứng như sau
 
-#### Feign 远程调用解决方案
+#### Giải pháp gọi từ xa Feign
 
-**服务发送请求：**
+**Dịch vụ gửi request:**
 
 ```java
 @Component
@@ -856,7 +858,7 @@ public class FeignInvokeInterceptor implements RequestInterceptor {
 }
 ```
 
-**服务接收请求：**
+**Dịch vụ nhận request:**
 
 ```java
 @Slf4j
@@ -885,9 +887,9 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
 }
 ```
 
-#### 线程池异步调用，requestId 传递
+#### Gọi bất đồng bộ thread pool, truyền requestId
 
-因为`MDC`是基于`ThreadLocal`去实现的，异步过程中，子线程并没有办法获取到父线程`ThreadLocal`存储的数据，所以这里可以自定义线程池执行器，修改其中的`run()`方法：
+Vì `MDC` được triển khai dựa trên `ThreadLocal`, trong quá trình bất đồng bộ, luồng con không thể lấy được dữ liệu lưu trong `ThreadLocal` của luồng cha. Vì vậy có thể tùy chỉnh thread pool executor, sửa đổi phương thức `run()` trong đó:
 
 ```java
 public class MyThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
@@ -912,8 +914,8 @@ public class MyThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 }
 ```
 
-#### 使用 MQ 发送消息给第三方系统
+#### Dùng MQ gửi tin nhắn cho hệ thống bên thứ ba
 
-在 MQ 发送的消息体中自定义属性`requestId`，接收方消费消息后，自己解析`requestId`使用即可。
+Trong nội dung tin nhắn MQ tùy chỉnh thuộc tính `requestId`. Sau khi bên nhận tiêu thụ tin nhắn, tự phân tích `requestId` để sử dụng.
 
 <!-- @include: @article-footer.snippet.md -->

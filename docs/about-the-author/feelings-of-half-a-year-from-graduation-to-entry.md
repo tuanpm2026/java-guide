@@ -1,55 +1,55 @@
 ---
-title: 从毕业到入职半年的感受
-description: 应届生入职半年的工作感受，CRUD业务代码的价值、技术积累靠工作之余、从学校到职场的转变心得分享。
-category: 走近作者
+title: Cảm nhận nửa năm từ tốt nghiệp đến đi làm
+description: Cảm nhận làm việc nửa năm của fresh graduate, giá trị của code business CRUD, tích lũy kỹ thuật qua giờ làm thêm, chia sẻ tâm đắc về sự chuyển đổi từ trường học sang môi trường công sở.
+category: Về tác giả
 tag:
-  - 个人经历
+  - Trải nghiệm cá nhân
 ---
 
-如果大家看过我之前的介绍的话，就会知道我是 19 年毕业的几百万应届毕业生中的一员。这篇文章主要讲了一下我入职大半年的感受，文中有很多自己的主观感受，如果你们有任何不认同的地方都可以直接在评论区说出来，会很尊重其他人的想法。
+Nếu các bạn đã đọc phần giới thiệu của mình trước đây, sẽ biết mình là một trong hàng triệu sinh viên tốt nghiệp năm 2019. Bài viết này chủ yếu nói về cảm nhận sau hơn nửa năm đi làm. Bài có nhiều cảm nhận chủ quan, nếu bạn không đồng ý ở điểm nào, hãy nói thẳng trong phần comment, mình rất tôn trọng quan điểm của người khác.
 
-简单说一下自己的情况吧！我目前是在一家外企，每天的工作和大部分人一样就是做开发。毕业到现在，差不多也算是工作半年多了，也已经过了公司 6 个月的试用期。目前在公司做过两个偏向于业务方向的项目，其中一个正在做。你很难想象我在公司做的两个业务项目的后端都没有涉及到分布式/微服务，没有接触到 Redis、Kafka 等等比较“高大上”的技术在项目中的实际运用。
+Nói qua về tình hình của mình! Hiện tại mình đang làm tại một công ty nước ngoài, công việc hàng ngày giống như hầu hết mọi người là làm development. Từ tốt nghiệp đến nay, tính ra cũng làm được hơn nửa năm, đã qua thời gian thử việc 6 tháng của công ty. Hiện tại mình đã làm qua hai dự án thiên về hướng business, trong đó một cái đang làm. Bạn khó có thể tưởng tượng hai dự án business backend mình làm ở công ty đều không đụng đến distributed/microservices, không tiếp xúc với ứng dụng thực tế của các công nghệ "xịn xò" như Redis, Kafka trong dự án.
 
-第一个项目做的是公司的内部项目——员工成长系统。抛去员工成长系统这个名字，实际上这个系统做的就是绩效考核比如你在某个项目组的表现。这个项目的技术是 Spring Boot+ JPA + Spring Security + K8S + Docker + React。第二个目前正在做的是一个集成游戏 (cocos)、Web 管理端 (Spring Boot + Vue) 和小程序 (Taro) 项目。
+Dự án đầu tiên là dự án nội bộ của công ty — hệ thống phát triển nhân viên. Bỏ cái tên đó đi, thực ra hệ thống này làm về đánh giá hiệu suất như biểu hiện của bạn trong một nhóm dự án cụ thể. Stack kỹ thuật của dự án này là Spring Boot + JPA + Spring Security + K8S + Docker + React. Dự án thứ hai đang làm hiện tại là một dự án tích hợp game (cocos), Web management (Spring Boot + Vue) và mini-program (Taro).
 
-是的，我在工作中的大部分时间都和 CRUD 有关，每天也会写前端页面。之前我认识的一个朋友 ，他听说我做的项目中大部分内容都是写业务代码之后就非常纳闷，他觉得单纯写业务代码得不到提升？what?你一个应届生，连业务代码都写不好你给我说这个！所以，**我就很纳闷不知道为什么现在很多连业务代码都写不好的人为什么人听到 CRUD 就会反感？至少我觉得在我工作这段时间我的代码质量得到了提升、定位问题的能力有了很大的改进、对于业务有了更深的认识，自己也可以独立完成一些前端的开发了。**
+Đúng vậy, phần lớn thời gian làm việc của mình liên quan đến CRUD, mỗi ngày cũng viết cả frontend. Trước đây có một người bạn mình quen, khi nghe mình nói phần lớn nội dung dự án là viết business code thì rất thắc mắc, họ cho rằng chỉ viết business code thì không thể tiến bộ được? Ơ? Bạn là fresh graduate, code business còn chưa viết tốt mà nói chuyện đó với mình! Vì vậy **mình rất thắc mắc không hiểu sao nhiều người ngay cả business code còn chưa viết tốt lại nghe đến CRUD là tỏ ra khó chịu? Ít nhất mình thấy trong thời gian đi làm này chất lượng code của mình đã cải thiện, khả năng định vị vấn đề tiến bộ rất nhiều, hiểu sâu hơn về business, và bản thân cũng có thể độc lập hoàn thành một số frontend development rồi.**
 
-其实，我个人觉得能把业务代码写好也没那么容易，抱怨自己天天做 CRUD 工作之前，看看自己 CRUD 的代码写好没。再换句话说，单纯写 CRUD 的过程中你搞懂了哪些你常用的注解或者类吗？这就像一个只会 `@Service`、`@Autowired`、`@RestController`等等最简单的注解的人说我已经掌握了 Spring Boot 一样。
+Thực ra mình cá nhân thấy viết business code tốt cũng không hề dễ, trước khi than thở mình ngày nào cũng CRUD, hãy nhìn lại xem code CRUD của mình đã viết tốt chưa. Nói cách khác, trong quá trình chỉ viết CRUD, bạn có hiểu những annotation hay class bạn thường dùng không? Điều này giống như một người chỉ biết `@Service`, `@Autowired`, `@RestController` và các annotation đơn giản nhất nói rằng mình đã nắm vững Spring Boot vậy.
 
-不知道什么时候开始大家都会觉得有实际使用 Redis、MQ 的经验就很牛逼了，这可能和当前的面试环境有关系。你需要和别人有差异，你想进大厂的话，好像就必须要这些技术比较在行，好吧，没有好像，自信点来说对于大部分求职者这些技术都是默认你必备的了。
+Không biết tự lúc nào mọi người đều nghĩ có kinh nghiệm thực tế dùng Redis, MQ thì rất giỏi, có lẽ liên quan đến môi trường phỏng vấn hiện tại. Bạn cần tạo sự khác biệt với người khác, muốn vào big tech thì dường như phải thành thạo những công nghệ đó, thôi bỏ "dường như" đi, nói thẳng ra là với hầu hết ứng viên, những công nghệ này đã là yêu cầu mặc định rồi.
 
-**实话实说，我在大学的时候就陷入过这个“伪命题”中**。在大学的时候，我大二因为加入了一个学校的偏技术方向的校媒才接触到 Java ，当时我们学习 Java 的目的就是开发一个校园通。 大二的时候，编程相当于才入门水平的我才接触 Java，花了一段时间才掌握 Java 基础。然后，就开始学习安卓开发。
+**Thật lòng mà nói, hồi đại học mình cũng từng sa vào "ngụy mệnh đề" này.** Hồi đại học, năm hai mình mới tiếp xúc Java vì gia nhập một câu lạc bộ thiên về kỹ thuật của trường, lúc đó mục đích học Java là để phát triển một app campus. Năm hai, lập trình mới ở mức nhập môn, mình mới tiếp xúc Java, mất một thời gian mới nắm được Java cơ bản. Rồi bắt đầu học Android development.
 
-到了大三上学期，我才真正确定要走 Java 后台的方向，找 Java 后台的开发工作。学习了 3 个月左右的 WEB 开发基础之后，我就开始学习分布式方面内容比如 Redis、Dubbo 这些。我当时是通过看书 + 视频 + 博客的方式学习的，自学过程中通过看视频自己做过两个完整的项目，一个普通的业务系统，一个是分布式的系统。**我当时以为自己做完之后就很牛逼了，我觉得普通的 CRUD 工作已经不符合我当前的水平了。哈哈！现在看来，当时的我过于哈皮！**
+Đến học kỳ 1 năm ba, mình mới thực sự xác định đi theo hướng Java backend, tìm việc Java backend developer. Sau khoảng 3 tháng học web development cơ bản, mình bắt đầu học nội dung về distributed như Redis, Dubbo. Lúc đó mình học qua đọc sách + xem video + blog, trong quá trình tự học đã làm qua hai dự án hoàn chỉnh bằng cách xem video, một dự án business thông thường, một dự án distributed. **Lúc đó mình tưởng làm xong là mình rất giỏi rồi, mình nghĩ công việc CRUD thông thường không xứng tầm với level hiện tại của mình nữa. Ha ha! Giờ nhìn lại, mình hồi đó thật là ngây thơ!**
 
-这不！到了大三暑假跟着老师一起做项目的时候就出问题了。大三的时候，我们跟着老师做的是一个绩效考核系统，业务复杂程度中等。这个项目的技术用的是：SSM + Shiro + JSP。当时，做这个项目的时候我遇到各种问题，各种我以为我会写的代码都不会写了，甚至我写一个简单的 CRUD 都要花费好几天的时间。所以，那时候我都是边复习边学习边写代码。虽然很累，但是，那时候学到了很多，也让我在技术面前变得更加踏实。我觉得这“**这个项目已经没有维护的可能性**”这句话是我对我过的这个项目最大的否定了。
+Rồi đây! Đến kỳ hè năm ba làm dự án cùng thầy giáo là gặp vấn đề. Năm ba, chúng mình cùng thầy làm một hệ thống đánh giá hiệu suất, mức độ nghiệp vụ phức tạp trung bình. Stack kỹ thuật của dự án này là: SSM + Shiro + JSP. Lúc đó làm dự án này mình gặp đủ loại vấn đề, đủ loại code mình tưởng mình viết được lại không viết được, thậm chí viết một CRUD đơn giản cũng tốn vài ngày. Vì vậy, lúc đó mình vừa ôn lại vừa học thêm vừa viết code. Tuy mệt, nhưng lúc đó học được rất nhiều, cũng giúp mình trở nên thực tế hơn trước công nghệ. Mình nghĩ câu **"dự án này đã không còn khả năng maintain nữa"** là sự phủ nhận lớn nhất của mình với dự án đó.
 
-技术千变万化，掌握最核心的才是王道。我们前几年可能还在用 Spring 基于传统的 XML 开发，现在几乎大家都会用 Spring Boot 这个开发利器来提升开发速度，再比如几年前我们使用消息队列可能还在用 ActiveMQ，到今天几乎都没有人用它了，现在比较常用的就是 Rocket MQ、Kafka 。技术更新换代这么快的今天，你是无法把每一个框架/工具都学习一遍的。
+Công nghệ thay đổi không ngừng, nắm vững cái cốt lõi nhất mới là vương đạo. Vài năm trước có thể mọi người vẫn dùng Spring phát triển theo kiểu XML truyền thống, giờ gần như ai cũng dùng Spring Boot để tăng tốc độ phát triển; rồi vài năm trước dùng message queue có thể vẫn dùng ActiveMQ, đến nay gần như không còn ai dùng nữa, hiện tại phổ biến nhất là Rocket MQ, Kafka. Trong thời đại công nghệ thay đổi nhanh như vậy, bạn không thể học hết từng framework/tool một.
 
-**很多初学者上来就想通过做项目学习，特别是在公司，我觉得这个是不太可取的。** 如果的 Java 基础或者 Spring Boot 基础不好的话，建议自己先提前学习一下之后再开始看视频或者通过其他方式做项目。 **还有一点就是，我不知道为什么大家都会说边跟着项目边学习做的话效果最好，我觉得这个要加一个前提是你对这门技术有基本的了解或者说你对编程有了一定的了解。**
+**Nhiều người mới học lên muốn học thông qua làm dự án, đặc biệt là ở công ty, mình thấy điều này không phù hợp lắm.** Nếu nền tảng Java hoặc Spring Boot chưa vững, mình khuyên nên tự học trước một chút rồi mới xem video hay làm dự án theo cách khác. **Một điểm nữa là mình không hiểu sao mọi người đều nói vừa theo dự án vừa học thì hiệu quả nhất, mình thấy cần thêm một tiền đề: bạn có hiểu biết cơ bản về công nghệ đó, hoặc bạn đã có nền tảng lập trình nhất định.**
 
-**划重点！！！在自己基础没打牢的情况下，单纯跟着视频做一点用没有。你会发现你看完视频之后，让你自己写代码的时候又不会写了。**
+**Ghi chú quan trọng!!! Khi nền tảng chưa vững, chỉ đơn giản xem video theo sẽ vô dụng. Bạn sẽ thấy xem xong video rồi, đến lúc tự viết code lại không viết được.**
 
-不知道其他公司的程序员是怎么样的？我感觉技术积累很大程度在乎平时，单纯依靠工作绝大部分情况只会加快自己做需求的熟练度，当然，写多了之后或多或少也会提升你对代码质量的认识（前提是你有这个意识）。
+Không biết programmers ở các công ty khác như thế nào? Mình thấy tích lũy kỹ thuật phần lớn phụ thuộc vào thời gian bình thường, chỉ dựa vào công việc phần lớn trường hợp chỉ tăng thêm sự thuần thục khi làm requirements, tất nhiên viết nhiều thì ít nhiều cũng nâng cao nhận thức của bạn về chất lượng code (tiền đề là bạn có ý thức đó).
 
-工作之余，我会利用业余时间来学习自己想学的东西。工作中的例子就是我刚进公司的第一个项目用到了 Spring Security + JWT ，因为当时自己对于这个技术不太了解，然后就在工作之外大概花了一周的时间学习写了一个 Demo 分享了出来，GitHub 地址：<https://github.com/Snailclimb/spring-security-jwt-guide> 。以次为契机，我还分享了
+Ngoài giờ làm việc, mình tận dụng thời gian rảnh để học những thứ mình muốn học. Ví dụ ở công ty là dự án đầu tiên khi mới vào công ty dùng Spring Security + JWT, lúc đó mình không hiểu lắm về công nghệ này, nên ngoài giờ làm mình mất khoảng một tuần học và viết một Demo chia sẻ ra, GitHub: <https://github.com/Snailclimb/spring-security-jwt-guide>. Nhân cơ hội đó, mình còn chia sẻ:
 
-- [《一问带你区分清楚 Authentication、Authorization 以及 Cookie、Session、Token》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485626&idx=1&sn=3247aa9000693dd692de8a04ccffeec1&chksm=cea24771f9d5ce675ea0203633a95b68bfe412dc6a9d05f22d221161147b76161d1b470d54b3&token=684071313&lang=zh_CN&scene=21#wechat_redirect)
-- [JWT 身份认证优缺点分析以及常见问题解决方案](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485655&idx=1&sn=583eeeb081ea21a8ec6347c72aa223d6&chksm=cea2471cf9d5ce0aa135f2fb9aa32d98ebb3338292beaccc1aae43d1178b16c0125eb4139ca4&token=1737409938&lang=zh_CN#rd)
+- [《Một câu giúp phân biệt rõ Authentication, Authorization cũng như Cookie, Session, Token》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485626&idx=1&sn=3247aa9000693dd692de8a04ccffeec1&chksm=cea24771f9d5ce675ea0203633a95b68bfe412dc6a9d05f22d221161147b76161d1b470d54b3&token=684071313&lang=zh_CN&scene=21#wechat_redirect)
+- [Phân tích ưu nhược điểm JWT authentication và giải pháp cho các vấn đề phổ biến](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485655&idx=1&sn=583eeeb081ea21a8ec6347c72aa223d6&chksm=cea2471cf9d5ce0aa135f2fb9aa32d98ebb3338292beaccc1aae43d1178b16c0125eb4139ca4&token=1737409938&lang=zh_CN#rd)
 
-另外一个最近的例子是因为肺炎疫情在家的这段时间，自学了 Kafka，并且正在准备写一系列的入门文章，目前已经完成了：
+Một ví dụ gần đây khác là trong khoảng thời gian ở nhà vì dịch bệnh, mình tự học Kafka và đang chuẩn bị viết một loạt bài nhập môn, hiện đã hoàn thành:
 
-1. 大白话 Kafka 入门；
-2. Kafka 安装和基本功能体验；
-3. Spring Boot 整合 Kafka 发送和接受消息；
-4. Spring Boot 整合 Kafka 发送和接受消息的一些事务、错误消息处理等等。
+1. Kafka nhập môn bằng ngôn ngữ đơn giản;
+2. Cài đặt Kafka và trải nghiệm chức năng cơ bản;
+3. Spring Boot tích hợp Kafka gửi và nhận message;
+4. Một số xử lý transaction, error message khi Spring Boot tích hợp Kafka gửi và nhận message.
 
-还没完成的：
+Chưa hoàn thành:
 
-1. Kafka 高级特性比如工作流程、Kafka 为什么快等等的分析；
-2. 源码阅读分析；
-3. ……
+1. Phân tích các tính năng nâng cao của Kafka như workflow, tại sao Kafka nhanh...;
+2. Đọc và phân tích source code;
+3. ...
 
-**所以，我觉得技术的积累和沉淀很大程度在乎工作之外的时间(大佬和一些本身就特别厉害的除外)。**
+**Vì vậy, mình nghĩ tích lũy và trầm lắng kỹ thuật phần lớn phụ thuộc vào thời gian ngoài giờ làm (ngoại trừ những đại thần và những người vốn đã rất giỏi).**
 
-**未来还有很长的路要走，即使再有精力也学不完你想学的所有技术，适当取舍、适当妥协，适当娱乐。**
+**Con đường phía trước còn dài, dù có nhiều sức lực cũng không học hết được tất cả công nghệ bạn muốn học, hãy biết lựa chọn, biết thỏa hiệp, biết giải trí đúng lúc.**

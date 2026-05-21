@@ -1,62 +1,62 @@
 ---
-title: 2026 最新后端面试 PDF 资料
-description: 2026 版后端面试 PDF 资料整理（JavaGuide）：梳理校招/社招高频考点与复习优先级，覆盖 Java 基础、集合、并发、MySQL、Redis、Spring/Spring Boot、JVM、系统设计与项目经验准备，帮你抓重点高效备战。
-category: 面试准备
+title: Tài liệu PDF phỏng vấn backend mới nhất 2026
+description: Tổng hợp tài liệu PDF phỏng vấn backend phiên bản 2026 (JavaGuide) - Tổng hợp điểm kiểm tra tần suất cao và thứ tự ưu tiên ôn tập cho campus/social recruitment, bao gồm Java basics, collections, concurrency, MySQL, Redis, Spring/Spring Boot, JVM, system design và chuẩn bị kinh nghiệm project.
+category: Interview Preparation
 icon: pdf
 head:
   - - meta
     - name: keywords
-      content: 后端面试PDF,Java面试PDF,PDF面试资料,Java八股文PDF,面试突击PDF,校招社招,Java后端面试,Java基础,Java集合,Java并发,JVM,MySQL,Redis,Spring Boot,系统设计,项目经验
+      content: backend interview PDF,Java interview PDF,PDF interview materials,Java technical questions PDF,interview quick review PDF,campus social recruitment,Java backend interview,Java basics,Java collections,Java concurrency,JVM,MySQL,Redis,Spring Boot,system design,project experience
 ---
 
-大家好，我是 Guide。
+Chào mọi người, tôi là Guide.
 
-**2026 版后端 PDF 面试资料终于搞定了！这次的更新量大得惊人，熬了几个通宵，总算能拿出来见人了。**
+**Tài liệu PDF phỏng vấn backend phiên bản 2026 cuối cùng đã xong! Lần cập nhật này lượng thay đổi rất lớn, thức mấy đêm liên tục, cuối cùng cũng có thể đem ra dùng được.**
 
-在上一版的基础上，我把内容又往深里挖了挖。目前这份资料已经涵盖了 **Java 核心、计算机基础、数据库、缓存、分布式、设计模式、智力题、学习路线、面经**等全方位内容。毫不夸张地说，你备战后端面试需要的硬核干货，这一份全包了！
+Dựa trên phiên bản trước, tôi đã đào sâu nội dung hơn nữa. Hiện tại tài liệu này đã bao phủ **Java core, computer basics, database, cache, distributed, design patterns, logic puzzles, learning path, interview experience** và nhiều nội dung toàn diện khác. Không ngoa mà nói, những nội dung cứng cốt bạn cần để chuẩn bị phỏng vấn backend, một bộ này bao hết!
 
-为了让大家看得更爽，我对其中大部分 PDF 进行了“推倒重来式”的优化：
+Để mọi người đọc thoải mái hơn, tôi đã tối ưu hóa phần lớn PDF theo kiểu "làm lại từ đầu":
 
-- **重构面试突击系列**：将原先臃肿的内容拆分成多篇，逻辑更清晰。
-- **重写设计模式总结**：新增多道高频设计模式面试题，优化内容表达。
-- **全方位细节完善**：每一个知识点都反复推敲，确保没有逻辑断层。
+- **Tái cấu trúc Interview Quick Review Series**: Tách nội dung cồng kềnh trước thành nhiều bài, logic rõ ràng hơn.
+- **Viết lại Design Patterns Summary**: Thêm nhiều câu hỏi phỏng vấn design patterns tần suất cao, cải thiện cách diễn đạt nội dung.
+- **Hoàn thiện chi tiết toàn diện**: Mỗi kiến thức đều được suy nghĩ đi suy nghĩ lại, đảm bảo không có logic gap.
 
 ![](https://oss.javaguide.cn/github/javaguide/intro/pdf-interview-javaguide.png)
 
-这些 PDF 面试资料的质量都非常高，绝大部分都是 Guide 的原创，也会有一些其他优质技术博主分享的原创资料。
+Chất lượng của các tài liệu PDF phỏng vấn này đều rất cao, phần lớn đều là original content của Guide, cũng có một số tài liệu original do các technical blogger chất lượng khác chia sẻ.
 
-之所以一直坚持出 PDF 版，是因为有一些朋友比较喜欢看 PDF 资料，甚至把 PDF 资料打印出来学习。
+Lý do vẫn kiên trì ra PDF version là vì một số bạn thích đọc tài liệu PDF, thậm chí in tài liệu PDF ra để học.
 
 ![](https://oss.javaguide.cn/github/javaguide/intro/pdf-interview-javaguide-chat.png)
 
-截止到目前，这套资料在各个渠道的汇总下载量已经突破了 **35w+** 。 说实话，这个数字对我来说不只是流量，更是沉甸甸的信任和责任。
+Tính đến nay, tổng số lượt download của bộ tài liệu này trên các kênh khác nhau đã vượt **35w+**. Thật ra con số này với tôi không chỉ là lưu lượng truy cập, mà là sự tin tưởng và trách nhiệm nặng nề.
 
-老规矩，没有任何花里胡哨的套路，直接**白嫖**： 在 **JavaGuide** 公众号后台回复 **PDF** 即可获取。
+Như thường lệ, không có gì phức tạp, trực tiếp **miễn phí**: Trả lời **PDF** trong phần backend của **JavaGuide** Official Account là có thể lấy.
 
-<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide 公众号"  style="zoom: 43%; display: block; margin: 0 auto;" />
+<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account"  style="zoom: 43%; display: block; margin: 0 auto;" />
 
-由于 PDF 的时效性问题，如果想要更完美的体验，个人其实还是更建议大家去 [JavaGuide](https://javaguide.cn/) 网站上在线阅读，内容更新，一直在持续完善。
+Do vấn đề về tính thời điểm của PDF, nếu muốn trải nghiệm hoàn hảo hơn, cá nhân thực ra vẫn khuyến nghị mọi người đọc online trên website [JavaGuide](https://javaguide.cn/), nội dung mới hơn và liên tục được hoàn thiện.
 
-## 部分内容概览
+## Tổng quan một phần nội dung
 
-**《JavaGuide 面试突击》— Java 集合**：
+**《JavaGuide Interview Quick Review》— Java Collections**:
 
-![《JavaGuide 面试突击》— Java 集合面试题总结](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-java-collection.png)
+![《JavaGuide Interview Quick Review》— Java Collections Interview Questions Summary](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-java-collection.png)
 
-**《JavaGuide 面试突击》— JVM**：
+**《JavaGuide Interview Quick Review》— JVM**:
 
-![《JavaGuide 面试突击》— JVM面试题总结](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-jvm.png)
+![《JavaGuide Interview Quick Review》— JVM Interview Questions Summary](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-jvm.png)
 
-**《JavaGuide 面试突击》—设计模式**：
+**《JavaGuide Interview Quick Review》— Design Patterns**:
 
-![《JavaGuide 面试突击》—设计模式面试题总结](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-design-pattern.png)
+![《JavaGuide Interview Quick Review》— Design Patterns Interview Questions Summary](https://oss.javaguide.cn/github/javaguide/intro/javaguide-mianshituji-design-pattern.png)
 
-**Java 学习路线**：
+**Java Learning Path**:
 
-![Java 学习路线 PDF 概览 - 亮色板](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf.png)
+![Java Learning Path PDF Overview - Light Mode](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf.png)
 
-## 如何获取？
+## Làm thế nào để lấy?
 
-老规矩，没有任何花里胡哨的套路，直接**白嫖**： 在 **JavaGuide** 公众号后台回复 **PDF** 即可获取。
+Như thường lệ, không có gì phức tạp, trực tiếp **miễn phí**: Trả lời **PDF** trong phần backend của **JavaGuide** Official Account là có thể lấy.
 
-<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide 公众号"  style="zoom: 43%; display: block; margin: 0 auto;" />
+<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account"  style="zoom: 43%; display: block; margin: 0 auto;" />

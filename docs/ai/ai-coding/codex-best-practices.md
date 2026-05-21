@@ -1,321 +1,321 @@
 ---
-title: OpenAI Codex 最佳实践指南：提示工程、工具配置与安全策略
-description: 综合官方文档与实战经验，系统梳理 OpenAI Codex 云端智能体和 CLI 的提示工程、工具配置、AGENTS.md 分层机制、安全模型与 API 高级特性。
-category: AI 编程实战
+title: Hướng dẫn thực hành tốt nhất cho OpenAI Codex：Kỹ thuật Prompt, Cấu hình công cụ và Chiến lược bảo mật
+description: Tổng hợp từ tài liệu chính thức và kinh nghiệm thực tế, hệ thống hóa kỹ thuật prompt, cấu hình công cụ, cơ chế phân cấp AGENTS.md, mô hình bảo mật và các tính năng nâng cao của API cho OpenAI Codex cloud agent và CLI.
+category: Thực chiến lập trình AI
 head:
   - - meta
     - name: keywords
       content: OpenAI Codex,Codex CLI,codex-1,提示工程,AGENTS.md,AI编程,AI辅助开发,o3
 ---
 
-# OpenAI Codex 最佳实践指南
+# Hướng dẫn thực hành tốt nhất cho OpenAI Codex
 
-大家好，我是 Guide。前面聊了 [Claude Code 的使用技巧](./claudecode-tips.md)，这篇来看看 OpenAI 阵营的主力编程工具——**Codex**。
+Xin chào mọi người, tôi là Guide. Trước đây chúng ta đã nói về [các mẹo sử dụng Claude Code](./claudecode-tips.md), bài này hãy cùng xem công cụ lập trình chủ lực từ phía OpenAI — **Codex**.
 
-OpenAI 在 2025 年推出了 Codex 系列产品线，涵盖基于 o3 模型的云端软件工程智能体（codex-1）和开源的终端编码助手 Codex CLI。它和传统的代码补全不同，能自己读代码、跑测试、提 PR，完成从理解到交付的完整闭环。但想让它真正好用，提示工程、工具配置、安全策略这几环缺一不可。
+OpenAI đã ra mắt dòng sản phẩm Codex vào năm 2025, bao gồm cloud agent phần mềm engineering dựa trên mô hình o3 (codex-1) và trợ lý coding terminal mã nguồn mở Codex CLI. Khác với tự động hoàn thành code truyền thống, nó có thể tự đọc code, chạy test, tạo PR, hoàn thành vòng khép kín từ hiểu vấn đề đến bàn giao. Nhưng muốn nó thực sự hữu dụng, kỹ thuật prompt, cấu hình công cụ và chiến lược bảo mật đều không thể thiếu.
 
-这篇文章综合 OpenAI 官方博客、Codex CLI 开源仓库 README、官方提示工程指南等多个来源，整理成一份实践指南。通过本文你将搞懂：
+Bài viết này tổng hợp từ nhiều nguồn như blog chính thức của OpenAI, README của kho mã nguồn mở Codex CLI, hướng dẫn kỹ thuật prompt chính thức, v.v., được sắp xếp thành một hướng dẫn thực hành. Qua bài này bạn sẽ hiểu:
 
-1. ⭐ **Codex 云端智能体和 CLI 的定位差异**：各适合什么场景
-2. ⭐ **提示工程的核心原则**：行动优先、上下文收集、代码质量标准
-3. ⭐ **AGENTS.md 的分层机制**：怎么组织项目级指令
-4. **安全模型的三级审批**：从建议到全自动的安全边界
-5. **GPT-5.3 Codex API 的高级特性**：上下文压缩、Phase 机制、推理强度
+1. ⭐ **Sự khác biệt về định vị giữa Codex cloud agent và CLI**: Phù hợp với những kịch bản nào
+2. ⭐ **Nguyên tắc cốt lõi của kỹ thuật prompt**: Ưu tiên hành động, thu thập ngữ cảnh, tiêu chuẩn chất lượng code
+3. ⭐ **Cơ chế phân cấp của AGENTS.md**: Cách tổ chức chỉ thị cấp dự án
+4. **Ba cấp phê duyệt của mô hình bảo mật**: Ranh giới an toàn từ đề xuất đến hoàn toàn tự động
+5. **Các tính năng nâng cao của GPT-5.3 Codex API**: Nén ngữ cảnh, cơ chế Phase, cường độ suy luận
 
-## 一、认识 Codex：两条产品线与一个核心理念
+## Một, Tìm hiểu về Codex: Hai dòng sản phẩm và một triết lý cốt lõi
 
-### Codex 云端智能体（codex-1）
+### Codex Cloud Agent (codex-1)
 
-OpenAI 发布了基于 o3 模型微调的 codex-1 云端智能体。它运行在 OpenAI 的安全沙箱中，可以读写代码、运行测试和命令行工具，甚至直接提交 Pull Request。三个核心特性：
+OpenAI đã phát hành codex-1, một cloud agent được fine-tune từ mô hình o3. Nó chạy trong sandbox bảo mật của OpenAI, có thể đọc/ghi code, chạy test và công cụ dòng lệnh, thậm chí trực tiếp submit Pull Request. Ba tính năng cốt lõi:
 
-- **自主执行**：你给出任务描述，它自行收集上下文、编写代码、运行测试，全程无需人工逐步引导
-- **安全沙箱**：每个任务在独立的容器环境中运行，没有网络访问权限，防止对生产环境造成影响
-- **AGENTS.md 指令机制**：类似于 `.cursorrules` 或 `CLAUDE.md`，你可以在仓库中放置 AGENTS.md 文件来定义项目级别的编码规范和约束
+- **Tự thực thi**: Bạn cung cấp mô tả nhiệm vụ, nó tự thu thập ngữ cảnh, viết code, chạy test, toàn bộ quá trình không cần hướng dẫn thủ công từng bước
+- **Sandbox bảo mật**: Mỗi nhiệm vụ chạy trong môi trường container độc lập, không có quyền truy cập mạng, ngăn ảnh hưởng đến môi trường sản xuất
+- **Cơ chế chỉ thị AGENTS.md**: Tương tự như `.cursorrules` hay `CLAUDE.md`, bạn có thể đặt file AGENTS.md trong kho lưu trữ để định nghĩa các quy tắc coding và ràng buộc cấp dự án
 
-Codex 云端智能体目前通过 ChatGPT Pro、Business 和 Enterprise 计划提供访问，Plus 计划也于 2025 年 6 月起陆续开放。它支持两种工作模式：交互式对话和后台任务。后台模式下，你可以同时派发多个任务，每个任务在独立容器中并行执行。
+Codex cloud agent hiện được cung cấp qua các gói ChatGPT Pro, Business và Enterprise, gói Plus cũng dần mở ra từ tháng 6 năm 2025. Nó hỗ trợ hai chế độ làm việc: hội thoại tương tác và nhiệm vụ nền. Ở chế độ nền, bạn có thể giao nhiều nhiệm vụ đồng thời, mỗi nhiệm vụ thực thi song song trong container độc lập.
 
-> 一句话区分：**云端智能体适合“挂后台跑大任务”，CLI 适合“坐电脑前盯着改代码”。** 两者定位不同，核心理念一致——长期自主、减少人工干预、以可交付的代码为目标。
+> Tóm tắt một câu: **Cloud agent phù hợp để "chạy nhiệm vụ lớn ở nền", CLI phù hợp để "ngồi trước máy tính chỉnh code".** Hai cái có định vị khác nhau, nhưng triết lý cốt lõi giống nhau — tự chủ lâu dài, giảm can thiệp thủ công, hướng đến code có thể bàn giao.
 
-### Codex CLI：开源终端编码助手
+### Codex CLI: Trợ lý Coding Terminal Mã nguồn mở
 
-Codex CLI 是一个完全开源的终端工具，用 Rust 编写，可以在本地机器上执行代码修改和 shell 命令。跟云端智能体的区别主要在运行环境和安全模型上：
+Codex CLI là một công cụ terminal hoàn toàn mã nguồn mở, viết bằng Rust, có thể thực thi sửa đổi code và lệnh shell trên máy cục bộ. Sự khác biệt so với cloud agent chủ yếu nằm ở môi trường chạy và mô hình bảo mật:
 
-| 维度     | Codex 云端智能体             | Codex CLI                        |
-| -------- | ---------------------------- | -------------------------------- |
-| 运行环境 | OpenAI 云端沙箱              | 本地机器                         |
-| 网络访问 | 无（隔离环境）               | 取决于本地权限                   |
-| 代码访问 | GitHub 仓库集成              | 本地文件系统                     |
-| 安全模型 | 平台托管                     | 三级审批模式                     |
-| 开源状态 | 闭源                         | 完全开源（Rust）                 |
-| 适用计划 | Pro/Business/Enterprise/Plus | Plus/Pro/Business/Edu/Enterprise |
+| Chiều                  | Codex Cloud Agent            | Codex CLI                        |
+| ---------------------- | ---------------------------- | -------------------------------- |
+| Môi trường chạy        | Sandbox cloud của OpenAI     | Máy cục bộ                       |
+| Truy cập mạng          | Không (môi trường cách ly)   | Tùy thuộc vào quyền cục bộ       |
+| Truy cập code          | Tích hợp kho GitHub          | Hệ thống file cục bộ             |
+| Mô hình bảo mật        | Quản lý bởi nền tảng         | Ba cấp phê duyệt                 |
+| Trạng thái mã nguồn mở | Mã nguồn đóng                | Hoàn toàn mã nguồn mở (Rust)     |
+| Gói áp dụng            | Pro/Business/Enterprise/Plus | Plus/Pro/Business/Edu/Enterprise |
 
-> **拓展一下**：Codex CLI 默认使用的模型是 `codex-mini-latest`（基于 o4-mini），面向低延迟的代码问答和编辑场景优化。而云端智能体使用的是 `codex-1`（基于 o3），面向需要深度推理的复杂工程任务。两者的定位差异类似“轻量级助手”和“高级工程师”的区别。
+> **Mở rộng thêm**: Mô hình mặc định của Codex CLI là `codex-mini-latest` (dựa trên o4-mini), được tối ưu hóa cho các kịch bản hỏi đáp và chỉnh sửa code có độ trễ thấp. Còn cloud agent sử dụng `codex-1` (dựa trên o3), hướng đến các nhiệm vụ engineering phức tạp cần suy luận sâu. Sự khác biệt về định vị giữa hai cái giống như "trợ lý nhẹ" và "kỹ sư cấp cao".
 
-## 二、提示工程：让 Codex 高效工作的核心
+## Hai, Kỹ thuật Prompt: Cốt lõi để Codex hoạt động hiệu quả
 
-搞清楚了 Codex 两条产品线的区别，接下来是最关键的部分——怎么写好提示词。这部分的内容同时适用于云端智能体和 CLI。
+Đã hiểu rõ sự khác biệt giữa hai dòng sản phẩm Codex, tiếp theo là phần quan trọng nhất — cách viết prompt tốt. Nội dung phần này áp dụng cho cả cloud agent và CLI.
 
-### ⭐️ 行动优先原则
+### ⭐️ Nguyên tắc Ưu tiên Hành động
 
-这是 Codex 提示设计的第一原则——**“行动偏向”（Action Bias）**。好的提示应该引导模型直接交付可工作的代码，而不是用一堆问题结束回复。具体来说：
+Đây là nguyên tắc đầu tiên trong thiết kế prompt của Codex — **"Action Bias" (Thiên hướng hành động)**. Prompt tốt nên hướng dẫn mô hình trực tiếp bàn giao code có thể chạy được, chứ không phải kết thúc bằng một đống câu hỏi. Cụ thể:
 
-- 明确告知模型“交付可工作的代码，而不仅仅是计划”
-- 模型应该默认做出合理假设并向前推进
-- 只有在真正被阻塞（缺少关键信息或存在矛盾约束）时才向用户提问
+- Nói rõ với mô hình "bàn giao code có thể chạy được, không chỉ là kế hoạch"
+- Mô hình nên mặc định đưa ra giả định hợp lý và tiếp tục tiến lên
+- Chỉ hỏi người dùng khi thực sự bị chặn (thiếu thông tin quan trọng hoặc có ràng buộc mâu thuẫn)
 
-**反面示例**：提示中要求模型“先列出计划，等确认后再执行”。这会让模型在完成工作前就停下来等待，严重降低效率。
+**Ví dụ phản diện**: Prompt yêu cầu mô hình "liệt kê kế hoạch trước, đợi xác nhận rồi thực thi". Điều này khiến mô hình dừng lại và chờ đợi trước khi hoàn thành công việc, làm giảm hiệu quả đáng kể.
 
-**正面示例**：提示中写明“接到任务后立即开始工作，合理假设模糊部分，完成后展示结果。如有无法自行判断的阻塞问题，再询问用户。”
+**Ví dụ chính diện**: Prompt ghi rõ "bắt đầu làm ngay khi nhận nhiệm vụ, giả định hợp lý cho các phần mơ hồ, hiển thị kết quả sau khi hoàn thành. Nếu có vấn đề chặn không thể tự phán đoán, mới hỏi người dùng."
 
-> **工程提示**：官方提示词中有一段很关键——“每次推出都应以具体编辑或明确的阻塞者加上有针对性的问题结束”。这句话直接告诉模型：不要用“我来帮你分析一下”之类的废话收尾，要么给出代码改动，要么给出阻塞原因和具体问题。
+> **Lưu ý kỹ thuật**: Trong prompt chính thức có một đoạn rất quan trọng — "Mỗi lần kết thúc nên là một chỉnh sửa cụ thể hoặc một trở ngại rõ ràng kèm câu hỏi có mục tiêu". Câu này trực tiếp nói với mô hình: đừng kết thúc bằng những câu vô nghĩa như "Hãy để tôi phân tích", phải hoặc đưa ra thay đổi code, hoặc đưa ra lý do bị chặn và câu hỏi cụ thể.
 
-### ⭐️ 上下文收集策略
+### ⭐️ Chiến lược Thu thập Ngữ cảnh
 
-Codex 在开始修改代码之前，应该先充分理解代码库——这一点听起来理所当然，但实践中经常被忽略。提示中应明确要求：
+Trước khi bắt đầu sửa đổi code, Codex nên hiểu kỹ codebase — điều này nghe có vẻ hiển nhiên nhưng thường bị bỏ qua trong thực tế. Prompt nên yêu cầu rõ ràng:
 
-1. **批量读取**：在调用工具前先想清楚需要哪些文件，然后一次性并行读取
-2. **避免串行探索**：不要一个文件一个文件地逐个查看
-3. **先搜索后新增**：在添加新实现之前，先搜索代码库中是否已有类似功能
+1. **Đọc theo lô**: Trước khi gọi công cụ, hãy nghĩ rõ cần những file nào, rồi đọc song song một lần
+2. **Tránh khám phá tuần tự**: Không xem file này rồi đến file kia
+3. **Tìm trước khi thêm**: Trước khi thêm implement mới, tìm kiếm xem codebase đã có chức năng tương tự chưa
 
-这种“先规划、再并行”的策略可以显著减少往返轮次。
+Chiến lược "lập kế hoạch trước, rồi song song" này có thể giảm đáng kể số lần khứ hồi.
 
-### ⭐️ 代码质量标准
+### ⭐️ Tiêu chuẩn Chất lượng Code
 
-Codex 的定位是“有判断力的高级工程师”。在提示中应体现以下工程标准：
+Định vị của Codex là "kỹ sư cấp cao có phán đoán". Prompt nên thể hiện các tiêu chuẩn kỹ thuật sau:
 
-- 正确性优先于速度，避免冒险的捷径、投机性改动和拼凑式修复
-- 遵循代码库现有约定，偏离时需要说明理由
-- 不添加宽泛的 try/catch，错误必须显式传播
-- 保持类型安全，避免强制类型断言
-- 先搜索已有实现再决定是否新增
+- Tính chính xác ưu tiên hơn tốc độ, tránh các shortcut liều lĩnh, thay đổi đầu cơ và vá víu
+- Tuân theo các quy ước hiện có của codebase, giải thích lý do khi depart
+- Không thêm try/catch rộng, lỗi phải được propagate rõ ràng
+- Duy trì type safety, tránh ép kiểu cưỡng bức
+- Tìm kiếm implement hiện có trước khi quyết định có thêm mới không
 
-对于前端任务，还要特别注明：避免千篇一律的模板化设计，追求有辨识度的视觉表达。
+Đối với nhiệm vụ frontend, còn phải đặc biệt lưu ý: tránh thiết kế template hàng loạt, theo đuổi biểu đạt visual có bản sắc.
 
-> **常见误区**：很多人在提示中写“代码要写得快、写得简洁”。但官方推荐的措辞恰恰相反——优先考虑正确性、清晰度和可靠性，而不是速度。把 Codex 当成“赶工的初级开发者”来用，效果反而不好。
+> **Hiểu lầm thường gặp**: Nhiều người viết trong prompt "code phải viết nhanh, viết ngắn gọn". Nhưng cách diễn đạt được đề xuất chính thức lại ngược lại — ưu tiên tính chính xác, rõ ràng và đáng tin cậy, không phải tốc độ. Sử dụng Codex như "developer junior đang vội vàng" thực ra cho kết quả không tốt.
 
-### 对 Git 脏工作区的处理
+### Xử lý Git Working Directory Bẩn
 
-这个细节很多人不会想到，但在多人协作或并行任务场景下特别重要——工作区可能包含其他人的未提交改动。提示中需要明确规定：
+Chi tiết này nhiều người không nghĩ đến, nhưng đặc biệt quan trọng trong các kịch bản cộng tác nhiều người hoặc nhiệm vụ song song — working directory có thể chứa các thay đổi chưa commit của người khác. Prompt cần quy định rõ:
 
-- 永远不要恢复不是自己做的改动
-- 提交或编辑时，忽略与自己无关的变更
-- 发现意外更改时立即停下询问用户
-- 禁止使用 `git reset --hard` 等破坏性命令
+- Không bao giờ revert các thay đổi không phải do mình làm
+- Khi commit hoặc chỉnh sửa, bỏ qua các thay đổi không liên quan đến mình
+- Dừng lại và hỏi người dùng ngay khi phát hiện thay đổi không mong muốn
+- Cấm sử dụng các lệnh phá hủy như `git reset --hard`
 
-## 三、工具配置：影响性能的关键环节
+## Ba, Cấu hình Công cụ: Khâu Quan trọng Ảnh hưởng đến Hiệu suất
 
-提示工程搞定了，接下来是工具配置。这部分的内容偏向实操，如果你的团队直接用 Codex CLI 或云端智能体，很多配置已经内置好了；但如果你通过 API 集成 Codex，这些细节会直接影响效果。
+Kỹ thuật prompt đã xong, tiếp theo là cấu hình công cụ. Phần này thiên về thực hành; nếu team bạn dùng trực tiếp Codex CLI hoặc cloud agent, nhiều cấu hình đã được tích hợp sẵn; nhưng nếu tích hợp Codex qua API, các chi tiết này sẽ ảnh hưởng trực tiếp đến hiệu quả.
 
-### ⭐️ apply_patch：最重要的编辑工具
+### ⭐️ apply_patch: Công cụ Chỉnh sửa Quan trọng nhất
 
-`apply_patch` 是 Codex 修改代码的核心工具，OpenAI 官方强烈建议使用标准实现，因为模型就是在这种 diff 格式上训练的。有两种接入方式：
+`apply_patch` là công cụ cốt lõi để Codex sửa đổi code, OpenAI chính thức khuyến nghị mạnh mẽ sử dụng implement chuẩn vì mô hình được train trên định dạng diff này. Có hai cách tích hợp:
 
-- **Responses API 内置**：直接在工具列表中加入 `{"type": "apply_patch"}`，最简单的方式
-- **自由格式工具**：使用 Lark 语法定义上下文无关文法，适合需要自定义行为的场景
+- **Tích hợp sẵn trong Responses API**: Trực tiếp thêm `{"type": "apply_patch"}` vào danh sách công cụ, cách đơn giản nhất
+- **Công cụ dạng tự do**: Dùng cú pháp Lark để định nghĩa context-free grammar, phù hợp cho các kịch bản cần tùy chỉnh hành vi
 
-两种方式输出的 diff 格式相同，模型都能正确使用。官方建议优先使用 Responses API 内置方式，因为它开箱即用且与模型训练时的格式完全一致；只有需要自定义解析逻辑或扩展行为时才考虑自由格式工具。
+Cả hai cách đều xuất cùng định dạng diff, mô hình đều có thể sử dụng đúng. Chính thức khuyến nghị ưu tiên dùng cách tích hợp sẵn trong Responses API vì nó dùng ngay được và hoàn toàn nhất quán với định dạng lúc train mô hình; chỉ khi cần logic parsing tùy chỉnh hoặc mở rộng hành vi mới xem xét công cụ dạng tự do.
 
-### shell_command：字符串优于数组
+### shell_command: Chuỗi String Tốt hơn Mảng
 
-一个容易忽视的细节：将命令作为单个字符串传递（而非字符串数组）效果更好。同时，工具描述中应要求"始终填写工作目录，避免在命令中使用 `cd`"，这能减少路径混淆。
+Một chi tiết dễ bỏ qua: truyền lệnh dưới dạng một chuỗi string đơn (không phải mảng string) cho kết quả tốt hơn. Đồng thời, mô tả công cụ nên yêu cầu "luôn điền thư mục làm việc, tránh dùng `cd` trong lệnh", điều này giảm nhầm lẫn về đường dẫn.
 
-### 并行工具调用
+### Gọi Công cụ Song song
 
-Codex 支持并行工具调用。通过设置 `parallel_tool_calls: true`，可以让模型同时发起多个工具调用，这比串行调用快不少。提示中应明确要求：
+Codex hỗ trợ gọi công cụ song song. Bằng cách đặt `parallel_tool_calls: true`, có thể cho mô hình đồng thời khởi tạo nhiều lệnh gọi công cụ, nhanh hơn đáng kể so với gọi tuần tự. Prompt nên yêu cầu rõ ràng:
 
-- 能并行的调用绝不串行
-- 工作流应该是：规划需要读取的资源 → 批量并行发出 → 分析结果 → 如有新的未知需求再重复
+- Những gì có thể song song tuyệt đối không làm tuần tự
+- Workflow nên là: lập kế hoạch tài nguyên cần đọc → phát ra song song theo lô → phân tích kết quả → nếu có yêu cầu chưa biết mới lặp lại
 
-### 工具响应的截断策略
+### Chiến lược Cắt ngắn Phản hồi Công cụ
 
-当工具返回的内容过长时，建议截断到约 10k Token（可用字节数除以 4 近似估算）。截断方式为：前半段保留开头内容，后半段保留结尾内容，中间用 `…N tokens truncated…` 格式的省略标记连接（其中 N 为截断的 Token 数）。这样既保留了关键上下文，又不会浪费 Token 预算。
+Khi nội dung công cụ trả về quá dài, nên cắt ngắn xuống khoảng 10k Token (ước tính bằng số byte dùng được chia cho 4). Cách cắt: nửa đầu giữ phần đầu, nửa sau giữ phần cuối, ở giữa kết nối bằng nhãn bỏ qua định dạng `…N tokens truncated…` (trong đó N là số Token đã cắt). Như vậy vừa giữ ngữ cảnh quan trọng vừa không lãng phí ngân sách Token.
 
-> **工程提示**：为什么要保留头尾两部分？因为工具输出的开头通常是摘要或状态信息，结尾往往是错误信息或最终结果——这两部分对模型决策最有价值。中间的重复性内容截断后影响最小。
+> **Lưu ý kỹ thuật**: Tại sao giữ cả đầu lẫn đuôi? Vì phần đầu output công cụ thường là tóm tắt hoặc thông tin trạng thái, phần cuối thường là thông báo lỗi hoặc kết quả cuối cùng — hai phần này có giá trị nhất cho quyết định của mô hình. Nội dung lặp lại ở giữa khi cắt ảnh hưởng ít nhất.
 
-## 四、AGENTS.md：项目级指令的分层机制
+## Bốn, AGENTS.md: Cơ chế Phân cấp cho Chỉ thị Cấp Dự án
 
-提示工程搞定了，接下来是另一个高频配置项——AGENTS.md。它的作用和 Claude Code 的 CLAUDE.md 类似，都是给 AI 注入项目级的上下文和规范。
+Kỹ thuật prompt đã xong, tiếp theo là một mục cấu hình tần suất cao khác — AGENTS.md. Tác dụng của nó tương tự CLAUDE.md của Claude Code, đều là inject ngữ cảnh và quy chuẩn cấp dự án cho AI.
 
-### ⭐️ 加载规则
+### ⭐️ Quy tắc Tải
 
-Codex CLI 会自动扫描并注入 `AGENTS.md` 文件（也支持 `.codex` 等替代文件名），加载逻辑遵循分层覆盖原则：
+Codex CLI sẽ tự động quét và inject các file `AGENTS.md` (cũng hỗ trợ tên file thay thế như `.codex`), logic tải tuân theo nguyên tắc phân cấp ghi đè:
 
-1. 从用户主目录 `~/.codex` 开始，沿仓库根目录到当前工作目录逐层扫描
-2. 每个目录的指令独立成为一条用户消息
-3. 子目录的指令会覆盖父目录的同名配置
-4. 消息以根到叶的顺序注入对话历史
+1. Bắt đầu từ thư mục home của user `~/.codex`, quét từng cấp dọc theo root kho đến thư mục làm việc hiện tại
+2. Chỉ thị của mỗi thư mục trở thành một user message độc lập
+3. Chỉ thị của thư mục con ghi đè cấu hình cùng tên của thư mục cha
+4. Các message được inject vào lịch sử hội thoại theo thứ tự từ root đến leaf
 
-这意味着你可以实现分层配置：
+Điều này có nghĩa là bạn có thể thực hiện cấu hình phân cấp:
 
-| 层级 | 路径                   | 适用范围                                           |
-| ---- | ---------------------- | -------------------------------------------------- |
-| 全局 | `~/.codex/AGENTS.md`   | 所有项目的通用默认行为（如语言偏好、通用编码风格） |
-| 项目 | 仓库根目录 `AGENTS.md` | 项目级约定（如构建命令、测试规范、依赖管理）       |
-| 模块 | 子目录 `AGENTS.md`     | 模块级特殊规则（如某个微服务的特定 API 约定）      |
+| Cấp      | Đường dẫn                     | Phạm vi áp dụng                                                                         |
+| -------- | ----------------------------- | --------------------------------------------------------------------------------------- |
+| Toàn cục | `~/.codex/AGENTS.md`          | Hành vi mặc định chung cho tất cả dự án (như ưu tiên ngôn ngữ, phong cách coding chung) |
+| Dự án    | `AGENTS.md` ở root kho        | Quy ước cấp dự án (như lệnh build, quy chuẩn test, quản lý dependency)                  |
+| Module   | `AGENTS.md` trong thư mục con | Quy tắc đặc biệt cấp module (như quy ước API cụ thể của một microservice)               |
 
-### 实际示例：OpenAI 自己的 AGENTS.md
+### Ví dụ Thực tế: AGENTS.md của Chính OpenAI
 
-OpenAI 在 Codex CLI 的开源仓库中放置了一份真实的 AGENTS.md，内容涵盖：
+OpenAI đã đặt một AGENTS.md thực tế trong kho mã nguồn mở Codex CLI, nội dung bao gồm:
 
-- Rust 代码风格约定（使用 `#[allow(clippy::xxx)]` 而非全局禁止 clippy 警告）
-- TUI 界面的样式规则（使用 `ratatui` 框架）
-- 测试策略（集成测试优先，单元测试为辅）
-- API 开发规范（JSON 请求/响应格式、错误处理）
+- Quy ước phong cách code Rust (dùng `#[allow(clippy::xxx)]` thay vì tắt toàn cục cảnh báo clippy)
+- Quy tắc style cho TUI interface (dùng framework `ratatui`)
+- Chiến lược test (ưu tiên integration test, unit test bổ trợ)
+- Quy chuẩn phát triển API (định dạng JSON request/response, xử lý lỗi)
 
-这份文件本身就是 AGENTS.md 最佳实践的参考范本。
+File này chính là tài liệu tham khảo thực hành tốt nhất cho AGENTS.md.
 
-## 五、安全模型：从建议到全自动
+## Năm, Mô hình Bảo mật: Từ Đề xuất đến Hoàn toàn Tự động
 
-安全这一环不能跳过。Codex CLI 和云端智能体的安全机制差异较大，分开来说。
+Không thể bỏ qua vấn đề bảo mật. Cơ chế bảo mật của Codex CLI và cloud agent có sự khác biệt lớn, nên nói riêng từng cái.
 
-### ⭐️ Codex CLI 的三级审批模式
+### ⭐️ Ba Cấp Phê duyệt của Codex CLI
 
-Codex CLI 提供三种安全模式，对应不同级别的自动化需求：
+Codex CLI cung cấp ba chế độ bảo mật, tương ứng với các nhu cầu tự động hóa ở các mức độ khác nhau:
 
-| 模式          | 说明                                 | 适用场景        |
-| ------------- | ------------------------------------ | --------------- |
-| **Suggest**   | 可读取文件，但所有写操作和命令需确认 | 代码审查、学习  |
-| **Auto Edit** | 自动编辑文件，但命令行操作需确认     | 日常开发        |
-| **Full Auto** | 全自动，编辑和命令都自动执行         | CI/CD、批量任务 |
+| Chế độ        | Mô tả                                                           | Kịch bản áp dụng          |
+| ------------- | --------------------------------------------------------------- | ------------------------- |
+| **Suggest**   | Có thể đọc file, nhưng tất cả thao tác ghi và lệnh cần xác nhận | Review code, học tập      |
+| **Auto Edit** | Tự động chỉnh sửa file, nhưng thao tác dòng lệnh cần xác nhận   | Phát triển hàng ngày      |
+| **Full Auto** | Hoàn toàn tự động, cả chỉnh sửa lẫn lệnh đều tự thực thi        | CI/CD, nhiệm vụ hàng loạt |
 
-在 Full Auto 模式下，Codex CLI 还提供沙箱机制来限制潜在风险：
+Ở chế độ Full Auto, Codex CLI còn cung cấp cơ chế sandbox để hạn chế rủi ro tiềm năng:
 
-- **macOS**：使用 Apple Seatbelt（`sandbox-exec`）将文件系统设为只读白名单，并完全阻断出站网络
-- **Linux**：默认无沙箱，官方推荐使用 Docker 容器隔离，配合 `iptables`/`ipset` 防火墙脚本阻断除 OpenAI API 外的所有出站流量
+- **macOS**: Sử dụng Apple Seatbelt (`sandbox-exec`) đặt filesystem thành whitelist chỉ đọc, và hoàn toàn chặn mạng outbound
+- **Linux**: Mặc định không có sandbox, chính thức khuyến nghị dùng container Docker để cách ly, kết hợp script firewall `iptables`/`ipset` chặn tất cả lưu lượng outbound trừ OpenAI API
 
-> **拓展一下**：Full Auto 模式下，Codex CLI 还会在非 Git 仓库中弹出一个警告确认，提醒你没有版本控制的安全网。这个设计细节挺贴心——在全自动模式下，Git 仓库的“可回滚性”是最后一道防线。
+> **Mở rộng thêm**: Ở chế độ Full Auto, Codex CLI còn bật lên cảnh báo xác nhận trong kho không phải Git, nhắc nhở bạn không có lưới an toàn của version control. Chi tiết thiết kế này khá chu đáo — ở chế độ hoàn toàn tự động, "khả năng rollback" của kho Git là phòng tuyến cuối cùng.
 
-### Codex 云端智能体的安全机制
+### Cơ chế Bảo mật của Codex Cloud Agent
 
-云端智能体的安全设计更为严格：
+Thiết kế bảo mật của cloud agent nghiêm ngặt hơn:
 
-- 每个任务在独立的容器中运行，完全没有网络访问权限
-- 运行时间和资源消耗有明确限制
+- Mỗi nhiệm vụ chạy trong container độc lập, hoàn toàn không có quyền truy cập mạng
+- Thời gian chạy và mức tiêu thụ tài nguyên có giới hạn rõ ràng
 
-## 六、GPT-5.3 Codex API 的高级特性
+## Sáu, Các Tính năng Nâng cao của GPT-5.3 Codex API
 
-> 本节内容适用于通过 Responses API 直接调用 `gpt-5.3-codex` 模型的开发者。Codex CLI 和云端智能体在内部封装了这些机制，用户无需手动配置。
+> Nội dung phần này áp dụng cho các developer gọi trực tiếp mô hình `gpt-5.3-codex` qua Responses API. Codex CLI và cloud agent đã đóng gói các cơ chế này bên trong, người dùng không cần cấu hình thủ công.
 
-### 上下文压缩
+### Nén Ngữ cảnh
 
-通过 Responses API 的 `/compact` 端点，Codex 可以压缩对话历史，使对话能够持续很多轮而不触碰上下文窗口限制。实际效果：
+Thông qua endpoint `/compact` của Responses API, Codex có thể nén lịch sử hội thoại, cho phép hội thoại tiếp tục nhiều vòng mà không chạm giới hạn context window. Hiệu quả thực tế:
 
-- 长时间任务不会因为上下文溢出而中断
-- 超长任务链不再受典型窗口长度的限制
-- Token 消耗比逐轮累积更可控
+- Nhiệm vụ dài hạn không bị gián đoạn do tràn ngữ cảnh
+- Chuỗi nhiệm vụ siêu dài không còn bị giới hạn bởi độ dài window điển hình
+- Mức tiêu thụ Token có thể kiểm soát hơn so với tích lũy từng vòng
 
-> **工程提示**：`/compact` 端点是 ZDR（Zero Data Retention）兼容的，返回的是一个 `encrypted_content` 项。后续请求中直接传递这个压缩项即可，无需手动处理上下文摘要。这一点在官方文档中没有特别强调，但集成时必须注意。
+> **Lưu ý kỹ thuật**: Endpoint `/compact` tương thích ZDR (Zero Data Retention), trả về một mục `encrypted_content`. Các request tiếp theo chỉ cần truyền trực tiếp mục nén này, không cần xử lý tóm tắt ngữ cảnh thủ công. Điểm này không được nhấn mạnh đặc biệt trong tài liệu chính thức, nhưng phải lưu ý khi tích hợp.
 
-### ⭐️ Phase 机制
+### ⭐️ Cơ chế Phase
 
-这是个容易踩坑的地方。GPT-5.3-Codex 引入了 `phase` 字段来区分模型输出的不同阶段：
+Đây là chỗ dễ vấp phải. GPT-5.3-Codex giới thiệu trường `phase` để phân biệt các giai đoạn khác nhau của output mô hình:
 
-- `null`：普通输出
-- `commentary`：工作中对用户的进度更新
-- `final_answer`：最终完成的交付
+- `null`: Output thông thường
+- `commentary`: Cập nhật tiến độ cho người dùng trong khi làm việc
+- `final_answer`: Bàn giao hoàn chỉnh cuối cùng
 
-**重要提示**：phase 是 gpt-5.3-codex 的**必需项**（required），不是可选功能。如果不在历史消息中正确保留 phase 元数据，会导致显著的性能下降。此外，phase 字段只能附加在 assistant 消息上，不要添加到 user 消息中，否则会引发模型行为异常。
+**Lưu ý quan trọng**: phase là **bắt buộc** (required) đối với gpt-5.3-codex, không phải tính năng tùy chọn. Nếu không giữ đúng metadata phase trong các message lịch sử, sẽ gây ra suy giảm hiệu suất đáng kể. Ngoài ra, trường phase chỉ có thể được gắn vào assistant message, không thêm vào user message, nếu không sẽ gây ra hành vi bất thường của mô hình.
 
-### Preamble（进度更新）的节奏控制
+### Kiểm soát Nhịp độ của Preamble (Cập nhật Tiến độ)
 
-Preamble 是模型在执行过程中向用户报告进度的机制。官方给出了明确的节奏建议：
+Preamble là cơ chế mô hình báo cáo tiến độ cho người dùng trong quá trình thực thi. Chính thức đưa ra khuyến nghị nhịp độ rõ ràng:
 
-- **目标频率**：每隔 1-3 个执行步骤发送一次进度更新
-- **硬性下限**：至少每 6 个步骤或每 10 次工具调用必须发送一次
-- 如果模型连续执行了大量操作而没有任何进度输出，用户会失去对任务状态的感知
+- **Tần suất mục tiêu**: Gửi một cập nhật tiến độ mỗi 1-3 bước thực thi
+- **Giới hạn cứng dưới**: Ít nhất mỗi 6 bước hoặc mỗi 10 lần gọi công cụ phải gửi một lần
+- Nếu mô hình liên tục thực hiện nhiều thao tác mà không có bất kỳ output tiến độ nào, người dùng sẽ mất cảm nhận về trạng thái nhiệm vụ
 
-这意味着在提示工程中，应当明确要求模型保持合理的进度汇报节奏，避免过于频繁（变成日志式更新）或过于稀疏（让用户失去上下文）。
+Điều này có nghĩa là trong kỹ thuật prompt, nên yêu cầu rõ ràng mô hình duy trì nhịp độ báo cáo tiến độ hợp lý, tránh quá dày (trở thành log-style update) hoặc quá thưa (khiến người dùng mất ngữ cảnh).
 
-### 两种协作个性
+### Hai Kiểu Cá tính Cộng tác
 
-Codex 支持切换“友好”和“务实”两种个性风格：
+Codex hỗ trợ chuyển đổi giữa hai phong cách cá tính "thân thiện" và "thực dụng":
 
-| 风格         | 特点                                   | 适用场景                           |
-| ------------ | -------------------------------------- | ---------------------------------- |
-| **友好模式** | 更像热情的结对编程伙伴，确认多、解释细 | 新人引导、模糊需求探索、高风险改动 |
-| **务实模式** | 简洁直接，每个 Token 的信息密度更高    | 延迟敏感、用户已熟悉工作流         |
+| Phong cách            | Đặc điểm                                                                             | Kịch bản áp dụng                                                 |
+| --------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| **Chế độ thân thiện** | Giống người bạn pair programming nhiệt tình hơn, xác nhận nhiều, giải thích chi tiết | Hướng dẫn người mới, khám phá yêu cầu mơ hồ, thay đổi rủi ro cao |
+| **Chế độ thực dụng**  | Ngắn gọn trực tiếp, mật độ thông tin mỗi Token cao hơn                               | Nhạy cảm về độ trễ, người dùng đã quen workflow                  |
 
-个性配置写在系统提示中，通过描述来引导模型的措辞风格、解释深度和热情程度。
+Cấu hình cá tính được viết trong system prompt, hướng dẫn phong cách diễn đạt, độ sâu giải thích và mức độ nhiệt tình của mô hình qua mô tả.
 
-### 推理强度选择
+### Lựa chọn Cường độ Suy luận
 
-Codex 支持多级推理强度：
+Codex hỗ trợ nhiều cấp cường độ suy luận:
 
-| 强度       | 说明                                         | 适用场景             |
-| ---------- | -------------------------------------------- | -------------------- |
-| **medium** | 日常交互式编码推荐，在智能和速度之间取得平衡 | 大部分日常开发       |
-| **high**   | 较复杂的架构决策和重构任务                   | 跨模块重构、复杂需求 |
-| **xhigh**  | 真正困难的多系统协调、复杂 bug 排查等场景    | 多服务联调、疑难 bug |
+| Cường độ   | Mô tả                                                                       | Kịch bản áp dụng                            |
+| ---------- | --------------------------------------------------------------------------- | ------------------------------------------- |
+| **medium** | Khuyến nghị cho coding tương tác hàng ngày, cân bằng giữa trí tuệ và tốc độ | Phần lớn phát triển hàng ngày               |
+| **high**   | Quyết định kiến trúc và tái cấu trúc phức tạp hơn                           | Tái cấu trúc cross-module, yêu cầu phức tạp |
+| **xhigh**  | Các kịch bản thực sự khó như điều phối đa hệ thống, debug lỗi phức tạp      | Điều chỉnh đa service, bug khó              |
 
-选择合适的推理强度可以直接影响成本和响应速度。我的建议是：**先用 medium 跑，遇到明显推理不足的情况再升级**，不要一上来就用 xhigh。
+Lựa chọn cường độ suy luận phù hợp có thể ảnh hưởng trực tiếp đến chi phí và tốc độ phản hồi. Lời khuyên của tôi là: **chạy medium trước, khi gặp tình huống rõ ràng thiếu suy luận mới nâng cấp**, đừng dùng xhigh ngay từ đầu.
 
-## 七、常见问题与调试技巧
+## Bảy, Vấn đề Thường Gặp và Kỹ thuật Debug
 
-实际使用中，有几个高频问题值得单独拿出来说。
+Trong sử dụng thực tế, có một số vấn đề tần suất cao đáng nói riêng.
 
-### ⭐️ 三个常见失败模式
+### ⭐️ Ba Mẫu Thất bại Thường Gặp
 
-OpenAI 官方追踪到了三个高频问题，每个都有对应的解法：
+OpenAI chính thức đã theo dõi ba vấn đề tần suất cao, mỗi cái có giải pháp tương ứng:
 
-**1. 过度思考**
+**1. Suy nghĩ quá nhiều**
 
-模型在执行第一次有用操作前耗时过长。解决方法是在提示中明确要求“立即开始行动”。
+Mô hình mất quá nhiều thời gian trước khi thực hiện hành động hữu ích đầu tiên. Giải pháp là yêu cầu rõ ràng trong prompt "bắt đầu hành động ngay lập tức".
 
-**2. 日志式更新**
+**2. Cập nhật kiểu log**
 
-模型机械地汇报状态而非自然协作。解决方法是在提示中要求“只在关键节点报告进度，避免机械式状态日志”。
+Mô hình báo cáo trạng thái một cách máy móc thay vì cộng tác tự nhiên. Giải pháp là yêu cầu trong prompt "chỉ báo cáo tiến độ tại các điểm mấu chốt, tránh log trạng thái kiểu máy móc".
 
-**3. 重复性口癖**
+**3. Thói quen lặp đi lặp lại**
 
-反复使用“好发现”、“明白了”等填充词。解决方法是在提示中直接禁止这些表达。
+Lặp đi lặp lại các từ đệm như "Phát hiện hay đó", "Đã hiểu rồi". Giải pháp là cấm thẳng những biểu đạt này trong prompt.
 
-> **工程提示**：官方给出了一个很实用的调试技巧——“元提示”。做法是在模型的回复末尾追加反馈，要求它审视自己的指令并建议改进。生成几次回复后，取其中的共性建议，就能得到有针对性的指令优化方案。本质上就是在让模型帮你写提示词。
+> **Lưu ý kỹ thuật**: Chính thức đưa ra một kỹ thuật debug rất thực tế — "meta-prompt". Cách làm là thêm feedback vào cuối reply của mô hình, yêu cầu nó xem xét lại chỉ thị của mình và đề xuất cải tiến. Sau khi tạo vài reply, lấy các đề xuất chung, bạn sẽ có được phương án tối ưu hóa chỉ thị có mục tiêu. Về bản chất là để mô hình giúp bạn viết prompt.
 
-### 自定义工具的调优
+### Tinh chỉnh Công cụ Tùy chỉnh
 
-对于 Web 搜索、语义搜索、MCP 等非标准工具，模型没有专门的后训练，效果会打折扣。但可以通过以下方式弥补：
+Đối với các công cụ phi tiêu chuẩn như Web search, semantic search, MCP, mô hình không có post-training chuyên biệt, hiệu quả sẽ bị giảm. Nhưng có thể bù đắp bằng các cách sau:
 
-- 工具命名要精确（`semantic_search` 比 `search` 好）
-- 在提示中明确说明何时、为何、如何使用每个工具，附带正反示例
-- 让自定义工具的输出格式区别于模型已熟悉的工具输出，避免混淆
+- Đặt tên công cụ chính xác (`semantic_search` tốt hơn `search`)
+- Giải thích rõ trong prompt khi nào, tại sao, và cách sử dụng từng công cụ, kèm ví dụ chính và phản diện
+- Làm cho định dạng output của công cụ tùy chỉnh khác biệt so với output của các công cụ mô hình đã quen, tránh nhầm lẫn
 
-> **常见误区**：很多人以为自定义工具只要定义好参数就行了。实际上，**工具的输出格式同样关键**——如果自定义工具的输出长得和 ripgrep 一模一样，模型可能会用错工具，因为它分不清两者的结果。让不同工具的输出在视觉上有明显区分，能有效减少混淆。
+> **Hiểu lầm thường gặp**: Nhiều người nghĩ công cụ tùy chỉnh chỉ cần định nghĩa tốt tham số là xong. Thực ra, **định dạng output của công cụ cũng quan trọng không kém** — nếu output của công cụ tùy chỉnh trông y hệt ripgrep, mô hình có thể dùng nhầm công cụ vì nó không phân biệt được kết quả của hai cái. Làm cho output của các công cụ khác nhau có sự phân biệt rõ ràng về mặt visual có thể giảm hiệu quả sự nhầm lẫn.
 
-## 八、团队落地建议
+## Tám, Khuyến nghị Triển khai cho Team
 
-最后聊几句团队层面的落地经验。
+Cuối cùng, chia sẻ một số kinh nghiệm triển khai ở cấp team.
 
-### 渐进式引入
+### Giới thiệu Dần dần
 
-建议团队按以下阶段逐步引入 Codex，不要一上来就 Full Auto：
+Khuyến nghị team giới thiệu Codex theo các giai đoạn sau, đừng dùng Full Auto ngay từ đầu:
 
-1. **Suggest 模式试用**：让开发者熟悉 Codex 的代码理解能力和建议质量
-2. **Auto Edit 模式日常使用**：在受控环境下逐步增加信任度
-3. **Full Auto + 沙箱模式**：在 CI/CD 流水线或批量任务中启用全自动
+1. **Thử nghiệm chế độ Suggest**: Để developers quen với khả năng hiểu code và chất lượng đề xuất của Codex
+2. **Sử dụng hàng ngày với chế độ Auto Edit**: Dần dần tăng mức độ tin tưởng trong môi trường có kiểm soát
+3. **Full Auto + chế độ Sandbox**: Bật hoàn toàn tự động trong pipeline CI/CD hoặc nhiệm vụ hàng loạt
 
-### AGENTS.md 的团队协作
+### Cộng tác Team với AGENTS.md
 
-为团队项目建立 AGENTS.md 时，建议覆盖以下内容：
+Khi xây dựng AGENTS.md cho dự án team, nên bao gồm các nội dung sau:
 
-- 项目构建和测试命令
-- 代码风格和命名约定
-- 依赖管理策略
-- Git 工作流规范
-- 常见陷阱和注意事项
+- Lệnh build và test dự án
+- Phong cách code và quy ước đặt tên
+- Chiến lược quản lý dependency
+- Quy chuẩn Git workflow
+- Các bẫy thường gặp và lưu ý
 
-### 成本控制
+### Kiểm soát Chi phí
 
-- 合理选择推理强度（medium 能覆盖大部分日常场景）
-- 利用上下文压缩减少 Token 消耗
-- 并行任务时注意监控总资源使用量
+- Lựa chọn hợp lý cường độ suy luận (medium có thể xử lý phần lớn tình huống hàng ngày)
+- Sử dụng nén ngữ cảnh để giảm tiêu thụ Token
+- Khi có nhiệm vụ song song, chú ý theo dõi tổng mức sử dụng tài nguyên
 
-> 一句话：**先用 Suggest 模式建立信任，再用 Auto Edit 提效，最后才考虑 Full Auto。** AGENTS.md 在团队推广前，最好先让一两个人试跑一周，把规则调顺了再全员铺开。
+> Tóm tắt một câu: **Trước tiên dùng chế độ Suggest để xây dựng tin tưởng, rồi dùng Auto Edit để tăng hiệu suất, cuối cùng mới xem xét Full Auto.** Trước khi triển khai AGENTS.md rộng rãi trong team, tốt nhất nên để một hai người thử chạy một tuần, điều chỉnh các quy tắc cho trơn tru rồi mới phổ biến cho toàn team.
 
 ---
 
-**参考来源**：
+**Nguồn tham khảo**:
 
-- OpenAI 官方博客：[Introducing Codex](https://openai.com/index/introducing-codex/)
-- OpenAI Codex CLI 开源仓库：[github.com/openai/codex](https://github.com/openai/codex)
-- OpenAI 官方提示工程指南（中文译文参考）：[liduos.com/posts/codex-prompting-guide](https://liduos.com/posts/codex-prompting-guide)
-- OpenAI Codex 仓库 AGENTS.md 实际配置
+- Blog chính thức OpenAI: [Introducing Codex](https://openai.com/index/introducing-codex/)
+- Kho mã nguồn mở OpenAI Codex CLI: [github.com/openai/codex](https://github.com/openai/codex)
+- Hướng dẫn kỹ thuật prompt chính thức OpenAI (tham khảo bản dịch tiếng Trung): [liduos.com/posts/codex-prompting-guide](https://liduos.com/posts/codex-prompting-guide)
+- Cấu hình AGENTS.md thực tế từ kho Codex của OpenAI

@@ -1,156 +1,154 @@
 ---
-title: 代码重构指南
-description: 代码重构实践指南，涵盖重构定义、重构原则、代码坏味道识别及常用重构技巧与最佳实践。
-category: 代码质量
+title: Hướng dẫn Code Refactoring
+description: Hướng dẫn thực hành code refactoring, bao gồm định nghĩa refactoring, nguyên tắc refactoring, nhận diện code smell và các kỹ thuật refactoring cùng best practice.
+category: Code Quality
 head:
   - - meta
     - name: keywords
-      content: 代码重构,重构技巧,重构原则,设计模式,SOLID,代码坏味道,可维护性,单元测试
+      content: code refactoring,refactoring techniques,refactoring principles,design pattern,SOLID,code smell,maintainability,unit test
 ---
 
-前段时间重读了[《重构：改善代码既有设计》](https://book.douban.com/subject/30468597/)，收货颇多。于是，简单写了一篇文章来聊聊我对重构的看法。
+Gần đây tôi đọc lại cuốn [《Refactoring: Improving the Design of Existing Code》](https://book.douban.com/subject/30468597/) — thu được nhiều điều. Thế là viết bài ngắn để chia sẻ quan điểm về refactoring.
 
 ![](https://oss.javaguide.cn/github/javaguide/image-20220311155746549.png)
 
-## 何谓重构？
+## Refactoring là gì?
 
-学习重构必看的一本神书《重构：改善代码既有设计》从两个角度给出了重构的定义：
+Cuốn sách kinh điển bắt buộc phải đọc khi học refactoring là 《Refactoring: Improving the Design of Existing Code》 đưa ra định nghĩa từ hai góc độ:
 
-> - 重构（名词）：对软件内部结构的一种调整，目的是在不改变软件可观察行为的前提下，提高其可理解性，降低其修改成本。
-> - 重构（动词）：使用一系列重构手法，在不改变软件可观察行为的前提下，调整其结构。
+> - Refactoring (danh từ): Một loại điều chỉnh cấu trúc nội bộ phần mềm. Mục đích là cải thiện khả năng hiểu và giảm chi phí sửa đổi mà không thay đổi hành vi quan sát được của phần mềm.
+> - Refactoring (động từ): Dùng một loạt kỹ thuật refactoring để điều chỉnh cấu trúc phần mềm mà không thay đổi hành vi quan sát được của nó.
 
-用更贴近工程师的语言来说：**重构就是利用设计模式(如组合模式、策略模式、责任链模式)、软件设计原则（如 SOLID 原则、YAGNI 原则、KISS 原则）和重构手段（如封装、继承、构建测试体系）来让代码更容易理解，更易于修改。**
+Nói theo ngôn ngữ gần gũi với engineer hơn: **Refactoring là tận dụng design pattern (như composite pattern, strategy pattern, chain of responsibility pattern), software design principle (như SOLID principle, YAGNI principle, KISS principle) và refactoring technique (như encapsulation, inheritance, build test system) để làm cho code dễ hiểu hơn, dễ modify hơn.**
 
-软件设计原则指导着我们组织和规范代码，同时，重构也是为了能够尽量设计出尽量满足软件设计原则的软件。
+Software design principle hướng dẫn chúng ta tổ chức và chuẩn hóa code. Đồng thời refactoring cũng là để có thể thiết kế ra phần mềm thỏa mãn software design principle tốt hơn.
 
-正确重构的核心在于 **步子一定要小，每一步的重构都不会影响软件的正常运行，可以随时停止重构。**
+Điều cốt lõi của refactoring đúng đắn là **bước đi phải nhỏ, mỗi bước refactoring không ảnh hưởng đến hoạt động bình thường của phần mềm và có thể dừng refactoring bất cứ lúc nào.**
 
-**常见的设计模式如下**：
+**Các design pattern phổ biến**:
 
-![常见的设计模式](https://oss.javaguide.cn/github/javaguide/system-design/basis/common-design-patterns.png)
+![Các design pattern phổ biến](https://oss.javaguide.cn/github/javaguide/system-design/basis/common-design-patterns.png)
 
-更全面的设计模式总结，可以看 **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)** 这个开源项目。
+Tổng hợp đầy đủ hơn về design pattern, xem open source project **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)**.
 
-**常见的软件设计原则如下**：
+**Các software design principle phổ biến**:
 
-![常见的软件设计原则](https://oss.javaguide.cn/github/javaguide/system-design/basis/programming-principles.png)
+![Các software design principle phổ biến](https://oss.javaguide.cn/github/javaguide/system-design/basis/programming-principles.png)
 
-更全面的设计原则总结，可以看 **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)** 和 **[hacker-laws-zh](https://github.com/nusr/hacker-laws-zh)** 这两个开源项目。
+Tổng hợp đầy đủ hơn về design principle, xem hai open source project **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)** và **[hacker-laws-zh](https://github.com/nusr/hacker-laws-zh)**.
 
-## 为什么要重构？
+## Tại sao cần Refactoring?
 
-在上面介绍重构定义的时候，我从比较抽象的角度介绍了重构的好处：重构的主要目的主要是提升代码&架构的灵活性/可扩展性以及复用性。
+Khi giới thiệu định nghĩa refactoring ở trên, tôi đã giới thiệu lợi ích của refactoring từ góc độ tương đối trừu tượng: Mục đích chính của refactoring là cải thiện flexibility/extensibility và reusability của code & architecture.
 
-如果对应到一个真实的项目，重构具体能为我们带来什么好处呢？
+Nếu ánh xạ vào project thực tế, refactoring cụ thể mang lại lợi gì cho chúng ta?
 
-1. **让代码更容易理解**：通过添加注释、命名规范、逻辑优化等手段可以让我们的代码更容易被理解；
-2. **避免代码腐化**：通过重构干掉坏味道代码；
-3. **加深对代码的理解**：重构代码的过程会加深你对某部分代码的理解；
-4. **发现潜在 bug**：是这样的，很多潜在的 bug ，都是我们在重构的过程中发现的；
+1. **Làm code dễ hiểu hơn**: Thêm comment, chuẩn hóa tên biến, tối ưu logic giúp code dễ được hiểu hơn.
+2. **Tránh code decay**: Loại bỏ code có mùi (code smell) qua refactoring.
+3. **Hiểu sâu hơn về code**: Quá trình refactoring sẽ giúp bạn hiểu sâu hơn về một phần code nào đó.
+4. **Phát hiện potential bug**: Rất nhiều potential bug được phát hiện trong quá trình refactoring.
 5. ……
 
-看了上面介绍的关于重构带来的好处之后，你会发现重构的最终目标是 **提高软件开发速度和质量** 。
+Đọc xong giới thiệu trên về lợi ích của refactoring, bạn sẽ thấy mục tiêu cuối cùng của refactoring là **cải thiện tốc độ và chất lượng phát triển phần mềm**.
 
-重构并不会减慢软件开发速度，相反，如果代码质量和软件设计较差，当我们想要添加新功能的话，开发速度会越来越慢。到了最后，甚至都有想要重写整个系统的冲动。
+Refactoring không làm chậm tốc độ phát triển phần mềm. Ngược lại, nếu chất lượng code và software design kém, khi muốn thêm feature mới tốc độ phát triển sẽ ngày càng chậm. Cuối cùng thậm chí có cảm giác muốn viết lại toàn bộ hệ thống.
 
 ![](https://oss.javaguide.cn/github/javaguide/bad&good-design.png)
 
-《重构：改善代码既有设计》这本书中这样说：
+Trong 《Refactoring: Improving the Design of Existing Code》 có viết:
 
-> 重构的唯一目的就是让我们开发更快，用更少的工作量创造更大的价值。
+> Mục đích duy nhất của refactoring là giúp chúng ta phát triển nhanh hơn, tạo ra nhiều giá trị hơn với ít công sức hơn.
 
-## 性能优化就是重构吗？
+## Performance Optimization có phải là Refactoring không?
 
-重构的目的是提高代码的可读性、可维护性和灵活性，它关注的是代码的内部结构——如何让开发者更容易理解代码，如何让后续的功能开发和维护更加高效。而性能优化则是为了让代码运行得更快、占用更少的资源，它关注的是程序的外部表现——如何减少响应时间、降低资源消耗、提升系统吞吐量。这两者看似对立，但实际上它们的目标是统一的，都是为了提高软件的整体质量。
+Mục đích của refactoring là cải thiện readability, maintainability và flexibility của code. Nó quan tâm đến cấu trúc nội bộ của code — làm thế nào để developer hiểu code dễ hơn, làm thế nào để feature development và maintenance sau này hiệu quả hơn. Còn performance optimization là để code chạy nhanh hơn và chiếm ít tài nguyên hơn — nó quan tâm đến biểu hiện bên ngoài của chương trình — giảm response time, giảm resource consumption, tăng system throughput. Hai cái này trông có vẻ đối lập nhưng thực ra mục tiêu thống nhất — đều để cải thiện overall quality của phần mềm.
 
-在实际开发中，理想的做法是首先**确保代码的可读性和可维护性**，然后根据实际需求选择合适的性能优化手段。优秀的软件设计不是一味追求性能最大化，而是要在可维护性和性能之间找到平衡。通过这种方式，我们可以打造既**易于管理**又具有**良好性能**的软件系统。
+Trong phát triển thực tế, cách làm lý tưởng là trước tiên **đảm bảo readability và maintainability của code**, sau đó chọn phương tiện performance optimization phù hợp theo nhu cầu thực tế. Software design tốt không phải theo đuổi performance maximize mà là tìm sự cân bằng giữa maintainability và performance. Qua cách này chúng ta có thể xây dựng hệ thống phần mềm vừa **dễ quản lý** vừa có **hiệu năng tốt**.
 
-## 何时进行重构？
+## Khi nào nên Refactoring?
 
-重构在是开发过程中随时可以进行的，见机行事即可，并不需要单独分配一两天的时间专门用来重构。
+Refactoring có thể được thực hiện bất cứ lúc nào trong quá trình phát triển — gặp thời thì làm. Không cần phân bổ riêng một đến hai ngày chỉ để refactoring.
 
-### 提交代码之前
+### Trước khi commit code
 
-《重构：改善代码既有设计》这本书介绍了一个 **营地法则** 的概念:
+Cuốn sách 《Refactoring: Improving the Design of Existing Code》 giới thiệu khái niệm **Campsite Rule**:
 
-> 编程时，需要遵循营地法则：保证你离开时的代码库一定比来时更健康。
+> Khi lập trình, cần tuân theo Campsite Rule: đảm bảo code base khi bạn rời đi nhất định khỏe mạnh hơn khi bạn đến.
 
-这个概念表达的核心思想其实很简单：在你提交代码的之前，花一会时间想一想，我这次的提交是让项目代码变得更健康了，还是更腐化了，或者说没什么变化？
+Tư tưởng cốt lõi khái niệm này thực ra rất đơn giản: Trước khi commit code, dành chút thời gian suy nghĩ — commit lần này có làm project code khỏe mạnh hơn không, hay làm nó tệ hơn, hay không thay đổi gì?
 
-项目团队的每一个人只有保证自己的提交没有让项目代码变得更腐化，项目代码才会朝着健康的方向发展。
+Chỉ khi mỗi người trong project team đảm bảo commit của mình không làm project code tệ hơn, project code mới phát triển theo hướng lành mạnh.
 
-**当我们离开营地（项目代码）的时候，请不要留下垃圾（代码坏味道）！尽量确保营地变得更干净了！**
+**Khi rời khỏi campsite (project code), đừng để lại rác (code smell)! Cố gắng đảm bảo campsite sạch hơn trước!**
 
-### 开发一个新功能之后&之前
+### Sau & Trước khi phát triển một feature mới
 
-在开发一个新功能之后，我们应该回过头看看是不是有可以改进的地方。在添加一个新功能之前，我们可以思考一下自己是否可以重构代码以让新功能的开发更容易。
+Sau khi phát triển một feature mới, nên quay lại xem có chỗ nào có thể cải thiện không. Trước khi thêm feature mới, có thể suy nghĩ xem mình có thể refactor code để việc phát triển feature mới dễ hơn không.
 
-一个新功能的开发不应该仅仅只有功能验证通过那么简单，我们还应该尽量保证代码质量。
+Phát triển một feature mới không chỉ đơn giản là verify feature pass — còn nên cố gắng đảm bảo chất lượng code.
 
-有一个两顶帽子的比喻：在我开发新功能之前，我发现重构可以让新功能的开发更容易，于是我戴上了重构的帽子。重构之后，我换回原来的帽子，继续开发新能功能。新功能开发完成之后，我又发现自己的代码难以理解，于是我又戴上了重构帽子。比较好的开发状态就是就是这样在重构和开发新功能之间来回切换。
+Có một ẩn dụ về hai chiếc mũ: Trước khi tôi phát triển feature mới, tôi phát hiện refactoring có thể làm cho việc phát triển feature mới dễ hơn — tôi đội mũ refactoring. Sau khi refactor xong, tôi đổi lại mũ cũ, tiếp tục phát triển feature mới. Sau khi phát triển xong feature mới, tôi lại thấy code của mình khó hiểu — tôi lại đội mũ refactoring. Trạng thái phát triển tốt là như vậy — liên tục chuyển đổi giữa refactoring và phát triển feature mới.
 
-![refractor-two-hats](https://oss.javaguide.cn/github/javaguide/refractor-two-hats.png)
+![refactor-two-hats](https://oss.javaguide.cn/github/javaguide/refractor-two-hats.png)
 
-### Code Review 之后
+### Sau Code Review
 
-Code Review 可以非常有效提高代码的整体质量，它会帮助我们发现代码中的坏味道以及可能存在问题的地方。并且， Code Review 可以帮助项目团队其他程序员理解你负责的业务模块，有效避免人员方面的单点风险。
+Code Review có thể cải thiện overall quality của code rất hiệu quả. Nó giúp chúng ta phát hiện code smell và những nơi có thể có vấn đề. Hơn nữa Code Review giúp programmer khác trong project team hiểu business module bạn phụ trách — tránh hiệu quả rủi ro single point về nhân lực.
 
-经历一次 Code Review ，你的代码可能会收到很多改进建议。
+Sau một lần Code Review, code của bạn có thể nhận được nhiều gợi ý cải tiến.
 
-### 捡垃圾式重构
+### Trash-collection Refactoring
 
-当我们发现坏味道代码（垃圾）的时候，如果我们不想停下手头自己正在做的工作，但又不想放着垃圾不管，我们可以这样做：
+Khi chúng ta phát hiện code smell (rác), nếu không muốn dừng công việc đang làm nhưng cũng không muốn để rác đó lại:
 
-- 如果这个垃圾很容易重构的话，我们可以立即重构它。
-- 如果这个垃圾不太容易重构的话，我们可以先记录下来，当完成当下的任务再回来重构它。
+- Nếu rác này dễ refactor thì refactor ngay lập tức.
+- Nếu rác này không dễ refactor, có thể ghi lại — hoàn thành task hiện tại rồi quay lại refactor.
 
-### 阅读理解代码的时候
+### Khi đọc và hiểu code
 
-搞开发的小伙伴应该非常有体会：我们经常需要阅读项目团队中其他人写的代码，也经常需要阅读自己过去写的代码。阅读代码的时候，通常要比我们写代码的时间还要多很多。
+Developer nên rất có cảm nhận: Chúng ta thường xuyên phải đọc code người khác trong team viết, cũng thường xuyên phải đọc code mình viết trong quá khứ. Thời gian đọc code thường nhiều hơn thời gian viết code rất nhiều.
 
-我们在阅读理解代码的时候，如果发现一些坏味道的话，我们就可以对其进行重构。
+Khi đọc và hiểu code, nếu phát hiện một số code smell, có thể refactor chúng.
 
-就比如说你在阅读张三写的某段代码的时候，你发现这段代码逻辑过于复杂难以理解，你有更好的写法，那你就可以对张三的这段代码逻辑进行重构。
+Ví dụ khi đọc một đoạn code nào đó của A viết, bạn thấy đoạn code logic này quá phức tạp khó hiểu và bạn có cách viết tốt hơn — bạn có thể refactor đoạn code logic này của A.
 
-## 重构有哪些注意事项？
+## Có những lưu ý gì khi Refactoring?
 
-### 单元测试是重构的保护网
+### Unit test là mạng lưới bảo vệ Refactoring
 
-**单元测试可以为重构提供信心，降低重构的成本。我们要像重视生产代码那样，重视单元测试。**
+**Unit test có thể cung cấp confidence cho refactoring, giảm chi phí refactoring. Chúng ta nên coi trọng unit test như coi trọng production code.**
 
-另外，多提一句：持续集成也要依赖单元测试，当持续集成服务自动构建新代码之后，会自动运行单元测试来发现代码错误。
+Nói thêm một điểm: CI cũng phụ thuộc unit test. Khi CI service tự động build code mới, sẽ tự động chạy unit test để phát hiện code error.
 
-**怎样才能算单元测试呢？** 网上的定义很多，很抽象，很容易把人给看迷糊了。我觉得对于单元测试的定义主要取决于你的项目，一个函数甚至是一个类都可以看作是一个单元。就比如说我们写了一个计算个人股票收益率的方法，我们为了验证它的正确性专门为它写了一个单元测试。再比如说我们代码有一个类专门负责数据脱敏，我们为了验证脱敏是否符合预期专门为这个类写了一个单元测试。
+**Thế nào mới gọi là unit test?** Có rất nhiều định nghĩa trên mạng, rất trừu tượng, dễ đọc xong vẫn mơ hồ. Tôi cho rằng định nghĩa unit test chủ yếu phụ thuộc vào project của bạn — một function hay thậm chí một class đều có thể coi là một unit. Ví dụ chúng ta viết một method tính individual stock return rate — để verify tính đúng đắn của nó chúng ta viết riêng một unit test. Hay code có một class chuyên phụ trách data masking — để verify masking có đúng kỳ vọng không chúng ta viết riêng unit test cho class đó.
 
-**单元测试也是需要重构或者修改的。** [《代码整洁之道:敏捷软件开发手册》](https://book.douban.com/subject/4199741/)这本书这样写到：
+**Unit test cũng cần được refactor hay modify.** Cuốn [《Clean Code: A Handbook of Agile Software Development》](https://book.douban.com/subject/4199741/) viết:
 
-> 测试代码需要随着生产代码的演进而修改，如果测试不能保持整洁，只会越来越难修改。
+> Test code cần được modify theo sự phát triển của production code. Nếu test không thể giữ clean, sẽ ngày càng khó modify.
 
-### 不要为了重构而重构
+### Đừng refactoring chỉ để refactoring
 
-**重构一定是要为项目带来价值的！** 某些情况下我们不应该进行重构：
+**Refactoring nhất định phải mang lại giá trị cho project!** Trong một số tình huống không nên refactoring:
 
-- 学习了某个设计模式/工程实践之后，不顾项目实际情况，刻意使用在项目上（避免货物崇拜编程）；
-- 项目进展比较急的时候，重构项目调用的某个 API 的底层代码（重构之后对项目调用这个 API 并没有带来什么价值）；
-- 重写比重构更容易更省事；
+- Sau khi học một design pattern/engineering practice, bất chấp tình hình thực tế của project, cố ý áp dụng lên project (tránh cargo cult programming).
+- Khi project đang gấp, refactor code tầng dưới của một API mà project gọi (refactoring xong không mang lại giá trị gì cho việc project gọi API này).
+- Rewrite dễ hơn và tiết kiệm hơn refactoring.
 - ……
 
-### 遵循方法
+### Tuân theo phương pháp luận
 
-《重构：改善代码既有设计》这本书中列举除了代码常见的一些坏味道（比如重复代码、过长函数）和重构手段（如提炼函数、提炼变量、提炼类）。我们应该花时间去学习这些重构相关的理论知识，并在代码中去实践这些重构理论。
+Cuốn 《Refactoring: Improving the Design of Existing Code》 liệt kê nhiều code smell phổ biến (như duplicate code, overly long function) và refactoring technique (như extract function, extract variable, extract class). Chúng ta nên dành thời gian học các kiến thức lý thuyết liên quan đến refactoring và thực hành các lý thuyết refactoring này trong code.
 
-## 如何练习重构？
+## Làm thế nào để luyện tập Refactoring?
 
-除了可以在重构项目代码的过程中练习精进重构之外，你还可以有下面这些手段：
+Ngoài việc luyện tập và nâng cao kỹ năng refactoring trong quá trình refactor project code, còn có các cách sau:
 
-- [当我重构时，我在想些什么](https://mp.weixin.qq.com/s/pFaFKMXzNCOuW2SD9Co40g)：转转技术的这篇文章总结了常见的重构场景和重构方式。
-- [重构实战练习](https://linesh.gitbook.io/refactoring/)：通过几个小案例一步一步带你学习重构！
-- [设计模式+重构学习网站](https://refactoringguru.cn/)：免费在线学习代码重构、 设计模式、 SOLID 原则 （单一职责、 开闭原则、 里氏替换、 接口隔离以及依赖反转） 。
-- [IDEA 官方文档的代码重构教程](https://www.jetbrains.com/help/idea/refactoring-source-code.html#popular-refactorings)：教你如何使用 IDEA 进行重构。
+- [Khi tôi refactoring, tôi đang nghĩ gì](https://mp.weixin.qq.com/s/pFaFKMXzNCOuW2SD9Co40g): Bài viết của Zhuanzhuan Tech tổng kết các tình huống refactoring và cách refactoring phổ biến.
+- [Refactoring Practice](https://linesh.gitbook.io/refactoring/): Học refactoring từng bước qua một số case nhỏ!
+- [Design Pattern + Refactoring Learning Website](https://refactoringguru.cn/): Học miễn phí online về code refactoring, design pattern, SOLID principle (Single responsibility, Open-Closed, Liskov Substitution, Interface Segregation và Dependency Inversion).
+- [IDEA Official Docs Code Refactoring Tutorial](https://www.jetbrains.com/help/idea/refactoring-source-code.html#popular-refactorings): Dạy bạn cách refactoring với IDEA.
 
-## 参考
+## Tài liệu tham khảo
 
-- [再读《重构》- ThoughtWorks 洞见 - 2020](https://insights.thoughtworks.cn/reread-refactoring/)：详细介绍了重构的要点比如小步重构、捡垃圾式的重构，主要是重构概念相关的介绍。
-- [常见代码重构技巧 - VectorJin - 2021](https://juejin.cn/post/6954378167947624484)：从软件设计原则、设计模式、代码分层、命名规范等角度介绍了如何进行重构，比较偏实战。
-
-<!-- @include: @article-footer.snippet.md -->
+- [Đọc lại 《Refactoring》 - ThoughtWorks Insights - 2020](https://insights.thoughtworks.cn/reread-refactoring/): Giới thiệu chi tiết các điểm quan trọng của refactoring như small-step refactoring, trash-collection refactoring. Chủ yếu về giới thiệu khái niệm refactoring.
+- [Kỹ thuật code refactoring phổ biến - VectorJin - 2021](https://juejin.cn/post/6954378167947624484): Giới thiệu cách refactoring từ góc độ software design principle, design pattern, code layering, naming convention. Thiên về thực chiến hơn.

@@ -1,165 +1,163 @@
 ---
-title: 图
-description: 介绍图的基本概念与常用表示，结合 DFS/BFS 等核心算法与应用场景，掌握图论入门必备知识。
-category: 计算机基础
+title: Graph (Đồ thị)
+description: Giới thiệu các khái niệm cơ bản và cách biểu diễn phổ biến của graph, kết hợp các thuật toán cốt lõi như DFS/BFS và tình huống ứng dụng, nắm vững kiến thức nhập môn graph theory.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 数据结构
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
-      content: 图,邻接表,邻接矩阵,DFS,BFS,度,有向图,无向图,连通性
+      content: graph,adjacency list,adjacency matrix,DFS,BFS,degree,directed graph,undirected graph,connectivity
 ---
 
-图是一种较为复杂的非线性结构。 **为啥说其较为复杂呢？**
+Graph là cấu trúc phi tuyến tương đối phức tạp. **Tại sao nói là tương đối phức tạp?**
 
-根据前面的内容，我们知道：
+Từ nội dung trước chúng ta biết:
 
-- 线性数据结构的元素满足唯一的线性关系，每个元素(除第一个和最后一个外)只有一个直接前趋和一个直接后继。
-- 树形数据结构的元素之间有着明显的层次关系。
+- Phần tử của cấu trúc dữ liệu tuyến tính thỏa quan hệ tuyến tính duy nhất. Mỗi phần tử (trừ phần tử đầu tiên và cuối cùng) chỉ có một direct predecessor và một direct successor.
+- Phần tử của cấu trúc dữ liệu dạng tree có quan hệ phân cấp rõ ràng.
 
-但是，图形结构的元素之间的关系是任意的。
+Nhưng quan hệ giữa các phần tử trong cấu trúc graph là tùy ý.
 
-**何为图呢？** 简单来说，图就是由顶点的有穷非空集合和顶点之间的边组成的集合。通常表示为：**G(V,E)**，其中，G 表示一个图，V 表示顶点的集合，E 表示边的集合。
+**Graph là gì?** Nói đơn giản, graph là tập hợp gồm tập hữu hạn không rỗng các đỉnh (vertex) và tập hợp các cạnh (edge) giữa các đỉnh. Thường biểu diễn là: **G(V,E)**, trong đó G là graph, V là tập đỉnh, E là tập cạnh.
 
-下图所展示的就是图这种数据结构，并且还是一张有向图。
+Hình dưới là cấu trúc dữ liệu graph — đây còn là directed graph (đồ thị có hướng).
 
-![有向图](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/directed-graph.png)
+![Directed Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/directed-graph.png)
 
-图在我们日常生活中的例子很多！比如我们在社交软件上好友关系就可以用图来表示。
+Graph có rất nhiều ví dụ trong cuộc sống hàng ngày! Ví dụ quan hệ bạn bè trên mạng xã hội có thể biểu diễn bằng graph.
 
-## 图的基本概念
+## Các khái niệm cơ bản của Graph
 
-### 顶点
+### Vertex (Đỉnh)
 
-图中的数据元素，我们称之为顶点，图至少有一个顶点（非空有穷集合）
+Phần tử dữ liệu trong graph gọi là đỉnh. Graph có ít nhất một đỉnh (tập hữu hạn không rỗng).
 
-对应到好友关系图，每一个用户就代表一个顶点。
+Trong graph quan hệ bạn bè, mỗi user là một đỉnh.
 
-### 边
+### Edge (Cạnh)
 
-顶点之间的关系用边表示。
+Quan hệ giữa các đỉnh được biểu diễn bằng cạnh.
 
-对应到好友关系图，两个用户是好友的话，那两者之间就存在一条边。
+Trong graph quan hệ bạn bè, nếu hai user là bạn bè thì giữa hai người tồn tại một cạnh.
 
-### 度
+### Degree (Bậc)
 
-度表示一个顶点包含多少条边，在有向图中，还分为出度和入度，出度表示从该顶点出去的边的条数，入度表示进入该顶点的边的条数。
+Degree biểu thị một đỉnh có bao nhiêu cạnh. Trong directed graph còn chia thành out-degree (bậc ra) và in-degree (bậc vào). Out-degree là số cạnh đi ra từ đỉnh đó, in-degree là số cạnh đi vào đỉnh đó.
 
-对应到好友关系图，度就代表了某个人的好友数量。
+Trong graph quan hệ bạn bè, degree biểu thị số bạn bè của một người.
 
-### 无向图和有向图
+### Undirected Graph và Directed Graph
 
-边表示的是顶点之间的关系，有的关系是双向的，比如同学关系，A 是 B 的同学，那么 B 也肯定是 A 的同学，那么在表示 A 和 B 的关系时，就不用关注方向，用不带箭头的边表示，这样的图就是无向图。
+Cạnh biểu thị quan hệ giữa các đỉnh. Một số quan hệ là hai chiều, như quan hệ bạn học — A là bạn học của B thì B chắc chắn là bạn học của A. Khi biểu thị quan hệ giữa A và B, không cần quan tâm đến hướng, dùng cạnh không có mũi tên để biểu thị. Graph như vậy là undirected graph.
 
-有的关系是有方向的，比如父子关系，师生关系，微博的关注关系，A 是 B 的爸爸，但 B 肯定不是 A 的爸爸，A 关注 B，B 不一定关注 A。在这种情况下，我们就用带箭头的边表示二者的关系，这样的图就是有向图。
+Một số quan hệ có hướng, như quan hệ cha-con, thầy-trò, quan hệ follow trên Weibo — A là bố của B nhưng B chắc chắn không phải bố của A. A follow B nhưng B không nhất thiết follow lại A. Trong trường hợp này dùng cạnh có mũi tên để biểu thị quan hệ hai bên — graph như vậy là directed graph.
 
-### 无权图和带权图
+### Unweighted Graph và Weighted Graph
 
-对于一个关系，如果我们只关心关系的有无，而不关心关系有多强，那么就可以用无权图表示二者的关系。
+Với một quan hệ, nếu chúng ta chỉ quan tâm có quan hệ hay không, không quan tâm quan hệ mạnh đến đâu — có thể dùng unweighted graph biểu thị.
 
-对于一个关系，如果我们既关心关系的有无，也关心关系的强度，比如描述地图上两个城市的关系，需要用到距离，那么就用带权图来表示，带权图中的每一条边一个数值表示权值，代表关系的强度。
+Với một quan hệ, nếu vừa quan tâm có quan hệ hay không, vừa quan tâm độ mạnh của quan hệ — ví dụ mô tả quan hệ giữa hai thành phố trên bản đồ cần dùng khoảng cách — thì dùng weighted graph. Mỗi cạnh trong weighted graph có một số để biểu thị trọng số, đại diện cho độ mạnh của quan hệ.
 
-下图就是一个带权有向图。
+Hình dưới là weighted directed graph.
 
-![带权有向图](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/weighted-directed-graph.png)
+![Weighted Directed Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/weighted-directed-graph.png)
 
-## 图的存储
+## Lưu trữ Graph
 
-### 邻接矩阵存储
+### Adjacency Matrix (Ma trận kề)
 
-邻接矩阵将图用二维矩阵存储，是一种较为直观的表示方式。
+Adjacency matrix lưu graph bằng ma trận hai chiều — cách biểu diễn khá trực quan.
 
-如果第 i 个顶点和第 j 个顶点之间有关系，且关系权值为 n，则 `A[i][j]=n` 。
+Nếu đỉnh thứ i và đỉnh thứ j có quan hệ với trọng số n thì `A[i][j]=n`.
 
-在无向图中，我们只关心关系的有无，所以当顶点 i 和顶点 j 有关系时，`A[i][j]`=1，当顶点 i 和顶点 j 没有关系时，`A[i][j]`=0。如下图所示：
+Trong undirected graph, chúng ta chỉ quan tâm quan hệ có hay không. Nên khi đỉnh i và đỉnh j có quan hệ thì `A[i][j]=1`, không có quan hệ thì `A[i][j]=0`. Như hình dưới:
 
-![无向图的邻接矩阵存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-matrix-representation-of-undirected-graph.png)
+![Adjacency Matrix của Undirected Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-matrix-representation-of-undirected-graph.png)
 
-值得注意的是：**无向图的邻接矩阵是一个对称矩阵，因为在无向图中，顶点 i 和顶点 j 有关系，则顶点 j 和顶点 i 必有关系。**
+Đáng chú ý: **Adjacency matrix của undirected graph là symmetric matrix (ma trận đối xứng), vì trong undirected graph, đỉnh i và đỉnh j có quan hệ thì đỉnh j và đỉnh i nhất định cũng có quan hệ.**
 
-![有向图的邻接矩阵存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-matrix-representation-of-directed-graph.png)
+![Adjacency Matrix của Directed Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-matrix-representation-of-directed-graph.png)
 
-邻接矩阵存储的方式优点是简单直接（直接使用一个二维数组即可），并且，在获取两个定点之间的关系的时候也非常高效（直接获取指定位置的数组元素的值即可）。但是，这种存储方式的缺点也比较明显，那就是比较浪费空间，
+Ưu điểm của cách lưu adjacency matrix là đơn giản trực quan (chỉ cần dùng mảng hai chiều) và rất hiệu quả khi lấy quan hệ giữa hai đỉnh (trực tiếp lấy giá trị phần tử mảng tại vị trí chỉ định). Nhưng nhược điểm cũng khá rõ ràng — khá lãng phí không gian.
 
-### 邻接表存储
+### Adjacency List (Danh sách kề)
 
-针对上面邻接矩阵比较浪费内存空间的问题，诞生了图的另外一种存储方法—**邻接表** 。
+Để giải quyết vấn đề adjacency matrix lãng phí memory space, ra đời cách lưu trữ graph khác — **adjacency list**.
 
-邻接链表使用一个链表来存储某个顶点的所有后继相邻顶点。对于图中每个顶点 Vi，把所有邻接于 Vi 的顶点 Vj 链成一个单链表，这个单链表称为顶点 Vi 的 **邻接表**。如下图所示：
+Adjacency linked list dùng một linked list để lưu tất cả successor neighbor vertex của một vertex. Với mỗi vertex Vi trong graph, tất cả vertex Vj kề với Vi được linked thành một singly linked list, linked list này gọi là **adjacency list** của vertex Vi. Như hình dưới:
 
-![无向图的邻接表存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-list-representation-of-undirected-graph.png)
+![Adjacency List của Undirected Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-list-representation-of-undirected-graph.png)
 
-![有向图的邻接表存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-list-representation-of-directed-graph.png)
+![Adjacency List của Directed Graph](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/adjacency-list-representation-of-directed-graph.png)
 
-大家可以数一数邻接表中所存储的元素的个数以及图中边的条数，你会发现：
+Hãy đếm số element trong adjacency list và số cạnh trong graph — bạn sẽ thấy:
 
-- 在无向图中，邻接表元素个数等于边的条数的两倍，如左图所示的无向图中，边的条数为 7，邻接表存储的元素个数为 14。
-- 在有向图中，邻接表元素个数等于边的条数，如右图所示的有向图中，边的条数为 8，邻接表存储的元素个数为 8。
+- Trong undirected graph, số element trong adjacency list bằng gấp đôi số cạnh. Như undirected graph trong hình trái, số cạnh là 7, số element trong adjacency list là 14.
+- Trong directed graph, số element trong adjacency list bằng số cạnh. Như directed graph trong hình phải, số cạnh là 8, số element trong adjacency list là 8.
 
-## 图的搜索
+## Tìm kiếm trong Graph
 
-### 广度优先搜索
+### BFS (Breadth-First Search — Tìm kiếm theo chiều rộng)
 
-广度优先搜索就像水面上的波纹一样一层一层向外扩展，如下图所示：
+BFS giống như sóng nước lan rộng từng lớp từng lớp ra ngoài, như hình dưới:
 
-![广度优先搜索图示](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search.png)
+![Minh họa BFS](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search.png)
 
-**广度优先搜索的具体实现方式用到了之前所学过的线性数据结构——队列** 。具体过程如下图所示：
+**Cách triển khai cụ thể của BFS dùng cấu trúc dữ liệu tuyến tính đã học — Queue**. Quá trình cụ thể như hình dưới:
 
-**第 1 步：**
+**Bước 1:**
 
-![广度优先搜索1](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search1.png)
+![BFS bước 1](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search1.png)
 
-**第 2 步：**
+**Bước 2:**
 
-![广度优先搜索2](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search2.png)
+![BFS bước 2](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search2.png)
 
-**第 3 步：**
+**Bước 3:**
 
-![广度优先搜索3](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search3.png)
+![BFS bước 3](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search3.png)
 
-**第 4 步：**
+**Bước 4:**
 
-![广度优先搜索4](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search4.png)
+![BFS bước 4](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search4.png)
 
-**第 5 步：**
+**Bước 5:**
 
-![广度优先搜索5](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search5.png)
+![BFS bước 5](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search5.png)
 
-**第 6 步：**
+**Bước 6:**
 
-![广度优先搜索6](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search6.png)
+![BFS bước 6](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/breadth-first-search6.png)
 
-### 深度优先搜索
+### DFS (Depth-First Search — Tìm kiếm theo chiều sâu)
 
-深度优先搜索就是“一条路走到黑”，从源顶点开始，一直走到没有后继节点，才回溯到上一顶点，然后继续“一条路走到黑”，如下图所示：
+DFS là "đi hết một con đường" — từ vertex nguồn, cứ đi cho đến khi không còn successor node mới backtrack lên vertex trước, rồi tiếp tục "đi hết một con đường", như hình dưới:
 
-![深度优先搜索图示](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search.png)
+![Minh họa DFS](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search.png)
 
-**和广度优先搜索类似，深度优先搜索的具体实现用到了另一种线性数据结构——栈** 。具体过程如下图所示：
+**Tương tự BFS, cách triển khai cụ thể của DFS dùng cấu trúc dữ liệu tuyến tính khác — Stack**. Quá trình cụ thể như hình dưới:
 
-**第 1 步：**
+**Bước 1:**
 
-![深度优先搜索1](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search1.png)
+![DFS bước 1](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search1.png)
 
-**第 2 步：**
+**Bước 2:**
 
-![深度优先搜索2](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search2.png)
+![DFS bước 2](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search2.png)
 
-**第 3 步：**
+**Bước 3:**
 
-![深度优先搜索3](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search3.png)
+![DFS bước 3](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search3.png)
 
-**第 4 步：**
+**Bước 4:**
 
-![深度优先搜索4](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search4.png)
+![DFS bước 4](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search4.png)
 
-**第 5 步：**
+**Bước 5:**
 
-![深度优先搜索5](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search5.png)
+![DFS bước 5](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search5.png)
 
-**第 6 步：**
+**Bước 6:**
 
-![深度优先搜索6](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search6.png)
-
-<!-- @include: @article-footer.snippet.md -->
+![DFS bước 6](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/depth-first-search6.png)

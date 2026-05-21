@@ -1,185 +1,185 @@
 ---
-title: 我的知识星球 6 岁了！
-description: JavaGuide知识星球介绍，提供Java面试指北专栏、简历修改、一对一答疑等服务，已帮助9000+球友提升求职竞争力。
-category: 知识星球
+title: Knowledge Planet của mình đã 6 tuổi!
+description: Giới thiệu Knowledge Planet của JavaGuide, cung cấp column Java Interview Guide, chỉnh sửa CV, hỏi đáp 1-1 và các dịch vụ khác, đã giúp 9000+ thành viên nâng cao khả năng cạnh tranh trong tuyển dụng.
+category: Knowledge Planet
 star: 2
 ---
 
-在 **2019 年 12 月 29 号**，经过了大概一年左右的犹豫期，我正式确定要开始做一个自己的星球，帮助学习 Java 和准备 Java 面试的同学。一转眼，已经六年了。感谢大家一路陪伴，我会信守承诺，继续认真维护这个纯粹的 Java 知识星球，不让信任我的读者失望。
+Vào **ngày 29 tháng 12 năm 2019**, sau khoảng một năm do dự, mình chính thức quyết định tạo một planet của riêng mình, giúp đỡ những bạn đang học Java và chuẩn bị phỏng vấn Java. Thoáng cái đã sáu năm. Cảm ơn mọi người đã đồng hành suốt chặng đường, mình sẽ giữ lời hứa, tiếp tục duy trì nghiêm túc planet Java thuần túy này, không phụ lòng tin của các độc giả.
 
-![星球创立日期](https://oss.javaguide.cn/xingqiu/640-20230727145252757.png)
+![Ngày thành lập planet](https://oss.javaguide.cn/xingqiu/640-20230727145252757.png)
 
-我是比较早一批做星球的技术号主，也是坚持做下来的那一少部人（大部分博主割一波韭菜就不维护星球了）。最开始的一两年，纯粹靠爱发电。当初定价非常低（一顿饭钱），加上刚工作的时候比较忙，提供的服务也没有现在这么多。
+Mình là một trong những đợt đầu tiên các kỹ thuật blogger làm planet, cũng là một trong số ít người vẫn kiên trì duy trì (phần lớn blogger kiếm tiền một lần xong không maintain nữa). Một hai năm đầu, hoàn toàn làm vì đam mê. Lúc đó giá rất thấp (bằng một bữa ăn), cộng với khi mới đi làm khá bận, các dịch vụ cũng chưa nhiều như bây giờ.
 
-慢慢的价格提上来，星球的收入确实慢慢也上来了。不过，考虑到我的受众主要是学生，定价依然比同类星球低很多。另外，我也没有弄训练营的打算，虽然训练营对于我这个流量来说可以赚到更多钱。
+Dần dần giá tăng lên, thu nhập từ planet cũng dần tăng theo. Tuy nhiên, vì đối tượng chính của mình là sinh viên nên giá vẫn thấp hơn nhiều so với các planet cùng loại. Ngoài ra, mình cũng không có kế hoạch làm training camp, dù với lượng traffic của mình, training camp có thể kiếm được nhiều tiền hơn.
 
-**我有自己的原则，不割韭菜，用心做内容，真心希望帮助到他人！**
+**Mình có nguyên tắc riêng, không cắt cỏ người dùng, làm nội dung chất lượng, thực lòng muốn giúp đỡ người khác!**
 
-## 我的知识星球评价如何？
+## Đánh giá Knowledge Planet của mình như thế nào?
 
-知识星球是一个私密、长期的知识社群，用来连接创作者和铁杆读者。相比微信群，它更适合沉淀内容、做系统化的学习和信息管理。
+Knowledge Planet là một cộng đồng kiến thức riêng tư, lâu dài, kết nối creators với độc giả trung thành. So với nhóm WeChat, nó phù hợp hơn để lưu trữ nội dung, học tập có hệ thống và quản lý thông tin.
 
-下面是今年收到了部分好评，每一条都是真实存在的。我看到很多培训班或者机构通过虚构一些不存在的好评来欺骗他人购买高价服务（行业内非常常见），真的很难理解。
+Dưới đây là một phần đánh giá tốt nhận được trong năm nay, tất cả đều có thật. Mình thấy nhiều training center hay tổ chức bịa đặt những đánh giá không có thật để lừa người khác mua dịch vụ giá cao (rất phổ biến trong ngành), thực sự khó hiểu.
 
-![球友对星球的真实评价](https://oss.javaguide.cn/xingqiu/praise-that-the-planet-received.png)
+![Đánh giá thật của thành viên về planet](https://oss.javaguide.cn/xingqiu/praise-that-the-planet-received.png)
 
-在这里，不只有理论，更有具体、可落地的求职/转行指导：
+Ở đây, không chỉ có lý thuyết, còn có hướng dẫn tìm việc/chuyển ngành cụ thể, có thể thực hiện được:
 
-- 有球友入球后，在多次一对一建议下，很快就收到了美国大模型应用开发的面试并通过；
-- 有球友在指导下顺利转行，拿到满意的中厂 Offer。
+- Có thành viên sau khi tham gia, qua nhiều lần tư vấn 1-1, sớm nhận được phỏng vấn và pass vào phát triển ứng dụng AI tại Mỹ;
+- Có thành viên được hướng dẫn và chuyển ngành thành công, nhận được offer từ công ty vừa tốt.
 
-不少球友评价我是“良心博主”：深夜 11 点多还在帮忙改简历、给建议；对非科班、大龄转行等焦虑问题，也会耐心一一解答，做到有问必回。
+Không ít thành viên đánh giá mình là "blogger lương tâm": đêm muộn 11 giờ vẫn giúp chỉnh sửa CV, đưa ra lời khuyên; với những vấn đề lo lắng như chuyển ngành không có chuyên ngành, chuyển ngành muộn, cũng kiên nhẫn trả lời từng câu một, hỏi là có trả lời.
 
-口碑是最好的证明！这里有连续续费三年的老球友，也有因为信任而把星球推荐给弟弟妹妹的朋友。
+Uy tín là bằng chứng tốt nhất! Ở đây có các thành viên cũ đã gia hạn liên tục ba năm, cũng có những người vì tin tưởng mà giới thiệu planet cho em trai em gái của mình.
 
-下面是部分球友今年的求职战绩分享（只是一小部分，有校招，也有社招），同样完全真实。每年面试季之后，星球就有大量的球友询问 offer 如何选择。
+Dưới đây là một phần kết quả tìm việc năm nay của các thành viên (chỉ là một phần nhỏ, có cả tuyển sinh viên mới lẫn xã hội), hoàn toàn thật. Mỗi mùa phỏng vấn, planet có rất nhiều thành viên hỏi cách chọn offer.
 
-![部分球友今年的求职战绩](https://oss.javaguide.cn/xingqiu/job-hunting-results-from-members-2025.png)
+![Một phần kết quả tìm việc của thành viên năm nay](https://oss.javaguide.cn/xingqiu/job-hunting-results-from-members-2025.png)
 
-## 我的知识星球能为你提供什么？
+## Knowledge Planet của mình cung cấp gì cho bạn?
 
-致力于打造最优质的 Java 面试交流星球（后端面试通用）！加入我们，你将获得远超票价的一站式成长服务：
+Cam kết xây dựng planet trao đổi phỏng vấn Java chất lượng nhất (áp dụng chung cho backend interview)! Tham gia với chúng tôi, bạn sẽ nhận được dịch vụ phát triển toàn diện vượt xa giá trị vé:
 
-💎 **核心面试求职服务**
+💎 **Dịch vụ phỏng vấn tuyển dụng cốt lõi**
 
-- **简历深度精修**：提供免费的一对一简历修改服务（已累计帮助 **9000+** 位球友，好评如潮）。
-- **6 大精品专栏**：永久阅读权限，内容涵盖高频面试题、源码解析、实战项目，构建完整知识体系。
-- **独家面试手册**：多本原创 PDF 后端面试手册免费领取，全网独家。
-- **有问必答**：一对一免费提问，提供专属求职指南，拒绝焦虑。
+- **Chỉnh sửa CV chuyên sâu**: Cung cấp dịch vụ chỉnh sửa CV 1-1 miễn phí (đã tích lũy giúp đỡ **9000+** thành viên, được khen ngợi nhiều).
+- **6 column chất lượng cao**: Quyền đọc vĩnh viễn, nội dung bao gồm các câu hỏi phỏng vấn tần suất cao, phân tích source code, dự án thực tế, xây dựng hệ thống kiến thức hoàn chỉnh.
+- **Tài liệu phỏng vấn độc quyền**: Nhiều PDF handbook phỏng vấn backend nguyên tác miễn phí, độc quyền toàn mạng.
+- **Hỏi là có trả lời**: Hỏi miễn phí 1-1, cung cấp hướng dẫn tìm việc riêng, nói không với lo lắng.
 
-**🚀 实战项目**
+**🚀 Dự án thực tế**
 
-星球已经推出的实战项目如下：
+Các dự án thực tế mà planet đã ra mắt:
 
-- [⭐AI 智能面试辅助平台 + RAG 知识库](https://javaguide.cn/zhuanlan/interview-guide.html)：基于 Spring Boot 4.0 + Java 21 + Spring AI 2.0 开发。非常适合作为学习和简历项目，学习门槛低，帮助提升求职竞争力，是主打就业的实战项目。
-- [手写 RPC 框架](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html)：从零开始基于 Netty+Kyro+Zookeeper 实现一个简易的 RPC 框架。麻雀虽小五脏俱全，项目代码注释详细，结构清晰。
+- [⭐AI Smart Interview Platform + RAG Knowledge Base](https://javaguide.cn/zhuanlan/interview-guide.html): Phát triển dựa trên Spring Boot 4.0 + Java 21 + Spring AI 2.0. Rất phù hợp để học và dùng làm dự án CV, threshold học thấp, giúp nâng cao cạnh tranh tuyển dụng, là dự án thực tế tập trung vào việc làm.
+- [Tự viết RPC Framework](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html): Implement từ đầu một RPC framework đơn giản dựa trên Netty+Kyro+Zookeeper. Tuy nhỏ nhưng đầy đủ, code có chú thích chi tiết, cấu trúc rõ ràng.
 
-今年陆续还会推出更多企业级实战案例（预告一下，下一个是大家期待的：**企业智能客服**）！
+Năm nay sẽ tiếp tục ra mắt thêm nhiều enterprise case thực tế (spoiler: tiếp theo là: **Enterprise Intelligent Customer Service** mà mọi người mong đợi)!
 
-🔥 **氛围与福利**
+🔥 **Bầu không khí và phúc lợi**
 
-- **海量资源**：Java 优质面试资源持续更新分享。
-- **抱团成长**：打卡活动、读书交流、线下聚会，让学习之路不再孤单。
-- **惊喜福利**：不定期节日抽奖、送书送课，福利拿到手软。
+- **Tài nguyên phong phú**: Tài nguyên phỏng vấn Java chất lượng cao cập nhật và chia sẻ liên tục.
+- **Cùng nhau tiến bộ**: Hoạt động check-in, trao đổi sách, gặp gỡ offline, con đường học tập không còn đơn độc.
+- **Phúc lợi bất ngờ**: Rút thăm ngày lễ không định kỳ, tặng sách tặng khóa học, phúc lợi không thiếu.
 
-💡 **总结**：这里的任何一项服务（尤其是简历修改和面试资料），单独拎出来的价值都已远超星球门票。
+💡 **Tóm lại**: Bất kỳ dịch vụ nào ở đây (đặc biệt là chỉnh sửa CV và tài liệu phỏng vấn) nếu lấy ra riêng đã vượt xa giá trị vé rồi.
 
-目前星球正在做活动，两本书的价格，就能让你拥有上万培训班的服务！
+Hiện tại planet đang làm chương trình khuyến mãi, giá hai quyển sách, có được dịch vụ của trung tâm đào tạo hàng chục nghìn!
 
-这里再提供一张 **30**元的优惠卷（**价格马上上调，老用户扫码续费半价** ）：
+Đây cung cấp thêm voucher giảm giá **30** tệ (**giá sắp tăng, người dùng cũ quét mã gia hạn nửa giá**):
 
-![知识星球30元优惠卷](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
+![Voucher giảm giá 30 tệ Knowledge Planet](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
 
-### 专属专栏
+### Column độc quyền
 
-星球更新了 **《Java 面试指北》**、**《Java 必读源码系列》**（目前已经整理了 Dubbo 2.6.x、Netty 4.x、SpringBoot2.1 的源码）、 **《从零开始写一个 RPC 框架》**（已更新完）、**《Kafka 常见面试题/知识点总结》** 等多个优质专栏。
+Planet đã cập nhật nhiều column chất lượng cao như **《Java Interview Guide》**, **《Java Must-Read Source Code Series》** (hiện đã tổng hợp source code của Dubbo 2.6.x, Netty 4.x, SpringBoot2.1), **《Viết RPC Framework từ đầu》** (đã cập nhật xong), **《Tổng hợp câu hỏi/kiến thức Kafka phổ biến trong phỏng vấn》** và nhiều column chất lượng khác.
 
-![星球专属专栏](https://oss.javaguide.cn/xingqiu/image-20220211231206733.png)
+![Column độc quyền của planet](https://oss.javaguide.cn/xingqiu/image-20220211231206733.png)
 
-《Java 面试指北》内容概览：
+Tổng quan nội dung 《Java Interview Guide》:
 
-![《Java 面试指北》内容概览](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-content-overview.png)
+![Tổng quan nội dung 《Java Interview Guide》](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-content-overview.png)
 
-进入星球之后，这些专栏即可免费永久阅读，永久同步更新！
+Sau khi tham gia planet, các column này có thể đọc miễn phí vĩnh viễn, cập nhật đồng bộ vĩnh viễn!
 
-### 实战项目
+### Dự án thực tế
 
-星球已经推出的实战项目如下：
+Các dự án thực tế mà planet đã ra mắt:
 
-- [⭐AI 智能面试辅助平台 + RAG 知识库](https://javaguide.cn/zhuanlan/interview-guide.html)：基于 Spring Boot 4.0 + Java 21 + Spring AI 2.0 开发。非常适合作为学习和简历项目，学习门槛低，帮助提升求职竞争力，是主打就业的实战项目。
-- [手写 RPC 框架](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html)：从零开始基于 Netty+Kyro+Zookeeper 实现一个简易的 RPC 框架。麻雀虽小五脏俱全，项目代码注释详细，结构清晰。
+- [⭐AI Smart Interview Platform + RAG Knowledge Base](https://javaguide.cn/zhuanlan/interview-guide.html): Phát triển dựa trên Spring Boot 4.0 + Java 21 + Spring AI 2.0. Rất phù hợp để học và dùng làm dự án CV, threshold học thấp, giúp nâng cao cạnh tranh tuyển dụng, là dự án thực tế tập trung vào việc làm.
+- [Tự viết RPC Framework](https://javaguide.cn/zhuanlan/handwritten-rpc-framework.html): Implement từ đầu một RPC framework đơn giản dựa trên Netty+Kyro+Zookeeper. Tuy nhỏ nhưng đầy đủ, code có chú thích chi tiết, cấu trúc rõ ràng.
 
-今年陆续还会推出更多企业级实战案例！并且，星球还分享了很多高频项目经历的优化版介绍和面试准备（持续更新中）。
+Năm nay sẽ tiếp tục ra mắt thêm nhiều enterprise case thực tế! Và planet còn chia sẻ nhiều bản giới thiệu tối ưu hóa và chuẩn bị phỏng vấn cho các dự án tần suất cao (đang cập nhật liên tục).
 
-![高频项目经历的优化版介绍和面试准备](https://oss.javaguide.cn/xingqiu/practical-project-introduction-template.png)
+![Bản giới thiệu tối ưu hóa và chuẩn bị phỏng vấn cho dự án tần suất cao](https://oss.javaguide.cn/xingqiu/practical-project-introduction-template.png)
 
-### PDF 面试手册
+### PDF Interview Handbook
 
-进入星球就免费赠送多本优质 PDF 面试手册。
+Tham gia planet được tặng miễn phí nhiều PDF interview handbook chất lượng cao.
 
-![星球 PDF 面试手册](https://oss.javaguide.cn/xingqiu/image-20220723120918434.png)
+![PDF Interview Handbook của planet](https://oss.javaguide.cn/xingqiu/image-20220723120918434.png)
 
-### 优质精华主题沉淀
+### Tích lũy các chủ đề tinh hoa chất lượng cao
 
-星球沉淀了几年的优质精华主题，内容涵盖面经、面试题、工具网站、技术资源、程序员进阶攻略等内容，干货非常多。
+Planet đã tích lũy nhiều năm các chủ đề tinh hoa chất lượng cao, nội dung bao gồm kinh nghiệm phỏng vấn, câu hỏi phỏng vấn, website công cụ, tài nguyên kỹ thuật, hướng dẫn nâng cao cho programmers... Rất nhiều kiến thức hữu ích.
 
 ![](https://oss.javaguide.cn/xingqiu/image-20230421154518800.png)
 
-并且，每个月都会整理出当月优质的主题，方便大家阅读学习，避免错过优质的内容。毫不夸张，单纯这些优质主题就足够门票价值了。
+Và mỗi tháng đều tổng hợp các chủ đề chất lượng cao của tháng đó, để mọi người dễ dàng đọc và học, tránh bỏ lỡ nội dung tốt. Không nói quá, chỉ riêng những chủ đề chất lượng này đã đủ giá trị vé rồi.
 
-![星球每月优质主题整理概览](https://oss.javaguide.cn/xingqiu/image-20230902091117181.png)
+![Tổng quan tổng hợp chủ đề chất lượng hàng tháng của planet](https://oss.javaguide.cn/xingqiu/image-20230902091117181.png)
 
-加入星球之后，一定要记得抽时间把星球精华主题看看，相信你一定会有所收货！
+Sau khi tham gia planet, nhớ dành thời gian xem qua các chủ đề tinh hoa của planet, tin rằng bạn sẽ học được nhiều điều!
 
-JavaGuide 知识星球优质主题汇总传送门：<https://www.yuque.com/snailclimb/rpkqw1/ncxpnfmlng08wlf1>（为了避免这里成为知识杂货铺，我会对严格筛选入选的优质主题）。
+Cổng tổng hợp chủ đề chất lượng Knowledge Planet của JavaGuide: <https://www.yuque.com/snailclimb/rpkqw1/ncxpnfmlng08wlf1> (để tránh đây trở thành nơi lộn xộn, mình sẽ lọc nghiêm ngặt các chủ đề chất lượng được chọn vào).
 
-![星球优质主题汇总](https://oss.javaguide.cn/xingqiu/Xnip2023-04-21_15-48-13.png)
+![Tổng hợp chủ đề chất lượng của planet](https://oss.javaguide.cn/xingqiu/Xnip2023-04-21_15-48-13.png)
 
-### 简历修改
+### Chỉnh sửa CV
 
-一到面试季，我平均一天晚上至少要看 15 ~30 份简历。过了面试季的话，找我看简历的话会稍微少一些。要不然的话，是真心顶不住！
+Vào mùa phỏng vấn, trung bình mỗi tối mình phải xem ít nhất 15-30 CV. Ngoài mùa phỏng vấn, người nhờ xem CV ít hơn một chút. Không thì thực sự chịu không nổi!
 
 ![](https://oss.javaguide.cn/xingqiu/image-20220304123156348.png)
 
-简单统计了一下，到目前为止，我至少帮助 **9000+** 位球友提供了免费的简历修改服务。
+Thống kê sơ bộ, đến nay mình đã giúp ít nhất **9000+** thành viên cung cấp dịch vụ chỉnh sửa CV miễn phí.
 
 ![](https://oss.javaguide.cn/xingqiu/%E7%AE%80%E5%8E%86%E4%BF%AE%E6%94%B92.jpg)
 
-我会针对每一份简历给出详细的修改完善建议，用心修改，深受好评！
+Mình sẽ đưa ra gợi ý chỉnh sửa chi tiết cho từng CV, chỉnh sửa tận tâm, được khen ngợi nhiều!
 
 ![](https://oss.javaguide.cn/xingqiu/image-20220725093504807.png)
 
-### 一对一提问
+### Hỏi đáp 1-1
 
-加入即可解锁 **1 V 1 免费提问权益**，拒绝敷衍和套话，我会结合你的实际情况，给出最真诚、最落地的建议。
+Tham gia là có ngay **quyền lợi hỏi miễn phí 1v1**, từ chối qua loa và nói chung chung, mình sẽ căn cứ vào tình hình thực tế của bạn, đưa ra lời khuyên chân thành và có thể thực hiện được nhất.
 
-数据是最好的证明：截至目前，我已在星球内累计深度答疑 **10000+** 次，微信私聊帮助球友 **5000+** 人。无论是技术瓶颈还是职场迷茫，我都愿做你破局路上的引路人。
+Data là bằng chứng tốt nhất: Tính đến nay, mình đã trả lời chuyên sâu **10000+** lần trong planet, giúp đỡ **5000+** thành viên qua WeChat riêng. Dù là vướng mắc kỹ thuật hay bế tắc công sở, mình đều sẵn sàng làm người dẫn đường trên con đường phá vỡ giới hạn của bạn.
 
-下面是今年做的一小部分答疑，感受一下：
+Dưới đây là một phần nhỏ câu hỏi đáp năm nay:
 
-![部分星球答疑](https://oss.javaguide.cn/xingqiu/image-20220211223559179.png)
+![Một phần câu hỏi đáp trong planet](https://oss.javaguide.cn/xingqiu/image-20220211223559179.png)
 
-我没法保证每个问题都能像上面这样写一长段，这也会取决于你的提问本身。但我可以承诺的是：**我会认真看完每一个问题，尽我所能帮你少走弯路、少花冤枉钱。**
+Mình không thể đảm bảo mọi câu hỏi đều viết được dài như trên, điều đó cũng phụ thuộc vào chính câu hỏi của bạn. Nhưng mình có thể cam kết: **mình sẽ đọc kỹ mỗi câu hỏi, cố gắng hết sức để bạn ít đi vòng vòng, ít tốn tiền oan.**
 
-光是这项一对一答疑服务，其实就已经远远值回星球的门票价了。
+Chỉ riêng dịch vụ hỏi đáp 1-1 này thôi đã vượt xa giá trị vé planet rồi.
 
-### 学习打卡
+### Học tập check-in
 
-星球的学习打卡活动可以督促自己和其他球友们一起学习交流。
+Hoạt động check-in học tập của planet có thể thúc đẩy bản thân và các thành viên khác cùng học hỏi trao đổi.
 
 ![](https://oss.javaguide.cn/xingqiu/image-20220308143815840.png)
 
-看球友们的打卡也能有收货，最重要的是这个学习氛围对于自己自律非常有帮助！
+Xem các thành viên check-in cũng học được nhiều thứ, quan trọng nhất là bầu không khí học tập này rất hỗ trợ cho việc tự giác của bản thân!
 
 ![](https://oss.javaguide.cn/xingqiu/%E7%90%83%E5%8F%8B%E6%AF%8F%E6%97%A5%E6%89%93%E5%8D%A1%E4%B9%9F%E8%83%BD%E5%AD%A6%E5%88%B0%E5%BE%88%E5%A4%9A%E4%B8%9C%E8%A5%BF.jpg)
 
-![](https://oss.javaguide.cn/xingqiu/%E7%A1%AE%E5%AE%9E%E6%98%AF%E5%AD%A6%E4%B9%A0%E4%BA%A4%E6%B5%81%E7%9A%84%E5%A5%BD%E5%9C%B0%E6%96%B9.jpg)！
+![](https://oss.javaguide.cn/xingqiu/%E7%A1%AE%E5%AE%9E%E6%98%AF%E5%AD%A6%E4%B9%A0%E4%BA%A4%E6%B5%81%E7%9A%84%E5%A5%BD%E5%9C%B0%E6%96%B9.jpg)!
 
-### 不定时福利
+### Phúc lợi không định kỳ
 
-不定时地在星球送书、送专栏、发红包，福利多多，
+Không định kỳ tặng sách, tặng column, phát red packet trong planet, phúc lợi nhiều,
 
 ![](https://oss.javaguide.cn/xingqiu/1682063464099.png)
 
-## 是否收费？
+## Có tính phí không?
 
-星球是需要付费才能进入的。 **为什么要收费呢？**
+Planet cần trả tiền mới vào được. **Tại sao lại tính phí?**
 
-1. 维护好星球是一件费时费力的事情，每到面试季，我经常凌晨还在看简历和回答球友问题。市面上单单一次简历修改服务也至少需要 200+，而简历修改也只是我的星球提供的服务的冰山一角。除此之外，我还要抽时间写星球专属的面试专栏和实战项目教程，单单是这些专栏和项目的价值就远超星球门票了。
-2. 星球提供的服务比较多，如果我是免费提供这些服务的话，是肯定忙不过来的。付费这个门槛可以帮我筛选出真正需要帮助的那批人。
-3. 免费的东西才是最贵的，加入星球之后无任何其他需要付费的项目，统统免费！
-4. 合理的收费是对我付出劳动的一种正向激励，促进我继续输出！同时，这份收入还可以让我们家人过上更好的生活。虽然累点，但也是值得的！
+1. Duy trì planet tốt là việc tốn thời gian và công sức, vào mùa phỏng vấn, mình thường đêm khuya vẫn xem CV và trả lời câu hỏi của thành viên. Thị trường có một lần chỉnh sửa CV cũng phải tốn 200+ tệ, mà chỉnh sửa CV chỉ là bề nổi của tảng băng các dịch vụ planet của mình. Ngoài ra, mình còn phải dành thời gian viết các column phỏng vấn độc quyền của planet và tutorial dự án thực tế, chỉ riêng giá trị của các column và dự án này đã vượt xa vé rồi.
+2. Planet cung cấp khá nhiều dịch vụ, nếu mình cung cấp miễn phí thì chắc chắn không kham được. Cái ngưỡng trả tiền này có thể giúp mình lọc ra những người thực sự cần giúp đỡ.
+3. Thứ miễn phí mới là đắt nhất, tham gia planet rồi không có bất kỳ dự án nào khác cần trả tiền, tất cả đều miễn phí!
+4. Phí hợp lý là một sự khuyến khích tích cực cho nỗ lực của mình, thúc đẩy mình tiếp tục tạo ra nội dung! Đồng thời, thu nhập này cũng giúp gia đình mình có cuộc sống tốt hơn. Dù mệt, nhưng cũng xứng đáng!
 
-## 如何加入？
+## Cách tham gia?
 
-目前星球正在做活动，两本书的价格，就能让你拥有上万培训班的服务！
+Hiện tại planet đang làm chương trình khuyến mãi, giá hai quyển sách, có được dịch vụ của trung tâm đào tạo hàng chục nghìn!
 
-这里再提供一张 **30**元的优惠卷（**价格马上上调，老用户扫码续费半价** ）：
+Đây cung cấp thêm voucher giảm giá **30** tệ (**giá sắp tăng, người dùng cũ quét mã gia hạn nửa giá**):
 
-![知识星球30元优惠卷](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
+![Voucher giảm giá 30 tệ Knowledge Planet](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
 
-🚀 **入圈必做**：星球大部分资料都已经整理分类好放在了[星球使用指南](https://t.zsxq.com/0d18KSarv)中，干货满满，一定要看！
+🚀 **Sau khi vào planet**: Hầu hết tài liệu của planet đã được sắp xếp và phân loại trong [Hướng dẫn sử dụng planet](https://t.zsxq.com/0d18KSarv), rất nhiều kiến thức hữu ích, nhất định phải đọc!
 
-**无任何套路，无任何潜在收费项。用心做内容，不割韭菜！**
+**Không có bất kỳ chiêu trò nào, không có phí tiềm ẩn nào. Tâm huyết làm nội dung, không cắt cỏ người dùng!**
 
-不过， **一定要确定需要再进** 。并且， **三天之内觉得内容不满意可以全额退款** 。
+Tuy nhiên, **nhất định phải chắc chắn cần thiết rồi mới tham gia**. Và, **trong 3 ngày nếu thấy nội dung không hài lòng có thể hoàn tiền đầy đủ**.

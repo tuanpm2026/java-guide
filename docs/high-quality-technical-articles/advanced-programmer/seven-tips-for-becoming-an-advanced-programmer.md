@@ -1,112 +1,112 @@
 ---
-title: 给想成长为高级别开发同学的七条建议
-description: "给想成长为高级别开发同学的七条建议：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: 7 lời khuyên cho các bạn muốn phát triển lên senior developer
+description: "7 lời khuyên cho các bạn muốn phát triển lên senior developer - Tổng hợp các khái niệm chính, điểm thực hành giúp bạn học hiệu quả."
+category: Technical Articles Selection
 author: Kaito
 tag:
-  - 练级攻略
+  - Level-up Strategies
 head:
   - - meta
     - name: keywords
-      content: 程序员成长,高级开发,需求评审,技术内功,性能优化,线上问题排查,归纳总结,职业发展
+      content: programmer growth,senior developer,requirements review,technical foundations,performance optimization,online issue troubleshooting,summarization,career development
 ---
 
-> **推荐语**：普通程序员要想成长为高级程序员甚至是专家等更高级别，应该注意在哪些方面注意加强？开发内功修炼号主飞哥在这篇文章中就给出了七条实用的建议。
+> **Lời giới thiệu**: Programmer thông thường muốn phát triển lên senior programmer hoặc thậm chí expert và các cấp độ cao hơn nên chú ý tăng cường ở những mặt nào? Feige, chủ tài khoản "Developer Foundation Practice", đã đưa ra 7 lời khuyên thực tiễn trong bài viết này.
 >
-> **内容概览**：
+> **Content overview**:
 >
-> 1. 刻意加强需求评审能力
-> 2. 主动思考效率
-> 3. 加强内功能力
-> 4. 思考性能
-> 5. 重视线上
-> 6. 关注全局
-> 7. 归纳总结能力
+> 1. Tăng cường có chủ ý khả năng requirements review
+> 2. Chủ động suy nghĩ về efficiency
+> 3. Tăng cường khả năng kỹ thuật cơ bản
+> 4. Suy nghĩ về performance
+> 5. Coi trọng môi trường production
+> 6. Quan tâm đến big picture
+> 7. Khả năng tổng hợp và tóm lược
 >
-> **原文地址**：<https://mp.weixin.qq.com/s/8lMGzBzXine-NAsqEaIE4g>
+> **Original article**: <https://mp.weixin.qq.com/s/8lMGzBzXine-NAsqEaIE4g>
 
-### 建议 1：刻意加强需求评审能力
+### Lời khuyên 1: Tăng cường có chủ ý khả năng requirements review
 
-先从需求评审开始说。在互联网公司，需求评审是开发工作的主要入口。
+Bắt đầu từ requirements review. Ở các công ty internet, requirements review là đầu vào chính của công việc phát triển.
 
-对于普通程序员来说，一般就是根据产品经理提的需求细节，开始设想这个功能要怎么实现，开发成本大概需要多长时间。把自己当成了需求到代码之间的翻译官。很少去思考需求的合理性，对于自己做的事情有多大价值，不管也不问。
+Với programmer thông thường, nhìn chung dựa vào requirements details mà product manager đưa ra, bắt đầu nghĩ chức năng này sẽ implement như thế nào, chi phí phát triển cần bao lâu. Coi mình như người phiên dịch giữa requirements và code. Hiếm khi nghĩ về sự hợp lý của requirements, việc mình làm có bao nhiêu value — cũng không quan tâm không hỏi.
 
-而对于高级别的程序员来说，并不会一开始就陷入细节，而是会更多地会从产品本身出发，询问产品经理为啥要做这个细节，目的是啥。换个说法，就是会先考虑这个需求是不是合理。
+Còn với senior programmers, họ không ngay từ đầu đã sa vào chi tiết, mà sẽ nhiều hơn là xuất phát từ chính sản phẩm, hỏi product manager tại sao lại làm chi tiết này, mục đích là gì. Nói cách khác, họ sẽ trước tiên xem xét requirement này có hợp lý không.
 
-如果需求高级不合理就进行 PK ，要么对需求进行调整，要么就砍掉。不过要注意的是 PK 和调整需求不仅仅砍需求，还有另外一个方向，那就是对需求进行加强。
+Nếu requirement cấp cao mà không hợp lý thì sẽ PK — hoặc điều chỉnh requirement, hoặc cắt bỏ. Nhưng cần chú ý: PK và điều chỉnh requirements không chỉ là cắt requirements, còn có một hướng khác là tăng cường requirements.
 
-产品同学由于缺乏技术背景，很可能想的并不够充分，这个时候如果你有更好的想法，也完全可以提出来，加到需求里，让这个需求变得更有价值。
+Product colleagues vì thiếu technical background, rất có thể chưa nghĩ đủ sâu. Lúc này nếu bạn có ideas tốt hơn, hoàn toàn có thể đưa ra, thêm vào requirements, làm cho requirement đó có giá trị hơn.
 
-总之，高级程序员并不会一五一十地按产品经理的需求文档来进行后面的开发，而是**一切从有利于业务的角度出发思考，对产品经理的需求进行删、改、增。**
+Tóm lại, senior programmers không lần lượt theo từng requirement document của product manager để phát triển tiếp theo, mà là **xuất phát từ tất cả những gì có lợi cho business, xóa, sửa, thêm requirements của product manager.**
 
-这样的工作表面看似和开发无关，但是只有这样才能保证后续所有开发同学都是有价值的，而不是做一堆无用功。无用功做的多了会极大的挫伤开发的成就感。
+Công việc này nhìn bề ngoài có vẻ không liên quan đến phát triển, nhưng chỉ như vậy mới đảm bảo tất cả developers sau này đều làm việc có giá trị, thay vì làm nhiều thứ vô ích. Làm nhiều thứ vô ích sẽ làm giảm đáng kể cảm giác thành tựu của developers.
 
-所以，**普通程序员要想成长为更高级别的开发，一定要加强需求评审能力的培养**。
+Vì vậy, **programmer thông thường muốn phát triển lên level cao hơn, nhất định phải tăng cường tu dưỡng khả năng requirements review**.
 
-### 建议 2：主动思考效率
+### Lời khuyên 2: Chủ động suy nghĩ về efficiency
 
-普通的程序员，按部就班的去写代码，有活儿来我就干，没活儿的时候我就呆着。很少去深度思考现有的这些代码为什么要这么写，这么写的好处是啥，有哪些地方存在瓶颈，我是否可以把它优化一些。
+Programmer thông thường viết code theo một quy trình nhất định, có việc thì làm, không có việc thì ngồi. Hiếm khi suy nghĩ sâu xem code hiện tại tại sao phải viết như vậy, ưu điểm của cách viết này là gì, chỗ nào có bottleneck, mình có thể tối ưu một chút không.
 
-而高级一点程序员，并不会局限于把手头的活儿开发就算完事。他们会主动去琢磨，现在这种开发模式是不是不够的好。那么我是否能做一个什么东西能把这个效率给提升起来。
+Còn senior programmers không giới hạn bản thân ở việc hoàn thành phần việc đang làm là xong. Họ sẽ chủ động cân nhắc: mô hình phát triển hiện tại có phải không tốt không. Vậy mình có thể làm gì để nâng cao efficiency?
 
-举一个小例子，我 6 年前接手一个项目的时候，我发现运营一个月会找我四次，就是找我给她发送一个推送。她说以前的开发都是这么帮他弄的。虽然这个需求处理起来很简单，改两行发布一下就完事。但是烦啊，你想象一下你正专心写代码呢，她又双叒来找你了，思路全被她中断了。而且频繁地操作线上本来就会引入不确定的风险，万一那天手一抽抽搞错了，线上就完蛋了。
+Lấy một ví dụ nhỏ: 6 năm trước khi tôi tiếp nhận một project, tôi phát hiện operations colleague một tháng tìm tôi 4 lần chỉ để tôi gửi một push notification. Cô ấy nói những developer trước đây đều giúp cô ấy vậy. Mặc dù requirement này xử lý rất đơn giản, sửa hai dòng deploy là xong. Nhưng phiền lắm — hình dung đang tập trung viết code thì cô ấy lại đến, cắt đứt toàn bộ suy nghĩ. Và thao tác production thường xuyên vốn đã gây ra rủi ro không xác định, lỡ hôm nào tay run làm sai là hỏng hết.
 
-我的做法就是，我专门抽了一周的时间，给她做了一套运营后台。这样以后所有的运营推送她就直接在后台上操作就完事了。我倒出精力去做其它更有价值的事情去了。
+Cách tôi làm là dành riêng một tuần để tạo một operations backend cho cô ấy. Từ đó trở đi tất cả operations notifications cô ấy trực tiếp thao tác trên backend là xong. Tôi có thêm sức lực để làm những việc có giá trị hơn.
 
-所以，**第二个建议就是要主动思考一下现有工作中哪些地方效率有改进的空间，想到了就主动去改进它！**
+Vì vậy, **lời khuyên thứ hai là chủ động suy nghĩ xem trong công việc hiện tại có chỗ nào efficiency có thể cải thiện. Nghĩ đến thì chủ động cải thiện!**
 
-### 建议 3：加强内功能力
+### Lời khuyên 3: Tăng cường khả năng kỹ thuật cơ bản
 
-哪些算是内功呢，我想内功修炼的读者们肯定也都很熟悉的了，指的就是大家学校里都学过的操作系统、网络等这些基础。
+Những gì được coi là kỹ thuật cơ bản (internal cultivation)? Các readers của tài khoản "Developer Foundation Practice" chắc cũng quen — đó là những nền tảng như operating system, networking mà mọi người đã học ở trường.
 
-普通的程序员会觉得，这些基础知识我都会好么，我大学可是足足学了四年的。工作了以后并不会刻意来回头再来加强自己在这些基础上的深层次的提升。
+Programmer thông thường sẽ nghĩ: những kiến thức cơ bản này tôi đều biết, đại học tôi học suốt bốn năm. Sau khi đi làm không chủ động nhìn lại để tăng cường nâng cấp sâu hơn trong những nền tảng này.
 
-高级的程序员，非常清楚自己当年学的那点知识太皮毛了。工作之余也会深入地去研究 Linux、研究网络等方向的底层实现。
+Senior programmers rất rõ ràng: kiến thức học hồi đó chỉ là bề mặt. Ngoài giờ làm việc cũng sẽ nghiên cứu sâu vào Linux, networking và các hướng bottom-layer implementation khác.
 
-事实上，互联网业界的技术大牛们很大程度是因为对这些基础的理解相当是深厚，具备了深厚的内功以后才促使他们成长为了技术大牛。
+Thực tế, những tech giants trong industry internet rất nhiều phần là vì hiểu biết nền tảng rất sâu sắc — có nền tảng kỹ thuật vững mới thúc đẩy họ trở thành tech giants.
 
-我很难相信一个不理解底层，只会 CURD，只会用别人框架的开发将来能在技术方向成长为大牛。
+Tôi khó tin rằng một developer không hiểu bottom layer, chỉ biết CRUD, chỉ biết dùng framework của người khác, sẽ phát triển thành tech giant theo hướng kỹ thuật.
 
-所以，**还建议多多锻炼底层技术内功能力**。如果你不知道怎么练，那就坚持看「开发内功修炼」公众号。
+Vì vậy, **cũng khuyến nghị nhiều luyện tập bottom-layer tech foundation**. Nếu không biết luyện thế nào, hãy kiên trì đọc tài khoản "Developer Foundation Practice".
 
-### 建议 4：思考性能
+### Lời khuyên 4: Suy nghĩ về performance
 
-普通程序员往往就是把需求开发完了就不管了，只要需求实现了，测试通过了就可以交付了。将来流量会有多大，没想过。自己的服务 QPS 能支撑多少，不清楚。
+Programmer thông thường thường chỉ làm xong requirement rồi thôi, miễn là requirement được implement, test pass là có thể delivery. Tương lai traffic sẽ lớn đến đâu chưa nghĩ. QPS service mình hỗ trợ được bao nhiêu không rõ.
 
-而高级的程序员往往会关注自己写出来的代码的性能。
+Còn senior programmers thường quan tâm đến performance của code mình viết ra.
 
-在需求评审的时候，他们一般就会估算大概的请求流量有多大。进而设计阶段就会根据这个量设计符合性能要求的方案。
+Trong requirements review, họ thường đã estimate sơ bộ request traffic sẽ lớn đến mức nào. Từ đó giai đoạn design sẽ dựa trên volume đó để thiết kế phương án đáp ứng yêu cầu performance.
 
-在上线之前也会进行性能压测，检验一下在性能上是否符合预期。如果性能存在问题，瓶颈在哪儿，怎么样能进行优化一下。
+Trước khi launch cũng sẽ thực hiện performance load testing, kiểm tra xem performance có đạt kỳ vọng không. Nếu performance có vấn đề, bottleneck ở đâu, tối ưu như thế nào.
 
-所以，**第四个建议就是一定要多多主动你所负责业务的性能，并多多进行优化和改进**。我想这个建议的重要程度非常之高。但这是需要你具备深厚的内功才可以办的到的，否则如果你连网络是怎么工作的都不清楚，谈何优化！
+Vì vậy, **lời khuyên thứ tư là nhất định phải chủ động quan tâm nhiều hơn đến performance của business mình phụ trách, và liên tục tối ưu cải thiện**. Tôi nghĩ mức độ quan trọng của lời khuyên này rất cao. Nhưng điều này đòi hỏi bạn phải có nền tảng kỹ thuật sâu vững mới làm được — nếu bạn còn không hiểu network hoạt động như thế nào, làm sao nói đến tối ưu!
 
-### 建议 5：重视线上
+### Lời khuyên 5: Coi trọng môi trường production
 
-普通程序员往往对线上的事情很少去关注，手里记录的服务器就是自己的开发机和发布机，线上机器有几台，流量多大，最近有没有波动这些可能都不清楚。
+Programmer thông thường thường ít quan tâm đến production, servers trong đầu ghi nhớ chỉ là dev machine và deployment machine. Production có bao nhiêu machines, traffic lớn thế nào, gần đây có fluctuations không — những điều này có thể đều không biết.
 
-而高级的程序员深深的明白，有条件的话，会尽量多多观察自己的线上服务，观察一下代码跑的咋样，有没有啥 error log。请求峰值的时候 CPU、内存的消耗咋样。网络端口消耗的情况咋样，是否需要调节一些参数配置。
+Còn senior programmers hiểu rõ — nếu có điều kiện, sẽ cố gắng thường xuyên quan sát production services của mình. Xem code chạy như thế nào, có error logs không. Lúc request peak, CPU và memory consumption thế nào. Network port consumption thế nào, có cần điều chỉnh một số parameter configurations không.
 
-当性能不尽如人意的时候，可能会回头再来思考出性能的改进方案，重新开发和上线。
+Khi performance không như ý, có thể sẽ quay lại suy nghĩ ra phương án cải tiến performance, phát triển và launch lại.
 
-你会发现在线上出问题的时候，能紧急扑上前线救火的都是高级一点的程序员。
+Bạn sẽ nhận ra: khi production có vấn đề, những người có thể khẩn cấp lao vào tuyến đầu chữa cháy đều là senior programmers.
 
-所以，**飞哥给的第五个建议就是要多多观察线上运行情况**。只有多多关注线上，当线上出故障的时候，你才能承担的起快速排出线上问题的重任。
+Vì vậy, **lời khuyên thứ năm của Feige là hãy thường xuyên quan sát tình trạng vận hành production**. Chỉ khi thường xuyên quan tâm production, khi production gặp sự cố, bạn mới đủ khả năng đảm nhận trách nhiệm khẩn cấp giải quyết vấn đề production.
 
-### 建议 6：关注全局
+### Lời khuyên 6: Quan tâm đến big picture
 
-普通程序员是你分配给我哪个模块，我就干哪个模块，给自己的工作设定了非常小的一个边界，自己所有的眼光都聚集在这个小框框内。
+Programmer thông thường: bạn phân module nào cho tôi thì tôi làm module đó. Tự đặt ra boundary rất nhỏ cho công việc của mình, tất cả tầm nhìn đều tập trung trong cái ô nhỏ đó.
 
-高级程序员是团队内所有项目模块，哪怕不是他负责的，他也会去熟悉，去了解。具备这种思维的同学无论在技术上，无论是在业务上，成长的也都是最快的。在职级上得到晋升，或者是职位上得到提拔的往往都是这类同学。
+Senior programmer: tất cả project modules trong team, dù không phải họ phụ trách, họ cũng sẽ làm quen và tìm hiểu. Người có tư duy này dù về mặt kỹ thuật hay nghiệp vụ đều phát triển nhanh nhất. Người được thăng cấp level hoặc được đề bạt chức vụ thường cũng là loại người này.
 
-甚至有更高级别的同学，还不止于把目光放在团队内，甚至还会关注公司内其它团队，甚至是业界的业务和技术栈。写到这里我想起了张一鸣说过的，不给自己的工作设边界。
+Thậm chí những người ở level cao hơn không chỉ đặt tầm nhìn trong team, mà còn quan tâm đến các teams khác trong công ty, thậm chí cả business và tech stack trong industry. Viết đến đây tôi nhớ đến câu nói của Zhang Yiming: Không đặt ranh giới cho công việc của mình.
 
-所以，**建议要有大局观，不仅仅是你负责的模块，整个项目其实你都应该去关注**。而不是连自己组内同学做的是啥都不知道。
+Vì vậy, **lời khuyên là hãy có big picture sense, không chỉ là module bạn phụ trách — toàn bộ project thực ra bạn đều nên quan tâm**. Chứ không phải đến nỗi không biết đồng nghiệp trong nhóm đang làm gì.
 
-### 建议 7：归纳总结能力
+### Lời khuyên 7: Khả năng tổng hợp và tóm lược
 
-普通程序员往往是工作的事情做完就拉到，很少回头去对自己的技术，对业务进行归纳和总结。
+Programmer thông thường thường làm xong việc là xong, hiếm khi nhìn lại tổng hợp tóm lược kỹ thuật và nghiệp vụ của mình.
 
-而高级的程序员往往都会在一件比较大的事情做完之后总结一下，做个 ppt，写个博客啥的记录下来。这样既对自己的工作是一个归纳，也可以分享给其它同学，促进团队的共同成长。
+Còn senior programmers thường sẽ tóm lược sau khi hoàn thành một việc lớn — làm PPT, viết blog hay gì đó ghi lại. Như vậy vừa là tổng hợp cho công việc của mình, vừa có thể chia sẻ cho các đồng nghiệp khác, thúc đẩy sự phát triển chung của team.
 
 <!-- @include: @article-footer.snippet.md -->

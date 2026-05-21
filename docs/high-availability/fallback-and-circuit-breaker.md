@@ -1,229 +1,227 @@
 ---
-title: 降级&熔断详解
-description: 服务降级与熔断机制详解，讲解降级策略、熔断器原理及 Hystrix、Sentinel、Resilience4j 等框架的应用实践，涵盖雪崩效应、熔断状态机、隔离策略与系统自适应保护。
-category: 高可用
+title: Giải thích chi tiết Degradation & Circuit Breaking
+description: Giải thích chi tiết service degradation và circuit breaking mechanism, trình bày degradation strategy, nguyên lý circuit breaker và thực hành áp dụng các framework như Hystrix, Sentinel, Resilience4j, bao gồm cascading failure, circuit breaker state machine, isolation strategy và system adaptive protection.
+category: High Availability
 icon: circuit
 head:
   - - meta
     - name: keywords
-      content: 服务降级,熔断器,熔断机制,Sentinel,Hystrix,Resilience4j,雪崩效应,熔断状态机,Fallback,限流降级熔断区别,微服务高可用,系统自适应保护,线程池隔离,信号量隔离
+      content: service degradation,circuit breaker,circuit breaking mechanism,Sentinel,Hystrix,Resilience4j,cascading failure,circuit breaker state machine,Fallback,rate limiting degradation circuit breaking,microservice high availability,system adaptive protection,thread pool isolation,semaphore isolation
 ---
 
-## 什么是降级？
+## Degradation là gì?
 
-服务降级（Service Degradation）是从系统功能优先级视角应对故障的策略：在负载（如 CPU 使用率 > 80%、线程池饱和、响应时间 P99 > 1s）接近阈值时，有策略地降低非核心服务质量，释放资源确保核心路径可用性。
+Service Degradation (Giảm chức năng dịch vụ) là chiến lược xử lý sự cố từ góc độ ưu tiên chức năng hệ thống: Khi load (như CPU usage > 80%, thread pool saturated, P99 response time > 1s) gần đạt ngưỡng, có chiến lược giảm chất lượng non-core service để giải phóng tài nguyên đảm bảo availability của core path.
 
-### 降级的特征
+### Đặc điểm của Degradation
 
-| 维度         | 说明                    | 示例                                                                 |
-| ------------ | ----------------------- | -------------------------------------------------------------------- |
-| **触发原因** | 整体负荷超出阈值        | CPU 使用率 > 80%、P99 RT > 1s、P999 RT > 3s、队列积压深度 > 容量 80% |
-| **目的**     | 保核心、弃非核心        | 关闭推荐、保留下单                                                   |
-| **粒度**     | 服务/页面/接口/功能三级 | 关闭商品推荐模块                                                     |
-| **可控性**   | 配置中心动态开关        | Nacos 2.0+ gRPC 长连接（毫秒级推送）                                 |
-| **优先级**   | 1-10 级，从外围到核心   | L10:下单 > L5:评论 > L1:推荐                                         |
+| Chiều                     | Mô tả                                   | Ví dụ                                                                          |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------------------------------ |
+| **Nguyên nhân kích hoạt** | Tổng tải vượt ngưỡng                    | CPU usage > 80%, P99 RT > 1s, P999 RT > 3s, queue backlog depth > 80% capacity |
+| **Mục đích**              | Bảo vệ core, bỏ non-core                | Tắt recommendation, giữ đặt hàng                                               |
+| **Granularity**           | Ba cấp service/page/interface/feature   | Tắt module gợi ý sản phẩm                                                      |
+| **Controllability**       | Dynamic switch qua configuration center | Nacos 2.0+ gRPC long connection (millisecond push)                             |
+| **Priority**              | Level 1-10, từ peripheral đến core      | L10: đặt hàng > L5: bình luận > L1: gợi ý                                      |
 
-### 降级方式有哪些？
+### Có những phương thức Degradation nào?
 
-| 方式             | 说明                                                   | 适用场景           | 失败路径与风险                                                |
-| ---------------- | ------------------------------------------------------ | ------------------ | ------------------------------------------------------------- |
-| **延迟服务**     | 将非实时操作异步化，写入 MQ/缓存                       | 评论积分、数据统计 | MQ 积压需背压（如 Jitter 重试避免风暴）                       |
-| **页面片段降级** | 直接关闭非核心功能区块                                 | 推荐区、广告位     | 无                                                            |
-| **异步请求降级** | 页面内异步加载接口返回兜底数据                         | 配送至、价格预测   | 兜底数据需预加载缓存                                          |
-| **页面跳转降级** | 将流量导流到静态/简版页面                              | 静态活动页、维护页 | 需预设静态页版本                                              |
-| **写降级**       | 优先写入 Redis/本地 WAL，通过可靠 MQ 或定时任务同步 DB | 秒杀库存扣减       | 需保证最终一致性（对账/补偿）；内存队列在节点宕机时会丢失数据 |
-| **读降级**       | 只读缓存，屏蔽后端调用                                 | 商品详情读多写少   | 缓存穿透时需返回降级页                                        |
+| Phương thức                   | Mô tả                                                                        | Tình huống áp dụng                     | Failure path & Rủi ro                                                                                  |
+| ----------------------------- | ---------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Delayed service**           | Async hóa non-real-time operation, ghi vào MQ/cache                          | Comment scoring, data stats            | MQ backlog cần back pressure (như Jitter retry để tránh storm)                                         |
+| **Page fragment degradation** | Trực tiếp tắt non-core feature block                                         | Recommendation area, ad space          | Không                                                                                                  |
+| **Async request degradation** | In-page async load interface trả về fallback data                            | Delivery estimate, price prediction    | Fallback data cần pre-warm cache                                                                       |
+| **Page redirect degradation** | Dẫn traffic sang static/simple page                                          | Static activity page, maintenance page | Cần preset static page version                                                                         |
+| **Write degradation**         | Ưu tiên ghi vào Redis/local WAL, sync DB qua reliable MQ hoặc scheduled task | Flash sale inventory deduction         | Cần đảm bảo eventual consistency (reconciliation/compensation); in-memory queue mất data khi node down |
+| **Read degradation**          | Chỉ đọc cache, shield backend call                                           | Product detail read-heavy write-light  | Khi cache miss cần trả về degradation page                                                             |
 
-### 降级开关实现方案
+### Phương án triển khai Degradation switch
 
-| 方案                                | 实时性           | 一致性                  | 复杂度 | 适用场景           |
-| ----------------------------------- | ---------------- | ----------------------- | ------ | ------------------ |
-| **配置文件 + 重启**                 | 低               | 强                      | 低     | 非紧急、不频繁变更 |
-| **数据库开关表**                    | 中               | 中                      | 中     | 需要审计日志的场景 |
-| **配置中心（Nacos 2.0+ / Apollo）** | 高（毫秒级推送） | 最终一致（gRPC 双向流） | 高     | 生产环境推荐       |
-| **Redis/Diamond**                   | 高               | 最终一致                | 中     | 轻量级方案         |
+| Phương án                                      | Real-time              | Consistency                                     | Complexity | Tình huống áp dụng                      |
+| ---------------------------------------------- | ---------------------- | ----------------------------------------------- | ---------- | --------------------------------------- |
+| **Config file + Restart**                      | Thấp                   | Mạnh                                            | Thấp       | Non-urgent, thay đổi không thường xuyên |
+| **Database switch table**                      | Trung bình             | Trung bình                                      | Trung bình | Tình huống cần audit log                |
+| **Configuration center (Nacos 2.0+ / Apollo)** | Cao (millisecond push) | Eventual consistent (gRPC bidirectional stream) | Cao        | Khuyến nghị cho production              |
+| **Redis/Diamond**                              | Cao                    | Eventual consistent                             | Trung bình | Lightweight solution                    |
 
-> 注：Nacos 2.0+ 基于 **gRPC 持久长连接**（Persistent Connection）和**双向流**（Bidirectional Streaming）实现服务端主动推送，推送生效时间达毫秒级。与 1.x 的 HTTP 长轮询（Polling）相比，gRPC 模式避免了重复 TPS，利用 NIO 机制提升吞吐量，整体性能提升约 **10 倍**，内存占用降低 **50%**，单机可支撑 **10W+** 实例连接。
+> Lưu ý: Nacos 2.0+ dựa trên **gRPC Persistent Connection** và **Bidirectional Streaming** để triển khai server-side proactive push — push effective time đạt millisecond. So với HTTP long polling (Polling) của 1.x, gRPC mode tránh được redundant TPS, dùng NIO mechanism tăng throughput. Hiệu năng tổng thể cải thiện ~**10 lần**, memory footprint giảm **50%**, single machine có thể hỗ trợ **100k+** instance connection.
 >
-> **一致性机制**：Nacos 2.0+ 并非采用严格的 ACK 机制，而是依赖 **HTTP/2 PING 帧**（Keepalive）检测连接健康和快速感知断开，确保推送可靠。连接丢失时客户端自动重连并同步数据实现最终一致收敛。
+> **Consistency mechanism**: Nacos 2.0+ không dùng ACK mechanism nghiêm ngặt mà dựa vào **HTTP/2 PING frame** (Keepalive) để phát hiện connection health và nhanh chóng nhận biết ngắt kết nối, đảm bảo push đáng tin cậy. Khi mất kết nối, client tự động reconnect và sync data để đạt eventual consistency.
 >
-> **网络分区场景**：Nacos 的注册中心（Naming）模块偏向 AP，但**配置中心（Config）模块基于 Raft 协议保证强一致性（CP）**。降级开关属于配置中心范畴，发生网络分区时，处于少数派（Minority）的 Nacos 节点将拒绝写入并可能导致客户端配置漂移。此时客户端需依赖本地缓存文件（Failover 配置）作为最终兜底，并忍受降级规则无法实时推送的风险。
+> **Network partition scenario**: Nacos Registry module (Naming) thiên về AP, nhưng **Configuration Center (Config) module dùng Raft protocol đảm bảo strong consistency (CP)**. Degradation switch thuộc phạm vi configuration center. Khi network partition, Nacos nodes thuộc minority sẽ từ chối write và có thể gây client config drift. Lúc này client cần dựa vào local cache file (Failover config) làm last resort và chấp nhận rủi ro degradation rule không thể push real-time.
 >
-> **升级兼容性**：Nacos 2.0 服务器兼容 1.x 客户端（通过 HTTP 协议），但 2.0 客户端不兼容 1.x 服务器（gRPC 协议）。
+> **Upgrade compatibility**: Nacos 2.0 server tương thích Nacos 1.x client (qua HTTP protocol), nhưng 2.0 client không tương thích 1.x server (gRPC protocol).
 >
-> **客户端线程管理注意**：gRPC 执行器核心线程数基于 CPU 核数配置（如 200 核心、800 最大），需注意避免资源耗尽。
+> **Client thread management**: gRPC executor core thread count được cấu hình dựa trên số CPU core (như 200 core, 800 max), cần chú ý tránh resource exhaustion.
 
-### 服务降级有哪些分类？
+### Phân loại Service Degradation
 
-降级按照是否自动化可分为：
+Degradation theo mức độ tự động hóa chia thành:
 
-- **自动开关降级**（超时、失败次数、故障、限流）
-- **人工开关降级**（秒杀、电商大促等）
+- **Auto switch degradation** (timeout, failure count, fault, rate limiting)
+- **Manual switch degradation** (flash sale, e-commerce promotion, v.v.)
 
-自动降级分类：
+Phân loại auto degradation:
 
-| 类型         | 触发阈值                               | 兜底方案           | 失败路径要求               |
-| ------------ | -------------------------------------- | ------------------ | -------------------------- |
-| **超时降级** | RT > 阈值（如 P99 > 500ms）且持续 N 次 | 默认值             | 需幂等性保护，避免重试风暴 |
-| **失败降级** | 异常率 > 阈值（如 50%）                | 兜底数据           | 兜底数据需预热缓存         |
-| **故障降级** | HTTP 5xx/RPC 异常/DNS 解析失败         | 缓存数据           | 缓存未命中时返回默认值     |
-| **限流降级** | QPS > 阈值                             | 排队页/无货/错误页 | 排队页需防重入（幂等令牌） |
+| Loại                       | Trigger threshold                                 | Fallback solution                  | Failure path requirement                            |
+| -------------------------- | ------------------------------------------------- | ---------------------------------- | --------------------------------------------------- |
+| **Timeout degradation**    | RT > threshold (như P99 > 500ms) và kéo dài N lần | Default value                      | Cần idempotency protection, tránh retry storm       |
+| **Failure degradation**    | Exception rate > threshold (như 50%)              | Fallback data                      | Fallback data cần pre-warm cache                    |
+| **Fault degradation**      | HTTP 5xx/RPC exception/DNS resolution fail        | Cached data                        | Trả về default khi cache miss                       |
+| **Rate limit degradation** | QPS > threshold                                   | Queue page/out of stock/error page | Queue page cần prevent re-entry (idempotency token) |
 
-> 重试风暴：当服务恢复但大量客户端同时重试时，可能导致服务再次崩溃。防御措施包括：Jitter 重试（随机退避）、令牌桶限流、分组分批恢复。
+> Retry storm: Khi service phục hồi nhưng lượng lớn client retry cùng lúc có thể gây service crash lần nữa. Defense measures gồm: Jitter retry (random backoff), token bucket rate limiting, group batch recovery.
 
-## 大规模分布式系统如何降级？
+## Large-scale Distributed System nên Degrade như thế nào?
 
-在大规模分布式系统中，经常会有成百上千的服务。在大促前往往会根据业务的重要程度和业务间的关系批量降级。
+Trong large-scale distributed system thường có hàng trăm nghìn service. Trước các big event thường batch degrade dựa trên mức độ quan trọng và quan hệ giữa các nghiệp vụ.
 
-### 降级平台能力
+### Khả năng của Degradation Platform
 
-大型互联网公司通常会有统一的降级平台，核心能力包括：
+Các công ty internet lớn thường có unified degradation platform với các core capability:
 
-| 能力         | 说明                | 实现要点                               |
-| ------------ | ------------------- | -------------------------------------- |
-| **分级管理** | 1-10 级服务优先级   | 核心业务评审、依赖关系梳理             |
-| **批量降级** | 按级别/分组批量执行 | 降级顺序编排、原子性保证（二阶段提交） |
-| **动态开关** | 配置中心实时推送    | Nacos 2.0+ gRPC 或 WebSocket           |
-| **效果验证** | 灰度验证 + 监控观测 | A/B 测试、指标对比                     |
-| **一键回滚** | 版本管理 + 快速回滚 | 配置版本化、变更审计                   |
+| Capability                  | Mô tả                                    | Implementation key points                                                  |
+| --------------------------- | ---------------------------------------- | -------------------------------------------------------------------------- |
+| **Hierarchical management** | Service priority level 1-10              | Core business review, dependency relationship analysis                     |
+| **Batch degradation**       | Batch execution by level/group           | Degradation sequence orchestration, atomicity guarantee (two-phase commit) |
+| **Dynamic switch**          | Real-time push via configuration center  | Nacos 2.0+ gRPC hoặc WebSocket                                             |
+| **Effect validation**       | Gray validation + monitoring observation | A/B test, metric comparison                                                |
+| **One-click rollback**      | Version management + quick rollback      | Config versioning, change audit                                            |
 
-### 降级预案制定
+### Lập kế hoạch Degradation
 
-1. **业务分级**：梳理服务核心度，定义 L1-L10 优先级
-2. **依赖分析**：绘制服务调用链，识别关键路径和单点依赖
-3. **降级策略**：为每个非核心服务设计降级方案（含失败路径）
-4. **演练验证**：定期进行降级演练，确保预案有效性（含网络分区场景）
+1. **Business classification**: Phân tích độ cốt lõi của service, định nghĩa priority L1-L10.
+2. **Dependency analysis**: Vẽ service call chain, xác định critical path và single point dependency.
+3. **Degradation strategy**: Thiết kế degradation plan cho mỗi non-core service (bao gồm failure path).
+4. **Drill validation**: Định kỳ thực hiện degradation drill, đảm bảo plan có hiệu lực (bao gồm network partition scenario).
 
-> 网络分区场景：依据 PACELC 定理，分区时需权衡可用性（A）与一致性（C）。降级预案应明确分区期间的行为模式（如继续服务本地缓存、暂停跨区调用）。
+> Network partition scenario: Theo định lý PACELC, khi partition cần cân nhắc giữa availability (A) và consistency (C). Degradation plan nên chỉ rõ hành vi trong thời gian partition (như tiếp tục serve local cache, tạm dừng cross-zone call).
 >
-> **详细介绍：** [CAP & BASE理论详解](https://javaguide.cn/distributed-system/protocol/cap-and-base-theorem.html)。
+> **Chi tiết**: [CAP & BASE Theory Explained](https://javaguide.cn/distributed-system/protocol/cap-and-base-theorem.html).
 
-## 什么是熔断？
+## Circuit Breaking là gì?
 
-熔断器模式（Circuit Breaker Pattern）是应对微服务雪崩效应的一种链路保护机制，类似电路中的保险丝。
+Circuit Breaker Pattern là link protection mechanism để đối phó với microservice cascading failure — tương tự fuse trong mạch điện.
 
-### 雪崩效应
+### Cascading Failure
 
-正常调用链路：服务 A ──> 服务 B ──> 服务 C
+Normal call chain: Service A ──> Service B ──> Service C
 
-雪崩场景：
+Cascading failure scenario:
 
-- 服务 C 响应变慢/不可用
-- 对服务 C 的调用排队（线程池耗尽）
-- 服务 B 的调用线程阻塞
-- 服务 A 也被拖垮，雪崩扩散到整个系统
+- Service C response chậm/unavailable.
+- Calls đến Service C xếp hàng (thread pool exhausted).
+- Call thread của Service B bị block.
+- Service A cũng bị kéo sập — cascading failure lan ra toàn hệ thống.
 
-### 熔断器状态机
+### Circuit Breaker State Machine
 
-熔断器包含三种状态：
+Circuit breaker có ba trạng thái:
 
-| 状态                 | 说明                   | 行为                              | 状态转换条件                                              |
-| -------------------- | ---------------------- | --------------------------------- | --------------------------------------------------------- |
-| **Closed（关闭）**   | 正常状态，允许请求通过 | 记录失败率/慢调用比例             | 失败率/慢调用比例 > 阈值 → Open                           |
-| **Open（打开）**     | 熔断触发，拒绝请求     | 快速返回 Fallback，不再调用下游   | 经过冷却时间（sleepWindow，如 10s） → HalfOpen            |
-| **HalfOpen（半开）** | 探测服务是否恢复       | 释放配置数量（如 3 个）的探路请求 | 所有探测成功（或满足成功率阈值）→ Closed；任一失败 → Open |
+| State        | Mô tả                                        | Hành vi                                              | Điều kiện chuyển trạng thái                                                                       |
+| ------------ | -------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Closed**   | Trạng thái bình thường, cho phép request qua | Ghi nhận failure rate/slow call ratio                | Failure rate/slow call ratio > threshold → Open                                                   |
+| **Open**     | Circuit breaking triggered, từ chối request  | Nhanh chóng trả Fallback, không gọi downstream       | Sau sleep window (như 10s) → HalfOpen                                                             |
+| **HalfOpen** | Probe xem service có phục hồi không          | Release số lượng probe request được cấu hình (như 3) | Tất cả probe thành công (hoặc thỏa success rate threshold) → Closed; Bất kỳ probe nào fail → Open |
 
-> Half-Open 风险与 Warm Up 预热：探测请求可能触发重试风暴或二次雪崩。建议限制探测请求数（如 Sentinel 默认 3 个），并要求所有探测成功（或满足配置的成功率阈值）才转为 Closed。若放行条件过于宽松（如单次成功即 Closed），面对刚从宕机中拉起的冷节点，瞬间涌入的并发流量会直接打满线程池，造成二次击穿（冷启动杀手）。
+> Half-Open risk & Warm Up pre-warming: Probe request có thể trigger retry storm hay secondary cascading failure. Khuyến nghị giới hạn số probe request (như Sentinel default là 3) và yêu cầu tất cả probe thành công (hoặc thỏa configured success rate threshold) mới chuyển thành Closed. Nếu release condition quá lỏng (như một lần thành công là Closed), đối với cold node vừa được khởi động lại từ crash, concurrent traffic đổ vào ngay lập tức sẽ lấp đầy thread pool, gây secondary breach (cold start killer).
 >
-> **Warm Up 预热机制**：需配合基于令牌桶/漏桶算法的预热限流，按照冷却因子（默认 3）在预热周期内（如 10s）将放行 QPS 阈值从 `maxQps / 3` 平滑拉升至最大容量，防止冷节点由于 CPU Cache Miss 和数据库连接池未初始化被二次击穿。监控冷启动期间的 **P99 延迟** 和 **数据库连接池活跃连接数** 以验证预热效果。
+> **Warm Up pre-warming mechanism**: Cần kết hợp với pre-warming rate limiting dựa trên token bucket/leaky bucket algorithm. Trong pre-warming period (như 10s) theo cooling factor (default 3), smooth ramp up allowed QPS threshold từ `maxQps / 3` lên maximum capacity, tránh cold node bị secondary breach do CPU Cache Miss và database connection pool chưa initialized. Monitor **P99 latency** và **database connection pool active connection count** trong cold start period để validate pre-warming effect.
 
-### 熔断策略
+### Circuit Breaking Strategy
 
-Sentinel 1.8.2+ 支持三种熔断策略：
+Sentinel 1.8.2+ hỗ trợ ba circuit breaking strategy:
 
-| 策略           | 触发条件                             | 典型阈值配置           | 版本要求 |
-| -------------- | ------------------------------------ | ---------------------- | -------- |
-| **慢调用比例** | P99 RT > 最大慢调用 RT 且比例 > 阈值 | RT > 500ms，比例 > 50% | 1.8.0+   |
-| **异常比例**   | 异常比例 > 阈值                      | 异常率 > 50%           | 全版本   |
-| **异常数**     | 异常数 > 阈值                        | 1 分钟内异常 > 50      | 全版本   |
+| Strategy            | Trigger condition                              | Typical threshold config        | Version requirement |
+| ------------------- | ---------------------------------------------- | ------------------------------- | ------------------- |
+| **Slow call ratio** | P99 RT > max slow call RT và ratio > threshold | RT > 500ms, ratio > 50%         | 1.8.0+              |
+| **Exception ratio** | Exception ratio > threshold                    | Exception rate > 50%            | All versions        |
+| **Exception count** | Exception count > threshold                    | Exceptions > 50 within 1 minute | All versions        |
 
-> P99 vs 平均 RT：使用平均 RT 可能掩盖长尾延迟。生产环境建议监控 P99/P999，避免"大部分请求快但少数请求极慢"的场景。
+> P99 vs Average RT: Dùng average RT có thể che giấu long-tail latency. Production khuyến nghị monitor P99/P999 để tránh tình huống "hầu hết request nhanh nhưng một số request cực chậm".
 
-## 降级和熔断有什么区别？
+## Degradation và Circuit Breaking khác nhau như thế nào?
 
-| 维度         | 降级                 | 熔断                   |
-| ------------ | -------------------- | ---------------------- |
-| **核心关注** | 资源优先级分配       | 调用链路保护           |
-| **触发方式** | 主动（系统/人工）    | 被动（依赖异常触发）   |
-| **作用范围** | 当前服务或下游       | 调用链的上游           |
-| **恢复方式** | 手动关闭或自动检测   | 自动（Half-Open 探测） |
-| **返回内容** | 兜底值/缓存/静态页面 | Fallback 方法          |
+| Chiều              | Degradation                      | Circuit Breaking                          |
+| ------------------ | -------------------------------- | ----------------------------------------- |
+| **Core focus**     | Resource priority allocation     | Call chain protection                     |
+| **Trigger mode**   | Proactive (system/manual)        | Passive (triggered by dependency anomaly) |
+| **Scope**          | Current service hoặc downstream  | Upstream của call chain                   |
+| **Recovery mode**  | Manual close hoặc auto detection | Automatic (Half-Open probe)               |
+| **Return content** | Fallback value/cache/static page | Fallback method                           |
 
-**三者关系**：
+**Quan hệ ba cơ chế**:
 
-- 限流：保护自身不被打垮（限制进入流量）
-- 降级：自身主动牺牲非核心功能（降低服务质量）
-- 熔断：防止被下游拖垮（切断异常依赖）
+- Rate limiting: Bảo vệ bản thân không bị đánh sập (giới hạn traffic vào)
+- Degradation: Bản thân chủ động hy sinh non-core feature (giảm chất lượng service)
+- Circuit breaking: Ngăn bị downstream kéo sập (cắt dependency bất thường)
 
-> 比喻：限流是"限流进入商场的客流"，降级是"商场关闭部分楼层"，熔断是"发现供应商出问题后停止与其合作"。
+> Ví dụ so sánh: Rate limiting là "giới hạn khách vào siêu thị", degradation là "siêu thị đóng cửa một số tầng", circuit breaking là "sau khi phát hiện nhà cung cấp có vấn đề thì dừng hợp tác".
 
-## 有哪些现成解决方案？
+## Có những giải pháp hiện có nào?
 
-Spring Cloud 生态中常用的熔断降级组件：
+Các circuit breaking degradation component phổ biến trong Spring Cloud ecosystem:
 
-- **Hystrix 1.5.18**（2018 年停止维护）
-- **Sentinel 1.8.2+**（阿里开源，推荐）
-- **Resilience4j 1.7.1+**（轻量级）
-- **Spring Retry**（重试组件）
+- **Hystrix 1.5.18** (ngừng bảo trì năm 2018)
+- **Sentinel 1.8.2+** (Alibaba open source, khuyến nghị)
+- **Resilience4j 1.7.1+** (lightweight)
+- **Spring Retry** (retry component)
 
-### Hystrix vs Sentinel vs Resilience4j
+### So sánh Hystrix vs Sentinel vs Resilience4j
 
-| 维度               | Sentinel 1.8.2+                 | Hystrix 1.5.18             | Resilience4j 1.7.1+                         |
-| ------------------ | ------------------------------- | -------------------------- | ------------------------------------------- |
-| **维护状态**       | ✅ 活跃维护                     | ❌ 2018 年停止维护         | ✅ 活跃维护                                 |
-| **隔离策略**       | 并发线程数隔离（信号量）        | 线程池隔离（默认）/ 信号量 | SemaphoreBulkhead / FixedThreadPoolBulkhead |
-| **熔断策略**       | 慢调用比例/异常比例/异常数      | 异常比例                   | 异常比例/异常数                             |
-| **实时指标**       | 滑动窗口                        | 滑动窗口（RxJava）         | 环形缓冲                                    |
-| **限流**           | QPS/并发线程/调用关系           | 有限支持                   | RateLimiter                                 |
-| **流量整形**       | 慢启动/匀速排队                 | ❌                         | ❌                                          |
-| **系统自适应保护** | ✅ Load/RT/线程数/QPS           | ❌                         | ❌                                          |
-| **控制台**         | ✅ 开箱即用                     | ⚠️ 简陋                    | ⚠️ 需自行搭建                               |
-| **框架适配**       | Servlet/Spring Cloud/Dubbo/gRPC | Spring Cloud Netflix       | Reactor/Vert.x                              |
+| Chiều                          | Sentinel 1.8.2+                                 | Hystrix 1.5.18                    | Resilience4j 1.7.1+                         |
+| ------------------------------ | ----------------------------------------------- | --------------------------------- | ------------------------------------------- |
+| **Maintenance status**         | ✅ Active maintenance                           | ❌ Discontinued 2018              | ✅ Active maintenance                       |
+| **Isolation strategy**         | Concurrent thread count (semaphore)             | Thread pool (default) / semaphore | SemaphoreBulkhead / FixedThreadPoolBulkhead |
+| **Circuit breaking strategy**  | Slow call ratio/exception ratio/exception count | Exception ratio                   | Exception ratio/exception count             |
+| **Real-time metrics**          | Sliding window                                  | Sliding window (RxJava)           | Ring buffer                                 |
+| **Rate limiting**              | QPS/concurrent thread/call relationship         | Limited support                   | RateLimiter                                 |
+| **Traffic shaping**            | Slow start/steady queue                         | ❌                                | ❌                                          |
+| **System adaptive protection** | ✅ Load/RT/thread count/QPS                     | ❌                                | ❌                                          |
+| **Dashboard**                  | ✅ Out-of-the-box                               | ⚠️ Basic                          | ⚠️ Need to build                            |
+| **Framework adaptation**       | Servlet/Spring Cloud/Dubbo/gRPC                 | Spring Cloud Netflix              | Reactor/Vert.x                              |
 
-### 隔离策略对比
+### So sánh Isolation Strategy
 
-| 策略           | Sentinel              | Hystrix   | Resilience4j               | Trade-offs                                                                                                            |
-| -------------- | --------------------- | --------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **线程池隔离** | -                     | ✅ 默认   | ✅ FixedThreadPoolBulkhead | 优势：超时控制独立、资源隔离彻底、支持异步<br>劣势：OS 级别上下文切换开销（P99 恶化）、线程池大小难确定、增加 GC 压力 |
-| **信号量隔离** | ✅ 轻量级、无线程切换 | ✅ 轻量级 | ✅ SemaphoreBulkhead       | 优势：无额外线程开销、内存占用小<br>劣势：不能做超时控制（依赖业务层）、不支持异步                                    |
+| Strategy                  | Sentinel                         | Hystrix        | Resilience4j               | Trade-offs                                                                                                                                                                                      |
+| ------------------------- | -------------------------------- | -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Thread pool isolation** | -                                | ✅ Default     | ✅ FixedThreadPoolBulkhead | Ưu điểm: Timeout control độc lập, resource isolation triệt để, hỗ trợ async. Nhược điểm: OS-level context switching overhead (P99 degradation), thread pool size khó xác định, tăng GC pressure |
+| **Semaphore isolation**   | ✅ Lightweight, no thread switch | ✅ Lightweight | ✅ SemaphoreBulkhead       | Ưu điểm: Không có extra thread overhead, memory footprint nhỏ. Nhược điểm: Không thể timeout control (phụ thuộc business layer), không hỗ trợ async                                             |
 
-> **GC 与调度压力**：线程池隔离会创建大量独立线程。在高并发下，真正的瓶颈在于 CPU 在海量线程间进行 **OS 级别的调度唤醒与挂起**。这种频繁的**上下文切换** 会无谓消耗大量 CPU 的 Us/Sy 时间，并直接导致业务请求的 **P99 尾延迟急剧恶化**。锁争用仅是并发争用的表象，真正的杀手是线程调度开销。Resilience4j 的 `FixedThreadPoolBulkhead` 基于 `ArrayBlockingQueue`，极高并发下也存在锁争用，但相比上下文切换开销通常次要。
+> **GC và Scheduling pressure**: Thread pool isolation tạo ra nhiều independent thread. Trong high concurrency, bottleneck thực sự là CPU thực hiện **OS-level scheduling wake-up và suspend** giữa vô số thread. **Context switching** thường xuyên tiêu tốn vô ích nhiều CPU Us/Sy time và trực tiếp gây **P99 tail latency của business request tăng vọt**. Lock contention chỉ là bề ngoài của concurrency contention; context switching overhead mới là kẻ thực sự nguy hiểm. `FixedThreadPoolBulkhead` của Resilience4j dựa trên `ArrayBlockingQueue`, cũng có lock contention trong extreme high concurrency, nhưng thường ít nghiêm trọng hơn context switching overhead.
 
-### 系统自适应保护（Sentinel 独有）
+### System Adaptive Protection (Tính năng độc quyền của Sentinel)
 
-Sentinel 1.8+ 提供**系统自适应保护**（System Rule），其核心是引入类似 **TCP BBR** 的动态容量评估逻辑：
+Sentinel 1.8+ cung cấp **System Adaptive Protection** (System Rule). Core là giới thiệu dynamic capacity evaluation logic tương tự **TCP BBR**:
 
-**隐性核心条件**：`当前并发线程数 > (系统最大 QPS × 最小 RT)`
+**Implicit core condition**: `Current concurrent thread count > (Max system QPS × Min RT)`
 
-| 指标                 | 说明                       | 典型阈值              | 版本要求        |
-| -------------------- | -------------------------- | --------------------- | --------------- |
-| **Load（系统负载）** | Linux `load1` 值           | > CPU 核数 × 2        | 全版本          |
-| **平均 RT**          | 所有入口流量的平均响应时间 | > 500ms（建议用 P99） | 1.8.0+ 支持 P99 |
-| **并发线程数**       | 当前并发线程数             | > 500                 | 全版本          |
-| **入口 QPS**         | 入口流量的 QPS             | > 1000                | 全版本          |
+| Metric                      | Mô tả                                            | Typical threshold              | Version requirement |
+| --------------------------- | ------------------------------------------------ | ------------------------------ | ------------------- |
+| **Load (System load)**      | Linux `load1` value                              | > CPU core count × 2           | All versions        |
+| **Average RT**              | Average response time của tất cả ingress traffic | > 500ms (khuyến nghị dùng P99) | 1.8.0+ hỗ trợ P99   |
+| **Concurrent thread count** | Current concurrent thread count                  | > 500                          | All versions        |
+| **Ingress QPS**             | QPS của ingress traffic                          | > 1000                         | All versions        |
 
-触发后，系统会自动拒绝部分请求，避免系统崩溃。相比静态阈值，BBR 风格的动态容量评估能防止静态阈值滞后导致的系统崩溃。
+Sau khi trigger, system sẽ tự động từ chối một phần request để tránh system crash. So với static threshold, BBR-style dynamic capacity evaluation có thể ngăn system crash do static threshold lag.
 
-### 选型建议与迁移 Trade-offs
+### Gợi ý lựa chọn và Migration Trade-offs
 
-| 场景                           | 推荐方案                   | 迁移 Trade-offs                            |
-| ------------------------------ | -------------------------- | ------------------------------------------ |
-| 新项目（Spring Cloud Alibaba） | **Sentinel 1.8.2+**        | 无迁移成本                                 |
-| 新项目（响应式/轻量级）        | **Resilience4j 1.7.1+**    | 需自行实现控制台                           |
-| 存量项目（Hystrix）            | 继续使用 Hystrix，规划迁移 | 迁移成本：API 变更 + 控制台搭建 + 规则迁移 |
-| 需要系统自适应保护             | **Sentinel**（独有）       | 无替代方案                                 |
+| Scenario                           | Recommended solution                        | Migration trade-offs                                          |
+| ---------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| New project (Spring Cloud Alibaba) | **Sentinel 1.8.2+**                         | Không có migration cost                                       |
+| New project (reactive/lightweight) | **Resilience4j 1.7.1+**                     | Cần tự xây dashboard                                          |
+| Existing project (Hystrix)         | Tiếp tục dùng Hystrix, lên kế hoạch migrate | Migration cost: API change + dashboard setup + rule migration |
+| Cần system adaptive protection     | **Sentinel** (độc quyền)                    | Không có alternative                                          |
 
-## 推荐阅读
+## Đọc thêm
 
 - [Circuit Breaker Pattern - Martin Fowler](https://martinfowler.com/bliki/CircuitBreaker.html)
-- [Sentinel 官方文档](https://sentinelguard.io/zh-cn/docs/introduction.html)
-- [Release It! - Michael Nygard（生产级降级与熔断实践）](https://www.pragprog.com/titles/mnee2/release-it-second-edition/)
+- [Tài liệu chính thức Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html)
+- [Release It! - Michael Nygard (Production-grade degradation và circuit breaking practice)](https://www.pragprog.com/titles/mnee2/release-it-second-edition/)
 - [PACELC: A Simple Perspective on Latency and Consistency](https://www.cs.berkeley.edu/~brewer/cs262/PACELC.pdf)
 
-## 参考
+## Tài liệu tham khảo
 
-- [Sentinel 与 Hystrix 的对比](https://github.com/alibaba/Sentinel/wiki/Sentinel-%E4%B8%8E-Hystrix-%E7%9A%84%E5%AF%B9%E6%AF%94)
-- [Spring Cloud Alibaba 官方文档](https://spring-cloud-alibaba-group.github.io/github-pages/2022/zh-cn/index.html)
-- [高并发之服务降级与熔断](https://suprisemf.github.io/2018/08/03/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B9%8B%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7%E4%B8%8E%E7%86%94%E6%96%AD/)
-
-<!-- @include: @article-footer.snippet.md -->
+- [So sánh Sentinel và Hystrix](https://github.com/alibaba/Sentinel/wiki/Sentinel-%E4%B8%8E-Hystrix-%E7%9A%84%E5%AF%B9%E6%AF%94)
+- [Tài liệu chính thức Spring Cloud Alibaba](https://spring-cloud-alibaba-group.github.io/github-pages/2022/zh-cn/index.html)
+- [Service degradation và circuit breaking trong high concurrency](https://suprisemf.github.io/2018/08/03/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B9%8B%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7%E4%B8%8E%E7%86%94%E6%96%AD/)

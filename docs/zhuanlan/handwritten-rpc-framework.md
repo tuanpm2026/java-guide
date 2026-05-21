@@ -1,22 +1,22 @@
 ---
-title: 《手写 RPC 框架》
-description: 手写RPC框架实战教程，基于Netty+Kyro+Zookeeper从零实现RPC框架，深入理解RPC底层原理。
-category: 知识星球
+title: 《Handwritten RPC Framework》
+description: Hướng dẫn thực chiến viết RPC framework, triển khai RPC framework từ đầu dựa trên Netty+Kyro+Zookeeper, hiểu sâu nguyên lý tầng dưới của RPC.
+category: Knowledge Planet
 ---
 
-## 介绍
+## Giới thiệu
 
-**《手写 RPC 框架》** 是我的[知识星球](../about-the-author/zhishixingqiu-two-years.md)的一个内部小册，我写了 12 篇文章来讲解如何从零开始基于 Netty + Kryo + Zookeeper 实现一个简易的 RPC 框架。
+**《Handwritten RPC Framework》** là một e-book nội bộ trong [Knowledge Planet](../about-the-author/zhishixingqiu-two-years.md) của tôi. Tôi viết 12 bài viết để giải thích cách triển khai một RPC framework đơn giản từ đầu dựa trên Netty + Kryo + Zookeeper.
 
-麻雀虽小五脏俱全，项目代码注释详细，结构清晰，并且集成了 Check Style 规范代码结构，非常适合阅读和学习。
+Mặc dù nhỏ nhưng đầy đủ nội tạng, code chú thích chi tiết, cấu trúc rõ ràng, và tích hợp Check Style để chuẩn hóa cấu trúc code — rất phù hợp để đọc và học.
 
-## 内容概览
+## Tổng quan nội dung
 
 ![](https://oss.javaguide.cn/github/javaguide/image-20220308100605485.png)
 
-通过这个简易的轮子，你可以学到 RPC 的底层原理以及各种 Java 编码实践的运用。你甚至可以把它当做你的毕设或项目经验，这是非常不错的选择！对比其他求职者的项目经验都是各种系统，造轮子肯定是更加能赢得面试官的青睐。
+Thông qua bánh xe đơn giản này, bạn có thể học được nguyên lý tầng dưới của RPC và ứng dụng các kỹ thuật Java coding. Bạn thậm chí có thể coi nó là graduation project hoặc project experience của bạn — đây là một lựa chọn rất tốt! So với project experience của các ứng viên khác đều là các loại hệ thống, tự xây dựng framework chắc chắn sẽ được interviewer ưu ái hơn.
 
-- GitHub 地址：[https://github.com/Snailclimb/guide-rpc-framework](https://github.com/Snailclimb/guide-rpc-framework) 。
-- Gitee 地址：[https://gitee.com/SnailClimb/guide-rpc-framework](https://gitee.com/SnailClimb/guide-rpc-framework) 。
+- GitHub: [https://github.com/Snailclimb/guide-rpc-framework](https://github.com/Snailclimb/guide-rpc-framework)
+- Gitee: [https://gitee.com/SnailClimb/guide-rpc-framework](https://gitee.com/SnailClimb/guide-rpc-framework)
 
 <!-- @include: @planet2.snippet.md -->

@@ -1,226 +1,224 @@
 ---
-title: MySQL自增主键一定是连续的吗？
-description: 详解MySQL自增主键不连续的原因，分析唯一键冲突、事务回滚、批量插入等场景下自增值的分配机制，以及InnoDB自增锁模式的配置与影响。
-category: 数据库
+title: Auto-increment Primary Key trong MySQL có nhất thiết liên tục không?
+description: Giải thích chi tiết nguyên nhân auto-increment primary key trong MySQL không liên tục, phân tích cơ chế cấp phát giá trị auto-increment trong các tình huống như unique key conflict, transaction rollback, batch insert, cùng cấu hình và ảnh hưởng của InnoDB auto-increment lock mode.
+category: Cơ sở dữ liệu
 tag:
   - MySQL
-  - 大厂面试
+  - Phỏng vấn Big Tech
 head:
   - - meta
     - name: keywords
-      content: MySQL自增主键,AUTO_INCREMENT,主键不连续,事务回滚,批量插入,唯一键冲突,innodb_autoinc_lock_mode
+      content: MySQL auto-increment primary key,AUTO_INCREMENT,primary key không liên tục,transaction rollback,batch insert,unique key conflict,innodb_autoinc_lock_mode
 ---
 
-> 作者：飞天小牛肉
+> Tác giả: Feitian Xiaorou Rou
 >
-> 原文：<https://mp.weixin.qq.com/s/qci10h9rJx_COZbHV3aygQ>
+> Bài gốc: <https://mp.weixin.qq.com/s/qci10h9rJx_COZbHV3aygQ>
 
-众所周知，自增主键可以让聚集索引尽量地保持递增顺序插入，避免了随机查询，从而提高了查询效率。
+Ai cũng biết, auto-increment primary key giúp clustered index duy trì thứ tự insert tăng dần, tránh random query, từ đó cải thiện hiệu quả query.
 
-但实际上，MySQL 的自增主键并不能保证一定是连续递增的。
+Nhưng thực tế, MySQL auto-increment primary key không đảm bảo nhất thiết phải liên tục tăng dần.
 
-下面举个例子来看下，如下所示创建一张表：
+Lấy ví dụ dưới đây, tạo một bảng như sau:
 
 ![](https://oss.javaguide.cn/p3-juejin/3e6b80ba50cb425386b80924e3da0d23~tplv-k3u1fbpfcp-zoom-1.png)
 
-## 自增值保存在哪里？
+## Giá trị auto-increment được lưu ở đâu?
 
-使用 `insert into test_pk values(null, 1, 1)` 插入一行数据，再执行 `show create table` 命令来看一下表的结构定义：
+Dùng `insert into test_pk values(null, 1, 1)` để insert một row data, rồi thực thi lệnh `show create table` xem định nghĩa cấu trúc bảng:
 
 ![](https://oss.javaguide.cn/p3-juejin/c17e46230bd34150966f0d86b2ad5e91~tplv-k3u1fbpfcp-zoom-1.png)
 
-上述表的结构定义存放在后缀名为 `.frm` 的本地文件中，在 MySQL 安装目录下的 data 文件夹下可以找到这个 `.frm` 文件：
+Định nghĩa cấu trúc bảng trên được lưu trong file cục bộ có hậu tố `.frm`, tìm được file `.frm` này trong thư mục data dưới thư mục cài MySQL:
 
 ![](https://oss.javaguide.cn/p3-juejin/3ec0514dd7be423d80b9e7f2d52f5902~tplv-k3u1fbpfcp-zoom-1.png)
 
-从上述表结构可以看到，表定义里面出现了一个 `AUTO_INCREMENT=2`，表示下一次插入数据时，如果需要自动生成自增值，会生成 id = 2。
+Từ cấu trúc bảng trên, thấy trong định nghĩa bảng có `AUTO_INCREMENT=2`, nghĩa là lần insert tiếp theo nếu cần tự động tạo giá trị auto-increment sẽ tạo id = 2.
 
-但需要注意的是，自增值并不会保存在这个表结构也就是 `.frm` 文件中，不同的引擎对于自增值的保存策略不同：
+Nhưng cần lưu ý, giá trị auto-increment không được lưu trong cấu trúc bảng tức file `.frm` này. Các engine khác nhau có chiến lược lưu giá trị auto-increment khác nhau:
 
-1）MyISAM 引擎的自增值保存在数据文件中
+1. Giá trị auto-increment của MyISAM engine được lưu trong data file.
 
-2）InnoDB 引擎的自增值，其实是保存在了内存里，并没有持久化。第一次打开表的时候，都会去找自增值的最大值 `max(id)`，然后将 `max(id)+1` 作为这个表当前的自增值。
+2. Giá trị auto-increment của InnoDB engine thực ra được lưu trong memory, không được persist. Mỗi lần mở bảng lần đầu, sẽ tìm giá trị auto-increment lớn nhất `max(id)`, rồi dùng `max(id)+1` làm giá trị auto-increment hiện tại của bảng.
 
-举个例子：我们现在表里当前数据行里最大的 id 是 1，AUTO_INCREMENT=2，对吧。这时候，我们删除 id=1 的行，AUTO_INCREMENT 还是 2。
+Ví dụ: Hiện tại row data lớn nhất trong bảng có id là 1, AUTO_INCREMENT=2. Lúc này xóa row id=1, AUTO_INCREMENT vẫn là 2.
 
 ![](https://oss.javaguide.cn/p3-juejin/61b8dc9155624044a86d91c368b20059~tplv-k3u1fbpfcp-zoom-1.png)
 
-但如果马上重启 MySQL 实例，重启后这个表的 AUTO_INCREMENT 就会变成 1。﻿ 也就是说，MySQL 重启可能会修改一个表的 AUTO_INCREMENT 的值。
+Nhưng nếu restart MySQL instance ngay lúc đó, AUTO_INCREMENT của bảng này sau khi restart sẽ thành 1. Tức là, restart MySQL có thể modify giá trị AUTO_INCREMENT của một bảng.
 
 ![](https://oss.javaguide.cn/p3-juejin/27fdb15375664249a31f88b64e6e5e66~tplv-k3u1fbpfcp-zoom-1.png)
 
 ![](https://oss.javaguide.cn/p3-juejin/dee15f93e65d44d384345a03404f3481~tplv-k3u1fbpfcp-zoom-1.png)
 
-以上，是在我本地 MySQL 5.x 版本的实验，实际上，**到了 MySQL 8.0 版本后，自增值的变更记录被放在了 redo log 中，提供了自增值持久化的能力** ，也就是实现了“如果发生重启，表的自增值可以根据 redo log 恢复为 MySQL 重启前的值”
+Trên đây là thử nghiệm trên MySQL 5.x của tôi. Thực ra, **từ MySQL 8.0 trở đi, bản ghi thay đổi giá trị auto-increment được đặt trong redo log, cung cấp khả năng persist giá trị auto-increment** — tức triển khai "nếu restart, giá trị auto-increment của bảng có thể khôi phục về giá trị trước khi MySQL restart".
 
-也就是说对于上面这个例子来说，重启实例后这个表的 AUTO_INCREMENT 仍然是 2。
+Tức với ví dụ trên, sau khi restart instance, AUTO_INCREMENT của bảng này vẫn là 2.
 
-理解了 MySQL 自增值到底保存在哪里以后，我们再来看看自增值的修改机制，并以此引出第一种自增值不连续的场景。
+Sau khi hiểu giá trị auto-increment của MySQL được lưu ở đâu, hãy xem cơ chế modify giá trị auto-increment, từ đó dẫn ra tình huống đầu tiên giá trị auto-increment không liên tục.
 
-## 自增值不连续的场景
+## Các tình huống auto-increment không liên tục
 
-### 自增值不连续场景 1
+### Tình huống 1
 
-在 MySQL 里面，如果字段 id 被定义为 AUTO_INCREMENT，在插入一行数据的时候，自增值的行为如下：
+Trong MySQL, nếu field id được định nghĩa là AUTO_INCREMENT, khi insert một row data, hành vi của giá trị auto-increment như sau:
 
-- 如果插入数据时 id 字段指定为 0、null 或未指定值，那么就把这个表当前的 AUTO_INCREMENT 值填到自增字段；
-- 如果插入数据时 id 字段指定了具体的值，就直接使用语句里指定的值。
+- Nếu khi insert data, field id được chỉ định là 0, null hoặc không chỉ định giá trị, thì điền giá trị AUTO_INCREMENT hiện tại của bảng vào auto-increment field.
+- Nếu khi insert data, field id được chỉ định giá trị cụ thể, thì dùng trực tiếp giá trị chỉ định trong câu lệnh.
 
-根据要插入的值和当前自增值的大小关系，自增值的变更结果也会有所不同。假设某次要插入的值是 `insert_num`，当前的自增值是 `autoIncrement_num`：
+Dựa trên quan hệ lớn/nhỏ giữa giá trị cần insert và giá trị auto-increment hiện tại, kết quả thay đổi giá trị auto-increment cũng khác nhau. Giả sử giá trị cần insert là `insert_num`, giá trị auto-increment hiện tại là `autoIncrement_num`:
 
-- 如果 `insert_num < autoIncrement_num`，那么这个表的自增值不变
-- 如果 `insert_num >= autoIncrement_num`，就需要把当前自增值修改为新的自增值
+- Nếu `insert_num < autoIncrement_num`: giá trị auto-increment của bảng không thay đổi.
+- Nếu `insert_num >= autoIncrement_num`: cần modify giá trị auto-increment hiện tại thành giá trị auto-increment mới.
 
-也就是说，如果插入的 id 是 100，当前的自增值是 90，`insert_num >= autoIncrement_num`，那么自增值就会被修改为新的自增值即 101
+Tức là, nếu id được insert là 100, auto-increment hiện tại là 90, `insert_num >= autoIncrement_num`, thì giá trị auto-increment sẽ được modify thành giá trị auto-increment mới là 101.
 
-一定是这样吗？
+Nhất thiết như vậy không?
 
-非也~
+Không hẳn~
 
-了解过分布式 id 的小伙伴一定知道，为了避免两个库生成的主键发生冲突，我们可以让一个库的自增 id 都是奇数，另一个库的自增 id 都是偶数
+Ai biết về distributed id chắc biết, để tránh primary key của hai library xung đột nhau, có thể cho một library có auto-increment id toàn số lẻ, library kia toàn số chẵn.
 
-这个奇数偶数其实是通过 `auto_increment_offset` 和 `auto_increment_increment` 这两个参数来决定的，这俩分别用来表示自增的初始值和步长，默认值都是 1。
+Số lẻ hay số chẵn này thực ra được quyết định bởi hai tham số `auto_increment_offset` và `auto_increment_increment` — biểu thị giá trị khởi đầu và bước nhảy của auto-increment, giá trị mặc định đều là 1.
 
-所以，上面的例子中生成新的自增值的步骤实际是这样的：从 `auto_increment_offset` 开始，以 `auto_increment_increment` 为步长，持续叠加，直到找到第一个大于 100 的值，作为新的自增值。
+Vì vậy, trong ví dụ trên, bước tạo giá trị auto-increment mới thực ra như thế này: Bắt đầu từ `auto_increment_offset`, bước nhảy là `auto_increment_increment`, cộng dần liên tục cho đến khi tìm được giá trị đầu tiên lớn hơn 100, làm giá trị auto-increment mới.
 
-所以，这种情况下，自增值可能会是 102，103 等等之类的，就会导致不连续的主键 id。
+Vì vậy trong trường hợp này, giá trị auto-increment có thể là 102, 103, v.v. — dẫn đến primary key id không liên tục.
 
-更遗憾的是，即使在自增初始值和步长这两个参数都设置为 1 的时候，自增主键 id 也不一定能保证主键是连续的
+Đáng tiếc hơn, ngay cả khi cả hai tham số auto-increment initial value và step đều đặt là 1, auto-increment primary key id cũng không chắc đảm bảo liên tục.
 
-### 自增值不连续场景 2
+### Tình huống 2
 
-举个例子，我们现在往表里插入一条 (null,1,1) 的记录，生成的主键是 1，AUTO_INCREMENT= 2，对吧
+Ví dụ: Bây giờ insert một record (null, 1, 1) vào bảng, primary key tạo ra là 1, AUTO_INCREMENT=2, đúng chứ.
 
 ![](https://oss.javaguide.cn/p3-juejin/c22c4f2cea234c7ea496025eb826c3bc~tplv-k3u1fbpfcp-zoom-1.png)
 
-这时我再执行一条插入 `(null,1,1)` 的命令，很显然会报错 `Duplicate entry`，因为我们设置了一个唯一索引字段 `a`：
+Lúc này thực thi thêm lệnh insert `(null,1,1)`, rõ ràng sẽ báo lỗi `Duplicate entry` vì chúng ta đặt một unique index field `a`:
 
 ![](https://oss.javaguide.cn/p3-juejin/c0325e31398d4fa6bb1cbe08ef797b7f~tplv-k3u1fbpfcp-zoom-1.png)
 
-但是，你会惊奇的发现，虽然插入失败了，但自增值仍然从 2 增加到了 3！
+Nhưng bạn sẽ ngạc nhiên khi thấy rằng dù insert thất bại, giá trị auto-increment vẫn tăng từ 2 lên 3!
 
-这是为啥？
+Tại sao vậy?
 
-我们来分析下这个 insert 语句的执行流程：
+Phân tích flow thực thi của câu insert này:
 
-1. 执行器调用 InnoDB 引擎接口准备插入一行记录 (null,1,1);
-2. InnoDB 发现用户没有指定自增 id 的值，则获取表 `test_pk` 当前的自增值 2；
-3. 将传入的记录改成 (2,1,1);
-4. 将表的自增值改成 3；
-5. 继续执行插入数据操作，由于已经存在 a=1 的记录，所以报 Duplicate key error，语句返回
+1. Executor gọi InnoDB engine interface chuẩn bị insert một row record (null, 1, 1).
+2. InnoDB nhận thấy user không chỉ định giá trị auto-increment id, lấy giá trị auto-increment hiện tại của bảng `test_pk` là 2.
+3. Đổi record đưa vào thành (2, 1, 1).
+4. Đổi giá trị auto-increment của bảng thành 3.
+5. Tiếp tục thực thi thao tác insert data. Vì đã tồn tại record a=1 nên báo Duplicate key error, câu lệnh trả về.
 
-可以看到，自增值修改的这个操作，是在真正执行插入数据的操作之前。
+Có thể thấy thao tác modify giá trị auto-increment xảy ra trước khi thực sự thực thi insert data.
 
-这个语句真正执行的时候，因为碰到唯一键 a 冲突，所以 id = 2 这一行并没有插入成功，但也没有将自增值再改回去。所以，在这之后，再插入新的数据行时，拿到的自增 id 就是 3。也就是说，出现了自增主键不连续的情况。
+Khi câu lệnh này thực sự thực thi, vì gặp unique key a conflict nên row id=2 không insert thành công, nhưng giá trị auto-increment cũng không được đổi lại. Vì vậy, khi insert data row mới tiếp theo, giá trị auto-increment id lấy được là 3. Tức là đã xảy ra tình huống auto-increment primary key không liên tục.
 
-至此，我们已经罗列了两种自增主键不连续的情况：
+Đến đây đã liệt kê hai tình huống auto-increment primary key không liên tục:
 
-1. 自增初始值和自增步长设置不为 1
-2. 唯一键冲突
+1. Auto-increment initial value và auto-increment step không đặt là 1.
+2. Unique key conflict.
 
-除此之外，事务回滚也会导致这种情况
+Ngoài ra, transaction rollback cũng gây ra tình huống này.
 
-### 自增值不连续场景 3
+### Tình huống 3
 
-我们现在表里有一行 `(1,1,1)` 的记录，AUTO_INCREMENT = 3：
+Bây giờ bảng có một record `(1, 1, 1)`, AUTO_INCREMENT = 3:
 
 ![](https://oss.javaguide.cn/p3-juejin/6220fcf7dac54299863e43b6fb97de3e~tplv-k3u1fbpfcp-zoom-1.png)
 
-我们先插入一行数据 `(null, 2, 2)`，也就是 (3, 2, 2) 嘛，并且 AUTO_INCREMENT 变为 4：
+Trước tiên insert một row data `(null, 2, 2)`, tức (3, 2, 2), và AUTO_INCREMENT thành 4:
 
 ![](https://oss.javaguide.cn/p3-juejin/3f02d46437d643c3b3d9f44a004ab269~tplv-k3u1fbpfcp-zoom-1.png)
 
-再去执行这样一段 SQL：
+Rồi thực thi đoạn SQL này:
 
 ![](https://oss.javaguide.cn/p3-juejin/faf5ce4a2920469cae697f845be717f5~tplv-k3u1fbpfcp-zoom-1.png)
 
-虽然我们插入了一条 (null, 3, 3) 记录，但是使用 rollback 进行回滚了，所以数据库中是没有这条记录的：
+Dù đã insert record (null, 3, 3) nhưng đã dùng rollback để rollback lại, nên trong database không có record này:
 
 ![](https://oss.javaguide.cn/p3-juejin/6cb4c02722674dd399939d3d03a431c1~tplv-k3u1fbpfcp-zoom-1.png)
 
-在这种事务回滚的情况下，自增值并没有同样发生回滚！如下图所示，自增值仍然固执地从 4 增加到了 5：
+Trong tình huống transaction rollback này, giá trị auto-increment không rollback theo! Như hình dưới, giá trị auto-increment vẫn cố tăng từ 4 lên 5:
 
 ![](https://oss.javaguide.cn/p3-juejin/e6eea1c927424ac7bda34a511ca521ae~tplv-k3u1fbpfcp-zoom-1.png)
 
-所以这时候我们再去插入一条数据（null, 3, 3）的时候，主键 id 就会被自动赋为 `5` 了：
+Vì vậy khi insert thêm một data (null, 3, 3), primary key id sẽ tự động được gán là `5`:
 
 ![](https://oss.javaguide.cn/p3-juejin/80da69dd13b543c4a32d6ed832a3c568~tplv-k3u1fbpfcp-zoom-1.png)
 
-那么，为什么在出现唯一键冲突或者回滚的时候，MySQL 没有把表的自增值改回去呢？回退回去的话不就不会发生自增 id 不连续了吗？
+Vậy tại sao khi xảy ra unique key conflict hay rollback, MySQL không đổi giá trị auto-increment của bảng về lại? Nếu rollback về thì không còn auto-increment id không liên tục nữa?
 
-事实上，这么做的主要原因是为了提高性能。
+Thực ra lý do chính làm vậy là để cải thiện performance.
 
-我们直接用反证法来验证：假设 MySQL 在事务回滚的时候会把自增值改回去，会发生什么？
+Dùng proof by contradiction để chứng minh: Giả sử MySQL rollback giá trị auto-increment khi transaction rollback, điều gì sẽ xảy ra?
 
-现在有两个并行执行的事务 A 和 B，在申请自增值的时候，为了避免两个事务申请到相同的自增 id，肯定要加锁，然后顺序申请，对吧。
+Có hai transaction A và B chạy song song. Khi xin giá trị auto-increment, để tránh hai transaction xin được cùng id, chắc chắn phải lock, rồi xin theo thứ tự.
 
-1. 假设事务 A 申请到了 id = 1， 事务 B 申请到 id=2，那么这时候表 t 的自增值是 3，之后继续执行。
-2. 事务 B 正确提交了，但事务 A 出现了唯一键冲突，也就是 id = 1 的那行记录插入失败了，那如果允许事务 A 把自增 id 回退，也就是把表的当前自增值改回 1，那么就会出现这样的情况：表里面已经有 id = 2 的行，而当前的自增 id 值是 1。
-3. 接下来，继续执行的其他事务就会申请到 id=2。这时，就会出现插入语句报错“主键冲突”。
+1. Giả sử transaction A xin được id=1, transaction B xin được id=2, lúc này giá trị auto-increment của bảng t là 3, tiếp tục thực thi.
+2. Transaction B commit thành công, nhưng transaction A gặp unique key conflict — row id=1 insert thất bại. Nếu cho phép transaction A rollback auto-increment id về, tức đổi giá trị auto-increment hiện tại của bảng về 1, thì sẽ xảy ra: bảng đã có row id=2, nhưng giá trị auto-increment hiện tại là 1.
+3. Tiếp tục, các transaction khác sẽ xin được id=2. Lúc này câu insert báo lỗi "primary key conflict".
 
 ![](https://oss.javaguide.cn/p3-juejin/5f26f02e60f643c9a7cab88a9f1bdce9~tplv-k3u1fbpfcp-zoom-1.png)
 
-而为了解决这个主键冲突，有两种方法：
+Để giải quyết primary key conflict này có hai cách:
 
-1. 每次申请 id 之前，先判断表里面是否已经存在这个 id，如果存在，就跳过这个 id
-2. 把自增 id 的锁范围扩大，必须等到一个事务执行完成并提交，下一个事务才能再申请自增 id
+1. Trước mỗi lần xin id, kiểm tra trước xem id đó đã tồn tại trong bảng chưa. Nếu có thì bỏ qua.
+2. Mở rộng phạm vi lock auto-increment id — phải đợi một transaction thực thi xong và commit, transaction tiếp theo mới xin auto-increment id được.
 
-很显然，上述两个方法的成本都比较高，会导致性能问题。而究其原因呢，是我们假设的这个 “允许自增 id 回退”。
+Rõ ràng, chi phí của hai cách trên đều khá cao, dẫn đến vấn đề performance. Nguyên nhân sâu xa là giả định "cho phép auto-increment id rollback" của chúng ta.
 
-因此，InnoDB 放弃了这个设计，语句执行失败也不回退自增 id。也正是因为这样，所以才只保证了自增 id 是递增的，但不保证是连续的。
+Do đó, InnoDB từ bỏ thiết kế này — câu lệnh thực thi thất bại cũng không rollback auto-increment id. Chính vì vậy mà chỉ đảm bảo auto-increment id tăng dần, không đảm bảo liên tục.
 
-综上，已经分析了三种自增值不连续的场景，还有第四种场景：批量插入数据。
+Tóm lại, đã phân tích ba tình huống giá trị auto-increment không liên tục. Còn tình huống thứ tư: batch insert data.
 
-### 自增值不连续场景 4
+### Tình huống 4
 
-对于批量插入数据的语句，MySQL 有一个批量申请自增 id 的策略：
+Với các câu lệnh batch insert data, MySQL có một chiến lược xin auto-increment id theo batch:
 
-1. 语句执行过程中，第一次申请自增 id，会分配 1 个；
-2. 1 个用完以后，这个语句第二次申请自增 id，会分配 2 个；
-3. 2 个用完以后，还是这个语句，第三次申请自增 id，会分配 4 个；
-4. 依此类推，同一个语句去申请自增 id，每次申请到的自增 id 个数都是上一次的两倍。
+1. Trong quá trình thực thi câu lệnh, lần đầu tiên xin auto-increment id sẽ được cấp 1 cái.
+2. Sau khi dùng hết 1 cái, lần thứ hai câu lệnh xin auto-increment id sẽ được cấp 2 cái.
+3. Sau khi dùng hết 2 cái, vẫn câu lệnh đó, lần thứ ba xin auto-increment id sẽ được cấp 4 cái.
+4. Cứ thế, cùng câu lệnh xin auto-increment id, mỗi lần xin được số auto-increment id gấp đôi lần trước.
 
-注意，这里说的批量插入数据，不是在普通的 insert 语句里面包含多个 value 值！！！，因为这类语句在申请自增 id 的时候，是可以精确计算出需要多少个 id 的，然后一次性申请，申请完成后锁就可以释放了。
+Lưu ý, "batch insert data" ở đây không phải câu insert thông thường chứa nhiều value! Vì loại câu lệnh này khi xin auto-increment id, có thể tính chính xác cần bao nhiêu id, rồi xin một lần, xin xong là lock có thể release.
 
-而对于 `insert … select`、replace …… select 和 load data 这种类型的语句来说，MySQL 并不知道到底需要申请多少 id，所以就采用了这种批量申请的策略，毕竟一个一个申请的话实在太慢了。
+Còn với các câu lệnh kiểu `insert...select`, `replace...select` và `load data`, MySQL không biết cần xin bao nhiêu id, nên áp dụng chiến lược xin batch này — vì xin từng cái một thực sự quá chậm.
 
-举个例子，假设我们现在这个表有下面这些数据：
+Ví dụ: Giả sử bảng hiện tại có dữ liệu sau:
 
 ![](https://oss.javaguide.cn/p3-juejin/6453cfc107f94e3bb86c95072d443472~tplv-k3u1fbpfcp-zoom-1.png)
 
-我们创建一个和当前表 `test_pk` 有相同结构定义的表 `test_pk2`：
+Tạo bảng `test_pk2` có cùng định nghĩa cấu trúc với bảng `test_pk` hiện tại:
 
 ![](https://oss.javaguide.cn/p3-juejin/45248a6dc34f431bba14d434bee2c79e~tplv-k3u1fbpfcp-zoom-1.png)
 
-然后使用 `insert...select` 往 `teset_pk2` 表中批量插入数据：
+Dùng `insert...select` để batch insert data vào bảng `test_pk2`:
 
 ![](https://oss.javaguide.cn/p3-juejin/c1b061e86bae484694d15ceb703b10ca~tplv-k3u1fbpfcp-zoom-1.png)
 
-可以看到，成功导入了数据。
+Có thể thấy import data thành công.
 
-再来看下 `test_pk2` 的自增值是多少：
+Xem lại giá trị auto-increment của `test_pk2` là bao nhiêu:
 
 ![](https://oss.javaguide.cn/p3-juejin/0ff9039366154c738331d64ebaf88d3b~tplv-k3u1fbpfcp-zoom-1.png)
 
-如上分析，是 8 而不是 6
+Như đã phân tích, là 8 chứ không phải 6.
 
-具体来说，insert……select 实际上往表中插入了 5 行数据 （1 1）（2 2）（3 3）（4 4）（5 5）。但是，这五行数据是分三次申请的自增 id，结合批量申请策略，每次申请到的自增 id 个数都是上一次的两倍，所以：
+Cụ thể, `insert...select` thực tế insert 5 row data vào bảng: (1,1)(2,2)(3,3)(4,4)(5,5). Nhưng 5 row này được xin auto-increment id trong 3 lần. Kết hợp chiến lược xin batch, mỗi lần xin được số auto-increment id gấp đôi lần trước, nên:
 
-- 第一次申请到了一个 id：id=1
-- 第二次被分配了两个 id：id=2 和 id=3
-- 第三次被分配到了 4 个 id：id=4、id = 5、id = 6、id=7
+- Lần đầu xin được 1 id: id=1
+- Lần hai được cấp 2 id: id=2 và id=3
+- Lần ba được cấp 4 id: id=4, id=5, id=6, id=7
 
-由于这条语句实际只用上了 5 个 id，所以 id=6 和 id=7 就被浪费掉了。之后，再执行 `insert into test_pk2 values(null,6,6)`，实际上插入的数据就是（8,6,6)：
+Vì câu lệnh này thực tế chỉ dùng 5 id, nên id=6 và id=7 bị lãng phí. Sau đó, thực thi `insert into test_pk2 values(null, 6, 6)`, data thực sự insert là (8, 6, 6):
 
 ![](https://oss.javaguide.cn/p3-juejin/51612fbac3804cff8c5157df21d6e355~tplv-k3u1fbpfcp-zoom-1.png)
 
-## 小结
+## Tổng kết ngắn
 
-本文总结下自增值不连续的 4 个场景：
+Bài này tóm tắt 4 tình huống auto-increment không liên tục:
 
-1. 自增初始值和自增步长设置不为 1
-2. 唯一键冲突
-3. 事务回滚
-4. 批量插入（如 `insert...select` 语句）
-
-<!-- @include: @article-footer.snippet.md -->
+1. Auto-increment initial value và auto-increment step không đặt là 1.
+2. Unique key conflict.
+3. Transaction rollback.
+4. Batch insert (như câu lệnh `insert...select`).

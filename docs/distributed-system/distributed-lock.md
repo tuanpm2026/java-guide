@@ -1,91 +1,91 @@
 ---
-title: 分布式锁入门介绍
-category: 分布式
-description: 分布式锁基础概念详解，讲解为什么需要分布式锁、分布式锁的核心特性（互斥性、防死锁、可重入）、常见应用场景（秒杀、库存扣减）分析。
+title: Giới thiệu cơ bản về Distributed Lock
+category: Distributed
+description: Giải thích chi tiết các khái niệm cơ bản về distributed lock, giải thích tại sao cần distributed lock, các đặc tính cốt lõi của distributed lock (mutual exclusion, deadlock prevention, reentrancy), phân tích các tình huống sử dụng phổ biến (flash sale, inventory deduction).
 tag:
-  - 分布式锁
+  - Distributed Lock
 head:
   - - meta
     - name: keywords
-      content: 分布式锁,分布式锁介绍,为什么需要分布式锁,分布式锁应用场景,秒杀超卖,分布式锁面试题
+      content: distributed lock,giới thiệu distributed lock,tại sao cần distributed lock,tình huống sử dụng distributed lock,flash sale overselling,câu hỏi phỏng vấn distributed lock
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-网上有很多分布式锁相关的文章，写了一个相对简洁易懂的版本，针对面试和工作应该够用了。
+Trên mạng có rất nhiều bài về distributed lock. Tôi viết một phiên bản tương đối ngắn gọn và dễ hiểu — đủ dùng cho phỏng vấn và công việc.
 
-这篇文章我们先介绍一下分布式锁的基本概念。
+Bài này trước tiên giới thiệu các khái niệm cơ bản về distributed lock.
 
-## 为什么需要分布式锁？
+## Tại sao cần Distributed Lock?
 
-在多线程环境中，如果多个线程同时访问共享资源（例如商品库存、外卖订单），会发生数据竞争，可能会导致出现脏数据或者系统问题，威胁到程序的正常运行。
+Trong môi trường đa luồng, nếu nhiều thread đồng thời truy cập shared resource (ví dụ tồn kho hàng hóa, đơn đặt món), sẽ xảy ra data race — có thể dẫn đến dirty data hoặc vấn đề hệ thống, đe dọa hoạt động bình thường của chương trình.
 
-举个例子，假设现在有 100 个用户参与某个限时秒杀活动，每位用户限购 1 件商品，且商品的数量只有 3 个。如果不对共享资源进行互斥访问，就可能出现以下情况：
+Ví dụ: Giả sử có 100 user tham gia một flash sale giới hạn thời gian. Mỗi user chỉ mua được 1 sản phẩm, và số lượng sản phẩm chỉ có 3. Nếu không kiểm soát truy cập mutual exclusion vào shared resource, có thể xảy ra:
 
-- 线程 1、2、3 等多个线程同时进入抢购方法，每一个线程对应一个用户。
-- 线程 1 查询用户已经抢购的数量，发现当前用户尚未抢购且商品库存还有 1 个，因此认为可以继续执行抢购流程。
-- 线程 2 也执行查询用户已经抢购的数量，发现当前用户尚未抢购且商品库存还有 1 个，因此认为可以继续执行抢购流程。
-- 线程 1 继续执行，将库存数量减少 1 个，然后返回成功。
-- 线程 2 继续执行，将库存数量减少 1 个，然后返回成功。
-- 此时就发生了超卖问题，导致商品被多卖了一份。
+- Thread 1, 2, 3 và nhiều thread khác cùng vào method flash sale, mỗi thread tương ứng một user.
+- Thread 1 query số lượng user đã mua — phát hiện user chưa mua và tồn kho còn 1 cái, nên cho rằng có thể tiếp tục flow flash sale.
+- Thread 2 cũng query số lượng user đã mua — phát hiện user chưa mua và tồn kho còn 1 cái, nên cho rằng có thể tiếp tục flow flash sale.
+- Thread 1 tiếp tục thực thi, giảm tồn kho 1 cái, trả về success.
+- Thread 2 tiếp tục thực thi, giảm tồn kho 1 cái, trả về success.
+- Lúc này đã xảy ra vấn đề overselling — sản phẩm bị bán thêm một cái.
 
-![共享资源未互斥访问导致出现问题](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/oversold-without-locking.png)
+![Vấn đề xảy ra khi shared resource không được mutual exclusion](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/oversold-without-locking.png)
 
-为了保证共享资源被安全地访问，我们需要使用互斥操作对共享资源进行保护，即同一时刻只允许一个线程访问共享资源，其他线程需要等待当前线程释放后才能访问。这样可以避免数据竞争和脏数据问题，保证程序的正确性和稳定性。
+Để đảm bảo shared resource được truy cập an toàn, cần dùng mutual exclusion operation để bảo vệ shared resource — tức chỉ cho phép một thread truy cập shared resource tại một thời điểm, các thread khác phải chờ thread hiện tại release mới được truy cập. Như vậy có thể tránh data race và dirty data, đảm bảo tính đúng đắn và ổn định của chương trình.
 
-**如何才能实现共享资源的互斥访问呢？** 锁是一个比较通用的解决方案，更准确点来说是悲观锁。
+**Làm thế nào để triển khai mutual exclusion access cho shared resource?** Lock là một giải pháp khá phổ quát — cụ thể hơn là pessimistic lock.
 
-悲观锁总是假设最坏的情况，认为共享资源每次被访问的时候就会出现问题(比如共享数据被修改)，所以每次在获取资源操作的时候都会上锁，这样其他线程想拿到这个资源就会阻塞直到锁被上一个持有者释放。也就是说，**共享资源每次只给一个线程使用，其它线程阻塞，用完后再把资源转让给其它线程**。
+Pessimistic lock luôn giả định tình huống xấu nhất, cho rằng mỗi lần shared resource được truy cập sẽ xảy ra vấn đề (ví dụ data chia sẻ bị modify). Nên mỗi khi thực hiện thao tác lấy resource đều lock lại. Các thread khác muốn lấy resource này sẽ bị block cho đến khi lock được người giữ trước đó release. **Shared resource mỗi lần chỉ cho một thread dùng, các thread khác block, dùng xong thì chuyển resource cho thread khác**.
 
-对于单机多线程来说，在 Java 中，我们通常使用 `ReentrantLock` 类、`synchronized` 关键字这类 JDK 自带的 **本地锁** 来控制一个 JVM 进程内的多个线程对本地共享资源的访问。
+Với single machine multi-threading, trong Java, chúng ta thường dùng **local lock** tích hợp sẵn trong JDK như lớp `ReentrantLock`, keyword `synchronized` để kiểm soát truy cập của nhiều thread trong một JVM process vào local shared resource.
 
-下面是我对本地锁画的一张示意图。
+Dưới đây là sơ đồ minh họa local lock của tôi.
 
-![本地锁](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/jvm-local-lock.png)
+![Local lock](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/jvm-local-lock.png)
 
-从图中可以看出，这些线程访问共享资源是互斥的，同一时刻只有一个线程可以获取到本地锁访问共享资源。
+Từ hình có thể thấy, các thread truy cập shared resource là mutual exclusion — tại một thời điểm chỉ có một thread có thể lấy local lock để truy cập shared resource.
 
-分布式系统下，不同的服务/客户端通常运行在独立的 JVM 进程上。如果多个 JVM 进程共享同一份资源的话，使用本地锁就没办法实现资源的互斥访问了。于是，**分布式锁** 就诞生了。
+Trong distributed system, các service/client khác nhau thường chạy trong JVM process độc lập. Nếu nhiều JVM process chia sẻ cùng một resource, dùng local lock sẽ không thể triển khai mutual exclusion access cho resource. Do đó, **distributed lock** ra đời.
 
-举个例子：系统的订单服务一共部署了 3 份，都对外提供服务。用户下订单之前需要检查库存，为了防止超卖，这里需要加锁以实现对检查库存操作的同步访问。由于订单服务位于不同的 JVM 进程中，本地锁在这种情况下就没办法正常工作了。我们需要用到分布式锁，这样的话，即使多个线程不在同一个 JVM 进程中也能获取到同一把锁，进而实现共享资源的互斥访问。
+Ví dụ: Order service của hệ thống được deploy 3 bản, đều cung cấp service ra ngoài. Trước khi user đặt hàng cần kiểm tra tồn kho. Để ngăn overselling, cần lock để triển khai synchronized access cho thao tác kiểm tra tồn kho. Vì order service nằm trong các JVM process khác nhau, local lock không thể hoạt động bình thường trong tình huống này. Cần dùng distributed lock — như vậy dù các thread không ở cùng JVM process vẫn có thể lấy cùng một lock, từ đó triển khai mutual exclusion access cho shared resource.
 
-下面是我对分布式锁画的一张示意图。
+Dưới đây là sơ đồ minh họa distributed lock của tôi.
 
-![分布式锁](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/distributed-lock.png)
+![Distributed Lock](https://oss.javaguide.cn/github/javaguide/distributed-system/distributed-lock/distributed-lock.png)
 
-从图中可以看出，这些独立的进程中的线程访问共享资源是互斥的，同一时刻只有一个线程可以获取到分布式锁访问共享资源。
+Từ hình có thể thấy, các thread trong các process độc lập này truy cập shared resource là mutual exclusion — tại một thời điểm chỉ có một thread có thể lấy distributed lock để truy cập shared resource.
 
-## 分布式锁应该具备哪些条件？
+## Distributed Lock cần đáp ứng những điều kiện nào?
 
-一个最基本的分布式锁需要满足：
+Một distributed lock cơ bản nhất cần thỏa:
 
-- **互斥**：任意一个时刻，锁只能被一个线程持有。
-- **高可用**：锁服务是高可用的，当一个锁服务出现问题，能够自动切换到另外一个锁服务。并且，即使客户端的释放锁的代码逻辑出现问题，锁最终一定还是会被释放，不会影响其他线程对共享资源的访问。这一般是通过超时机制实现的。
-- **可重入**：一个节点获取了锁之后，还可以再次获取锁。
+- **Mutual exclusion**: Tại bất kỳ thời điểm nào, lock chỉ được giữ bởi một thread.
+- **High availability**: Lock service là high availability. Khi một lock service gặp vấn đề, có thể tự động switch sang lock service khác. Hơn nữa, ngay cả khi logic release lock của client gặp vấn đề, lock cuối cùng nhất định cũng sẽ được release — không ảnh hưởng đến thread khác truy cập shared resource. Điều này thường được triển khai thông qua timeout mechanism.
+- **Reentrancy**: Một node sau khi lấy được lock có thể lấy lại lock.
 
-除了上面这三个基本条件之外，一个好的分布式锁还需要满足下面这些条件：
+Ngoài ba điều kiện cơ bản trên, một distributed lock tốt còn cần đáp ứng:
 
-- **高性能**：获取和释放锁的操作应该快速完成，并且不应该对整个系统的性能造成过大影响。
-- **非阻塞**：如果获取不到锁，不能无限期等待，避免对系统正常运行造成影响。
+- **High performance**: Thao tác lấy và release lock phải hoàn thành nhanh, không gây ảnh hưởng quá lớn đến hiệu năng toàn hệ thống.
+- **Non-blocking**: Nếu không lấy được lock, không thể chờ vô thời hạn — tránh ảnh hưởng đến hoạt động bình thường của hệ thống.
 
-## 分布式锁的常见实现方式有哪些？
+## Các cách triển khai Distributed Lock phổ biến là gì?
 
-常见分布式锁实现方案如下：
+Các phương án triển khai distributed lock phổ biến:
 
-- 基于关系型数据库比如 MySQL 实现分布式锁。
-- 基于分布式协调服务 ZooKeeper 实现分布式锁。
-- 基于分布式键值存储系统比如 Redis 、Etcd 实现分布式锁。
+- Triển khai distributed lock dựa trên RDBMS như MySQL.
+- Triển khai distributed lock dựa trên distributed coordination service ZooKeeper.
+- Triển khai distributed lock dựa trên distributed key-value storage system như Redis, Etcd.
 
-关系型数据库的方式一般是通过唯一索引或者排他锁实现。不过，一般不会使用这种方式，问题太多比如性能太差、不具备锁失效机制。
+Cách dùng RDBMS thường thông qua unique index hoặc exclusive lock. Tuy nhiên, thường không dùng cách này vì có quá nhiều vấn đề như hiệu năng kém, không có cơ chế lock expiration.
 
-基于 ZooKeeper 或者 Redis 实现分布式锁这两种实现方式要用的更多一些，我专门写了一篇文章来详细介绍这两种方案：[分布式锁常见实现方案总结](./distributed-lock-implementations.md)。
+Hai cách triển khai distributed lock dựa trên ZooKeeper hoặc Redis được dùng nhiều hơn. Tôi đã viết một bài riêng để giới thiệu chi tiết hai phương án này: [Tổng hợp các phương án triển khai Distributed Lock phổ biến](./distributed-lock-implementations.md).
 
-## 总结
+## Tổng kết
 
-这篇文章我们主要介绍了：
+Bài này chủ yếu giới thiệu:
 
-- 分布式锁的用途：分布式系统下，不同的服务/客户端通常运行在独立的 JVM 进程上。如果多个 JVM 进程共享同一份资源的话，使用本地锁就没办法实现资源的互斥访问了。
-- 分布式锁的应该具备的条件：互斥、高可用、可重入、高性能、非阻塞。
-- 分布式锁的常见实现方式：关系型数据库比如 MySQL、分布式协调服务 ZooKeeper、分布式键值存储系统比如 Redis 、Etcd 。
+- Công dụng của distributed lock: Trong distributed system, các service/client khác nhau thường chạy trong JVM process độc lập. Nếu nhiều JVM process chia sẻ cùng một resource, dùng local lock không thể triển khai mutual exclusion access cho resource.
+- Điều kiện distributed lock cần đáp ứng: Mutual exclusion, high availability, reentrancy, high performance, non-blocking.
+- Các cách triển khai distributed lock phổ biến: RDBMS như MySQL, distributed coordination service ZooKeeper, distributed key-value storage system như Redis, Etcd.
 
 <!-- @include: @article-footer.snippet.md -->

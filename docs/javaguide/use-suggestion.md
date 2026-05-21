@@ -1,28 +1,28 @@
 ---
-title: 使用建议
-description: JavaGuide使用建议，讲解如何高效利用本站内容进行Java学习与面试准备的方法指南。
-category: 走近项目
+title: Gợi ý sử dụng
+description: Gợi ý sử dụng JavaGuide, hướng dẫn cách tận dụng hiệu quả nội dung trang web để học Java và chuẩn bị phỏng vấn.
+category: Giới thiệu project
 icon: star
 ---
 
-**对于不准备面试的同学来说** ，本文档倾向于给你提供一个比较详细的学习路径，目录清晰，让你对于 Java 整体的知识体系有一个清晰认识。你可以跟着视频、书籍或者官方文档学习完某个知识点之后，然后来这里找对应的总结，帮助你更好地掌握对应的知识点。甚至说，你在有编程基础的情况下，想要学习某个知识点的话，可以直接看我的总结，这样学习效率会非常高。
+**Đối với những bạn không chuẩn bị phỏng vấn**, tài liệu này thiên về cung cấp cho bạn một lộ trình học tập khá chi tiết, mục lục rõ ràng, giúp bạn có cái nhìn tổng quan và rõ ràng về toàn bộ hệ thống kiến thức Java. Bạn có thể học xong một kiến thức nào đó qua video, sách hoặc tài liệu chính thức, sau đó đến đây tìm tổng kết tương ứng, giúp bạn nắm vững kiến thức tốt hơn. Thậm chí, nếu bạn đã có nền tảng lập trình và muốn học một kiến thức nào đó, bạn có thể đọc trực tiếp tổng kết của tôi, hiệu quả học tập sẽ rất cao.
 
-**对于准备面试的同学来说** ，本文档涵盖 Java 程序员所需要掌握的核心知识的常见面试问题总结。
+**Đối với những bạn chuẩn bị phỏng vấn**, tài liệu này bao gồm các câu hỏi phỏng vấn phổ biến về kiến thức cốt lõi mà lập trình viên Java cần nắm vững.
 
-大部分人看 JavaGuide 应该都是为了准备技术八股文。**那如何才能更高效地准备技术八股文？**
+Phần lớn mọi người xem JavaGuide chắc là để chuẩn bị "technical interview questions". **Vậy làm thế nào để chuẩn bị technical interview questions hiệu quả hơn?**
 
-对于技术八股文来说，尽量不要死记硬背，这种方式非常枯燥且对自身能力提升有限！但是！想要一点不背是不太现实的，只是说要结合实际应用场景和实战来理解记忆。
+Đối với technical interview questions, hãy cố gắng không thuộc lòng máy móc, cách này rất nhàm chán và có hạn chế trong việc nâng cao năng lực bản thân! Nhưng! Muốn không thuộc chút nào là không thực tế, chỉ là phải kết hợp với tình huống ứng dụng thực tế và thực hành để hiểu và ghi nhớ.
 
-我一直觉得面试八股文最好是和实际应用场景和实战相结合。很多同学现在的方向都错了，上来就是直接背八股文，硬生生学成了文科，那当然无趣了。
+Tôi luôn cho rằng interview questions tốt nhất là nên kết hợp với tình huống ứng dụng thực tế và thực hành. Nhiều bạn hiện nay đang đi sai hướng, vào ngay là thuộc interview questions, biến thành học như khoa học xã hội thuần túy, tất nhiên sẽ chán.
 
-举个例子：你的项目中需要用到 Redis 来做缓存，你对照着官网简单了解并实践了简单使用 Redis 之后，你去看了 Redis 对应的八股文。你发现 Redis 可以用来做限流、分布式锁，于是你去在项目中实践了一下并掌握了对应的八股文。紧接着，你又发现 Redis 内存不够用的情况下，还能使用 Redis Cluster 来解决，于是你就又去实践了一下并掌握了对应的八股文。
+Ví dụ: Project của bạn cần dùng Redis để làm cache, sau khi bạn tham khảo official website và thực hành cơ bản về Redis, bạn đọc các interview questions liên quan đến Redis. Bạn phát hiện Redis có thể dùng để làm rate limiting, distributed lock, thế là bạn thực hành trong project và nắm vững interview questions tương ứng. Tiếp theo, bạn phát hiện khi Redis không đủ memory còn có thể dùng Redis Cluster để giải quyết, thế là bạn lại thực hành một lần nữa và nắm vững interview questions tương ứng.
 
-而且， **面试中有水平的面试官都是根据你的项目经历来顺带着问一些技术八股文** 。
+Hơn nữa, **những interviewer có trình độ trong phỏng vấn đều hỏi technical interview questions dựa trên project experience của bạn**.
 
-举个例子：你的项目用到了消息队列，那面试官可能就会问你：为什么使用消息队列？项目中什么模块用到了消息队列？如何保证消息不丢失？如何保证消息的顺序性?（结合你使用的具体的消息队列来准备）……。
+Ví dụ: Project của bạn dùng message queue, interviewer có thể hỏi bạn: Tại sao dùng message queue? Module nào trong project dùng message queue? Làm thế nào để đảm bảo message không bị mất? Làm thế nào để đảm bảo thứ tự message? (Chuẩn bị dựa trên message queue cụ thể bạn đang dùng)...
 
-**一定要记住你的主要目标是理解和记关键词，而不是像背课文一样一字一句地记下来！**
+**Nhất định phải nhớ mục tiêu chính của bạn là hiểu và ghi nhớ keyword, chứ không phải thuộc từng chữ như thuộc bài khóa!**
 
-另外，记录博客或者用自己的理解把对应的知识点讲给别人听也是一个不错的选择。
+Ngoài ra, viết blog hoặc dùng cách hiểu của mình để giải thích kiến thức tương ứng cho người khác nghe cũng là một lựa chọn tốt.
 
-最后，准备技术面试的同学一定要定期复习（自测的方式非常好），不然确实会遗忘的。
+Cuối cùng, những bạn chuẩn bị technical interview nhất định phải ôn tập định kỳ (cách tự kiểm tra rất tốt), nếu không thực sự sẽ quên.

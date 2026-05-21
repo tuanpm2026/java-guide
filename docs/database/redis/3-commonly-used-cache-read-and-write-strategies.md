@@ -1,156 +1,156 @@
 ---
-title: 3种常用的缓存读写策略详解
-description: 深入对比 Cache Aside、Read/Write Through、Write Behind 三种缓存读写策略，附详细时序图、一致性问题分析及生产级解决方案，Redis 实战必备！
-category: 数据库
+title: Giải thích chi tiết 3 chiến lược đọc/ghi cache phổ biến
+description: So sánh sâu ba chiến lược đọc/ghi cache Cache Aside, Read/Write Through, Write Behind, kèm sơ đồ sequence chi tiết, phân tích vấn đề consistency và giải pháp cấp production. Bắt buộc phải biết khi thực chiến Redis!
+category: Cơ sở dữ liệu
 tag:
   - Redis
 head:
   - - meta
     - name: keywords
-      content: 缓存读写策略,Cache Aside,Read Through,Write Through,Write Behind,Write Back,缓存一致性,缓存失效,旁路缓存,读写穿透,异步缓存写入,Redis缓存策略,缓存更新策略
+      content: chiến lược đọc/ghi cache,Cache Aside,Read Through,Write Through,Write Behind,Write Back,cache consistency,cache invalidation,bypass cache,read-write through,async cache write,Redis cache strategy,cache update strategy
 ---
 
-看到很多小伙伴简历上写了“**熟练使用缓存**”，但是被我问到“**缓存常用的 3 种读写策略**”的时候却一脸懵逼。
+Tôi thấy nhiều bạn ghi trong CV "**thành thạo sử dụng cache**", nhưng khi hỏi về "**3 chiến lược đọc/ghi cache phổ biến**" thì lại ngơ ngác.
 
-在我看来，造成这个问题的原因是我们在学习 Redis 的时候，可能只是简单写了一些 Demo，并没有去关注缓存的读写策略，或者说压根不知道这回事。
+Theo tôi, nguyên nhân của vấn đề này là khi học Redis, có thể chúng ta chỉ viết một số Demo đơn giản mà không quan tâm đến chiến lược đọc/ghi cache, hoặc thậm chí không biết điều này tồn tại.
 
-但是，搞懂 3 种常见的缓存读写策略对于实际工作中使用缓存以及面试中被问到缓存都是非常有帮助的！
+Nhưng, hiểu rõ 3 chiến lược đọc/ghi cache phổ biến rất hữu ích cho cả việc sử dụng cache trong công việc thực tế lẫn khi bị hỏi về cache trong phỏng vấn!
 
-**下面介绍到的三种模式各有优劣，不存在最佳模式，根据具体的业务场景选择适合自己的缓存读写模式。**
+**Ba chế độ được giới thiệu dưới đây đều có ưu và nhược điểm riêng, không có chế độ tốt nhất — hãy chọn chiến lược phù hợp dựa trên tình huống nghiệp vụ cụ thể.**
 
-### Cache Aside Pattern（旁路缓存模式）
+### Cache Aside Pattern (Chế độ cache bên cạnh)
 
-这是我们日常开发中**最常用、最经典**的一种模式，几乎是互联网应用缓存方案的事实标准，尤其适合**读多写少**的业务场景。
+Đây là chế độ **phổ biến và kinh điển nhất** trong phát triển hàng ngày, gần như là tiêu chuẩn thực tế của các giải pháp cache ứng dụng Internet, đặc biệt phù hợp với tình huống **đọc nhiều ghi ít**.
 
-这个模式之所以被称为**“旁路”(Aside)**,是因为应用程序的**写操作完全绕过了缓存，直接操作数据库**。
+Lý do chế độ này được gọi là **"Aside" (bên cạnh)** là vì **các thao tác ghi của ứng dụng hoàn toàn bỏ qua cache, trực tiếp thao tác DB**.
 
-应用程序扮演了数据流转的“指挥官”，需要同时维护 Cache 和 DB 两个数据源。
+Ứng dụng đóng vai "chỉ huy" luồng dữ liệu, cần duy trì đồng thời cả hai nguồn dữ liệu Cache và DB.
 
-下面我们来看一下这个策略模式下的缓存读写步骤。
+Hãy xem các bước đọc/ghi cache trong chế độ này.
 
-**写操作 ：**
+**Thao tác ghi:**
 
-1. 应用**先更新 DB**。
-2. 然后**直接删除 Cache**中对应的数据。
+1. Ứng dụng **cập nhật DB trước**.
+2. Sau đó **xóa dữ liệu tương ứng trong Cache**.
 
-简单画了一张图帮助大家理解写的步骤。
+Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/cache-aside-write.png)
 
-**读操作：**
+**Thao tác đọc:**
 
-1. 应用先从 Cache 读取数据。
-2. 如果命中(Hit)，则直接返回。
-3. 如果未命中(Miss)，则从 DB 读取数据，成功读取后，**将数据写回 Cache**，然后返回。
+1. Ứng dụng đọc dữ liệu từ Cache trước.
+2. Nếu hit (Cache hit), trả về ngay.
+3. Nếu miss (Cache miss), đọc từ DB, sau khi đọc thành công, **ghi dữ liệu vào Cache**, rồi trả về.
 
-简单画了一张图帮助大家理解读的步骤。
+Vẽ một hình đơn giản giúp hiểu các bước đọc.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/cache-aside-read.png)
 
-你仅仅了解了上面这些内容的话是远远不够的，我们还要搞懂其中的原理。
+Chỉ biết những điều trên là chưa đủ. Chúng ta cần hiểu nguyên lý bên trong.
 
-比如说面试官很可能会追问：
+Ví dụ phỏng vấn viên rất có thể sẽ hỏi thêm:
 
-1. 为什么写操作是“先更新 DB，后删除 Cache”？顺序能反过来吗？
-2. 那“先更新 DB，后删除 Cache”就绝对安全吗？
-3. 为什么是“删除 Cache”，而不是“更新 Cache”？
+1. Tại sao thao tác ghi là "cập nhật DB trước, xóa Cache sau"? Có thể đổi thứ tự không?
+2. Vậy "cập nhật DB trước, xóa Cache sau" có tuyệt đối an toàn không?
+3. Tại sao lại "xóa Cache" mà không "cập nhật Cache"?
 
-接下来我会以此分析解答这些问题。
+Tiếp theo tôi sẽ phân tích và giải đáp lần lượt các câu hỏi này.
 
-**1. 为什么写操作是“先更新 DB，后删除 Cache”？顺序能反过来吗？**
+**1. Tại sao thao tác ghi là "cập nhật DB trước, xóa Cache sau"? Có thể đổi thứ tự không?**
 
-**答：** 绝对不能。如果“先删 Cache，后更新 DB”，在高并发下会引入经典的数据不一致问题。
+**Trả lời:** Tuyệt đối không thể. Nếu "xóa Cache trước, cập nhật DB sau", trong điều kiện high concurrency sẽ gây ra vấn đề data inconsistency kinh điển.
 
-- **时序分析 (请求 A 写, 请求 B 读):**
-  1. 请求 A: 先将 Cache 中的数据删除。
-  2. 请求 B: 此时发现 Cache 为空，于是去 DB 读取**旧值**，并准备写入 Cache。
-  3. 请求 A : 将**新值**写入 DB。
-  4. 请求 B: 将之前读到的**旧值**写入了 Cache。
-- **结果：** DB 中是新值，而 Cache 中是旧值，数据不一致。
+- **Phân tích sequence (Request A ghi, Request B đọc):**
+  1. Request A: Xóa dữ liệu trong Cache trước.
+  2. Request B: Phát hiện Cache trống, đọc **giá trị cũ** từ DB và chuẩn bị ghi vào Cache.
+  3. Request A: Ghi **giá trị mới** vào DB.
+  4. Request B: Ghi **giá trị cũ** vừa đọc được vào Cache.
+- **Kết quả:** DB chứa giá trị mới, Cache chứa giá trị cũ — data inconsistency.
 
-**2. 那“先更新 DB，后删除 Cache”就绝对安全吗？**
+**2. Vậy "cập nhật DB trước, xóa Cache sau" có tuyệt đối an toàn không?**
 
-**答案：** 也不是绝对安全的！因为这样也可能会造成 **数据库和缓存数据不一致**的问题。
+**Trả lời:** Cũng không tuyệt đối an toàn! Vì cách này vẫn có thể gây ra vấn đề **database và cache data không nhất quán**.
 
-- **时序分析 (请求 A 读, 请求 B 写):**
-  1. 请求 A : 缓存未命中，从 DB 读取到**旧值**。
-  2. 请求 B: 迅速完成了 DB 的更新，并将 Cache 删除。
-  3. 请求 A : 将自己之前拿到的**旧值**写入了 Cache。
-- **结果：** DB 中是新值，Cache 中又是旧值。
-- **为什么概率极小？** 这个问题本质上是一个并发时序问题：只要“读 DB → 写 Cache”这段时间窗口内，恰好有写请求完成了 DB 更新，就有可能产生不一致。在大多数业务里，这个窗口时间相对较短，而且还需要与写请求并发“撞车”，所以发生概率不算高，但绝不是不可能。
+- **Phân tích sequence (Request A đọc, Request B ghi):**
+  1. Request A: Cache miss, đọc **giá trị cũ** từ DB.
+  2. Request B: Nhanh chóng hoàn tất cập nhật DB và xóa Cache.
+  3. Request A: Ghi **giá trị cũ** đã lấy trước đó vào Cache.
+- **Kết quả:** DB chứa giá trị mới, Cache lại chứa giá trị cũ.
+- **Tại sao xác suất cực nhỏ?** Vấn đề này về bản chất là vấn đề timing concurrency: chỉ cần trong khoảng thời gian "đọc DB → ghi Cache", có write request hoàn tất cập nhật DB là có thể xảy ra inconsistency. Trong hầu hết các nghiệp vụ, khoảng thời gian này tương đối ngắn, và còn cần đồng thời xảy ra với write request, nên xác suất không cao, nhưng tuyệt đối không phải không có.
 
-**3. 为什么是“删除 Cache”，而不是“更新 Cache”？**
+**3. Tại sao lại "xóa Cache" mà không "cập nhật Cache"?**
 
-- **性能开销：** 写操作往往只更新了对象的部分字段，如果为了“更新 Cache”而去重新查询或计算整个缓存对象，开销可能很大。相比之下，“删除”是一个轻量级操作。
-- **懒加载思想：** “删除”操作遵循懒加载原则。只有当数据下一次被真正需要（被读取）时，才触发从 DB 加载并写入缓存，避免了无效的缓存更新。
-- **并发安全：** “更新缓存”在高并发下可能出现更新顺序错乱的问题导致脏数据的概率会更大。
+- **Chi phí hiệu năng:** Thao tác ghi thường chỉ cập nhật một phần field của object. Nếu để "cập nhật Cache" mà phải query lại hoặc tính toán lại toàn bộ cache object, chi phí có thể rất lớn. Ngược lại, "xóa" là thao tác nhẹ.
+- **Lazy loading thought:** Thao tác "xóa" tuân theo nguyên tắc lazy loading. Chỉ khi dữ liệu thực sự được cần (được đọc) lần sau, mới trigger load từ DB và ghi vào cache, tránh việc cập nhật cache vô ích.
+- **An toàn concurrency:** "Cập nhật cache" trong high concurrency có thể xảy ra vấn đề thứ tự cập nhật lộn xộn, xác suất dữ liệu bẩn cao hơn.
 
-当然，这一切都建立在一个重要的前提之上：我们缓存的数据，是可以通过数据库进行确定性重建的，并且业务上可以容忍从‘缓存删除’到‘下一次读取并回填’之间这个极短时间窗口内的数据不一致。
+Tất nhiên, tất cả những điều này đều dựa trên một tiền đề quan trọng: dữ liệu cache có thể được tái tạo một cách xác định từ database, và nghiệp vụ có thể chấp nhận data inconsistency trong khoảng thời gian cực ngắn giữa 'xóa cache' và 'lần đọc và backfill tiếp theo'.
 
-现在我们再来分析一下 **Cache Aside Pattern 的缺陷**。
+Bây giờ hãy phân tích thêm **nhược điểm của Cache Aside Pattern**.
 
-**缺陷 1：首次请求数据一定不在 Cache 的问题**
+**Nhược điểm 1: Request đầu tiên nhất định không có trong Cache**
 
-解决办法：对于访问量巨大的热点数据，可以在系统启动或低峰期进行缓存预热。
+Giải pháp: Đối với hot data có lượng truy cập cực lớn, có thể warm up cache khi hệ thống khởi động hoặc trong giờ thấp điểm.
 
-**缺陷 2：写操作比较频繁的话导致 Cache 中的数据会被频繁被删除，这样会影响缓存命中率 。**
+**Nhược điểm 2: Nếu thao tác ghi quá thường xuyên, dữ liệu trong Cache sẽ thường xuyên bị xóa, ảnh hưởng đến cache hit rate.**
 
-解决办法：
+Giải pháp:
 
-- 数据库和缓存数据强一致场景：更新 DB 的时候同样更新 Cache，不过我们需要加一个锁/分布式锁来保证更新 Cache 的时候不存在线程安全问题。
-- 可以短暂地允许数据库和缓存数据不一致的场景：更新 DB 的时候同样更新 Cache，但是给缓存加一个比较短的过期时间（如 1 分钟），这样的话就可以保证即使数据不一致的话影响也比较小。
+- Tình huống yêu cầu database và cache data strong consistency: Khi cập nhật DB cũng đồng thời cập nhật Cache, nhưng cần thêm lock/distributed lock để đảm bảo không có vấn đề thread safety khi cập nhật Cache.
+- Tình huống có thể tạm thời cho phép database và cache data không nhất quán: Khi cập nhật DB cũng đồng thời cập nhật Cache, nhưng đặt expiration time tương đối ngắn cho cache (ví dụ 1 phút), như vậy ngay cả khi dữ liệu không nhất quán thì ảnh hưởng cũng nhỏ.
 
-### Read/Write Through Pattern（读写穿透）
+### Read/Write Through Pattern (Đọc/Ghi xuyên qua)
 
-在这种模式下，应用程序将**Cache 视为唯一的、主要的存储**。所有的读写请求都直接打向 Cache，而 Cache 服务自身负责与 DB 进行数据同步。
+Trong chế độ này, ứng dụng coi **Cache là lưu trữ duy nhất và chính**. Tất cả request đọc/ghi đều trực tiếp đến Cache, còn Cache service tự chịu trách nhiệm đồng bộ dữ liệu với DB.
 
-对应用程序**透明**，应用开发者无需关心 DB 的存在。
+**Trong suốt** với ứng dụng, developer không cần quan tâm đến sự tồn tại của DB.
 
-这种缓存读写策略小伙伴们应该也发现了在平时在开发过程中非常少见。抛去性能方面的影响，大概率是因为我们经常使用的分布式缓存 Redis 本身并没有提供 Cache 将数据写入 DB 的功能，需要我们在业务侧或中间件里自己实现。
+Chiến lược đọc/ghi cache này các bạn có thể thấy rất hiếm trong phát triển hàng ngày. Ngoài ảnh hưởng về hiệu năng, xác suất cao là vì Redis distributed cache thường dùng không tự cung cấp chức năng Cache ghi dữ liệu vào DB — chúng ta cần tự triển khai ở tầng nghiệp vụ hoặc middleware.
 
-**写（Write Through）：**
+**Ghi (Write Through):**
 
-- 先查 Cache，Cache 中不存在，直接更新 DB。
-- Cache 中存在，则先更新 Cache，然后 Cache 服务自己更新 DB。只有当 Cache 和 DB 都写入成功后，才向上层返回成功。
+- Query Cache trước. Nếu Cache không có, cập nhật DB trực tiếp.
+- Nếu Cache có, cập nhật Cache trước, sau đó Cache service tự cập nhật DB. Chỉ khi cả Cache và DB đều ghi thành công mới trả về thành công cho tầng trên.
 
-简单画了一张图帮助大家理解写的步骤。
+Vẽ một hình đơn giản giúp hiểu các bước ghi.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/write-through.png)
 
-**读(Read Through)：**
+**Đọc (Read Through):**
 
-- 应用从 Cache 读取数据。
-- 如果命中，直接返回。
-- 如果未命中，由**Cache 服务自己**负责从 DB 加载数据，加载成功后先写入自身，再返回给应用。
+- Ứng dụng đọc dữ liệu từ Cache.
+- Nếu hit, trả về ngay.
+- Nếu miss, **Cache service tự chịu trách nhiệm** load dữ liệu từ DB, sau khi load thành công ghi vào mình trước, rồi mới trả về cho ứng dụng.
 
-简单画了一张图帮助大家理解读的步骤。
+Vẽ một hình đơn giản giúp hiểu các bước đọc.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/read-through.png)
 
-Read-Through 实际只是在 Cache-Aside 之上进行了封装。在 Cache-Aside 下，发生读请求的时候，如果 Cache 中不存在对应的数据，是由客户端自己负责把数据写入 Cache，而 Read Through 则是 Cache 服务自己来写入缓存的，这对客户端是透明的。
+Read-Through thực ra chỉ là encapsulation trên cơ sở Cache-Aside. Trong Cache-Aside, khi xảy ra read request mà Cache không có dữ liệu tương ứng, client tự chịu trách nhiệm ghi dữ liệu vào Cache; còn Read Through thì Cache service tự ghi vào cache, điều này trong suốt với client.
 
-从实现角度看，Read-Through 本质上是把 Cache-Aside 中“读 Miss → 读 DB → 回填 Cache”的逻辑，下沉到了缓存服务内部，对客户端透明。
+Từ góc độ triển khai, Read-Through về bản chất là chuyển logic "đọc Miss → đọc DB → backfill Cache" trong Cache-Aside xuống bên trong cache service, trong suốt với client.
 
-和 Cache Aside 一样， Read-Through 也有首次请求数据一定不再 Cache 的问题，对于热点数据可以提前放入缓存中。
+Giống Cache Aside, Read-Through cũng có vấn đề request đầu tiên nhất định không có trong Cache — với hot data có thể đưa vào cache trước.
 
-### Write Behind Pattern（异步缓存写入）
+### Write Behind Pattern (Ghi cache bất đồng bộ)
 
-Write Behind（也常被称为 Write-Back） Pattern 和 Read/Write Through Pattern 很相似，两者都是由 Cache 服务来负责 Cache 和 DB 的读写。
+Write Behind (còn gọi là Write-Back) Pattern rất giống Read/Write Through Pattern, cả hai đều do Cache service chịu trách nhiệm đọc/ghi Cache và DB.
 
-但是，两个又有很大的不同：**Read/Write Through 是同步更新 Cache 和 DB，而 Write Behind 则是只更新缓存，不直接更新 DB，而是改为异步批量的方式来更新 DB。**
+Nhưng có sự khác biệt lớn: **Read/Write Through đồng bộ cập nhật Cache và DB, trong khi Write Behind chỉ cập nhật cache, không trực tiếp cập nhật DB mà dùng cách batch update bất đồng bộ để cập nhật DB.**
 
-**写操作 (Write Behind)：**
+**Thao tác ghi (Write Behind):**
 
-1. 应用将数据写入 Cache，然后**立即返回**。
-2. Cache 服务将这个写操作放入一个队列中。
-3. 通过一个独立的异步线程/任务，将队列中的写操作**批量地、合并地**写入 DB。
+1. Ứng dụng ghi dữ liệu vào Cache, sau đó **trả về ngay lập tức**.
+2. Cache service đưa thao tác ghi này vào queue.
+3. Thông qua một thread/task bất đồng bộ độc lập, **batch write và merge** các thao tác ghi trong queue vào DB.
 
-这种模式对数据一致性带来了挑战（例如：Cache 中的数据还没来得及写回 DB，系统就宕机了），因此不适用于需要强一致性的场景（如交易、库存）。
+Chế độ này mang lại thách thức cho data consistency (ví dụ: dữ liệu trong Cache chưa kịp ghi lại DB thì hệ thống đã crash), nên không phù hợp với tình huống cần strong consistency (như giao dịch, tồn kho).
 
-但是，它的异步和批量特性，带来了**无与伦比的写性能**。它在很多高性能系统中都有广泛应用：
+Nhưng tính bất đồng bộ và batch của nó mang lại **write performance vô song**. Nó được ứng dụng rộng rãi trong nhiều hệ thống high performance:
 
-- **MySQL 的 InnoDB Buffer Pool 机制：** 数据修改先在内存 Buffer Pool 中完成，然后由后台线程异步刷写到磁盘。
-- **操作系统的页缓存（Page Cache）：** 文件写入也是先写到内存，再由操作系统异步刷盘。
-- **高频计数场景：** 对于文章浏览量、帖子点赞数这类允许短暂数据不一致、但写入极其频繁的场景，可以先在 Redis 中快速累加，再通过定时任务异步同步回数据库。
+- **Cơ chế InnoDB Buffer Pool của MySQL:** Sửa đổi dữ liệu được thực hiện trong memory Buffer Pool trước, sau đó background thread flush bất đồng bộ ra disk.
+- **Page Cache của hệ điều hành:** Ghi file cũng được ghi vào memory trước, rồi OS flush bất đồng bộ ra disk.
+- **Tình huống đếm tần suất cao:** Với các tình huống như lượt xem bài viết, số like bài đăng — cho phép data inconsistency tạm thời nhưng ghi cực thường xuyên — có thể tích lũy nhanh trong Redis trước, sau đó định kỳ đồng bộ bất đồng bộ về database.
 
 <!-- @include: @article-footer.snippet.md -->

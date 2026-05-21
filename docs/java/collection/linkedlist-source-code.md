@@ -1,9 +1,9 @@
 ---
-title: LinkedList 源码分析
-description: LinkedList源码深度解析：剖析双向链表结构、Deque接口实现、头尾插入删除O(1)时间复杂度、与ArrayList性能对比及适用场景。
+title: Phân tích mã nguồn LinkedList
+description: Phân tích chuyên sâu mã nguồn LinkedList：phân tích cấu trúc danh sách liên kết đôi, triển khai interface Deque, chèn/xóa ở đầu/cuối với độ phức tạp thời gian O(1), so sánh hiệu năng với ArrayList và các trường hợp sử dụng phù hợp.
 category: Java
 tag:
-  - Java集合
+  - Java Collections
 head:
   - - meta
     - name: keywords
@@ -12,33 +12,33 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-## LinkedList 简介
+## Giới thiệu về LinkedList
 
-`LinkedList` 是一个基于双向链表实现的集合类，经常被拿来和 `ArrayList` 做比较。关于 `LinkedList` 和`ArrayList`的详细对比，我们 [Java 集合常见面试题总结(上)](./java-collection-questions-01.md)有详细介绍到。
+`LinkedList` là một lớp collection được triển khai dựa trên danh sách liên kết đôi, thường được so sánh với `ArrayList`. Về sự so sánh chi tiết giữa `LinkedList` và `ArrayList`, bạn có thể xem bài viết [Tổng hợp các câu hỏi phỏng vấn thường gặp về Java Collections (Phần 1)](./java-collection-questions-01.md).
 
-![双向链表](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/bidirectional-linkedlist.png)
+![Danh sách liên kết đôi](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/bidirectional-linkedlist.png)
 
-不过，我们在项目中一般是不会使用到 `LinkedList` 的，需要用到 `LinkedList` 的场景几乎都可以使用 `ArrayList` 来代替，并且，性能通常会更好！就连 `LinkedList` 的作者约书亚 · 布洛克（Josh Bloch）自己都说从来不会使用 `LinkedList` 。
+Tuy nhiên, trong dự án thực tế chúng ta thường không dùng `LinkedList`. Hầu hết các tình huống cần dùng `LinkedList` đều có thể thay thế bằng `ArrayList`, và hiệu năng thường tốt hơn! Ngay cả tác giả của `LinkedList` là Joshua Bloch cũng nói rằng ông chưa bao giờ dùng `LinkedList`.
 
 ![](https://oss.javaguide.cn/github/javaguide/redisimage-20220412110853807.png)
 
-另外，不要下意识地认为 `LinkedList` 作为链表就最适合元素增删的场景。我在上面也说了，`LinkedList` 仅仅在头尾插入或者删除元素的时候时间复杂度近似 O(1)，其他情况增删元素的平均时间复杂度都是 O(n) 。
+Ngoài ra, đừng vô thức nghĩ rằng `LinkedList` là danh sách liên kết nên phù hợp nhất cho các tình huống thêm/xóa phần tử. Như đã đề cập ở trên, `LinkedList` chỉ có độ phức tạp thời gian gần O(1) khi chèn hoặc xóa phần tử ở đầu hoặc cuối, còn các trường hợp thêm/xóa khác đều có độ phức tạp thời gian trung bình là O(n).
 
-### LinkedList 插入和删除元素的时间复杂度？
+### Độ phức tạp thời gian khi chèn và xóa phần tử của LinkedList?
 
-- 头部插入/删除：只需要修改头结点的指针即可完成插入/删除操作，因此时间复杂度为 O(1)。
-- 尾部插入/删除：只需要修改尾结点的指针即可完成插入/删除操作，因此时间复杂度为 O(1)。
-- 指定位置插入/删除：需要先移动到指定位置，再修改指定节点的指针完成插入/删除，不过由于有头尾指针，可以从较近的指针出发，因此需要遍历平均 n/4 个元素，时间复杂度为 O(n)。
+- Chèn/xóa ở đầu: chỉ cần sửa đổi con trỏ của nút đầu là hoàn thành thao tác chèn/xóa, nên độ phức tạp thời gian là O(1).
+- Chèn/xóa ở cuối: chỉ cần sửa đổi con trỏ của nút cuối là hoàn thành thao tác chèn/xóa, nên độ phức tạp thời gian là O(1).
+- Chèn/xóa tại vị trí chỉ định: cần di chuyển đến vị trí chỉ định trước, rồi sửa đổi con trỏ của nút chỉ định để hoàn thành thao tác chèn/xóa. Tuy nhiên vì có con trỏ đầu và cuối nên có thể xuất phát từ con trỏ gần hơn, cần duyệt trung bình n/4 phần tử, nên độ phức tạp thời gian là O(n).
 
-### LinkedList 为什么不能实现 RandomAccess 接口？
+### Tại sao LinkedList không thể triển khai interface RandomAccess?
 
-`RandomAccess` 是一个标记接口，用来表明实现该接口的类支持随机访问（即可以通过索引快速访问元素）。由于 `LinkedList` 底层数据结构是链表，内存地址不连续，只能通过指针来定位，不支持随机快速访问，所以不能实现 `RandomAccess` 接口。
+`RandomAccess` là một marker interface dùng để biểu thị rằng lớp triển khai interface này hỗ trợ truy cập ngẫu nhiên (tức là có thể truy cập phần tử nhanh chóng qua chỉ mục). Vì cấu trúc dữ liệu bên dưới của `LinkedList` là danh sách liên kết, địa chỉ bộ nhớ không liên tục, chỉ có thể định vị qua con trỏ, không hỗ trợ truy cập nhanh ngẫu nhiên, nên không thể triển khai interface `RandomAccess`.
 
-## LinkedList 源码分析
+## Phân tích mã nguồn LinkedList
 
-这里以 JDK1.8 为例，分析一下 `LinkedList` 的底层核心源码。
+Dưới đây lấy JDK1.8 làm ví dụ để phân tích mã nguồn cốt lõi của `LinkedList`.
 
-`LinkedList` 的类定义如下：
+Định nghĩa lớp `LinkedList` như sau:
 
 ```java
 public class LinkedList<E>
@@ -49,20 +49,20 @@ public class LinkedList<E>
 }
 ```
 
-`LinkedList` 继承了 `AbstractSequentialList` ，而 `AbstractSequentialList` 又继承于 `AbstractList` 。
+`LinkedList` kế thừa `AbstractSequentialList`, còn `AbstractSequentialList` lại kế thừa `AbstractList`.
 
-阅读过 `ArrayList` 的源码我们就知道，`ArrayList` 同样继承了 `AbstractList` ， 所以 `LinkedList` 会有大部分方法和 `ArrayList` 相似。
+Khi đọc mã nguồn của `ArrayList`, chúng ta biết rằng `ArrayList` cũng kế thừa `AbstractList`, vì vậy `LinkedList` sẽ có nhiều phương thức tương tự `ArrayList`.
 
-`LinkedList` 实现了以下接口：
+`LinkedList` triển khai các interface sau:
 
-- `List` : 表明它是一个列表，支持添加、删除、查找等操作，并且可以通过下标进行访问。
-- `Deque` ：继承自 `Queue` 接口，具有双端队列的特性，支持从两端插入和删除元素，方便实现栈和队列等数据结构。需要注意，`Deque` 的发音为 "deck" [dɛk]，这个大部分人都会读错。
-- `Cloneable` ：表明它具有拷贝能力，可以进行深拷贝或浅拷贝操作。
-- `Serializable` : 表明它可以进行序列化操作，也就是可以将对象转换为字节流进行持久化存储或网络传输，非常方便。
+- `List`: biểu thị nó là một danh sách, hỗ trợ các thao tác thêm, xóa, tìm kiếm và có thể truy cập qua chỉ mục.
+- `Deque`: kế thừa từ interface `Queue`, có đặc tính hàng đợi hai đầu, hỗ trợ chèn và xóa phần tử từ cả hai đầu, thuận tiện để triển khai các cấu trúc dữ liệu như ngăn xếp (stack) và hàng đợi (queue). Lưu ý rằng `Deque` được phát âm là "deck" [dɛk], điều mà nhiều người thường đọc sai.
+- `Cloneable`: biểu thị nó có khả năng sao chép, có thể thực hiện deep copy hoặc shallow copy.
+- `Serializable`: biểu thị nó có thể được serialize, tức là có thể chuyển đổi đối tượng thành byte stream để lưu trữ hoặc truyền qua mạng, rất tiện lợi.
 
-![LinkedList 类图](https://oss.javaguide.cn/github/javaguide/java/collection/linkedlist--class-diagram.png)
+![Sơ đồ lớp LinkedList](https://oss.javaguide.cn/github/javaguide/java/collection/linkedlist--class-diagram.png)
 
-`LinkedList` 中的元素是通过 `Node` 定义的：
+Các phần tử trong `LinkedList` được định nghĩa thông qua `Node`:
 
 ```java
 private static class Node<E> {
@@ -79,9 +79,9 @@ private static class Node<E> {
 }
 ```
 
-### 初始化
+### Khởi tạo
 
-`LinkedList` 中有一个无参构造函数和一个有参构造函数。
+`LinkedList` có một constructor không tham số và một constructor có tham số.
 
 ```java
 // 创建一个空的链表对象
@@ -95,16 +95,16 @@ public LinkedList(Collection<? extends E> c) {
 }
 ```
 
-### 插入元素
+### Chèn phần tử
 
-`LinkedList` 除了实现了 `List` 接口相关方法，还实现了 `Deque` 接口的很多方法，所以我们有很多种方式插入元素。
+`LinkedList` không chỉ triển khai các phương thức liên quan đến interface `List`, mà còn triển khai nhiều phương thức của interface `Deque`, vì vậy chúng ta có nhiều cách để chèn phần tử.
 
-我们这里以 `List` 接口中相关的插入方法为例进行源码讲解，对应的是`add()` 方法。
+Ở đây lấy phương thức chèn liên quan đến interface `List` làm ví dụ để giải thích mã nguồn, tương ứng với phương thức `add()`.
 
-`add()` 方法有两个版本：
+Phương thức `add()` có hai phiên bản:
 
-- `add(E e)`：用于在 `LinkedList` 的尾部插入元素，即将新元素作为链表的最后一个元素，时间复杂度为 O(1)。
-- `add(int index, E element)`:用于在指定位置插入元素。这种插入方式需要先移动到指定位置，再修改指定节点的指针完成插入/删除，因此需要移动平均 n/4 个元素，时间复杂度为 O(n)。
+- `add(E e)`: dùng để chèn phần tử vào cuối `LinkedList`, tức là thêm phần tử mới làm phần tử cuối cùng của danh sách liên kết, độ phức tạp thời gian là O(1).
+- `add(int index, E element)`: dùng để chèn phần tử tại vị trí chỉ định. Cách chèn này cần di chuyển đến vị trí chỉ định trước, rồi sửa đổi con trỏ của nút chỉ định để hoàn thành thao tác, nên cần di chuyển trung bình n/4 phần tử, độ phức tạp thời gian là O(n).
 
 ```java
 // 在链表尾部插入元素
@@ -168,13 +168,13 @@ void linkBefore(E e, Node<E> succ) {
 }
 ```
 
-### 获取元素
+### Lấy phần tử
 
-`LinkedList`获取元素相关的方法一共有 3 个：
+`LinkedList` có tổng cộng 3 phương thức liên quan đến việc lấy phần tử:
 
-1. `getFirst()`：获取链表的第一个元素。
-2. `getLast()`：获取链表的最后一个元素。
-3. `get(int index)`：获取链表指定位置的元素。
+1. `getFirst()`: lấy phần tử đầu tiên của danh sách liên kết.
+2. `getLast()`: lấy phần tử cuối cùng của danh sách liên kết.
+3. `get(int index)`: lấy phần tử tại vị trí chỉ định trong danh sách liên kết.
 
 ```java
 // 获取链表的第一个元素
@@ -202,7 +202,7 @@ public E get(int index) {
 }
 ```
 
-这里的核心在于 `node(int index)` 这个方法：
+Điểm cốt lõi ở đây là phương thức `node(int index)`:
 
 ```java
 // 返回指定下标的非空节点
@@ -225,19 +225,19 @@ Node<E> node(int index) {
 }
 ```
 
-`get(int index)` 或 `remove(int index)` 等方法内部都调用了该方法来获取对应的节点。
+Các phương thức như `get(int index)` hay `remove(int index)` đều gọi phương thức này bên trong để lấy nút tương ứng.
 
-从这个方法的源码可以看出，该方法通过比较索引值与链表 size 的一半大小来确定从链表头还是尾开始遍历。如果索引值小于 size 的一半，就从链表头开始遍历，反之从链表尾开始遍历。这样可以在较短的时间内找到目标节点，充分利用了双向链表的特性来提高效率。
+Từ mã nguồn của phương thức này có thể thấy, nó so sánh giá trị chỉ mục với một nửa kích thước của danh sách liên kết để xác định bắt đầu duyệt từ đầu hay cuối. Nếu giá trị chỉ mục nhỏ hơn một nửa size, bắt đầu duyệt từ đầu, ngược lại duyệt từ cuối. Điều này giúp tìm nút mục tiêu trong thời gian ngắn hơn, tận dụng đặc điểm của danh sách liên kết đôi để nâng cao hiệu quả.
 
-### 删除元素
+### Xóa phần tử
 
-`LinkedList`删除元素相关的方法一共有 5 个：
+`LinkedList` có tổng cộng 5 phương thức liên quan đến việc xóa phần tử:
 
-1. `removeFirst()`：删除并返回链表的第一个元素。
-2. `removeLast()`：删除并返回链表的最后一个元素。
-3. `remove(E e)`：删除链表中首次出现的指定元素，如果不存在该元素则返回 false。
-4. `remove(int index)`：删除指定索引处的元素，并返回该元素的值。
-5. `void clear()`：移除此链表中的所有元素。
+1. `removeFirst()`: xóa và trả về phần tử đầu tiên của danh sách liên kết.
+2. `removeLast()`: xóa và trả về phần tử cuối cùng của danh sách liên kết.
+3. `remove(E e)`: xóa phần tử chỉ định xuất hiện lần đầu tiên trong danh sách liên kết, trả về false nếu không tồn tại phần tử đó.
+4. `remove(int index)`: xóa phần tử tại chỉ mục chỉ định và trả về giá trị của phần tử đó.
+5. `void clear()`: xóa tất cả phần tử trong danh sách liên kết này.
 
 ```java
 // 删除并返回链表的第一个元素
@@ -286,7 +286,7 @@ public E remove(int index) {
 }
 ```
 
-这里的核心在于 `unlink(Node<E> x)` 这个方法：
+Điểm cốt lõi ở đây là phương thức `unlink(Node<E> x)`:
 
 ```java
 E unlink(Node<E> x) {
@@ -329,24 +329,24 @@ E unlink(Node<E> x) {
 }
 ```
 
-`unlink()` 方法的逻辑如下：
+Logic của phương thức `unlink()` như sau:
 
-1. 首先获取待删除节点 x 的前驱和后继节点；
-2. 判断待删除节点是否为头节点或尾节点：
-   - 如果 x 是头节点，则将 first 指向 x 的后继节点 next
-   - 如果 x 是尾节点，则将 last 指向 x 的前驱节点 prev
-   - 如果 x 不是头节点也不是尾节点，执行下一步操作
-3. 将待删除节点 x 的前驱的后继指向待删除节点的后继 next，断开 x 和 x.prev 之间的链接；
-4. 将待删除节点 x 的后继的前驱指向待删除节点的前驱 prev，断开 x 和 x.next 之间的链接；
-5. 将待删除节点 x 的元素置空，修改链表长度。
+1. Đầu tiên lấy nút trước (predecessor) và nút sau (successor) của nút x cần xóa.
+2. Kiểm tra xem nút cần xóa có phải là nút đầu hay nút cuối không:
+   - Nếu x là nút đầu, cho `first` trỏ đến nút kế tiếp `next` của x
+   - Nếu x là nút cuối, cho `last` trỏ đến nút trước `prev` của x
+   - Nếu x không phải nút đầu cũng không phải nút cuối, thực hiện bước tiếp theo
+3. Cho successor của predecessor của nút x trỏ đến successor `next` của nút cần xóa, ngắt kết nối giữa x và x.prev.
+4. Cho predecessor của successor của nút x trỏ đến predecessor `prev` của nút cần xóa, ngắt kết nối giữa x và x.next.
+5. Đặt phần tử của nút x cần xóa thành null, sửa đổi độ dài danh sách liên kết.
 
-可以参考下图理解（图源：[LinkedList 源码分析(JDK 1.8)](https://www.tianxiaobo.com/2018/01/31/LinkedList-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-JDK-1-8/)）：
+Bạn có thể tham khảo hình dưới để hiểu (nguồn hình: [Phân tích mã nguồn LinkedList (JDK 1.8)](https://www.tianxiaobo.com/2018/01/31/LinkedList-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-JDK-1-8/)):
 
-![unlink 方法逻辑](https://oss.javaguide.cn/github/javaguide/java/collection/linkedlist-unlink.jpg)
+![Logic phương thức unlink](https://oss.javaguide.cn/github/javaguide/java/collection/linkedlist-unlink.jpg)
 
-### 遍历链表
+### Duyệt danh sách liên kết
 
-推荐使用`for-each` 循环来遍历 `LinkedList` 中的元素， `for-each` 循环最终会转换成迭代器形式。
+Khuyến nghị sử dụng vòng lặp `for-each` để duyệt các phần tử trong `LinkedList`. Vòng lặp `for-each` cuối cùng sẽ được chuyển đổi thành dạng iterator.
 
 ```java
 LinkedList<String> list = new LinkedList<>();
@@ -359,7 +359,7 @@ for (String fruit : list) {
 }
 ```
 
-`LinkedList` 的遍历的核心就是它的迭代器的实现。
+Cốt lõi của việc duyệt `LinkedList` là triển khai iterator của nó.
 
 ```java
 // 双向迭代器
@@ -376,9 +376,9 @@ private class ListItr implements ListIterator<E> {
 }
 ```
 
-下面我们对迭代器 `ListItr` 中的核心方法进行详细介绍。
+Dưới đây chúng ta sẽ giới thiệu chi tiết các phương thức cốt lõi trong iterator `ListItr`.
 
-我们先来看下从头到尾方向的迭代：
+Trước tiên xem duyệt theo chiều từ đầu đến cuối:
 
 ```java
 // 判断还有没有下一个节点
@@ -402,7 +402,7 @@ public E next() {
 }
 ```
 
-再来看一下从尾到头方向的迭代：
+Tiếp theo xem duyệt theo chiều từ cuối đến đầu:
 
 ```java
 // 判断是否还有前一个节点
@@ -424,7 +424,7 @@ public E previous() {
 }
 ```
 
-如果需要删除或插入元素，也可以使用迭代器进行操作。
+Nếu cần xóa hoặc chèn phần tử, cũng có thể thực hiện bằng iterator.
 
 ```java
 LinkedList<String> list = new LinkedList<>();
@@ -440,7 +440,7 @@ for (String fruit : list) {
 }
 ```
 
-迭代器对应的移除元素的方法如下：
+Phương thức xóa phần tử tương ứng của iterator như sau:
 
 ```java
 // 从列表中删除上次被返回的元素
@@ -466,9 +466,9 @@ public void remove() {
 }
 ```
 
-## LinkedList 常用方法测试
+## Kiểm tra các phương thức thường dùng của LinkedList
 
-代码：
+Code:
 
 ```java
 // 创建 LinkedList 对象
@@ -509,15 +509,15 @@ list.clear();
 System.out.println("清空后的链表：" + list);
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```plain
-索引为 2 的元素：banana
-链表内容：[apple, orange, banana, grape]
-链表内容：[orange, banana, grape]
-链表内容：[orange, grape]
-链表长度：2
-清空后的链表：[]
+Phần tử tại chỉ mục 2: banana
+Nội dung danh sách: [apple, orange, banana, grape]
+Nội dung danh sách: [orange, banana, grape]
+Nội dung danh sách: [orange, grape]
+Độ dài danh sách: 2
+Danh sách sau khi xóa toàn bộ: []
 ```
 
 <!-- @include: @article-footer.snippet.md -->

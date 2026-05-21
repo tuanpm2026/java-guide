@@ -1,6 +1,6 @@
 ---
-title: Claude Code 使用指南：配置、工作流与进阶技巧
-description: 整理自 Anthropic 官方工程团队技术文档并融合实战经验，系统梳理 Claude Code 的配置、能力扩展、高效工作流、进阶技巧与实战心法。
+title: Hướng dẫn sử dụng Claude Code - Cấu hình, Workflow và Kỹ thuật nâng cao
+description: Tổng hợp từ tài liệu kỹ thuật của đội ngũ kỹ thuật Anthropic và kinh nghiệm thực chiến, hệ thống hóa cấu hình, mở rộng năng lực, workflow hiệu quả, kỹ thuật nâng cao và bí quyết thực chiến của Claude Code.
 category: AI 编程实战
 head:
   - - meta
@@ -8,64 +8,64 @@ head:
       content: Claude Code,AI编程,CLAUDE.md,MCP,Skills,Sub-Agent,Agentic Coding,AI辅助开发
 ---
 
-# Claude Code 使用指南
+# Hướng dẫn sử dụng Claude Code
 
-大家好，我是 Guide。前面分享过 [IDEA 搭配 Qoder 插件的实战](./idea-qoder-plugin.md)、[Trae 接入大模型的实战](./trae-m2.7.md) 和 [Claude Code 接入第三方模型的实战](./cc-glm5.1.md)，这篇换个角度，聊聊 **Claude Code 的使用方法与技巧**。
+Trước đây tôi đã chia sẻ về [thực chiến IDEA kết hợp plugin Qoder](./idea-qoder-plugin.md), [thực chiến Trae tích hợp mô hình ngôn ngữ lớn](./trae-m2.7.md) và [thực chiến Claude Code tích hợp mô hình bên thứ ba](./cc-glm5.1.md), bài này đổi góc nhìn, bàn về **phương pháp và kỹ thuật sử dụng Claude Code**.
 
-这篇指南整理自 [Anthropic 官方工程团队的技术文档](https://www.anthropic.com/engineering/claude-code-best-practices)，并融合了我个人的实战使用经验。本文基于 Claude Code v2.1.x 撰写（笔者当前版本 v2.1.114），部分功能可能随版本更新而变化。
+Bài hướng dẫn này được tổng hợp từ [tài liệu kỹ thuật của đội ngũ kỹ thuật chính thức Anthropic](https://www.anthropic.com/engineering/claude-code-best-practices), kết hợp kinh nghiệm thực chiến cá nhân của tôi. Bài viết dựa trên Claude Code v2.1.x (phiên bản hiện tại của tôi là v2.1.114), một số tính năng có thể thay đổi theo phiên bản cập nhật.
 
-Claude Code 是 Anthropic 推出的命令行工具，专为 **Agentic Coding（代理式编程）** 而生。它和传统的代码补全插件（如 Copilot）不同，能自己读代码、跑命令、看报错、再改，形成一个完整的”理解意图 → 规划 → 执行 → 修复”闭环。
+Claude Code là công cụ dòng lệnh do Anthropic phát triển, được thiết kế dành riêng cho **Agentic Coding (Lập trình có tác nhân)**. Khác với các plugin gợi ý code truyền thống (như Copilot), nó có thể tự đọc code, chạy lệnh, xem lỗi, rồi sửa lại, tạo thành một vòng khép kín hoàn chỉnh "hiểu ý định → lập kế hoạch → thực thi → sửa lỗi".
 
-它的设计哲学是**“刻意低级且不强加观点”**——不强制你遵循特定流程，只提供最原始的模型访问权限，让你像搭积木一样构建自己的开发流。
+Triết lý thiết kế của nó là **"cố ý low-level và không áp đặt quan điểm"** — không bắt buộc bạn tuân theo quy trình cụ thể, chỉ cung cấp quyền truy cập mô hình nguyên thủy nhất, để bạn xây dựng workflow phát triển của riêng mình như lắp ghép lego.
 
-这篇文章从**配置、能力扩展、工作流、进阶技巧**和**实战心法**五个方面，梳理 Claude Code 的使用技巧。看完你会搞清楚：
+Bài viết này tóm tắt các kỹ thuật sử dụng Claude Code từ năm khía cạnh: **cấu hình, mở rộng năng lực, workflow, kỹ thuật nâng cao** và **bí quyết thực chiến**. Sau khi đọc xong bạn sẽ nắm được:
 
-1. ⭐ **CLAUDE.md 怎么写、放哪里**：四级作用域、模块化管理和动态更新的最佳实践
-2. ⭐ **如何扩展 Claude 的能力边界**：MCP、Skills、Sub-Agent、插件系统分别解决什么问题？
-3. ⭐ **哪些工作流模式最实用**：探索-规划-执行、TDD、多实例协作各自的适用场景
-4. ⭐ **上下文管理的核心心法**：`/compact`、`/clear`、`/fork`、交接文档分别在什么时候用
-5. ⭐ **如何让 Claude 自己验证自己的工作**：这是单一最高收益的改变
+1. ⭐ **CLAUDE.md viết như thế nào, đặt ở đâu**: Best practice về bốn cấp phạm vi, quản lý module hóa và cập nhật động
+2. ⭐ **Làm thế nào để mở rộng ranh giới năng lực của Claude**: MCP, Skills, Sub-Agent, hệ thống plugin giải quyết vấn đề gì?
+3. ⭐ **Những mô hình workflow nào thực dụng nhất**: Explore-Plan-Execute, TDD, đa instance cộng tác và trường hợp áp dụng của từng loại
+4. ⭐ **Bí quyết cốt lõi quản lý context**: `/compact`, `/clear`, `/fork`, handoff document dùng khi nào
+5. ⭐ **Làm thế nào để Claude tự xác thực công việc của mình**: Đây là thay đổi mang lại lợi ích cao nhất
 
-Claude 系列是目前最强的编程模型，但国内使用门槛和成本较高，还可能面临封号。国内的话，一般是使用 GLM 和 MiniMax 作为替代。GLM、MiniMax 和 Kimi 都是不错的选择，但要做好心理预期，编程表现上和 Claude 还有差距。
+Series Claude là mô hình lập trình mạnh nhất hiện nay, nhưng ngưỡng sử dụng và chi phí trong nước khá cao, còn có thể đối mặt với rủi ro bị khóa tài khoản. Trong nước thường dùng GLM và MiniMax như là thay thế. GLM, MiniMax và Kimi đều là những lựa chọn tốt, nhưng cần chuẩn bị tâm lý trước, hiệu suất lập trình vẫn còn khoảng cách so với Claude.
 
-## 一、基础配置：自定义你的开发环境
+## I. Cấu hình cơ bản: Tùy chỉnh môi trường phát triển của bạn
 
-### ⭐️ 1. 灵魂文件：`CLAUDE.md`
+### ⭐️ 1. File linh hồn: `CLAUDE.md`
 
-一句话：**`CLAUDE.md` 是 Claude Code 的“项目说明书”，也是所有技巧中投入产出比最高的一项配置。**
+Một câu: **`CLAUDE.md` là "tài liệu hướng dẫn dự án" của Claude Code, cũng là cấu hình có tỷ lệ đầu tư-lợi nhuận cao nhất trong tất cả các kỹ thuật.**
 
-Claude 在启动时会自动读取该文件，将其中内容注入系统提示，成为它思考的底层背景。你往里面写的每一条规则，都在塑造 Claude 的行为边界。
+Claude khi khởi động sẽ tự động đọc file này, inject nội dung vào system prompt, trở thành background nền tảng trong quá trình suy nghĩ của nó. Mỗi quy tắc bạn viết vào đó đều đang định hình ranh giới hành vi của Claude.
 
-**核心内容**：常用 Bash 命令、核心工具函数、代码风格指南（如：使用 ES Modules 而非 CommonJS）、测试指令、分支命名规范等。
+**Nội dung cốt lõi**: Các lệnh Bash thường dùng, hàm công cụ cốt lõi, hướng dẫn phong cách code (như: dùng ES Modules thay vì CommonJS), lệnh test, quy tắc đặt tên branch, v.v.
 
-**放置策略（四级作用域）**：
+**Chiến lược đặt file (Bốn cấp phạm vi)**:
 
-| 作用域                       | 文件位置                                                                                        | 用途                                          |
-| ---------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| **企业级（Managed Policy）** | macOS: `/Library/Application Support/ClaudeCode/CLAUDE.md`，Linux: `/etc/claude-code/CLAUDE.md` | 组织级安全、合规要求，由 IT 管理员配置        |
-| **项目级**                   | `./CLAUDE.md` 或 `./.claude/CLAUDE.md`                                                          | 团队共享规范，提交至 Git                      |
-| **用户级**                   | `~/.claude/CLAUDE.md`                                                                           | 个人偏好，对所有项目生效                      |
-| **本地级**                   | `./CLAUDE.local.md`                                                                             | 个人在本项目中的特定配置（加入 `.gitignore`） |
+| Phạm vi                         | Vị trí file                                                                                     | Mục đích                                                           |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Enterprise (Managed Policy)** | macOS: `/Library/Application Support/ClaudeCode/CLAUDE.md`, Linux: `/etc/claude-code/CLAUDE.md` | Yêu cầu bảo mật, tuân thủ cấp tổ chức, do IT admin cấu hình        |
+| **Cấp dự án**                   | `./CLAUDE.md` hoặc `./.claude/CLAUDE.md`                                                        | Quy tắc chia sẻ đội nhóm, commit vào Git                           |
+| **Cấp người dùng**              | `~/.claude/CLAUDE.md`                                                                           | Sở thích cá nhân, có hiệu lực với tất cả dự án                     |
+| **Cấp local**                   | `./CLAUDE.local.md`                                                                             | Cấu hình riêng của cá nhân trong dự án này (thêm vào `.gitignore`) |
 
-所有层级的 `CLAUDE.md` 均会加载进上下文（**拼接而非替换**），当规则冲突时，更具体作用域的规则优先生效。子目录下的 `CLAUDE.md` 会在 Claude 访问该目录下的文件时按需加载，不会一次性全部注入上下文。工作目录上方的父目录中的 `CLAUDE.md` 则在启动时全部加载，这对 monorepo 场景特别有用，`root/CLAUDE.md` 和 `root/foo/CLAUDE.md` 会同时生效。
+Tất cả cấp `CLAUDE.md` đều được tải vào context (**ghép nối chứ không thay thế**), khi quy tắc xung đột thì quy tắc phạm vi cụ thể hơn ưu tiên. `CLAUDE.md` trong thư mục con sẽ được tải theo nhu cầu khi Claude truy cập file trong thư mục đó, không inject toàn bộ cùng lúc. `CLAUDE.md` trong thư mục cha trên working directory thì được tải toàn bộ khi khởi động, điều này đặc biệt hữu ích cho monorepo, `root/CLAUDE.md` và `root/foo/CLAUDE.md` sẽ cùng có hiệu lực.
 
-> **注意**：企业级（Managed Policy）是唯一不遵循“更具体优先”规则的层级，它**不能被任何个人设置排除**（`claudeMdExcludes` 对其无效），确保组织级指令始终生效。
+> **Lưu ý**: Enterprise (Managed Policy) là cấp duy nhất không tuân theo quy tắc "cụ thể hơn ưu tiên hơn", nó **không thể bị loại trừ bởi bất kỳ thiết lập cá nhân nào** (`claudeMdExcludes` không có hiệu lực với nó), đảm bảo chỉ dẫn cấp tổ chức luôn có hiệu lực.
 
-**初始化**：在项目根目录运行 `/init`，Claude 会自动分析你的代码库并生成一份包含构建命令、测试说明和项目约定的初始 `CLAUDE.md`。如果文件已存在，它会建议改进而非覆盖。
+**Khởi tạo**: Chạy `/init` trong thư mục root của dự án, Claude sẽ tự động phân tích codebase và tạo một `CLAUDE.md` ban đầu bao gồm build commands, hướng dẫn test và các convention của dự án. Nếu file đã tồn tại, nó sẽ đề xuất cải thiện thay vì ghi đè.
 
-**动态更新技巧**：
+**Kỹ thuật cập nhật động**:
 
-- 在对话中按 `#` 键，给 Claude 一个指令，让它自动把当前的上下文总结并写入 `CLAUDE.md`。
-- 更推荐的做法：每次纠正 Claude 的错误后，追加一句“更新 CLAUDE.md，确保下次不再犯同样的错误”。随着时间推移，`CLAUDE.md` 会变成一个能不断进化的规则系统。
-- 也可以运行 `/memory` 命令直接在编辑器中打开并编辑。
+- Trong hội thoại, nhấn phím `#`, đưa cho Claude một chỉ dẫn, để nó tự động tóm tắt context hiện tại và ghi vào `CLAUDE.md`.
+- Cách làm được khuyến nghị hơn: Mỗi lần sửa lỗi của Claude, thêm một câu "cập nhật CLAUDE.md, đảm bảo lần sau không mắc lỗi tương tự". Theo thời gian, `CLAUDE.md` sẽ trở thành một hệ thống quy tắc không ngừng tiến hóa.
+- Cũng có thể chạy lệnh `/memory` để mở trực tiếp trong editor và chỉnh sửa.
 
-**保持精简**：官方建议单个 `CLAUDE.md` 文件控制在 **200 行以内**，超过此阈值会显著消耗上下文并降低规则遵守率。每一条规则都应该对应一个 Claude 曾经犯过的真实错误，如果某条指令删掉后 Claude 依然能正确完成，就果断删掉。文件太长时，可以考虑拆分到 `.claude/rules/` 或用 `@path` 引用。
+**Giữ tinh gọn**: Phía chính thức khuyến nghị file `CLAUDE.md` đơn lẻ kiểm soát trong **200 dòng trở xuống**, vượt ngưỡng này sẽ tiêu thụ đáng kể context và giảm tỷ lệ tuân thủ quy tắc. Mỗi quy tắc nên tương ứng với một lỗi thực tế mà Claude đã từng mắc, nếu một chỉ dẫn xóa đi mà Claude vẫn có thể hoàn thành đúng thì hãy xóa thẳng. Khi file quá dài, có thể cân nhắc tách thành `.claude/rules/` hoặc dùng `@path` để reference.
 
-对于必须每次都执行、零例外的操作（如代码格式化），优先考虑用 Hooks 来实现，而不是写在 `CLAUDE.md` 里。两者的本质区别：CLAUDE.md 中的规则是**建议性**的（Claude 会尽力遵守但不保证），而 Hooks 是**确定性**的（脚本在特定节点自动执行，零例外）。判断标准：问自己“这条规则被违反一次后果是什么”，后果严重的用 Hooks。
+Đối với các thao tác phải thực thi mỗi lần, không có ngoại lệ (như định dạng code), nên dùng Hooks để triển khai thay vì viết vào `CLAUDE.md`. Sự khác biệt bản chất của hai loại: Quy tắc trong CLAUDE.md mang tính **gợi ý** (Claude sẽ cố gắng tuân thủ nhưng không đảm bảo), còn Hooks mang tính **xác định** (script tự động thực thi tại điểm node cụ thể, không có ngoại lệ). Tiêu chuẩn phán đoán: Hỏi bản thân "hậu quả là gì nếu quy tắc này bị vi phạm một lần", hậu quả nghiêm trọng thì dùng Hooks.
 
-> **精简判断**：问自己“没这行规则 Claude 会犯什么错”。答不上来就删掉。
+> **Tiêu chuẩn tinh gọn**: Hỏi bản thân "không có dòng này Claude sẽ mắc lỗi gì". Không trả lời được thì xóa đi.
 
-**模块化管理**：如果项目比较复杂，可以在根目录的 `CLAUDE.md` 中用 `@` 导入语法引入其他文件。根目录放项目概览和快速启动命令，各子模块的架构和开发规范分别放在各自的 `.claude/CLAUDE.md` 中：
+**Quản lý module hóa**: Nếu dự án phức tạp, có thể dùng cú pháp `@` import trong `CLAUDE.md` ở root để nhập các file khác. Root đặt tổng quan dự án và lệnh quick start, kiến trúc và quy tắc phát triển của từng submodule đặt riêng trong `.claude/CLAUDE.md` của từng submodule:
 
 ```
 ## Project Structure
@@ -82,438 +82,438 @@ my-project/
 - **Admin**: See `@admin/.claude/CLAUDE.md` for setup and state management
 ```
 
-### 2. 权限与工具管理
+### 2. Quản lý quyền và công cụ
 
-默认情况下，Claude 执行敏感操作（如写文件、Git 提交）需要逐一授权。
+Theo mặc định, Claude thực thi các thao tác nhạy cảm (như ghi file, Git commit) cần ủy quyền từng cái.
 
-- **白名单化**：使用 `/permissions` 命令或编辑 `.claude/settings.json`，将 `Edit`、`git commit` 等高频且你信任的操作加入白名单，大幅减少交互中断，实现“沉浸式编程”。
-- **GitHub 集成**：强烈建议安装 `gh` CLI。Claude 能够直接调用它来创建 PR、读取 Issue 或处理 Code Review 评论。
+- **Whitelist hóa**: Dùng lệnh `/permissions` hoặc chỉnh sửa `.claude/settings.json`, thêm các thao tác tần suất cao mà bạn tin tưởng như `Edit`, `git commit` vào whitelist, giảm đáng kể các ngắt tương tác, đạt được "immersive coding".
+- **Tích hợp GitHub**: Khuyến nghị mạnh mẽ cài đặt `gh` CLI. Claude có thể trực tiếp gọi nó để tạo PR, đọc Issue hoặc xử lý Code Review comments.
 
-## 二、能力扩展：MCP、Skills 与插件生态
+## II. Mở rộng năng lực: MCP, Skills và Hệ sinh thái Plugin
 
-Claude Code 不只是一个对话框，它继承了你的整个 Shell 环境。光有对话能力不够，得给它装上“工具箱”。
+Claude Code không chỉ là một hộp hội thoại, nó kế thừa toàn bộ Shell environment của bạn. Chỉ có năng lực hội thoại là không đủ, phải lắp cho nó "hộp công cụ".
 
-### ⭐️ 1. 模型上下文协议 (MCP)
+### ⭐️ 1. Model Context Protocol (MCP)
 
-MCP 是扩展 Claude 能力的主要通道，相当于给 Claude 装上了“USB 接口”。通过连接 MCP 服务器，你可以让 Claude 具备：
+MCP là kênh chính để mở rộng năng lực của Claude, tương đương với việc lắp "cổng USB" cho Claude. Thông qua kết nối MCP server, bạn có thể giúp Claude có được:
 
-- **网页浏览**（如通过 Puppeteer）。
-- **数据库查询**（如连接 PostgreSQL 或 MySQL）。
-- **第三方 API 调用**（如 Sentry、Slack）。
-- **项目级共享**：将 `.mcp.json` 检入仓库，让团队成员开箱即用相同的工具集。
+- **Duyệt web** (như qua Puppeteer).
+- **Truy vấn database** (như kết nối PostgreSQL hoặc MySQL).
+- **Gọi third-party API** (như Sentry, Slack).
+- **Chia sẻ cấp dự án**: Commit `.mcp.json` vào repository để các thành viên đội nhóm có thể dùng cùng bộ công cụ out-of-the-box.
 
-MCP 服务器支持三种配置范围：
+MCP server hỗ trợ ba phạm vi cấu hình:
 
-| 范围     | 存储位置                       | 适用场景                           |
-| -------- | ------------------------------ | ---------------------------------- |
-| **本地** | `~/.claude.json`（项目路径下） | 个人实验配置、包含敏感凭据的服务器 |
-| **项目** | 项目根目录的 `.mcp.json`       | 团队共享，可提交至版本控制         |
-| **用户** | `~/.claude.json`               | 跨项目复用的个人工具               |
+| Phạm vi        | Vị trí lưu trữ                          | Trường hợp áp dụng                                           |
+| -------------- | --------------------------------------- | ------------------------------------------------------------ |
+| **Local**      | `~/.claude.json` (dưới đường dẫn dự án) | Cấu hình thử nghiệm cá nhân, server chứa credential nhạy cảm |
+| **Dự án**      | `.mcp.json` trong root dự án            | Chia sẻ đội nhóm, có thể commit vào version control          |
+| **Người dùng** | `~/.claude.json`                        | Công cụ cá nhân tái sử dụng xuyên dự án                      |
 
-安装 MCP 服务器的推荐方式是使用 HTTP 传输：
+Cách cài đặt MCP server được khuyến nghị là dùng HTTP transport:
 
 ```bash
-# 连接远程 MCP 服务器
+# Kết nối remote MCP server
 claude mcp add --transport http <name> <url>
 
-# 带认证头的示例
+# Ví dụ có authorization header
 claude mcp add --transport http notion https://mcp.notion.com/mcp \
   --header "Authorization: Bearer your-token"
 ```
 
-### 2. 自定义斜杠命令
+### 2. Slash commands tùy chỉnh
 
-对于重复性的复杂任务，可以在 `.claude/commands` 目录中创建 Markdown 模板，将其固化为命令。
+Đối với các tác vụ phức tạp lặp đi lặp lại, có thể tạo Markdown template trong thư mục `.claude/commands` để cố định thành lệnh.
 
-- **示例**：创建一个 `/fix-issue $ARGUMENTS` 命令。
-- **效果**：输入 `/fix-issue 1024`，Claude 自动执行：`查看 Issue → 搜索相关代码 → 编写修复 → 运行测试 → 提交 PR` 的全套流程。
+- **Ví dụ**: Tạo một lệnh `/fix-issue $ARGUMENTS`.
+- **Hiệu quả**: Nhập `/fix-issue 1024`, Claude tự động thực thi toàn bộ quy trình: `Xem Issue → Tìm code liên quan → Viết fix → Chạy test → Submit PR`.
 
-### ⭐️ 3. Skills：将重复劳动固化为技能
+### ⭐️ 3. Skills: Cố định lao động lặp lại thành kỹ năng
 
-如果一件事你一天做了两次，就值得把它变成一个 Skill。
+Nếu một việc bạn làm hai lần trong ngày, thì đáng để biến nó thành một Skill.
 
-一句话：**Skill 是保存下来的工作流，启动时只加载元数据（名称和描述，约 100 个 Token），只有当任务匹配时才会读取完整指令。** 这种“延迟加载”的设计保证了能力可用，又不会挤占上下文窗口。
+Một câu: **Skill là workflow đã được lưu lại, khi khởi động chỉ tải metadata (tên và mô tả, khoảng 100 Token), chỉ khi tác vụ khớp mới đọc chỉ dẫn đầy đủ.** Thiết kế "lazy loading" này đảm bảo năng lực có thể dùng mà không chiếm dụng context window.
 
-- **手动调用**：在对话框中输入 `/skill-name`。
-- **自动发现**：Claude 根据 Skill 的描述自动匹配当前任务并激活。
+- **Gọi thủ công**: Nhập `/skill-name` trong hộp hội thoại.
+- **Tự động khám phá**: Claude tự khớp tác vụ hiện tại dựa trên mô tả của Skill và kích hoạt.
 
-Skill 存放在 `~/.claude/skills/`（用户级）或 `.claude/skills/`（项目级）。一些优秀的社区 Skills：
+Skill được lưu ở `~/.claude/skills/` (cấp người dùng) hoặc `.claude/skills/` (cấp dự án). Một số Skills cộng đồng xuất sắc:
 
-- **[Superpowers](https://github.com/obra/superpowers)**：TDD + Code Review + 自动计划，把软件工程最佳实践封装为 AI 可执行的技能（推荐首装）。
-- **[Everything Claude Code](https://github.com/affaan-m/everything-claude-code)**：Anthropic 黑客松冠军配置，多 Agent 分工协作，解决上下文腐化问题。
+- **[Superpowers](https://github.com/obra/superpowers)**: TDD + Code Review + Tự động lập kế hoạch, đóng gói các best practice kỹ thuật phần mềm thành kỹ năng AI có thể thực thi (khuyến nghị cài đầu tiên).
+- **[Everything Claude Code](https://github.com/affaan-m/everything-claude-code)**: Cấu hình vô địch hackathon Anthropic, đa Agent phân công cộng tác, giải quyết vấn đề context corruption.
 
-**何时用 Skills vs CLAUDE.md**：简单来说，CLAUDE.md 是“每次都需要的全局上下文”，Skills 是“按需加载的任务指令”。如果一条规则只在特定场景下才需要（如“审查 API 代码时遵循这些规范”），放到 Skills 或 `.claude/rules/` 里；如果每次会话都需要 Claude 知道（如“项目使用 ES Modules”），放 CLAUDE.md。
+**Khi nào dùng Skills vs CLAUDE.md**: Đơn giản mà nói, CLAUDE.md là "global context cần có mỗi lần", Skills là "chỉ dẫn tác vụ tải theo nhu cầu". Nếu một quy tắc chỉ cần trong tình huống cụ thể (như "tuân thủ những quy tắc này khi review API code"), đặt vào Skills hoặc `.claude/rules/`; nếu mỗi session đều cần Claude biết (như "dự án dùng ES Modules"), đặt vào CLAUDE.md.
 
-### ⭐️ 4. Sub-Agent：让主对话保持干净
+### ⭐️ 4. Sub-Agent: Giữ cho hội thoại chính sạch sẽ
 
-当 Claude 需要深度调查一个问题时，它会读很多文件，大量消耗上下文窗口。Sub-Agent（子代理）就是解决这个问题的：让一个独立的 Claude 实例去做调查，它有自己的独立上下文，完成后只把结论汇报给主会话。
+Khi Claude cần điều tra sâu một vấn đề, nó sẽ đọc nhiều file, tiêu thụ lớn context window. Sub-Agent (tác tử con) chính là để giải quyết vấn đề này: Để một Claude instance độc lập đi điều tra, nó có context độc lập riêng, sau khi hoàn thành chỉ báo cáo kết luận cho session chính.
 
-Claude Code 内置了几种子代理：
+Claude Code tích hợp sẵn vài loại tác tử con:
 
-| 子代理              | 模型                | 用途                           |
-| ------------------- | ------------------- | ------------------------------ |
-| **Explore**         | Haiku（快速低延迟） | 文件发现、代码搜索、代码库探索 |
-| **Plan**            | 继承自主对话        | 规划阶段的代码库研究           |
-| **General-purpose** | 继承自主对话        | 复杂研究、多步骤操作、代码修改 |
+| Tác tử con          | Mô hình                     | Mục đích                                                 |
+| ------------------- | --------------------------- | -------------------------------------------------------- |
+| **Explore**         | Haiku (nhanh, latency thấp) | Khám phá file, tìm kiếm code, khám phá codebase          |
+| **Plan**            | Kế thừa từ hội thoại chính  | Nghiên cứu codebase trong giai đoạn lập kế hoạch         |
+| **General-purpose** | Kế thừa từ hội thoại chính  | Nghiên cứu phức tạp, thao tác nhiều bước, chỉnh sửa code |
 
-你也可以在 `.claude/agents/`（项目级）或 `~/.claude/agents/`（用户级）中创建自定义子代理，指定专属系统提示、工具权限和使用的模型。
+Bạn cũng có thể tạo tác tử con tùy chỉnh trong `.claude/agents/` (cấp dự án) hoặc `~/.claude/agents/` (cấp người dùng), chỉ định system prompt riêng, quyền công cụ và mô hình sử dụng.
 
-典型用法：
+Cách dùng điển hình:
 
-- **隔离高消耗操作**：`使用子代理运行测试套件，仅报告失败的测试及其错误消息。`
-- **并行研究**：`使用单独的子代理并行研究身份验证、数据库和 API 模块。`
-- **链式委派**：`使用 code-reviewer 子代理查找性能问题，然后使用 optimizer 子代理修复它们。`
+- **Cách ly thao tác tiêu thụ cao**: `Dùng sub-agent chạy test suite, chỉ báo cáo test thất bại và error message của chúng.`
+- **Nghiên cứu song song**: `Dùng sub-agent riêng biệt nghiên cứu song song module authentication, database và API.`
+- **Chain delegation**: `Dùng sub-agent code-reviewer để tìm performance issues, rồi dùng sub-agent optimizer để fix.`
 
-### 5. 插件系统（Plug-In）
+### 5. Hệ thống Plugin (Plug-In)
 
-插件是 Claude Code 的“应用”——一个插件可以打包 Skills、MCP 服务器、子代理、钩子和自定义命令，一键安装、一键分享。
+Plugin là "app" của Claude Code — một plugin có thể đóng gói Skills, MCP server, tác tử con, hook và custom command, cài đặt một cú, chia sẻ một cú.
 
-安装方式：
+Cách cài đặt:
 
 ```bash
-# 注册插件市场
+# Đăng ký plugin marketplace
 /plugin marketplace add <owner>/<marketplace-repo>
 
-# 安装插件
+# Cài đặt plugin
 /plugin install <plugin-name>@<marketplace-name>
 ```
 
-也可以用 `--plugin-dir` 在开发阶段本地测试插件。
+Cũng có thể dùng `--plugin-dir` để test plugin local trong giai đoạn phát triển.
 
-## 三、实战模式：高效工作流
+## III. Mô hình thực chiến: Workflow hiệu quả
 
-搞清楚了基础配置和能力扩展，接下来就是怎么把这些能力串起来，形成真正高效的工作流。
+Sau khi nắm rõ cấu hình cơ bản và mở rộng năng lực, tiếp theo là cách kết hợp các năng lực này tạo thành workflow thực sự hiệu quả.
 
-### ⭐️ 1. 探索-规划-执行
+### ⭐️ 1. Explore-Plan-Execute
 
-适用于需求模糊或复杂的场景，也是我个人最推荐的工作流。
+Phù hợp với các tình huống yêu cầu mơ hồ hoặc phức tạp, cũng là workflow tôi cá nhân khuyến nghị nhất.
 
-- **Explore**：让 Claude 阅读文件、日志或 URL，明确告诉它“先阅读，暂时不要写代码”。
-- **Plan**：进入计划模式（Plan Mode），让 Claude 输出详细的实施计划：哪些文件要改、改动顺序、可能踩的坑。复杂任务严禁直接动手。
-- **Code**：你确认计划无误后，再让它动手实现。
-- **Verify**：让它自己运行测试或检查代码。
+- **Explore**: Để Claude đọc file, log hoặc URL, nói rõ với nó "đọc trước, chưa cần viết code".
+- **Plan**: Vào Plan Mode, để Claude output kế hoạch triển khai chi tiết: file nào cần thay đổi, thứ tự thay đổi, những cạm bẫy có thể gặp. Tác vụ phức tạp nghiêm cấm bắt tay vào làm ngay.
+- **Code**: Sau khi bạn xác nhận kế hoạch không có vấn đề, mới để nó bắt tay triển khai.
+- **Verify**: Để nó tự chạy test hoặc kiểm tra code.
 
-**进阶做法**：一个 Claude 写计划，再起一个 Claude 以高级工程师的视角审这个计划。计划过了才开始写代码。先花 10 分钟在计划上，省下后面 2 小时的返工。
+**Cách làm nâng cao**: Một Claude viết kế hoạch, rồi khởi một Claude khác với tư cách senior engineer để review kế hoạch đó. Kế hoạch qua được mới bắt đầu viết code. Đầu tư 10 phút vào kế hoạch, tiết kiệm 2 tiếng refactor sau đó.
 
-> 先想清楚再动手，永远是最高效的。
+> Suy nghĩ rõ ràng trước khi bắt tay, luôn là cách hiệu quả nhất.
 
-### 2. 测试驱动开发 (TDD)
+### 2. Test-Driven Development (TDD)
 
-AI 编程中最稳健、幻觉最少的模式。
+Mô hình ổn định nhất, ít ảo giác nhất trong lập trình AI.
 
-- **写测试**：让 Claude 基于需求编写测试用例（此时不写实现代码）。
-- **红灯**：运行测试，确认失败（确保测试有效）。
-- **绿灯**：让 Claude 编写代码，直到测试通过。
-- **重构**：在测试的保护下，让 Claude 优化代码结构。
+- **Viết test**: Để Claude viết test case dựa trên yêu cầu (chưa viết implementation code lúc này).
+- **Red light**: Chạy test, xác nhận fail (đảm bảo test có hiệu lực).
+- **Green light**: Để Claude viết code cho đến khi test pass.
+- **Refactor**: Dưới sự bảo vệ của test, để Claude tối ưu cấu trúc code.
 
-也可以用并行 Session 来做 TDD：Session A 先写测试，Session B 再写让测试通过的代码。
+Cũng có thể dùng parallel Session để làm TDD: Session A viết test trước, Session B viết code để test pass.
 
-### 3. 视觉迭代 (Visual Iteration)
+### 3. Visual Iteration (Lặp lại trực quan)
 
-适用于前端开发。
+Phù hợp với frontend development.
 
-1. **投喂**：截图、拖拽设计图给 Claude。
-2. **实现**：让 Claude 写代码。
-3. **反馈**：截图运行结果发回给 Claude，让它对比差异并修正。
+1. **Feed**: Chụp screenshot, kéo thả design file vào Claude.
+2. **Implement**: Để Claude viết code.
+3. **Feedback**: Chụp screenshot kết quả chạy gửi lại cho Claude, để nó so sánh sự khác biệt và sửa.
 
-更进阶的做法：让 Claude 实现设计稿后，自动截图对比原图，列出差异并自行修复——形成一个自动纠错回路。
+Cách làm nâng cao hơn: Để Claude sau khi triển khai design file, tự chụp screenshot so sánh với hình gốc, liệt kê các điểm khác biệt và tự sửa — tạo thành một vòng tự sửa lỗi tự động.
 
-### 4. 代码库问答
+### 4. Hỏi đáp codebase
 
-新入职或接手陌生代码库时的神器。Claude 会自动搜索、读取文件并总结答案，大大降低认知负荷。
+Công cụ thần thánh khi mới vào hoặc tiếp nhận codebase không quen thuộc. Claude sẽ tự tìm kiếm, đọc file và tóm tắt câu trả lời, giảm đáng kể gánh nặng nhận thức.
 
-- “日志系统是怎么工作的？”
-- "这个 `Async` 函数在第 134 行是做什么的？"
-- “用户登录的完整流程是什么，从第一个请求到 session 建立？”
+- "Hệ thống log hoạt động như thế nào?"
+- "Hàm `Async` ở dòng 134 này làm gì?"
+- "Quy trình đầy đủ của user login là gì, từ request đầu tiên đến khi session được thiết lập?"
 
-这些是你原本要问老员工的问题，Claude 答得一样好，还不嫌你问。
+Đây là những câu hỏi bạn vốn phải hỏi nhân viên cũ, Claude trả lời không kém, lại không ngại bạn hỏi nhiều.
 
-### 5. Git/GitHub 自动化
+### 5. Tự động hóa Git/GitHub
 
-让 Claude 成为你的 Release Manager。
+Để Claude trở thành Release Manager của bạn.
 
-- “分析刚才的修改，写一个 Commit Message。”
-- “查看 Issue #123，分析原因并修复，然后提一个 PR。”
-- “解决这个 Rebase 冲突。”
-- **PR 协作**：在 GitHub PR 评论中 `@claude` 可以触发 Claude Code 在 CI 中响应，执行代码审查、修复建议等任务。
+- "Phân tích những thay đổi vừa rồi, viết một Commit Message."
+- "Xem Issue #123, phân tích nguyên nhân và fix, rồi submit một PR."
+- "Giải quyết Rebase conflict này."
+- **Cộng tác PR**: Comment `@claude` trong PR comment trên GitHub có thể trigger Claude Code phản hồi trong CI, thực thi code review, gợi ý fix, v.v.
 
-### ⭐️ 6. 多实例协作 (Multi-Claude)
+### ⭐️ 6. Multi-instance collaboration (Đa instance cộng tác)
 
-不要让一个 Claude 处理所有事情——**这是效率最大的杠杆之一**。核心原则是"不要等 AI，要让 AI 等你"：把耗时任务推向后台，你只需以"首席架构师"视角做决策。
+Đừng để một Claude xử lý tất cả mọi thứ — **đây là một trong những đòn bẩy hiệu quả lớn nhất**. Nguyên tắc cốt lõi là "đừng chờ AI, hãy để AI chờ bạn": Đẩy các tác vụ tốn thời gian ra background, bạn chỉ cần đưa ra quyết định với tư cách "chief architect".
 
-- **AB 角色**：一个写代码，另一个在独立终端中负责审查或写测试。
-- **Git Worktrees**：在不同的目录中检出不同分支，同时开启多个 Claude 实例处理不相关的 Feature，互不干扰。设置 Shell 别名（`za`、`zb`、`zc`）快速切换。
-- **`/batch` 命令**：输入一个大任务，Claude 会自动拆解为多个独立 Unit，为每个创建独立 Worktree，并行处理后合并。示例：
+- **Vai trò AB**: Một cái viết code, cái kia trong terminal độc lập chịu trách nhiệm review hoặc viết test.
+- **Git Worktrees**: Checkout các branch khác nhau trong các thư mục khác nhau, đồng thời mở nhiều instance Claude xử lý các Feature không liên quan, không ảnh hưởng lẫn nhau. Đặt Shell alias (`za`, `zb`, `zc`) để chuyển đổi nhanh.
+- **Lệnh `/batch`**: Nhập một tác vụ lớn, Claude tự động tách thành nhiều Unit độc lập, tạo Worktree độc lập cho mỗi cái, xử lý song song rồi merge. Ví dụ:
 
 ```
-/batch 1、移除自选股界面，优化提示词管理
-2、自选股提取组件、K线展示单独提取组件
-3、历史记录设计优化
+/batch 1、Xóa giao diện watchlist, tối ưu quản lý prompt
+2、Trích xuất watchlist thành component, K-line display thành component riêng
+3、Tối ưu thiết kế lịch sử
 ```
 
-### 7. `/simplify`：三 Agent 并行代码审查
+### 7. `/simplify`: Ba Agent song song code review
 
-这是一个容易被忽略但用一次就离不开的命令。`/simplify` 会并行启动三个审查 Agent，各自带着不同的视角去读同一份代码：
+Đây là lệnh dễ bị bỏ qua nhưng dùng một lần là không thể thiếu. `/simplify` sẽ khởi động song song ba review Agent, mỗi cái với góc nhìn khác nhau để đọc cùng một đoạn code:
 
-- **Code Reuse Agent**：看有没有重复造轮子——手写的工具方法是不是项目里已经有了
-- **Code Quality Agent**：看设计有没有问题——硬编码、该拆没拆的类、冗余逻辑
-- **Efficiency Agent**：看性能有没有隐患——循环里重复创建对象、不必要的并发容器、该用缓存的结果每次重新算
+- **Code Reuse Agent**: Xem có tái phát minh bánh xe không — phương pháp tool tự viết có phải đã có sẵn trong dự án không
+- **Code Quality Agent**: Xem thiết kế có vấn đề gì không — hardcode, class nên tách mà không tách, logic dư thừa
+- **Efficiency Agent**: Xem hiệu suất có ẩn họa gì không — tạo object lặp lại trong loop, concurrent container không cần thiết, kết quả nên cache mà tính lại mỗi lần
 
-不带参数时审查 `git diff` 的增量变更（工作区干净时审查最近一次 commit）；也可以指定具体类名做全量审查：
+Khi không có tham số review incremental changes của `git diff` (khi working directory sạch thì review commit gần nhất); cũng có thể chỉ định tên class cụ thể để full review:
 
 ```bash
-/simplify                           # 审查当前变更
-/simplify thread safety             # 指定关注方向
-/simplify MarketDataService         # 审查指定类
+/simplify                           # Review current changes
+/simplify thread safety             # Chỉ định hướng chú ý
+/simplify MarketDataService         # Review class cụ thể
 ```
 
-它最大的价值在于能发现需要**领域知识**才能识别的问题——Spring 代理导致的 `@Transactional` 失效、MyBatis 的批处理行为、Redis 分布式锁的边界条件。这些是 SonarQbe 之类的规则匹配工具抓不到的。
+Giá trị lớn nhất của nó là có thể phát hiện các vấn đề đòi hỏi **domain knowledge** — `@Transactional` invalid do Spring proxy, batch behavior của MyBatis, edge case của Redis distributed lock. Đây là những thứ mà các công cụ rule matching như SonarQube bắt không được.
 
-不过它做不了全项目全量扫描，也不关心代码风格（那是 formatter 的活）。架构级重构它只会建议，不会主动执行。
+Nhưng nó không làm full scan toàn dự án, cũng không quan tâm đến code style (đó là việc của formatter). Refactor cấp kiến trúc nó chỉ đề xuất, không chủ động thực thi.
 
-> 一句话：**提交 PR 前跑一遍 `/simplify`，成本很低但收益可能很高。**
+> Một câu: **Trước khi submit PR chạy một lần `/simplify`, chi phí thấp nhưng lợi ích có thể rất cao.**
 
-### 8. `/loop`：自主迭代和定时调度
+### 8. `/loop`: Lặp lại tự chủ và lập lịch định kỳ
 
-Claude Code 创始人 Boris Cherny 多次公开推荐这个命令。它解决两类烦人的事：
+Người sáng lập Claude Code Boris Cherny đã nhiều lần công khai khuyến nghị lệnh này. Nó giải quyết hai loại việc phiền phức:
 
-**定时调度（Cron 模式）**——告诉它干什么、隔多久干一次，到点自己跑：
+**Lập lịch định kỳ (Chế độ Cron)** — Nói cho nó biết làm gì, bao lâu làm một lần, đến giờ tự chạy:
 
 ```bash
-/loop 30m /review                              # 每 30 分钟跑一次代码审查
-/loop 1h "跑一遍单元测试，看看有没有失败的"        # 每小时检查测试
-/loop 5m "检查 GitHub 上开放的 PR 状态"          # 每 5 分钟看 PR 动态
+/loop 30m /review                              # Mỗi 30 phút chạy một lần code review
+/loop 1h "Chạy unit test, xem có cái nào fail không"    # Kiểm tra test mỗi giờ
+/loop 5m "Kiểm tra trạng thái PR đang mở trên GitHub"   # Xem PR status mỗi 5 phút
 ```
 
-**自主迭代（Agentic Loop）**——给它一个目标，它自己规划、执行、验证、修正，循环往复直到完成。普通模式下 Claude 写完代码就交给你了，报错你得自己贴回去；`/loop` 模式下它自己读报错、自己改、自己重跑，不用你盯着：
+**Lặp lại tự chủ (Agentic Loop)** — Đưa cho nó một mục tiêu, nó tự lập kế hoạch, thực thi, xác thực, sửa lỗi, lặp lại cho đến khi hoàn thành. Ở chế độ thông thường Claude viết xong code là giao cho bạn, báo lỗi bạn phải tự dán lại; ở chế độ `/loop` nó tự đọc báo lỗi, tự sửa, tự chạy lại, không cần bạn theo dõi:
 
 ```bash
-/loop "修复 auth 模块里所有失败的单元测试，直到全部通过"
-/loop "把 src/legacy 下所有组件迁移到 Tailwind CSS，确保页面渲染正常"
+/loop "Fix tất cả unit test fail trong module auth, cho đến khi tất cả pass"
+/loop "Migrate tất cả component trong src/legacy sang Tailwind CSS, đảm bảo page render bình thường"
 ```
 
-需要注意：`/loop` 是比较烧 Token 的用法，指令尽量具体、完成标准要明确。循环任务创建 7 天后自动过期，且只在当前会话有效，关掉终端就没了。建议在指令里加上限（如“最多尝试 10 次”），避免无限循环。
+Cần lưu ý: `/loop` là cách dùng khá tốn Token, chỉ dẫn nên cụ thể nhất có thể, tiêu chuẩn hoàn thành phải rõ ràng. Task lặp lại tự động expire sau 7 ngày, và chỉ có hiệu lực trong session hiện tại, tắt terminal là mất. Khuyến nghị thêm giới hạn trong chỉ dẫn (như "tối đa thử 10 lần"), tránh vòng lặp vô hạn.
 
-> 一个高效的组合工作流：`/loop` 自动完成任务 → `/simplify` 做代码清理 → `/review` 做安全审查。三步走下来基本不用你插手。
+> Một workflow kết hợp hiệu quả: `/loop` tự động hoàn thành tác vụ → `/simplify` làm code cleanup → `/review` làm security review. Ba bước như vậy về cơ bản không cần bạn can thiệp.
 
-### 9. 跨端同步（Teleport）
+### 9. Đồng bộ xuyên thiết bị (Teleport)
 
-在终端写累了？`--teleport` 功能让你把网页版 Claude Code 的会话一键拉回本地终端，包括完整的对话历史和分支状态。在终端里运行 `claude --teleport` 即可看到你的网页会话列表，选择后自动拉取远程分支并恢复上下文。反过来，在会话中输入 `/teleport`（或 `/tp`）也能跳转到网页端继续。
+Mệt viết trong terminal? Tính năng `--teleport` giúp bạn kéo session Claude Code phiên bản web về local terminal một cú, bao gồm lịch sử hội thoại đầy đủ và trạng thái branch. Chạy `claude --teleport` trong terminal để xem danh sách web session của bạn, sau khi chọn tự động pull remote branch và khôi phục context. Ngược lại, nhập `/teleport` (hoặc `/tp`) trong session cũng có thể nhảy sang web end tiếp tục.
 
-## 四、进阶技巧：优化与自动化
+## IV. Kỹ thuật nâng cao: Tối ưu và Tự động hóa
 
-基础配置和工作流都搞定了，接下来是一些能进一步提升效率的进阶技巧。
+Sau khi cấu hình cơ bản và workflow đã xong, tiếp theo là một số kỹ thuật nâng cao có thể nâng cao hơn nữa hiệu suất.
 
-### 1. 无头模式（Non-interactive Mode）
+### 1. Non-interactive Mode (Chế độ không tương tác)
 
-将 Claude 集成到脚本或 CI/CD 中。
+Tích hợp Claude vào script hoặc CI/CD.
 
-- **使用**：`claude -p "prompt" --output-format stream-json`。官方文档现在称其为“非交互模式”（以前叫 headless mode），但功能不变。
-- **场景**：自动 Issue 分类、代码风格检查、大规模数据迁移脚本生成。
-- **加 `--bare` 跳过初始化**：如果不需要 Hooks、Skills、MCP 等自动发现，加 `--bare` 可以显著加快启动速度。
+- **Dùng**: `claude -p "prompt" --output-format stream-json`. Tài liệu chính thức hiện gọi nó là "non-interactive mode" (trước kia gọi là headless mode), nhưng chức năng không đổi.
+- **Tình huống**: Tự động phân loại Issue, kiểm tra code style, tạo script migration dữ liệu quy mô lớn.
+- **Thêm `--bare` để bỏ qua initialization**: Nếu không cần Hooks, Skills, MCP và các tính năng auto-discovery khác, thêm `--bare` có thể tăng đáng kể tốc độ khởi động.
 
-### ⭐️ 2. 让 Claude 自己验证自己的工作
+### ⭐️ 2. Để Claude tự xác thực công việc của mình
 
-**这是单一最高收益的改变。** 不要只说“写一个邮件校验函数”，而是说：
+**Đây là thay đổi mang lại lợi ích cao nhất.** Đừng chỉ nói "viết một hàm validate email", mà hãy nói:
 
 ```
-写一个验证邮箱的函数。测试用例：hello@gmail.com 应该通过，
-hello@ 应该失败，@domain.com 应该失败。写完后跑一遍测试告诉我结果。
+Viết một hàm validate email. Test case: hello@gmail.com nên pass,
+hello@ nên fail, @domain.com nên fail. Viết xong chạy test một lần và cho tôi biết kết quả.
 ```
 
-有了具体的验收标准，Claude 就能自主检查输出，省去你一大半的人工审查。
+Có tiêu chuẩn nghiệm thu cụ thể, Claude có thể tự chủ kiểm tra output, tiết kiệm cho bạn phần lớn việc kiểm tra thủ công.
 
-更高阶的做法：让 Claude 给自己的答案打分——“根据预设的成功标准给你的输出评分，列出不足之处。”
+Cách làm cao cấp hơn: Để Claude tự cho điểm câu trả lời của mình — "Dựa trên tiêu chuẩn thành công đã đặt, cho điểm output của bạn, liệt kê các điểm thiếu sót."
 
-> 有了验收标准，Claude 才从“我觉得没问题”变成“测试证明没问题”。
+> Có tiêu chuẩn nghiệm thu, Claude mới chuyển từ "tôi nghĩ không có vấn đề" sang "test chứng minh không có vấn đề".
 
-### 3. 提示词的反直觉技巧
+### 3. Kỹ thuật prompt phản trực giác
 
-**① 让 Claude 审你**
+**① Để Claude review bạn**
 
-在提交代码之前：“用最挑剔的方式质问这些改动，直到我通过你的测试才能开 PR。”角色倒过来，Claude 成了 Reviewer。
+Trước khi submit code: "Hãy đặt câu hỏi khắt khe nhất về những thay đổi này, cho đến khi tôi vượt qua bài test của bạn mới được mở PR." Đảo ngược vai trò, Claude trở thành Reviewer.
 
-**② 让 Claude 重写一个更优雅的版本**
+**② Để Claude viết lại một phiên bản thanh lịch hơn**
 
-Claude 第一次的方案往往取了个捷径。解决完之后说：“你现在知道所有背景了。把这个方案推翻重来，给我一个优雅的实现。”通常能拿到比第一次更好的答案。
+Phương án đầu tiên của Claude thường đã lấy đường tắt. Sau khi giải quyết xong hãy nói: "Bây giờ bạn đã biết tất cả background. Phá bỏ phương án này và làm lại từ đầu, cho tôi một triển khai thanh lịch." Thường sẽ nhận được câu trả lời tốt hơn lần đầu.
 
-**③ 让 Claude 证明**
+**③ Để Claude chứng minh**
 
-别只看测试绿了就信：“证明给我看这个改动有效。把 main 分支和我的 feature 分支的行为差异展示出来。”
+Đừng chỉ thấy test xanh là tin: "Chứng minh cho tôi thấy thay đổi này có hiệu quả. Hiển thị sự khác biệt hành vi giữa branch main và branch feature của tôi."
 
-### 4. Bug 修复：直接扔原始数据
+### 4. Fix Bug: Vứt thẳng dữ liệu thô
 
-修 Bug 的最佳姿势不是把 bug 描述成文字让 Claude 猜，而是直接把原始数据扔给它，说"fix"。给 Claude 真实的信息（错误日志、Slack 线程、Docker 输出），而不是你对这些信息的描述。前者让 Claude 可以自主追踪，后者让 Claude 在你的理解框架里猜。
+Cách tốt nhất để fix Bug không phải mô tả bug thành văn bản để Claude đoán, mà là vứt thẳng dữ liệu thô cho nó và nói "fix". Cung cấp cho Claude thông tin thực tế (error log, Slack thread, Docker output), không phải mô tả của bạn về những thông tin đó. Cái trước cho phép Claude tự chủ truy vết, cái sau làm Claude đoán mò trong framework hiểu biết của bạn.
 
-### 5. 清单与草稿板
+### 5. Checklist và bảng nháp
 
-对于超长任务（如重构 100 个文件）：
+Đối với các tác vụ siêu dài (như refactor 100 file):
 
-- 让 Claude 先生成一个 Markdown Checklist。
-- 每完成一项，让它勾选一项。这能有效防止上下文丢失导致的“忘了自己在干嘛”。
+- Để Claude tạo một Markdown Checklist trước.
+- Mỗi khi hoàn thành một mục, để nó tick một mục. Điều này hiệu quả ngăn "quên đang làm gì" do mất context.
 
-### ⭐️ 6. 路线纠偏与上下文管理
+### ⭐️ 6. Điều chỉnh hướng và quản lý context
 
-上下文窗口是你最贵的资源，这部分讲的是怎么把这块白板用得更高效。
+Context window là tài nguyên đắt nhất của bạn, phần này nói về cách dùng tờ giấy trắng này hiệu quả hơn.
 
-- **及时中断**：按 `Esc` 键中断 Claude 的错误尝试，保留上下文并重定向。一旦它开始偏离轨道，立即停止。
-- **历史回溯**：双击 `Esc` 打开检查点菜单，可以回滚代码、对话或两者兼回。存档点甚至在你关闭终端后依然保留。
-- **`/compact`**：软重置。将对话历史压缩为结构化摘要，保留关键信息（你的意图、已修改的文件、错误和修复方案、待办任务），同时重新从磁盘加载 `CLAUDE.md` 和 Auto Memory。适用于上下文快满但还想继续当前任务的场景。
-- **`/clear`**：硬重置。彻底清空上下文，从零开始。适用于话题已经飘到五个方向、或者纠正了两次同一个错误 Claude 还是不对的时候——不要纠正第三次了，清掉上下文，结合学到的经验写一个更精准的起始 prompt，重头开始。
+- **Ngắt kịp thời**: Nhấn `Esc` để ngắt quá trình thử sai của Claude, giữ nguyên context và định hướng lại. Một khi nó bắt đầu lệch hướng, dừng ngay lập tức.
+- **Rollback lịch sử**: Nhấn `Esc` hai lần để mở menu checkpoint, có thể rollback code, hội thoại hoặc cả hai. Điểm lưu thậm chí được giữ lại sau khi bạn đóng terminal.
+- **`/compact`**: Soft reset. Nén lịch sử hội thoại thành tóm tắt có cấu trúc, giữ lại thông tin quan trọng (ý định của bạn, file đã sửa, lỗi và giải pháp, việc cần làm), đồng thời tải lại `CLAUDE.md` và Auto Memory từ đĩa. Phù hợp khi context sắp đầy nhưng vẫn muốn tiếp tục tác vụ hiện tại.
+- **`/clear`**: Hard reset. Xóa sạch hoàn toàn context, bắt đầu từ đầu. Phù hợp khi chủ đề đã bay đến năm hướng khác nhau, hoặc đã sửa hai lần cùng một lỗi Claude vẫn không đúng — đừng sửa lần thứ ba, xóa context, kết hợp kinh nghiệm đã học viết một starting prompt chính xác hơn, bắt đầu lại từ đầu.
 
-- **`/fork`**：对话分支。在当前会话中输入 `/fork`，会创建一个新的分支对话，你可以在新分支里自由探索不同方案，而不影响原始会话的上下文。适合“我想试试另一种实现方式”的场景。
-- **交接文档（Handoff Document）**：在 `/clear` 之前，让 Claude 把当前进度写入一个 `HANDOFF.md` 文件，记录做了什么、还差什么、踩了哪些坑。清空上下文后，新会话的第一句话就是“阅读 HANDOFF.md，继续之前的工作”。这比从零开始写 prompt 高效得多。
+- **`/fork`**: Rẽ nhánh hội thoại. Nhập `/fork` trong session hiện tại, sẽ tạo một hội thoại nhánh mới, bạn có thể tự do khám phá các phương án khác nhau trong nhánh mới mà không ảnh hưởng đến context của session gốc. Phù hợp với tình huống "tôi muốn thử cách triển khai khác".
+- **Handoff Document (Tài liệu bàn giao)**: Trước khi `/clear`, để Claude ghi tiến độ hiện tại vào file `HANDOFF.md`, ghi lại đã làm gì, còn thiếu gì, đã vấp phải cạm bẫy nào. Sau khi xóa context, câu đầu tiên của session mới là "đọc HANDOFF.md, tiếp tục công việc trước đây". Hiệu quả hơn nhiều so với viết prompt từ đầu.
 
-> **核心原则**：同一个问题纠正了两次还没改对，就不要再纠正第三次了。清掉上下文，写一个更好的 prompt 重新开始。上下文被污染后，继续纠正等于白费。
+> **Nguyên tắc cốt lõi**: Cùng một vấn đề đã sửa hai lần mà vẫn không đúng, đừng sửa lần thứ ba nữa. Xóa context, viết một prompt tốt hơn và bắt đầu lại. Sau khi context bị nhiễm, tiếp tục sửa chỉ là lãng phí.
 
-### 7. 后台静默验证
+### 7. Xác thực im lặng ở nền
 
-配置 `Stop` 钩子，让 Claude 在完成任务后自动运行测试或格式化工具，不需要你手动检查。Stop 钩子在主代理完成响应时触发，还可以通过返回 `decision: "block"` 来阻止 Claude 提前结束，强制它验证完再收工。也可以配置 `PostToolUse` 钩子，让 Claude 在每次工具调用后自动运行格式化工具，解决 CI 因代码格式报错的低级问题。
+Cấu hình `Stop` hook, để Claude tự động chạy test hoặc công cụ format sau khi hoàn thành tác vụ, không cần bạn kiểm tra thủ công. Stop hook trigger khi main agent hoàn thành response, cũng có thể ngăn Claude kết thúc sớm bằng cách trả về `decision: "block"`, bắt buộc nó xác thực xong mới thu xếp. Cũng có thể cấu hình `PostToolUse` hook, để Claude tự động chạy công cụ format sau mỗi lần gọi công cụ, giải quyết vấn đề CI báo lỗi format code nhỏ.
 
-### 8. 快捷键与效率技巧
+### 8. Phím tắt và kỹ thuật hiệu quả
 
-**输入框快捷键：**
+**Phím tắt input box:**
 
-| 快捷键                  | 功能                                     |
-| ----------------------- | ---------------------------------------- |
-| `Ctrl + A` / `Ctrl + E` | 光标跳到行首 / 行尾                      |
-| `Ctrl + W`              | 删除前一个单词                           |
-| `Ctrl + U` / `Ctrl + K` | 删除光标前 / 后的所有内容                |
-| `\` + `Enter`           | 多行输入（适合写长提示词）               |
-| `Ctrl + G`              | 打开外部编辑器编写提示词，写完保存即提交 |
+| Phím tắt                | Chức năng                                            |
+| ----------------------- | ---------------------------------------------------- |
+| `Ctrl + A` / `Ctrl + E` | Con trỏ nhảy đến đầu dòng / cuối dòng                |
+| `Ctrl + W`              | Xóa từ trước đó                                      |
+| `Ctrl + U` / `Ctrl + K` | Xóa tất cả nội dung trước / sau con trỏ              |
+| `\` + `Enter`           | Nhập nhiều dòng (phù hợp viết prompt dài)            |
+| `Ctrl + G`              | Mở external editor để viết prompt, lưu lại là submit |
 
-**运行时快捷键：**
+**Phím tắt runtime:**
 
-| 快捷键      | 功能                         |
-| ----------- | ---------------------------- |
-| `Esc`       | 中断当前操作                 |
-| `Esc` `Esc` | 打开检查点菜单               |
-| `Ctrl + B`  | 将当前正在运行的操作移到后台 |
+| Phím tắt    | Chức năng                               |
+| ----------- | --------------------------------------- |
+| `Esc`       | Ngắt thao tác hiện tại                  |
+| `Esc` `Esc` | Mở menu checkpoint                      |
+| `Ctrl + B`  | Chuyển thao tác đang chạy ra background |
 
-**实用命令：**
+**Lệnh thực dụng:**
 
-- **`/copy`**：快速复制 Claude 最后一次的输出到剪贴板，省去手动选择复制。
-- **终端别名**：在 Shell 配置文件中设置别名可以大幅减少输入量。推荐配置：`alias c='claude'`、`alias cr='claude --resume'`（恢复上次会话）、`alias cn='claude --new'`（新会话）。
-- **粘贴技巧**：遇到 Claude 无法直接访问的内容（如截图、加密文档片段），直接粘贴到输入框即可，Claude 支持多模态输入。
+- **`/copy`**: Nhanh chóng copy output lần cuối của Claude vào clipboard, tiết kiệm thao tác chọn copy thủ công.
+- **Terminal alias**: Đặt alias trong Shell config file có thể giảm đáng kể lượng nhập. Khuyến nghị cấu hình: `alias c='claude'`, `alias cr='claude --resume'` (tiếp tục session trước), `alias cn='claude --new'` (session mới).
+- **Kỹ thuật paste**: Gặp nội dung mà Claude không thể truy cập trực tiếp (như screenshot, đoạn tài liệu mã hóa), paste thẳng vào input box là được, Claude hỗ trợ multimodal input.
 
-### 9. 精简工具加载
+### 9. Tối ưu tải công cụ
 
-如果你安装了很多 MCP 服务器，启动时会拖慢速度。在 `.claude/settings.json` 中设置 `"ENABLE_TOOL_SEARCH": true`，Claude 不会在启动时加载所有工具描述，而是按需搜索和加载——只加载与当前任务相关的工具。工具多了之后，这个优化能显著减少 Token 消耗和启动时间。
+Nếu bạn đã cài nhiều MCP server, startup sẽ chậm lại. Đặt `"ENABLE_TOOL_SEARCH": true` trong `.claude/settings.json`, Claude sẽ không tải toàn bộ mô tả công cụ khi startup, mà tìm kiếm và tải theo nhu cầu — chỉ tải công cụ liên quan đến tác vụ hiện tại. Khi số lượng công cụ nhiều lên, tối ưu này có thể giảm đáng kể Token consumption và thời gian startup.
 
-### 10. 模型堆叠
+### 10. Model stacking (Xếp chồng mô hình)
 
-在打开 Claude Code 之前，先用其他大模型（如 Gemini、GPT）规划项目、生成高级提示词。这个策略还能节省计划模式的 Token。
+Trước khi mở Claude Code, dùng các mô hình ngôn ngữ lớn khác (như Gemini, GPT) để lập kế hoạch dự án, tạo high-level prompt. Chiến lược này còn có thể tiết kiệm Token ở plan mode.
 
-## 五、实战心法：与 AI 协作的经验
+## V. Bí quyết thực chiến: Kinh nghiệm cộng tác với AI
 
-除了工具本身，**如何与 AI 沟通**决定了上限。这部分是我在实战中反复踩坑后总结出来的经验，不一定每条都适用于你，但每条背后都有至少一次真实的翻车经历。
+Ngoài bản thân công cụ, **cách giao tiếp với AI** quyết định giới hạn trên. Phần này là kinh nghiệm tôi tổng kết sau nhiều lần vấp ngã trong thực chiến, không nhất thiết mỗi điều đều phù hợp với bạn, nhưng mỗi điều đều có ít nhất một lần thực tế đổ vỡ đằng sau.
 
-### 1. 说英文
+### 1. Nói tiếng Anh
 
-- **原因：** 虽然 Claude 中文很好，但编程语境下英文更具确定性。例如，"Modal" 比“弹窗”更能让 AI 联想到具体的组件库实现。
-- **收益：** 显著减少幻觉，代码逻辑更准确。这也是强迫自己二次思考需求的过程。
+- **Lý do:** Mặc dù Claude tiếng Trung rất tốt, nhưng trong ngữ cảnh lập trình tiếng Anh có tính xác định hơn. Ví dụ, "Modal" có thể giúp AI liên tưởng đến cài đặt component library cụ thể tốt hơn so với "popup".
+- **Lợi ích:** Giảm đáng kể ảo giác, logic code chính xác hơn. Đây cũng là quá trình bắt buộc bản thân suy nghĩ lại yêu cầu lần hai.
 
-### 2. 限制工作范围
+### 2. Giới hạn phạm vi làm việc
 
-- **原则**：不要试图“一句话生成全栈应用”。
-- **做法**：明确指定修改范围（如"仅限 `/src/api` 目录“）。按照”数据库 -> 后端逻辑 -> 前端 UI"的顺序拆解任务。
-- **避免无边界调查**：让 Claude“调查”某事但没有限定范围，它会读取数百个文件填满上下文。解决办法：缩小调查范围，或明确说“用子代理来调查”。
+- **Nguyên tắc**: Đừng cố gắng "một câu tạo ra full-stack app".
+- **Cách làm**: Chỉ định rõ phạm vi sửa đổi (như "chỉ trong thư mục `/src/api`"). Tách tác vụ theo thứ tự "database -> backend logic -> frontend UI".
+- **Tránh điều tra không biên giới**: Để Claude "điều tra" một việc gì đó mà không giới hạn phạm vi, nó sẽ đọc hàng trăm file làm đầy context. Giải pháp: Thu hẹp phạm vi điều tra, hoặc nói rõ "dùng sub-agent để điều tra".
 
-### 3. 信息过载优于信息匮乏
+### 3. Thông tin quá tải hơn là thông tin thiếu
 
-- **反直觉：** 提示词不要太短。
-- **做法：** 即使是简单修改，也要告诉它：
-  - 文件位置在哪里？
-  - 修改的最终目的是什么？（比如“为了匹配新的设计风格”）
-  - 参考组件是什么？
-- **原理：** 大模型本质是概率预测。提供的关联信息（Context）越多，它的联想收敛得越窄，结果越精准。
+- **Phản trực giác:** Prompt đừng quá ngắn.
+- **Cách làm:** Dù là sửa đổi đơn giản, cũng cần nói cho nó:
+  - File ở đâu?
+  - Mục tiêu cuối cùng của sửa đổi là gì? (Ví dụ "để phù hợp với design style mới")
+  - Component tham khảo là gì?
+- **Nguyên lý:** Bản chất của mô hình ngôn ngữ lớn là dự đoán xác suất. Càng cung cấp nhiều thông tin liên quan (Context), liên tưởng của nó hội tụ càng hẹp, kết quả càng chính xác.
 
-### 4. 提供“金标准”范例
+### 4. Cung cấp ví dụ "gold standard"
 
-- **原理：** AI 本质上是一个高级的模式补全引擎。它在“照猫画虎”时表现最好，而让它“凭空创造”时最容易出现风格偏差。
-- **场景：** 假设你要开发一个新的 `OrderController`。如果不给参考，AI 可能会使用过时的 `@Autowired` 字段注入，或者忘记使用统一的 `Result<T>` 包装类。
-- **做法：**
-  - 先找到你项目中写得最好的现有代码（比如 `UserController.java`）。
-  - 把项目规范写进 `CLAUDE.md`（如构造器注入、统一异常处理、Swagger 注解风格等），这样即使你不手动指定参考文件，Claude 也能遵循一致的标准。
-  - **提示词示例：** "阅读 `/src/main/java/.../UserController.java` 及其对应的 Service 和 DTO。参考它的分层架构、构造器注入模式、统一异常处理以及 Swagger 注解写法，为我生成 `OrderController` 的相关代码。"
-- **收益：** 确保新旧代码风格的高度一致性。
+- **Nguyên lý:** AI bản chất là engine pattern completion cấp cao. Nó hoạt động tốt nhất khi "học theo", còn khi "sáng tạo từ đầu" thì dễ lệch style nhất.
+- **Tình huống:** Giả sử bạn muốn phát triển một `OrderController` mới. Nếu không có tham khảo, AI có thể dùng `@Autowired` field injection lỗi thời, hoặc quên dùng class wrapper `Result<T>` thống nhất.
+- **Cách làm:**
+  - Đầu tiên tìm code hiện có viết tốt nhất trong dự án (như `UserController.java`).
+  - Viết quy tắc dự án vào `CLAUDE.md` (như constructor injection, xử lý exception thống nhất, Swagger annotation style, v.v.), như vậy dù bạn không chỉ định file tham khảo thủ công, Claude cũng có thể tuân theo tiêu chuẩn nhất quán.
+  - **Ví dụ prompt:** "Đọc `/src/main/java/.../UserController.java` và Service, DTO tương ứng. Tham khảo layered architecture, constructor injection pattern, xử lý exception thống nhất và cách viết Swagger annotation của nó, tạo code liên quan cho `OrderController` cho tôi."
+- **Lợi ích:** Đảm bảo tính nhất quán cao độ về style giữa code mới và cũ.
 
-### 5. 消除样式”AI 味”：锁定样式标准与设计 Skill
+### 5. Loại bỏ "AI look" trong style: Khóa tiêu chuẩn style và thiết kế Skill
 
-- **原理：** 如果不加约束，Claude 生成的页面容易出现典型的”AI Look”——千篇一律的 Inter 字体 + 紫色渐变 + 圆角卡片，毫无辨识度。
-- **做法：**
-  - 明确要求使用 Tailwind CSS 或特定的组件库（如 shadcn/ui, Ant Design）。
-  - 在提示词中加入风格关键词，例如：”使用 **Tailwind CSS**，风格参考 **Linear** 或 **Vercel**，采用极简主义、大留白、圆角矩形和深色模式。”
-  - 可以直接告诉它具体的色值（Primary Color）、间距（Spacing）和字体。
-  - **安装前端设计 Skill**：社区已有成熟的设计 Skill，可以让 Claude 在写代码前先确定视觉方向，从根源上避免”AI 味”：
-    - **Anthropic 官方 Frontend Design**（`claude plugin add anthropic/frontend-design`）：Anthropic 官方出品，强制 Claude 在编码前先确定视觉方向，内置反模式规则拦截 Inter + 紫色渐变等通用套路，要求使用真实的字体搭配和 CSS 变量体系。
-    - **Web Designer Plugin**（`claude plugin add MickeyAlton33/web-designer`）：基于 38 个 Awwwards 获奖网站提炼了 48 套设计模式，覆盖排版系统、配色理论（5 种色板原型）、动画词汇表、布局模式和 3D 技法，附带 10 个完整概念站点示例和”AI Look”反模式清单。
-- **收益：** 生成的页面直接符合项目视觉规范，告别千篇一律的”AI 味”。
+- **Nguyên lý:** Nếu không có ràng buộc, trang do Claude tạo dễ xuất hiện "AI Look" điển hình — font Inter + gradient tím + rounded card đồng loạt, không có bản sắc.
+- **Cách làm:**
+  - Yêu cầu rõ ràng dùng Tailwind CSS hoặc component library cụ thể (như shadcn/ui, Ant Design).
+  - Thêm từ khóa style vào prompt, ví dụ: "Dùng **Tailwind CSS**, style tham khảo **Linear** hoặc **Vercel**, phong cách minimalism, whitespace lớn, rounded rectangle và dark mode."
+  - Có thể trực tiếp nói cho nó màu cụ thể (Primary Color), khoảng cách (Spacing) và font.
+  - **Cài đặt frontend design Skill**: Cộng đồng đã có design Skill trưởng thành, có thể để Claude xác định hướng visual trước khi viết code, loại bỏ "AI look" từ gốc rễ:
+    - **Anthropic official Frontend Design** (`claude plugin add anthropic/frontend-design`): Sản phẩm chính thức Anthropic, bắt buộc Claude xác định hướng visual trước khi coding, tích hợp quy tắc anti-pattern chặn các sáo rỗng như Inter + gradient tím, yêu cầu dùng hệ thống font kết hợp thực tế và CSS variable system.
+    - **Web Designer Plugin** (`claude plugin add MickeyAlton33/web-designer`): Tinh chắt 48 design pattern từ 38 website thắng giải Awwwards, bao phủ typography system, color theory (5 prototype bảng màu), animation vocabulary, layout pattern và kỹ thuật 3D, kèm 10 ví dụ concept site hoàn chỉnh và danh sách anti-pattern "AI look".
+- **Lợi ích:** Trang được tạo trực tiếp phù hợp với quy tắc visual dự án, vĩnh biệt "AI look" đồng loạt.
 
-### 6. 安全红线与权限模式
+### 6. Ranh giới đỏ bảo mật và chế độ quyền
 
-- **禁止**：不要使用 `--dangerously-skip-permissions` 跳过所有权限检查，这相当于把家门钥匙给了 AI。这个模式完全不做安全审查，所有操作立即执行，没有任何兜底机制。官方文档原话：”bypassPermissions offers no protection against prompt injection or unintended actions.”。
-- **容器隔离**：如果确实需要跳过权限检查（比如跑自动化脚本），务必在 Docker 容器等隔离环境中运行，限制文件系统访问范围，避免对主机造成不可逆的破坏。
-- **正确做法**：利用 `/permissions` 配合 `.claude/settings.json` 进行精细化的权限白名单管理，既要效率也要合规。
+- **Cấm**: Đừng dùng `--dangerously-skip-permissions` để bỏ qua tất cả kiểm tra quyền, điều này tương đương với việc đưa chìa khóa nhà cho AI. Chế độ này không làm bất kỳ kiểm tra bảo mật nào, tất cả thao tác thực thi ngay lập tức, không có bất kỳ cơ chế dự phòng nào. Nguyên văn tài liệu chính thức: "bypassPermissions offers no protection against prompt injection or unintended actions."
+- **Container isolation**: Nếu thực sự cần bỏ qua kiểm tra quyền (như chạy automation script), nhất định phải chạy trong môi trường cách ly như Docker container, giới hạn phạm vi truy cập file system, tránh gây tổn hại không thể phục hồi cho host.
+- **Cách làm đúng**: Dùng `/permissions` kết hợp `.claude/settings.json` để quản lý whitelist quyền tinh tế, vừa cần hiệu quả vừa cần tuân thủ.
 
-**Auto Mode（推荐替代 bypass 模式）**
+**Auto Mode (Khuyến nghị thay thế bypass mode)**
 
-如果你觉得频繁弹确认太烦，官方现在推荐用 Auto Mode 替代 `--dangerously-skip-permissions`。两者的核心区别在于：bypass 模式什么都不检查，Auto Mode 有一个独立的分类器模型（基于 Sonnet 4.6）在后台审查每个操作——读文件、改代码这些低风险操作自动放行，下载执行远程代码、发送敏感数据到外部、推送 main 分支这类高风险操作则会被拦截。
+Nếu bạn thấy popup xác nhận thường xuyên quá phiền, phía chính thức hiện khuyến nghị dùng Auto Mode thay thế `--dangerously-skip-permissions`. Sự khác biệt cốt lõi của hai loại là: bypass mode không kiểm tra gì hết, Auto Mode có một mô hình classifier độc lập (dựa trên Sonnet 4.6) đang kiểm tra từng thao tác ở background — đọc file, sửa code những thao tác rủi ro thấp được auto pass, download và thực thi remote code, gửi dữ liệu nhạy cảm ra bên ngoài, push lên main branch những thao tác rủi ro cao sẽ bị chặn.
 
-开启方式：
+Cách bật:
 
 ```bash
-# 命令行开启
+# Bật qua command line
 claude --enable-auto-mode
 
-# 或者在 settings.json 中设为默认
-# ~/.claude/settings.json 或 .claude/settings.local.json
+# Hoặc đặt mặc định trong settings.json
+# ~/.claude/settings.json hoặc .claude/settings.local.json
 ```
 
 ```json
 {
-  “permissions”: {
-    “defaultMode”: “auto”
+  "permissions": {
+    "defaultMode": "auto"
   }
 }
 ```
 
-开启后，`Shift+Tab` 循环中会多出 `auto` 选项，可以随时切换。
+Sau khi bật, trong vòng xoay `Shift+Tab` sẽ có thêm tùy chọn `auto`, có thể chuyển đổi bất cứ lúc nào.
 
-Auto Mode 的审查逻辑：
+Logic kiểm tra của Auto Mode:
 
-| 操作类型                                         | 行为                         |
-| ------------------------------------------------ | ---------------------------- |
-| 只读操作（读文件、搜索）                         | 自动放行，无需审查           |
-| 工作目录内的文件编辑                             | 分类器快速审查后放行         |
-| 安装依赖、本地构建                               | 审查后放行                   |
-| 下载执行远程代码（`curl \| bash`）               | 拦截                         |
-| 发送敏感数据到外部端点                           | 拦截                         |
-| 推送到 main、force push                          | 拦截                         |
-| 修改 `.git/`、`.claude/`、`.bashrc` 等受保护路径 | 始终拦截（所有模式下都保护） |
+| Loại thao tác                                                  | Hành vi                            |
+| -------------------------------------------------------------- | ---------------------------------- |
+| Thao tác chỉ đọc (đọc file, tìm kiếm)                          | Tự động pass, không cần kiểm tra   |
+| Chỉnh sửa file trong working directory                         | Classifier kiểm tra nhanh rồi pass |
+| Cài dependency, build local                                    | Kiểm tra rồi pass                  |
+| Download và thực thi remote code (`curl \| bash`)              | Chặn                               |
+| Gửi dữ liệu nhạy cảm đến external endpoint                     | Chặn                               |
+| Push lên main, force push                                      | Chặn                               |
+| Sửa đổi `.git/`, `.claude/`, `.bashrc` và các path được bảo vệ | Luôn chặn (bảo vệ ở tất cả chế độ) |
 
-还有一些实用细节：分类器连续拦截 3 次或累计拦截 20 次后，Auto Mode 会自动暂停，恢复手动确认——防止 Claude 在错误方向上越跑越远。被拦截的操作会记录在 `/permissions` 的”Recently denied”中，按 `r` 可以重试。
+Còn một số chi tiết thực dụng: Classifier liên tiếp chặn 3 lần hoặc tổng cộng chặn 20 lần, Auto Mode sẽ tự động tạm dừng, khôi phục xác nhận thủ công — ngăn Claude chạy theo hướng sai ngày càng xa. Thao tác bị chặn sẽ được ghi lại trong "Recently denied" của `/permissions`, nhấn `r` có thể retry.
 
-> **前提条件**：Auto Mode 目前要求 Claude Code v2.1.83+、Team/Enterprise/API 计划、Sonnet 4.6 或 Opus 4.6 模型、且必须通过 Anthropic API 直连（不支持 Bedrock、Vertex 或第三方中转）。Pro 和 Max 计划暂不支持。
+> **Điều kiện tiên quyết**: Auto Mode hiện yêu cầu Claude Code v2.1.83+, gói Team/Enterprise/API, mô hình Sonnet 4.6 hoặc Opus 4.6, và phải kết nối trực tiếp qua Anthropic API (không hỗ trợ Bedrock, Vertex hoặc relay bên thứ ba). Gói Pro và Max chưa hỗ trợ.
 
-## 六、常见失败模式速查表
+## VI. Bảng tra cứu nhanh các failure mode phổ biến
 
-| 失败模式       | 症状                                  | 解决方法                                                        |
-| -------------- | ------------------------------------- | --------------------------------------------------------------- |
-| 厨房水槽会话   | 话题飘到五个方向，Claude 开始胡言乱语 | 切任务就 `/clear`                                               |
-| 纠正死循环     | 同一个错误纠正 3 次以上               | 清空上下文，重写 prompt                                         |
-| CLAUDE.md 膨胀 | 规则文件超过 200 行，Claude 忽略细节  | 问自己“没这行会犯什么错”，删掉多余的；或拆分到 `.claude/rules/` |
-| 无边界调查     | Claude 读了几百个文件，上下文耗尽     | 给调查划定范围，或用子代理隔离                                  |
-| 过度指定       | 提示词太短，AI 猜测意图               | 多给上下文、文件位置、修改目的                                  |
-| 盲目信任       | 测试绿了就信，不管实际行为            | 让 Claude 证明，对比 main 和 feature 分支的行为差异             |
+| Failure mode             | Triệu chứng                                        | Giải pháp                                                                                         |
+| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Kitchen sink session     | Chủ đề bay đến năm hướng, Claude bắt đầu nói nhảm  | Đổi tác vụ thì `/clear`                                                                           |
+| Vòng lặp sửa lỗi         | Cùng một lỗi sửa hơn 3 lần                         | Xóa context, viết lại prompt                                                                      |
+| CLAUDE.md phình to       | File quy tắc vượt 200 dòng, Claude bỏ qua chi tiết | Hỏi bản thân "không có dòng này sẽ mắc lỗi gì", xóa những cái thừa; hoặc tách ra `.claude/rules/` |
+| Điều tra không biên giới | Claude đọc hàng trăm file, context cạn kiệt        | Xác định phạm vi điều tra, hoặc dùng sub-agent để cách ly                                         |
+| Chỉ định quá mức         | Prompt quá ngắn, AI đoán ý định                    | Cung cấp thêm context, vị trí file, mục đích sửa đổi                                              |
+| Tin tưởng mù quáng       | Test xanh là tin, không quan tâm hành vi thực tế   | Để Claude chứng minh, so sánh sự khác biệt hành vi giữa main và feature branch                    |
 
-## 总结
+## Tổng kết
 
-回顾一下全文的关键结论：
+Nhìn lại các kết luận then chốt của toàn bài:
 
-1. **上下文窗口是你最贵的资源**——所有技巧本质上都在帮你把这块白板用得更高效。
-2. **先规划后执行**——Plan Mode 投资的是后面的时间。
-3. **CLAUDE.md 自我进化**——把纠正转化为规则，让 AI 越用越顺手。
-4. **并行是最大的效率杠杆**——多实例 + Worktree + 子代理。
-5. **验证优于信任**——给 Claude 验收标准，让它自己检查。
-6. **`/compact` 比反复纠正更有效**——上下文被污染后，压缩或清空重来更好。
+1. **Context window là tài nguyên đắt nhất của bạn** — Tất cả kỹ thuật về bản chất đều đang giúp bạn dùng tờ giấy trắng này hiệu quả hơn.
+2. **Lập kế hoạch trước rồi mới thực thi** — Plan Mode là đầu tư cho thời gian sau đó.
+3. **CLAUDE.md tự tiến hóa** — Chuyển đổi sửa lỗi thành quy tắc, để AI càng dùng càng thuận tay.
+4. **Song song là đòn bẩy hiệu quả lớn nhất** — Đa instance + Worktree + Sub-agent.
+5. **Xác thực hơn tin tưởng** — Đưa cho Claude tiêu chuẩn nghiệm thu, để nó tự kiểm tra.
+6. **`/compact` hiệu quả hơn sửa đi sửa lại** — Sau khi context bị nhiễm, nén hoặc xóa và làm lại tốt hơn.

@@ -1,105 +1,105 @@
 ---
-title: 软件工程简明教程
-description: 软件工程基础知识详解，涵盖软件危机、软件开发过程模型、瀑布模型、敏捷开发等软件工程核心概念。
-category: 系统设计
+title: Hướng dẫn ngắn gọn về Software Engineering
+description: Kiến thức cơ bản về software engineering, bao gồm khủng hoảng phần mềm, mô hình quy trình phát triển, waterfall model, agile development và các khái niệm cốt lõi.
+category: System Design
 head:
   - - meta
     - name: keywords
-      content: 软件工程,软件危机,软件开发过程,瀑布模型,敏捷开发,需求分析,软件生命周期,工程化方法
+      content: software engineering,software crisis,software development process,waterfall model,agile development,requirements analysis,software lifecycle,engineering methodology
 ---
 
-大部分软件开发从业者，都会忽略软件开发中的一些最基础、最底层的一些概念。但是，这些软件开发的概念对于软件开发来说非常重要，就像是软件开发的基石一样。这也是我写这篇文章的原因。
+Hầu hết người làm phát triển phần mềm đều bỏ qua một số khái niệm cơ bản và nền tảng nhất trong phát triển phần mềm. Nhưng những khái niệm này lại vô cùng quan trọng — như nền móng của phát triển phần mềm vậy. Đó là lý do tôi viết bài này.
 
-## 何为软件工程？
+## Software Engineering là gì?
 
-1968 年 NATO（北大西洋公约组织）提出了**软件危机**（**Software crisis**）一词。同年，为了解决软件危机问题，“**软件工程**”的概念诞生了。一门叫做软件工程的学科也就应运而生。
+Năm 1968, NATO (Tổ chức Hiệp ước Bắc Đại Tây Dương) đưa ra thuật ngữ **Software Crisis** (Khủng hoảng phần mềm). Cùng năm đó, để giải quyết vấn đề khủng hoảng phần mềm, khái niệm "**Software Engineering**" ra đời. Một ngành học gọi là software engineering cũng được hình thành.
 
-随着时间的推移，软件工程这门学科也经历了一轮又一轮的完善，其中的一些核心内容比如软件开发模型越来越丰富实用！
+Theo thời gian, ngành software engineering đã trải qua nhiều vòng hoàn thiện, trong đó một số nội dung cốt lõi như mô hình phát triển phần mềm ngày càng phong phú và thực dụng hơn!
 
-**什么是软件危机呢？**
+**Software Crisis là gì?**
 
-简单来说，软件危机描述了当时软件开发的一个痛点：我们很难高效地开发出质量高的软件。
+Nói đơn giản, software crisis mô tả một điểm đau của việc phát triển phần mềm thời đó: chúng ta rất khó phát triển hiệu quả phần mềm có chất lượng cao.
 
-Dijkstra（Dijkstra 算法的作者） 在 1972 年图灵奖获奖感言中也提到过软件危机，他是这样说的：“导致软件危机的主要原因是机器变得功能强大了几个数量级！坦率地说：只要没有机器，编程就完全没有问题。当我们有一些弱小的计算机时，编程成为一个温和的问题，而现在我们有了庞大的计算机，编程也同样成为一个巨大的问题”。
+Dijkstra (tác giả thuật toán Dijkstra) cũng đề cập đến software crisis trong bài phát biểu nhận giải Turing năm 1972, ông nói: "Nguyên nhân chính dẫn đến khủng hoảng phần mềm là máy móc đã trở nên mạnh hơn nhiều bậc! Thật ra, nếu không có máy tính thì lập trình sẽ hoàn toàn không có vấn đề gì. Khi chúng ta có những chiếc máy tính yếu, lập trình là vấn đề nhẹ nhàng. Còn bây giờ chúng ta có những máy tính khổng lồ, lập trình cũng trở thành vấn đề khổng lồ".
 
-**说了这么多，到底什么是软件工程呢？**
+**Nói nhiều vậy, rốt cuộc software engineering là gì?**
 
-工程是为了解决实际的问题将理论应用于实践。软件工程指的就是将工程思想应用于软件开发。
+Engineering (kỹ thuật/công nghệ) là việc áp dụng lý thuyết vào thực tiễn để giải quyết các vấn đề thực tế. Software engineering là việc áp dụng tư duy kỹ thuật vào phát triển phần mềm.
 
-上面是我对软件工程的定义，我们再来看看比较权威的定义。IEEE 软件工程汇刊给出的定义是这样的：　(1)将系统化的、规范的、可量化的方法应用到软件的开发、运行及维护中，即将工程化方法应用于软件。　(2)在(1)中所述方法的研究。
+Trên đây là định nghĩa của tôi về software engineering. Chúng ta cũng xem định nghĩa chính thống hơn. IEEE Transactions on Software Engineering định nghĩa như sau: (1) Áp dụng phương pháp có hệ thống, chuẩn hóa, định lượng vào phát triển, vận hành và bảo trì phần mềm — tức là áp dụng phương pháp kỹ thuật vào phần mềm. (2) Nghiên cứu các phương pháp nêu trong (1).
 
-总之，软件工程的终极目标就是：**在更少资源消耗的情况下，创造出更好、更容易维护的软件。**
+Tóm lại, mục tiêu cuối cùng của software engineering là: **Tạo ra phần mềm tốt hơn, dễ bảo trì hơn với ít tài nguyên tiêu thụ hơn.**
 
-## 软件开发过程
+## Quy trình phát triển phần mềm
 
-[维基百科是这样定义软件开发过程](https://zh.wikipedia.org/wiki/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B)的：
+[Wikipedia định nghĩa quy trình phát triển phần mềm](https://zh.wikipedia.org/wiki/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B) như sau:
 
-> 软件开发过程（英语：software development process），或软件过程（英语：software process），是软件开发的开发生命周期（software development life cycle），其各个阶段实现了软件的需求定义与分析、设计、实现、测试、交付和维护。软件过程是在开发与构建系统时应遵循的步骤，是软件开发的路线图。
+> Quy trình phát triển phần mềm (software development process), hay software process, là vòng đời phát triển phần mềm (software development life cycle), với các giai đoạn thực hiện việc định nghĩa và phân tích yêu cầu, thiết kế, triển khai, kiểm thử, bàn giao và bảo trì phần mềm. Software process là các bước cần tuân theo khi phát triển và xây dựng hệ thống — là lộ trình của phát triển phần mềm.
 
-- 需求分析：分析用户的需求，建立逻辑模型。
-- 软件设计：根据需求分析的结果对软件架构进行设计。
-- 编码：编写程序运行的源代码。
-- 测试 : 确定测试用例，编写测试报告。
-- 交付：将做好的软件交付给客户。
-- 维护：对软件进行维护比如解决 bug，完善功能。
+- Phân tích yêu cầu (Requirements Analysis): Phân tích nhu cầu của người dùng, xây dựng mô hình logic.
+- Thiết kế phần mềm (Software Design): Thiết kế kiến trúc phần mềm dựa trên kết quả phân tích yêu cầu.
+- Coding: Viết source code cho chương trình chạy.
+- Testing: Xác định test case, viết báo cáo kiểm thử.
+- Bàn giao (Delivery): Giao phần mềm đã hoàn thiện cho khách hàng.
+- Bảo trì (Maintenance): Bảo trì phần mềm như giải quyết bug, hoàn thiện tính năng.
 
-软件开发过程只是比较笼统的层面上，定义了一个软件开发可能涉及到的一些流程。
+Quy trình phát triển phần mềm chỉ định nghĩa ở mức độ tổng quan một số luồng có thể liên quan đến phát triển phần mềm.
 
-软件开发模型更具体地定义了软件开发过程，对开发过程提供了强有力的理论支持。
+Mô hình phát triển phần mềm định nghĩa cụ thể hơn về quy trình phát triển phần mềm, cung cấp nền tảng lý thuyết mạnh mẽ cho quy trình phát triển.
 
-## 软件开发模型
+## Mô hình phát triển phần mềm
 
-软件开发模型有很多种，比如瀑布模型（Waterfall Model）、快速原型模型（Rapid Prototype Model）、V 模型（V-model）、W 模型（W-model）、敏捷开发模型。其中最具有代表性的还是 **瀑布模型** 和 **敏捷开发** 。
+Có nhiều mô hình phát triển phần mềm, ví dụ: Waterfall Model (Mô hình thác nước), Rapid Prototype Model (Mô hình nguyên mẫu nhanh), V-model, W-model, Agile Development Model. Trong đó đại diện nhất vẫn là **Waterfall Model** và **Agile Development**.
 
-**瀑布模型** 定义了一套完整的软件开发周期，完整地展示了一个软件的生命周期。
+**Waterfall Model** định nghĩa một chu trình phát triển phần mềm hoàn chỉnh, thể hiện toàn diện vòng đời của một phần mềm.
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/schedule-task/up-264f2750a3d30366e36c375ec3a30ec2775.png)
 
-**敏捷开发模型** 是目前使用的最多的一种软件开发模型。[MBA 智库百科对敏捷开发的描述](https://wiki.mbalib.com/wiki/%E6%95%8F%E6%8D%B7%E5%BC%80%E5%8F%91)是这样的:
+**Agile Development Model** là mô hình phát triển phần mềm được sử dụng nhiều nhất hiện nay. [MBA Wiki mô tả về Agile Development](https://wiki.mbalib.com/wiki/%E6%95%8F%E6%8D%B7%E5%BC%80%E5%8F%91) như sau:
 
-> **敏捷开发** 是一种以人为核心、迭代、循序渐进的开发方法。在敏捷开发中，软件项目的构建被切分成多个子项目，各个子项目的成果都经过测试，具备集成和可运行的特征。换言之，就是把一个大项目分为多个相互联系，但也可独立运行的小项目，并分别完成，在此过程中软件一直处于可使用状态。
+> **Agile Development** là phương pháp phát triển lấy con người làm trung tâm, theo vòng lặp, tăng dần. Trong agile development, việc xây dựng dự án phần mềm được chia thành nhiều subproject, kết quả của mỗi subproject đều được kiểm thử, có đặc tính tích hợp và có thể chạy được. Nói cách khác, là chia một dự án lớn thành nhiều dự án nhỏ có liên quan nhưng cũng có thể chạy độc lập, và hoàn thành chúng riêng lẻ. Trong quá trình đó phần mềm luôn ở trạng thái có thể sử dụng được.
 
-像现在比较常见的一些概念比如 **持续集成**、**重构**、**小版本发布**、**低文档**、**站会**、**结对编程**、**测试驱动开发** 都是敏捷开发的核心。
+Một số khái niệm phổ biến hiện nay như **Continuous Integration**, **Refactoring**, **Small Release**, **Low Documentation**, **Stand-up Meeting**, **Pair Programming**, **Test-Driven Development** đều là cốt lõi của agile development.
 
-## 软件开发的基本策略
+## Các chiến lược cơ bản trong phát triển phần mềm
 
-### 软件复用
+### Software Reuse (Tái sử dụng phần mềm)
 
-我们在构建一个新的软件的时候，不需要从零开始，通过复用已有的一些轮子（框架、第三方库等）、设计模式、设计原则等等现成的物料，我们可以更快地构建出一个满足要求的软件。
+Khi xây dựng một phần mềm mới, chúng ta không cần bắt đầu từ đầu. Thông qua việc tái sử dụng các bánh xe đã có (framework, third-party library, v.v.), design pattern, design principle và các nguyên liệu có sẵn khác, chúng ta có thể xây dựng phần mềm đáp ứng yêu cầu nhanh hơn.
 
-像我们平时接触的开源项目就是最好的例子。我想，如果不是开源，我们构建出一个满足要求的软件，耗费的精力和时间要比现在多的多！
+Các open source project mà chúng ta thường tiếp xúc là ví dụ tốt nhất. Tôi nghĩ nếu không có open source, thời gian và công sức để xây dựng phần mềm đáp ứng yêu cầu sẽ nhiều hơn bây giờ rất nhiều!
 
-### 分而治之
+### Divide and Conquer (Chia để trị)
 
-构建软件的过程中，我们会遇到很多问题。我们可以将一些比较复杂的问题拆解为一些小问题，然后，一一攻克。
+Trong quá trình xây dựng phần mềm, chúng ta sẽ gặp nhiều vấn đề. Chúng ta có thể phân tách các vấn đề phức tạp thành các vấn đề nhỏ, rồi lần lượt giải quyết.
 
-我结合现在比较火的软件设计方法—领域驱动设计（Domain Driven Design，简称 DDD）来说说。
+Tôi kết hợp với phương pháp thiết kế phần mềm đang rất hot hiện nay — Domain Driven Design (DDD) để nói về điều này.
 
-在领域驱动设计中，很重要的一个概念就是**领域（Domain）**，它就是我们要解决的问题。在领域驱动设计中，我们要做的就是把比较大的领域（问题）拆解为若干的小领域（子域）。
+Trong DDD, một khái niệm quan trọng là **Domain (Lĩnh vực)** — đó là vấn đề chúng ta cần giải quyết. Trong DDD, những gì chúng ta cần làm là chia domain lớn (vấn đề) thành nhiều domain nhỏ (subdomain).
 
-除此之外，分而治之也是一个比较常用的算法思想，对应的就是分治算法。如果你想了解分治算法的话，推荐你看一下北大的[《算法设计与分析 Design and Analysis of Algorithms》](https://www.coursera.org/learn/algorithms)。
+Ngoài ra, divide and conquer cũng là một tư duy thuật toán thường dùng, tương ứng là divide and conquer algorithm. Nếu bạn muốn tìm hiểu về divide and conquer algorithm, khuyến nghị xem [《Algorithm Design and Analysis》của Đại học Bắc Kinh](https://www.coursera.org/learn/algorithms).
 
-### 逐步演进
+### Incremental Evolution (Phát triển từng bước)
 
-软件开发是一个逐步演进的过程，我们需要不断进行迭代式增量开发，最终交付符合客户价值的产品。
+Phát triển phần mềm là quá trình tiến hóa từng bước, chúng ta cần liên tục phát triển theo vòng lặp tăng dần, cuối cùng bàn giao sản phẩm đáp ứng giá trị của khách hàng.
 
-这里补充一个在软件开发领域，非常重要的概念：**MVP（Minimum Viable Product，最小可行产品**）。
+Ở đây bổ sung một khái niệm rất quan trọng trong lĩnh vực phát triển phần mềm: **MVP (Minimum Viable Product — Sản phẩm khả thi tối thiểu)**.
 
-这个最小可行产品，可以理解为刚好能够满足客户需求的产品。下面这张图片把这个思想展示的非常精髓。
+Sản phẩm khả thi tối thiểu này có thể hiểu là sản phẩm vừa đủ để đáp ứng nhu cầu của khách hàng. Hình ảnh dưới đây thể hiện rất cô đọng tư duy này.
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/schedule-task/up-a99961ff7725106c0592abca845d555568a.png)
 
-利用最小可行产品，我们可以也可以提早进行市场分析，这对于我们在探索产品不确定性的道路上非常有帮助。可以非常有效地指导我们下一步该往哪里走。
+Với MVP, chúng ta cũng có thể thực hiện phân tích thị trường sớm hơn — điều này rất hữu ích trong việc khám phá sự không chắc chắn của sản phẩm. Có thể hướng dẫn hiệu quả bước tiếp theo chúng ta nên đi đâu.
 
-### 优化折中
+### Optimization and Compromise (Tối ưu và thỏa hiệp)
 
-软件开发是一个不断优化改进的过程。任何软件都有很多可以优化的点，不可能完美。我们需要不断改进和提升软件的质量。
+Phát triển phần mềm là quá trình không ngừng tối ưu cải tiến. Bất kỳ phần mềm nào cũng có nhiều điểm có thể tối ưu, không bao giờ hoàn hảo. Chúng ta cần không ngừng cải thiện và nâng cao chất lượng phần mềm.
 
-但是，也不要陷入这个怪圈。要学会折中，在有限的投入内，以最有效的方式提高现有软件的质量。
+Nhưng, cũng đừng sa vào vòng xoáy này. Hãy học cách thỏa hiệp — trong phạm vi đầu tư có hạn, cải thiện chất lượng phần mềm hiện có theo cách hiệu quả nhất.
 
-## 参考
+## Tài liệu tham khảo
 
-- 软件工程的基本概念-清华大学软件学院 刘强：<https://www.xuetangx.com/course/THU08091000367>
-- 软件开发过程-维基百科：[https://zh.wikipedia.org/wiki/软件开发过程](https://zh.wikipedia.org/wiki/软件开发过程)
+- Khái niệm cơ bản về software engineering - Liu Qiang, Khoa Software Engineering, Đại học Thanh Hoa: <https://www.xuetangx.com/course/THU08091000367>
+- Software development process - Wikipedia: [https://zh.wikipedia.org/wiki/软件开发过程](https://zh.wikipedia.org/wiki/软件开发过程)
 
 <!-- @include: @article-footer.snippet.md -->

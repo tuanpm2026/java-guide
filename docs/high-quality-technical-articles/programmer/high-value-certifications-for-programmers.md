@@ -1,119 +1,119 @@
 ---
-title: 程序员最该拿的几种高含金量证书
-description: "程序员最该拿的几种高含金量证书：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: Những chứng chỉ giá trị cao nhất mà programmer nên có
+description: "Những chứng chỉ giá trị cao nhất mà programmer nên có - Tổng hợp các khái niệm chính, điểm thực hành."
+category: Technical Articles Selection
 tag:
-  - 程序员
+  - Programmer
 head:
   - - meta
     - name: keywords
-      content: 程序员证书,软考,PMP认证,AWS认证,阿里云认证,华为认证,OCP认证,Kubernetes认证,职业资格证书
+      content: programmer certifications,soft exam,PMP certification,AWS certification,Alibaba Cloud certification,Huawei certification,OCP certification,Kubernetes certification,professional qualification
 ---
 
-证书是能有效证明自己能力的好东西，它就是你实力的象征。在短短的面试时间内，证书可以为你加不少分。通过考证来提升自己，是一种性价比很高的办法。不过，相比金融、建筑、医疗等行业，IT 行业的职业资格证书并没有那么多。
+Chứng chỉ là thứ có thể chứng minh năng lực của bạn một cách hiệu quả — nó là biểu tượng thực lực của bạn. Trong khoảng thời gian ngắn của phỏng vấn, chứng chỉ có thể giúp bạn cộng thêm điểm đáng kể. Học để lấy chứng chỉ nhằm nâng cao bản thân là một cách có tỷ lệ chi phí/lợi ích khá tốt. Tuy nhiên, so với ngành tài chính, xây dựng, y tế, chứng chỉ nghề nghiệp trong ngành IT không nhiều như vậy.
 
-下面我总结了一下程序员可以考的一些常见证书。
+Dưới đây tôi tổng hợp một số chứng chỉ phổ biến mà programmer có thể thi.
 
-## 软考
+## Soft Exam (Kỳ thi Kỹ thuật và Phần mềm máy tính Quốc gia)
 
-全国计算机技术与软件专业技术资格（水平）考试，简称“软考”，是国内认可度较高的一项计算机技术资格认证。尽管一些人吐槽其实际价值，但在特定领域和情况下，它还是非常有用的，例如软考证书在国企和事业单位中具有较高的认可度、在某些城市软考证书可以用于积分落户、可用于个税补贴。
+Kỳ thi Kỹ thuật và Phần mềm máy tính Quốc gia (Soft Exam) là một chứng chỉ kỹ thuật máy tính được công nhận rộng rãi trong nước. Mặc dù một số người phàn nàn về giá trị thực tế, nhưng trong các lĩnh vực và tình huống cụ thể, nó vẫn rất hữu dụng. Ví dụ, Soft Exam được công nhận cao ở state-owned enterprises và institutions; ở một số thành phố có thể dùng để tính điểm hộ khẩu; có thể dùng để được hoàn thuế thu nhập cá nhân.
 
-软考有初、中、高三个级别，建议直接考高级。相比于 PMP（项目管理专业人士认证），软考高项的难度更大，特别是论文部分，绝大部分人都挂在了论文部分。过了软考高项，在一些单位可以内部挂证，每个月多拿几百。
+Soft Exam có ba cấp độ: sơ, trung, cao cấp. Khuyến nghị thi thẳng cao cấp. So với PMP (Project Management Professional certification), Soft Exam high-level (high item) khó hơn, đặc biệt là phần luận văn — phần lớn đều trượt ở phần luận văn. Qua được Soft Exam high item, ở một số đơn vị có thể internal "hanging certificate" để kiếm thêm vài trăm mỗi tháng.
 
-![软考高级证书](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/ruankao-advanced-certification%20.jpg)
+![Soft Exam Advanced Certificate](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/ruankao-advanced-certification%20.jpg)
 
-官网地址：<https://www.ruankao.org.cn/>。
+Official website: <https://www.ruankao.org.cn/>.
 
-备考建议：[2024 年上半年，一次通过软考高级架构师考试的备考秘诀 - 阿里云开发者](https://mp.weixin.qq.com/s/9aUXHJ7dXgrHuT19jRhCnw)
+Exam prep tips: [2024 first half year, study tips for passing Soft Exam Advanced Architect in one go - Alibaba Cloud Developer](https://mp.weixin.qq.com/s/9aUXHJ7dXgrHuT19jRhCnw)
 
 ## PAT
 
-攀拓计算机能力测评（PAT）是一个专注于考察算法能力的测评体系，由浙江大学主办。该测评分为四个级别：基础级、乙级、甲级和顶级。
+PAT (Programming Ability Test) is a testing system focused on algorithm capabilities, hosted by Zhejiang University. There are four levels: basic, level B, level A, and top.
 
-通过 PAT 测评并达到联盟企业规定的相应评级和分数，可以跳过学历门槛，免除筛选简历和笔试环节，直接获得面试机会。具体有哪些公司可以去官网看看：<https://www.patest.cn/company> 。
+Passing PAT and meeting the level and score requirements specified by alliance companies can bypass academic requirements, skip resume screening and written tests, and get direct interview opportunities. Check which companies are available on official website: <https://www.patest.cn/company>.
 
-对于考研浙江大学的同学来说，PAT（甲级）成绩在一年内可以作为硕士研究生招生考试上机复试成绩。
+For students applying to Zhejiang University's graduate program, PAT (Level A) scores within one year can serve as master's graduate enrollment computer exam re-examination scores.
 
-![PAT（甲级）成绩作用](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pat-enterprise-alliance.png)
+![PAT (Level A) score usage](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pat-enterprise-alliance.png)
 
 ## PMP
 
-PMP（Project Management Professional）认证由美国项目管理协会（PMI）提供，是全球范围内认可度最高的项目管理专业人士资格认证。PMP 认证旨在提升项目管理专业人士的知识和技能，确保项目顺利完成。
+PMP (Project Management Professional) certification is provided by the Project Management Institute (PMI) and is the most globally recognized professional qualification for project management professionals. PMP aims to enhance project management professionals' knowledge and skills to ensure smooth project completion.
 
-![PMP 证书](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pmp-certification.png)
+![PMP Certificate](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/pmp-certification.png)
 
-PMP 是“一证在手，全球通用”的资格认证，对项目管理人士来说，PMP 证书含金量还是比较高的。放眼全球，很多成功企业都会将 PMP 认证作为项目经理的入职标准。
+PMP is a "one certification, globally valid" qualification. For project management professionals, PMP has relatively high value. Globally, many successful enterprises use PMP certification as a standard for project managers.
 
-但是！真正有价值的不是 PMP 证书，而是《PMBOK》 那套项目管理体系，在《PMBOK》（PMP 考试指定用书）中也包含了非常多商业活动、实业项目、组织规划、建筑行业等各个领域的项目案例。
+But! The truly valuable thing is not the PMP certificate but the PMBOK project management system. PMBOK (the designated PMP exam book) also contains many project cases from commercial activities, industrial projects, organizational planning, construction and other fields.
 
-另外，PMP 证书不是一个高大上的证书，而是一个基础的证书。
+Also, PMP is not a high-level certificate — it's a basic one.
 
 ## ACP
 
-ACP（Agile Certified Practitioner）认证同样由美国项目管理协会（PMI）提供，是项目管理领域的另一个重要认证。与 PMP（Project Management Professional）注重传统的瀑布方法论不同，ACP 专注于敏捷项目管理方法论，如 Scrum、Kanban、Lean、Extreme Programming（XP）等。
+ACP (Agile Certified Practitioner) certification is also provided by PMI. Unlike PMP focusing on traditional waterfall methodology, ACP focuses on agile project management methodologies like Scrum, Kanban, Lean, Extreme Programming (XP).
 
 ## OCP
 
-Oracle Certified Professional（OCP）是 Oracle 公司提供的一项专业认证，专注于 Oracle 数据库及相关技术。这个认证旨在验证和认证个人在使用和管理 Oracle 数据库方面的专业知识和技能。
+Oracle Certified Professional (OCP) is a professional certification from Oracle focused on Oracle databases and related technologies. Validates professional knowledge and skills in using and managing Oracle databases.
 
-下图展示了 Oracle 认证的不同路径和相应的认证级别，分别是核心路径（Core Track）和专业路径（Speciality Track）。
+The image below shows different Oracle certification paths and levels: Core Track and Speciality Track.
 
-![OCP 认证路径](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/oracle-certified-professional.jpg)
+![OCP Certification Paths](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/oracle-certified-professional.jpg)
 
-## 阿里云认证
+## Alibaba Cloud Certification
 
-阿里云（Alibaba Cloud）提供的专业认证，认证方向包括云计算、大数据、人工智能、Devops 等。职业认证分为 ACA、ACP、ACE 三个等级，除了职业认证之外，还有一个开发者 Clouder 认证，这是专门为开发者设立的专项技能认证。
+Professional certifications provided by Alibaba Cloud covering cloud computing, big data, AI, DevOps and other directions. Career certifications have three levels: ACA, ACP, ACE. Beyond career certifications, there's also a developer Clouder certification — specialized skills certification designed for developers.
 
 ![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/aliyun-professional-certification.png)
 
-官网地址：<https://edu.aliyun.com/certification/>。
+Official website: <https://edu.aliyun.com/certification/>.
 
-## 华为认证
+## Huawei Certification
 
-华为认证是由华为技术有限公司提供的面向 ICT（信息与通信技术）领域的专业认证，认证方向包括网络、存储、云计算、大数据、人工智能等，非常庞大的认证体系。
+Huawei certification is provided by Huawei Technologies for ICT (Information and Communication Technology) professionals. Covers networking, storage, cloud computing, big data, AI and other directions — very extensive certification system.
 
 ![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/huawei-professional-certification.png)
 
-## AWS 认证
+## AWS Certification
 
-AWS 云认证考试是 AWS 云计算服务的官方认证考试，旨在验证 IT 专业人士在设计、部署和管理 AWS 基础架构方面的技能。
+AWS cloud certification exams are official certification tests for AWS cloud computing services. They validate IT professionals' skills in designing, deploying and managing AWS infrastructure.
 
-AWS 认证分为多个级别，包括基础级、从业者级、助理级、专业级和专家级（Specialty），涵盖多个角色和技能：
+AWS certifications have multiple levels including foundational, practitioner, associate, professional and specialty, covering multiple roles and skills:
 
-- **基础级别**：AWS Certified Cloud Practitioner，适合初学者，验证对 AWS 基础知识的理解，是最简单的入门认证。
-- **助理级别**：包括 AWS Certified Solutions Architect – Associate、AWS Certified Developer – Associate 和 AWS Certified SysOps Administrator – Associate，适合中级专业人士，验证其设计、开发和管理 AWS 应用的能力。
-- **专业级别**：包括 AWS Certified Solutions Architect – Professional 和 AWS Certified DevOps Engineer – Professional，适合高级专业人士，验证其在复杂和大规模 AWS 环境中的能力。
-- **专家级别**：包括 AWS Certified Advanced Networking – Specialty、AWS Certified Big Data – Specialty 等，专注于特定技术领域的深度知识和技能。
+- **Foundational**: AWS Certified Cloud Practitioner — for beginners, validates basic AWS knowledge, easiest entry certification.
+- **Associate**: AWS Certified Solutions Architect – Associate, AWS Certified Developer – Associate, AWS Certified SysOps Administrator – Associate. For mid-level professionals validating ability to design, develop and manage AWS applications.
+- **Professional**: AWS Certified Solutions Architect – Professional, AWS Certified DevOps Engineer – Professional. For senior professionals validating capabilities in complex and large-scale AWS environments.
+- **Specialty**: AWS Certified Advanced Networking – Specialty, AWS Certified Big Data – Specialty, etc. Focus on deep knowledge in specific technical areas.
 
-备考建议：[小白入门云计算的最佳方式，是去考一张 AWS 的证书（附备考经验）](https://mp.weixin.qq.com/s/xAqNOnfZ05GDRuUbAiMHIA)
+Exam prep tips: [Best way for beginners to get into cloud computing is to get an AWS certification (with exam experience)](https://mp.weixin.qq.com/s/xAqNOnfZ05GDRuUbAiMHIA)
 
-## Google Cloud 认证
+## Google Cloud Certification
 
-与 AWS 认证不同，Google Cloud 认证只有一门助理级认证（Associate Cloud Engineer），其他大部分为专业级（专家级）认证。
+Unlike AWS certification, Google Cloud certification has only one associate-level (Associate Cloud Engineer) and most others are professional-level (expert-level).
 
-备考建议：[如何备考谷歌云认证](https://mp.weixin.qq.com/s/Vw5LGPI_akA7TQl1FMygWw)
+Exam prep tips: [How to prepare for Google Cloud certification](https://mp.weixin.qq.com/s/Vw5LGPI_akA7TQl1FMygWw)
 
-官网地址：<https://cloud.google.com/certification>
+Official website: <https://cloud.google.com/certification>
 
-## 微软认证
+## Microsoft Certification
 
-微软的认证体系主要针对其 Azure 云平台，分为基础级别、助理级别和专家级别，认证方向包括云计算、数据管理、开发、生产力工具等。
+Microsoft's certification system mainly targets its Azure cloud platform, with basic, associate, and expert levels covering cloud computing, data management, development, productivity tools and other directions.
 
 ![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/microsoft-certification.png)
 
-## Elastic 认证
+## Elastic Certification
 
-Elastic 认证是由 Elastic 公司提供的一系列专业认证，旨在验证个人在使用 Elastic Stack（包括 Elasticsearch、Logstash、Kibana 、Beats 等）方面的技能和知识。
+Elastic certification is a series of professional certifications from Elastic Company validating skills and knowledge in using Elastic Stack (including Elasticsearch, Logstash, Kibana, Beats, etc.).
 
-如果你在日常开发核心工作是负责 ElasticSearch 相关业务的话，还是比较建议考的，含金量挺高。
+If your core daily work involves ElasticSearch-related business, this is recommended — relatively high value.
 
-目前 Elastic 认证证书分为四类：Elastic Certified Engineer、Elastic Certified Analyst、Elastic Certified Observability Engineer、Elastic Certified SIEM Specialist。
+Current Elastic certifications: Elastic Certified Engineer, Elastic Certified Analyst, Elastic Certified Observability Engineer, Elastic Certified SIEM Specialist.
 
-比较建议考 **Elastic Certified Engineer**，这个是 Elastic Stack 的基础认证，考察安装、配置、管理和维护 Elasticsearch 集群等核心技能。
+**Elastic Certified Engineer** is recommended — fundamental certification for Elastic Stack covering installation, configuration, management and maintenance of Elasticsearch clusters.
 
 ![](https://oss.javaguide.cn/github/javaguide/programmer-life/programmer-certification/elastic-certified-engineer-certification.png)
 
-## 其他
+## Others
 
-- PostgreSQL 认证：国内的 PostgreSQL 认证分为专员级（PCA）、专家级（PCP）和大师级（PCM），主要考查 PostgreSQL 数据库管理和优化，价格略贵，不是很推荐。
-- Kubernetes 认证：Cloud Native Computing Foundation (CNCF) 提供了几个官方认证，例如 Certified Kubernetes Administrator (CKA)、Certified Kubernetes Application Developer (CKAD)，主要考察 Kubernetes 方面的技能和知识。
+- PostgreSQL certification: Domestic PostgreSQL certifications have PCA (specialist), PCP (expert) and PCM (master) levels. Mainly tests PostgreSQL database management and optimization. Slightly expensive, not highly recommended.
+- Kubernetes certification: Cloud Native Computing Foundation (CNCF) provides official certifications like Certified Kubernetes Administrator (CKA), Certified Kubernetes Application Developer (CKAD), mainly testing Kubernetes skills and knowledge.

@@ -1,207 +1,206 @@
 ---
-description: 解析堆的性质与操作，理解优先队列实现与堆排序性能优势，掌握插入/删除的复杂度与实践场景。
-category: 计算机基础
+description: Phân tích tính chất và thao tác của heap, hiểu triển khai priority queue và ưu thế hiệu năng của heap sort, nắm vững complexity của insert/delete và tình huống thực hành.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 数据结构
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
-      content: 堆,最大堆,最小堆,优先队列,堆化,上浮,下沉,堆排序
+      content: heap,max heap,min heap,priority queue,heapify,sift up,sift down,heap sort
 ---
 
-# 堆
+# Heap (Đống)
 
-## 什么是堆
+## Heap là gì?
 
-堆是一种满足以下条件的树：
+Heap là loại tree thỏa điều kiện sau:
 
-堆中的每一个节点值都大于等于（或小于等于）子树中所有节点的值。或者说，任意一个节点的值都大于等于（或小于等于）所有子节点的值。
+Giá trị của mỗi node trong heap lớn hơn hoặc bằng (hoặc nhỏ hơn hoặc bằng) giá trị của tất cả node trong subtree của nó. Hay nói cách khác, giá trị của bất kỳ node nào cũng lớn hơn hoặc bằng (hoặc nhỏ hơn hoặc bằng) giá trị của tất cả child node.
 
-> 大家可以把堆(最大堆)理解为一个公司,这个公司很公平,谁能力强谁就当老大,不存在弱的人当老大,老大手底下的人一定不会比他强。这样有助于理解后续堆的操作。
+> Hãy hiểu heap (max heap) như một công ty. Công ty này rất công bằng — ai có năng lực mạnh thì làm sếp, không có chuyện người yếu làm sếp. Người dưới sếp nhất định không mạnh hơn sếp. Điều này giúp hiểu các thao tác của heap tiếp theo.
 
-**!!!特别提示：**
+**!!! Lưu ý đặc biệt:**
 
-- 很多博客说堆是完全二叉树，其实并非如此，**堆不一定是完全二叉树**，只是为了方便存储和索引，我们通常用完全二叉树的形式来表示堆，事实上，广为人知的斐波那契堆和二项堆就不是完全二叉树,它们甚至都不是二叉树。
-- （**二叉**）堆是一个数组，它可以被看成是一个 **近似的完全二叉树**。——《算法导论》第三版
+- Nhiều blog nói heap là complete binary tree. Thực ra không phải vậy. **Heap không nhất thiết là complete binary tree**. Chỉ là để tiện lưu trữ và indexing, chúng ta thường biểu diễn heap dưới dạng complete binary tree. Thực tế, Fibonacci heap và binomial heap nổi tiếng không phải complete binary tree — chúng thậm chí không phải binary tree.
+- **(Binary) heap là một mảng, có thể coi là approximate complete binary tree.** — 《Introduction to Algorithms》 3rd Edition.
 
-大家可以尝试判断下面给出的图是否是堆？
+Hãy thử xác định xem các hình dưới có phải heap không?
 
 ![](./pictures/堆/堆1.png)
 
-第 1 个和第 2 个是堆。第 1 个是最大堆，每个节点都比子树中所有节点大。第 2 个是最小堆，每个节点都比子树中所有节点小。
+Hình 1 và 2 là heap. Hình 1 là max heap — mỗi node đều lớn hơn tất cả node trong subtree. Hình 2 là min heap — mỗi node đều nhỏ hơn tất cả node trong subtree.
 
-第 3 个不是，第三个中，根结点 1 比 2 和 15 小，而 15 却比 3 大，19 比 5 大，不满足堆的性质。
+Hình 3 không phải heap. Trong hình 3, root node 1 nhỏ hơn 2 và 15, trong khi 15 lớn hơn 3, 19 lớn hơn 5 — không thỏa tính chất heap.
 
-## 堆的用途
+## Công dụng của Heap
 
-当我们只关心所有数据中的最大值或者最小值，存在多次获取最大值或者最小值，多次插入或删除数据时，就可以使用堆。
+Khi chúng ta chỉ quan tâm đến max hoặc min của tất cả data, và có nhiều lần lấy max/min, nhiều lần insert hoặc delete data — có thể dùng heap.
 
-有小伙伴可能会想到用有序数组，初始化一个有序数组时间复杂度是 `O(nlog(n))`，查找最大值或者最小值时间复杂度都是 `O(1)`，但是，涉及到更新（插入或删除）数据时，时间复杂度为 `O(n)`，即使是使用复杂度为 `O(log(n))` 的二分法找到要插入或者删除的数据，在移动数据时也需要 `O(n)` 的时间复杂度。
+Một số bạn có thể nghĩ đến sorted array. Khởi tạo sorted array time complexity là `O(nlog(n))`. Query max/min time complexity là `O(1)`. Nhưng khi update (insert hoặc delete) data, time complexity là `O(n)` — dù dùng binary search với complexity `O(log(n))` để tìm data cần insert/delete, việc di chuyển data vẫn cần `O(n)`.
 
-**相对于有序数组而言，堆的主要优势在于插入和删除数据效率较高。** 因为堆是基于完全二叉树实现的，所以在插入和删除数据时，只需要在二叉树中上下移动节点，时间复杂度为 `O(log(n))`，相比有序数组的 `O(n)`，效率更高。
+**So với sorted array, ưu thế chính của heap là efficiency cao hơn khi insert và delete data.** Vì heap được triển khai dựa trên complete binary tree, khi insert/delete data chỉ cần di chuyển node lên/xuống trong binary tree, time complexity là `O(log(n))` — hiệu quả hơn `O(n)` của sorted array.
 
-不过，需要注意的是：Heap 初始化的时间复杂度为 `O(n)`，而非`O(nlogn)`。
+Tuy nhiên cần lưu ý: Time complexity khởi tạo Heap là `O(n)`, không phải `O(nlogn)`.
 
-## 堆的分类
+## Phân loại Heap
 
-堆分为 **最大堆** 和 **最小堆**。二者的区别在于节点的排序方式。
+Heap chia thành **max heap** và **min heap**. Sự khác biệt là cách sắp xếp node.
 
-- **最大堆**：堆中的每一个节点的值都大于等于子树中所有节点的值
-- **最小堆**：堆中的每一个节点的值都小于等于子树中所有节点的值
+- **Max heap**: Giá trị của mỗi node đều lớn hơn hoặc bằng giá trị của tất cả node trong subtree của nó.
+- **Min heap**: Giá trị của mỗi node đều nhỏ hơn hoặc bằng giá trị của tất cả node trong subtree của nó.
 
-如下图所示，图 1 是最大堆，图 2 是最小堆
+Như hình dưới, hình 1 là max heap, hình 2 là min heap:
 
 ![](./pictures/堆/堆2.png)
 
-## 堆的存储
+## Lưu trữ Heap
 
-之前介绍树的时候说过，由于完全二叉树的优秀性质，利用数组存储二叉树即节省空间，又方便索引（若根结点的序号为 1，那么对于树中任意节点 i，其左子节点序号为 `2*i`，右子节点序号为 `2*i+1`）。
+Như đã đề cập khi giới thiệu tree, nhờ tính chất tuyệt vời của complete binary tree, dùng mảng để lưu binary tree vừa tiết kiệm không gian vừa tiện indexing (nếu root node có sequence number là 1, với bất kỳ node i nào trong tree, left child có sequence number là `2*i`, right child là `2*i+1`).
 
-为了方便存储和索引，（二叉）堆可以用完全二叉树的形式进行存储。存储的方式如下图所示：
+Để tiện lưu trữ và indexing, (binary) heap có thể được lưu dưới dạng complete binary tree. Cách lưu như hình dưới:
 
-![堆的存储](./pictures/堆/堆的存储.png)
+![Lưu trữ Heap](./pictures/堆/堆的存储.png)
 
-## 堆的操作
+## Thao tác với Heap
 
-堆的更新操作主要包括两种 : **插入元素** 和 **删除堆顶元素**。操作过程需要着重掌握和理解。
+Các thao tác update chính của heap gồm hai loại: **Insert element** và **Delete heap top element**. Cần nắm vững và hiểu rõ quá trình thao tác.
 
-> 在进入正题之前，再重申一遍，堆是一个公平的公司，有能力的人自然会走到与他能力所匹配的位置
+> Trước khi vào phần chính, nhắc lại một lần nữa: Heap là một công ty công bằng. Người có năng lực tự nhiên sẽ đi đến vị trí phù hợp với năng lực của mình.
 
-### 插入元素
+### Insert Element (Chèn phần tử)
 
-> 插入元素，作为一个新入职的员工，初来乍到，这个员工需要从基层做起
+> Insert element — như nhân viên mới vào công ty, mới đến cần bắt đầu từ vị trí thấp nhất.
 
-**1.将要插入的元素放到最后**
+**1. Đặt element cần insert vào cuối**
 
-![堆-插入元素-1](./pictures/堆/堆-插入元素1.png)
+![Heap Insert 1](./pictures/堆/堆-插入元素1.png)
 
-> 有能力的人会逐渐升职加薪，是金子总会发光的！！！
+> Người có năng lực sẽ dần được thăng chức tăng lương. Vàng thật không sợ lửa!
 
-**2.从底向上，如果父结点比该元素小，则该节点和父结点交换，直到无法交换**
+**2. Từ dưới lên trên, nếu parent node nhỏ hơn element này thì swap node với parent node. Lặp đến khi không thể swap nữa.**
 
-![堆-插入元素2](./pictures/堆/堆-插入元素2.png)
+![Heap Insert 2](./pictures/堆/堆-插入元素2.png)
 
-![堆-插入元素3](./pictures/堆/堆-插入元素3.png)
+![Heap Insert 3](./pictures/堆/堆-插入元素3.png)
 
-### 删除堆顶元素
+### Delete Heap Top Element (Xóa phần tử đỉnh)
 
-根据堆的性质可知，最大堆的堆顶元素为所有元素中最大的，最小堆的堆顶元素是所有元素中最小的。当我们需要多次查找最大元素或者最小元素的时候，可以利用堆来实现。
+Theo tính chất heap, phần tử đỉnh của max heap là lớn nhất trong tất cả, phần tử đỉnh của min heap là nhỏ nhất. Khi cần nhiều lần tìm max/min element, có thể dùng heap.
 
-删除堆顶元素后，为了保持堆的性质，需要对堆的结构进行调整，我们将这个过程称之为"**堆化**"，堆化的方法分为两种：
+Sau khi xóa heap top element, để duy trì tính chất heap cần điều chỉnh cấu trúc heap — quá trình này gọi là "**heapify (heap hóa)**". Có hai phương pháp heapify:
 
-- 一种是自底向上的堆化，上述的插入元素所使用的就是自底向上的堆化，元素从最底部向上移动。
-- 另一种是自顶向下堆化，元素由最顶部向下移动。在讲解删除堆顶元素的方法时，我将阐述这两种操作的过程，大家可以体会一下二者的不同。
+- **Bottom-up heapify**: Như insert element đã đề cập — element di chuyển từ đáy lên trên.
+- **Top-down heapify**: Element di chuyển từ đỉnh xuống dưới. Khi giải thích cách xóa heap top element, tôi sẽ trình bày cả hai quá trình để mọi người cảm nhận sự khác biệt.
 
-#### 自底向上堆化
+#### Bottom-up Heapify (Heap hóa từ dưới lên)
 
-> 在堆这个公司中，会出现老大离职的现象，老大离职之后，他的位置就空出来了
+> Trong công ty heap, sẽ có trường hợp sếp nghỉ việc. Sau khi sếp nghỉ, vị trí của họ để trống.
 
-首先删除堆顶元素，使得数组中下标为 1 的位置空出。
+Trước tiên xóa heap top element, làm trống vị trí index 1 trong mảng.
 
-![删除堆顶元素1](./pictures/堆/删除堆顶元素1.png)
+![Delete Heap Top 1](./pictures/堆/删除堆顶元素1.png)
 
-> 那么他的位置由谁来接替呢，当然是他的直接下属了，谁能力强就让谁上呗
+> Vậy ai sẽ thay thế vị trí đó? Tất nhiên là cấp dưới trực tiếp. Ai có năng lực mạnh thì lên!
 
-比较根结点的左子节点和右子节点，也就是下标为 2,3 的数组元素，将较大的元素填充到根结点(下标为 1)的位置。
+So sánh left child và right child của root node — tức element ở index 2 và 3 trong mảng. Điền element lớn hơn vào vị trí root node (index 1).
 
-![删除堆顶元素2](./pictures/堆/删除堆顶元素2.png)
+![Delete Heap Top 2](./pictures/堆/删除堆顶元素2.png)
 
-> 这个时候又空出一个位置了，老规矩，谁有能力谁上
+> Lúc này lại có một vị trí trống. Vẫn quy tắc cũ: ai có năng lực thì lên.
 
-一直循环比较空出位置的左右子节点，并将较大者移至空位，直到堆的最底部
+Liên tục so sánh left/right child của vị trí trống và di chuyển element lớn hơn vào vị trí trống. Lặp đến đáy heap.
 
-![删除堆顶元素3](./pictures/堆/删除堆顶元素3.png)
+![Delete Heap Top 3](./pictures/堆/删除堆顶元素3.png)
 
-这个时候已经完成了自底向上的堆化，没有元素可以填补空缺了，但是，我们可以看到数组中出现了“气泡”，这会导致存储空间的浪费。接下来我们试试自顶向下堆化。
+Lúc này đã hoàn thành bottom-up heapify. Không còn element để điền vào vị trí trống. Nhưng có thể thấy mảng có "bong bóng" — gây lãng phí storage space. Tiếp theo thử top-down heapify.
 
-#### 自顶向下堆化
+#### Top-down Heapify (Heap hóa từ trên xuống)
 
-自顶向下的堆化用一个词形容就是“石沉大海”，那么第一件事情，就是把石头抬起来，从海面扔下去。这个石头就是堆的最后一个元素，我们将最后一个元素移动到堆顶。
+Top-down heapify tóm gọn là "đá chìm xuống biển". Việc đầu tiên là nhấc hòn đá lên, ném xuống từ mặt biển. Hòn đá là element cuối cùng của heap — di chuyển element cuối lên heap top.
 
-![删除堆顶元素4](./pictures/堆/删除堆顶元素4.png)
+![Delete Heap Top 4](./pictures/堆/删除堆顶元素4.png)
 
-然后开始将这个石头沉入海底，不停与左右子节点的值进行比较，和较大的子节点交换位置，直到无法交换位置。
+Sau đó bắt đầu cho hòn đá chìm xuống đáy — liên tục so sánh với left/right child, swap với child lớn hơn, cho đến khi không thể swap nữa.
 
-![删除堆顶元素5](./pictures/堆/删除堆顶元素5.png)
+![Delete Heap Top 5](./pictures/堆/删除堆顶元素5.png)
 
-![删除堆顶元素6](./pictures/堆/删除堆顶元素6.png)
+![Delete Heap Top 6](./pictures/堆/删除堆顶元素6.png)
 
-### 堆的操作总结
+### Tổng kết thao tác Heap
 
-- **插入元素**：先将元素放至数组末尾，再自底向上堆化，将末尾元素上浮
-- **删除堆顶元素**：删除堆顶元素，将末尾元素放至堆顶，再自顶向下堆化，将堆顶元素下沉。也可以自底向上堆化，只是会产生“气泡”，浪费存储空间。最好采用自顶向下堆化的方式。
+- **Insert element**: Trước tiên đặt element vào cuối mảng, rồi bottom-up heapify — sift up element ở cuối.
+- **Delete heap top element**: Xóa heap top element, đặt element cuối vào heap top, rồi top-down heapify — sift down element ở đỉnh. Cũng có thể bottom-up heapify nhưng sẽ tạo "bong bóng" lãng phí storage space. Tốt nhất dùng top-down heapify.
 
-## 堆排序
+## Heap Sort (Sắp xếp đống)
 
-堆排序的过程分为两步：
+Quá trình heap sort gồm hai bước:
 
-- 第一步是建堆，将一个无序的数组建立为一个堆
-- 第二步是排序，将堆顶元素取出，然后对剩下的元素进行堆化，反复迭代，直到所有元素被取出为止。
+- Bước 1: Build heap — xây dựng mảng không có thứ tự thành một heap.
+- Bước 2: Sort — lấy heap top element ra, rồi heapify các element còn lại. Lặp đến khi tất cả element được lấy ra.
 
-### 建堆
+### Build Heap (Xây dựng Heap)
 
-如果你已经足够了解堆化的过程，那么建堆的过程掌握起来就比较容易了。建堆的过程就是一个对所有非叶节点的自顶向下堆化过程。
+Nếu đã hiểu rõ quá trình heapify, việc nắm build heap tương đối dễ. Build heap là quá trình top-down heapify đối với tất cả non-leaf node.
 
-首先要了解哪些是非叶节点，最后一个节点的父结点及它之前的元素，都是非叶节点。也就是说，如果节点个数为 n，那么我们需要对 n/2 到 1 的节点进行自顶向下（沉底）堆化。
+Trước tiên cần biết non-leaf node là những node nào. Parent node của node cuối cùng và tất cả element trước nó đều là non-leaf node. Tức là nếu có n node, chúng ta cần top-down heapify (sift down) các node từ n/2 đến 1.
 
-具体过程如下图：
+Quá trình cụ thể như hình dưới:
 
-![建堆1](./pictures/堆/建堆1.png)
+![Build Heap 1](./pictures/堆/建堆1.png)
 
-将初始的无序数组抽象为一棵树，图中的节点个数为 6，所以 4,5,6 节点为叶节点，1,2,3 节点为非叶节点，所以要对 1-3 号节点进行自顶向下（沉底）堆化，注意，顺序是从后往前堆化，从 3 号节点开始，一直到 1 号节点。
-3 号节点堆化结果：
+Trừu tượng hóa mảng không có thứ tự ban đầu thành một tree. Trong hình có 6 node, nên node 4, 5, 6 là leaf node. Node 1, 2, 3 là non-leaf node. Do đó cần top-down heapify (sift down) cho node 1-3. Lưu ý thứ tự là từ sau ra trước — bắt đầu từ node 3, đến node 1.
 
-![建堆1](./pictures/堆/建堆2.png)
+Kết quả heapify node 3:
 
-2 号节点堆化结果：
+![Build Heap 2](./pictures/堆/建堆2.png)
 
-![建堆1](./pictures/堆/建堆3.png)
+Kết quả heapify node 2:
 
-1 号节点堆化结果：
+![Build Heap 3](./pictures/堆/建堆3.png)
 
-![建堆1](./pictures/堆/建堆4.png)
+Kết quả heapify node 1:
 
-至此，数组所对应的树已经成为了一个最大堆，建堆完成！
+![Build Heap 4](./pictures/堆/建堆4.png)
 
-### 排序
+Đến đây, tree tương ứng với mảng đã trở thành max heap — build heap hoàn thành!
 
-由于堆顶元素是所有元素中最大的，所以我们重复取出堆顶元素，将这个最大的堆顶元素放至数组末尾，并对剩下的元素进行堆化即可。
+### Sort (Sắp xếp)
 
-现在思考两个问题：
+Vì heap top element là lớn nhất trong tất cả, chúng ta lặp lại việc lấy heap top element, đặt element lớn nhất này vào cuối mảng, rồi heapify các element còn lại.
 
-- 删除堆顶元素后需要执行自顶向下（沉底）堆化还是自底向上（上浮）堆化？
-- 取出的堆顶元素存在哪，新建一个数组存？
+Suy nghĩ về hai câu hỏi:
 
-先回答第一个问题，我们需要执行自顶向下（沉底）堆化，这个堆化一开始要将末尾元素移动至堆顶，这个时候末尾的位置就空出来了，由于堆中元素已经减小，这个位置不会再被使用，所以我们可以将取出的元素放在末尾。
+- Sau khi xóa heap top element cần top-down heapify hay bottom-up heapify?
+- Element heap top lấy ra cất ở đâu? Tạo mảng mới không?
 
-机智的小伙伴已经发现了，这其实是做了一次交换操作，将堆顶和末尾元素调换位置，从而将取出堆顶元素和堆化的第一步(将末尾元素放至根结点位置)进行合并。
+Trả lời câu hỏi đầu tiên: Cần top-down heapify. Khi heapify cần di chuyển element cuối lên heap top — lúc đó vị trí cuối trống ra. Vì số element trong heap đã giảm, vị trí này sẽ không dùng nữa, nên có thể đặt element lấy ra vào cuối.
 
-详细过程如下图所示：
+Bạn tinh mắt đã nhận ra đây thực ra là một lần swap — swap heap top với element cuối. Như vậy gộp việc lấy heap top element và bước đầu của heapify (đặt element cuối vào vị trí root) lại với nhau.
 
-取出第一个元素并堆化：
+Quá trình chi tiết như hình dưới:
 
-![堆排序1](./pictures/堆/堆排序1.png)
+Lấy element đầu tiên và heapify:
 
-取出第二个元素并堆化：
+![Heap Sort 1](./pictures/堆/堆排序1.png)
 
-![堆排序2](./pictures/堆/堆排序2.png)
+Lấy element thứ hai và heapify:
 
-取出第三个元素并堆化：
+![Heap Sort 2](./pictures/堆/堆排序2.png)
 
-![堆排序3](./pictures/堆/堆排序3.png)
+Lấy element thứ ba và heapify:
 
-取出第四个元素并堆化：
+![Heap Sort 3](./pictures/堆/堆排序3.png)
 
-![堆排序4](./pictures/堆/堆排序4.png)
+Lấy element thứ tư và heapify:
 
-取出第五个元素并堆化：
+![Heap Sort 4](./pictures/堆/堆排序4.png)
 
-![堆排序5](./pictures/堆/堆排序5.png)
+Lấy element thứ năm và heapify:
 
-取出第六个元素并堆化：
+![Heap Sort 5](./pictures/堆/堆排序5.png)
 
-![堆排序6](./pictures/堆/堆排序6.png)
+Lấy element thứ sáu và heapify:
 
-堆排序完成！
+![Heap Sort 6](./pictures/堆/堆排序6.png)
 
-<!-- @include: @article-footer.snippet.md -->
+Heap sort hoàn thành!

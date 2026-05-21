@@ -1,145 +1,145 @@
 ---
-title: 程序员高效出书避坑和实践指南
-description: "程序员高效出书避坑和实践指南：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: Hướng dẫn thực tiễn và tránh sai lầm khi xuất bản sách cho lập trình viên
+description: "Hướng dẫn thực tiễn và tránh sai lầm khi xuất bản sách cho lập trình viên: tổng hợp các khái niệm trọng tâm, câu hỏi phổ biến và điểm thực hành, giúp bạn học hiệu quả và chuẩn bị phỏng vấn."
+category: Tuyển tập bài viết kỹ thuật chất lượng cao
 author: hsm_computer
 tag:
-  - 程序员
+  - Lập trình viên
 head:
   - - meta
     - name: keywords
       content: 程序员出书,出书避坑,稿酬收益,出版社编辑,图书公司,案例书写作,版权问题,技术写作
 ---
 
-> **推荐语**：详细介绍了程序员出书的一些常见问题，强烈建议有出书想法的朋友看看这篇文章。
+> **Lời giới thiệu**: Bài viết này giới thiệu chi tiết một số vấn đề thường gặp khi lập trình viên muốn xuất bản sách, rất khuyến khích những ai có ý định viết sách đọc qua.
 >
-> **原文地址**：<https://www.cnblogs.com/JavaArchitect/p/14128202.html>
+> **Địa chỉ bài gốc**: <https://www.cnblogs.com/JavaArchitect/p/14128202.html>
 
-古有三不朽， 所谓立德、立功、立言。程序员出一本属于自己的书，如果说是立言，可能过于高大上，但终究也算一件雅事。
+Xưa có ba điều bất hủ: lập đức, lập công, lập ngôn. Lập trình viên xuất bản một cuốn sách của riêng mình, dù gọi là lập ngôn thì có vẻ cao siêu quá, nhưng cũng là một việc đáng làm.
 
-出书其实不挣钱，而且从写作到最终拿钱的周期也不短。但程序员如果有一本属于自己的技术书，那至少在面试中能很好地证明自己，也能渐渐地在业内积累自己的名气，面试和做其它事情时也能有不少底气。在本文里，本人就将结合自己的经验和自己踩过的坑，和大家聊聊程序员出书的那些事。
+Viết sách thực ra không kiếm được nhiều tiền, và chu kỳ từ lúc viết đến khi nhận tiền cũng không ngắn. Nhưng nếu lập trình viên có một cuốn sách kỹ thuật của riêng mình, ít nhất trong các buổi phỏng vấn có thể chứng minh được năng lực, và dần dần tích lũy được tên tuổi trong ngành, từ đó tự tin hơn khi phỏng vấn hay làm việc khác. Trong bài này, tôi sẽ chia sẻ kinh nghiệm cá nhân và những bài học đã trải qua về chuyện xuất bản sách của lập trình viên.
 
-## 1.出书的稿酬收益和所需要的时间
+## 1. Thu nhập từ bản quyền sách và thời gian cần bỏ ra
 
-先说下出书的收益和需要付出的代价，这里姑且先不谈“出书带来的无形资产”，先谈下真金白银的稿酬。
+Trước tiên nói về thu nhập và chi phí khi xuất bản sách. Tạm thời chưa đề cập đến "tài sản vô hình mà việc xuất bản sách mang lại", hãy nói thẳng về tiền nhuận bút.
 
-如果直接和出版社联系，一般稿酬是版税，是书价格的 8%乘以印刷数（或者实际销售数），如果你是大牛的话，还可以往上加，不过一般版税估计也就 10%到 12%。请注意这里的价格是书的全价，不是打折后的价格。
+Nếu liên hệ trực tiếp với nhà xuất bản, thông thường nhuận bút là tiền bản quyền, bằng 8% giá bìa sách nhân với số lượng in (hoặc số lượng bán thực tế). Nếu bạn là tác giả nổi tiếng thì có thể thương lượng lên cao hơn, nhưng thông thường tỷ lệ bản quyền ước chừng 10% đến 12%. Lưu ý rằng giá ở đây là giá bìa đầy đủ, không phải giá đã giảm.
 
-比如一本书全价是 70 块，在京东等地打 7 折销售，那么版税是 70 块的 8%，也就是说卖出一本作者能有 5.6 的收益，当然真实拿到手以后还再要扣税。
+Ví dụ, một cuốn sách giá bìa 70 tệ, bán trên JD.com với giá giảm 70%, thì tiền bản quyền là 8% của 70 tệ, tức là bán được một cuốn tác giả nhận được 5,6 tệ, tất nhiên khi thực nhận vẫn phải khấu trừ thuế.
 
-同时也请注意合同的约定是支付稿酬的方式是印刷数还是实际销售数，我和出版社谈的，一般是印刷数量，这有什么差别呢？现在计算机类的图书一般是首印 2500 册，那么实际拿到手的钱数是 70*8%*2500，当然还要扣税。但如果是按实际销售数量算的话，如果首印才销了 1800 本的话，那么就得按这个数量算钱了。
+Đồng thời cũng cần lưu ý xem hợp đồng quy định trả nhuận bút dựa trên số lượng in hay số lượng bán thực tế. Theo tôi thương lượng với nhà xuất bản, thường là dựa trên số lượng in. Điều này có sự khác biệt gì? Hiện nay sách máy tính thường in lần đầu 2.500 cuốn, thì số tiền thực nhận là 70 × 8% × 2.500, tất nhiên vẫn phải khấu trừ thuế. Nhưng nếu tính theo số lượng bán thực tế mà lần đầu chỉ bán được 1.800 cuốn, thì phải tính theo con số đó.
 
-现在一本 300 页的书，定价一般在 70 左右，按版税 8%和 2500 册算的话，税前收益是 14000，税后估计是 12000 左右，对新手作者的话，300 的书至少要写 8 个月，由此大家可以算下平均每个月的收益，算下来其实每月也就 1500 的收益，真不多。
+Một cuốn sách 300 trang hiện nay thường định giá khoảng 70 tệ, tính theo 8% bản quyền và 2.500 cuốn thì thu nhập trước thuế là 14.000 tệ, sau thuế ước chừng 12.000 tệ. Với tác giả mới, viết một cuốn 300 trang tốn ít nhất 8 tháng, từ đó bạn có thể tính thu nhập trung bình mỗi tháng — tính ra chỉ khoảng 1.500 tệ mỗi tháng, thực sự không nhiều.
 
-别人的情况我不敢说，但我出书以后，除了稿酬，还有哪些其它的收益呢？
+Ngoài nhuận bút, sau khi xuất bản sách tôi còn có những lợi ích gì khác?
 
-- 在当下和之前的公司面试时，告诉面试官我在相关方面出过书以后，面试官就直接会认为我很资深，帮我省了不少事情。
-- 我还在做线下的培训，我就直接拿我最近出的 Python 书做教材了，省得我再备课了。
-- 和别人谈项目，能用我的书证明自己的技术实力，如果是第一次和别人打交道，那么这种证明能立杆见效。
+- Khi phỏng vấn ở công ty hiện tại và trước đây, khi tôi nói với nhà tuyển dụng rằng mình đã xuất bản sách trong lĩnh vực liên quan, họ lập tức xem tôi là người có kinh nghiệm sâu, giúp tôi tiết kiệm được nhiều công sức.
+- Tôi còn đang làm đào tạo offline, tôi trực tiếp dùng cuốn sách Python mới nhất của mình làm giáo trình, không cần chuẩn bị bài giảng thêm nữa.
+- Khi đàm phán dự án với người khác, có thể dùng sách của mình để chứng minh năng lực kỹ thuật. Nếu gặp người lạ lần đầu, bằng chứng này có hiệu quả ngay lập tức.
 
-尤其是第一点，其实对一些小公司或者是一些外派开发岗而言，如果候选人在这个方面出过书，甚至都有可能免面试直接录取，本人之前面试过一个大公司的外派岗，就得到过这种待遇。
+Đặc biệt là điểm đầu tiên — đối với một số công ty nhỏ hoặc các vị trí phát triển phái cử, nếu ứng viên đã xuất bản sách trong lĩnh vực đó, thậm chí có thể được nhận thẳng mà không cần phỏng vấn. Trước đây tôi đã từng được đối xử như vậy khi phỏng vấn một vị trí phái cử tại công ty lớn.
 
-## 2.支付稿酬的时间点和加印后的收益
+## 2. Thời điểm trả nhuận bút và thu nhập khi tái bản
 
-我是和出版社直接联系出书，支付稿酬的时间点一般是在首印后的 3 个月内拿到首印部分稿酬的一部分（具体是 50%到 90%），然后在图书出版后的一年后再拿到其它部分的稿酬。当下有不少书，能销掉首印的册数就不错了，不过也有不少书能加印，甚至出第二和第三版，一般加印册数的版税会在加印后的半年到一年内结清。
+Tôi liên hệ trực tiếp với nhà xuất bản để xuất bản sách. Thời điểm trả nhuận bút thường là trong vòng 3 tháng sau khi in lần đầu, nhận được một phần (thường là 50% đến 90%) nhuận bút lần đầu, sau đó một năm sau khi sách xuất bản mới nhận phần còn lại. Hiện tại nhiều sách chỉ bán hết số lượng in lần đầu là tốt rồi, nhưng cũng có nhiều sách được tái bản, thậm chí ra phiên bản thứ hai và thứ ba. Thông thường tiền bản quyền của số lượng tái bản sẽ được thanh toán trong vòng sáu tháng đến một năm sau khi tái bản.
 
-从支付稿酬的时间点上来，对作者确实会有延迟，外加上稿酬也不算高，相对于作者的辛勤劳动，所以出书真不是挣钱的事，而且拿钱的周期还长。如果个别图书公司工作人员一方面在出书阶段对作者没什么帮助， 另一方面还要在中间再挣个差价，那么真有些作践作者的辛勤劳动了。
+Xét về thời điểm trả nhuận bút, tác giả thực sự phải chờ đợi, hơn nữa nhuận bút cũng không cao tương xứng với công sức. Vì vậy xuất bản sách thực sự không phải cách kiếm tiền, và chu kỳ nhận tiền còn dài. Nếu nhân viên công ty sách một mặt không hỗ trợ gì cho tác giả trong quá trình xuất bản, mặt khác lại lấy chênh lệch, thì đó là việc coi thường công sức của tác giả.
 
-## 3.同图书公司打交道的所见所闻
+## 3. Những điều tôi thấy và nghe khi giao dịch với công ty sách
 
-在和出版社编辑沟通前，我也和图书公司的工作人员交流过，不少工作人员对我也是比较尊重，交流虽然不算深入，但也算客气。不过最终对比出版社给出的稿酬等条件，我还是没有通过图书公司出书，这也是比较可惜的事情。下面我给出些具体的经历。
+Trước khi liên hệ với biên tập viên nhà xuất bản, tôi cũng đã trao đổi với nhân viên các công ty sách. Nhiều người trong số họ khá tôn trọng tôi, dù không nói chuyện sâu nhưng cũng lịch sự. Tuy nhiên, so sánh với các điều kiện nhuận bút mà nhà xuất bản đưa ra, cuối cùng tôi không xuất bản qua công ty sách, điều này cũng khá đáng tiếc. Dưới đây là một số trải nghiệm cụ thể.
 
-- 我经常在博客园等地收到一些图书公司工作人员的留言，问要不要出书，一般我不问，他们不会说自己是出版社编辑还是图书公司的工作人员。有个别图书公司的工作人员，会向作者，尤其是新手作者，说些“出版社编辑一般不会直接和作者联系”，以及“出书一般是通过图书公司”等的话。其实这些话不能算错，比如你不联系出版社编辑，那么对方自然不会直接联系你，但相反如果作者直接和出版社编辑联系，第一没难度，第二可能更直接。
-- 我和出版社编辑交流大纲时，即使大纲有不足，他们也能直接给出具体的修改意见，比如某个章节该写什么，某个小节的大纲该怎么写。而我和个别图书公司的工作人员交流过大纲时，得到的反馈大多是“要重写”，怎么个重写法？这些工作人员可能只能给出抽象的意见，什么都要我自己琢磨。在我之前的博文[程序员怎样出版一本技术书](./how-do-programmers-publish-a-technical-book)里，我就给出过具体的经历。
-- 由于交流不深，所以我没有和图书公司签订过出书协议，但我知道，只有出版社能出书。由于没有经历过，所以我也不知道图书公司在合同里是否有避规风险等条款，但我见过一位图书公司人员人员给出的一些退稿案例，并隐约流露出对作者的责备之意。细思感觉不妥，对接的工作人员第一不能在出问题的第一时间及时发现并向作者反馈，第二在出问题之后不能对应协调最终导致退稿，第三在退稿之后，作者在付出劳动的情况下图书公司不仅不用承担任何风险，并还能指摘作者。对此，退稿固然有作者的因素，但同是作者的我未免有兔死狐悲之谈。而我在出版社出书时，编辑有时候甚至会主动关心，主动给素材，哪怕有问题也会第一时间修改，所以甚至大范围修改稿件的情况都基本没有出现。
-- 再说下图书公司给作者的稿酬。我见过按页给钱，比如一页 30 到 50 块，并卖断版权，即书重印后作者也无法再得到稿酬，如果是按版税给钱，我也见过给 6%，至于图书公司能否给到 8 个点甚至更高，我没见到过，所以不知道，也不敢擅拟。
+- Tôi thường nhận được tin nhắn từ nhân viên công ty sách trên Blog Garden và các nơi khác, hỏi có muốn xuất bản sách không. Thông thường nếu tôi không hỏi, họ sẽ không tự nói mình là biên tập viên nhà xuất bản hay nhân viên công ty sách. Một số nhân viên công ty sách sẽ nói với tác giả, đặc biệt là tác giả mới: "Biên tập viên nhà xuất bản thường không liên hệ trực tiếp với tác giả" và "Xuất bản sách thường phải qua công ty sách". Thực ra những lời này không sai hoàn toàn — nếu bạn không liên hệ với biên tập viên nhà xuất bản thì tất nhiên họ không chủ động tìm bạn. Nhưng ngược lại, nếu tác giả liên hệ trực tiếp với biên tập viên nhà xuất bản thì thứ nhất không khó, thứ hai còn có thể trực tiếp hơn.
+- Khi tôi trao đổi đề cương với biên tập viên nhà xuất bản, dù đề cương có chỗ chưa tốt, họ vẫn đưa ra ý kiến sửa đổi cụ thể, ví dụ như một chương cần viết gì, đề cương một tiểu mục nên viết thế nào. Còn khi tôi trao đổi đề cương với một số nhân viên công ty sách, phần lớn phản hồi là "cần viết lại" — nhưng viết lại như thế nào? Những nhân viên này có thể chỉ đưa ra ý kiến trừu tượng, mọi thứ đều để tôi tự nghĩ. Tôi đã từng chia sẻ trải nghiệm cụ thể này trong bài viết trước [Lập trình viên xuất bản sách kỹ thuật như thế nào](./how-do-programmers-publish-a-technical-book).
+- Vì không nói chuyện sâu nên tôi chưa ký hợp đồng xuất bản với công ty sách nào, nhưng tôi biết chỉ có nhà xuất bản mới có thể xuất bản sách. Vì chưa có trải nghiệm nên tôi cũng không biết hợp đồng với công ty sách có điều khoản phân tán rủi ro hay không. Nhưng tôi đã từng thấy một số trường hợp trả lại bản thảo mà nhân viên công ty sách đề cập đến, và mờ nhạt nhận ra ý trách cứ tác giả. Nghĩ kỹ thấy không ổn: người phụ trách thứ nhất không thể phát hiện và phản hồi kịp thời khi xảy ra vấn đề; thứ hai không thể điều phối và giải quyết dẫn đến trả lại bản thảo; thứ ba sau khi trả lại bản thảo, tác giả đã bỏ công sức nhưng công ty sách không chỉ không chịu rủi ro gì mà còn có thể chỉ trích tác giả. Về điều này, dù trả lại bản thảo có lý do từ tác giả, nhưng với tư cách cũng là tác giả, tôi không khỏi có cảm giác thương xót. Còn khi xuất bản qua nhà xuất bản, biên tập viên đôi khi còn chủ động quan tâm, chủ động cung cấp tài liệu, kể cả có vấn đề cũng sửa ngay lập tức, vì vậy tình trạng phải sửa đổi lớn hầu như không xảy ra.
+- Còn về nhuận bút mà công ty sách trả cho tác giả: Tôi đã thấy trường hợp tính theo trang, ví dụ 30 đến 50 tệ mỗi trang, và bán đứt bản quyền — tức là sách tái bản tác giả cũng không nhận được thêm tiền. Nếu tính theo tỷ lệ bản quyền thì tôi từng thấy mức 6%, còn công ty sách có thể cho đến 8% hay cao hơn không, tôi chưa từng thấy nên không dám khẳng định.
 
-我交流过的图书公司工作人员不多，交流也不深，因为我现在主要是和出版社的编辑交流。所以以上只是我对个别图书公司编辑的感受，我无意以偏概全，而和我交流的一些图书公司工作人员至少态度上对我很尊重。所以大家也可以对比尝试下和图书公司以及出版社合作的不同方式。不管怎样，你在写书甚至在签出书协议前，你需要问清楚如下的事项，并且对方有义务让你了解如下的事实。
+Số nhân viên công ty sách tôi đã tiếp xúc không nhiều, cũng không nói chuyện sâu, vì hiện tại tôi chủ yếu trao đổi với biên tập viên nhà xuất bản. Vì vậy những điều trên chỉ là cảm nhận của tôi về một số nhân viên công ty sách cá biệt, không có ý khái quát hóa. Và một số nhân viên công ty sách tôi đã tiếp xúc ít nhất có thái độ rất tôn trọng tôi. Vì vậy bạn cũng có thể so sánh thử cả hai hình thức hợp tác với công ty sách và nhà xuất bản. Dù sao đi nữa, trước khi viết sách hoặc thậm chí trước khi ký hợp đồng xuất bản, bạn cần hỏi rõ những điều sau, và đối phương có nghĩa vụ để bạn hiểu những sự thật này.
 
-- 你得问清楚，对方的身份是出版社编辑还是图书公司工作人员，这其实应当是对方主动告之。
-- 你的书在哪个出版社出版？这点需要在出书协议里明确给出，不能是先完稿再定出版社。而且，最终能出版书的，一定是出版社，而不是图书公司。
-- 稿酬的支付方式，哪怕图书公司中间可能挣差价，但至少你得了解出版社能给到的稿酬。如果你是通过图书公司出的书，不管图书公司怎么和你谈的，但出版社给图书公司的钱一分不会少，中间部分应该就是图书公司的盈利。
-- 最终和你签订出书合同的，是图书公司还是出版社，这一定得在你签字前搞明白，哪怕你最终是和图书公司签协议，但至少得知道你还能直接和出版社签协议。
-- 你不能存有“在图书公司出书要求低”的想法，更不应该存有“我能力一般，所以只能在图书公司出书”的想法。图书公司自己是没有资格出书的，所以他们也是会把稿件交给出版社，所以该有的要求一点也不会低。你的大纲在出版社编辑那边通不过，那么在图书公司的工作人员那边同样通不过，哪怕你索要的稿酬少，图书公司方面对应的要求一定也不会降低。
+- Bạn cần hỏi rõ đối phương là biên tập viên nhà xuất bản hay nhân viên công ty sách — thực ra đây là điều đối phương nên chủ động nói trước.
+- Sách của bạn sẽ được xuất bản tại nhà xuất bản nào? Điều này cần ghi rõ trong hợp đồng xuất bản, không thể viết xong bản thảo rồi mới xác định nhà xuất bản. Hơn nữa, cuối cùng chỉ có nhà xuất bản mới có thể xuất bản sách, chứ không phải công ty sách.
+- Phương thức trả nhuận bút — dù công ty sách có thể lấy chênh lệch ở giữa, nhưng ít nhất bạn phải biết nhà xuất bản trả cho bao nhiêu. Nếu bạn xuất bản qua công ty sách, dù công ty sách thương lượng với bạn thế nào, nhà xuất bản trả cho công ty sách không thiếu một xu, phần ở giữa chính là lợi nhuận của công ty sách.
+- Hợp đồng xuất bản cuối cùng ký với công ty sách hay với nhà xuất bản — điều này nhất định phải rõ trước khi ký, dù cuối cùng bạn ký hợp đồng với công ty sách, ít nhất cũng phải biết rằng bạn có thể ký trực tiếp với nhà xuất bản.
+- Bạn không được có suy nghĩ "yêu cầu xuất bản qua công ty sách thấp hơn", càng không nên nghĩ "năng lực tôi bình thường nên chỉ có thể xuất bản qua công ty sách". Công ty sách tự mình không có tư cách xuất bản, họ cũng phải nộp bản thảo cho nhà xuất bản, vì vậy yêu cầu sẽ không thấp hơn chút nào. Đề cương của bạn không qua được biên tập viên nhà xuất bản thì cũng không qua được nhân viên công ty sách, dù bạn yêu cầu nhuận bút thấp hơn, yêu cầu từ phía công ty sách nhất định cũng không giảm xuống.
 
-如果你明知“图书公司和出版社的差别”，并还是和图书公司合作，这个是两厢情愿的事情。但如果对方“不主动告知”，而你在不了解两者差异的基础上同图书公司合作，那么对方也无可指摘。不过兼听则明，大家如果要出书，不妨和出版社和图书公司都去打打交道对比下。
+Nếu bạn biết rõ "sự khác biệt giữa công ty sách và nhà xuất bản" mà vẫn chọn hợp tác với công ty sách, đó là lựa chọn tự nguyện của hai bên. Nhưng nếu đối phương "không chủ động thông báo", và bạn hợp tác với công ty sách mà không hiểu rõ sự khác biệt, thì đối phương cũng không thể trách cứ được. Dù sao, nghe nhiều ý kiến sẽ sáng suốt hơn — nếu muốn xuất bản sách, hãy thử tiếp xúc và so sánh cả công ty sách lẫn nhà xuất bản.
 
-## 4.如何直接同国内计算机图书的知名出版社编辑联系
+## 4. Cách liên hệ trực tiếp với biên tập viên của các nhà xuất bản sách máy tính nổi tiếng trong nước
 
-我在清华大学出版社、机械工业出版社、北京大学出版社和电子工业出版社出过书，出书流程也比较顺畅，和编辑打交道也比较愉快。我个人无意把国内出版社划分成三六九等，但计算机行业，比较知名的出版社有清华、机工、电子工业和人邮这四家，当然其它出版社在计算机方面也出版过精品书。
+Tôi đã xuất bản sách tại Nhà xuất bản Đại học Thanh Hoa, Nhà xuất bản Công nghiệp Cơ khí, Nhà xuất bản Đại học Bắc Kinh và Nhà xuất bản Công nghiệp Điện tử. Quy trình xuất bản khá suôn sẻ và việc làm việc với biên tập viên cũng khá vui vẻ. Tôi cá nhân không có ý phân loại các nhà xuất bản trong nước, nhưng trong lĩnh vực máy tính, các nhà xuất bản khá nổi tiếng là Thanh Hoa, Công nghiệp Cơ khí, Công nghiệp Điện tử và Nhân Dân Bưu Điện. Tất nhiên các nhà xuất bản khác cũng đã xuất bản những cuốn sách chất lượng trong lĩnh vực máy tính.
 
-如何同这些知名出版社的编辑直接打交道？
+Làm thế nào để liên hệ trực tiếp với biên tập viên của những nhà xuất bản nổi tiếng này?
 
-- 直接到官网，一般官网上都直接有联系方式。
-- 你在博客园等地发表文章，会有人找你出书，其中除了图书公司的工作人员外，也有出版社编辑，一般出版社的编辑会直接说明身份，比如我是 xx 出版社的编辑 xx。
-- 本人也和些出版社的编辑联系过，大家如果要，我可以给。
+- Vào thẳng website chính thức — thông thường trang chính thức đều có thông tin liên hệ.
+- Khi bạn đăng bài trên Blog Garden và các nơi khác, sẽ có người tìm bạn để xuất bản sách. Ngoài nhân viên công ty sách còn có biên tập viên nhà xuất bản — thông thường biên tập viên nhà xuất bản sẽ giới thiệu rõ danh tính, ví dụ: "Tôi là biên tập viên xx của nhà xuất bản xx."
+- Tôi cũng đã liên hệ với một số biên tập viên nhà xuất bản, nếu cần tôi có thể giới thiệu.
 
-那怎么去找图书公司的工作人员？一般不用主动找，你发表若干博文后，他们会主动找你。如果你细问，“您是出版社编辑还是图书公司的编辑”，他们会表明身份，如果你再细问，那么他们可能会站在图书公司的立场上解释出版社和图书公司的差异。
+Còn tìm nhân viên công ty sách ở đâu? Thường không cần chủ động tìm, sau khi bạn đăng một số bài blog, họ sẽ tự tìm bạn. Nếu bạn hỏi cụ thể "Bạn là biên tập viên nhà xuất bản hay nhân viên công ty sách?", họ sẽ xác nhận danh tính. Nếu hỏi thêm, họ có thể đứng từ lập trường của công ty sách để giải thích sự khác biệt giữa nhà xuất bản và công ty sách.
 
-从中大家可以看到，不管你最终是否写成书，但去找知名出版社的编辑，并不难。并且，你找到后，他们还会进一步和你交流选题。
+Qua đó, dù bạn có viết thành sách hay không, việc tìm biên tập viên của nhà xuất bản nổi tiếng thực ra không khó. Và sau khi liên hệ, họ còn có thể tiếp tục trao đổi với bạn về chủ đề sách.
 
-## 5.定选题和出书的流程
+## 5. Quy trình xác định chủ đề và xuất bản sách
 
-这里给出我和出版社编辑交流合作，最终出书的流程。
+Đây là quy trình tôi hợp tác với biên tập viên nhà xuất bản để cuối cùng xuất bản sách.
 
-第一，联系上出版社编辑后，先讨论选题，你可以选择一个你比较熟悉的方向，或者你愿意专攻的方向，这个方向可以是 java 分布式组件，Spring cloud 全家桶，微服务，或者是 Python 数据分析，机器学习或深度学习等。这方面你如果有扎实的项目经验那最好，如果你当下虽然不熟悉，但你有毅力经过短时间的系统学习确保你写的内容能成系统或者能帮到别人，那么你也可以在这方面出书。
+Thứ nhất, sau khi liên hệ được với biên tập viên nhà xuất bản, hãy thảo luận về chủ đề. Bạn có thể chọn một lĩnh vực bạn quen thuộc hoặc muốn chuyên sâu — có thể là các component phân tán Java, bộ Spring Cloud, microservices, hoặc phân tích dữ liệu Python, machine learning hay deep learning. Nếu bạn có kinh nghiệm dự án vững chắc trong lĩnh vực đó thì tốt nhất; nếu chưa quen nhưng có đủ quyết tâm học có hệ thống trong thời gian ngắn để đảm bảo nội dung viết ra thành hệ thống hoặc có ích cho người khác, bạn cũng có thể xuất bản sách trong lĩnh vực đó.
 
-第二，定好选题方向后，你可以先列出大纲，比如以 Python 数据分析为例，你可以定 12 个章节，第一章讲语法，第二章讲 numpy 类等等，以此类推，你定大纲的时候，可以参考别人书的目录，从而制定你的写作内容。定好大纲以后，你可以和编辑交流，当编辑也认可这个大纲以后，就可以定出版协议。
+Thứ hai, sau khi xác định hướng chủ đề, bạn có thể liệt kê đề cương, ví dụ với phân tích dữ liệu Python bạn có thể định 12 chương: chương 1 giới thiệu cú pháp, chương 2 giới thiệu numpy, v.v. Khi lập đề cương có thể tham khảo mục lục sách của người khác. Sau khi có đề cương, trao đổi với biên tập viên, khi họ đồng ý thì có thể ký hợp đồng xuất bản.
 
-对一般作者而言，出版协议其实差不多，稿酬一般是 8 个点，写作周期是和出版社协商，支付周期可能也大同小异，然后出版社会买断这本书的电子以及各种文字的版权。但如果作者是大牛，那么这些细节都可以和出版社协商。
+Với hầu hết tác giả, hợp đồng xuất bản thường tương tự nhau — nhuận bút thường là 8%, thời gian viết thương lượng với nhà xuất bản, chu kỳ trả tiền có thể giống nhau, và nhà xuất bản sẽ mua lại bản quyền điện tử và các bản ngôn ngữ khác. Nhưng nếu tác giả là người nổi tiếng thì tất cả những chi tiết này đều có thể thương lượng.
 
-然后是写书，这是很枯燥的，尤其是写最后几章的时候。我一般是工作日每天用半小时，两天周末周末用 4,5 个小时写，这样一般半年能写完一本 300 页的书，关于高效写书的技巧，后文会详细提及。
+Tiếp theo là viết sách — đây là công việc rất nhàm chán, đặc biệt khi viết những chương cuối. Thông thường tôi viết nửa tiếng mỗi ngày trong tuần, cuối tuần viết 4-5 tiếng mỗi ngày. Như vậy thường có thể hoàn thành một cuốn 300 trang trong nửa năm. Về kỹ thuật viết sách hiệu quả, phần sau sẽ đề cập chi tiết.
 
-在写书时，一般建议每写好一个章节就交给编辑审阅，这样就不会导致太大问题的出现，而且如果是新手作者，刚开始的措辞和写作技巧都需要积累，这样出版社的编辑在开始阶段也能及时帮到作者。
+Khi viết sách, thông thường nên nộp từng chương cho biên tập viên xem sau khi viết xong, để tránh tích lũy quá nhiều vấn đề. Hơn nữa với tác giả mới, từ ngữ và kỹ thuật viết ban đầu cần tích lũy, biên tập viên nhà xuất bản có thể hỗ trợ tác giả kịp thời ngay từ đầu.
 
-当你写完把稿件交到编辑以后，可能会有三校三审的事情，在其中同我合作的编辑会帮助我修改语法和错别字等问题，然后会形成一个修改意见让我确认和修改。我了解下来，如果在图书公司出书，退稿的风险一般就发生在这个阶段，因为图书公司可能是会一次性地把稿件提交给出版社。但由于我会把每个章节都直接提交给出版社编辑审阅，所以即使有大问题，那么在写开始几个章节时都已经暴露并修改，所以最后的修改意见一般不会太长。也就是说，如果是直接和出版社沟通，在三校三审阶段，工作量可能未必大，我一般是在提交一本书以后，由编辑做这个事情，然后我就继续策划并开始写后一本书。
+Sau khi nộp bản thảo cho biên tập viên, có thể sẽ có quy trình đọc và kiểm tra ba lần. Trong đó biên tập viên hợp tác với tôi sẽ giúp sửa các lỗi ngữ pháp và chính tả, sau đó đưa ra ý kiến sửa đổi để tôi xác nhận và chỉnh sửa. Theo tôi tìm hiểu, nếu xuất bản qua công ty sách, rủi ro trả lại bản thảo thường xảy ra ở giai đoạn này vì công ty sách có thể nộp bản thảo cho nhà xuất bản một lần. Nhưng vì tôi nộp từng chương trực tiếp cho biên tập viên nhà xuất bản, nên kể cả có vấn đề lớn, từ vài chương đầu đã được phát hiện và sửa đổi, vì vậy ý kiến sửa đổi cuối cùng thường không dài. Tức là nếu liên hệ trực tiếp với nhà xuất bản, khối lượng công việc trong giai đoạn đọc và kiểm tra có thể không lớn. Thông thường sau khi nộp một cuốn sách, biên tập viên làm việc này, tôi lại tiếp tục lên kế hoạch và bắt đầu viết cuốn tiếp theo.
 
-最后就是拿稿酬，之前已经说了，作者其实不应该对稿酬有太大的期望，也就是聊胜于无。但如果一不小心写了本销量在 5000 乃至 10000 本左右的畅销书，那么可能在一年内也能有 5 万左右的额外收益，并能在业内积累些名气。
+Cuối cùng là nhận nhuận bút — như đã nói, tác giả không nên kỳ vọng quá cao vào nhuận bút, đó chỉ là phần thưởng nhỏ. Nhưng nếu vô tình viết được cuốn sách bán khoảng 5.000 đến 10.000 bản, thì có thể kiếm thêm khoảng 50.000 tệ trong một năm và tích lũy được tên tuổi trong ngành.
 
-## 6.出案例书比出经验书要快
+## 6. Viết sách minh họa nhanh hơn viết sách kinh nghiệm
 
-对一些作者而言，尤其是新手作者，出书不容易，往往是开始几个章节干劲十足，后面发现问题越积越多，外加工作一忙，就不了了之了，或者用 1 年以上的时间才能完成一本书。对此，我的感受是，一本 300 到 400 书的写作周期最长是 8 个月。为了能在这个时间段里完成一本书，我对应给出的建议是，新手作者可以写案例书，别先写介绍经验类的书。
+Với một số tác giả, đặc biệt là tác giả mới, xuất bản sách không dễ — thường là những chương đầu hào hứng lắm, về sau gặp ngày càng nhiều vấn đề, thêm vào đó công việc bận, cuối cùng bỏ dở, hoặc mất hơn một năm mới hoàn thành. Theo tôi, chu kỳ viết một cuốn 300-400 trang tối đa là 8 tháng. Để hoàn thành trong thời gian đó, tôi khuyên tác giả mới nên viết sách minh họa (case study), đừng vội viết sách chia sẻ kinh nghiệm.
 
-什么叫案例书？比如一本书里用一个大案例贯穿，系统介绍一个知识点，比如小程序开发，或者全栈开发等。或者一本书一个章节放一个案例，在一本书里给出 10 个左右 Python 深度学习方面的案例。什么叫经验类书呢？比如介绍面试经验的书就属于这这种，或者一些技术大牛写的介绍分布式高并发开发经验的书也算经验类书。
+Sách minh họa là gì? Ví dụ một cuốn sách dùng một case study lớn xuyên suốt để giới thiệu hệ thống một kiến thức, như phát triển mini program hay phát triển fullstack. Hoặc mỗi chương có một case study riêng, một cuốn sách có khoảng 10 case study về deep learning Python. Còn sách kinh nghiệm là gì? Ví dụ sách giới thiệu kinh nghiệm phỏng vấn, hoặc sách của các chuyên gia kỹ thuật nổi tiếng chia sẻ kinh nghiệm phát triển hệ thống phân tán hiệu năng cao.
 
-请注意这里并没有区分两类书的差异，只是对新手作者而言，案例书好写。因为在其中，更多的是看图说话，先给出案例（比如 Python 深度学习里的图像识别案例），然后通过案例介绍 API 的用法（比如 Python 对应库的用法），以及技术的综合要点（比如如何用 Python 库综合实现图像识别功能）。并且案例书里需要作者主观发挥的点比较少，作者无需用自己的话整理相关的经验。对新手作者而言，在组织文字介绍经验时，可能会有自己明白但说不上来的感觉，这样一方面就无法达到预期的效果，另一方面还有可能因为无法有效表述而导致进度的延迟。
+Ở đây không có ý so sánh hơn kém giữa hai loại sách, chỉ là đối với tác giả mới, sách minh họa dễ viết hơn. Vì trong đó chủ yếu là "nhìn hình nói chuyện" — trước tiên đưa ra case study (ví dụ case study nhận dạng hình ảnh trong deep learning Python), sau đó qua case study giới thiệu cách dùng API (ví dụ cách dùng thư viện Python tương ứng), cũng như những điểm kỹ thuật tổng hợp (ví dụ cách dùng thư viện Python để thực hiện tổng thể chức năng nhận dạng hình ảnh). Hơn nữa trong sách minh họa, tác giả cần thể hiện quan điểm chủ quan ít hơn, không cần tự mình tóm tắt kinh nghiệm liên quan. Với tác giả mới, khi tổ chức ngôn ngữ để chia sẻ kinh nghiệm, có thể gặp tình trạng tự hiểu nhưng không nói được — như vậy một mặt không đạt được hiệu quả mong muốn, mặt khác còn có thể khiến tiến độ bị chậm vì không thể diễn đạt hiệu quả.
 
-但相反对于案例书，第一案例一般可以借鉴别人的，第二介绍现存的技术总比介绍自己的经验要容易，第三一般还有同类的书可以供作者参考，所以作者不大需要斟酌措辞，新手作者用半年到八个月的时间也有可能写完一本。当作者通过写几本书积累一定经验后，再去挑战经验类书，在这种情况下，写出来的经验类书就有可能畅销了。
+Ngược lại với sách minh họa: thứ nhất case study có thể tham khảo của người khác; thứ hai giới thiệu công nghệ có sẵn dễ hơn giới thiệu kinh nghiệm của bản thân; thứ ba thường có sách cùng loại để tham khảo. Vì vậy tác giả ít cần cân nhắc từ ngữ, tác giả mới dành 6 đến 8 tháng cũng có thể hoàn thành. Khi tác giả đã tích lũy kinh nghiệm qua vài cuốn sách, hãy thử thách sách kinh nghiệm — lúc đó sách kinh nghiệm viết ra có thể bán chạy.
 
-那么具体而言，怎么高效出一本案例书呢？
+Vậy cụ thể, làm thế nào để viết hiệu quả một cuốn sách minh họa?
 
-- 对整本书而言，先用少量章节介绍搭建环境和通用基本语法的内容。
-- 在写每个章节案例时，用到总分总的结构，先总体介绍下你这个案例的需求功能，以及要用的技术点，再分开介绍每个功能点的代码实现，最后再总结下这些功能点的使用要点。
-- 在介绍案例中具体代码时，也可以用到总分总的结构，即先总体介绍下这段代码的结构，再分别给出关键代码的说明，最后再给出运行效果并综述其中技术的实现要点。
+- Với toàn bộ cuốn sách, dùng một vài chương đầu để giới thiệu cách cài đặt môi trường và cú pháp cơ bản chung.
+- Khi viết case study từng chương, dùng cấu trúc "tổng - phân - tổng": trước tiên giới thiệu tổng quan yêu cầu và tính năng của case study cũng như các điểm kỹ thuật sẽ dùng; tiếp theo trình bày riêng từng chức năng với code triển khai; cuối cùng tóm tắt các điểm sử dụng quan trọng của các chức năng đó.
+- Khi giới thiệu code cụ thể trong case study, cũng có thể dùng cấu trúc "tổng - phân - tổng": trước tiên giới thiệu tổng quan cấu trúc đoạn code; sau đó lần lượt giải thích các đoạn code quan trọng; cuối cùng nêu kết quả chạy và tóm tắt các điểm kỹ thuật triển khai.
 
-这样的话，刚开始可以是 1 个月一个章节，写到后面熟练以后估计一个月能写两个章节，这样 8 个月完成一本书，也就不是不可能了。
+Như vậy ban đầu có thể là 1 tháng 1 chương, sau khi quen dần thì mỗi tháng có thể viết được 2 chương, 8 tháng hoàn thành một cuốn sách không phải là điều không thể.
 
-## 7.如何在参考现有内容的基础上避免版权问题
+## 7. Cách tránh vấn đề bản quyền khi tham khảo nội dung có sẵn
 
-写书时，一般多少都需要参考现有的代码和现有的书，但这绝不是重复劳动。比如某位作者整合了不同网站上多个案例，然后系统地讲述了 Python 数据分析，这样虽然现成资料都有，但对读者来说，就能一站式学习。同样地，比如在 Python 神经网络方面，现有 2,3 本书分别给出了若干人脸识别等若干案例，但如果你有效整合到一起，并加他人的基础上加上你的功能，那对读者来说也是有价值的。
+Khi viết sách, thường ít nhiều phải tham khảo code và sách có sẵn, nhưng đây hoàn toàn không phải là sao chép lại. Ví dụ một tác giả tổng hợp nhiều case study từ các trang web khác nhau rồi trình bày hệ thống về phân tích dữ liệu Python — dù tài liệu có sẵn, nhưng với người đọc thì có thể học một lần tại một chỗ. Tương tự trong lĩnh vực mạng nơ-ron Python, có 2-3 cuốn sách đã đưa ra một số case study như nhận dạng khuôn mặt riêng lẻ, nhưng nếu bạn tích hợp hiệu quả tất cả lại và thêm vào chức năng của bạn, điều đó cũng có giá trị với người đọc.
 
-这里就涉及到版权问题，先要说明，作者不能抱有任何幻想，如果出了版权问题，书没出版还好，如果已经出版了，作者不仅要赔钱，而且在业内就会有不好的名声，可谓身败名裂。但其实要避免版权问题一点也不难。
+Điều này liên quan đến vấn đề bản quyền — cần nói rõ rằng tác giả không được có bất kỳ ảo tưởng nào. Nếu xảy ra vấn đề bản quyền, sách chưa xuất bản thì còn may, nếu đã xuất bản thì tác giả không chỉ phải bồi thường mà còn có tiếng xấu trong ngành, có thể nói là thân bại danh liệt. Nhưng thực ra tránh vấn đề bản quyền hoàn toàn không khó.
 
-- 不能抄袭网上现有的内容，哪怕一句也不行。对此，作者可以在理解人家语句含义的基础上改写。不能抄袭人家书上现有的目录，更不能抄袭人家书上的话，同样一句也不行，对应的解决方法同样是在理解的基础上改写。
-- 不能抄袭 GitHub 上或者任何地方别人的代码，哪怕这个代码是开源的。对此，你可以在理解对方代码的基础上，先运行通，然后一定得自己新建一个项目，在你的项目里参考别人的代码实现你的功能，在这个过程中不能有大段的复制粘贴操作。也就是说，你的代码和别人的代码，在注释，变量命名，类名和方法名上不能有雷同的地方，当然你还可以额外加上你自己的功能。
-- 至于在写技术和案例介绍时，你就可以用你自己的话来说，这样也不会出现版权问题。
+- Không được sao chép nội dung có sẵn trên mạng, dù chỉ một câu cũng không được. Để làm điều này, tác giả có thể viết lại dựa trên sự hiểu biết ý nghĩa của câu đó. Không được sao chép mục lục sách của người khác, càng không được sao chép từng chữ trong sách, tương tự dù chỉ một câu cũng không được. Cách giải quyết tương tự là viết lại sau khi hiểu.
+- Không được sao chép code của người khác trên GitHub hay bất kỳ nơi nào khác, dù code đó là mã nguồn mở. Để làm điều này, sau khi hiểu code của đối phương, hãy chạy thử trước, sau đó nhất định phải tự tạo một project mới, và trong project của bạn tham chiếu code của người khác để triển khai chức năng của bạn. Trong quá trình này không được copy-paste từng đoạn dài. Tức là code của bạn và code của người khác không được giống nhau về comment, đặt tên biến, tên class và tên phương thức. Tất nhiên bạn còn có thể thêm vào các chức năng của riêng bạn.
+- Còn khi viết giới thiệu kỹ thuật và case study, bạn có thể dùng ngôn ngữ của mình, như vậy cũng không xảy ra vấn đề bản quyền.
 
-用了上述办法以后，作者就可以在参考现有资料的基础上，充分加上属于你的功能，写上你独到的理解，从而高效地出版属于你自己的书。
+Áp dụng các phương pháp trên, tác giả có thể dựa trên tài liệu có sẵn để thêm vào đầy đủ chức năng của bạn, viết lên những hiểu biết độc đáo của bạn, từ đó xuất bản hiệu quả cuốn sách thuộc về chính mình.
 
-## 8.新手作者需要着着重避免的问题
+## 8. Những vấn đề tác giả mới cần đặc biệt tránh
 
-在上文里详细给出了出书的流程，并通过案例书，给出了具体的习作方法，这里就特别针对新手作者，给出些需要注意的实践要点。
+Phần trên đã trình bày chi tiết quy trình xuất bản sách và đưa ra phương pháp viết cụ thể qua sách minh họa. Ở đây tôi đặc biệt dành cho tác giả mới một số điểm thực hành cần chú ý.
 
-- 技术书不同于文艺书，在其中首先要确保把技能知识点讲清楚，然后再此基础上可以适当加上些风趣生动的措辞。所以对新手作者而言，甚至可以直接用朴素的文字介绍案例技术，而无需过多考虑文字上的生动性。
-- 内容需要针对初学者，在介绍技术时，从最基本的零基础讲起，别讲太深的。这里以 Python 机器学习为例，可以从什么是机器学习以及 Python 如何实现机器学习讲起，但如果首先就讲机器学习里的实践经验，就未必能确保初学者能学会。
-- 新手作者恨不得把自己知道的都写出来。这种态度非常好，但需要考虑读者的客观接受水平所以需要在写书前设置个预期效果，比如零基础的 Python 开发人员读了我的书以后至少能干活。这个预期效果别不可行，比如不能是“零基础的 Python 开发人员读了我书以后能达到 3 年开发的水准”。这样就可以根据预先制定的效果，制定写作内容，从在你的书就能更着重讲基础知识，这样读者就能有真正有收获。
+- Sách kỹ thuật khác sách văn học nghệ thuật — điều quan trọng nhất là đảm bảo trình bày rõ ràng các kiến thức kỹ thuật, sau đó mới có thể thêm vào một số diễn đạt thú vị sinh động. Vì vậy với tác giả mới, thậm chí có thể dùng ngôn ngữ đơn giản để giới thiệu kỹ thuật case study, không cần quá lo lắng về sự sinh động của ngôn từ.
+- Nội dung cần hướng đến người mới học. Khi giới thiệu kỹ thuật, bắt đầu từ nền tảng cơ bản nhất, đừng nói quá sâu. Lấy machine learning Python làm ví dụ, có thể bắt đầu từ machine learning là gì và Python triển khai machine learning như thế nào. Nhưng nếu bắt đầu ngay bằng kinh nghiệm thực hành trong machine learning thì chưa chắc đảm bảo người mới học được.
+- Tác giả mới muốn viết hết tất cả những gì mình biết. Thái độ đó rất tốt, nhưng cần xem xét khả năng tiếp nhận thực tế của người đọc. Vì vậy trước khi viết sách cần đặt ra mục tiêu kỳ vọng — ví dụ: sau khi đọc sách của tôi, người phát triển Python chưa có kiến thức nền ít nhất có thể làm việc được. Mục tiêu này đừng không thực tế, ví dụ "sau khi đọc sách người chưa có kiến thức nền đạt được trình độ 3 năm kinh nghiệm". Như vậy có thể dựa trên mục tiêu đã định sẵn để xác định nội dung viết, tập trung giảng dạy kiến thức cơ bản, người đọc mới thực sự có thu hoạch.
 
-不过话说回来，如果新手作者直接和出版社编辑联系，找个热门点的方向，并根据案例仔细讲解技术，甚至都有可能写出销量过万的畅销书。
+Nhưng nói đi thì cũng phải nói lại — nếu tác giả mới liên hệ trực tiếp với biên tập viên nhà xuất bản, chọn một hướng đang hot và giải thích kỹ lưỡng kỹ thuật qua case study, thậm chí có thể viết được cuốn sách bán trên vạn bản.
 
-## 9.总结：在国内知名出版社出书，其实是个体力活
+## 9. Tóm tắt: Xuất bản sách tại nhà xuất bản nổi tiếng trong nước thực ra là việc cần nỗ lực kiên trì
 
-可能当下，写公众号和录视频等的方式，挣钱收益要高于出书，不过话可以这样说，经营公众号和录制视频也是个长期的事情，在短时间里可能未必有收益，如果不是系统地发表内容的话，可能甚至不会有收益。所以出书可能是个非常好的前期准备工作，你靠出书系统积累了素材，靠出书整合了你的知识体系，那么在此基础上，靠公众号或者录视频挣钱可能就会事半功倍。
+Hiện nay viết tài khoản công khai và quay video có thể kiếm được thu nhập cao hơn xuất bản sách. Nhưng nói thật, vận hành tài khoản công khai và quay video cũng là công việc lâu dài, trong thời gian ngắn có thể chưa có thu nhập, nếu không đăng nội dung một cách có hệ thống thì thậm chí không có thu nhập gì. Vì vậy xuất bản sách có thể là bước chuẩn bị tốt từ đầu — bạn tích lũy tài liệu có hệ thống qua việc xuất bản sách, tích hợp hệ thống kiến thức của bạn, từ đó kiếm tiền qua tài khoản công khai hay video có thể đạt hiệu quả gấp đôi.
 
-从上文里大家可以看到，在出书前期，联系出版社编辑和定选题并不难，如果要写案例书，那么在参考别人内容的基础上，要写完一般书可能也不是高不可攀的事情。甚至可以这样说，出书是个体力活，只要坚持，要出本书并不难，只是你愿不愿意坚持下去的问题。但一旦你有了属于自己的技术书，那么在找工作时，你就能自信地和面试官说你是这方面的专家，在你的视频、公众号和文字里，你也能正大光明地说，你是计算机图书的作者。更为重要的是，和名校、大厂经历一样，属于你的技术书同样是证明程序员能力的重要证据，当你通过出书有效整合了相关方面的知识体系后，那么在这方面，不管是找工作，或者是干私活，或者是接项目做，你都能理直气壮地和别人说：我能行！
+Qua phần trên, bạn có thể thấy rằng trong giai đoạn đầu, liên hệ biên tập viên nhà xuất bản và xác định chủ đề sách không khó. Nếu viết sách minh họa, dựa trên nội dung của người khác mà hoàn thành một cuốn sách thông thường cũng không phải điều cao siêu không thể đạt. Thậm chí có thể nói, xuất bản sách là việc cần nỗ lực kiên trì — chỉ cần bền bỉ, xuất bản được một cuốn sách không khó, vấn đề là bạn có muốn kiên trì không. Nhưng một khi bạn có cuốn sách kỹ thuật của riêng mình, khi tìm việc bạn có thể tự tin nói với nhà tuyển dụng rằng mình là chuyên gia trong lĩnh vực đó; trong video, tài khoản công khai và bài viết của bạn, bạn cũng có thể đàng hoàng tự nhận là tác giả sách máy tính. Quan trọng hơn, cũng như xuất thân từ trường danh tiếng và công ty lớn, cuốn sách kỹ thuật của bạn là bằng chứng quan trọng để chứng minh năng lực của lập trình viên. Sau khi tích hợp hiệu quả hệ thống kiến thức trong lĩnh vực đó qua việc xuất bản sách, dù là tìm việc, làm freelance hay nhận dự án, bạn đều có thể tự tin nói với người khác: Tôi làm được!
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,72 +1,72 @@
 ---
-title: Java 优质开源开发工具
-description: Java优质开源开发工具推荐，涵盖代码质量检查、项目构建、测试框架、容器化部署等开发必备工具精选。
-category: 开源项目
+title: Java open source development tools chất lượng
+description: Gợi ý các Java open source development tools chất lượng, tuyển chọn các công cụ phát triển cần thiết bao gồm code quality check, project build, testing frameworks, containerized deployment.
+category: Open Source Projects
 icon: tool
 ---
 
-## 代码质量
+## Code Quality
 
-- [SonarQube](https://github.com/SonarSource/sonarqube "sonarqube")：静态代码检查工具，，帮助检查代码缺陷，可以快速的定位代码中潜在的或者明显的错误，改善代码质量，提高开发速度。
-- [Spotless](https://github.com/diffplug/spotless)：Spotless 是支持多种语言的代码格式化工具，支持 Maven 和 Gradle 以 Plugin 的形式构建。
-- [CheckStyle](https://github.com/checkstyle/checkstyle "checkstyle") : 类似于 Spotless，可帮助程序员编写符合编码标准的 Java 代码。
-- [PMD](https://github.com/pmd/pmd "pmd") : 可扩展的多语言静态代码分析器。
-- [SpotBugs](https://github.com/spotbugs/spotbugs "spotbugs") : FindBugs 的继任者。静态分析工具，用于查找 Java 代码中的错误。
-- [P3C](https://github.com/alibaba/p3c "p3c")：Alibaba Java Coding Guidelines pmd implements and IDE plugin。Eclipse 和 IDEA 上都有该插件。
+- [SonarQube](https://github.com/SonarSource/sonarqube "sonarqube"): Static code analysis tool, giúp phát hiện code defects, nhanh chóng locate các lỗi tiềm ẩn hoặc rõ ràng trong code, cải thiện code quality, tăng tốc phát triển.
+- [Spotless](https://github.com/diffplug/spotless): Code formatting tool hỗ trợ nhiều ngôn ngữ, hỗ trợ Maven và Gradle dưới dạng Plugin.
+- [CheckStyle](https://github.com/checkstyle/checkstyle "checkstyle"): Tương tự Spotless, giúp programmer viết Java code theo coding standards.
+- [PMD](https://github.com/pmd/pmd "pmd"): Extensible multi-language static code analyzer.
+- [SpotBugs](https://github.com/spotbugs/spotbugs "spotbugs"): Kế thừa của FindBugs. Static analysis tool để tìm lỗi trong Java code.
+- [P3C](https://github.com/alibaba/p3c "p3c"): Alibaba Java Coding Guidelines PMD implements và IDE plugin. Có plugin cho cả Eclipse và IDEA.
 
-## 项目构建
+## Project Build
 
-- [Maven](https://maven.apache.org/)：一个软件项目管理和理解工具。基于项目对象模型 (Project Object Model，POM) 的概念，Maven 可以从一条中心信息管理项目的构建、报告和文档。详细介绍：[Maven 核心概念总结](https://javaguide.cn/tools/maven/maven-core-concepts.html)。
-- [Gradle](https://gradle.org/) ：一个开源的构建自动化工具，它足够灵活，可以构建几乎任何类型的软件。Gradle 对你要构建什么或者如何构建它做了很少的假设，这使得 Gradle 特别灵活。详细介绍：[Gradle 核心概念总结](https://javaguide.cn/tools/gradle/gradle-core-concepts.html)。
+- [Maven](https://maven.apache.org/): Software project management và comprehension tool. Dựa trên khái niệm Project Object Model (POM), Maven có thể quản lý build, report và documentation của project từ một central piece of information. Chi tiết: [Maven Core Concepts Summary](https://javaguide.cn/tools/maven/maven-core-concepts.html).
+- [Gradle](https://gradle.org/): Open source build automation tool, đủ flexible để build gần như mọi loại software. Gradle đưa ra ít giả định về những gì bạn muốn build hay cách build, khiến Gradle đặc biệt flexible. Chi tiết: [Gradle Core Concepts Summary](https://javaguide.cn/tools/gradle/gradle-core-concepts.html).
 
-## 反编译
+## Decompiler
 
-- [JADX](https://github.com/skylot/jadx)：用于从 Android Dex 和 Apk 文件生成 Java 源代码的命令行和 GUI 工具。
-- [JD-GUI](https://github.com/java-decompiler/jd-gui):一个独立的 GUI 工具，可显示 CLASS 文件中的 Java 源代码。
+- [JADX](https://github.com/skylot/jadx): Command line và GUI tool để generate Java source code từ Android Dex và Apk files.
+- [JD-GUI](https://github.com/java-decompiler/jd-gui): Standalone GUI tool có thể hiển thị Java source code trong CLASS files.
 
-## 数据库
+## Database
 
-### 数据库建模
+### Database Modeling
 
-- [CHINER](https://gitee.com/robergroup/chiner)：开源免费的国产数据库建模工具。目标是做一款丰富数据库生态，独立于具体数据库之外的，数据库关系模型设计平台。前生是 [PDMan](https://gitee.com/robergroup/pdman)，定位为 PowerDesigner 的免费替代方案。
+- [CHINER](https://gitee.com/robergroup/chiner): Open source free domestic database modeling tool. Mục tiêu là tạo một database relationship model design platform phong phú về database ecosystem, độc lập với các database cụ thể. Tiền thân là [PDMan](https://gitee.com/robergroup/pdman), được định vị là free alternative cho PowerDesigner.
 
-开源的数据库建模工具比较少，以下是一些非开源的数据库建模工具（部分需要付费才能使用） :
+Open source database modeling tools khá ít, dưới đây là một số non-open source database modeling tools (một số cần trả phí):
 
-- [MySQL Workbench](https://www.mysql.com/products/workbench/) : MySQL 官方为数据库架构师、开发人员和 DBA 提供的一个可视化工具。 MySQL Workbench 支持数据建模，SQL 开发以及服务器配置、用户管理、性能优化、数据库备份以及迁移等功能，支持 Windows、Linux 和 Mac OS X 平台。
-- [Navicat Data Modeler](https://www.navicat.com.cn/products/navicat-data-modeler) : 一款强大的和符合成本效益的数据库设计工具，它能帮助用户创建高质素的概念、逻辑和物理数据模型。让你可视化地设计数据库结构、执行逆向或正向工程程序、从 ODBC 数据源导入模型、生成复杂的 SQL/DDL 和打印模型到文件等。付费。
-- [DbSchema](https://dbschema.com/) : 一款功能强大的数据库设计和管理的可视化工具，支持几乎所有的关系型和 NoSQL 数据库。付费。
-- [dbdiagram.io](https://dbdiagram.io/home) : 是一款简单免费的在线 ER 图绘制工具，通过编写代码创建模型，专为开发人员和数据分析师而设计。它通过一个简单的自定义语言来生成数据模型，支持 MySQL、PostgreSQL、SQL Server 数据库 DDL 文件的正向工程和逆向工程、版本历史、在线共享、导出图片或者 PDF 等功能。dbdiagram.io 提供了免费版。
+- [MySQL Workbench](https://www.mysql.com/products/workbench/): Visual tool do MySQL official cung cấp cho database architects, developers và DBA. MySQL Workbench hỗ trợ data modeling, SQL development cũng như server configuration, user management, performance optimization, database backup và migration, hỗ trợ Windows, Linux và macOS.
+- [Navicat Data Modeler](https://www.navicat.com.cn/products/navicat-data-modeler): Powerful và cost-effective database design tool, giúp user tạo conceptual, logical và physical data models chất lượng cao. Trả phí.
+- [DbSchema](https://dbschema.com/): Powerful visual tool để database design và management, hỗ trợ hầu hết relational và NoSQL databases. Trả phí.
+- [dbdiagram.io](https://dbdiagram.io/home): Simple free online ER diagram tool, tạo model bằng cách viết code, thiết kế cho developers và data analysts. Có free version.
 
-### 数据库管理
+### Database Management
 
-- [Chat2DB](https://github.com/alibaba/Chat2DB)：阿里巴巴开源的一款智能的通用数据库工具和 SQL 客户端，支持 Windows、Mac 本地安装，也支持服务器端部署，Web 网页访问。和传统的数据库客户端软件 Navicat、DBeaver 相比 Chat2DB 集成了 AIGC 的能力，支持自然语言生成 SQL、SQL 性能优化等功能。
-- [Beekeeper Studio](https://github.com/beekeeper-studio/beekeeper-studio)：跨平台数据库管理工具，颜值高，支持 SQLite、MySQL、MariaDB、Postgres、CockroachDB、SQL Server、Amazon Redshift。
-- [Sequel Pro](https://github.com/sequelpro/sequelpro)：适用于 macOS 的 MySQL/MariaDB 数据库管理工具。
-- [DBeaver](https://github.com/dbeaver/dbeaver)：一个基于 Java 开发 ，并且支持几乎所有的数据库产品的开源数据库管理工具。DBeaver 社区版不光支持关系型数据库比如 MySQL、PostgreSQL、MariaDB、SQLite、Oracle、Db2、SQL Server，还比如 SQLite、H2 这些内嵌数据库。还支持常见的全文搜索引擎比如 Elasticsearch 和 Solr、大数据相关的工具比如 Hive 和 Spark。
-- [Kangaroo](https://gitee.com/dbkangaroo/kangaroo)：袋鼠是一款为热门数据库系统打造的管理客户端(SQLite / MySQL / PostgreSQL / ...) ，支持建表、查询、模型、同步、导入导出等功能，支持 Windows / Mac / Linux 等操作系统，力求打造成好用、好玩、开发友好的 SQL 工具。
-- [Arctype](https://arctype.com/)：一个桌面的数据库查询工具，可以连接各种数据库，在其中执行 SQL 语句，以可视化形式展示数据。
-- [Mongood](https://github.com/RenzHoly/Mongood) : MongoDB 图形化的管理工具。基于微软 Fluent UI，支持自动黑暗模式。
+- [Chat2DB](https://github.com/alibaba/Chat2DB): Intelligent general database tool và SQL client mã nguồn mở của Alibaba, hỗ trợ cài đặt local trên Windows, Mac và server-side deployment với Web access. So với traditional database client software như Navicat, DBeaver, Chat2DB tích hợp AIGC capabilities, hỗ trợ natural language to SQL, SQL performance optimization v.v.
+- [Beekeeper Studio](https://github.com/beekeeper-studio/beekeeper-studio): Cross-platform database management tool, đẹp, hỗ trợ SQLite, MySQL, MariaDB, Postgres, CockroachDB, SQL Server, Amazon Redshift.
+- [Sequel Pro](https://github.com/sequelpro/sequelpro): MySQL/MariaDB database management tool cho macOS.
+- [DBeaver](https://github.com/dbeaver/dbeaver): Open source database management tool phát triển dựa trên Java, hỗ trợ hầu hết các database products. DBeaver community edition hỗ trợ relational databases như MySQL, PostgreSQL, MariaDB, SQLite, Oracle, Db2, SQL Server, embedded databases như SQLite, H2, full-text search engines như Elasticsearch và Solr, big data tools như Hive và Spark.
+- [Kangaroo](https://gitee.com/dbkangaroo/kangaroo): Management client xây dựng cho các popular database systems (SQLite/MySQL/PostgreSQL/...), hỗ trợ tạo bảng, query, modeling, sync, import/export và các tính năng khác. Hỗ trợ Windows/Mac/Linux.
+- [Arctype](https://arctype.com/): Desktop database query tool, có thể kết nối với nhiều database, thực thi SQL và hiển thị data dưới dạng visual.
+- [Mongood](https://github.com/RenzHoly/Mongood): MongoDB graphical management tool. Dựa trên Microsoft Fluent UI, hỗ trợ auto dark mode.
 
 ### Redis
 
-- [Another Redis Desktop Manager](https://github.com/qishibo/AnotherRedisDesktopManager/blob/master/README.zh-CN.md)：更快、更好、更稳定的 Redis 桌面(GUI)管理客户端，兼容 Windows、Mac、Linux。
-- [Tiny RDM](https://github.com/tiny-craft/tiny-rdm)：一个更现代化的 Redis 桌面(GUI)管理客户端，基于 Webview2，兼容 Windows、Mac、Linux。
-- [Redis Manager](https://github.com/ngbdf/redis-manager)：Redis 一站式管理平台，支持集群（cluster、master-replica、sentinel）的监控、安装（除 sentinel）、管理、告警以及基本的数据操作功能。
-- [CacheCloud](https://github.com/sohutv/cachecloud)：一个 Redis 云管理平台，支持 Redis 多种架构(Standalone、Sentinel、Cluster)高效管理、有效降低大规模 Redis 运维成本，提升资源管控能力和利用率。
-- [RedisShake](https://github.com/tair-opensource/RedisShake)：一个用于处理和迁移 Redis 数据的工具。
+- [Another Redis Desktop Manager](https://github.com/qishibo/AnotherRedisDesktopManager/blob/master/README.zh-CN.md): Redis desktop (GUI) management client nhanh hơn, tốt hơn, ổn định hơn, tương thích với Windows, Mac, Linux.
+- [Tiny RDM](https://github.com/tiny-craft/tiny-rdm): Redis desktop (GUI) management client hiện đại hơn, dựa trên Webview2, tương thích với Windows, Mac, Linux.
+- [Redis Manager](https://github.com/ngbdf/redis-manager): Redis one-stop management platform, hỗ trợ monitoring, installation (except sentinel), management, alerting và basic data operations cho clusters (cluster, master-replica, sentinel).
+- [CacheCloud](https://github.com/sohutv/cachecloud): Redis cloud management platform, hỗ trợ efficient management của nhiều Redis architectures (Standalone, Sentinel, Cluster), giảm đáng kể large-scale Redis ops cost.
+- [RedisShake](https://github.com/tair-opensource/RedisShake): Tool để processing và migrating Redis data.
 
 ## Docker
 
-- [Portainer](https://github.com/portainer/portainer)：可视化管理 Docker，Web 应用的形式。
-- [lazydocker](https://github.com/jesseduffield/lazydocker)：适用于 docker 和 docker-compose 的简单终端 UI。
+- [Portainer](https://github.com/portainer/portainer): Visual management của Docker dưới dạng Web application.
+- [lazydocker](https://github.com/jesseduffield/lazydocker): Simple terminal UI cho docker và docker-compose.
 
 ## ZooKeeper
 
-- [PrettyZoo](https://github.com/vran-dev/PrettyZoo)：一个基于 Apache Curator 和 JavaFX 实现的 ZooKeeper 图形化管理客户端，颜值非常高，支持 Mac / Windows / Linux 。你可以使用 PrettyZoo 来实现对 ZooKeeper 的可视化增删改查。
-- [zktools](https://zktools.readthedocs.io/en/latest/#installing)：一个低延迟的 ZooKeeper 图形化管理客户端，颜值非常高，支持 Mac / Windows / Linux 。你可以使用 zktools 来实现对 ZooKeeper 的可视化增删改查。
+- [PrettyZoo](https://github.com/vran-dev/PrettyZoo): ZooKeeper graphical management client được triển khai dựa trên Apache Curator và JavaFX, giao diện rất đẹp, hỗ trợ Mac/Windows/Linux. Bạn có thể dùng PrettyZoo để visual CRUD trên ZooKeeper.
+- [zktools](https://zktools.readthedocs.io/en/latest/#installing): Low-latency ZooKeeper graphical management client, giao diện rất đẹp, hỗ trợ Mac/Windows/Linux.
 
 ## Kafka
 
-- [Kafka UI](https://github.com/provectus/kafka-ui)：免费的开源 Web UI，用于监控和管理 Apache Kafka 集群。
-- [Kafdrop](https://github.com/obsidiandynamics/kafdrop) : 一个用于查看 Kafka 主题和浏览消费者组的 Web UI。
-- [EFAK](https://github.com/smartloli/EFAK) （Eagle For Apache Kafka，以前叫做 Kafka Eagle）：一个简单的高性能监控系统，用于对 Kafka 集群进行全面的监控和管理。
+- [Kafka UI](https://github.com/provectus/kafka-ui): Free open source Web UI để monitoring và managing Apache Kafka clusters.
+- [Kafdrop](https://github.com/obsidiandynamics/kafdrop): Web UI để xem Kafka topics và browse consumer groups.
+- [EFAK](https://github.com/smartloli/EFAK) (Eagle For Apache Kafka, trước đây là Kafka Eagle): Simple high-performance monitoring system để comprehensive monitoring và management của Kafka cluster.

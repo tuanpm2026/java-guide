@@ -1,239 +1,237 @@
 ---
-title: CDN工作原理详解
-description: 本文详解 CDN（内容分发网络）的核心原理，涵盖 GSLB 全局负载均衡调度机制、CDN 缓存策略（预热/回源/刷新）、命中率与回源率优化，以及 Referer 防盗链与时间戳防盗链等安全机制，帮助你全面掌握 CDN 加速技术。
-category: 高性能
+title: Giải thích chi tiết nguyên lý hoạt động CDN
+description: Bài này giải thích chi tiết nguyên lý cốt lõi của CDN (Content Delivery Network), bao gồm cơ chế GSLB global load balancing scheduling, CDN cache strategy (prefetch/origin pull/refresh), cache hit rate và origin pull rate optimization, cùng các cơ chế bảo mật như Referer hotlink protection và timestamp hotlink protection, giúp nắm toàn diện công nghệ CDN acceleration.
+category: High Performance
 head:
   - - meta
     - name: keywords
-      content: CDN,内容分发网络,GSLB,CDN缓存,CDN回源,CDN预热,防盗链,时间戳防盗链,静态资源加速
+      content: CDN,content delivery network,GSLB,CDN cache,CDN origin pull,CDN prefetch,hotlink protection,timestamp hotlink protection,static resource acceleration
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-## 什么是 CDN ？
+## CDN là gì?
 
-**CDN** 全称是 Content Delivery Network/Content Distribution Network，翻译过的意思是 **内容分发网络** 。
+**CDN** là viết tắt của Content Delivery Network/Content Distribution Network — dịch ra là **mạng phân phối nội dung**.
 
-我们可以将内容分发网络拆开来看：
+Có thể phân tích Content Delivery Network thành từng phần:
 
-- **内容**：指的是静态资源，包括图片、视频、文档、JS、CSS、HTML 等。
-- **分发网络**：指的是将这些静态资源分发到位于多个不同地理位置机房中的服务器上，从而实现**就近访问**——例如北京的用户直接访问北京机房的数据。
+- **Content (Nội dung)**: Chỉ static resource, bao gồm ảnh, video, document, JS, CSS, HTML, v.v.
+- **Delivery Network (Mạng phân phối)**: Chỉ việc phân phối các static resource này đến server tại nhiều data center ở các vị trí địa lý khác nhau, từ đó triển khai **local access** — ví dụ user ở Hà Nội truy cập trực tiếp data từ data center Hà Nội.
 
-简单来说，**CDN 就是将静态资源分发到多个不同的地方以实现就近访问，进而加快静态资源的访问速度，减轻源站服务器以及带宽的负担。**
+Nói đơn giản: **CDN là phân phối static resource đến nhiều địa điểm khác nhau để triển khai local access, từ đó tăng tốc truy cập static resource, giảm tải cho origin server và bandwidth.**
 
-类似于京东建立的庞大仓储运输体系，京东物流在全国拥有非常多的仓库，仓储网络几乎覆盖全国所有区县。这样的话，用户下单的第一时间，商品就从距离用户最近的仓库直接发往对应的配送站，再由京东小哥送到你家。
+Tương tự như hệ thống kho bãi và vận chuyển khổng lồ của JD.com — JD Logistics có rất nhiều kho trên toàn quốc, mạng lưới kho hàng gần như bao phủ toàn bộ quận huyện. Như vậy ngay khi user đặt hàng, sản phẩm được gửi trực tiếp từ kho gần nhất đến trạm giao hàng tương ứng, rồi JD delivery giao đến tận nhà.
 
-![京东仓配系统](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/jingdong-wuliu-cangpei.png)
+![JD Warehouse & Distribution System](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/jingdong-wuliu-cangpei.png)
 
-你可以将 CDN 看作是服务上一层的**特殊缓存服务**，分布在全国各地，主要用来处理静态资源的请求。
+Có thể coi CDN như **special cache service** ở tầng trên cùng của service, phân tán trên khắp cả nước, chủ yếu để xử lý request cho static resource.
 
-![CDN 简易示意图](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-101.png)
+![CDN Simple Diagram](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-101.png)
 
-我们经常拿全站加速和内容分发网络做对比，不要把两者搞混了！**全站加速**（不同云服务商叫法不同，腾讯云叫 ECDN、阿里云叫 DCDN）既可以加速静态资源又可以加速动态资源，而**内容分发网络（CDN）** 主要针对的是 **静态资源** 。
+Chúng ta thường so sánh full-site acceleration và CDN — đừng nhầm lẫn hai cái! **Full-site acceleration** (các cloud provider gọi khác nhau: Tencent Cloud gọi là ECDN, Alibaba Cloud gọi là DCDN) có thể accelerate cả static và dynamic resource. Còn **CDN (Content Delivery Network)** chủ yếu nhắm vào **static resource**.
 
-![阿里云文档：https://help.aliyun.com/document_detail/64836.html](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-aliyun-dcdn.png)
+![Alibaba Cloud docs: https://help.aliyun.com/document_detail/64836.html](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-aliyun-dcdn.png)
 
-绝大部分公司都会在项目开发中使用 CDN 服务，但很少会有自建 CDN 服务的公司。基于成本、稳定性和易用性考虑，建议直接选择专业的云厂商（比如阿里云、腾讯云、华为云、青云）或者 CDN 厂商（比如网宿、蓝汛）提供的开箱即用的 CDN 服务。
+Hầu hết công ty đều dùng CDN service trong phát triển project, nhưng rất ít có công ty tự xây CDN. Dựa trên chi phí, stability và usability, khuyến nghị chọn thẳng CDN service out-of-the-box do cloud provider chuyên nghiệp (như Alibaba Cloud, Tencent Cloud, Huawei Cloud) hoặc CDN provider cung cấp.
 
-## 为什么不直接将服务部署在多个不同的地方？
+## Tại sao không deploy service trực tiếp ở nhiều địa điểm khác nhau?
 
-很多朋友可能要问了：**既然是就近访问，为什么不直接将服务部署在多个不同的地方呢？**
+Nhiều bạn có thể hỏi: **Đã là local access thì tại sao không deploy service trực tiếp ở nhiều địa điểm khác nhau?**
 
-这涉及到**静态资源与动态请求的架构分离**问题：
+Đây liên quan đến vấn đề **tách biệt kiến trúc static resource và dynamic request**:
 
-1. **成本问题**：多地部署完整服务需要部署多套应用、数据库、中间件，成本极高；而 CDN 只需存储静态资源，成本可控。
-2. **资源特性不同**：静态资源（图片、JS、CSS）具有**体积大、访问频繁、内容不变**的特点，非常适合缓存分发；动态请求需要实时计算，必须回源处理。
-3. **系统资源消耗**：如果用应用服务器直接处理静态资源请求，会大量占用 CPU、内存和带宽资源，可能影响核心业务的正常运行。
-4. **专业优化**：CDN 针对静态资源传输进行了大量优化（如智能压缩、协议优化、边缘计算），这些能力是普通应用服务器不具备的。
+1. **Chi phí**: Multi-location deploy full service cần deploy nhiều bộ application, database, middleware — chi phí cực cao. Còn CDN chỉ cần lưu static resource — chi phí có thể kiểm soát.
+2. **Đặc tính resource khác nhau**: Static resource (ảnh, JS, CSS) có đặc điểm **dung lượng lớn, truy cập thường xuyên, nội dung không thay đổi** — rất phù hợp để cache và phân phối. Dynamic request cần tính toán real-time nên phải xử lý từ origin.
+3. **Tiêu thụ tài nguyên hệ thống**: Nếu dùng application server để trực tiếp xử lý static resource request sẽ chiếm nhiều CPU, memory và bandwidth, có thể ảnh hưởng đến hoạt động bình thường của core business.
+4. **Tối ưu chuyên nghiệp**: CDN đã thực hiện nhiều tối ưu cho static resource transmission (như smart compression, protocol optimization, edge computing). Các khả năng này application server thông thường không có.
 
-> **注意**：同一个服务在多个不同地方部署多份（比如同城灾备、异地灾备、同城多活、异地多活）是为了实现系统的**高可用**，而不是就近访问。
+> **Lưu ý**: Deploy cùng một service ở nhiều địa điểm khác nhau (như local DR, remote DR, local multi-active, remote multi-active) là để triển khai **high availability** của hệ thống, không phải để local access.
 
-## CDN 工作原理是什么？
+## Nguyên lý hoạt động của CDN là gì?
 
-理解 CDN 的工作原理，需要搞懂以下三个核心问题：
+Để hiểu nguyên lý CDN, cần nắm ba vấn đề cốt lõi sau:
 
-1. 静态资源是如何被缓存到 CDN 节点中的？
-2. 如何找到最合适的 CDN 节点？
-3. 如何防止静态资源被盗用？
+1. Static resource được cache vào CDN node như thế nào?
+2. Làm thế nào tìm được CDN node phù hợp nhất?
+3. Làm thế nào ngăn static resource bị hotlink?
 
-### 静态资源是如何被缓存到 CDN 节点中的？
+### Static resource được cache vào CDN node như thế nào?
 
-CDN 缓存静态资源的方式主要有两种：**预热**和**回源**。
+CDN cache static resource chủ yếu theo hai cách: **Prefetch** và **Origin Pull**.
 
-- **预热（Prefetch）**：主动将源站的资源推送到 CDN 节点中。这样用户首次请求资源时可以直接从 CDN 节点获取，无需回源，适用于大促活动、热点内容发布等场景。
+- **Prefetch (Khởi động trước)**: Chủ động push resource từ origin server vào CDN node. Như vậy khi user request resource lần đầu có thể lấy trực tiếp từ CDN node, không cần pull từ origin. Phù hợp với tình huống như big event promotion, hot content release.
 
-- **回源（Origin Pull）**：当 CDN 节点上没有用户请求的资源或该资源的缓存已过期时，CDN 节点需要从源站获取最新的资源内容。
+- **Origin Pull (Kéo từ nguồn)**: Khi CDN node không có resource mà user request, hoặc cache của resource đó đã hết hạn, CDN node cần lấy content resource mới nhất từ origin server.
 
-> **注意**：当用户请求触发回源时，该请求的响应速度会比未使用 CDN 还慢，因为相比于直接访问源站，多了一层 CDN 节点的调用流程。因此，提高**缓存命中率**是 CDN 优化的关键目标。
+> **Lưu ý**: Khi user request trigger origin pull, response speed của request đó sẽ chậm hơn khi không dùng CDN, vì so với trực tiếp truy cập origin, có thêm một tầng CDN node call. Do đó cải thiện **cache hit rate** là mục tiêu tối ưu quan trọng của CDN.
 
-CDN 缓存的完整生命周期如下图所示：
+Vòng đời đầy đủ của CDN cache như hình dưới:
 
-![CDN 缓存的完整生命周期](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-full-life-cycle-of-cdn-cache.png)
+![Full Life Cycle của CDN Cache](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-full-life-cycle-of-cdn-cache.png)
 
-如果资源有更新，可以对其进行**刷新**操作，删除 CDN 节点上缓存的旧资源，并强制 CDN 节点在下次请求时回源获取最新资源。
+Nếu resource có update, có thể **refresh** nó — xóa resource cũ đã cache trên CDN node và force CDN node pull resource mới nhất từ origin vào lần request tiếp theo.
 
-几乎所有云厂商提供的 CDN 服务都具备缓存的刷新和预热功能（下图是阿里云 CDN 服务提供的相应功能）：
+Hầu hết CDN service do cloud provider cung cấp đều có chức năng refresh và prefetch cache (hình dưới là chức năng tương ứng của Alibaba Cloud CDN):
 
-![CDN 缓存的刷新和预热](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-refresh-warm-up.png)
+![CDN Cache Refresh và Prefetch](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cdn-refresh-warm-up.png)
 
-**命中率**和**回源率**是衡量 CDN 服务质量的两个核心指标：
+**Hit rate** và **origin pull rate** là hai chỉ số cốt lõi để đánh giá chất lượng CDN service:
 
-- **命中率**：用户请求直接由 CDN 节点响应的比例，**越高越好**。
-- **回源率**：用户请求需要回源站获取的比例，**越低越好**。
+- **Hit rate (Tỷ lệ trúng cache)**: Tỷ lệ user request được CDN node respond trực tiếp. **Càng cao càng tốt**.
+- **Origin pull rate (Tỷ lệ kéo từ nguồn)**: Tỷ lệ user request cần kéo từ origin server. **Càng thấp càng tốt**.
 
-### 如何找到最合适的 CDN 节点？
+### Làm thế nào tìm được CDN node phù hợp nhất?
 
-**GSLB（Global Server Load Balance，全局负载均衡）** 是 CDN 的大脑，负责多个 CDN 节点之间的协调调度，最常用的实现方式是**基于 DNS 的 GSLB**。
+**GSLB (Global Server Load Balance)** là "não" của CDN, chịu trách nhiệm phối hợp và điều phối giữa các CDN node. Cách triển khai phổ biến nhất là **DNS-based GSLB**.
 
-CDN 请求的完整调度流程如下图所示：
+Full scheduling flow của CDN request như hình dưới:
 
 ```mermaid
 sequenceDiagram
-    participant User as 用户浏览器
-    participant LocalDNS as 本地 DNS
-    participant AuthDNS as 权威 DNS
-    participant GSLB as CDN 全局负载均衡
-    participant Edge as CDN 边缘节点
-    participant Origin as 源站服务器
+    participant User as User Browser
+    participant LocalDNS as Local DNS
+    participant AuthDNS as Authoritative DNS
+    participant GSLB as CDN Global Load Balancer
+    participant Edge as CDN Edge Node
+    participant Origin as Origin Server
 
-    User->>LocalDNS: 1. 请求解析 cdn.example.com
-    LocalDNS->>AuthDNS: 2. 查询域名
-    AuthDNS-->>LocalDNS: 3. 返回 CNAME 记录指向 CDN
-    LocalDNS->>GSLB: 4. 请求 CDN 域名解析
+    User->>LocalDNS: 1. Request resolve cdn.example.com
+    LocalDNS->>AuthDNS: 2. Query domain
+    AuthDNS-->>LocalDNS: 3. Return CNAME record pointing to CDN
+    LocalDNS->>GSLB: 4. Request CDN domain resolution
 
-    Note over GSLB: 根据用户 IP、节点负载、<br/>网络状况等选择最优节点
+    Note over GSLB: Select optimal node based on<br/>user IP, node load, network status, etc.
 
-    GSLB-->>LocalDNS: 5. 返回最优 CDN 节点 IP
-    LocalDNS-->>User: 6. 返回 CDN 节点 IP
-    User->>Edge: 7. 请求静态资源
+    GSLB-->>LocalDNS: 5. Return optimal CDN node IP
+    LocalDNS-->>User: 6. Return CDN node IP
+    User->>Edge: 7. Request static resource
 
-    alt 缓存命中
-        Edge-->>User: 8a. 直接返回缓存资源
-    else 缓存未命中
-        Edge->>Origin: 8b. 回源请求
-        Origin-->>Edge: 9. 返回资源
-        Note over Edge: 缓存资源
-        Edge-->>User: 10. 返回资源
+    alt Cache hit
+        Edge-->>User: 8a. Return cached resource directly
+    else Cache miss
+        Edge->>Origin: 8b. Origin pull request
+        Origin-->>Edge: 9. Return resource
+        Note over Edge: Cache resource
+        Edge-->>User: 10. Return resource
     end
 ```
 
-**详细流程说明**：
+**Chi tiết flow**:
 
-1. 用户浏览器向本地 DNS 服务器发送域名解析请求。
-2. 本地 DNS 向权威 DNS 查询，发现该域名配置了 **CNAME（Canonical Name）别名记录**，指向 CDN 服务商的域名。
-3. 本地 DNS 继续向 CDN 的 **GSLB** 发起解析请求。
-4. GSLB 根据**用户 IP 地址、CDN 节点状态（负载、性能、响应时间、带宽）** 等指标，综合判断并返回最优 CDN 节点的 IP 地址。
-5. 用户浏览器直接向该 CDN 节点（边缘服务器）发起资源请求。
-6. CDN 节点检查本地缓存，若命中则直接返回；若未命中或已过期，则回源获取后再返回给用户。
+1. User browser gửi domain resolution request đến local DNS server.
+2. Local DNS query authoritative DNS, phát hiện domain này được cấu hình **CNAME (Canonical Name) alias record** trỏ đến domain của CDN provider.
+3. Local DNS tiếp tục gửi resolution request đến **GSLB** của CDN.
+4. GSLB dựa trên **user IP address, CDN node status (load, performance, response time, bandwidth)** và các chỉ số khác để đánh giá toàn diện và trả về IP address của CDN node tối ưu.
+5. User browser gửi resource request trực tiếp đến CDN node (edge server) đó.
+6. CDN node kiểm tra local cache — nếu hit trả về ngay. Nếu miss hoặc hết hạn thì pull từ origin rồi trả về cho user.
 
-> **补充说明**：上图做了一定简化。实际上，GSLB 内部可以看作是 **CDN 专用 DNS 服务器**和**负载均衡系统**的组合。CDN 专用 DNS 服务器会返回负载均衡系统的 IP 地址，浏览器通过该 IP 请求负载均衡系统，进而找到对应的 CDN 节点。
+> **Bổ sung**: Hình trên đã đơn giản hóa một chút. Thực tế GSLB nội bộ có thể coi là sự kết hợp của **CDN dedicated DNS server** và **load balancing system**. CDN dedicated DNS server sẽ trả về IP address của load balancing system. Trình duyệt request load balancing system qua IP đó, từ đó tìm được CDN node tương ứng.
 
-### 如何防止资源被盗刷？
+### Làm thế nào ngăn resource bị hotlink?
 
-如果静态资源被其他用户或网站非法盗刷，将会产生大量额外的带宽费用。常见的防盗链机制有以下几种：
+Nếu static resource bị user hoặc website khác hotlink bất hợp pháp, sẽ phát sinh nhiều bandwidth chi phí thêm. Các cơ chế hotlink protection phổ biến:
 
-| 防盗链机制         | 原理                                          | 安全强度 | 实现成本 | 绕过难度                   |
-| ------------------ | --------------------------------------------- | -------- | -------- | -------------------------- |
-| **Referer 防盗链** | 根据 HTTP 请求头中的 Referer 字段判断请求来源 | 低       | 低       | 低（可伪造或置空 Referer） |
-| **时间戳防盗链**   | URL 中携带签名和过期时间，过期后 URL 失效     | 中       | 中       | 中（需要获取签名算法）     |
-| **IP 黑白名单**    | 限制或允许特定 IP 地址访问                    | 中       | 低       | 中（可通过代理绕过）       |
-| **Token 鉴权**     | 业务服务器生成 Token，CDN 节点校验            | 高       | 高       | 高                         |
+| Cơ chế                           | Nguyên lý                                                           | Độ bảo mật | Chi phí triển khai | Độ khó bypass                               |
+| -------------------------------- | ------------------------------------------------------------------- | ---------- | ------------------ | ------------------------------------------- |
+| **Referer hotlink protection**   | Xác định nguồn request dựa trên field Referer trong HTTP header     | Thấp       | Thấp               | Thấp (có thể giả mạo hoặc để trống Referer) |
+| **Timestamp hotlink protection** | URL mang signature và expiry time, URL hết hiệu lực sau khi hết hạn | Trung bình | Trung bình         | Trung bình (cần lấy được signing algorithm) |
+| **IP whitelist/blacklist**       | Giới hạn hoặc cho phép IP address cụ thể truy cập                   | Trung bình | Thấp               | Trung bình (có thể bypass qua proxy)        |
+| **Token authentication**         | Business server tạo Token, CDN node validate                        | Cao        | Cao                | Cao                                         |
 
-#### Referer 防盗链
+#### Referer Hotlink Protection
 
-通过检查 HTTP 请求头中的 **Referer** 字段来判断请求来源是否合法。可以配置允许访问的域名白名单，非白名单来源的请求将被拒绝。
+Xác định xem nguồn request có hợp lệ không bằng cách kiểm tra field **Referer** trong HTTP header. Có thể cấu hình domain whitelist cho phép truy cập — request từ nguồn không có trong whitelist sẽ bị từ chối.
 
-CDN 服务提供商几乎都支持这种基础的防盗链机制：
+Hầu hết CDN provider đều hỗ trợ cơ chế hotlink protection cơ bản này:
 
-![腾讯云 CDN Referer 防盗链配置](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cnd-tencent-cloud-anti-theft.png)
+![Tencent Cloud CDN Referer Hotlink Protection Config](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/cnd-tencent-cloud-anti-theft.png)
 
-> **注意**：如果防盗链配置允许 Referer 为空，攻击者可以通过隐藏 Referer 的方式绕过防盗链检查。因此，Referer 防盗链通常需要配合其他机制一起使用。
+> **Lưu ý**: Nếu hotlink protection config cho phép Referer rỗng, attacker có thể bypass hotlink protection check bằng cách ẩn Referer. Do đó Referer hotlink protection thường cần kết hợp với các cơ chế khác.
 
-#### 时间戳防盗链
+#### Timestamp Hotlink Protection
 
-**时间戳防盗链**的安全性更强，其核心原理是：URL 中携带**签名字符串**和**过期时间**，CDN 节点在处理请求时会校验签名并检查是否过期，过期的 URL 将被拒绝访问。
+**Timestamp hotlink protection** có bảo mật cao hơn. Nguyên lý cốt lõi là: URL mang **signature string** và **expiry time**. CDN node khi xử lý request sẽ validate signature và kiểm tra xem có hết hạn không — URL hết hạn sẽ bị từ chối truy cập.
 
-签名字符串通常通过对**加密密钥 + 请求路径 + 过期时间**进行 MD5 哈希计算得到。
+Signature string thường được tính bằng cách MD5 hash **encryption key + request path + expiry time**.
 
-时间戳防盗链 URL 示例：
+Ví dụ timestamp hotlink protection URL:
 
 ```plain
 http://cdn.example.com/video/123.mp4?wsSecret=79aead3bd7b5db4adeffb93a010298b5&wsTime=1601026312
 ```
 
-- `wsSecret`：签名字符串，由服务端根据密钥和请求信息计算生成。
-- `wsTime`：过期时间戳（Unix 时间戳格式）。
+- `wsSecret`: Signature string, được tính và tạo ra từ phía server dựa trên key và thông tin request.
+- `wsTime`: Expiry timestamp (Unix timestamp format).
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/timestamp-anti-theft.png)
 
-绝大部分 CDN 服务提供商都支持开箱即用的时间戳防盗链机制：
+Hầu hết CDN provider đều hỗ trợ cơ chế timestamp hotlink protection out-of-the-box:
 
-![七牛云时间戳防盗链配置](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/qiniuyun-timestamp-anti-theft.png)
+![Qiniu Cloud Timestamp Hotlink Protection Config](https://oss.javaguide.cn/github/javaguide/high-performance/cdn/qiniuyun-timestamp-anti-theft.png)
 
-> **推荐实践**：生产环境建议采用 **Referer 防盗链 + 时间戳防盗链**的组合方案，兼顾安全性与实现成本。对于安全性要求极高的场景（如付费内容），可进一步引入 Token 鉴权机制。
+> **Best practice khuyến nghị**: Production khuyến nghị dùng phương án kết hợp **Referer hotlink protection + Timestamp hotlink protection**, cân bằng bảo mật và chi phí triển khai. Với tình huống yêu cầu bảo mật cực cao (như paid content), có thể tiếp tục giới thiệu Token authentication.
 
-## CDN 如何加速动态资源？
+## CDN accelerate dynamic resource như thế nào?
 
-传统的 CDN 主要针对静态资源（如图片、CSS、JS）进行缓存加速，而对于**动态资源**（如 API 接口、实时查询、支付请求、`.jsp`/`.asp`/`.php` 等动态页面），内容实时变化无法缓存，传统 CDN 往往直接回源，加速效果有限。
+CDN truyền thống chủ yếu cache accelerate cho static resource (như ảnh, CSS, JS). Còn với **dynamic resource** (như API interface, real-time query, payment request, `.jsp`/`.asp`/`.php` và các dynamic page khác) — content thay đổi real-time không thể cache, CDN truyền thống thường pull trực tiếp từ origin và hiệu quả acceleration hạn chế.
 
-**动态加速（Dynamic Content Acceleration）** 正是为了解决这一问题而设计。它不缓存内容，而是通过智能路由、协议优化等技术，提升动态请求的传输速度和稳定性。
+**Dynamic Content Acceleration** được thiết kế để giải quyết vấn đề này. Nó không cache content mà dùng smart routing, protocol optimization và các công nghệ khác để cải thiện transmission speed và stability của dynamic request.
 
-动态加速主要通过以下三种技术手段实现：
+Dynamic acceleration chủ yếu được triển khai qua ba kỹ thuật:
 
-1. **智能路由选路（最优链路探测）**：动态请求从用户端发出后，先到达离用户最近的 CDN 边缘节点。CDN 内部通过**实时网络监测技术**，探测全网链路质量（包括延迟、丢包率、带宽负载），避开公网中的拥堵或质量较差的节点，选择一条最优的传输路径到达源站。
+1. **Smart routing (Optimal link detection)**: Sau khi dynamic request được gửi từ user, trước tiên đến CDN edge node gần nhất. CDN nội bộ dùng **real-time network monitoring technology** để probe chất lượng network link trên toàn mạng (bao gồm latency, packet loss rate, bandwidth load), tránh các node bị tắc nghẽn hoặc chất lượng kém trên public internet, chọn một transmission path tối ưu đến origin server.
 
-2. **传输协议优化**：
+2. **Transport protocol optimization**:
 
-   - **TCP 优化**：优化 TCP 慢启动、拥塞控制算法，在高延迟或丢包环境下提升传输效率。
-   - **连接复用**：边缘节点与源站之间保持长连接（Keep-Alive），减少频繁握手带来的延迟。
+   - **TCP optimization**: Tối ưu TCP slow start, congestion control algorithm để cải thiện transmission efficiency trong môi trường high latency hoặc packet loss.
+   - **Connection reuse**: Long connection (Keep-Alive) được duy trì giữa edge node và origin server để giảm latency do frequent handshake.
 
-3. **动静态混合加速**：现代 CDN（如阿里云 DCDN、腾讯云 ECDN）能够自动识别用户请求的资源类型：
-   - **静态资源**：直接从边缘节点缓存返回。
-   - **动态资源**：通过智能路由回源获取。
+3. **Mixed static/dynamic acceleration**: CDN hiện đại (như Alibaba Cloud DCDN, Tencent Cloud ECDN) có thể tự động nhận dạng loại resource của user request:
+   - **Static resource**: Return trực tiếp từ edge node cache.
+   - **Dynamic resource**: Pull từ origin qua smart routing.
 
-> **一句话总结**：动态加速 = 智能探测 + 动态选路 + 协议优化，让动态请求跑得又快又稳。
+> **Tóm tắt một câu**: Dynamic acceleration = Smart detection + Dynamic routing + Protocol optimization — giúp dynamic request chạy nhanh và ổn định.
 
-## CDN 如何优化 HTTPS 访问速度？
+## CDN tối ưu tốc độ truy cập HTTPS như thế nào?
 
-HTTPS 虽然安全，但 TLS 握手和加解密过程会增加延迟。CDN 通过多种技术手段对 HTTPS 进行加速优化，在保障安全的同时提升访问速度。
+Dù HTTPS an toàn, quá trình TLS handshake và encrypt/decrypt thêm latency. CDN dùng nhiều kỹ thuật để tối ưu accelerate HTTPS, đảm bảo bảo mật đồng thời cải thiện tốc độ.
 
-| 优化技术          | 原理说明                                                                               | 效果                           |
-| ----------------- | -------------------------------------------------------------------------------------- | ------------------------------ |
-| **会话复用**      | 用户首次建立 HTTPS 连接后，节点缓存会话信息；再次访问时复用会话参数，减少完整 TLS 握手 | 减少握手延迟                   |
-| **OCSP Stapling** | 由 CDN 节点定期缓存证书状态，在 TLS 握手时一并发给浏览器，避免浏览器单独查询 CA 机构   | 提升握手效率                   |
-| **False Start**   | 在 TLS 握手尚未完全完成时就开始传输加密数据                                            | 减少一个 RTT 开销              |
-| **HTTP/2**        | 支持多路复用、头部压缩                                                                 | 减少连接数和传输延迟           |
-| **QUIC**          | 基于 UDP 的传输协议，0-RTT 建立连接                                                    | 减少连接建立时间，改善弱网体验 |
+| Kỹ thuật tối ưu   | Mô tả nguyên lý                                                                                                                               | Hiệu quả                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Session reuse** | Sau khi user thiết lập kết nối HTTPS lần đầu, node cache thông tin session. Lần truy cập sau reuse session parameter, giảm full TLS handshake | Giảm handshake latency                                                      |
+| **OCSP Stapling** | CDN node định kỳ cache trạng thái certificate và gửi cùng cho browser khi TLS handshake, tránh browser query CA riêng                         | Cải thiện handshake efficiency                                              |
+| **False Start**   | Bắt đầu truyền encrypted data ngay khi TLS handshake chưa hoàn toàn xong                                                                      | Giảm một RTT overhead                                                       |
+| **HTTP/2**        | Hỗ trợ multiplexing, header compression                                                                                                       | Giảm connection count và transmission latency                               |
+| **QUIC**          | Transport protocol dựa trên UDP, 0-RTT thiết lập connection                                                                                   | Giảm connection setup time, cải thiện trải nghiệm trong môi trường mạng yếu |
 
-**CDN 证书托管的优势**：
+**Ưu điểm của CDN certificate hosting**:
 
-CDN 服务商（如腾讯云、阿里云）通常提供**免费 SSL 证书**和**自动续期**服务，具有以下优势：
+CDN provider (như Tencent Cloud, Alibaba Cloud) thường cung cấp **free SSL certificate** và dịch vụ **auto renewal**:
 
-- **免运维**：用户无需手动更新证书，避免因证书过期导致的访问失败。
-- **灵活配置**：支持在 CDN 控制台上传证书，或一键申请免费证书。
-- **多种加密模式**：可选择”**半程加密**”（用户到 CDN 为 HTTPS，CDN 到源站为 HTTP）或”**全程加密**”（两端均为 HTTPS）。
+- **Không cần vận hành**: User không cần thủ công update certificate, tránh truy cập fail do certificate hết hạn.
+- **Cấu hình linh hoạt**: Hỗ trợ upload certificate trên CDN console hoặc one-click xin certificate miễn phí.
+- **Nhiều encryption mode**: Có thể chọn "**half-path encryption**" (user đến CDN là HTTPS, CDN đến origin là HTTP) hoặc "**full-path encryption**" (cả hai đầu đều HTTPS).
 
-**HTTPS 加速的配置建议**：
+**Config recommendations cho HTTPS acceleration**:
 
-1. **基础配置**：在 CDN 控制台开启 HTTPS，并配置证书。
-2. **性能优化**：开启 **OCSP Stapling** 和 **HTTP/2**。
-3. **安全增强**：如需更高安全等级，可开启 **HSTS**（强制浏览器使用 HTTPS 访问）。
-4. **弱网优化**：开启 **QUIC** 协议支持，改善移动端弱网环境下的访问体验。
+1. **Basic config**: Enable HTTPS trong CDN console và config certificate.
+2. **Performance optimization**: Enable **OCSP Stapling** và **HTTP/2**.
+3. **Security enhancement**: Nếu cần security level cao hơn, enable **HSTS** (force browser dùng HTTPS).
+4. **Weak network optimization**: Enable **QUIC** protocol support để cải thiện trải nghiệm trong môi trường mạng yếu trên mobile.
 
-## 总结
+## Tổng kết
 
-- **CDN 的核心价值**：将静态资源分发到多个不同的地方以实现**就近访问**，加快静态资源的访问速度，减轻源站服务器及带宽的负担。
-- **CDN 服务选型**：基于成本、稳定性和易用性考虑，建议直接选择专业的云厂商（如阿里云、腾讯云、华为云）或 CDN 厂商（如网宿、蓝汛）提供的开箱即用服务。
-- **GSLB 的作用**：GSLB（全局负载均衡）是 CDN 的大脑，负责根据用户位置、节点状态等因素，将用户请求调度到**最优的 CDN 节点**。
-- **核心指标**：**命中率**越高越好，**回源率**越低越好。
-- **防盗链机制**：推荐采用 **Referer 防盗链 + 时间戳防盗链**的组合方案，平衡安全性与实现成本。
-- **动态加速**：通过**智能路由选路**、**传输协议优化**、**动静态混合加速**三种技术手段，提升动态请求（API 接口、实时查询等）的传输速度和稳定性。
-- **HTTPS 加速**：通过**会话复用**、**OCSP Stapling**、**False Start**、**HTTP/2**、**QUIC** 等技术优化 TLS 握手和传输过程，在保障安全的同时提升访问速度。
+- **Core value của CDN**: Phân phối static resource đến nhiều địa điểm để triển khai **local access**, tăng tốc truy cập static resource, giảm tải cho origin server và bandwidth.
+- **CDN service selection**: Dựa trên chi phí, stability và usability, khuyến nghị chọn thẳng CDN service out-of-the-box của cloud provider chuyên nghiệp (như Alibaba Cloud, Tencent Cloud, Huawei Cloud) hoặc CDN provider.
+- **Vai trò của GSLB**: GSLB (Global Load Balance) là "não" của CDN, chịu trách nhiệm điều phối user request đến **CDN node tối ưu** dựa trên vị trí user, trạng thái node và các yếu tố khác.
+- **Core metrics**: **Hit rate** càng cao càng tốt, **origin pull rate** càng thấp càng tốt.
+- **Hotlink protection**: Khuyến nghị dùng phương án kết hợp **Referer hotlink protection + Timestamp hotlink protection**, cân bằng bảo mật và chi phí triển khai.
+- **Dynamic acceleration**: Thông qua ba kỹ thuật **smart routing**, **transport protocol optimization**, **mixed static/dynamic acceleration** để cải thiện transmission speed và stability của dynamic request (API interface, real-time query, v.v.).
+- **HTTPS acceleration**: Tối ưu TLS handshake và transmission qua các kỹ thuật **session reuse**, **OCSP Stapling**, **False Start**, **HTTP/2**, **QUIC** để đảm bảo bảo mật đồng thời cải thiện tốc độ.
 
-## 参考
+## Tài liệu tham khảo
 
-- 时间戳防盗链 - 七牛云 CDN：<https://developer.qiniu.com/fusion/kb/1670/timestamp-hotlinking-prevention>
-- CDN 是个啥玩意？一文说个明白：<https://mp.weixin.qq.com/s/Pp0C8ALUXsmYCUkM5QnkQw>
-- 《透视 HTTP 协议》- 37 | CDN：加速我们的网络服务：<http://gk.link/a/11yOG>
-
-<!-- @include: @article-footer.snippet.md -->
+- Timestamp hotlink protection - Qiniu Cloud CDN: <https://developer.qiniu.com/fusion/kb/1670/timestamp-hotlinking-prevention>
+- CDN là gì? Giải thích rõ ràng trong một bài: <https://mp.weixin.qq.com/s/Pp0C8ALUXsmYCUkM5QnkQw>
+- 《Perspective HTTP Protocol》 - 37 | CDN: Accelerating our network service: <http://gk.link/a/11yOG>

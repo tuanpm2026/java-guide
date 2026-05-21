@@ -1,195 +1,195 @@
 ---
-title: 缓存基础常见面试题总结
-description: 深入讲解缓存的核心思想、本地缓存与分布式缓存的区别、多级缓存架构设计。涵盖Caffeine、Redis等主流缓存方案，以及缓存一致性的解决方案。适合Java开发者学习缓存架构设计。
-category: 数据库
+title: Tổng hợp câu hỏi phỏng vấn cơ bản về Cache
+description: Giải thích sâu ý tưởng cốt lõi của cache, sự khác biệt giữa local cache và distributed cache, thiết kế kiến trúc multi-level cache. Bao gồm Caffeine, Redis và các giải pháp cache chính, cùng giải pháp cache consistency. Phù hợp cho Java developer học thiết kế cache architecture.
+category: Cơ sở dữ liệu
 tag:
   - Redis
 head:
   - - meta
     - name: keywords
-      content: 缓存,本地缓存,分布式缓存,多级缓存,Caffeine,Redis,缓存一致性,系统设计,Java缓存,Guava Cache
+      content: cache,local cache,distributed cache,multi-level cache,Caffeine,Redis,cache consistency,system design,Java cache,Guava Cache
 ---
 
-> **相关面试题** ：
+> **Câu hỏi phỏng vấn liên quan**:
 >
-> - 为什么要用缓存？
-> - 本地缓存应该怎么做？
-> - 为什么要有分布式缓存?/为什么不直接用本地缓存?
-> - 为什么要用多级缓存？
-> - 多级缓存适合哪些业务场景？
+> - Tại sao phải dùng cache?
+> - Local cache nên làm như thế nào?
+> - Tại sao cần distributed cache? / Tại sao không dùng local cache trực tiếp?
+> - Tại sao cần multi-level cache?
+> - Multi-level cache phù hợp với những tình huống nghiệp vụ nào?
 
-## 缓存的基本思想
+## Ý tưởng cơ bản của Cache
 
-很多同学只知道缓存可以提高系统性能以及减少请求 **响应时间**（Response Time），但是，不太清楚缓存的本质思想是什么。
+Nhiều bạn chỉ biết cache có thể cải thiện hiệu năng hệ thống và giảm **response time**, nhưng không rõ ý tưởng cốt lõi của cache là gì.
 
-缓存的基本思想其实很简单，就是我们非常熟悉的 **空间换时间** 这一经典性能优化策略的运用。所谓空间换时间，也就是用更多的存储空间来存储一些可能重复使用或计算的数据，从而减少数据的重新获取或计算的时间。
+Ý tưởng cơ bản của cache thực ra rất đơn giản — đó là ứng dụng chiến lược tối ưu hiệu năng kinh điển mà chúng ta rất quen thuộc: **đánh đổi không gian lấy thời gian**. Đánh đổi không gian lấy thời gian nghĩa là dùng nhiều không gian lưu trữ hơn để lưu một số dữ liệu có thể được tái sử dụng hoặc tính toán lại, từ đó giảm thời gian lấy lại hoặc tính toán dữ liệu.
 
-说到空间换时间，除了缓存之外，你还能想到什么其他的例子吗？这里再列举几个常见的：
+Nói đến đánh đổi không gian lấy thời gian, ngoài cache bạn còn nghĩ đến ví dụ nào khác không? Dưới đây liệt kê thêm một số ví dụ phổ biến:
 
-- **索引**：索引是一种将数据库表中的某些列或字段按照一定的排序规则组织成一个单独的数据结构，虽然需要额外占用空间，但可以大大提高检索效率，降低数据排序成本。
-- **数据库表字段冗余**：将经常联合查询的数据冗余存储在同一张表中，以减少对多张表的关联查询，进而提升查询性能，减轻数据库压力。
-- **CDN（内容分发网络）**：将静态资源分发到多个边缘节点以实现就近访问，进而加快静态资源的访问速度，减轻源站服务器以及带宽的负担。
+- **Index**: Index là cấu trúc dữ liệu riêng biệt tổ chức một số column hoặc field của bảng database theo quy tắc sắp xếp nhất định. Tuy cần thêm không gian, nhưng có thể cải thiện đáng kể hiệu quả retrieval và giảm chi phí sắp xếp dữ liệu.
+- **Redundant database field**: Lưu dữ liệu thường xuyên join query vào cùng một bảng để giảm JOIN query đa bảng, tăng hiệu năng query và giảm tải database.
+- **CDN (Content Delivery Network)**: Phân phối static resource đến nhiều edge node để người dùng truy cập từ node gần nhất, tăng tốc truy cập static resource và giảm tải origin server và băng thông.
 
-编程需要要学会归纳总结，将自己学到的东西串联起来！假如你在面试的时候，能聊到这些，面试官一定会对你有一个好印象的。
+Học lập trình cần biết tổng kết và liên kết những gì đã học! Nếu trong phỏng vấn bạn có thể nói đến những điều này, phỏng vấn viên nhất định có ấn tượng tốt với bạn.
 
-不要把缓存想的太高大上，虽然，它的确对系统的性能提升的性价比非常高。当我们在学习并应用缓存的时候，你会发现缓存的思想实际在 CPU、操作系统或者其他很多地方都被大量用到。
+Đừng coi cache là thứ gì cao siêu — mặc dù hiệu quả cost-performance cải thiện hiệu năng hệ thống của nó rất cao. Khi học và áp dụng cache, bạn sẽ thấy ý tưởng cache thực ra được dùng rộng rãi ở nhiều nơi như CPU, OS và nhiều chỗ khác.
 
-比如，**CPU Cache** 缓存的是内存数据，用于解决 **CPU** 处理速度与内存访问速度不匹配的问题；内存缓存的是硬盘数据，用于解决硬盘 **I/O** 速度过慢的问题。
+Ví dụ, **CPU Cache** cache dữ liệu memory để giải quyết sự không khớp giữa tốc độ xử lý **CPU** và tốc độ truy cập memory; memory cache dữ liệu HDD để giải quyết tốc độ **I/O** HDD quá chậm.
 
-![CPU 缓存模型示意图](https://oss.javaguide.cn/github/javaguide/java/concurrent/cpu-cache.png)
+![Sơ đồ CPU Cache model](https://oss.javaguide.cn/github/javaguide/java/concurrent/cpu-cache.png)
 
-再比如，为了提高虚拟地址到物理地址的转换速度，操作系统在页表方案基础之上引入了 **转址旁路缓存**（Translation Lookaside Buffer，**TLB**，也被称为快表）。
+Ví dụ khác, để tăng tốc chuyển đổi từ virtual address sang physical address, OS giới thiệu **TLB (Translation Lookaside Buffer)** (còn gọi là fast lookup table) trên cơ sở page table scheme.
 
-![加入 TLB 之后的地址翻译](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
+![Address translation sau khi thêm TLB](https://oss.javaguide.cn/github/javaguide/cs-basics/operating-system/physical-virtual-address-translation-mmu.png)
 
-拿日常使用的浏览器来说，它会对访问过的图片或静态文件进行缓存（浏览器缓存），这样下次访问相同页面时加载速度会显著提升。
+Lấy trình duyệt hàng ngày, nó cache ảnh hoặc static file đã truy cập (browser cache), nên lần sau truy cập cùng trang web tốc độ tải sẽ tăng đáng kể.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/redis/chrome-clear-cache.png)
 
-我们日常开发中用到的缓存，其中的数据通常存储于 **RAM**（内存）中，访问速度极快。为了避免内存数据在重启或宕机后丢失，许多缓存中间件（如 **Redis**）提供了磁盘持久化机制。相比于关系型数据库（如 **MySQL**），缓存的访问速度和并发支持量都要高出几个数量级。在数据库之上增加一层缓存，是保护底层存储、提升系统吞吐量的核心手段。
+Cache sử dụng trong phát triển hàng ngày thường lưu dữ liệu trong **RAM** (memory), tốc độ truy cập cực nhanh. Để tránh mất dữ liệu memory khi restart hoặc crash, nhiều cache middleware (như **Redis**) cung cấp cơ chế disk persistence. So với RDBMS (như **MySQL**), tốc độ truy cập cache và lượng concurrency hỗ trợ cao hơn vài bậc. Thêm một tầng cache trên database là biện pháp cốt lõi để bảo vệ underlying storage và tăng throughput hệ thống.
 
-## 缓存的分类
+## Phân loại Cache
 
-接下来，我们来看看日常开发中用到的缓存通常被分为哪几种。
+Tiếp theo xem cache sử dụng trong phát triển hàng ngày thường được chia thành các loại nào.
 
-### 本地缓存
+### Local Cache
 
-#### 什么是本地缓存?
+#### Local Cache là gì?
 
-这个实际在很多项目中用的蛮多，特别是单体架构的时候。数据量不大，并且没有分布式要求的话，使用本地缓存还是可以的。
+Loại này thực ra được dùng khá nhiều trong nhiều dự án, đặc biệt với monolithic architecture. Nếu data volume nhỏ và không có yêu cầu distributed thì dùng local cache vẫn ổn.
 
-本地缓存位于应用内部，其最大的优点是应用存在于同一个进程内部，请求本地缓存的速度非常快，不存在额外的网络开销。
+Local cache nằm bên trong ứng dụng, ưu điểm lớn nhất là ứng dụng và cache cùng process, tốc độ request local cache rất nhanh, không có network overhead thêm.
 
-常见的单体架构图如下，我们使用 **Nginx** 来做**负载均衡**，部署两个相同的应用到服务器，两个服务使用同一个数据库，并且使用的是本地缓存。
+Sơ đồ monolithic architecture phổ biến như dưới — chúng ta dùng **Nginx** để **load balancing**, deploy hai ứng dụng giống nhau lên server, hai service dùng chung database và local cache.
 
-![本地缓存示意图](https://oss.javaguide.cn/github/javaguide/database/redis/local-cache.png)
+![Sơ đồ Local Cache](https://oss.javaguide.cn/github/javaguide/database/redis/local-cache.png)
 
-**注意：** 在集群模式下使用本地缓存，必须考虑**负载均衡策略**。如果 Nginx 使用默认的**轮询（Round-Robin）**，同一个用户的请求会随机落在不同机器，导致本地缓存命中率极低。解决方案如下：
+**Lưu ý:** Khi dùng local cache trong cluster mode, phải xem xét **load balancing strategy**. Nếu Nginx dùng **Round-Robin** mặc định, request của cùng một user sẽ ngẫu nhiên rơi vào máy khác nhau, khiến local cache hit rate cực thấp. Giải pháp:
 
-1. **网关层**：使用一致性哈希或 Sticky Session，保证同一用户的请求固定打到同一台机器。
-2. **应用层**：仅将本地缓存用于**“全局几乎不变”**的数据（如配置字典），而非用户维度数据。
+1. **Gateway layer**: Dùng consistent hashing hoặc Sticky Session, đảm bảo request của cùng user luôn đến cùng một máy.
+2. **Application layer**: Chỉ dùng local cache cho dữ liệu **"gần như không thay đổi globally"** (như config dictionary), không phải dữ liệu theo user dimension.
 
-#### 本地缓存的方案有哪些？
+#### Local Cache có những phương án nào?
 
-**1、JDK 自带的 `HashMap` 和 `ConcurrentHashMap` 了。**
+**1. `HashMap` và `ConcurrentHashMap` có sẵn trong JDK.**
 
-`ConcurrentHashMap` 可以看作是线程安全版本的 `HashMap` ，两者都是存放 key/value 形式的键值对。但是，大部分场景来说不会使用这两者当做缓存，因为只提供了缓存的功能，并没有提供其他诸如过期时间之类的功能。一个稍微完善一点的缓存框架至少要提供：**过期时间**、**淘汰机制**、**命中率统计**这三点。
+`ConcurrentHashMap` có thể coi là phiên bản thread-safe của `HashMap`, cả hai đều lưu key/value pairs. Nhưng hầu hết tình huống sẽ không dùng hai thứ này làm cache, vì chỉ cung cấp chức năng cache mà không có các chức năng khác như expiration time. Một cache framework tương đối hoàn chỉnh ít nhất phải cung cấp: **expiration time**, **eviction mechanism**, **hit rate statistics**.
 
-**2、 `Ehcache` 、 `Guava Cache` 、 `Spring Cache` 这三者是使用的比较多的本地缓存框架。**
+**2. `Ehcache`, `Guava Cache`, `Spring Cache` là ba local cache framework được dùng nhiều nhất.**
 
-- `Ehcache` 的话相比于其他两者更加重量。不过，相比于 `Guava Cache` 、 `Spring Cache` 来说， `Ehcache` 支持可以嵌入到 hibernate 和 mybatis 作为多级缓存，并且可以将缓存的数据持久化到本地磁盘中、同时也提供了集群方案（比较鸡肋，可忽略）。
-- `Guava Cache` 和 `Spring Cache` 两者的话比较像。`Guava` 相比于 `Spring Cache` 的话使用的更多一点，它提供了 API 非常方便我们使用，同时也提供了设置缓存有效时间等功能。它的内部实现也比较干净，很多地方都和 `ConcurrentHashMap` 的思想有异曲同工之妙。
-- 使用 `Spring Cache` 的注解实现缓存的话，代码会看着很干净和优雅，但是很容易出现问题比如缓存穿透、内存溢出。
+- `Ehcache` nặng hơn so với hai cái kia. Nhưng so với `Guava Cache`, `Spring Cache`, `Ehcache` hỗ trợ nhúng vào hibernate và mybatis làm multi-level cache, có thể persist dữ liệu cache ra local disk, và cũng cung cấp giải pháp cluster (khá yếu, có thể bỏ qua).
+- `Guava Cache` và `Spring Cache` khá giống nhau. `Guava` được dùng nhiều hơn `Spring Cache`, cung cấp API rất tiện, cũng cung cấp cài đặt cache validity time, v.v. Triển khai nội bộ cũng khá clean, nhiều chỗ có tư tưởng tương tự `ConcurrentHashMap`.
+- Dùng annotation của `Spring Cache` để triển khai cache thì code trông sạch và elegant, nhưng rất dễ gặp vấn đề như cache penetration, memory overflow.
 
-**3、后起之秀 Caffeine。**
+**3. Newbie Caffeine.**
 
-相比于 `Guava` 来说 `Caffeine` 在各个方面比如性能都要更加优秀，一般建议使用其来替代 `Guava` 。并且， `Guava` 和 `Caffeine` 的使用方式很像！
+So với `Guava`, `Caffeine` vượt trội hơn về mọi mặt như hiệu năng. Thường khuyến nghị dùng nó thay thế `Guava`. Hơn nữa, cách dùng `Guava` và `Caffeine` rất giống nhau!
 
-使用 `Caffeine` 创建本地缓存的代码示例，用到了建造者模式：
+Ví dụ code tạo local cache bằng `Caffeine`, dùng builder pattern:
 
 ```java
-// 使用 Caffeine 创建本地缓存示例
+// Ví dụ tạo local cache dùng Caffeine
 Cache<String, String> cache = Caffeine.newBuilder()
-        // 设置写入后 60 天过期
+        // Đặt expired sau 60 ngày kể từ khi ghi
         .expireAfterWrite(60, TimeUnit.DAYS)
-        // 初始容量
+        // Initial capacity
         .initialCapacity(100)
-        // 最大条数限制
+        // Giới hạn số lượng tối đa
         .maximumSize(500)
-        // 开启统计功能
+        // Bật chức năng statistics
         .recordStats()
         .build();
 ```
 
-#### 本地缓存有什么痛点？
+#### Local Cache có những nhược điểm gì?
 
-本地的缓存的优势非常明显：**低依赖**、**轻量**、**简单**、**成本低**。
+Ưu điểm của local cache rất rõ ràng: **ít dependency**, **nhẹ**, **đơn giản**, **chi phí thấp**.
 
-但是，本地缓存存在下面这些缺陷：
+Nhưng local cache có những nhược điểm sau:
 
-- **本地缓存应用耦合，对分布式架构支持不友好**，比如同一个相同的服务部署在多台机器上的时候，各个服务之间的缓存是无法共享的，因为本地缓存只在当前机器上有。
-- **本地缓存容量受服务部署所在的机器限制明显。** 如果当前系统服务所耗费的内存多，那么本地缓存可用的容量就很少。
+- **Local cache coupled với ứng dụng, không thân thiện với distributed architecture**. Ví dụ khi cùng một service deploy lên nhiều máy, cache giữa các service không thể share, vì local cache chỉ tồn tại trên máy hiện tại.
+- **Capacity của local cache bị giới hạn rõ ràng bởi máy deploy service**. Nếu service hiện tại tiêu tốn nhiều memory, thì local cache có capacity sử dụng được rất ít.
 
-### 分布式缓存
+### Distributed Cache
 
-#### 什么是分布式缓存？
+#### Distributed Cache là gì?
 
-我们可以把分布式缓存（Distributed Cache） 看作是一种内存数据库的服务，它的最终作用就是提供缓存数据的服务。
+Chúng ta có thể coi distributed cache như một dịch vụ in-memory database, mục đích cuối cùng là cung cấp dịch vụ cache data.
 
-分布式缓存脱离于应用独立存在，多个应用可直接的共同使用同一个分布式缓存服务。
+Distributed cache tách biệt với ứng dụng, nhiều ứng dụng có thể cùng sử dụng một distributed cache service.
 
-如下图所示，就是一个简单的使用分布式缓存的架构图。我们使用 Nginx 来做负载均衡，部署两个相同的应用到服务器，两个服务使用同一个数据库和缓存。
+Như hình dưới là sơ đồ kiến trúc đơn giản dùng distributed cache. Chúng ta dùng Nginx để load balancing, deploy hai ứng dụng giống nhau lên server, hai service dùng chung database và cache.
 
-![分布式缓存](https://oss.javaguide.cn/github/javaguide/database/redis/distributed-cache.png)
+![Distributed Cache](https://oss.javaguide.cn/github/javaguide/database/redis/distributed-cache.png)
 
-使用分布式缓存之后，缓存服务可以部署在一台单独的服务器上，即使同一个相同的服务部署在多台机器上，也是使用的同一份缓存。 并且，单独的分布式缓存服务的性能、容量和提供的功能都要更加强大。
+Sau khi dùng distributed cache, cache service có thể deploy trên một server riêng. Dù cùng một service deploy lên nhiều máy cũng dùng chung một bản cache. Hơn nữa, hiệu năng, capacity và các chức năng của distributed cache service riêng biệt đều mạnh hơn nhiều.
 
-**软件系统设计中没有银弹，往往任何技术的引入都像是把双刃剑。** 你使用的方式得当，就能为系统带来很大的收益。否则，只是费了精力不讨好。
+**Trong thiết kế hệ thống phần mềm không có silver bullet — việc giới thiệu bất kỳ công nghệ nào thường như con dao hai lưỡi.** Nếu dùng đúng cách, có thể mang lại lợi ích lớn cho hệ thống. Ngược lại chỉ tốn công mà không được gì.
 
-简单来说，为系统引入分布式缓存之后往往会带来下面这些问题：
+Nói đơn giản, sau khi giới thiệu distributed cache vào hệ thống thường gây ra các vấn đề sau:
 
-- **系统复杂性增加** ：引入缓存之后，你要维护缓存和数据库的数据一致性、维护热点缓存、保证缓存服务的高可用等等。
-- **系统开发成本往往会增加** ：引入缓存意味着系统需要一个单独的缓存服务，这是需要花费相应的成本的，并且这个成本还是很贵的，毕竟耗费的是宝贵的内存。
+- **Tăng độ phức tạp của hệ thống**: Sau khi giới thiệu cache, cần duy trì data consistency giữa cache và database, duy trì hot cache, đảm bảo high availability của cache service, v.v.
+- **Chi phí phát triển hệ thống thường tăng**: Giới thiệu cache đồng nghĩa hệ thống cần một cache service riêng biệt — đây là chi phí cần trả, và chi phí này còn khá đắt vì tiêu tốn memory quý giá.
 
-#### 分布式缓存的方案有哪些？
+#### Distributed Cache có những phương án nào?
 
-分布式缓存的话，比较老牌同时也是使用的比较多的还是 **Memcached** 和 **Redis**。不过，现在基本没有看过还有项目使用 **Memcached** 来做缓存，都是直接用 **Redis**。
+Với distributed cache, **Memcached** và **Redis** là hai cái lâu đời và được dùng nhiều nhất. Tuy nhiên, hiện nay gần như không thấy dự án nào còn dùng **Memcached** làm cache — tất cả đều dùng trực tiếp **Redis**.
 
-Memcached 是分布式缓存最开始兴起的那会，比较常用的。后来，随着 Redis 的发展，大家慢慢都转而使用更加强大的 Redis 了。
+Memcached phổ biến vào thời kỳ distributed cache mới nổi. Sau đó khi Redis phát triển, mọi người dần chuyển sang dùng Redis mạnh hơn.
 
-有一些大厂也开源了类似于 Redis 的分布式高性能 KV 存储数据库，例如，腾讯开源的 [Tendis](https://github.com/Tencent/Tendis) 。Tendis 基于知名开源项目 [RocksDB](https://github.com/facebook/rocksdb) 作为存储引擎 ，100% 兼容 Redis 协议和 Redis4.0 所有数据模型。关于 Redis 和 Tendis 的对比，腾讯官方曾经发过一篇文章：[Redis vs Tendis：冷热混合存储版架构揭秘](https://mp.weixin.qq.com/s/MeYkfOIdnU6LYlsGb24KjQ) ，可以简单参考一下。
+Một số công ty lớn cũng open source các distributed high-performance KV storage database tương tự Redis. Ví dụ Tencent open source [Tendis](https://github.com/Tencent/Tendis). Tendis dựa trên project open source nổi tiếng [RocksDB](https://github.com/facebook/rocksdb) làm storage engine, 100% tương thích Redis protocol và tất cả data model của Redis 4.0. Về so sánh Redis và Tendis, Tencent từng publish bài: [Redis vs Tendis: Kiến trúc hot-cold mixed storage](https://mp.weixin.qq.com/s/MeYkfOIdnU6LYlsGb24KjQ) để tham khảo.
 
-不过，从 Tendis 这个项目的 Github 提交记录可以看出，Tendis 开源版几乎已经没有被维护更新了，加上其关注度并不高，使用的公司也比较少。因此，不建议你使用 Tendis 来实现分布式缓存。
+Tuy nhiên, qua commit record của project Tendis trên Github có thể thấy, open source version của Tendis gần như không còn được maintain. Cộng thêm độ quan tâm không cao và ít công ty dùng, không khuyến nghị dùng Tendis để triển khai distributed cache.
 
-目前，比较业界认可的 Redis 替代品还是下面这两个开源分布式缓存（都是通过碰瓷 Redis 火的）：
+Hiện tại, hai Redis alternative được industry công nhận nhiều nhất là hai open source distributed cache sau (cả hai đều "hot" nhờ Redis):
 
-- [Dragonfly](https://github.com/dragonflydb/dragonfly)：一种针对现代应用程序负荷需求而构建的内存数据库，完全兼容 Redis 和 Memcached 的 API，迁移时无需修改任何代码，号称全世界最快的内存数据库。
-- [KeyDB](https://github.com/Snapchat/KeyDB)： Redis 的一个高性能分支，专注于多线程、内存效率和高吞吐量。
+- [Dragonfly](https://github.com/dragonflydb/dragonfly): In-memory database được xây dựng để đáp ứng nhu cầu tải của ứng dụng hiện đại. Hoàn toàn tương thích Redis và Memcached API, migrate không cần sửa code, tự xưng là in-memory database nhanh nhất thế giới.
+- [KeyDB](https://github.com/Snapchat/KeyDB): Branch hiệu năng cao của Redis, tập trung vào multi-threading, memory efficiency và high throughput.
 
-不过，个人还是建议分布式缓存首选 Redis ，毕竟经过这么多年的生产考验，生态也这么优秀，资料也很全面。
+Tuy nhiên, cá nhân vẫn khuyến nghị chọn Redis làm distributed cache trước tiên — sau nhiều năm được kiểm chứng trong production, ecosystem cũng rất tốt và tài liệu rất đầy đủ.
 
-### 多级缓存
+### Multi-level Cache
 
-#### 什么是多级缓存？为什么要用？
+#### Multi-level Cache là gì? Tại sao dùng?
 
-我们这里只来简单聊聊 **本地缓存 + 分布式缓存** 的多级缓存方案，这也是最常用的多级缓存实现方式。
+Ở đây chỉ bàn đơn giản về phương án multi-level cache **local cache + distributed cache** — đây cũng là cách triển khai multi-level cache phổ biến nhất.
 
-这个时候估计有很多小伙伴就会问了：**既然用了分布式缓存，为什么还要用本地缓存呢？** 。
+Lúc này chắc nhiều bạn sẽ hỏi: **Đã dùng distributed cache rồi, tại sao còn dùng local cache?**
 
-本地缓存和分布式缓存虽然都属于缓存，但本地缓存的访问速度要远大于分布式缓存，这是因为访问本地缓存不存在额外的网络开销，我们在上面也提到了。
+Mặc dù cả local cache và distributed cache đều là cache, nhưng tốc độ truy cập local cache cao hơn nhiều so với distributed cache — vì truy cập local cache không có network overhead thêm, như đã đề cập ở trên.
 
-不过，一般情况下，我们也是不建议使用多级缓存的，这会增加维护负担（比如你需要保证一级缓存和二级缓存的数据一致性）。而且，其实际带来的提升效果对于绝大部分业务场景来说其实并不是很大。
+Tuy nhiên, thông thường chúng ta cũng không khuyến nghị dùng multi-level cache, vì tăng gánh nặng maintenance (ví dụ cần đảm bảo data consistency giữa L1 và L2 cache). Và hiệu quả cải thiện thực tế cũng không quá lớn với hầu hết các tình huống nghiệp vụ.
 
-这里简单总结一下适合多级缓存的两种业务场景：
+Tóm tắt hai tình huống nghiệp vụ phù hợp với multi-level cache:
 
-- 缓存的数据不会频繁修改，比较稳定；
-- 数据访问量特别大比如秒杀场景。
+- Dữ liệu cache không thường xuyên thay đổi, tương đối ổn định.
+- Lượng truy cập dữ liệu đặc biệt lớn, ví dụ như flash sale scenario.
 
-多级缓存方案中，第一级缓存（L1）使用本地内存（比如 Caffeine)），第二级缓存（L2）使用分布式缓存（比如 Redis）。
+Trong phương án multi-level cache, L1 (first-level cache) dùng local memory (ví dụ Caffeine), L2 (second-level cache) dùng distributed cache (ví dụ Redis).
 
-![多级缓存](https://oss.javaguide.cn/javaguide/database/redis/multilevel-cache.png)
+![Multi-level Cache](https://oss.javaguide.cn/javaguide/database/redis/multilevel-cache.png)
 
-读取缓存数据的时候，我们先从 L1 中读取，读取不到的时候再去 L2 读取。这样可以降低 L2 的压力，减少 L2 的读次数。如果 L2 也没有此数据的话，再去数据库查询，数据查询成功后再将数据写入到 L1 和 L2 中。
+Khi đọc cache data, trước tiên đọc từ L1; nếu không có mới đọc từ L2. Điều này giảm áp lực lên L2 và số lần đọc L2. Nếu L2 cũng không có data, đọc từ database. Sau khi query database thành công, ghi data vào cả L1 và L2.
 
-多级缓存开源实现推荐：
+Các open source triển khai multi-level cache được khuyến nghị:
 
-- [J2Cache](https://gitee.com/ld/J2Cache)：基于本地内存和 Redis 的两级 Java 缓存框架。
-- [JetCache](https://github.com/alibaba/jetcache)：阿里开源的缓存框架，支持多级缓存、分布式缓存自动刷新、 TTL 等功能。
+- [J2Cache](https://gitee.com/ld/J2Cache): Two-level Java cache framework dựa trên local memory và Redis.
+- [JetCache](https://github.com/alibaba/jetcache): Cache framework open source của Alibaba, hỗ trợ multi-level cache, distributed cache auto-refresh, TTL và các chức năng khác.
 
-#### 多级缓存一致性如何保证？
+#### Làm thế nào để đảm bảo consistency của Multi-level Cache?
 
-在多级缓存系统中，保证强一致性成本太高，业界的几个提供多级缓存功能的缓存框架基本都是最终一致性保证。例如，可以使用 Redis 的发布/订阅机制、Redis Stream 或者消息队列来确保当一个实例的本地缓存发生变化时，其他实例能够及时更新其本地缓存，以保持缓存一致性。
+Trong multi-level cache system, đảm bảo strong consistency chi phí quá cao. Các cache framework cung cấp chức năng multi-level cache hiện nay hầu hết chỉ đảm bảo eventual consistency. Ví dụ, có thể dùng Redis pub/sub mechanism, Redis Stream hoặc message queue để đảm bảo khi local cache của một instance thay đổi, các instance khác có thể update local cache kịp thời để duy trì cache consistency.
 
-政采云技术的方案是 Canal + 广播消息，这里简单介绍一下：
+Phương án của Zhengcai Cloud Tech là Canal + broadcast message. Giới thiệu ngắn gọn:
 
-1. DB 修改数据：首先在数据库中进行数据修改。
-2. 通过监听 Canal 消息，触发缓存的更新：使用 Canal 监听数据库的变更操作，当检测到数据变化时，触发缓存更新。
-3. 同步 Redis 缓存：对于 Redis 缓存，因为集群中只共享一份数据，所以直接同步缓存即可。
-4. 同步本地缓存：由于本地缓存分布在不同的 JVM 实例中，需要借助广播消息队列（MQ）机制，将更新通知广播到各个业务实例，从而同步本地缓存。
+1. DB modify data: Trước tiên sửa đổi dữ liệu trong database.
+2. Lắng nghe Canal message, trigger cache update: Dùng Canal lắng nghe DB change operation. Khi phát hiện data thay đổi, trigger cache update.
+3. Sync Redis cache: Với Redis cache, vì cluster chỉ share một bản dữ liệu, sync cache trực tiếp là được.
+4. Sync local cache: Vì local cache phân bổ trong các JVM instance khác nhau, cần dùng broadcast message queue (MQ) mechanism để broadcast update notification đến các business instance để sync local cache.
 
-详细介绍：[分布式多级缓存系统设计与实战](https://juejin.cn/post/7225634879152570405)
+Giới thiệu chi tiết: [Thiết kế và thực chiến Distributed Multi-level Cache System](https://juejin.cn/post/7225634879152570405)
 
-## 参考
+## Tài liệu tham khảo
 
-- 缓存那些事：https://tech.meituan.com/2017/03/17/cache-about.html
-- 解析分布式系统的缓存设计：https://segmentfault.com/a/1190000041689802
+- Cache những điều cần biết: https://tech.meituan.com/2017/03/17/cache-about.html
+- Phân tích thiết kế cache trong distributed system: https://segmentfault.com/a/1190000041689802

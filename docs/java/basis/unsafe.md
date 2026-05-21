@@ -1,45 +1,45 @@
 ---
-title: Java 魔法类 Unsafe 详解
-description: 深入解析Java魔法类Unsafe：讲解Unsafe直接内存操作、CAS原子操作、对象实例化等底层能力，理解JUC并发工具类实现原理及使用风险。
+title: Giải thích chi tiết lớp ma thuật Unsafe trong Java
+description: Phân tích sâu về lớp ma thuật Unsafe trong Java: trình bày khả năng tầng dưới của Unsafe như thao tác bộ nhớ trực tiếp, CAS atomic operations, khởi tạo instance đối tượng, hiểu nguyên lý triển khai của các công cụ đồng thời JUC và rủi ro khi sử dụng.
 category: Java
 tag:
-  - Java基础
+  - Java Cơ bản
 head:
   - - meta
     - name: keywords
       content: Unsafe类,内存操作,CAS原子操作,堆外内存,直接内存,sun.misc.Unsafe,JUC底层实现
 ---
 
-> 本文整理完善自下面这两篇优秀的文章：
+> Bài viết này được tổng hợp và hoàn thiện từ hai bài viết xuất sắc sau:
 >
-> - [Java 魔法类：Unsafe 应用解析 - 美团技术团队 -2019](https://tech.meituan.com/2019/02/14/talk-about-java-magic-class-unsafe.html)
+> - [Java 魔法类：Unsafe 应用解析 - Meituan Tech Team - 2019](https://tech.meituan.com/2019/02/14/talk-about-java-magic-class-unsafe.html)
 > - [Java 双刃剑之 Unsafe 类详解 - 码农参上 - 2021](https://xie.infoq.cn/article/8b6ed4195e475bfb32dacc5cb)
 
 <!-- markdownlint-disable MD024 -->
 
-阅读过 JUC 源码的同学，一定会发现很多并发工具类都调用了一个叫做 `Unsafe` 的类。
+Những ai đã đọc source code JUC chắc chắn sẽ nhận ra rằng nhiều công cụ đồng thời đều gọi một lớp có tên là `Unsafe`.
 
-那这个类主要是用来干什么的呢？有什么使用场景呢？这篇文章就带你搞清楚！
+Vậy lớp này chủ yếu dùng để làm gì? Có những trường hợp sử dụng nào? Bài viết này sẽ giúp bạn hiểu rõ!
 
-## Unsafe 介绍
+## Giới thiệu Unsafe
 
-`Unsafe` 是位于 `sun.misc` 包下的一个类，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升 Java 运行效率、增强 Java 语言底层资源操作能力方面起到了很大的作用。但由于 `Unsafe` 类使 Java 语言拥有了类似 C 语言指针一样操作内存空间的能力，这无疑也增加了程序发生相关指针问题的风险。在程序中过度、不正确使用 `Unsafe` 类会使得程序出错的概率变大，使得 Java 这种安全的语言变得不再“安全”，因此对 `Unsafe` 的使用一定要慎重。
+`Unsafe` là một lớp nằm trong package `sun.misc`, chủ yếu cung cấp các phương thức để thực hiện các thao tác cấp thấp, không an toàn như truy cập trực tiếp tài nguyên bộ nhớ hệ thống, tự quản lý tài nguyên bộ nhớ, v.v. Các phương thức này đóng vai trò quan trọng trong việc nâng cao hiệu quả chạy Java và tăng cường khả năng thao tác tài nguyên tầng dưới của ngôn ngữ Java. Tuy nhiên, vì lớp `Unsafe` cho phép Java có khả năng thao tác không gian bộ nhớ tương tự con trỏ ngôn ngữ C, điều này cũng làm tăng nguy cơ xảy ra các vấn đề liên quan đến con trỏ trong chương trình. Sử dụng lớp `Unsafe` quá mức hoặc không đúng cách trong chương trình sẽ làm tăng khả năng chương trình bị lỗi, khiến ngôn ngữ Java vốn an toàn trở nên không còn "an toàn" nữa, vì vậy việc sử dụng `Unsafe` nhất định phải thận trọng.
 
-另外，`Unsafe` 提供的这些功能的实现需要依赖本地方法（Native Method）。你可以将本地方法看作是 Java 中使用其他编程语言编写的方法。本地方法使用 **`native`** 关键字修饰，Java 代码中只是声明方法头，具体的实现则交给 **本地代码**。
+Ngoài ra, việc triển khai các chức năng mà `Unsafe` cung cấp cần phụ thuộc vào Native Method (phương thức bản địa). Bạn có thể xem phương thức bản địa như là phương thức được viết bằng ngôn ngữ lập trình khác trong Java. Phương thức bản địa được đánh dấu bằng từ khóa **`native`**, trong code Java chỉ khai báo phần đầu phương thức, còn việc triển khai cụ thể được giao cho **code bản địa**.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717115231125.png)
 
-**为什么要使用本地方法呢？**
+**Tại sao phải sử dụng phương thức bản địa?**
 
-1. 需要用到 Java 中不具备的依赖于操作系统的特性，Java 在实现跨平台的同时要实现对底层的控制，需要借助其他语言发挥作用。
-2. 对于其他语言已经完成的一些现成功能，可以使用 Java 直接调用。
-3. 程序对时间敏感或对性能要求非常高时，有必要使用更加底层的语言，例如 C/C++甚至是汇编。
+1. Cần sử dụng các tính năng phụ thuộc hệ điều hành mà Java không có, Java cần thực hiện kiểm soát tầng dưới trong khi đảm bảo đa nền tảng, cần nhờ đến các ngôn ngữ khác.
+2. Đối với một số chức năng đã được hoàn thành bằng ngôn ngữ khác, có thể dùng Java gọi trực tiếp.
+3. Khi chương trình nhạy cảm về thời gian hoặc yêu cầu hiệu suất rất cao, cần sử dụng ngôn ngữ cấp thấp hơn như C/C++ thậm chí Assembly.
 
-在 JUC 包的很多并发工具类在实现并发机制时，都调用了本地方法，通过它们打破了 Java 运行时的界限，能够接触到操作系统底层的某些功能。对于同一本地方法，不同的操作系统可能会通过不同的方式来实现，但是对于使用者来说是透明的，最终都会得到相同的结果。
+Nhiều công cụ đồng thời trong package JUC khi triển khai cơ chế đồng thời đều gọi phương thức bản địa, thông qua chúng phá vỡ giới hạn của Java runtime, có thể tiếp cận một số chức năng ở tầng dưới hệ điều hành. Đối với cùng một phương thức bản địa, các hệ điều hành khác nhau có thể triển khai theo các cách khác nhau, nhưng đối với người dùng thì trong suốt, cuối cùng đều nhận được cùng kết quả.
 
-## Unsafe 创建
+## Tạo instance Unsafe
 
-`sun.misc.Unsafe` 部分源码如下：
+Một phần source code của `sun.misc.Unsafe` như sau:
 
 ```java
 public final class Unsafe {
@@ -61,7 +61,7 @@ public final class Unsafe {
 }
 ```
 
-`Unsafe` 类为一单例实现，提供静态方法 `getUnsafe` 获取 `Unsafe`实例。这个看上去貌似可以用来获取 `Unsafe` 实例。但是，当我们直接调用这个静态方法的时候，会抛出 `SecurityException` 异常：
+Lớp `Unsafe` được triển khai như singleton, cung cấp phương thức tĩnh `getUnsafe` để lấy instance `Unsafe`. Trông có vẻ có thể dùng để lấy instance `Unsafe`. Nhưng khi chúng ta gọi trực tiếp phương thức tĩnh này, sẽ ném ngoại lệ `SecurityException`:
 
 ```bash
 Exception in thread "main" java.lang.SecurityException: Unsafe
@@ -69,19 +69,19 @@ Exception in thread "main" java.lang.SecurityException: Unsafe
  at com.cn.test.GetUnsafeTest.main(GetUnsafeTest.java:12)
 ```
 
-**为什么 `public static` 方法无法被直接调用呢？**
+**Tại sao phương thức `public static` không thể được gọi trực tiếp?**
 
-这是因为在`getUnsafe`方法中，会对调用者的`classLoader`进行检查，判断当前类是否由`Bootstrap classLoader`加载，如果不是的话那么就会抛出一个`SecurityException`异常。也就是说，只有启动类加载器加载的类才能够调用 Unsafe 类中的方法，来防止这些方法在不可信的代码中被调用。
+Điều này là vì trong phương thức `getUnsafe`, sẽ kiểm tra `classLoader` của người gọi, xác định xem lớp hiện tại có được tải bởi `Bootstrap classLoader` hay không, nếu không thì sẽ ném ngoại lệ `SecurityException`. Nghĩa là, chỉ các lớp được tải bởi bootstrap class loader mới có thể gọi các phương thức trong lớp Unsafe, để ngăn các phương thức này bị gọi trong code không đáng tin cậy.
 
-**为什么要对 Unsafe 类进行这么谨慎的使用限制呢?**
+**Tại sao lại hạn chế sử dụng lớp Unsafe chặt chẽ như vậy?**
 
-`Unsafe` 提供的功能过于底层（如直接访问系统内存资源、自主管理内存资源等），安全隐患也比较大，使用不当的话，很容易出现很严重的问题。
+Các chức năng mà `Unsafe` cung cấp quá cấp thấp (như truy cập trực tiếp tài nguyên bộ nhớ hệ thống, tự quản lý tài nguyên bộ nhớ, v.v.), rủi ro bảo mật cũng khá lớn, sử dụng không đúng rất dễ xảy ra vấn đề nghiêm trọng.
 
-**如若想使用 `Unsafe` 这个类的话，应该如何获取其实例呢？**
+**Nếu muốn sử dụng lớp `Unsafe`, làm thế nào để lấy instance?**
 
-这里介绍两个可行的方案。
+Ở đây giới thiệu hai phương án khả thi.
 
-1、利用反射获得 Unsafe 类中已经实例化完成的单例对象 `theUnsafe` 。
+1. Sử dụng reflection để lấy đối tượng singleton `theUnsafe` đã được khởi tạo trong lớp Unsafe.
 
 ```java
 private static Unsafe reflectGetUnsafe() {
@@ -96,30 +96,30 @@ private static Unsafe reflectGetUnsafe() {
 }
 ```
 
-2、从`getUnsafe`方法的使用限制条件出发，通过 Java 命令行命令`-Xbootclasspath/a`把调用 Unsafe 相关方法的类 A 所在 jar 包路径追加到默认的 bootstrap 路径中，使得 A 被引导类加载器加载，从而通过`Unsafe.getUnsafe`方法安全的获取 Unsafe 实例。
+2. Từ điều kiện hạn chế sử dụng của phương thức `getUnsafe`, thông qua lệnh Java `-Xbootclasspath/a` thêm đường dẫn jar chứa lớp A gọi các phương thức liên quan đến Unsafe vào đường dẫn bootstrap mặc định, để A được tải bởi bootstrap class loader, từ đó an toàn lấy instance Unsafe thông qua phương thức `Unsafe.getUnsafe`.
 
 ```bash
 java -Xbootclasspath/a: ${path}   // 其中path为调用Unsafe相关方法的类所在jar包路径
 ```
 
-## Unsafe 功能
+## Chức năng của Unsafe
 
-概括的来说，`Unsafe` 类实现功能可以被分为下面 8 类：
+Tổng quan, chức năng của lớp `Unsafe` có thể được chia thành 8 loại:
 
-1. 内存操作
-2. 内存屏障
-3. 对象操作
-4. 数据操作
-5. CAS 操作
-6. 线程调度
-7. Class 操作
-8. 系统信息
+1. Thao tác bộ nhớ
+2. Memory barrier (Rào cản bộ nhớ)
+3. Thao tác đối tượng
+4. Thao tác dữ liệu
+5. CAS operations
+6. Thread scheduling (Lập lịch thread)
+7. Thao tác Class
+8. Thông tin hệ thống
 
-### 内存操作
+### Thao tác bộ nhớ
 
-#### 介绍
+#### Giới thiệu
 
-如果你是一个写过 C 或者 C++ 的程序员，一定对内存操作不会陌生，而在 Java 中是不允许直接对内存进行操作的，对象内存的分配和回收都是由 JVM 自己实现的。但是在 `Unsafe` 中，提供的下列接口可以直接进行内存操作：
+Nếu bạn là lập trình viên đã viết C hoặc C++, chắc chắn quen thuộc với thao tác bộ nhớ, còn trong Java không được phép thao tác trực tiếp trên bộ nhớ, việc phân bổ và thu hồi bộ nhớ đối tượng đều do JVM tự triển khai. Nhưng trong `Unsafe`, các interface sau đây có thể thao tác bộ nhớ trực tiếp:
 
 ```java
 //分配新的本地空间
@@ -134,7 +134,7 @@ public native void copyMemory(Object srcBase, long srcOffset,Object destBase, lo
 public native void freeMemory(long address);
 ```
 
-使用下面的代码进行测试：
+Sử dụng code sau để kiểm tra:
 
 ```java
 private void memoryTest() {
@@ -171,7 +171,7 @@ private void memoryTest() {
 }
 ```
 
-先看结果输出：
+Xem kết quả đầu ra trước:
 
 ```plain
 Initial address: 140467048086752
@@ -181,50 +181,50 @@ Value at newAddr (first 4 bytes): 16843009
 Value at newAddr (full 8 bytes): 144680345659310337
 ```
 
-`reallocateMemory` 的行为类似于 C 语言中的 realloc 函数，它会尝试在不移动数据的情况下扩展或收缩内存块。其行为主要有两种情况：
+Hành vi của `reallocateMemory` tương tự hàm realloc trong C, nó sẽ cố gắng mở rộng hoặc thu nhỏ khối bộ nhớ mà không di chuyển dữ liệu. Hành vi của nó chủ yếu có hai trường hợp:
 
-1. **原地扩容**：如果当前内存块后面有足够的连续空闲空间，`reallocateMemory` 会直接在原地址上扩展内存，并返回原始地址。
-2. **异地扩容**：如果当前内存块后面空间不足，它会寻找一个新的、足够大的内存区域，将旧数据拷贝过去，然后释放旧的内存地址，并返回新地址。
+1. **Mở rộng tại chỗ**: Nếu sau khối bộ nhớ hiện tại có đủ không gian trống liên tục, `reallocateMemory` sẽ mở rộng trực tiếp trên địa chỉ gốc và trả về địa chỉ gốc.
+2. **Mở rộng ở chỗ khác**: Nếu sau khối bộ nhớ hiện tại không đủ không gian, nó sẽ tìm một vùng bộ nhớ mới đủ lớn, sao chép dữ liệu cũ sang đó, sau đó giải phóng địa chỉ bộ nhớ cũ và trả về địa chỉ mới.
 
-**结合本次的运行结果，我们可以进行如下分析：**
+**Kết hợp với kết quả chạy lần này, chúng ta có thể phân tích như sau:**
 
-**第一步：初始分配与写入**
+**Bước một: Phân bổ ban đầu và ghi**
 
-- `unsafe.allocateMemory(size)` 分配了 4 字节的堆外内存，地址为 `140467048086752`。
-- `unsafe.putInt(oldAddr, 16843009)` 向该地址写入了 int 值 `16843009`，其十六进制表示为 `0x01010101`。`getInt` 读取正确，证明写入成功。
+- `unsafe.allocateMemory(size)` phân bổ 4 byte bộ nhớ ngoài heap, địa chỉ là `140467048086752`.
+- `unsafe.putInt(oldAddr, 16843009)` ghi giá trị int `16843009` vào địa chỉ đó, biểu diễn hex là `0x01010101`. `getInt` đọc đúng, chứng tỏ ghi thành công.
 
-**第二步：原地内存扩容**
+**Bước hai: Mở rộng bộ nhớ tại chỗ**
 
-- `long newAddr = unsafe.reallocateMemory(oldAddr, size * 2)` 尝试将内存块扩容至 8 字节。
-- 观察输出 New address: `140467048086752`，我们发现 `newAddr` 与 `oldAddr` 的值**完全相同**。
-- 这表明本次操作触发了“原地扩容”。系统在原地址 `140467048086752` 后面找到了足够的空间，直接将内存块扩展到了 8 字节。在这个过程中，旧的地址 `oldAddr` 依然有效，并且就是 `newAddr`，数据也并未发生移动。
+- `long newAddr = unsafe.reallocateMemory(oldAddr, size * 2)` cố gắng mở rộng khối bộ nhớ lên 8 byte.
+- Quan sát đầu ra New address: `140467048086752`, chúng ta thấy `newAddr` và `oldAddr` **hoàn toàn giống nhau**.
+- Điều này chứng tỏ lần này kích hoạt "mở rộng tại chỗ". Hệ thống tìm thấy đủ không gian sau địa chỉ `140467048086752`, trực tiếp mở rộng khối bộ nhớ lên 8 byte. Trong quá trình này, địa chỉ cũ `oldAddr` vẫn hợp lệ và chính là `newAddr`, dữ liệu không bị di chuyển.
 
-**第三步：验证数据与写入新数据**
+**Bước ba: Xác minh dữ liệu và ghi dữ liệu mới**
 
-- `unsafe.getInt(newAddr)` 再次读取前 4 个字节，结果仍是 `16843009`，验证了原数据完好无损。
-- `unsafe.putInt(newAddr + size, 33686018)` 在扩容出的后 4 个字节（偏移量为 4）写入了新的 int 值 `33686018`（十六进制为 `0x02020202`）。
+- `unsafe.getInt(newAddr)` đọc lại 4 byte đầu, kết quả vẫn là `16843009`, xác minh dữ liệu gốc còn nguyên vẹn.
+- `unsafe.putInt(newAddr + size, 33686018)` ghi giá trị int mới `33686018` (hex là `0x02020202`) vào 4 byte sau phần được mở rộng (offset là 4).
 
-**第四步：读取完整数据**
+**Bước bốn: Đọc dữ liệu đầy đủ**
 
-- `unsafe.getLong(newAddr)` 从起始地址读取一个 long 值（8 字节）。此时内存中的 8 字节内容为 `0x01010101` (低地址) 和 `0x02020202` (高地址) 的拼接。
-- 在小端字节序（Little-Endian）的机器上，这 8 字节在内存中会被解释为十六进制数 `0x0202020201010101`。
-- 这个十六进制数转换为十进制，结果正是 `144680345659310337`。这完美地解释了最终的输出结果。
+- `unsafe.getLong(newAddr)` đọc một giá trị long (8 byte) từ địa chỉ bắt đầu. Lúc này 8 byte trong bộ nhớ là sự ghép nối của `0x01010101` (địa chỉ thấp) và `0x02020202` (địa chỉ cao).
+- Trên máy Little-Endian, 8 byte này sẽ được diễn giải là số hex `0x0202020201010101`.
+- Số hex này chuyển sang thập phân, kết quả chính là `144680345659310337`. Điều này giải thích hoàn hảo kết quả đầu ra cuối cùng.
 
-**第五步：安全的内存释放**
+**Bước năm: Giải phóng bộ nhớ an toàn**
 
-- `finally` 块中，`unsafe.freeMemory(newAddr)` 安全地释放了整个 8 字节的内存块。
-- 由于本次是原地扩容（`oldAddr == newAddr`），所以即使错误地多写一句 `freeMemory(oldAddr)` 也会导致二次释放的严重错误。
+- Trong khối `finally`, `unsafe.freeMemory(newAddr)` giải phóng an toàn toàn bộ khối bộ nhớ 8 byte.
+- Vì lần này là mở rộng tại chỗ (`oldAddr == newAddr`), nên nếu nhầm viết thêm `freeMemory(oldAddr)` cũng sẽ gây ra lỗi double free nghiêm trọng.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-`DirectByteBuffer` 是 Java 用于实现堆外内存的一个重要类，通常用在通信过程中做缓冲池，如在 Netty、MINA 等 NIO 框架中应用广泛。`DirectByteBuffer` 对于堆外内存的创建、使用、销毁等逻辑均由 Unsafe 提供的堆外内存 API 来实现。
+`DirectByteBuffer` là một lớp quan trọng mà Java dùng để triển khai bộ nhớ ngoài heap, thường được dùng làm buffer pool trong quá trình truyền thông, như được áp dụng rộng rãi trong các NIO framework như Netty, MINA. Logic tạo, sử dụng, hủy bộ nhớ ngoài heap của `DirectByteBuffer` đều được triển khai bởi API bộ nhớ ngoài heap mà Unsafe cung cấp.
 
-**为什么要使用堆外内存？**
+**Tại sao phải sử dụng bộ nhớ ngoài heap?**
 
-- 对垃圾回收停顿的改善。由于堆外内存是直接受操作系统管理而不是 JVM，所以当我们使用堆外内存时，即可保持较小的堆内内存规模。从而在 GC 时减少回收停顿对于应用的影响。
-- 提升程序 I/O 操作的性能。通常在 I/O 通信过程中，会存在堆内内存到堆外内存的数据拷贝操作，对于需要频繁进行内存间数据拷贝且生命周期较短的暂存数据，都建议存储到堆外内存。
+- Cải thiện dừng garbage collection. Vì bộ nhớ ngoài heap được quản lý trực tiếp bởi hệ điều hành chứ không phải JVM, nên khi sử dụng bộ nhớ ngoài heap có thể duy trì quy mô bộ nhớ heap nhỏ hơn. Từ đó giảm ảnh hưởng của dừng thu hồi khi GC đối với ứng dụng.
+- Nâng cao hiệu suất I/O của chương trình. Thường trong quá trình truyền thông I/O, có thao tác sao chép dữ liệu từ bộ nhớ trong heap sang bộ nhớ ngoài heap, đối với dữ liệu tạm thời cần thường xuyên sao chép dữ liệu giữa các bộ nhớ và có vòng đời ngắn, đều khuyến nghị lưu trữ trong bộ nhớ ngoài heap.
 
-下图为 `DirectByteBuffer` 构造函数，创建 `DirectByteBuffer` 的时候，通过 `Unsafe.allocateMemory` 分配内存、`Unsafe.setMemory` 进行内存初始化，而后构建 `Cleaner` 对象用于跟踪 `DirectByteBuffer` 对象的垃圾回收，以实现当 `DirectByteBuffer` 被垃圾回收时，分配的堆外内存一起被释放。
+Hình dưới đây là constructor của `DirectByteBuffer`, khi tạo `DirectByteBuffer`, phân bổ bộ nhớ thông qua `Unsafe.allocateMemory`, khởi tạo bộ nhớ qua `Unsafe.setMemory`, sau đó xây dựng đối tượng `Cleaner` dùng để theo dõi garbage collection của đối tượng `DirectByteBuffer`, để khi `DirectByteBuffer` bị thu gom rác, bộ nhớ ngoài heap được phân bổ cũng được giải phóng cùng.
 
 ```java
 DirectByteBuffer(int cap) {                   // package-private
@@ -257,15 +257,15 @@ DirectByteBuffer(int cap) {                   // package-private
 }
 ```
 
-### 内存屏障
+### Memory Barrier (Rào cản bộ nhớ)
 
-#### 介绍
+#### Giới thiệu
 
-在介绍内存屏障前，需要知道编译器和 CPU 会在保证程序输出结果一致的情况下，会对代码进行重排序，从指令优化角度提升性能。而指令重排序可能会带来一个不好的结果，导致 CPU 的高速缓存和内存中数据的不一致，而内存屏障（`Memory Barrier`）就是通过阻止屏障两边的指令重排序从而避免编译器和硬件的不正确优化情况。
+Trước khi giới thiệu memory barrier, cần biết rằng compiler và CPU sẽ sắp xếp lại code trong khi đảm bảo kết quả đầu ra của chương trình nhất quán, nhằm nâng cao hiệu suất từ góc độ tối ưu hóa lệnh. Còn việc sắp xếp lại lệnh có thể mang lại kết quả không tốt, dẫn đến dữ liệu không nhất quán giữa cache CPU tốc độ cao và bộ nhớ, còn memory barrier (`Memory Barrier`) ngăn chặn việc sắp xếp lại lệnh ở hai phía của rào cản từ đó tránh tình trạng tối ưu hóa không chính xác của compiler và phần cứng.
 
-在硬件层面上，内存屏障是 CPU 为了防止代码进行重排序而提供的指令，不同的硬件平台上实现内存屏障的方法可能并不相同。在 Java8 中，引入了 3 个内存屏障的函数，它屏蔽了操作系统底层的差异，允许在代码中定义、并统一由 JVM 来生成内存屏障指令，来实现内存屏障的功能。
+Ở tầng phần cứng, memory barrier là lệnh CPU cung cấp để ngăn code sắp xếp lại, cách triển khai memory barrier trên các nền tảng phần cứng khác nhau có thể không giống nhau. Trong Java 8, đã giới thiệu 3 hàm memory barrier, nó che giấu sự khác biệt ở tầng dưới của hệ điều hành, cho phép định nghĩa trong code và thống nhất do JVM sinh ra lệnh memory barrier, để thực hiện chức năng memory barrier.
 
-`Unsafe` 中提供了下面三个内存屏障相关方法：
+`Unsafe` cung cấp ba phương thức liên quan đến memory barrier sau:
 
 ```java
 //内存屏障，禁止load操作重排序。屏障前的load操作不能被重排序到屏障后，屏障后的load操作不能被重排序到屏障前
@@ -276,9 +276,9 @@ public native void storeFence();
 public native void fullFence();
 ```
 
-内存屏障可以看做对内存随机访问的操作中的一个同步点，使得此点之前的所有读写操作都执行后才可以开始执行此点之后的操作。以`loadFence`方法为例，它会禁止读操作重排序，保证在这个屏障之前的所有读操作都已经完成，并且将缓存数据设为无效，重新从主存中进行加载。
+Memory barrier có thể xem như một điểm đồng bộ trong thao tác truy cập bộ nhớ ngẫu nhiên, làm cho tất cả các thao tác đọc ghi trước điểm này đều thực thi xong trước khi bắt đầu thực thi các thao tác sau điểm này. Lấy phương thức `loadFence` làm ví dụ, nó sẽ ngăn sắp xếp lại thao tác đọc, đảm bảo tất cả thao tác đọc trước rào cản này đều đã hoàn thành, và đặt dữ liệu cache là không hợp lệ, tải lại từ main memory.
 
-看到这估计很多小伙伴们会想到`volatile`关键字了，如果在字段上添加了`volatile`关键字，就能够实现字段在多线程下的可见性。基于读内存屏障，我们也能实现相同的功能。下面定义一个线程方法，在线程中去修改`flag`标志位，注意这里的`flag`是没有被`volatile`修饰的：
+Thấy đây ước chừng nhiều bạn sẽ nghĩ đến từ khóa `volatile`, nếu thêm từ khóa `volatile` vào field thì có thể thực hiện khả năng hiển thị của field trong đa luồng. Dựa trên read memory barrier, chúng ta cũng có thể thực hiện cùng chức năng. Dưới đây định nghĩa một lớp thread, trong thread đó sửa đổi flag, lưu ý ở đây `flag` không được đánh dấu bởi `volatile`:
 
 ```java
 @Getter
@@ -297,7 +297,7 @@ class ChangeThread implements Runnable{
 }
 ```
 
-在主线程的`while`循环中，加入内存屏障，测试是否能够感知到`flag`的修改变化：
+Trong vòng lặp `while` của main thread, thêm memory barrier, kiểm tra xem có thể nhận biết được sự thay đổi của `flag` hay không:
 
 ```java
 public static void main(String[] args){
@@ -315,7 +315,7 @@ public static void main(String[] args){
 }
 ```
 
-运行结果：
+Kết quả chạy:
 
 ```plain
 subThread change flag to:false
@@ -323,17 +323,17 @@ detected flag changed
 main thread end
 ```
 
-而如果删掉上面代码中的`loadFence`方法，那么主线程将无法感知到`flag`发生的变化，会一直在`while`中循环。可以用图来表示上面的过程：
+Còn nếu xóa phương thức `loadFence` trong code trên, thì main thread sẽ không thể nhận biết sự thay đổi của `flag`, sẽ liên tục lặp trong `while`. Có thể dùng hình để biểu diễn quá trình trên:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144703446.png)
 
-了解 Java 内存模型（`JMM`）的小伙伴们应该清楚，运行中的线程不是直接读取主内存中的变量的，只能操作自己工作内存中的变量，然后同步到主内存中，并且线程的工作内存是不能共享的。上面的图中的流程就是子线程借助于主内存，将修改后的结果同步给了主线程，进而修改主线程中的工作空间，跳出循环。
+Các bạn hiểu Java Memory Model (`JMM`) nên biết, thread đang chạy không đọc trực tiếp biến trong main memory, chỉ có thể thao tác biến trong working memory của mình, sau đó đồng bộ lên main memory, và working memory của thread không thể chia sẻ. Quy trình trong hình trên là thread con thông qua main memory đồng bộ kết quả đã sửa đổi cho main thread, từ đó sửa đổi working space của main thread, thoát khỏi vòng lặp.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-在 Java 8 中引入了一种锁的新机制——`StampedLock`，它可以看成是读写锁的一个改进版本。`StampedLock` 提供了一种乐观读锁的实现，这种乐观读锁类似于无锁的操作，完全不会阻塞写线程获取写锁，从而缓解读多写少时写线程“饥饿”现象。由于 `StampedLock` 提供的乐观读锁不阻塞写线程获取读锁，当线程共享变量从主内存 load 到线程工作内存时，会存在数据不一致问题。
+Trong Java 8 đã giới thiệu một cơ chế khóa mới — `StampedLock`, có thể xem đây là phiên bản cải tiến của read-write lock. `StampedLock` cung cấp một triển khai optimistic read lock, loại optimistic read lock này tương tự như thao tác không khóa, hoàn toàn không chặn write thread lấy write lock, từ đó giảm nhẹ hiện tượng "đói" của write thread khi đọc nhiều ghi ít. Vì optimistic read lock của `StampedLock` không chặn write thread lấy read lock, khi biến chia sẻ thread được load từ main memory sang working memory thread, sẽ có vấn đề dữ liệu không nhất quán.
 
-为了解决这个问题，`StampedLock` 的 `validate` 方法会通过 `Unsafe` 的 `loadFence` 方法加入一个 `load` 内存屏障。
+Để giải quyết vấn đề này, phương thức `validate` của `StampedLock` sẽ thêm một `load` memory barrier thông qua phương thức `loadFence` của `Unsafe`.
 
 ```java
 public boolean validate(long stamp) {
@@ -342,11 +342,11 @@ public boolean validate(long stamp) {
 }
 ```
 
-### 对象操作
+### Thao tác đối tượng
 
-#### 介绍
+#### Giới thiệu
 
-**例子**
+**Ví dụ**
 
 ```java
 import sun.misc.Unsafe;
@@ -381,7 +381,7 @@ public class Main {
 }
 ```
 
-输出结果：
+Kết quả đầu ra:
 
 ```plain
 value before putInt: 0
@@ -389,9 +389,9 @@ value after putInt: 42
 value after putInt: 42
 ```
 
-**对象属性**
+**Thuộc tính đối tượng**
 
-对象成员属性的内存偏移量获取，以及字段属性值的修改，在上面的例子中我们已经测试过了。除了前面的`putInt`、`getInt`方法外，Unsafe 提供了全部 8 种基础数据类型以及`Object`的`put`和`get`方法，并且所有的`put`方法都可以越过访问权限，直接修改内存中的数据。阅读 openJDK 源码中的注释发现，基础数据类型和`Object`的读写稍有不同，基础数据类型是直接操作的属性值（`value`），而`Object`的操作则是基于引用值（`reference value`）。下面是`Object`的读写方法：
+Việc lấy memory offset của thuộc tính thành viên đối tượng, và sửa đổi giá trị thuộc tính field, chúng ta đã kiểm tra trong ví dụ trên. Ngoài các phương thức `putInt`, `getInt` đề cập trước đó, Unsafe còn cung cấp phương thức `put` và `get` cho toàn bộ 8 kiểu dữ liệu cơ bản và `Object`, và tất cả các phương thức `put` đều có thể vượt qua quyền truy cập, trực tiếp sửa đổi dữ liệu trong bộ nhớ. Đọc comment trong source code openJDK phát hiện, đọc ghi kiểu dữ liệu cơ bản và `Object` có chút khác nhau, kiểu dữ liệu cơ bản thao tác trực tiếp trên giá trị thuộc tính (`value`), còn thao tác của `Object` dựa trên giá trị tham chiếu (`reference value`). Dưới đây là phương thức đọc ghi của `Object`:
 
 ```java
 //在对象的指定偏移地址获取一个对象引用
@@ -400,7 +400,7 @@ public native Object getObject(Object o, long offset);
 public native void putObject(Object o, long offset, Object x);
 ```
 
-除了对象属性的普通读写外，`Unsafe` 还提供了 **volatile 读写**和**有序写入**方法。`volatile`读写方法的覆盖范围与普通读写相同，包含了全部基础数据类型和`Object`类型，以`int`类型为例：
+Ngoài đọc ghi thông thường thuộc tính đối tượng, `Unsafe` còn cung cấp phương thức **volatile read/write** và **ordered write**. Phạm vi bao phủ của phương thức volatile read/write giống với đọc ghi thông thường, bao gồm toàn bộ kiểu dữ liệu cơ bản và kiểu `Object`, lấy kiểu `int` làm ví dụ:
 
 ```java
 //在对象的指定偏移地址处读取一个int值，支持volatile load语义
@@ -409,9 +409,9 @@ public native int getIntVolatile(Object o, long offset);
 public native void putIntVolatile(Object o, long offset, int x);
 ```
 
-相对于普通读写来说，`volatile`读写具有更高的成本，因为它需要保证可见性和有序性。在执行`get`操作时，会强制从主存中获取属性值，在使用`put`方法设置属性值时，会强制将值更新到主存中，从而保证这些变更对其他线程是可见的。
+So với đọc ghi thông thường, volatile read/write có chi phí cao hơn, vì nó cần đảm bảo khả năng hiển thị và tính thứ tự. Khi thực thi thao tác `get`, sẽ bắt buộc lấy giá trị thuộc tính từ main memory, khi dùng phương thức `put` đặt giá trị thuộc tính, sẽ bắt buộc cập nhật giá trị lên main memory, từ đó đảm bảo những thay đổi này hiển thị với các thread khác.
 
-有序写入的方法有以下三个：
+Các phương thức ordered write có ba loại sau:
 
 ```java
 public native void putOrderedObject(Object o, long offset, Object x);
@@ -419,22 +419,22 @@ public native void putOrderedInt(Object o, long offset, int x);
 public native void putOrderedLong(Object o, long offset, long x);
 ```
 
-有序写入的成本相对`volatile`较低，因为它只保证写入时的有序性，而不保证可见性，也就是一个线程写入的值不能保证其他线程立即可见。为了解决这里的差异性，需要对内存屏障的知识点再进一步进行补充，首先需要了解两个指令的概念：
+Chi phí của ordered write thấp hơn so với `volatile`, vì nó chỉ đảm bảo tính thứ tự khi ghi, chứ không đảm bảo khả năng hiển thị, nghĩa là giá trị một thread ghi không đảm bảo ngay lập tức hiển thị với các thread khác. Để giải quyết sự khác biệt ở đây, cần bổ sung thêm kiến thức về memory barrier, trước tiên cần hiểu hai khái niệm lệnh:
 
-- `Load`：将主内存中的数据拷贝到处理器的缓存中
-- `Store`：将处理器缓存的数据刷新到主内存中
+- `Load`: Sao chép dữ liệu từ main memory vào cache của processor
+- `Store`: Đẩy dữ liệu trong cache của processor lên main memory
 
-顺序写入与`volatile`写入的差别在于，在顺序写时加入的内存屏障类型为`StoreStore`类型，而在`volatile`写入时加入的内存屏障是`StoreLoad`类型，如下图所示：
+Sự khác biệt giữa ordered write và `volatile` write là, trong ordered write thêm memory barrier kiểu `StoreStore`, còn trong `volatile` write thêm memory barrier là kiểu `StoreLoad`, như hình dưới đây:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144834132.png)
 
-在有序写入方法中，使用的是`StoreStore`屏障，该屏障确保`Store1`立刻刷新数据到内存，这一操作先于`Store2`以及后续的存储指令操作。而在`volatile`写入中，使用的是`StoreLoad`屏障，该屏障确保`Store1`立刻刷新数据到内存，这一操作先于`Load2`及后续的装载指令，并且，`StoreLoad`屏障会使该屏障之前的所有内存访问指令，包括存储指令和访问指令全部完成之后，才执行该屏障之后的内存访问指令。
+Trong phương thức ordered write, sử dụng rào cản `StoreStore`, rào cản này đảm bảo `Store1` ngay lập tức đẩy dữ liệu lên bộ nhớ, thao tác này trước `Store2` và các lệnh lưu trữ tiếp theo. Còn trong `volatile` write, sử dụng rào cản `StoreLoad`, rào cản này đảm bảo `Store1` ngay lập tức đẩy dữ liệu lên bộ nhớ, thao tác này trước `Load2` và các lệnh tải tiếp theo, và, rào cản `StoreLoad` sẽ làm tất cả các lệnh truy cập bộ nhớ trước rào cản đó, bao gồm lệnh lưu trữ và lệnh truy cập đều hoàn thành xong, mới thực thi các lệnh truy cập bộ nhớ sau rào cản đó.
 
-综上所述，在上面的三类写入方法中，在写入效率方面，按照`put`、`putOrder`、`putVolatile`的顺序效率逐渐降低。
+Tóm lại, trong ba loại phương thức ghi ở trên, về hiệu quả ghi, theo thứ tự `put`, `putOrder`, `putVolatile` hiệu quả giảm dần.
 
-**对象实例化**
+**Khởi tạo instance đối tượng**
 
-使用 `Unsafe` 的 `allocateInstance` 方法，允许我们使用非常规的方式进行对象的实例化，首先定义一个实体类，并且在构造函数中对其成员变量进行赋值操作：
+Sử dụng phương thức `allocateInstance` của `Unsafe`, cho phép chúng ta thực hiện khởi tạo đối tượng bằng cách không thông thường, trước tiên định nghĩa một entity class và gán giá trị cho biến thành viên trong constructor:
 
 ```java
 @Data
@@ -446,7 +446,7 @@ public class A {
 }
 ```
 
-分别基于构造函数、反射以及 `Unsafe` 方法的不同方式创建对象进行比较：
+So sánh các cách tạo đối tượng khác nhau dựa trên constructor, reflection và phương thức `Unsafe`:
 
 ```java
 public void objTest() throws Exception{
@@ -459,18 +459,18 @@ public void objTest() throws Exception{
 }
 ```
 
-打印结果分别为 1、1、0，说明通过`allocateInstance`方法创建对象过程中，不会调用类的构造方法。使用这种方式创建对象时，只用到了`Class`对象，所以说如果想要跳过对象的初始化阶段或者跳过构造器的安全检查，就可以使用这种方法。在上面的例子中，如果将 A 类的构造函数改为`private`类型，将无法通过构造函数和反射创建对象（可以通过构造函数对象 setAccessible 后创建对象），但`allocateInstance`方法仍然有效。
+Kết quả in lần lượt là 1, 1, 0, chứng tỏ trong quá trình tạo đối tượng thông qua phương thức `allocateInstance`, constructor của class sẽ không được gọi. Khi tạo đối tượng bằng cách này, chỉ sử dụng đối tượng `Class`, vì vậy nếu muốn bỏ qua giai đoạn khởi tạo đối tượng hoặc bỏ qua kiểm tra bảo mật của constructor, có thể dùng phương thức này. Trong ví dụ trên, nếu thay đổi constructor của class A thành `private`, sẽ không thể tạo đối tượng thông qua constructor và reflection (có thể tạo đối tượng thông qua constructor object sau khi setAccessible), nhưng phương thức `allocateInstance` vẫn có hiệu lực.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-- **常规对象实例化方式**：我们通常所用到的创建对象的方式，从本质上来讲，都是通过 new 机制来实现对象的创建。但是，new 机制有个特点就是当类只提供有参的构造函数且无显式声明无参构造函数时，则必须使用有参构造函数进行对象构造，而使用有参构造函数时，必须传递相应个数的参数才能完成对象实例化。
-- **非常规的实例化方式**：而 Unsafe 中提供 allocateInstance 方法，仅通过 Class 对象就可以创建此类的实例对象，而且不需要调用其构造函数、初始化代码、JVM 安全检查等。它抑制修饰符检测，也就是即使构造器是 private 修饰的也能通过此方法实例化，只需提类对象即可创建相应的对象。由于这种特性，allocateInstance 在 java.lang.invoke、Objenesis（提供绕过类构造器的对象生成方式）、Gson（反序列化时用到）中都有相应的应用。
+- **Cách khởi tạo đối tượng thông thường**: Các cách tạo đối tượng mà chúng ta thường dùng, về bản chất đều được triển khai thông qua cơ chế new. Nhưng cơ chế new có đặc điểm là khi class chỉ cung cấp constructor có tham số mà không khai báo rõ ràng constructor không tham số, thì phải dùng constructor có tham số để xây dựng đối tượng, và khi dùng constructor có tham số, phải truyền số lượng tham số tương ứng mới hoàn thành khởi tạo đối tượng.
+- **Cách khởi tạo không thông thường**: Còn trong Unsafe cung cấp phương thức allocateInstance, chỉ thông qua đối tượng Class có thể tạo instance của class đó, và không cần gọi constructor, code khởi tạo, kiểm tra bảo mật JVM, v.v. Nó ngăn chặn kiểm tra modifier, nghĩa là dù constructor được đánh dấu private cũng có thể khởi tạo thông qua phương thức này, chỉ cần cung cấp đối tượng class là có thể tạo đối tượng tương ứng. Do tính năng này, allocateInstance được áp dụng trong java.lang.invoke, Objenesis (cung cấp cách sinh đối tượng bỏ qua constructor class), Gson (dùng khi deserialize), v.v.
 
-### 数组操作
+### Thao tác mảng
 
-#### 介绍
+#### Giới thiệu
 
-`arrayBaseOffset` 与 `arrayIndexScale` 这两个方法配合起来使用，即可定位数组中每个元素在内存中的位置。
+`arrayBaseOffset` và `arrayIndexScale` kết hợp với nhau có thể định vị vị trí của mỗi phần tử trong mảng trong bộ nhớ.
 
 ```java
 //返回数组中第一个元素的偏移地址
@@ -479,17 +479,17 @@ public native int arrayBaseOffset(Class<?> arrayClass);
 public native int arrayIndexScale(Class<?> arrayClass);
 ```
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-这两个与数据操作相关的方法，在 `java.util.concurrent.atomic` 包下的 `AtomicIntegerArray`（可以实现对 `Integer` 数组中每个元素的原子性操作）中有典型的应用，如下图 `AtomicIntegerArray` 源码所示，通过 `Unsafe` 的 `arrayBaseOffset`、`arrayIndexScale` 分别获取数组首元素的偏移地址 `base` 及单个元素大小因子 `scale` 。后续相关原子性操作，均依赖于这两个值进行数组中元素的定位，如下图二所示的 `getAndAdd` 方法即通过 `checkedByteOffset` 方法获取某数组元素的偏移地址，而后通过 CAS 实现原子性操作。
+Hai phương thức liên quan đến thao tác dữ liệu này có ứng dụng điển hình trong `AtomicIntegerArray` (có thể thực hiện thao tác atomic trên mỗi phần tử của mảng `Integer`) trong package `java.util.concurrent.atomic`, như được hiển thị trong source code `AtomicIntegerArray` dưới đây, thông qua `arrayBaseOffset`, `arrayIndexScale` của `Unsafe` lấy riêng offset địa chỉ của phần tử đầu tiên của mảng `base` và nhân tố kích thước phần tử đơn `scale`. Các thao tác atomic liên quan tiếp theo đều phụ thuộc vào hai giá trị này để định vị phần tử trong mảng, như phương thức `getAndAdd` được hiển thị trong hình hai bên dưới lấy offset địa chỉ của một phần tử mảng nào đó thông qua phương thức `checkedByteOffset`, sau đó thực hiện thao tác atomic thông qua CAS.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144927257.png)
 
-### CAS 操作
+### CAS Operations
 
-#### 介绍
+#### Giới thiệu
 
-这部分主要为 CAS 相关操作的方法。
+Phần này chủ yếu là các phương thức liên quan đến CAS.
 
 ```java
 /**
@@ -507,17 +507,17 @@ public final native boolean compareAndSwapInt(Object o, long offset, int expecte
 public final native boolean compareAndSwapLong(Object o, long offset, long expected, long update);
 ```
 
-**什么是 CAS?** CAS 即比较并替换（Compare And Swap)，是实现并发算法时常用到的一种技术。CAS 操作包含三个操作数——内存位置、预期原值及新值。执行 CAS 操作的时候，将内存位置的值与预期原值比较，如果相匹配，那么处理器会自动将该位置值更新为新值，否则，处理器不做任何操作。我们都知道，CAS 是一条 CPU 的原子指令（cmpxchg 指令），不会造成所谓的数据不一致问题，`Unsafe` 提供的 CAS 方法（如 `compareAndSwapXXX`）底层实现即为 CPU 指令 `cmpxchg` 。
+**CAS là gì?** CAS tức là Compare And Swap (So sánh và Hoán đổi), là một kỹ thuật thường được dùng khi triển khai thuật toán đồng thời. Thao tác CAS bao gồm ba toán hạng — vị trí bộ nhớ, giá trị gốc kỳ vọng và giá trị mới. Khi thực hiện thao tác CAS, so sánh giá trị tại vị trí bộ nhớ với giá trị gốc kỳ vọng, nếu khớp thì processor sẽ tự động cập nhật giá trị tại vị trí đó thành giá trị mới, nếu không processor không làm gì. Chúng ta đều biết CAS là một lệnh atomic của CPU (lệnh cmpxchg), không gây ra vấn đề dữ liệu không nhất quán, triển khai tầng dưới của phương thức CAS mà `Unsafe` cung cấp (như `compareAndSwapXXX`) chính là lệnh CPU `cmpxchg`.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-在 JUC 包的并发工具类中大量地使用了 CAS 操作，像在前面介绍`synchronized`和`AQS`的文章中也多次提到了 CAS，其作为乐观锁在并发工具类中广泛发挥了作用。在 `Unsafe` 类中，提供了`compareAndSwapObject`、`compareAndSwapInt`、`compareAndSwapLong`方法来实现的对`Object`、`int`、`long`类型的 CAS 操作。以`compareAndSwapInt`方法为例：
+Trong các công cụ đồng thời của package JUC, CAS được sử dụng rộng rãi, như trong các bài giới thiệu `synchronized` và `AQS` trước đây cũng đề cập nhiều lần đến CAS, nó đóng vai trò rộng rãi với tư cách là optimistic lock trong các công cụ đồng thời. Trong lớp `Unsafe`, cung cấp phương thức `compareAndSwapObject`, `compareAndSwapInt`, `compareAndSwapLong` để triển khai thao tác CAS cho các kiểu `Object`, `int`, `long`. Lấy phương thức `compareAndSwapInt` làm ví dụ:
 
 ```java
 public final native boolean compareAndSwapInt(Object o, long offset,int expected,int x);
 ```
 
-参数中`o`为需要更新的对象，`offset`是对象`o`中整形字段的偏移量，如果这个字段的值与`expected`相同，则将字段的值设为`x`这个新值，并且此更新是不可被中断的，也就是一个原子操作。下面是一个使用`compareAndSwapInt`的例子：
+Trong tham số, `o` là đối tượng cần cập nhật, `offset` là offset của field kiểu int trong đối tượng `o`, nếu giá trị field này giống với `expected`, thì đặt giá trị field thành giá trị mới `x`, và cập nhật này không thể bị gián đoạn, tức là một thao tác atomic. Dưới đây là ví dụ sử dụng `compareAndSwapInt`:
 
 ```java
 private volatile int a;
@@ -550,13 +550,13 @@ private void increment(int x){
 }
 ```
 
-运行代码会依次输出：
+Chạy code sẽ lần lượt in:
 
 ```plain
 1 2 3 4 5 6 7 8 9
 ```
 
-如果你把上面这段代码贴到 IDE 中运行，会发现并不能得到目标输出结果。有朋友已经在 Github 上指出了这个问题：[issue#2650](https://github.com/Snailclimb/JavaGuide/issues/2650)。下面是修正后的代码：
+Nếu bạn dán đoạn code trên vào IDE và chạy, sẽ phát hiện không thể nhận được kết quả đầu ra mong muốn. Có bạn đã chỉ ra vấn đề này trên Github: [issue#2650](https://github.com/Snailclimb/JavaGuide/issues/2650). Dưới đây là code đã được sửa:
 
 ```java
 // 将递增和打印操作封装在一个原子性更强的方法内
@@ -577,30 +577,31 @@ private void incrementAndPrint(int targetValue) {
     }
 }
 ```
-在上述例子中，我们创建了两个线程，它们都尝试修改共享变量 a。每个线程在调用 `incrementAndPrint(targetValue)` 方法时：
 
-1. 会先读取 a 的当前值 `currentValue`。
-2. 检查 `currentValue` 是否等于 `targetValue - 1` (即期望的前一个值)。
-3. 如果条件满足，则调用`unsafe.compareAndSwapInt()` 尝试将 `a` 从 `currentValue` 更新到 `targetValue`。
-4. 如果 CAS 操作成功（返回 true），则打印 `targetValue` 并退出循环。
-5. 如果 CAS 操作失败，说明有其他线程同时竞争，此时会重新读取 `currentValue` 并重试，直到成功为止。
+Trong ví dụ trên, chúng ta tạo hai thread, cả hai đều cố gắng sửa đổi biến chia sẻ a. Mỗi thread khi gọi phương thức `incrementAndPrint(targetValue)`:
 
-这种机制确保了每个数字（从 1 到 9）只会被成功设置并打印一次，并且是按顺序进行的。
+1. Trước tiên đọc giá trị hiện tại của a `currentValue`.
+2. Kiểm tra xem `currentValue` có bằng `targetValue - 1` không (tức là giá trị trước kỳ vọng).
+3. Nếu điều kiện thỏa mãn, gọi `unsafe.compareAndSwapInt()` cố gắng cập nhật `a` từ `currentValue` sang `targetValue`.
+4. Nếu thao tác CAS thành công (trả về true), in `targetValue` và thoát khỏi vòng lặp.
+5. Nếu thao tác CAS thất bại, có nghĩa là có thread khác đang cạnh tranh đồng thời, lúc này sẽ đọc lại `currentValue` và retry, cho đến khi thành công.
+
+Cơ chế này đảm bảo mỗi số (từ 1 đến 9) chỉ được đặt thành công và in một lần, và theo thứ tự.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144939826.png)
 
-需要注意的是：
+Cần lưu ý:
 
-1. **自旋逻辑：** `compareAndSwapInt` 方法本身只执行一次比较和交换操作，并立即返回结果。因此，为了确保操作最终成功（在值符合预期的情况下），我们需要在代码中显式地实现自旋逻辑（如 `while(true)` 循环），不断尝试直到 CAS 操作成功。
-2. **`AtomicInteger` 的实现：** JDK 中的 `java.util.concurrent.atomic.AtomicInteger` 类内部正是利用了类似的 CAS 操作和自旋逻辑来实现其原子性的 `getAndIncrement()`, `compareAndSet()` 等方法。直接使用 `AtomicInteger` 通常是更安全、更推荐的做法，因为它封装了底层的复杂性。
-3. **ABA 问题：** CAS 操作本身存在 ABA 问题（一个值从 A 变为 B，再变回 A，CAS 检查时会认为值没有变过）。在某些场景下，如果值的变化历史很重要，可能需要使用 `AtomicStampedReference` 来解决。但在本例的简单递增场景中，ABA 问题通常不构成影响。
-4. **CPU 消耗：** 长时间的自旋会消耗 CPU 资源。在竞争激烈或条件长时间不满足的情况下，可以考虑加入更复杂的退避策略（如 `Thread.sleep()` 或 `LockSupport.parkNanos()`）来优化。
+1. **Logic spin:** Bản thân phương thức `compareAndSwapInt` chỉ thực thi một lần thao tác so sánh và hoán đổi, và ngay lập tức trả về kết quả. Do đó, để đảm bảo thao tác cuối cùng thành công (khi giá trị phù hợp với kỳ vọng), chúng ta cần triển khai rõ ràng logic spin (như vòng lặp `while(true)`) trong code, liên tục thử cho đến khi thao tác CAS thành công.
+2. **Triển khai của `AtomicInteger`:** Lớp `java.util.concurrent.atomic.AtomicInteger` trong JDK bên trong chính sử dụng thao tác CAS và logic spin tương tự để triển khai các phương thức atomic `getAndIncrement()`, `compareAndSet()`, v.v. Trực tiếp sử dụng `AtomicInteger` thường là cách an toàn và được khuyến nghị hơn, vì nó đóng gói sự phức tạp ở tầng dưới.
+3. **Vấn đề ABA:** Bản thân thao tác CAS tồn tại vấn đề ABA (một giá trị từ A thay đổi thành B, rồi thay đổi lại A, khi CAS kiểm tra sẽ cho rằng giá trị không thay đổi). Trong một số tình huống, nếu lịch sử thay đổi giá trị quan trọng, có thể cần dùng `AtomicStampedReference` để giải quyết. Nhưng trong tình huống đơn giản tăng dần như ví dụ này, vấn đề ABA thường không ảnh hưởng.
+4. **Tiêu thụ CPU:** Spin kéo dài sẽ tiêu thụ tài nguyên CPU. Trong trường hợp cạnh tranh khốc liệt hoặc điều kiện không thỏa mãn trong thời gian dài, có thể xem xét thêm chiến lược backoff phức tạp hơn (như `Thread.sleep()` hoặc `LockSupport.parkNanos()`) để tối ưu.
 
-### 线程调度
+### Thread Scheduling (Lập lịch thread)
 
-#### 介绍
+#### Giới thiệu
 
-`Unsafe` 类中提供了`park`、`unpark`、`monitorEnter`、`monitorExit`、`tryMonitorEnter`方法进行线程调度。
+Lớp `Unsafe` cung cấp các phương thức `park`, `unpark`, `monitorEnter`, `monitorExit`, `tryMonitorEnter` để lập lịch thread.
 
 ```java
 //取消阻塞线程
@@ -618,9 +619,9 @@ public native void monitorExit(Object o);
 public native boolean tryMonitorEnter(Object o);
 ```
 
-方法 `park`、`unpark` 即可实现线程的挂起与恢复，将一个线程进行挂起是通过 `park` 方法实现的，调用 `park` 方法后，线程将一直阻塞直到超时或者中断等条件出现；`unpark` 可以终止一个挂起的线程，使其恢复正常。
+Phương thức `park`, `unpark` có thể thực hiện treo và khôi phục thread, treo một thread được triển khai thông qua phương thức `park`, sau khi gọi phương thức `park`, thread sẽ liên tục bị block cho đến khi timeout hoặc xuất hiện điều kiện ngắt; `unpark` có thể kết thúc một thread đang bị treo, khiến nó khôi phục bình thường.
 
-此外，`Unsafe` 源码中`monitor`相关的三个方法已经被标记为`deprecated`，不建议被使用：
+Ngoài ra, ba phương thức liên quan đến `monitor` trong source code `Unsafe` đã được đánh dấu là `deprecated`, không nên được sử dụng:
 
 ```java
 //获得对象锁
@@ -634,11 +635,11 @@ public native void monitorExit(Object var1);
 public native boolean tryMonitorEnter(Object var1);
 ```
 
-`monitorEnter`方法用于获得对象锁，`monitorExit`用于释放对象锁，如果对一个没有被`monitorEnter`加锁的对象执行此方法，会抛出`IllegalMonitorStateException`异常。`tryMonitorEnter`方法尝试获取对象锁，如果成功则返回`true`，反之返回`false`。
+Phương thức `monitorEnter` dùng để lấy object lock, `monitorExit` dùng để giải phóng object lock, nếu thực thi phương thức này trên một đối tượng chưa được `monitorEnter` khóa, sẽ ném ngoại lệ `IllegalMonitorStateException`. Phương thức `tryMonitorEnter` cố gắng lấy object lock, nếu thành công trả về `true`, ngược lại trả về `false`.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-Java 锁和同步器框架的核心类 `AbstractQueuedSynchronizer` (AQS)，就是通过调用`LockSupport.park()`和`LockSupport.unpark()`实现线程的阻塞和唤醒的，而 `LockSupport` 的 `park`、`unpark` 方法实际是调用 `Unsafe` 的 `park`、`unpark` 方式实现的。
+Lớp core của framework khóa và đồng bộ Java `AbstractQueuedSynchronizer` (AQS), thực hiện block và wake up thread thông qua gọi `LockSupport.park()` và `LockSupport.unpark()`, còn phương thức `park`, `unpark` của `LockSupport` thực ra được triển khai bằng cách gọi `park`, `unpark` của `Unsafe`.
 
 ```java
 public static void park(Object blocker) {
@@ -653,7 +654,7 @@ public static void unpark(Thread thread) {
 }
 ```
 
-`LockSupport` 的`park`方法调用了 `Unsafe` 的`park`方法来阻塞当前线程，此方法将线程阻塞后就不会继续往后执行，直到有其他线程调用`unpark`方法唤醒当前线程。下面的例子对 `Unsafe` 的这两个方法进行测试：
+Phương thức `park` của `LockSupport` gọi phương thức `park` của `Unsafe` để block thread hiện tại, phương thức này sau khi block thread sẽ không tiếp tục thực thi về phía sau, cho đến khi có thread khác gọi phương thức `unpark` đánh thức thread hiện tại. Ví dụ dưới đây kiểm tra hai phương thức này của `Unsafe`:
 
 ```java
 public static void main(String[] args) {
@@ -674,7 +675,7 @@ public static void main(String[] args) {
 }
 ```
 
-程序输出为：
+Đầu ra chương trình:
 
 ```plain
 park main mainThread
@@ -682,17 +683,17 @@ subThread try to unpark mainThread
 unpark mainThread success
 ```
 
-程序运行的流程也比较容易看懂，子线程开始运行后先进行睡眠，确保主线程能够调用`park`方法阻塞自己，子线程在睡眠 5 秒后，调用`unpark`方法唤醒主线程，使主线程能继续向下执行。整个流程如下图所示：
+Luồng chạy chương trình cũng khá dễ hiểu, thread con sau khi bắt đầu chạy trước tiên ngủ, đảm bảo main thread có thể gọi phương thức `park` để block chính nó, thread con sau khi ngủ 5 giây, gọi phương thức `unpark` đánh thức main thread, để main thread có thể tiếp tục thực thi. Toàn bộ luồng như hình dưới đây:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144950116.png)
 
-### Class 操作
+### Thao tác Class
 
-#### 介绍
+#### Giới thiệu
 
-`Unsafe` 对`Class`的相关操作主要包括类加载和静态变量的操作方法。
+Các thao tác liên quan đến `Class` của `Unsafe` chủ yếu bao gồm các phương thức tải class và thao tác biến tĩnh.
 
-**静态属性读取相关的方法**
+**Các phương thức liên quan đến đọc thuộc tính tĩnh**
 
 ```java
 //获取静态属性的偏移量
@@ -703,7 +704,7 @@ public native Object staticFieldBase(Field f);
 public native boolean shouldBeInitialized(Class<?> c);
 ```
 
-创建一个包含静态属性的类，进行测试：
+Tạo một class chứa thuộc tính tĩnh, tiến hành kiểm tra:
 
 ```java
 @Data
@@ -727,29 +728,29 @@ private void staticTest() throws Exception {
 }
 ```
 
-运行结果：
+Kết quả chạy:
 
 ```plain
 false
 Hydra
 ```
 
-在 `Unsafe` 的对象操作中，我们学习了通过`objectFieldOffset`方法获取对象属性偏移量并基于它对变量的值进行存取，但是它不适用于类中的静态属性，这时候就需要使用`staticFieldOffset`方法。在上面的代码中，只有在获取`Field`对象的过程中依赖到了`Class`，而获取静态变量的属性时不再依赖于`Class`。
+Trong thao tác đối tượng của `Unsafe`, chúng ta học được cách lấy offset thuộc tính đối tượng thông qua phương thức `objectFieldOffset` và dựa vào đó để đọc ghi giá trị biến, nhưng nó không áp dụng cho thuộc tính tĩnh trong class, lúc này cần dùng phương thức `staticFieldOffset`. Trong code trên, chỉ trong quá trình lấy đối tượng `Field` mới phụ thuộc vào `Class`, còn khi lấy thuộc tính biến tĩnh không còn phụ thuộc vào `Class` nữa.
 
-在上面的代码中首先创建一个`User`对象，这是因为如果一个类没有被初始化，那么它的静态属性也不会被初始化，最后获取的字段属性将是`null`。所以在获取静态属性前，需要调用`shouldBeInitialized`方法，判断在获取前是否需要初始化这个类。如果删除创建 User 对象的语句，运行结果会变为：
+Trong code trên trước tiên tạo một đối tượng `User`, điều này vì nếu một class chưa được khởi tạo, thì các thuộc tính tĩnh của nó cũng sẽ không được khởi tạo, thuộc tính field cuối cùng lấy được sẽ là `null`. Vì vậy trước khi lấy thuộc tính tĩnh, cần gọi phương thức `shouldBeInitialized` để xác định xem có cần khởi tạo class này trước khi lấy hay không. Nếu xóa câu lệnh tạo đối tượng User, kết quả chạy sẽ trở thành:
 
 ```plain
 true
 null
 ```
 
-**使用`defineClass`方法允许程序在运行时动态地创建一个类**
+**Sử dụng phương thức `defineClass` cho phép chương trình động tạo một class khi runtime**
 
 ```java
 public native Class<?> defineClass(String name, byte[] b, int off, int len, ClassLoader loader,ProtectionDomain protectionDomain);
 ```
 
-在实际使用过程中，可以只传入字节数组、起始字节的下标以及读取的字节长度，默认情况下，类加载器（`ClassLoader`）和保护域（`ProtectionDomain`）来源于调用此方法的实例。下面的例子中实现了反编译生成后的 class 文件的功能：
+Trong quá trình sử dụng thực tế, chỉ cần truyền vào mảng byte, chỉ số byte bắt đầu và độ dài byte đọc, mặc định class loader (`ClassLoader`) và protection domain (`ProtectionDomain`) đến từ instance gọi phương thức này. Ví dụ dưới đây triển khai chức năng decompile file class đã được tạo ra:
 
 ```java
 private static void defineTest() {
@@ -768,27 +769,27 @@ private static void defineTest() {
 }
 ```
 
-在上面的代码中，首先读取了一个`class`文件并通过文件流将它转化为字节数组，之后使用`defineClass`方法动态的创建了一个类，并在后续完成了它的实例化工作，流程如下图所示，并且通过这种方式创建的类，会跳过 JVM 的所有安全检查。
+Trong code trên, trước tiên đọc file `class` và chuyển đổi thành mảng byte thông qua file stream, sau đó dùng phương thức `defineClass` động tạo một class, và hoàn thành công việc khởi tạo nó trong phần tiếp theo, quy trình như hình dưới đây, và class được tạo theo cách này sẽ bỏ qua tất cả kiểm tra bảo mật của JVM.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717145000710.png)
 
-除了`defineClass`方法外，Unsafe 还提供了一个`defineAnonymousClass`方法：
+Ngoài phương thức `defineClass`, Unsafe còn cung cấp phương thức `defineAnonymousClass`:
 
 ```java
 public native Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);
 ```
 
-使用该方法可以用来动态的创建一个匿名类，在`Lambda`表达式中就是使用 ASM 动态生成字节码，然后利用该方法定义实现相应的函数式接口的匿名类。在 JDK 15 发布的新特性中，在隐藏类（`Hidden classes`）一条中，指出将在未来的版本中弃用 `Unsafe` 的`defineAnonymousClass`方法。
+Sử dụng phương thức này có thể động tạo một anonymous class, trong biểu thức `Lambda` sử dụng ASM để động sinh bytecode, sau đó dùng phương thức này để định nghĩa anonymous class triển khai functional interface tương ứng. Trong tính năng mới phát hành JDK 15, trong mục hidden class (`Hidden classes`), chỉ ra rằng sẽ deprecated phương thức `defineAnonymousClass` của `Unsafe` trong các phiên bản tương lai.
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-Lambda 表达式实现需要依赖 `Unsafe` 的 `defineAnonymousClass` 方法定义实现相应的函数式接口的匿名类。
+Triển khai Lambda expression cần phụ thuộc phương thức `defineAnonymousClass` của `Unsafe` để định nghĩa anonymous class triển khai functional interface tương ứng.
 
-### 系统信息
+### Thông tin hệ thống
 
-#### 介绍
+#### Giới thiệu
 
-这部分包含两个获取系统相关信息的方法。
+Phần này bao gồm hai phương thức lấy thông tin liên quan đến hệ thống.
 
 ```java
 //返回系统指针的大小。返回值为4（32位系统）或 8（64位系统）。
@@ -797,12 +798,12 @@ public native int addressSize();
 public native int pageSize();
 ```
 
-#### 典型应用
+#### Ứng dụng điển hình
 
-这两个方法的应用场景比较少，在`java.nio.Bits`类中，在使用`pageCount`计算所需的内存页的数量时，调用了`pageSize`方法获取内存页的大小。另外，在使用`copySwapMemory`方法拷贝内存时，调用了`addressSize`方法，检测 32 位系统的情况。
+Hai phương thức này có phạm vi ứng dụng khá ít, trong lớp `java.nio.Bits`, khi sử dụng `pageCount` tính số trang bộ nhớ cần thiết, gọi phương thức `pageSize` để lấy kích thước trang bộ nhớ. Ngoài ra, khi sử dụng phương thức `copySwapMemory` để sao chép bộ nhớ, gọi phương thức `addressSize` để kiểm tra tình trạng hệ thống 32 bit.
 
-## 总结
+## Tổng kết
 
-在本文中，我们首先介绍了 `Unsafe` 的基本概念、工作原理，并在此基础上，对它的 API 进行了说明与实践。相信大家通过这一过程，能够发现 `Unsafe` 在某些场景下，确实能够为我们提供编程中的便利。但是回到开头的话题，在使用这些便利时，确实存在着一些安全上的隐患，在我看来，一项技术具有不安全因素并不可怕，可怕的是它在使用过程中被滥用。尽管之前有传言说会在 Java9 中移除 `Unsafe` 类，不过它还是照样已经存活到了 Java16。按照存在即合理的逻辑，只要使用得当，它还是能给我们带来不少的帮助，因此最后还是建议大家，在使用 `Unsafe` 的过程中一定要做到使用谨慎使用、避免滥用。
+Trong bài viết này, chúng ta trước tiên giới thiệu khái niệm cơ bản và nguyên lý hoạt động của `Unsafe`, và trên cơ sở đó đã giải thích và thực hành API của nó. Tin rằng qua quá trình này, mọi người có thể nhận ra rằng `Unsafe` trong một số tình huống nhất định thực sự có thể cung cấp sự tiện lợi trong lập trình cho chúng ta. Nhưng quay lại chủ đề ban đầu, khi sử dụng những tiện lợi này, thực sự tồn tại một số ẩn họa về bảo mật, theo tôi, một công nghệ có yếu tố không an toàn không đáng sợ, điều đáng sợ là nó bị lạm dụng trong quá trình sử dụng. Mặc dù trước đây có tin đồn rằng lớp `Unsafe` sẽ bị loại bỏ trong Java 9, nhưng nó vẫn đã tồn tại đến Java 16. Theo logic tồn tại có lý do, chỉ cần sử dụng đúng cách, nó vẫn có thể mang lại nhiều trợ giúp cho chúng ta, vì vậy cuối cùng vẫn khuyến nghị mọi người, khi sử dụng `Unsafe` nhất định phải thận trọng, tránh lạm dụng.
 
 <!-- @include: @article-footer.snippet.md -->

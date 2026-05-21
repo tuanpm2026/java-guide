@@ -1,129 +1,127 @@
 ---
-title: SSO 单点登录详解
-description: SSO单点登录原理详解，涵盖统一认证中心设计、CAS协议、跨域登录实现及登录态同步机制。
-category: 系统设计
+title: Giải thích chi tiết SSO Single Sign-On
+category: System Design
+description: Giải thích chi tiết nguyên lý SSO Single Sign-On, bao gồm thiết kế unified authentication center, CAS protocol, triển khai cross-domain login và cơ chế đồng bộ login state.
 tag:
-  - 安全
+  - Security
 head:
   - - meta
     - name: keywords
-      content: SSO,单点登录,统一认证,登录态,票据,TGT,ST,CAS协议,跨域登录
+      content: SSO,single sign-on,unified authentication,login state,ticket,TGT,ST,CAS protocol,cross-domain login
 ---
 
-> 本文授权转载自：<https://ken.io/note/sso-design-implement> 作者：ken.io
+> Bài này được chuyển đăng có phép từ: <https://ken.io/note/sso-design-implement>, tác giả: ken.io
 
-## SSO 介绍
+## Giới thiệu SSO
 
-### 什么是 SSO？
+### SSO là gì?
 
-SSO 英文全称 Single Sign On，单点登录。SSO 是在多个应用系统中，用户只需要登录一次就可以访问所有相互信任的应用系统。
+SSO là viết tắt của Single Sign On — Đăng nhập một lần. SSO nghĩa là trong nhiều ứng dụng, user chỉ cần đăng nhập một lần là có thể truy cập tất cả ứng dụng tin tưởng lẫn nhau.
 
-例如你登录网易账号中心（<https://reg.163.com/> ）之后访问以下站点都是登录状态。
+Ví dụ sau khi đăng nhập vào NetEase account center (<https://reg.163.com/>), truy cập các trang sau đều ở trạng thái đăng nhập:
 
-- 网易直播 [https://v.163.com](https://v.163.com/)
-- 网易博客 [https://blog.163.com](https://blog.163.com/)
-- 网易花田 [https://love.163.com](https://love.163.com/)
-- 网易考拉 [https://www.kaola.com](https://www.kaola.com/)
-- 网易 Lofter [http://www.lofter.com](http://www.lofter.com/)
+- NetEase Live [https://v.163.com](https://v.163.com/)
+- NetEase Blog [https://blog.163.com](https://blog.163.com/)
+- NetEase Huatian [https://love.163.com](https://love.163.com/)
+- NetEase Kaola [https://www.kaola.com](https://www.kaola.com/)
+- NetEase Lofter [http://www.lofter.com](http://www.lofter.com/)
 
-### SSO 有什么好处？
+### SSO có những lợi ích gì?
 
-1. **用户角度** :用户能够做到一次登录多次使用，无需记录多套用户名和密码，省心。
-2. **系统管理员角度** : 管理员只需维护好一个统一的账号中心就可以了，方便。
-3. **新系统开发角度:** 新系统开发时只需直接对接统一的账号中心即可，简化开发流程，省时。
+1. **Góc độ user**: User đăng nhập một lần dùng được nhiều lần, không cần nhớ nhiều bộ username/password — tiện lợi.
+2. **Góc độ system admin**: Admin chỉ cần duy trì một account center thống nhất — tiện quản lý.
+3. **Góc độ phát triển hệ thống mới**: Khi phát triển hệ thống mới chỉ cần kết nối trực tiếp với account center thống nhất — đơn giản hóa development flow, tiết kiệm thời gian.
 
-## SSO 设计与实现
+## Thiết kế và Triển khai SSO
 
-本篇文章也主要是为了探讨如何设计&实现一个 SSO 系统
+Bài này chủ yếu thảo luận về cách thiết kế & triển khai một hệ thống SSO.
 
-以下为需要实现的核心功能：
+Các chức năng cốt lõi cần triển khai:
 
-- 单点登录
-- 单点登出
-- 支持跨域单点登录
-- 支持跨域单点登出
+- Single sign-on (Đăng nhập một lần)
+- Single sign-out (Đăng xuất một lần)
+- Hỗ trợ cross-domain single sign-on
+- Hỗ trợ cross-domain single sign-out
 
-### 核心应用与依赖
+### Ứng dụng cốt lõi và dependency
 
-![单点登录（SSO）设计](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-system.png-kblb.png)
+![Thiết kế SSO (Single Sign-On)](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-system.png-kblb.png)
 
-| 应用/模块/对象    | 说明                                |
-| ----------------- | ----------------------------------- |
-| 前台站点          | 需要登录的站点                      |
-| SSO 站点-登录     | 提供登录的页面                      |
-| SSO 站点-登出     | 提供注销登录的入口                  |
-| SSO 服务-登录     | 提供登录服务                        |
-| SSO 服务-登录状态 | 提供登录状态校验/登录信息查询的服务 |
-| SSO 服务-登出     | 提供用户注销登录的服务              |
-| 数据库            | 存储用户账户信息                    |
-| 缓存              | 存储用户的登录信息，通常使用 Redis  |
+| Ứng dụng/Module/Object    | Mô tả                                                  |
+| ------------------------- | ------------------------------------------------------ |
+| Frontend site             | Site cần đăng nhập                                     |
+| SSO site - Login          | Cung cấp trang đăng nhập                               |
+| SSO site - Logout         | Cung cấp entry đăng xuất                               |
+| SSO service - Login       | Cung cấp login service                                 |
+| SSO service - Login state | Cung cấp service kiểm tra login state/query login info |
+| SSO service - Logout      | Cung cấp service đăng xuất user                        |
+| Database                  | Lưu trữ thông tin tài khoản user                       |
+| Cache                     | Lưu trữ login info của user, thường dùng Redis         |
 
-### 用户登录状态的存储与校验
+### Lưu trữ và kiểm tra login state của user
 
-常见的 Web 框架对于 Session 的实现都是生成一个 SessionId 存储在浏览器 Cookie 中。然后将 Session 内容存储在服务器端内存中，这个 [ken.io](https://ken.io/) 在之前[Session 工作原理](https://ken.io/note/session-principle-skill)中也提到过。整体也是借鉴这个思路。
+Các Web framework phổ biến triển khai Session đều sinh một SessionId lưu trong browser Cookie, rồi lưu nội dung Session trong server-side memory — [ken.io](https://ken.io/) đã đề cập trong [Session working principle](https://ken.io/note/session-principle-skill) trước đó. Toàn bộ ý tưởng ở đây cũng học hỏi từ cách tiếp cận này.
 
-用户登录成功之后，生成 AuthToken 交给客户端保存。如果是浏览器，就保存在 Cookie 中。如果是手机 App 就保存在 App 本地缓存中。本篇主要探讨基于 Web 站点的 SSO。
+Sau khi user đăng nhập thành công, sinh ra AuthToken giao cho client lưu giữ. Nếu là browser thì lưu trong Cookie. Nếu là mobile App thì lưu trong local cache của App. Bài này chủ yếu thảo luận về SSO cho Web site.
 
-用户在浏览需要登录的页面时，客户端将 AuthToken 提交给 SSO 服务校验登录状态/获取用户登录信息
+Khi user duyệt các trang cần đăng nhập, client gửi AuthToken lên SSO service để kiểm tra login state/lấy login info của user.
 
-对于登录信息的存储，建议采用 Redis，使用 Redis 集群来存储登录信息，既可以保证高可用，又可以线性扩充。同时也可以让 SSO 服务满足负载均衡/可伸缩的需求。
+Với việc lưu login info, khuyến nghị dùng Redis. Dùng Redis cluster để lưu login info vừa đảm bảo high availability vừa có thể scale linearly. Đồng thời có thể cho SSO service đáp ứng yêu cầu load balancing/scalability.
 
-| 对象      | 说明                                                                                                               |
-| --------- | ------------------------------------------------------------------------------------------------------------------ |
-| AuthToken | 直接使用 UUID/GUID 即可，如果有验证 AuthToken 合法性需求，可以将 UserName+时间戳加密生成，服务端解密之后验证合法性 |
-| 登录信息  | 通常是将 UserId，UserName 缓存起来                                                                                 |
+| Object     | Mô tả                                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AuthToken  | Dùng trực tiếp UUID/GUID là được. Nếu cần validate tính hợp lệ của AuthToken, có thể encrypt UserName + timestamp để sinh, server side decrypt rồi validate. |
+| Login info | Thường cache UserId, UserName                                                                                                                                |
 
-### 用户登录/登录校验
+### User Login / Login Validation
 
-**登录时序图**
+**Sequence diagram đăng nhập**
 
-![SSO系统设计-登录时序图](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-login-sequence.png-kbrb.png)
+![Thiết kế SSO - Sequence diagram đăng nhập](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-login-sequence.png-kbrb.png)
 
-按照上图，用户登录后 AuthToken 保存在 Cookie 中。 domain=test.com
-浏览器会将 domain 设置成 .test.com，
+Theo hình trên, sau khi user đăng nhập, AuthToken được lưu trong Cookie. `domain=test.com`. Browser sẽ đặt domain thành `.test.com`.
 
-这样访问所有 \*.test.com 的 web 站点，都会将 AuthToken 携带到服务器端。
-然后通过 SSO 服务，完成对用户状态的校验/用户登录信息的获取
+Như vậy khi truy cập tất cả web site `*.test.com`, AuthToken đều được gửi lên server side. Sau đó thông qua SSO service, hoàn tất việc kiểm tra state của user / lấy login info của user.
 
-**登录信息获取/登录状态校验**
+**Lấy login info / Kiểm tra login state**
 
-![SSO系统设计-登录信息获取/登录状态校验](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-logincheck-sequence.png-kbrb.png)
+![Thiết kế SSO - Lấy login info / Kiểm tra login state](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-logincheck-sequence.png-kbrb.png)
 
-### 用户登出
+### User Logout
 
-用户登出时要做的事情很简单：
+Khi user đăng xuất cần làm những việc đơn giản:
 
-1. 服务端清除缓存（Redis）中的登录状态
-2. 客户端清除存储的 AuthToken
+1. Server side xóa login state trong cache (Redis).
+2. Client side xóa AuthToken đã lưu.
 
-**登出时序图**
+**Sequence diagram đăng xuất**
 
-![SSO系统设计-用户登出](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-logout-sequence.png-kbrb.png)
+![Thiết kế SSO - User logout](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-logout-sequence.png-kbrb.png)
 
-### 跨域登录、登出
+### Cross-domain Login, Logout
 
-前面提到过，核心思路是客户端存储 AuthToken，服务器端通过 Redis 存储登录信息。由于客户端是将 AuthToken 存储在 Cookie 中的。所以跨域要解决的问题，就是如何解决 Cookie 的跨域读写问题。
+Như đã đề cập trước đó, ý tưởng cốt lõi là client lưu AuthToken, server side dùng Redis lưu login info. Vì client lưu AuthToken trong Cookie, nên vấn đề cross-domain cần giải quyết là làm thế nào giải quyết cross-domain read/write của Cookie.
 
-解决跨域的核心思路就是：
+Ý tưởng cốt lõi để giải quyết cross-domain:
 
-- 登录完成之后通过回调的方式，将 AuthToken 传递给主域名之外的站点，该站点自行将 AuthToken 保存在当前域下的 Cookie 中。
-- 登出完成之后通过回调的方式，调用非主域名站点的登出页面，完成设置 Cookie 中的 AuthToken 过期的操作。
+- Sau khi đăng nhập xong, truyền AuthToken đến site ngoài main domain qua callback. Site đó tự lưu AuthToken vào Cookie dưới domain hiện tại.
+- Sau khi đăng xuất xong, qua callback gọi trang logout của site non-main domain, hoàn thành việc đặt AuthToken trong Cookie thành expired.
 
-**跨域登录（主域名已登录）**
+**Cross-domain login (main domain đã đăng nhập)**
 
-![SSO系统设计-跨域登录（主域名已登录）](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-login-loggedin-sequence.png-kbrb.png)
+![Thiết kế SSO - Cross-domain login (main domain đã đăng nhập)](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-login-loggedin-sequence.png-kbrb.png)
 
-**跨域登录（主域名未登录）**
+**Cross-domain login (main domain chưa đăng nhập)**
 
-![SSO系统设计-跨域登录（主域名未登录）](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-login-unlogin-sequence.png-kbrb.png)
+![Thiết kế SSO - Cross-domain login (main domain chưa đăng nhập)](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-login-unlogin-sequence.png-kbrb.png)
 
-**跨域登出**
+**Cross-domain logout**
 
-![SSO系统设计-跨域登出](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-logout-sequence.png-kbrb.png)
+![Thiết kế SSO - Cross-domain logout](https://oss.javaguide.cn/github/javaguide/system-design/security/sso/sso-crossdomain-logout-sequence.png-kbrb.png)
 
-## 说明
+## Ghi chú
 
-- 关于方案：这次设计方案更多是提供实现思路。如果涉及到 APP 用户登录等情况，在访问 SSO 服务时，增加对 APP 的签名验证就好了。当然，如果有无线网关，验证签名不是问题。
-- 关于时序图：时序图中并没有包含所有场景，只列举了核心/主要场景，另外对于一些不影响理解思路的消息能省就省了。
+- Về phương án: Thiết kế lần này chủ yếu cung cấp ý tưởng triển khai. Nếu liên quan đến App user login, khi truy cập SSO service thêm xác minh signature của App là được. Tất nhiên nếu có wireless gateway thì việc verify signature không phải vấn đề.
+- Về sequence diagram: Sequence diagram không bao gồm tất cả scenario, chỉ liệt kê các scenario cốt lõi/chính. Ngoài ra một số message không ảnh hưởng đến việc hiểu ý tưởng đã được lược bỏ.
 
 <!-- @include: @article-footer.snippet.md -->

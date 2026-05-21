@@ -1,7 +1,7 @@
 ---
-title: MySQL索引详解
-description: MySQL索引详解，深入剖析B+树索引结构、聚簇索引与二级索引的区别、联合索引与最左前缀原则、覆盖索引与索引下推优化，以及常见的索引失效场景。
-category: 数据库
+title: Giải thích chi tiết về Index MySQL
+description: Giải thích chi tiết về Index MySQL, phân tích sâu cấu trúc index B+ tree, sự khác biệt giữa clustered index và secondary index, nguyên tắc tiền tố trái nhất của composite index, tối ưu covering index và index pushdown, cùng các tình huống index thất bại phổ biến.
+category: Cơ sở dữ liệu
 tag:
   - MySQL
 head:
@@ -10,49 +10,49 @@ head:
       content: MySQL索引,B+树索引,聚簇索引,覆盖索引,联合索引,索引下推,回表查询,索引失效,最左前缀原则
 ---
 
-> 感谢[WT-AHA](https://github.com/WT-AHA)对本文的完善，相关 PR：<https://github.com/Snailclimb/JavaGuide/pull/1648> 。
+> Cảm ơn [WT-AHA](https://github.com/WT-AHA) đã hoàn thiện bài viết này, PR liên quan: <https://github.com/Snailclimb/JavaGuide/pull/1648>.
 
-但凡经历过几场面试的小伙伴，应该都清楚，数据库索引这个知识点在面试中出现的频率高到离谱。
+Dù đã trải qua vài buổi phỏng vấn, chắc các bạn đều hiểu kiến thức index cơ sở dữ liệu xuất hiện với tần suất cao đến chừng nào trong phỏng vấn.
 
-除了对于准备面试来说非常重要之外，善用索引对 SQL 的性能提升非常明显，是一个性价比较高的 SQL 优化手段。
+Ngoài việc rất quan trọng cho việc chuẩn bị phỏng vấn, sử dụng index đúng cách cũng cải thiện hiệu năng SQL rất đáng kể, là một phương pháp tối ưu SQL có tính giá thành/hiệu quả cao.
 
-## 索引介绍
+## Giới thiệu Index
 
-**索引是一种用于快速查询和检索数据的数据结构，其本质可以看成是一种排序好的数据结构。**
+**Index là một cấu trúc dữ liệu dùng để truy vấn và tìm kiếm dữ liệu nhanh chóng, về bản chất có thể coi là một cấu trúc dữ liệu đã được sắp xếp.**
 
-索引的作用就相当于书的目录。打个比方：我们在查字典的时候，如果没有目录，那我们就只能一页一页地去找我们需要查的那个字，速度很慢；如果有目录了，我们只需要先去目录里查找字的位置，然后直接翻到那一页就行了。
+Vai trò của index tương đương với mục lục của sách. Ví dụ: khi chúng ta tra từ điển, nếu không có mục lục, chúng ta chỉ có thể lật từng trang để tìm từ cần tra, rất chậm; nếu có mục lục, chúng ta chỉ cần tra vị trí chữ trong mục lục trước, rồi lật thẳng đến trang đó.
 
-索引底层数据结构存在很多种类型，常见的索引结构有：B 树、 B+ 树 和 Hash、红黑树。在 MySQL 中，无论是 Innodb 还是 MyISAM，都使用了 B+ 树作为索引结构。
+Cấu trúc dữ liệu lớp dưới của index có nhiều loại, các cấu trúc index phổ biến gồm: B tree, B+ tree, Hash, red-black tree. Trong MySQL, dù là Innodb hay MyISAM, đều dùng B+ tree làm cấu trúc index.
 
-## 索引的优缺点
+## Ưu nhược điểm của Index
 
-**索引的优点：**
+**Ưu điểm của Index:**
 
-1. **查询速度起飞 (主要目的)**：通过索引，数据库可以**大幅减少需要扫描的数据量**，直接定位到符合条件的记录，从而显著加快数据检索速度，减少磁盘 I/O 次数。
-2. **保证数据唯一性**：通过创建**唯一索引 (Unique Index)**，可以确保表中的某一列（或几列组合）的值是独一无二的，比如用户 ID、邮箱等。主键本身就是一种唯一索引。
-3. **加速排序和分组**：如果查询中的 ORDER BY 或 GROUP BY 子句涉及的列建有索引，数据库往往可以直接利用索引已经排好序的特性，避免额外的排序操作，从而提升性能。
+1. **Tốc độ truy vấn tăng vọt (mục đích chính)**: Thông qua index, cơ sở dữ liệu có thể **giảm đáng kể lượng dữ liệu cần quét**, định vị trực tiếp đến bản ghi phù hợp, từ đó tăng tốc đáng kể tốc độ truy xuất dữ liệu, giảm số lần I/O đĩa.
+2. **Đảm bảo tính duy nhất dữ liệu**: Bằng cách tạo **Unique Index**, có thể đảm bảo giá trị của một cột (hoặc kết hợp một vài cột) trong bảng là duy nhất, như ID người dùng, email, v.v. Khóa chính bản thân là một loại unique index.
+3. **Tăng tốc sắp xếp và nhóm**: Nếu các cột trong mệnh đề ORDER BY hoặc GROUP BY của truy vấn có index, cơ sở dữ liệu thường có thể trực tiếp tận dụng đặc điểm đã được sắp xếp của index, tránh thao tác sắp xếp thêm, từ đó nâng cao hiệu năng.
 
-**索引的缺点：**
+**Nhược điểm của Index:**
 
-1. **创建和维护耗时**：创建索引本身需要时间，特别是对大表操作时。更重要的是，当对表中的数据进行**增、删、改 (DML 操作)** 时，不仅要操作数据本身，相关的索引也必须动态更新和维护，这会**降低这些 DML 操作的执行效率**。
-2. **占用存储空间**：索引本质上也是一种数据结构，需要以物理文件（或内存结构）的形式存储，因此会**额外占用一定的磁盘空间**。索引越多、越大，占用的空间也就越多。
-3. **可能被误用或失效**：如果索引设计不当，或者查询语句写得不好，数据库优化器可能不会选择使用索引（或者选错索引），反而导致性能下降。
+1. **Tốn thời gian tạo và duy trì**: Bản thân việc tạo index cần thời gian, đặc biệt khi thao tác với bảng lớn. Quan trọng hơn, khi **thêm, xóa, sửa (thao tác DML)** dữ liệu trong bảng, không chỉ cần thao tác dữ liệu, mà index liên quan cũng phải được cập nhật và duy trì động, điều này sẽ **giảm hiệu quả thực thi của các thao tác DML**.
+2. **Chiếm dụng không gian lưu trữ**: Index bản chất cũng là một cấu trúc dữ liệu, cần lưu trữ dưới dạng file vật lý (hoặc cấu trúc bộ nhớ), vì vậy sẽ **chiếm thêm một lượng không gian đĩa nhất định**. Càng nhiều index, index càng lớn, không gian chiếm dụng càng nhiều.
+3. **Có thể bị sử dụng sai hoặc thất bại**: Nếu thiết kế index không đúng, hoặc câu lệnh truy vấn viết không tốt, optimizer của cơ sở dữ liệu có thể không chọn sử dụng index (hoặc chọn sai index), ngược lại dẫn đến giảm hiệu năng.
 
-**那么，用了索引就一定能提高查询性能吗？**
+**Vậy, dùng index có nhất định cải thiện hiệu năng truy vấn không?**
 
-**不一定。** 大多数情况下，合理使用索引确实比全表扫描快得多。但也有例外：
+**Không nhất thiết.** Trong hầu hết trường hợp, sử dụng index hợp lý thực sự nhanh hơn nhiều so với quét toàn bảng. Nhưng cũng có ngoại lệ:
 
-- **数据量太小**：如果表里的数据非常少（比如就几百条），全表扫描可能比通过索引查找更快，因为走索引本身也有开销。
-- **查询结果集占比过大**：如果要查询的数据占了整张表的大部分（比如超过 20%-30%），优化器可能会认为全表扫描更划算，因为通过索引多次回表（随机 I/O）的成本可能高于一次顺序的全表扫描。
-- **索引维护不当或统计信息过时**：导致优化器做出错误判断。
+- **Lượng dữ liệu quá nhỏ**: Nếu dữ liệu trong bảng rất ít (ví dụ chỉ vài trăm bản ghi), quét toàn bảng có thể nhanh hơn tìm kiếm qua index, vì bản thân việc đi theo index cũng có chi phí.
+- **Tỷ lệ kết quả truy vấn quá lớn**: Nếu dữ liệu cần truy vấn chiếm phần lớn toàn bảng (ví dụ vượt quá 20%-30%), optimizer có thể cho rằng quét toàn bảng kinh tế hơn, vì chi phí quay lại bảng nhiều lần (random I/O) qua index có thể cao hơn so với quét toàn bảng tuần tự một lần.
+- **Duy trì index không đúng hoặc thống kê thông tin lỗi thời**: Dẫn đến optimizer đưa ra phán đoán sai.
 
-## 索引底层数据结构选型
+## Lựa chọn cấu trúc dữ liệu lớp dưới cho Index
 
-### Hash 表
+### Bảng Hash
 
-哈希表是键值对的集合，通过键(key)即可快速取出对应的值(value)，因此哈希表可以快速检索数据（接近 O(1)）。
+Bảng Hash là tập hợp các cặp key-value, thông qua key có thể lấy ra value tương ứng nhanh chóng, vì vậy bảng hash có thể truy xuất dữ liệu nhanh (gần O(1)).
 
-**为何能够通过 key 快速取出 value 呢？** 原因在于 **哈希算法**（也叫散列算法）。通过哈希算法，我们可以快速找到 key 对应的 index，找到了 index 也就找到了对应的 value。
+**Tại sao có thể lấy ra value nhanh chóng qua key?** Lý do là **thuật toán hash** (còn gọi là thuật toán tán xạ). Thông qua thuật toán hash, chúng ta có thể nhanh chóng tìm thấy index tương ứng với key, tìm được index là tìm được value tương ứng.
 
 ```java
 hash = hashfunc(key)
@@ -61,233 +61,233 @@ index = hash % array_size
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql20210513092328171.png)
 
-但是！哈希算法有个 **Hash 冲突** 问题，也就是说多个不同的 key 最后得到的 index 相同。通常情况下，我们常用的解决办法是 **链地址法**。链地址法就是将哈希冲突数据存放在链表中。就比如 JDK1.8 之前 `HashMap` 就是通过链地址法来解决哈希冲突的。不过，JDK1.8 以后`HashMap`为了提高链表过长时的搜索效率，引入了红黑树。
+Nhưng! Thuật toán hash có vấn đề **Hash collision**, tức là nhiều key khác nhau cuối cùng thu được index giống nhau. Thông thường, giải pháp phổ biến là **chaining (phương pháp chuỗi)**. Phương pháp chuỗi là lưu trữ dữ liệu va chạm hash trong linked list. Ví dụ `HashMap` trước JDK1.8 giải quyết hash collision bằng phương pháp chuỗi. Tuy nhiên, từ JDK1.8 trở đi `HashMap` giới thiệu red-black tree để nâng cao hiệu quả tìm kiếm khi linked list quá dài.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql20210513092224836.png)
 
-为了减少 Hash 冲突的发生，一个好的哈希函数应该“均匀地”将数据分布在整个可能的哈希值集合中。
+Để giảm xảy ra hash collision, một hàm hash tốt nên "đều đặn" phân phối dữ liệu trong toàn bộ tập giá trị hash có thể.
 
-MySQL 的 InnoDB 存储引擎不直接支持常规的哈希索引，但是，InnoDB 存储引擎中存在一种特殊的“自适应哈希索引”（Adaptive Hash Index），自适应哈希索引并不是传统意义上的纯哈希索引，而是结合了 B+Tree 和哈希索引的特点，以便更好地适应实际应用中的数据访问模式和性能需求。自适应哈希索引的每个哈希桶实际上是一个小型的 B+Tree 结构。这个 B+Tree 结构可以存储多个键值对，而不仅仅是一个键。这有助于减少哈希冲突链的长度，提高了索引的效率。关于 Adaptive Hash Index 的详细介绍，可以查看 [MySQL 各种“Buffer”之 Adaptive Hash Index](https://mp.weixin.qq.com/s/ra4v1XR5pzSWc-qtGO-dBg) 这篇文章。
+MySQL storage engine InnoDB không hỗ trợ trực tiếp hash index thông thường, nhưng trong InnoDB storage engine có một loại "Adaptive Hash Index" (index hash thích nghi) đặc biệt. Adaptive Hash Index không phải là pure hash index theo nghĩa truyền thống, mà kết hợp các đặc điểm của B+Tree và hash index để thích nghi tốt hơn với các mô hình truy cập dữ liệu và nhu cầu hiệu năng trong ứng dụng thực tế. Mỗi bucket hash của Adaptive Hash Index thực chất là một cấu trúc B+Tree nhỏ. Cấu trúc B+Tree này có thể lưu trữ nhiều cặp key-value, không chỉ một key. Điều này giúp giảm độ dài chuỗi va chạm hash, nâng cao hiệu quả index. Về giới thiệu chi tiết Adaptive Hash Index, có thể xem bài viết [MySQL các loại "Buffer" - Adaptive Hash Index](https://mp.weixin.qq.com/s/ra4v1XR5pzSWc-qtGO-dBg).
 
-既然哈希表这么快，**为什么 MySQL 没有使用其作为索引的数据结构呢？** 主要是因为 Hash 索引不支持顺序和范围查询。假如我们要对表中的数据进行排序或者进行范围查询，那 Hash 索引可就不行了。并且，每次 IO 只能取一个。
+Vì hash table nhanh như vậy, **tại sao MySQL không dùng nó làm cấu trúc dữ liệu index?** Chủ yếu vì Hash index không hỗ trợ truy vấn sắp xếp và phạm vi. Giả sử chúng ta muốn sắp xếp hoặc truy vấn phạm vi dữ liệu trong bảng, Hash index không làm được. Và mỗi lần I/O chỉ lấy được một bản ghi.
 
-试想一种情况：
+Hãy thử một tình huống:
 
 ```java
 SELECT * FROM tb1 WHERE id < 500;
 ```
 
-在这种范围查询中，优势非常大，直接遍历比 500 小的叶子节点就够了。而 Hash 索引是根据 hash 算法来定位的，难不成还要把 1 - 499 的数据，每个都进行一次 hash 计算来定位吗？这就是 Hash 最大的缺点了。
+Trong truy vấn phạm vi này, B+Tree có ưu thế rất lớn, chỉ cần duyệt qua các nút lá nhỏ hơn 500 là đủ. Còn Hash index dựa trên thuật toán hash để định vị, lẽ nào còn phải tính hash cho từng dữ liệu từ 1 đến 499? Đây chính là nhược điểm lớn nhất của Hash.
 
-### 二叉查找树（BST）
+### Cây tìm kiếm nhị phân (BST)
 
-二叉查找树（Binary Search Tree）是一种基于二叉树的数据结构，它具有以下特点：
+Binary Search Tree là một cấu trúc dữ liệu dựa trên cây nhị phân, có các đặc điểm sau:
 
-1. 左子树所有节点的值均小于根节点的值。
-2. 右子树所有节点的值均大于根节点的值。
-3. 左右子树也分别为二叉查找树。
+1. Tất cả các nút trong cây con trái đều nhỏ hơn giá trị nút gốc.
+2. Tất cả các nút trong cây con phải đều lớn hơn giá trị nút gốc.
+3. Cây con trái và phải cũng là cây tìm kiếm nhị phân.
 
-当二叉查找树是平衡的时候，也就是树的每个节点的左右子树深度相差不超过 1 的时候，查询的时间复杂度为 O(log2(N))，具有比较高的效率。然而，当二叉查找树不平衡时，例如在最坏情况下（有序插入节点），树会退化成线性链表（也被称为斜树），导致查询效率急剧下降，时间复杂退化为 O(N)。
+Khi cây tìm kiếm nhị phân cân bằng, tức độ sâu của cây con trái và phải của mỗi nút trong cây không chênh lệch quá 1, độ phức tạp thời gian truy vấn là O(log2(N)), có hiệu quả khá cao. Tuy nhiên, khi cây tìm kiếm nhị phân không cân bằng, ví dụ trong trường hợp xấu nhất (chèn nút theo thứ tự), cây sẽ thoái hóa thành linked list tuyến tính (còn gọi là cây nghiêng), dẫn đến hiệu quả truy vấn giảm mạnh, độ phức tạp thời gian thoái hóa về O(N).
 
-![斜树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/oblique-tree.png)
+![Cây nghiêng](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/oblique-tree.png)
 
-也就是说，**二叉查找树的性能非常依赖于它的平衡程度，这就导致其不适合作为 MySQL 底层索引的数据结构。**
+Tức là, **hiệu năng của cây tìm kiếm nhị phân phụ thuộc rất nhiều vào mức độ cân bằng của nó, dẫn đến nó không phù hợp làm cấu trúc dữ liệu index lớp dưới cho MySQL.**
 
-为了解决这个问题，并提高查询效率，人们发明了多种在二叉查找树基础上的改进型数据结构，如平衡二叉树、B-Tree、B+Tree 等。
+Để giải quyết vấn đề này và nâng cao hiệu quả truy vấn, người ta phát minh ra nhiều loại cấu trúc dữ liệu cải tiến dựa trên cây tìm kiếm nhị phân, như cây cân bằng nhị phân (AVL tree), B-Tree, B+Tree, v.v.
 
-### AVL 树
+### AVL tree
 
-AVL 树是计算机科学中最早被发明的自平衡二叉查找树，它的名称来自于发明者 G.M. Adelson-Velsky 和 E.M. Landis 的名字缩写。AVL 树的特点是保证任何节点的左右子树高度之差不超过 1，因此也被称为高度平衡二叉树，它的查找、插入和删除在平均和最坏情况下的时间复杂度都是 O(logn)。
+AVL tree là cây tìm kiếm nhị phân tự cân bằng đầu tiên được phát minh trong khoa học máy tính, tên được lấy từ chữ viết tắt tên của người phát minh G.M. Adelson-Velsky và E.M. Landis. Đặc điểm của AVL tree là đảm bảo độ chênh lệch chiều cao của cây con trái và phải của bất kỳ nút nào không vượt quá 1, vì vậy còn được gọi là cây nhị phân cân bằng theo chiều cao, độ phức tạp thời gian tìm kiếm, chèn và xóa trong cả trường hợp trung bình và tệ nhất đều là O(logn).
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/avl-tree.png)
 
-AVL 树采用了旋转操作来保持平衡。主要有四种旋转操作：LL 旋转、RR 旋转、LR 旋转和 RL 旋转。其中 LL 旋转和 RR 旋转分别用于处理左左和右右失衡，而 LR 旋转和 RL 旋转则用于处理左右和右左失衡。
+AVL tree dùng phép quay để duy trì cân bằng. Chủ yếu có bốn loại phép quay: LL rotation, RR rotation, LR rotation và RL rotation. Trong đó LL rotation và RR rotation được dùng để xử lý mất cân bằng trái-trái và phải-phải, còn LR rotation và RL rotation được dùng để xử lý mất cân bằng trái-phải và phải-trái.
 
-由于 AVL 树需要频繁地进行旋转操作来保持平衡，因此会有较大的计算开销进而降低了数据库写操作的性能。并且， 在使用 AVL 树时，每个树节点仅存储一个数据，而每次进行磁盘 IO 时只能读取一个节点的数据，如果需要查询的数据分布在多个节点上，那么就需要进行多次磁盘 IO。**磁盘 IO 是一项耗时的操作，在设计数据库索引时，我们需要优先考虑如何最大限度地减少磁盘 IO 操作的次数。**
+Vì AVL tree cần thường xuyên thực hiện phép quay để duy trì cân bằng, sẽ có chi phí tính toán lớn từ đó giảm hiệu năng thao tác ghi của cơ sở dữ liệu. Ngoài ra, khi sử dụng AVL tree, mỗi nút của cây chỉ lưu một dữ liệu, mỗi lần I/O đĩa chỉ đọc được dữ liệu của một nút, nếu dữ liệu cần truy vấn phân tán trên nhiều nút, cần thực hiện nhiều lần I/O đĩa. **I/O đĩa là thao tác tốn thời gian, khi thiết kế index cơ sở dữ liệu, chúng ta cần ưu tiên cân nhắc cách giảm tối đa số lần I/O đĩa.**
 
-实际应用中，AVL 树使用的并不多。
+Trong ứng dụng thực tế, AVL tree không được dùng nhiều.
 
-### 红黑树
+### Red-black tree
 
-红黑树是一种自平衡二叉查找树，通过在插入和删除节点时进行颜色变换和旋转操作，使得树始终保持平衡状态，它具有以下特点：
+Red-black tree là cây tìm kiếm nhị phân tự cân bằng, thông qua thay đổi màu sắc và phép quay khi chèn và xóa nút, giữ cho cây luôn ở trạng thái cân bằng, nó có các đặc điểm sau:
 
-1. 每个节点非红即黑；
-2. 根节点总是黑色的；
-3. 每个叶子节点都是黑色的空节点（NIL 节点）；
-4. 如果节点是红色的，则它的子节点必须是黑色的（反之不一定）；
-5. 从任意节点到它的叶子节点或空子节点的每条路径，必须包含相同数目的黑色节点（即相同的黑色高度）。
+1. Mỗi nút là màu đỏ hoặc đen;
+2. Nút gốc luôn là màu đen;
+3. Mỗi nút lá đều là nút đen rỗng (NIL node);
+4. Nếu nút là màu đỏ, thì nút con của nó phải là màu đen (ngược lại chưa chắc đúng);
+5. Mỗi đường dẫn từ bất kỳ nút nào đến nút lá hoặc nút con rỗng của nó, phải chứa cùng số nút đen (tức cùng chiều cao đen).
 
-![红黑树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/red-black-tree.png)
+![Red-black tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/red-black-tree.png)
 
-和 AVL 树不同的是，红黑树并不追求严格的平衡，而是大致的平衡。正因如此，红黑树的查询效率稍有下降，因为红黑树的平衡性相对较弱，可能会导致树的高度较高，这可能会导致一些数据需要进行多次磁盘 IO 操作才能查询到，这也是 MySQL 没有选择红黑树的主要原因。也正因如此，红黑树的插入和删除操作效率大大提高了，因为红黑树在插入和删除节点时只需进行 O(1) 次数的旋转和变色操作，即可保持基本平衡状态，而不需要像 AVL 树一样进行 O(logn) 次数的旋转操作。
+Khác với AVL tree, red-black tree không theo đuổi cân bằng nghiêm ngặt, mà là cân bằng tương đối. Chính vì vậy, hiệu quả truy vấn của red-black tree hơi giảm, vì tính cân bằng của red-black tree tương đối yếu, có thể dẫn đến chiều cao cây cao hơn, điều này có thể dẫn đến một số dữ liệu cần thực hiện nhiều lần I/O đĩa mới truy vấn được, đây cũng là lý do chính MySQL không chọn red-black tree. Cũng chính vì vậy, hiệu quả chèn và xóa của red-black tree được nâng cao đáng kể, vì red-black tree khi chèn và xóa nút chỉ cần thực hiện O(1) lần phép quay và đổi màu để duy trì trạng thái cân bằng cơ bản, không cần thực hiện O(logn) lần phép quay như AVL tree.
 
-**红黑树的应用还是比较广泛的，TreeMap、TreeSet 以及 JDK1.8 的 HashMap 底层都用到了红黑树。对于数据在内存中的这种情况来说，红黑树的表现是非常优异的。**
+**Ứng dụng của red-black tree khá rộng rãi, TreeMap, TreeSet và HashMap của JDK1.8 ở lớp dưới đều dùng red-black tree. Đối với trường hợp dữ liệu trong bộ nhớ, hiệu suất của red-black tree là rất xuất sắc.**
 
-### B 树& B+ 树
+### B tree & B+ tree
 
-B 树也称 B- 树，全称为 **多路平衡查找树**，B+ 树是 B 树的一种变体。B 树和 B+ 树中的 B 是 `Balanced`（平衡）的意思。
+B tree còn gọi là B- tree, tên đầy đủ là **cây tìm kiếm cân bằng đa chiều**, B+ tree là một biến thể của B tree. B trong B tree và B+ tree là viết tắt của `Balanced` (cân bằng).
 
-目前大部分数据库系统及文件系统都采用 B-Tree 或其变种 B+Tree 作为索引结构。
+Hiện tại hầu hết các hệ thống cơ sở dữ liệu và hệ thống file đều dùng B-Tree hoặc biến thể B+Tree làm cấu trúc index.
 
-**B 树& B+ 树两者有何异同呢？**
+**Vậy B tree và B+ tree có gì giống và khác nhau?**
 
-- B 树的所有节点既存放键(key)也存放数据(data)，而 B+ 树只有叶子节点存放 key 和 data，其他内节点只存放 key。
-- B 树的叶子节点都是独立的；B+ 树的叶子节点有一条引用链指向与它相邻的叶子节点。
-- B 树的检索的过程相当于对范围内的每个节点的关键字做二分查找，可能还没有到达叶子节点，检索就结束了。而 B+ 树的检索效率就很稳定了，任何查找都是从根节点到叶子节点的过程，叶子节点的顺序检索很明显。
-- 在 B 树中进行范围查询时，首先找到要查找的下限，然后对 B 树进行中序遍历，直到找到查找的上限；而 B+ 树的范围查询，只需要对链表进行遍历即可。
+- Tất cả các nút của B tree đều lưu cả key và data, còn B+ tree chỉ có nút lá lưu key và data, các nút nội không lưu gì ngoài key.
+- Các nút lá của B tree là độc lập; các nút lá của B+ tree có một chuỗi tham chiếu trỏ đến nút lá kề cạnh.
+- Quá trình tìm kiếm của B tree tương đương với tìm kiếm nhị phân trên khóa của mỗi nút trong phạm vi, có thể chưa đến nút lá tìm kiếm đã kết thúc. Còn hiệu quả tìm kiếm của B+ tree rất ổn định, bất kỳ tìm kiếm nào cũng là quá trình từ nút gốc đến nút lá, tìm kiếm tuần tự trên nút lá rõ ràng hơn.
+- Khi thực hiện truy vấn phạm vi trong B tree, trước tiên tìm giới hạn dưới cần tìm, sau đó duyệt B tree theo thứ tự giữa đến khi tìm thấy giới hạn trên; còn truy vấn phạm vi của B+ tree chỉ cần duyệt linked list là đủ.
 
-综上，B+ 树与 B 树相比，具备更少的 IO 次数、更稳定的查询效率和更适于范围查询这些优势。
+Tóm lại, B+ tree so với B tree có ít lần I/O hơn, hiệu quả truy vấn ổn định hơn và phù hợp hơn với truy vấn phạm vi.
 
-在 MySQL 中，MyISAM 引擎和 InnoDB 引擎都是使用 B+Tree 作为索引结构，但是，两者的实现方式不太一样。（下面的内容整理自《Java 工程师修炼之道》）
+Trong MySQL, cả engine MyISAM và InnoDB đều dùng B+Tree làm cấu trúc index, nhưng cách triển khai của hai engine không hoàn toàn giống nhau. (Nội dung dưới đây được tổng hợp từ 《Đạo tu luyện của Java Engineer》)
 
-> MyISAM 引擎中，B+Tree 叶节点的 data 域存放的是数据记录的地址。在索引检索的时候，首先按照 B+Tree 搜索算法搜索索引，如果指定的 Key 存在，则取出其 data 域的值，然后以 data 域的值为地址读取相应的数据记录。这被称为“**非聚簇索引（非聚集索引）**”。
+> Trong engine MyISAM, miền data của nút lá B+Tree lưu địa chỉ của bản ghi dữ liệu. Khi tìm kiếm index, trước tiên tìm kiếm theo thuật toán B+Tree, nếu key chỉ định tồn tại, lấy giá trị miền data của nó, sau đó đọc bản ghi dữ liệu tương ứng với địa chỉ miền data. Đây được gọi là "**non-clustered index (non-clustered index)**".
 >
-> InnoDB 引擎中，其数据文件本身就是索引文件。相比 MyISAM，索引文件和数据文件是分离的，其表数据文件本身就是按 B+Tree 组织的一个索引结构，树的叶节点 data 域保存了完整的数据记录。这个索引的 key 是数据表的主键，因此 InnoDB 表数据文件本身就是主索引。这被称为“**聚簇索引（聚集索引）**”，而其余的索引都作为 **辅助索引**，辅助索引的 data 域存储相应记录主键的值而不是地址，这也是和 MyISAM 不同的地方。在根据主索引搜索时，直接找到 key 所在的节点即可取出数据；在根据辅助索引查找时，则需要先取出主键的值，再走一遍主索引。 因此，在设计表的时候，不建议使用过长的字段作为主键，也不建议使用非单调的字段作为主键，这样会造成主索引频繁分裂。
+> Trong engine InnoDB, file dữ liệu của nó chính là file index. So với MyISAM, file index và file dữ liệu là tách biệt, file dữ liệu bảng chính là một cấu trúc index được tổ chức theo B+Tree, miền data của nút lá cây lưu bản ghi dữ liệu đầy đủ. Key của index này là khóa chính của bảng dữ liệu, vì vậy file dữ liệu bảng InnoDB chính là primary index. Đây được gọi là "**clustered index (clustered index)**", còn các index còn lại đóng vai trò là **secondary index**, miền data của secondary index lưu giá trị khóa chính của bản ghi tương ứng chứ không phải địa chỉ, đây cũng là điểm khác với MyISAM. Khi tìm kiếm theo primary index, trực tiếp tìm đến nút chứa key là lấy được dữ liệu; khi tìm kiếm theo secondary index, cần trước tiên lấy giá trị khóa chính, sau đó đi thêm một vòng theo primary index. Vì vậy, khi thiết kế bảng, không nên dùng trường quá dài làm khóa chính, cũng không nên dùng trường không đơn điệu làm khóa chính, điều này sẽ gây ra primary index thường xuyên bị split.
 
-## 索引类型总结
+## Tổng kết các loại Index
 
-按照数据结构维度划分：
+Phân loại theo chiều cấu trúc dữ liệu:
 
-- BTree 索引：MySQL 里默认和最常用的索引类型。只有叶子节点存储 value，非叶子节点只有指针和 key。存储引擎 MyISAM 和 InnoDB 实现 BTree 索引都是使用 B+Tree，但二者实现方式不一样（前面已经介绍了）。
-- 哈希索引：类似键值对的形式，一次即可定位。
-- RTree 索引：一般不会使用，仅支持 geometry 数据类型，优势在于范围查找，效率较低，通常使用搜索引擎如 ElasticSearch 代替。
-- 全文索引：对文本的内容进行分词，进行搜索。目前只有 `CHAR`、`VARCHAR`、`TEXT` 列上可以创建全文索引。一般不会使用，效率较低，通常使用搜索引擎如 ElasticSearch 代替。
+- BTree index: Loại index mặc định và phổ biến nhất trong MySQL. Chỉ có nút lá lưu value, nút phi lá chỉ có con trỏ và key. Engine MyISAM và InnoDB đều triển khai BTree index bằng B+Tree, nhưng cách triển khai của hai engine không hoàn toàn giống nhau (đã giới thiệu ở trên).
+- Hash index: Dạng cặp key-value, có thể định vị trong một lần.
+- RTree index: Thường không được dùng, chỉ hỗ trợ kiểu dữ liệu geometry, ưu thế trong tìm kiếm phạm vi, hiệu quả tương đối thấp, thường được thay thế bằng search engine như ElasticSearch.
+- Full-text index: Phân từ nội dung văn bản, thực hiện tìm kiếm. Hiện tại chỉ có thể tạo full-text index trên cột `CHAR`, `VARCHAR`, `TEXT`. Thường không được dùng, hiệu quả tương đối thấp, thường được thay thế bằng search engine như ElasticSearch.
 
-按照底层存储方式角度划分：
+Phân loại theo góc cách lưu trữ lớp dưới:
 
-- 聚簇索引（聚集索引）：索引结构和数据一起存放的索引，InnoDB 中的主键索引就属于聚簇索引。
-- 非聚簇索引（非聚集索引）：索引结构和数据分开存放的索引，二级索引（辅助索引）就属于非聚簇索引。MySQL 的 MyISAM 引擎，不管主键还是非主键，使用的都是非聚簇索引。
+- Clustered index (clustered index): Index có cấu trúc và dữ liệu lưu cùng nhau, primary key index trong InnoDB thuộc clustered index.
+- Non-clustered index (non-clustered index): Index có cấu trúc và dữ liệu lưu tách biệt, secondary index (auxiliary index) thuộc non-clustered index. MySQL engine MyISAM, dù là primary key hay non-primary key, đều dùng non-clustered index.
 
-按照应用维度划分：
+Phân loại theo chiều ứng dụng:
 
-- 主键索引：加速查询 + 列值唯一（不可以有 NULL）+ 表中只有一个。
-- 普通索引：仅加速查询。
-- 唯一索引：加速查询 + 列值唯一（可以有 NULL）。
-- 覆盖索引：一个索引包含（或者说覆盖）所有需要查询的字段的值。
-- 联合索引：多列值组成一个索引，专门用于组合搜索，其效率大于索引合并。
-- 全文索引：对文本的内容进行分词，进行搜索。目前只有 `CHAR`、`VARCHAR`、`TEXT` 列上可以创建全文索引。一般不会使用，效率较低，通常使用搜索引擎如 ElasticSearch 代替。
-- 前缀索引：对文本的前几个字符创建索引，相比普通索引建立的数据更小，因为只取前几个字符。
+- Primary key index: Tăng tốc truy vấn + giá trị cột duy nhất (không được là NULL) + chỉ có một trong bảng.
+- Ordinary index: Chỉ tăng tốc truy vấn.
+- Unique index: Tăng tốc truy vấn + giá trị cột duy nhất (có thể có NULL).
+- Covering index: Một index bao gồm (hoặc che phủ) tất cả các trường cần truy vấn.
+- Composite index: Nhiều giá trị cột tạo thành một index, chuyên dùng cho tìm kiếm kết hợp, hiệu quả cao hơn index merge.
+- Full-text index: Phân từ nội dung văn bản, thực hiện tìm kiếm. Hiện tại chỉ có thể tạo full-text index trên cột `CHAR`, `VARCHAR`, `TEXT`. Thường không được dùng, hiệu quả tương đối thấp, thường được thay thế bằng search engine như ElasticSearch.
+- Prefix index: Tạo index trên một vài ký tự đầu của văn bản, so với ordinary index xây dựng dữ liệu nhỏ hơn, vì chỉ lấy một vài ký tự đầu.
 
-MySQL 8.x 中实现的索引新特性：
+Tính năng index mới được triển khai trong MySQL 8.x:
 
-- 隐藏索引：也称为不可见索引，不会被优化器使用，但是仍然需要维护，通常会软删除和灰度发布的场景中使用。主键不能设置为隐藏（包括显式设置或隐式设置）。
-- 降序索引：之前的版本就支持通过 desc 来指定索引为降序，但实际上创建的仍然是常规的升序索引。直到 MySQL 8.x 版本才开始真正支持降序索引。另外，在 MySQL 8.x 版本中，不再对 GROUP BY 语句进行隐式排序。
-- 函数索引：从 MySQL 8.0.13 版本开始支持在索引中使用函数或者表达式的值，也就是在索引中可以包含函数或者表达式。
+- Invisible index: Còn gọi là non-visible index, không được optimizer sử dụng, nhưng vẫn cần duy trì, thường được dùng trong các tình huống soft delete và gray release. Primary key không thể đặt thành invisible (bao gồm đặt rõ ràng hoặc ngầm định).
+- Descending index: Các phiên bản trước đã hỗ trợ chỉ định index là descending qua desc, nhưng thực tế vẫn tạo ascending index thông thường. Đến phiên bản MySQL 8.x mới thực sự hỗ trợ descending index. Ngoài ra, trong MySQL 8.x, không còn sắp xếp ngầm định cho câu lệnh GROUP BY nữa.
+- Function index: Từ phiên bản MySQL 8.0.13 bắt đầu hỗ trợ dùng giá trị hàm hoặc biểu thức trong index, tức có thể bao gồm hàm hoặc biểu thức trong index.
 
-## 主键索引（Primary Key）
+## Primary Key Index
 
-数据表的主键列使用的就是主键索引。
+Cột khóa chính của bảng dữ liệu dùng primary key index.
 
-一张数据表有只能有一个主键，并且主键不能为 null，不能重复。
+Một bảng dữ liệu chỉ có thể có một khóa chính, và khóa chính không được là null, không được trùng lặp.
 
-在 MySQL 的 InnoDB 的表中，当没有显示的指定表的主键时，InnoDB 会自动先检查表中是否有唯一索引且不允许存在 null 值的字段，如果有，则选择该字段为默认的主键，否则 InnoDB 将会自动创建一个 6Byte 的自增主键。
+Trong bảng InnoDB của MySQL, khi không rõ ràng chỉ định khóa chính của bảng, InnoDB sẽ tự động kiểm tra xem bảng có trường unique index không cho phép tồn tại giá trị null không, nếu có, chọn trường đó làm khóa chính mặc định, nếu không InnoDB sẽ tự động tạo một khóa chính tự tăng 6 Byte.
 
-![主键索引](https://oss.javaguide.cn/github/javaguide/open-source-project/cluster-index.png)
+![Primary key index](https://oss.javaguide.cn/github/javaguide/open-source-project/cluster-index.png)
 
-## 二级索引
+## Secondary Index
 
-二级索引（Secondary Index）的叶子节点存储的数据是主键的值，也就是说，通过二级索引可以定位主键的位置，二级索引又称为辅助索引/非主键索引。
+Nút lá của Secondary Index lưu giá trị khóa chính, tức thông qua secondary index có thể xác định vị trí của khóa chính, secondary index còn được gọi là auxiliary index/non-primary key index.
 
-唯一索引、普通索引、前缀索引等索引都属于二级索引。
+Unique index, ordinary index, prefix index, v.v. đều thuộc secondary index.
 
-PS：不懂的同学可以暂存疑，慢慢往下看，后面会有答案的，也可以自行搜索。
+PS: Các bạn chưa hiểu có thể giữ câu hỏi, đọc tiếp xuống dưới sẽ có câu trả lời, hoặc tự tìm kiếm.
 
-1. **唯一索引（Unique Key）**：唯一索引也是一种约束。唯一索引的属性列不能出现重复的数据，但是允许数据为 NULL，一张表允许创建多个唯一索引。 建立唯一索引的目的大部分时候都是为了该属性列的数据的唯一性，而不是为了查询效率。
-2. **普通索引（Index）**：普通索引的唯一作用就是为了快速查询数据。一张表允许创建多个普通索引，并允许数据重复和 NULL。
-3. **前缀索引（Prefix）**：前缀索引只适用于字符串类型的数据。前缀索引是对文本的前几个字符创建索引，相比普通索引建立的数据更小，因为只取前几个字符。
-4. **全文索引（Full Text）**：全文索引主要是为了检索大文本数据中的关键字的信息，是目前搜索引擎数据库使用的一种技术。Mysql5.6 之前只有 MyISAM 引擎支持全文索引，5.6 之后 InnoDB 也支持了全文索引。
+1. **Unique Key**: Unique index cũng là một loại ràng buộc. Cột thuộc tính của unique index không thể xuất hiện dữ liệu trùng lặp, nhưng cho phép dữ liệu là NULL, một bảng cho phép tạo nhiều unique index. Mục đích xây dựng unique index hầu hết là vì tính duy nhất của dữ liệu trong cột thuộc tính đó, chứ không phải vì hiệu quả truy vấn.
+2. **Ordinary Index**: Vai trò duy nhất của ordinary index là truy vấn dữ liệu nhanh. Một bảng cho phép tạo nhiều ordinary index, và cho phép dữ liệu trùng lặp và NULL.
+3. **Prefix Index**: Prefix index chỉ áp dụng cho dữ liệu kiểu chuỗi. Prefix index tạo index trên một vài ký tự đầu của văn bản, so với ordinary index xây dựng dữ liệu nhỏ hơn, vì chỉ lấy một vài ký tự đầu.
+4. **Full Text Index**: Full text index chủ yếu để tìm kiếm thông tin từ khóa trong dữ liệu văn bản lớn, là một công nghệ đang được sử dụng trong cơ sở dữ liệu search engine. Trước Mysql5.6 chỉ có engine MyISAM hỗ trợ full text index, sau 5.6 InnoDB cũng hỗ trợ full text index.
 
-二级索引：
+Secondary index:
 
-![二级索引](https://oss.javaguide.cn/github/javaguide/open-source-project/no-cluster-index.png)
+![Secondary index](https://oss.javaguide.cn/github/javaguide/open-source-project/no-cluster-index.png)
 
-## 聚簇索引与非聚簇索引
+## Clustered Index và Non-Clustered Index
 
-### 聚簇索引（聚集索引）
+### Clustered Index (Clustered Index)
 
-#### 聚簇索引介绍
+#### Giới thiệu Clustered Index
 
-聚簇索引（Clustered Index）即索引结构和数据一起存放的索引，并不是一种单独的索引类型。InnoDB 中的主键索引就属于聚簇索引。
+Clustered Index (Clustered Index) tức index có cấu trúc và dữ liệu lưu cùng nhau, không phải là một loại index riêng biệt. Primary key index trong InnoDB thuộc clustered index.
 
-在 MySQL 中，InnoDB 引擎的表的 `.ibd`文件就包含了该表的索引和数据，对于 InnoDB 引擎表来说，该表的索引（B+ 树）的每个非叶子节点存储索引，叶子节点存储索引和索引对应的数据。
+Trong MySQL, file `.ibd` của bảng trong engine InnoDB chứa cả index và dữ liệu của bảng đó, đối với bảng engine InnoDB, mỗi nút phi lá của index (B+ tree) lưu index, nút lá lưu index và dữ liệu tương ứng với index.
 
-#### 聚簇索引的优缺点
+#### Ưu nhược điểm của Clustered Index
 
-**优点**：
+**Ưu điểm**:
 
-- **查询速度非常快**：聚簇索引的查询速度非常的快，因为整个 B+ 树本身就是一颗多叉平衡树，叶子节点也都是有序的，定位到索引的节点，就相当于定位到了数据。相比于非聚簇索引， 聚簇索引少了一次读取数据的 IO 操作。
-- **对排序查找和范围查找优化**：聚簇索引对于主键的排序查找和范围查找速度非常快。
+- **Tốc độ truy vấn rất nhanh**: Tốc độ truy vấn của clustered index rất nhanh, vì toàn bộ B+ tree là một cây cân bằng đa nhánh, các nút lá đều đã được sắp xếp, định vị đến nút index tương đương với định vị đến dữ liệu. So với non-clustered index, clustered index giảm một lần I/O đọc dữ liệu.
+- **Tối ưu cho tìm kiếm sắp xếp và phạm vi**: Clustered index rất nhanh cho tìm kiếm sắp xếp và phạm vi của khóa chính.
 
-**缺点**：
+**Nhược điểm**:
 
-- **依赖于有序的数据**：因为 B+ 树是多路平衡树，如果索引的数据不是有序的，那么就需要在插入时排序，如果数据是整型还好，否则类似于字符串或 UUID 这种又长又难比较的数据，插入或查找的速度肯定比较慢。
-- **更新代价大**：如果对索引列的数据被修改时，那么对应的索引也将会被修改，而且聚簇索引的叶子节点还存放着数据，修改代价肯定是较大的，所以对于主键索引来说，主键一般都是不可被修改的。
+- **Phụ thuộc vào dữ liệu có thứ tự**: Vì B+ tree là cây cân bằng đa nhánh, nếu dữ liệu index không có thứ tự, thì cần sắp xếp khi chèn, nếu dữ liệu là số nguyên thì còn được, còn dữ liệu dài và khó so sánh như chuỗi hoặc UUID, tốc độ chèn hay tìm kiếm chắc chắn sẽ chậm hơn.
+- **Chi phí cập nhật cao**: Nếu dữ liệu trong cột index bị sửa đổi, thì index tương ứng cũng sẽ bị sửa đổi, và nút lá của clustered index còn lưu dữ liệu, chi phí sửa đổi chắc chắn tương đối lớn, vì vậy đối với primary key index, khóa chính thường không được phép sửa đổi.
 
-### 非聚簇索引（非聚集索引）
+### Non-Clustered Index (Non-Clustered Index)
 
-#### 非聚簇索引介绍
+#### Giới thiệu Non-Clustered Index
 
-非聚簇索引（Non-Clustered Index）即索引结构和数据分开存放的索引，并不是一种单独的索引类型。二级索引（辅助索引）就属于非聚簇索引。MySQL 的 MyISAM 引擎，不管主键还是非主键，使用的都是非聚簇索引。
+Non-Clustered Index (Non-Clustered Index) tức index có cấu trúc và dữ liệu lưu tách biệt, không phải là một loại index riêng biệt. Secondary index (auxiliary index) thuộc non-clustered index. MySQL engine MyISAM, dù là primary key hay non-primary key, đều dùng non-clustered index.
 
-非聚簇索引的叶子节点并不一定存放数据的指针，因为二级索引的叶子节点就存放的是主键，根据主键再回表查数据。
+Nút lá của non-clustered index không nhất thiết lưu con trỏ đến dữ liệu, vì nút lá của secondary index lưu khóa chính, sau đó quay lại bảng theo khóa chính để truy vấn dữ liệu.
 
-#### 非聚簇索引的优缺点
+#### Ưu nhược điểm của Non-Clustered Index
 
-**优点**：
+**Ưu điểm**:
 
-更新代价比聚簇索引要小。非聚簇索引的更新代价就没有聚簇索引那么大了，非聚簇索引的叶子节点是不存放数据的。
+Chi phí cập nhật nhỏ hơn clustered index. Chi phí cập nhật của non-clustered index không lớn như clustered index, vì nút lá của non-clustered index không lưu dữ liệu.
 
-**缺点**：
+**Nhược điểm**:
 
-- **依赖于有序的数据**：跟聚簇索引一样，非聚簇索引也依赖于有序的数据。
-- **可能会二次查询（回表）**：这应该是非聚簇索引最大的缺点了。当查到索引对应的指针或主键后，可能还需要根据指针或主键再到数据文件或表中查询。
+- **Phụ thuộc vào dữ liệu có thứ tự**: Cũng như clustered index, non-clustered index cũng phụ thuộc vào dữ liệu có thứ tự.
+- **Có thể cần truy vấn lần hai (quay lại bảng)**: Đây có lẽ là nhược điểm lớn nhất của non-clustered index. Khi tìm đến con trỏ hoặc khóa chính tương ứng với index, có thể cần quay lại file dữ liệu hoặc bảng theo con trỏ hoặc khóa chính để truy vấn.
 
-这是 MySQL 的表的文件截图：
+Đây là ảnh chụp màn hình file của bảng MySQL:
 
-![MySQL 表的文件](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165311654.png)
+![File bảng MySQL](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165311654.png)
 
-聚簇索引和非聚簇索引：
+Clustered index và non-clustered index:
 
-![聚簇索引和非聚簇索引](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165326946.png)
+![Clustered index và non-clustered index](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165326946.png)
 
-#### 非聚簇索引一定回表查询吗（覆盖索引）？
+#### Non-clustered index có nhất thiết phải quay lại bảng không (Covering index)?
 
-**非聚簇索引不一定回表查询。**
+**Non-clustered index không nhất thiết phải quay lại bảng.**
 
-试想一种情况，用户准备使用 SQL 查询用户名，而用户名字段正好建立了索引。
+Hãy thử một tình huống, người dùng chuẩn bị dùng SQL để truy vấn tên người dùng, và trường tên người dùng vừa hay đã tạo index.
 
 ```sql
  SELECT name FROM table WHERE name='guang19';
 ```
 
-那么这个索引的 key 本身就是 name，查到对应的 name 直接返回就行了，无需回表查询。
+Thì key của index này chính là name, tìm thấy name tương ứng trực tiếp trả về là được, không cần quay lại bảng.
 
-即使是 MyISAM 也是这样，虽然 MyISAM 的主键索引确实需要回表，因为它的主键索引的叶子节点存放的是指针。但是！**如果 SQL 查的就是主键呢?**
+Dù là MyISAM cũng như vậy, dù primary key index của MyISAM thực sự cần quay lại bảng, vì nút lá của primary key index lưu con trỏ. Nhưng! **Nếu SQL truy vấn chính là khóa chính?**
 
 ```sql
 SELECT id FROM table WHERE id=1;
 ```
 
-主键索引本身的 key 就是主键，查到返回就行了。这种情况就称之为覆盖索引了。
+Bản thân primary key index có key chính là khóa chính, tìm thấy trả về là được. Tình huống này được gọi là covering index.
 
-## 覆盖索引和联合索引
+## Covering Index và Composite Index
 
-### 覆盖索引
+### Covering Index
 
-如果一个索引包含（或者说覆盖）所有需要查询的字段的值，我们就称之为 **覆盖索引（Covering Index）**。
+Nếu một index bao gồm (hoặc che phủ) tất cả các trường cần truy vấn, chúng ta gọi đó là **covering index (Covering Index)**.
 
-在 InnoDB 存储引擎中，非主键索引的叶子节点包含的是主键的值。这意味着，当使用非主键索引进行查询时，数据库会先找到对应的主键值，然后再通过主键索引来定位和检索完整的行数据。这个过程被称为“回表”。
+Trong storage engine InnoDB, nút lá của non-primary key index chứa giá trị khóa chính. Điều này có nghĩa là khi sử dụng non-primary key index để truy vấn, cơ sở dữ liệu trước tiên tìm giá trị khóa chính tương ứng, sau đó thông qua primary key index để định vị và truy xuất dữ liệu hàng đầy đủ. Quá trình này được gọi là "quay lại bảng".
 
-**覆盖索引即需要查询的字段正好是索引的字段，那么直接根据该索引，就可以查到数据了，而无需回表查询。**
+**Covering index tức các trường cần truy vấn chính là trường của index, thì trực tiếp dựa trên index đó có thể truy vấn được dữ liệu, không cần quay lại bảng.**
 
-> 如主键索引，如果一条 SQL 需要查询主键，那么正好根据主键索引就可以查到主键。再如普通索引，如果一条 SQL 需要查询 name，name 字段正好有索引，
-> 那么直接根据这个索引就可以查到数据，也无需回表。
+> Ví dụ primary key index, nếu một SQL cần truy vấn khóa chính, thì chính xác là dựa trên primary key index có thể tìm thấy khóa chính. Ví dụ khác là ordinary index, nếu một SQL cần truy vấn name, trường name vừa hay có index,
+> thì trực tiếp dựa trên index này có thể truy vấn được dữ liệu, cũng không cần quay lại bảng.
 
-![覆盖索引](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165341868.png)
+![Covering index](https://oss.javaguide.cn/github/javaguide/database/mysql20210420165341868.png)
 
-我们这里简单演示一下覆盖索引的效果。
+Dưới đây là demo đơn giản về hiệu ứng covering index.
 
-1、创建一个名为 `cus_order` 的表，来实际测试一下这种排序方式。为了测试方便，`cus_order` 这张表只有 `id`、`score`、`name` 这 3 个字段。
+1、Tạo một bảng tên `cus_order`, để kiểm tra thực tế phương thức sắp xếp này. Để thuận tiện kiểm tra, bảng `cus_order` này chỉ có 3 trường `id`, `score`, `name`.
 
 ```sql
 CREATE TABLE `cus_order` (
@@ -298,7 +298,7 @@ CREATE TABLE `cus_order` (
 ) ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8mb4;
 ```
 
-2、定义一个简单的存储过程（PROCEDURE）来插入 100w 测试数据。
+2、Định nghĩa một stored procedure (PROCEDURE) đơn giản để chèn dữ liệu kiểm tra 100 vạn bản ghi.
 
 ```sql
 DELIMITER ;;
@@ -314,66 +314,66 @@ BEGIN
 DELIMITER ;
 ```
 
-存储过程定义完成之后，我们执行存储过程即可！
+Sau khi định nghĩa stored procedure xong, thực thi stored procedure là được!
 
 ```sql
-CALL BatchinsertDataToCusOder(1, 1000000); # 插入100w+的随机数据
+CALL BatchinsertDataToCusOder(1, 1000000); # Chèn 100 vạn+ dữ liệu ngẫu nhiên
 ```
 
-等待一会，100w 的测试数据就插入完成了！
+Đợi một lúc, 100 vạn dữ liệu kiểm tra đã chèn xong!
 
-3、创建覆盖索引并使用 `EXPLAIN` 命令分析。
+3、Tạo covering index và dùng lệnh `EXPLAIN` phân tích.
 
-为了能够对这 100w 数据按照 `score` 进行排序，我们需要执行下面的 SQL 语句。
+Để sắp xếp 100 vạn dữ liệu này theo `score`, chúng ta cần thực thi câu SQL dưới đây.
 
 ```sql
-#降序排序
+#Sắp xếp giảm dần
 SELECT `score`,`name` FROM `cus_order` ORDER BY `score` DESC;
 ```
 
-使用 `EXPLAIN` 命令分析这条 SQL 语句，通过 `Extra` 这一列的 `Using filesort`，我们发现是没有用到覆盖索引的。
+Dùng lệnh `EXPLAIN` phân tích câu SQL này, thông qua `Using filesort` trong cột `Extra`, chúng ta phát hiện không có dùng covering index.
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/not-using-covering-index-demo.png)
 
-不过这也是理所应当，毕竟我们现在还没有创建索引呢！
+Tất nhiên điều này cũng là lẽ đương nhiên, vì chúng ta chưa tạo index!
 
-我们这里以 `score` 和 `name` 两个字段建立联合索引：
+Ở đây chúng ta tạo composite index trên hai trường `score` và `name`:
 
 ```sql
 ALTER TABLE `cus_order` ADD INDEX id_score_name(score, name);
 ```
 
-创建完成之后，再用 `EXPLAIN` 命令分析再次分析这条 SQL 语句。
+Sau khi tạo xong, dùng lệnh `EXPLAIN` phân tích lại câu SQL này.
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/using-covering-index-demo.png)
 
-通过 `Extra` 这一列的 `Using index`，说明这条 SQL 语句成功使用了覆盖索引。
+Thông qua `Using index` trong cột `Extra`, cho thấy câu SQL này đã sử dụng thành công covering index.
 
-关于 `EXPLAIN` 命令的详细介绍请看：[MySQL 执行计划分析](./mysql-query-execution-plan.md)这篇文章。
+Về giới thiệu chi tiết lệnh `EXPLAIN` xem bài viết: [Phân tích kế hoạch thực thi MySQL](./mysql-query-execution-plan.md).
 
-### 联合索引
+### Composite Index
 
-使用表中的多个字段创建索引，就是 **联合索引**，也叫 **组合索引** 或 **复合索引**。
+Tạo index bằng nhiều trường trong bảng gọi là **composite index**, còn được gọi là **combination index** hoặc **compound index**.
 
-以 `score` 和 `name` 两个字段建立联合索引：
+Tạo composite index trên hai trường `score` và `name`:
 
 ```sql
 ALTER TABLE `cus_order` ADD INDEX id_score_name(score, name);
 ```
 
-### 最左前缀匹配原则
+### Nguyên tắc khớp tiền tố trái nhất
 
-最左前缀匹配原则指的是在使用联合索引时，MySQL 会根据索引中的字段顺序，从左到右依次匹配查询条件中的字段。如果查询条件与索引中的最左侧字段相匹配，那么 MySQL 就会使用索引来过滤数据，这样可以提高查询效率。
+Nguyên tắc khớp tiền tố trái nhất là khi sử dụng composite index, MySQL sẽ khớp từ trái sang phải theo thứ tự trường trong index với điều kiện trong truy vấn. Nếu điều kiện truy vấn khớp với trường ngoài cùng bên trái của index, thì MySQL sẽ dùng index để lọc dữ liệu, giúp nâng cao hiệu quả truy vấn.
 
-最左匹配原则会一直向右匹配，直到遇到范围查询（如 >、<）为止。对于 >=、<=、BETWEEN 以及前缀匹配 LIKE 的范围查询，不会停止匹配。
+Nguyên tắc khớp trái nhất sẽ tiếp tục khớp sang phải, cho đến khi gặp truy vấn phạm vi (như >, <). Đối với truy vấn phạm vi >=, <=, BETWEEN và LIKE khớp tiền tố, không dừng khớp.
 
-假设有一个联合索引 `(column1, column2, column3)`，其从左到右的所有前缀为 `(column1)`、`(column1, column2)`、`(column1, column2, column3)`（创建 1 个联合索引相当于创建了 3 个索引），包含这些列的所有查询都会走索引而不会全表扫描。
+Giả sử có composite index `(column1, column2, column3)`, tất cả tiền tố từ trái sang phải của nó là `(column1)`, `(column1, column2)`, `(column1, column2, column3)` (tạo 1 composite index tương đương với tạo 3 index), tất cả truy vấn bao gồm các cột này đều sẽ đi theo index chứ không quét toàn bảng.
 
-我们在使用联合索引时，可以将区分度高的字段放在最左边，这也可以过滤更多数据。
+Khi sử dụng composite index, có thể đặt trường có mức độ phân biệt cao ở phía bên trái nhất, điều này cũng có thể lọc được nhiều dữ liệu hơn.
 
-我们这里简单演示一下最左前缀匹配的效果。
+Dưới đây là demo đơn giản về hiệu ứng khớp tiền tố trái nhất.
 
-1、创建一个名为 `student` 的表，这张表只有 `id`、`name`、`class` 这 3 个字段。
+1、Tạo một bảng tên `student`, bảng này chỉ có 3 trường `id`, `name`, `class`.
 
 ```sql
 CREATE TABLE `student` (
@@ -385,34 +385,34 @@ CREATE TABLE `student` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
-2、下面我们分别测试三条不同的 SQL 语句。
+2、Dưới đây chúng ta kiểm tra lần lượt ba câu SQL khác nhau.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql/leftmost-prefix-matching-rule.png)
 
 ```sql
-# 可以命中索引
+# Có thể đánh vào index
 SELECT * FROM student WHERE name = 'Anne Henry';
 EXPLAIN SELECT * FROM student WHERE name = 'Anne Henry' AND class = 'lIrm08RYVk';
-# 无法命中索引
+# Không thể đánh vào index
 SELECT * FROM student WHERE class = 'lIrm08RYVk';
 ```
 
-再来看一个常见的面试题：如果有索引 `联合索引（a，b，c）`，查询 `a=1 AND c=1` 会走索引么？`c=1` 呢？`b=1 AND c=1` 呢？ `b = 1 AND a = 1 AND  c = 1` 呢？
+Hãy xem thêm một câu hỏi phỏng vấn phổ biến: Nếu có index `composite index (a, b, c)`, truy vấn `a=1 AND c=1` có đánh vào index không? `c=1` thì sao? `b=1 AND c=1` thì sao? `b = 1 AND a = 1 AND c = 1` thì sao?
 
-先不要往下看答案，给自己 3 分钟时间想一想。
+Đừng nhìn đáp án vội, cho mình 3 phút để nghĩ.
 
-1. 查询 `a=1 AND c=1`：根据最左前缀匹配原则，查询可以使用索引的前缀部分。因此，该查询仅在 `a=1` 上使用索引，然后对结果进行 `c=1` 的过滤。
-2. 查询 `c=1`：由于查询中不包含最左列 `a`，根据最左前缀匹配原则，整个索引都无法被使用。
-3. 查询 `b=1 AND c=1`：和第二种一样的情况，整个索引都不会使用。
-4. 查询 `b=1 AND a=1 AND c=1`：这个查询是可以用到索引的。查询优化器分析 SQL 语句时，对于联合索引，会对查询条件进行重排序，以便用到索引。会将 `b=1` 和 `a=1` 的条件进行重排序，变成 `a=1 AND b=1 AND c=1`。
+1. Truy vấn `a=1 AND c=1`: Theo nguyên tắc khớp tiền tố trái nhất, truy vấn có thể dùng phần tiền tố của index. Vì vậy, truy vấn này chỉ dùng index trên `a=1`, sau đó lọc kết quả với `c=1`.
+2. Truy vấn `c=1`: Vì truy vấn không chứa cột ngoài cùng bên trái `a`, theo nguyên tắc khớp tiền tố trái nhất, toàn bộ index không thể được dùng.
+3. Truy vấn `b=1 AND c=1`: Giống tình huống thứ hai, toàn bộ index sẽ không được dùng.
+4. Truy vấn `b=1 AND a=1 AND c=1`: Truy vấn này có thể dùng index. Khi query optimizer phân tích câu SQL, đối với composite index sẽ sắp xếp lại điều kiện truy vấn để có thể dùng index. Sẽ sắp xếp lại điều kiện `b=1` và `a=1`, trở thành `a=1 AND b=1 AND c=1`.
 
-MySQL 8.0.13 版本引入了索引跳跃扫描（Index Skip Scan，简称 ISS），它可以在某些索引查询场景下提高查询效率。在没有 ISS 之前，不满足最左前缀匹配原则的联合索引查询中会执行全表扫描。而 ISS 允许 MySQL 在某些情况下避免全表扫描，即使查询条件不符合最左前缀。不过，这个功能比较鸡肋， 和 Oracle 中的没法比，MySQL 8.0.31 还报告了一个 bug：[Bug #109145 Using index for skip scan cause incorrect result](https://bugs.mysql.com/bug.php?id=109145)（后续版本已经修复）。个人建议知道有这个东西就好，不需要深究，实际项目也不一定能用上。
+MySQL 8.0.13 giới thiệu Index Skip Scan (ISS), có thể nâng cao hiệu quả truy vấn trong một số tình huống truy vấn index. Trước khi có ISS, truy vấn composite index không thỏa mãn nguyên tắc khớp tiền tố trái nhất sẽ thực hiện quét toàn bảng. ISS cho phép MySQL trong một số trường hợp tránh quét toàn bảng, ngay cả khi điều kiện truy vấn không phù hợp với tiền tố trái nhất. Tuy nhiên, tính năng này khá hạn chế, không thể so sánh với Oracle, MySQL 8.0.31 còn báo cáo một bug: [Bug #109145 Using index for skip scan cause incorrect result](https://bugs.mysql.com/bug.php?id=109145) (các phiên bản sau đã sửa). Cá nhân tôi khuyên chỉ cần biết có tính năng này, không cần tìm hiểu sâu, trong dự án thực tế chưa chắc dùng được.
 
-## 索引下推
+## Index Pushdown
 
-**索引下推（Index Condition Pushdown，简称 ICP）** 是 **MySQL 5.6** 版本中提供的一项索引优化功能，它允许存储引擎在索引遍历过程中，执行部分 `WHERE` 字句的判断条件，直接过滤掉不满足条件的记录，从而减少回表次数，提高查询效率。
+**Index Condition Pushdown (ICP)** là tính năng tối ưu index được cung cấp trong **MySQL 5.6**, cho phép storage engine thực hiện phán đoán một phần điều kiện `WHERE` trong quá trình duyệt index, trực tiếp lọc các bản ghi không thỏa mãn điều kiện, từ đó giảm số lần quay lại bảng, nâng cao hiệu quả truy vấn.
 
-假设我们有一个名为 `user` 的表，其中包含 `id`、`username`、`zipcode` 和 `birthdate` 4 个字段，创建了联合索引 `(zipcode, birthdate)`。
+Giả sử chúng ta có bảng tên `user`, chứa 4 trường `id`, `username`, `zipcode` và `birthdate`, đã tạo composite index `(zipcode, birthdate)`.
 
 ```sql
 CREATE TABLE `user` (
@@ -423,119 +423,119 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   KEY `idx_zipcode_birthdate` (`zipcode`,`birthdate`) ) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8mb4;
 
-# 查询 zipcode 为 431200 且生日在 3 月的用户
+# Truy vấn người dùng có zipcode là 431200 và sinh nhật vào tháng 3
 SELECT * FROM user WHERE zipcode = '431200' AND MONTH(birthdate) = 3;
 ```
 
-- 没有索引下推之前，即使 `zipcode` 字段利用索引可以帮助我们快速定位到 `zipcode = '431200'` 的用户，但我们仍然需要对每一个找到的用户进行回表操作，获取完整的用户数据，再去判断 `MONTH(birthdate) = 3`。
-- 有了索引下推之后，存储引擎会在使用 `zipcode` 字段索引查找 `zipcode = '431200'` 的用户时，同时判断 `MONTH(birthdate) = 3`。这样，只有同时满足条件的记录才会被返回，减少了回表次数。
+- Trước khi có ICP, dù trường `zipcode` có thể giúp nhanh chóng định vị người dùng có `zipcode = '431200'` qua index, nhưng chúng ta vẫn cần quay lại bảng cho từng người dùng tìm được, lấy dữ liệu người dùng đầy đủ, rồi mới xét `MONTH(birthdate) = 3`.
+- Sau khi có ICP, storage engine khi dùng trường `zipcode` index tìm người dùng `zipcode = '431200'`, đồng thời phán đoán `MONTH(birthdate) = 3`. Như vậy, chỉ có bản ghi thỏa mãn đồng thời điều kiện mới được trả về, giảm số lần quay lại bảng.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql/index-condition-pushdown.png)
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql/index-condition-pushdown-graphic-illustration.png)
 
-再来讲讲索引下推的具体原理，先看下面这张 MySQL 简要架构图。
+Hãy nói thêm về nguyên lý cụ thể của ICP, trước tiên xem sơ đồ kiến trúc đơn giản MySQL dưới đây.
 
 ![](https://oss.javaguide.cn/javaguide/13526879-3037b144ed09eb88.png)
 
-MySQL 可以简单分为 Server 层和存储引擎层这两层。Server 层处理查询解析、分析、优化、缓存以及与客户端的交互等操作，而存储引擎层负责数据的存储和读取，MySQL 支持 InnoDB、MyISAM、Memory 等多种存储引擎。
+MySQL có thể đơn giản chia thành hai tầng Server layer và storage engine layer. Server layer xử lý các thao tác như phân tích truy vấn, phân tích, tối ưu hóa, cache và tương tác với client, còn storage engine layer chịu trách nhiệm lưu trữ và đọc dữ liệu, MySQL hỗ trợ nhiều storage engine như InnoDB, MyISAM, Memory.
 
-索引下推的 **下推** 其实就是指将部分上层（Server 层）负责的事情，交给了下层（存储引擎层）去处理。
+**Pushdown** trong ICP thực ra là chỉ việc chuyển một phần công việc mà tầng trên (Server layer) chịu trách nhiệm xuống cho tầng dưới (storage engine layer) xử lý.
 
-我们这里结合索引下推原理再对上面提到的例子进行解释。
+Dưới đây chúng ta kết hợp nguyên lý ICP để giải thích thêm ví dụ đã đề cập.
 
-没有索引下推之前：
+Trước khi có ICP:
 
-- 存储引擎层先根据 `zipcode` 索引字段找到所有 `zipcode = '431200'` 的用户的主键 ID，然后二次回表查询，获取完整的用户数据；
-- 存储引擎层把所有 `zipcode = '431200'` 的用户数据全部交给 Server 层，Server 层根据 `MONTH(birthdate) = 3` 这一条件再进一步做筛选。
+- Storage engine layer trước tiên tìm tất cả các ID khóa chính của người dùng có `zipcode = '431200'` theo trường index `zipcode`, sau đó quay lại bảng lần hai, lấy dữ liệu người dùng đầy đủ;
+- Storage engine layer chuyển tất cả dữ liệu người dùng có `zipcode = '431200'` lên Server layer, Server layer lọc thêm theo điều kiện `MONTH(birthdate) = 3`.
 
-有了索引下推之后：
+Sau khi có ICP:
 
-- 存储引擎层先根据 `zipcode` 索引字段找到所有 `zipcode = '431200'` 的用户，然后直接判断 `MONTH(birthdate) = 3`，筛选出符合条件的主键 ID；
-- 二次回表查询，根据符合条件的主键 ID 去获取完整的用户数据；
-- 存储引擎层把符合条件的用户数据全部交给 Server 层。
+- Storage engine layer trước tiên tìm tất cả người dùng có `zipcode = '431200'` theo trường index `zipcode`, sau đó trực tiếp phán đoán `MONTH(birthdate) = 3`, lọc ra các ID khóa chính phù hợp điều kiện;
+- Quay lại bảng lần hai, theo các ID khóa chính phù hợp điều kiện để lấy dữ liệu người dùng đầy đủ;
+- Storage engine layer chuyển tất cả dữ liệu người dùng phù hợp điều kiện lên Server layer.
 
-可以看出，**除了可以减少回表次数之外，索引下推还可以减少存储引擎层和 Server 层的数据传输量。**
+Có thể thấy, **ngoài việc có thể giảm số lần quay lại bảng, ICP còn có thể giảm lượng truyền dữ liệu giữa storage engine layer và Server layer.**
 
-最后，总结一下索引下推应用范围：
+Cuối cùng, tóm tắt phạm vi ứng dụng của ICP:
 
-1. 适用于 InnoDB 引擎和 MyISAM 引擎的查询。
-2. 适用于执行计划是 range、ref、eq_ref、ref_or_null 的范围查询。
-3. 对于 InnoDB 表，仅用于非聚簇索引。索引下推的目标是减少全行读取次数，从而减少 I/O 操作。对于 InnoDB 聚集索引，完整的记录已经读入 InnoDB 缓冲区。在这种情况下使用索引下推不会减少 I/O。
-4. 子查询不能使用索引下推，因为子查询通常会创建临时表来处理结果，而这些临时表是没有索引的。
-5. 存储过程不能使用索引下推，因为存储引擎无法调用存储函数。
+1. Áp dụng cho truy vấn của InnoDB engine và MyISAM engine.
+2. Áp dụng cho truy vấn phạm vi có kế hoạch thực thi là range, ref, eq_ref, ref_or_null.
+3. Đối với bảng InnoDB, chỉ dùng cho non-clustered index. Mục tiêu của ICP là giảm số lần đọc toàn hàng, từ đó giảm thao tác I/O. Đối với clustered index của InnoDB, bản ghi đầy đủ đã được đọc vào buffer của InnoDB. Trong trường hợp này dùng ICP không giảm được I/O.
+4. Subquery không thể dùng ICP, vì subquery thường sẽ tạo bảng tạm để xử lý kết quả, còn bảng tạm không có index.
+5. Stored procedure không thể dùng ICP, vì storage engine không thể gọi stored function.
 
-## 正确使用索引的一些建议
+## Một số khuyến nghị sử dụng Index đúng cách
 
-### 选择合适的字段创建索引
+### Chọn trường phù hợp để tạo Index
 
-- **不为 NULL 的字段**：索引字段的数据应该尽量不为 NULL，因为对于数据为 NULL 的字段，数据库较难优化。如果字段频繁被查询，但又避免不了为 NULL，建议使用 0、1、true、false 这样语义较为清晰的短值或短字符作为替代。
-- **被频繁查询的字段**：我们创建索引的字段应该是查询操作非常频繁的字段。
-- **被作为条件查询的字段**：被作为 WHERE 条件查询的字段，应该被考虑建立索引。
-- **频繁需要排序的字段**：索引已经排序，这样查询可以利用索引的排序，加快排序查询时间。
-- **被经常频繁用于连接的字段**：经常用于连接的字段可能是一些外键列，对于外键列并不一定要建立外键，只是说该列涉及到表与表的关系。对于频繁被连接查询的字段，可以考虑建立索引，提高多表连接查询的效率。
+- **Trường không được là NULL**: Dữ liệu của trường index nên cố gắng không là NULL, vì đối với trường dữ liệu là NULL, cơ sở dữ liệu khó tối ưu hơn. Nếu trường thường xuyên được truy vấn nhưng không thể tránh là NULL, khuyến nghị dùng giá trị ngắn có ngữ nghĩa rõ ràng như 0, 1, true, false thay thế.
+- **Trường được truy vấn thường xuyên**: Trường mà chúng ta tạo index nên là trường có thao tác truy vấn rất thường xuyên.
+- **Trường được dùng làm điều kiện truy vấn**: Trường được dùng làm điều kiện WHERE nên được cân nhắc tạo index.
+- **Trường thường xuyên cần sắp xếp**: Index đã được sắp xếp, như vậy truy vấn có thể tận dụng thứ tự sắp xếp của index, tăng tốc thời gian truy vấn sắp xếp.
+- **Trường thường xuyên được dùng để join**: Trường thường xuyên được dùng để join có thể là một số cột foreign key, đối với cột foreign key không nhất thiết phải tạo foreign key, chỉ là cột đó liên quan đến mối quan hệ giữa các bảng. Đối với trường thường xuyên được truy vấn join, có thể cân nhắc tạo index, nâng cao hiệu quả truy vấn join nhiều bảng.
 
-### 避免索引失效
+### Tránh Index thất bại
 
-索引失效也是慢查询的主要原因之一，常见的导致索引失效的情况有下面这两类：
+Index thất bại cũng là một trong những nguyên nhân chính của truy vấn chậm, các tình huống phổ biến dẫn đến index thất bại gồm hai loại dưới đây:
 
-**1. SQL 写法与底层逻辑冲突（破坏 B+Tree 有序性）**
+**1. Cách viết SQL xung đột với logic lớp dưới (phá vỡ tính có thứ tự của B+Tree)**
 
-此类问题最为常见，本质是查询条件让底层的 B+Tree 失去了“二分查找”的快速定位能力。
+Loại vấn đề này phổ biến nhất, bản chất là điều kiện truy vấn làm B+Tree lớp dưới mất đi khả năng định vị nhanh "tìm kiếm nhị phân".
 
-- **违背最左前缀原则**：跳过联合索引前导列，或遇到范围查询（如 `>`、`<`、`BETWEEN`、`LIKE "abc%"`）导致后续列中断精确定位，降级为范围扫描加过滤。
-- **对索引列进行加工**：在 `WHERE` 左侧对索引列进行数学计算或应用函数，导致原始数据发生逻辑改变，在索引树中呈现无序状态。
-- **隐式类型转换（隐蔽且致命）**：当“字符串类型的列”去比较“数字类型的值”时，MySQL 会默认在列上套用转换函数，直接破坏树的有序性。
-- **LIKE 模糊查询前置通配符**：如 `LIKE "%abc"`，前缀字符的不确定性使得优化器无法锁定扫描区间的起始点。
-- **ORDER BY 排序陷阱**：排序列未命中索引、排序方向与索引结构不一致等触发额外的内存或磁盘排序（`Using filesort`）。
+- **Vi phạm nguyên tắc tiền tố trái nhất**: Bỏ qua cột dẫn đầu của composite index, hoặc gặp truy vấn phạm vi (như `>`, `<`, `BETWEEN`, `LIKE "abc%"`) dẫn đến định vị chính xác của các cột sau bị gián đoạn, hạ cấp xuống quét phạm vi cộng với lọc.
+- **Gia công trên cột index**: Thực hiện tính toán toán học hoặc áp dụng hàm trên cột index bên trái `WHERE`, dẫn đến dữ liệu gốc thay đổi logic, hiển thị không có thứ tự trong cây index.
+- **Chuyển đổi kiểu ngầm định (tinh tế và chết người)**: Khi "cột kiểu chuỗi" so sánh với "giá trị kiểu số", MySQL sẽ mặc định thêm hàm chuyển đổi vào cột, trực tiếp phá vỡ tính có thứ tự của cây.
+- **Ký tự đại diện đầu tiên trong LIKE fuzzy query**: Như `LIKE "%abc"`, sự không xác định của ký tự tiền tố làm optimizer không thể khóa điểm bắt đầu của khoảng quét.
+- **Bẫy sắp xếp ORDER BY**: Cột sắp xếp không khớp index, hướng sắp xếp không nhất quán với cấu trúc index, v.v. kích hoạt sắp xếp thêm trong bộ nhớ hoặc đĩa (`Using filesort`).
 
-**2. 优化器的成本决策（基于 I/O 成本妥协）**
+**2. Quyết định chi phí của optimizer (thỏa hiệp dựa trên chi phí I/O)**
 
-此类问题并非索引本身不可用，而是 MySQL 优化器经过计算后，认为“不走普通索引”整体开销反而更小。
+Loại vấn đề này không phải bản thân index không thể dùng, mà là MySQL optimizer sau khi tính toán, cho rằng "không đi ordinary index" tổng chi phí ngược lại nhỏ hơn.
 
-- **无脑 `SELECT \*` 导致回表成本超载**：查询大量非索引覆盖列时，若命中数据量较大（通常超 20%~30%），优化器会判定全表扫描的顺序 I/O 优于频繁回表的随机 I/O，从而主动放弃索引。
-- **`OR` 条件导致全表扫描**：只要 `OR` 连接的任意一侧条件没有对应索引，就会触发全表扫描。即使两侧都有索引，若 Index Merge（索引合并）的预期成本过高，依然会被放弃。
-- **`IN` 列表过长引发估算失真**：当 `IN` 列表长度超过系统阈值（默认 200）时，优化器会从精准的深入探测（Index Dive）切换为粗略的统计估算，极易因统计信息陈旧而产生执行成本的误判。
+- **`SELECT \*` liều lĩnh dẫn đến chi phí quay lại bảng vượt tải**: Khi truy vấn nhiều cột không được index bao phủ, nếu lượng dữ liệu khớp lớn (thường vượt quá 20%~30%), optimizer sẽ phán đoán I/O tuần tự của quét toàn bảng tốt hơn so với random I/O quay lại bảng nhiều lần, từ đó chủ động từ bỏ index.
+- **Điều kiện `OR` dẫn đến quét toàn bảng**: Chỉ cần bất kỳ phía nào của điều kiện `OR` không có index tương ứng, sẽ kích hoạt quét toàn bảng. Dù cả hai phía đều có index, nếu chi phí kỳ vọng của Index Merge quá cao, vẫn sẽ bị từ bỏ.
+- **Danh sách `IN` quá dài gây ước tính sai**: Khi độ dài danh sách `IN` vượt quá ngưỡng hệ thống (mặc định 200), optimizer sẽ chuyển từ phát hiện sâu chính xác (Index Dive) sang ước tính thống kê thô, rất dễ tạo ra phán đoán sai về chi phí thực thi do thông tin thống kê lỗi thời.
 
-详细介绍：[MySQL索引失效场景总结](https://javaguide.cn/database/mysql/mysql-index-invalidation.html)。
+Giới thiệu chi tiết: [Tổng kết các tình huống index thất bại MySQL](https://javaguide.cn/database/mysql/mysql-index-invalidation.html).
 
-### 被频繁更新的字段应该慎重建立索引
+### Trường được cập nhật thường xuyên nên thận trọng khi tạo Index
 
-虽然索引能带来查询上的效率，但是维护索引的成本也是不小的。 如果一个字段不被经常查询，反而被经常修改，那么就更不应该在这种字段上建立索引了。
+Dù index có thể mang lại hiệu quả truy vấn, nhưng chi phí duy trì index cũng không nhỏ. Nếu một trường không được truy vấn thường xuyên, mà lại thường xuyên bị sửa đổi, thì càng không nên tạo index trên trường như vậy.
 
-### 限制每张表上的索引数量
+### Giới hạn số lượng Index trên mỗi bảng
 
-索引并不是越多越好，建议单张表索引不超过 5 个！索引可以提高效率，同样可以降低效率。
+Index không phải càng nhiều càng tốt, khuyến nghị không quá 5 index trên một bảng! Index có thể nâng cao hiệu quả, cũng có thể giảm hiệu quả.
 
-索引可以增加查询效率，但同样也会降低插入和更新的效率，甚至有些情况下会降低查询效率。
+Index có thể tăng hiệu quả truy vấn, nhưng cũng sẽ giảm hiệu quả chèn và cập nhật, thậm chí trong một số trường hợp còn giảm cả hiệu quả truy vấn.
 
-因为 MySQL 优化器在选择如何优化查询时，会根据统计信息，对每一个可以用到的索引来进行评估，以生成出一个最好的执行计划，如果同时有很多个索引都可以用于查询，就会增加 MySQL 优化器生成执行计划的时间，同样会降低查询性能。
+Vì MySQL optimizer khi chọn cách tối ưu truy vấn, sẽ dựa trên thông tin thống kê, đánh giá mỗi index có thể dùng để truy vấn, để tạo ra kế hoạch thực thi tốt nhất, nếu có nhiều index đều có thể dùng cho truy vấn cùng lúc, sẽ tăng thời gian MySQL optimizer tạo kế hoạch thực thi, cũng sẽ giảm hiệu năng truy vấn.
 
-### 尽可能的考虑建立联合索引而不是单列索引
+### Ưu tiên cân nhắc tạo Composite Index thay vì Single Column Index
 
-因为索引是需要占用磁盘空间的，可以简单理解为每个索引都对应着一颗 B+ 树。如果一个表的字段过多，索引过多，那么当这个表的数据达到一个体量后，索引占用的空间也是很多的，且修改索引时，耗费的时间也是较多的。如果是联合索引，多个字段在一个索引上，那么将会节约很大磁盘空间，且修改数据的操作效率也会提升。
+Vì index cần chiếm dụng không gian đĩa, có thể hiểu đơn giản là mỗi index tương ứng với một B+ tree. Nếu một bảng có quá nhiều trường, quá nhiều index, thì khi dữ liệu của bảng đạt đến một lượng nhất định, không gian index chiếm dụng cũng rất nhiều, và chi phí sửa đổi index cũng khá cao. Nếu là composite index, nhiều trường trên một index, sẽ tiết kiệm rất nhiều không gian đĩa, và hiệu quả thao tác sửa đổi dữ liệu cũng được nâng cao.
 
-### 注意避免冗余索引
+### Chú ý tránh Index dư thừa
 
-冗余索引指的是索引的功能相同，能够命中索引(a, b)就肯定能命中索引(a) ，那么索引(a)就是冗余索引。如(name,city)和(name)这两个索引就是冗余索引，能够命中前者的查询肯定是能够命中后者的。在大多数情况下，都应该尽量扩展已有的索引而不是创建新索引。
+Index dư thừa chỉ các index có chức năng giống nhau, có thể đánh vào index (a, b) nhất định có thể đánh vào index (a), thì index (a) là index dư thừa. Ví dụ (name, city) và (name) là hai index dư thừa, truy vấn có thể đánh vào cái trước nhất định có thể đánh vào cái sau. Trong hầu hết trường hợp, nên cố gắng mở rộng index hiện có thay vì tạo index mới.
 
-### 字符串类型的字段使用前缀索引代替普通索引
+### Dùng Prefix Index thay thế Ordinary Index cho trường kiểu chuỗi
 
-前缀索引仅限于字符串类型，较普通索引会占用更小的空间，所以可以考虑使用前缀索引带替普通索引。
+Prefix index chỉ giới hạn với kiểu chuỗi, so với ordinary index chiếm ít không gian hơn, vì vậy có thể cân nhắc dùng prefix index thay thế ordinary index.
 
-### 删除长期未使用的索引
+### Xóa các Index lâu không được dùng
 
-删除长期未使用的索引，不用的索引的存在会造成不必要的性能损耗。
+Xóa các index lâu không được dùng, sự tồn tại của index không dùng sẽ gây ra tổn hao hiệu năng không cần thiết.
 
-MySQL 5.7 可以通过查询 `sys` 库的 `schema_unused_indexes` 视图来查询哪些索引从未被使用。
+MySQL 5.7 có thể xem index nào chưa bao giờ được dùng qua view `schema_unused_indexes` trong thư viện `sys`.
 
-### 知道如何分析 SQL 语句是否走索引查询
+### Biết cách phân tích câu SQL có đi theo truy vấn index không
 
-我们可以使用 `EXPLAIN` 命令来分析 SQL 的 **执行计划** ，这样就知道语句是否命中索引了。执行计划是指一条 SQL 语句在经过 MySQL 查询优化器的优化会后，具体的执行方式。
+Chúng ta có thể dùng lệnh `EXPLAIN` để phân tích **kế hoạch thực thi** của SQL, như vậy sẽ biết câu lệnh có đánh vào index không. Kế hoạch thực thi là cách thực thi cụ thể của một câu SQL sau khi được MySQL query optimizer tối ưu hóa.
 
-`EXPLAIN` 并不会真的去执行相关的语句，而是通过 **查询优化器** 对语句进行分析，找出最优的查询方案，并显示对应的信息。
+`EXPLAIN` sẽ không thực sự thực thi câu lệnh liên quan, mà thông qua **query optimizer** phân tích câu lệnh, tìm ra phương án truy vấn tối ưu, và hiển thị thông tin tương ứng.
 
-`EXPLAIN` 的输出格式如下：
+Định dạng đầu ra của `EXPLAIN` như sau:
 
 ```sql
 mysql> EXPLAIN SELECT `score`,`name` FROM `cus_order` ORDER BY `score` DESC;
@@ -547,23 +547,23 @@ mysql> EXPLAIN SELECT `score`,`name` FROM `cus_order` ORDER BY `score` DESC;
 1 row in set, 1 warning (0.00 sec)
 ```
 
-各个字段的含义如下：
+Ý nghĩa của từng trường như sau:
 
-| **列名**      | **含义**                                     |
-| ------------- | -------------------------------------------- |
-| id            | SELECT 查询的序列标识符                      |
-| select_type   | SELECT 关键字对应的查询类型                  |
-| table         | 用到的表名                                   |
-| partitions    | 匹配的分区，对于未分区的表，值为 NULL        |
-| type          | 表的访问方法                                 |
-| possible_keys | 可能用到的索引                               |
-| key           | 实际用到的索引                               |
-| key_len       | 所选索引的长度                               |
-| ref           | 当使用索引等值查询时，与索引作比较的列或常量 |
-| rows          | 预计要读取的行数                             |
-| filtered      | 按表条件过滤后，留存的记录数的百分比         |
-| Extra         | 附加信息                                     |
+| **Tên cột**   | **Ý nghĩa**                                                           |
+| ------------- | --------------------------------------------------------------------- |
+| id            | Định danh tuần tự của truy vấn SELECT                                 |
+| select_type   | Loại truy vấn tương ứng với từ khóa SELECT                            |
+| table         | Tên bảng được dùng                                                    |
+| partitions    | Phân vùng khớp, đối với bảng chưa phân vùng, giá trị là NULL          |
+| type          | Phương thức truy cập bảng                                             |
+| possible_keys | Các index có thể được dùng                                            |
+| key           | Index thực sự được dùng                                               |
+| key_len       | Độ dài của index được chọn                                            |
+| ref           | Khi dùng truy vấn bằng index, cột hoặc hằng số được so sánh với index |
+| rows          | Số hàng dự kiến sẽ đọc                                                |
+| filtered      | Sau khi lọc theo điều kiện bảng, tỷ lệ phần trăm số bản ghi còn lại   |
+| Extra         | Thông tin bổ sung                                                     |
 
-篇幅问题，我这里只是简单介绍了一下 MySQL 执行计划，详细介绍请看：[MySQL 执行计划分析](./mysql-query-execution-plan.md)这篇文章。
+Do giới hạn bài viết, ở đây tôi chỉ giới thiệu sơ qua lệnh `EXPLAIN` của MySQL, giới thiệu chi tiết xem bài viết: [Phân tích kế hoạch thực thi MySQL](./mysql-query-execution-plan.md).
 
 <!-- @include: @article-footer.snippet.md -->

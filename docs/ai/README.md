@@ -1,181 +1,181 @@
 ---
-title: AI 应用开发面试指南
-description: 深入浅出掌握 AI 应用开发核心知识，涵盖大模型基础、Agent、RAG、MCP 协议、AI 编程实战等高频面试考点，适合校招/社招 AI 应用开发岗位面试复习。
+title: AI Application Development Interview Guide
+description: Nắm vững kiến thức cốt lõi về AI application development từ cơ bản đến nâng cao, bao gồm LLM basics, Agent, RAG, MCP protocol, AI coding practice và các điểm kiểm tra phỏng vấn tần suất cao, phù hợp để ôn tập phỏng vấn AI application development cho campus/social recruitment.
 icon: "ai"
 head:
   - - meta
     - name: keywords
-      content: AI面试,AI面试指南,AI应用开发,LLM面试,Agent面试,RAG面试,MCP面试,AI编程面试,AI编程实战
+      content: AI interview,AI interview guide,AI application development,LLM interview,Agent interview,RAG interview,MCP interview,AI coding interview,AI coding practice
 ---
 
-::: tip 写在前面
+::: tip Viết ở đầu
 
-现在网上有很多所谓”AI 技术文章”，点进去一看，满篇空洞的套话，逻辑混乱，读起来千篇一律。
+Hiện nay có rất nhiều "bài viết kỹ thuật AI" trên mạng. Click vào xem, toàn những câu nói rỗng tuếch, logic lộn xộn, đọc đến đâu na ná đến đó.
 
-这类文章有几个共同特点：
+Loại bài viết này có vài đặc điểm chung:
 
-- **内容堆砌**：大量概念罗列，但没有真正讲清楚原理，读完云里雾里。
-- **缺乏实战视角**：纸上谈兵，没有真实的项目踩坑经验。
-- **没有配图**：全是文字，读者很难建立直观的认知。
-- **正确性存疑**：很多技术细节经不起推敲，甚至存在明显错误。
+- **Chồng chất khái niệm**: Liệt kê nhiều khái niệm nhưng không thực sự giải thích rõ nguyên lý, đọc xong vẫn không hiểu.
+- **Thiếu góc nhìn thực chiến**: Lý thuyết suông, không có kinh nghiệm thực tế từ project.
+- **Không có hình ảnh**: Toàn chữ, reader rất khó xây dựng nhận thức trực quan.
+- **Độ chính xác đáng ngờ**: Nhiều chi tiết kỹ thuật không chịu được scrutiny, thậm chí có lỗi rõ ràng.
 
-我在写这一系列 AI 文章的时候，坚持一个原则：**要么不写，要写就写透**。每一篇文章我都投入了大量时间：
+Khi viết series bài AI này, tôi kiên trì một nguyên tắc: **Không viết thì thôi, đã viết phải viết thấu đáo**. Mỗi bài tôi đều đầu tư rất nhiều thời gian:
 
-- **深度调研**：查阅官方文档、技术博客、学术论文，确保内容准确。
-- **精心配图**：绘制了几十张配图帮助理解。
-- **实战导向**：内容都来自真实项目的踩坑经验，不是纸上谈兵。
-- **反复打磨**：每篇文章都修改了十几遍，确保逻辑清晰、表达准确。
+- **Nghiên cứu sâu**: Tham khảo official documentation, tech blogs, academic papers để đảm bảo nội dung chính xác.
+- **Vẽ hình công phu**: Vẽ hàng chục illustrations để giúp hiểu.
+- **Định hướng thực chiến**: Nội dung đều đến từ kinh nghiệm thực tế trong project — không phải lý thuyết suông.
+- **Mài giũa nhiều lần**: Mỗi bài được chỉnh sửa hàng chục lần để đảm bảo logic rõ ràng, diễn đạt chính xác.
 
-希望这些文章能真正帮到你。
-
-:::
-
-::: warning 持续更新中
-
-AI 面试系列目前正在**持续更新中**，后续会陆续补充更多高频面试考点。
-
-当前内容可能还不够完善，如果你有想要了解的主题或任何建议，欢迎在项目 issue 区留言反馈。
+Hy vọng những bài viết này thực sự giúp ích cho bạn.
 
 :::
 
-## 这个专栏能帮你解决什么问题？
+::: warning Đang liên tục cập nhật
 
-如果你正在准备 AI 应用开发相关的面试，或者想要系统学习 AI 应用开发的核心知识，这个专栏就是为你准备的。
+AI interview series hiện đang **liên tục cập nhật**, sau này sẽ dần bổ sung thêm nhiều high-frequency interview points.
 
-通过这个专栏，你将获得：
+Nội dung hiện tại có thể chưa đủ hoàn chỉnh. Nếu bạn có chủ đề muốn tìm hiểu hoặc bất kỳ gợi ý nào, hoan nghênh để lại phản hồi trong issues area của project.
 
-### 1. 扎实的大模型基础知识
+:::
 
-很多开发者在构建 Agent 工作流或调优 RAG 检索时，往往会在最底层的 LLM 参数上踩坑。比如：
+## Chuyên mục này giúp bạn giải quyết vấn đề gì?
 
-- 为什么明明设置了温度为 0，结构化输出还是偶尔崩溃？
-- 为什么往模型里塞了长文档后，它好像失忆了，忽略了 System Prompt 里的关键指令？
-- Token 到底怎么算的？为什么中文和英文的消耗不一样？
+Nếu bạn đang chuẩn bị phỏng vấn liên quan đến AI application development, hoặc muốn học hệ thống kiến thức cốt lõi của AI application development, chuyên mục này được tạo ra cho bạn.
 
-这些问题，如果你不理解 LLM 的底层原理，就永远只能“知其然不知其所以然”。在[《万字拆解 LLM 运行机制》](./llm-basis/llm-operation-mechanism.md)中，我会带你扒开 LLM 的黑盒，把 Token、上下文窗口、Temperature 等概念还原为清晰、可控的工程概念。
+Qua chuyên mục này, bạn sẽ có được:
 
-### 2. 系统的 AI Agent 知识体系
+### 1. Kiến thức LLM cơ bản vững chắc
 
-AI Agent 是当下 AI 应用开发最热门的方向。但网上的资料要么太浅，要么太散，很难形成系统的认知。
+Nhiều developer khi build Agent workflows hay tune RAG retrieval thường bị "dính bẫy" ở tầng LLM parameters cơ bản nhất. Ví dụ:
 
-在[《一文搞懂 AI Agent 核心概念》](./agent/agent-basis.md)中，我会带你：
+- Tại sao đã set temperature về 0 nhưng structured output vẫn thỉnh thoảng bị crash?
+- Tại sao nhét một long document vào model thì nó dường như "quên mất", bỏ qua các key instructions trong System Prompt?
+- Token thực ra tính như thế nào? Tại sao tiếng Trung và tiếng Anh tiêu hao khác nhau?
 
-- 梳理 AI Agent 从 2022 年到 2025 年的六代进化史
-- 理解 Agent、传统编程、Workflow 三者的本质区别
-- 掌握 Agent Loop、Context Engineering、Tools 注册等核心概念
+Những câu hỏi này, nếu bạn không hiểu nguyên lý tầng dưới của LLM, mãi mãi chỉ biết "đó là vậy" mà không biết "tại sao lại vậy". Trong [《10k Word Analysis of LLM Operating Mechanism》](./llm-basis/llm-operation-mechanism.md), tôi sẽ dẫn bạn khám phá black box của LLM, đưa các khái niệm như Token, Context Window, Temperature về những engineering concepts rõ ràng và có thể kiểm soát.
 
-在[《大模型提示词工程实践指南》](./agent/prompt-engineering.md)中，我会带你：
+### 2. Hệ thống kiến thức AI Agent toàn diện
 
-- 掌握 Prompt 四要素框架（Role + Task + Context + Format）
-- 学会六大核心技巧：角色扮演、思维链、少样本学习、任务分解、结构化输出、XML 标签与预填充
-- 了解 Prompt 注入攻击原理与三层防护体系
+AI Agent là hướng hot nhất trong AI application development hiện nay. Nhưng tài liệu trên mạng hoặc là quá nông, hoặc là quá rời rạc, rất khó hình thành nhận thức có hệ thống.
 
-在[《上下文工程实战指南》](./agent/context-engineering.md)中，我会带你：
+Trong [《One Article to Understand AI Agent Core Concepts》](./agent/agent-basis.md), tôi sẽ dẫn bạn:
 
-- 理解 Context Engineering 和 Prompt Engineering 的本质区别
-- 掌握静态规则编排、动态信息挂载、Token 预算降级三大核心技术
-- 学会 Compaction、结构化笔记、Sub-agent 三种长任务上下文持久化方案
+- Tổng hợp lịch sử tiến hóa sáu thế hệ của AI Agent từ 2022 đến 2025
+- Hiểu sự khác biệt bản chất giữa Agent, traditional programming, Workflow
+- Nắm vững các core concepts như Agent Loop, Context Engineering, Tools registration
 
-### 3. 深入理解 RAG 检索增强生成
+Trong [《LLM Prompt Engineering Practice Guide》](./agent/prompt-engineering.md), tôi sẽ dẫn bạn:
 
-RAG 是企业级 AI 应用的核心技术。但很多开发者只知道“把文档切成块，转成向量，然后检索”这个流程，却不理解背后的原理。
+- Nắm vững Prompt four-element framework (Role + Task + Context + Format)
+- Học sáu kỹ thuật cốt lõi: role-playing, chain-of-thought, few-shot learning, task decomposition, structured output, XML tags và pre-filling
+- Hiểu nguyên lý Prompt injection attacks và three-layer defense system
 
-在 RAG 系列文章中，我会带你深入理解：
+Trong [《Context Engineering Practice Guide》](./agent/context-engineering.md), tôi sẽ dẫn bạn:
 
-- [《万字详解 RAG 基础概念》](./rag/rag-basis.md)：RAG 是什么？为什么需要 RAG？RAG 的核心优势和局限性是什么？
-- [《万字详解 RAG 向量索引算法和向量数据库》](./rag/rag-vector-store.md)：HNSW、IVFFLAT 等索引算法的原理是什么？如何选择合适的向量数据库？
+- Hiểu sự khác biệt bản chất giữa Context Engineering và Prompt Engineering
+- Nắm vững ba core technologies: static rule orchestration, dynamic information mounting, Token budget degradation
+- Học ba long-task context persistence solutions: Compaction, structured notes, Sub-agent
 
-### 4. 掌握工具与协议
+### 3. Hiểu sâu về RAG Retrieval Augmented Generation
 
-在 AI 应用开发中，工具接入的碎片化是一个大问题。MCP 协议的出现，就是要解决这个问题。
+RAG là core technology của enterprise-level AI applications. Nhưng nhiều developer chỉ biết "chia document thành chunks, convert sang vectors, rồi retrieve" — không hiểu nguyên lý phía sau.
 
-在[《万字拆解 MCP 协议》](./agent/mcp.md)中，我会带你理解：
+Trong RAG series articles, tôi sẽ dẫn bạn hiểu sâu:
 
-- MCP 是什么？为什么被称为“AI 领域的 USB-C 接口”？
-- MCP 的四大核心能力和四层分层架构
-- 生产环境下开发 MCP Server 的最佳实践
+- [《10k Word Detailed RAG Basic Concepts》](./rag/rag-basis.md): RAG là gì? Tại sao cần RAG? Core advantages và limitations của RAG là gì?
+- [《10k Word Detailed RAG Vector Index Algorithms and Vector Databases》](./rag/rag-vector-store.md): Nguyên lý của HNSW, IVFFLAT và các index algorithms là gì? Làm thế nào để chọn vector database phù hợp?
 
-在[《万字详解 Agent Skills》](./agent/skills.md)中，我会带你理解：
+### 4. Nắm vững Tools và Protocols
 
-- Skills 是什么？为什么说它是“延迟加载”的 sub-agent？
-- Skills 和 Prompt、MCP、Function Calling 的本质区别
-- 如何在实战中设计优秀的 Skill
+Trong AI application development, sự phân mảnh của tool integration là vấn đề lớn. Sự ra đời của MCP protocol chính là để giải quyết vấn đề này.
 
-在[《一文搞懂 Harness Engineering》](./agent/harness-engineering.md)（六层架构、上下文管理与一线团队实战）中，我会带你理解：
+Trong [《10k Word Analysis of MCP Protocol》](./agent/mcp.md), tôi sẽ dẫn bạn hiểu:
 
-- Agent = Model + Harness，为什么说决定 Agent 天花板的是 Harness 而不是模型？
-- Harness 六层架构、上下文管理的 40% 阈值现象
-- OpenAI、Anthropic、Stripe 等一线团队的 Harness 工程化实战经验
+- MCP là gì? Tại sao được gọi là "USB-C interface của AI field"?
+- Bốn core capabilities và four-layer architecture của MCP
+- Best practices phát triển MCP Server trong production environment
 
-### 5. AI 编程面试准备
+Trong [《10k Word Detailed Agent Skills》](./agent/skills.md), tôi sẽ dẫn bạn hiểu:
 
-AI 编程工具正在深刻改变开发者的工作方式。在面试中，你可能会被问到：
+- Skills là gì? Tại sao nó được gọi là sub-agent "lazy loading"?
+- Sự khác biệt bản chất giữa Skills và Prompt, MCP, Function Calling
+- Làm thế nào để design Skills xuất sắc trong practice
 
-- 用过什么 AI 编程 IDE？有什么使用技巧？
-- 如何看待 AI 对后端开发的影响？AI 会淘汰程序员吗？
-- 未来程序员的核心竞争力是什么？
+Trong [《One Article to Understand Harness Engineering》](./agent/harness-engineering.md) (six-layer architecture, context management và frontline team practice), tôi sẽ dẫn bạn hiểu:
 
-在[《AI 编程开放性面试题》](./llm-basis/ai-ide.md)中，我会分享 7 道高频开放性面试问题的回答思路。
+- Agent = Model + Harness, tại sao nói cái quyết định ceiling của Agent là Harness chứ không phải model?
+- Harness six-layer architecture, 40% threshold phenomenon trong context management
+- Frontline team engineering practice experience của OpenAI, Anthropic, Stripe v.v.
 
-### 6. AI 编程实战
+### 5. AI Coding Interview Preparation
 
-纸上得来终觉浅。只有亲手用过 AI 编程工具，才能真正理解它的工作边界和使用技巧。在 AI 编程实战系列中，我会通过真实场景的实战案例，分享 AI 辅助编程的使用经验：
+AI coding tools đang thay đổi sâu sắc cách làm việc của developers. Trong phỏng vấn bạn có thể bị hỏi:
 
-- [《IDEA 搭配 Qoder 插件实战》](./ai-coding/idea-qoder-plugin.md)：从接口优化到代码重构，展示如何在 JetBrains IDE 中利用 AI 完成从分析到落地的完整闭环
-- [《Trae + MiniMax 多场景实战》](./ai-coding/trae-m2.7.md)：使用 Trae IDE 接入 MiniMax 大模型，通过 Redis 故障排查和跨语言重构场景，分享 AI 辅助编程的实战经验与踩坑心得
-- [《Claude Code 接入第三方模型实战》](./ai-coding/cc-glm5.1.md)：通过 Claude Code 接入 GLM-5.1，完成 JVM 智能诊断助手搭建和百万级数据量慢查询治理，分享 AI 辅助编程的工作方法与踩坑经验
-- [《Claude Code 使用指南》](./ai-coding/claudecode-tips.md)：整理自 Anthropic 官方技术文档并融合实战经验，系统梳理 Claude Code 的配置、能力扩展、高效工作流与进阶技巧
-- [《OpenAI Codex 最佳实践指南》](./ai-coding/codex-best-practices.md)：综合官方文档与实战经验，系统梳理 Codex 云端智能体和 CLI 的提示工程、工具配置与安全策略
+- Bạn đã dùng AI coding IDEs nào? Có những tips gì?
+- Bạn nghĩ gì về tác động của AI đến backend development? AI có thay thế programmer không?
+- Core competitive advantage của programmer trong tương lai là gì?
 
-## 文章列表
+Trong [《AI Coding Open-ended Interview Questions》](./llm-basis/ai-ide.md), tôi sẽ chia sẻ thinking approaches cho 7 high-frequency open-ended interview questions.
 
-### 大模型基础
+### 6. AI Coding Practice
 
-- [万字拆解 LLM 运行机制：Token、上下文与采样参数](./llm-basis/llm-operation-mechanism.md) - 深入剖析大模型底层原理，把 Token、上下文窗口、Temperature 等概念还原为清晰、可控的工程概念
-- [AI 编程开放性面试题](./llm-basis/ai-ide.md) - 7 道高频开放性面试问题，涵盖 AI 编程 IDE 使用技巧、AI 对后端开发的影响等
+Học trên giấy vẫn thấy nông. Chỉ khi tự tay dùng AI coding tools mới thực sự hiểu working boundaries và usage tips của nó. Trong AI coding practice series, tôi sẽ chia sẻ kinh nghiệm sử dụng AI-assisted programming qua practical cases trong real scenarios:
+
+- [《IDEA + Qoder Plugin Practice》](./ai-coding/idea-qoder-plugin.md): Từ interface optimization đến code refactoring, thể hiện cách dùng AI hoàn thành complete closed-loop từ analysis đến implementation trong JetBrains IDE
+- [《Trae + MiniMax Multi-scenario Practice》](./ai-coding/trae-m2.7.md): Dùng Trae IDE integrate MiniMax LLM, chia sẻ kinh nghiệm thực chiến AI-assisted programming qua Redis troubleshooting và cross-language refactoring scenarios
+- [《Claude Code Integrating Third-party Model Practice》](./ai-coding/cc-glm5.1.md): Integrate GLM-5.1 thông qua Claude Code, hoàn thành JVM intelligent diagnosis assistant và million-scale slow query governance
+- [《Claude Code Usage Guide》](./ai-coding/claudecode-tips.md): Tổng hợp từ Anthropic official technical documentation và kinh nghiệm thực chiến, systematically tổng kết usage tips của Claude Code
+- [《OpenAI Codex Best Practices Guide》](./ai-coding/codex-best-practices.md): Tổng hợp official documentation và thực chiến, systematically tổng kết best practices của Codex
+
+## Article List
+
+### LLM Basics
+
+- [10k Word Analysis of LLM Operating Mechanism: Token, Context and Sampling Parameters](./llm-basis/llm-operation-mechanism.md) - Deep analysis of LLM bottom layer principles, restoring Token, Context Window, Temperature concepts to clear and controllable engineering concepts
+- [AI Coding Open-ended Interview Questions](./llm-basis/ai-ide.md) - 7 high-frequency open-ended interview questions covering AI coding IDE usage tips, AI's impact on backend development, etc.
 
 ### AI Agent
 
-- [一文搞懂 AI Agent 核心概念](./agent/agent-basis.md) - 梳理 AI Agent 六代进化史，掌握 Agent Loop、Context Engineering、Tools 注册等核心概念
-- [大模型提示词工程实践指南](./agent/prompt-engineering.md) - 掌握 Prompt 四要素框架、六大核心技巧及企业级安全实践
-- [上下文工程实战指南](./agent/context-engineering.md) - 深入理解 Context Engineering 核心概念，掌握静态规则编排、动态信息挂载、Token 预算降级等关键技术
-- [万字详解 Agent Skills](./agent/skills.md) - 深入理解 Skills 的设计理念，掌握 Skills 与 Prompt、MCP、Function Calling 的本质区别
-- [万字拆解 MCP 协议，附带工程实践](./agent/mcp.md) - 理解 MCP 协议的核心概念、架构设计和生产级最佳实践
-- [一文搞懂 Harness Engineering：六层架构、上下文管理与一线团队实战](./agent/harness-engineering.md) - 深度解析 Harness Engineering，拆解 OpenAI、Anthropic、Stripe 等一线团队的 Agent 工程化实战经验
+- [One Article to Understand AI Agent Core Concepts](./agent/agent-basis.md) - Sort out the six-generation evolution history of AI Agent, master core concepts like Agent Loop, Context Engineering, Tools registration
+- [LLM Prompt Engineering Practice Guide](./agent/prompt-engineering.md) - Master the Prompt four-element framework, six core techniques and enterprise-level security practices
+- [Context Engineering Practice Guide](./agent/context-engineering.md) - Deep understanding of Context Engineering core concepts, master key technologies like static rule orchestration, dynamic information mounting, Token budget degradation
+- [10k Word Detailed Agent Skills](./agent/skills.md) - Deep understanding of Skills design concept, master the essential differences between Skills and Prompt, MCP, Function Calling
+- [10k Word Analysis of MCP Protocol with Engineering Practice](./agent/mcp.md) - Understand MCP protocol core concepts, architectural design and production-level best practices
+- [One Article to Understand Harness Engineering: Six-layer Architecture, Context Management and Frontline Team Practice](./agent/harness-engineering.md) - Deep analysis of Harness Engineering, dissecting the Agent engineering practice experience of OpenAI, Anthropic, Stripe and other frontline teams
 
-### RAG（检索增强生成）
+### RAG (Retrieval Augmented Generation)
 
-- [万字详解 RAG 基础概念](./rag/rag-basis.md) - 深入理解 RAG 的工作原理、核心优势和局限性
-- [万字详解 RAG 向量索引算法和向量数据库](./rag/rag-vector-store.md) - 掌握 HNSW、IVFFLAT 等索引算法原理，学会选择合适的向量数据库
+- [10k Word Detailed RAG Basic Concepts](./rag/rag-basis.md) - Deep understanding of RAG's working principles, core advantages and limitations
+- [10k Word Detailed RAG Vector Index Algorithms and Vector Databases](./rag/rag-vector-store.md) - Master principles of HNSW, IVFFLAT and other index algorithms, learn to choose the right vector database
 
-### AI 编程实战
+### AI Coding Practice
 
-- [IDEA + Qoder 插件多场景实战：接口优化与代码重构](./ai-coding/idea-qoder-plugin.md) - 通过深分页优化、祖传代码重构两个真实案例，展示 AI 辅助编程的实战效果
-- [Trae + MiniMax 多场景实战：Redis 故障排查与跨语言重构](./ai-coding/trae-m2.7.md) - 使用 Trae IDE 接入 MiniMax 大模型，通过 Redis 故障排查和跨语言重构场景，分享 AI 辅助编程的实战经验
-- [Claude Code 接入第三方模型实战：JVM 智能诊断与慢查询治理](./ai-coding/cc-glm5.1.md) - 通过 Claude Code 接入 GLM-5.1，完成 JVM 智能诊断助手搭建和百万级数据量慢查询治理
-- [Claude Code 使用指南：配置、工作流与进阶技巧](./ai-coding/claudecode-tips.md) - 整理自 Anthropic 官方技术文档并融合实战经验，系统梳理 Claude Code 的使用技巧
-- [OpenAI Codex 最佳实践指南：提示工程、工具配置与安全策略](./ai-coding/codex-best-practices.md) - 综合官方文档与实战经验，系统梳理 Codex 的最佳实践
+- [IDEA + Qoder Plugin Multi-scenario Practice: Interface Optimization and Code Refactoring](./ai-coding/idea-qoder-plugin.md) - Through deep pagination optimization and legacy code refactoring real cases, demonstrate the practical effect of AI-assisted programming
+- [Trae + MiniMax Multi-scenario Practice: Redis Troubleshooting and Cross-language Refactoring](./ai-coding/trae-m2.7.md) - Using Trae IDE with MiniMax LLM, sharing AI-assisted programming practice experience
+- [Claude Code Integrating Third-party Model Practice: JVM Intelligent Diagnosis and Slow Query Governance](./ai-coding/cc-glm5.1.md) - Integrating GLM-5.1 via Claude Code, completing JVM intelligent diagnosis assistant and million-scale slow query governance
+- [Claude Code Usage Guide: Configuration, Workflow and Advanced Tips](./ai-coding/claudecode-tips.md) - Compiled from Anthropic official technical documentation with hands-on experience, systematically sorting out Claude Code usage tips
+- [OpenAI Codex Best Practices Guide: Prompt Engineering, Tool Configuration and Security Strategy](./ai-coding/codex-best-practices.md) - Comprehensive official documentation and hands-on experience, systematically sorting out Codex best practices
 
-## 配图预览
+## Illustration Preview
 
-为了帮助读者更好地理解抽象的技术概念，我在每篇文章中都绘制了大量配图。这里展示几张：
+To help readers better understand abstract technical concepts, I drew a large number of illustrations in each article. Here are a few:
 
-![上下文窗口示意图](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
+![Context window illustration](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
 
-_上下文窗口是 LLM 的“工作记忆”，决定了模型能处理的最大文本量_
+_The context window is the LLM's "working memory", determining the maximum amount of text the model can process_
 
-![RAG 架构示意图](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
+![RAG architecture illustration](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-simplified-architecture-diagram.jpeg)
 
-_RAG 的核心思想：先检索相关上下文，再让 LLM 基于上下文生成回答_
+_RAG's core idea: first retrieve relevant context, then let LLM generate answers based on context_
 
-![MCP 图解](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
+![MCP illustration](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
 
-_MCP 被称为“AI 领域的 USB-C 接口”，统一了 LLM 与外部工具的通信规范_
+_MCP is called the "USB-C interface of AI field", unifying the communication standards between LLMs and external tools_
 
-## 写在最后
+## Closing Thoughts
 
-这个专栏我会持续更新。如果觉得有帮助，欢迎分享给身边的朋友。有问题或建议，直接在项目 issue 区留言就行。
+This column will continue to be updated. If you find it helpful, please share it with your friends. For questions or suggestions, just leave a comment in the project issues area.
 
 ---
 
-![JavaGuide 官方公众号](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)

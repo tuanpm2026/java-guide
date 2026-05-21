@@ -1,217 +1,217 @@
 ---
-title: AI 工作流中的 Workflow、Graph 与 Loop：从概念到实现
-description: 深度解析 AI 工作流中 Workflow、Graph、Loop 三大核心概念，对比传统工作流与 AI 工作流的差异，结合 Spring AI Alibaba 和 LangGraph 给出完整代码示例。
-category: AI 应用开发
-icon: “robot”
+title: Workflow, Graph và Loop trong AI Workflow：Từ Khái Niệm Đến Triển Khai
+description: Phân tích chuyên sâu ba khái niệm cốt lõi Workflow, Graph, Loop trong AI Workflow, so sánh sự khác biệt giữa workflow truyền thống và AI workflow, kết hợp Spring AI Alibaba và LangGraph đưa ra ví dụ code hoàn chỉnh.
+category: Phát triển ứng dụng AI
+icon: "robot"
 head:
   - - meta
     - name: keywords
       content: AI Workflow,Graph,Loop,AI工作流,Spring AI Alibaba,LangGraph,状态机,Agent,工作流引擎
 ---
 
-今天分享的内容还是蛮重要的，我和一位朋友断断续续写了快两周。
+Nội dung chia sẻ hôm nay khá quan trọng, tôi và một người bạn đã viết từng chút một trong gần hai tuần.
 
-很多刚上手 AI 工作流的开发者都有过类似的困惑：这不就是传统工作流换了个壳吗？为什么不用 Camunda、Temporal 这些成熟引擎？甚至觉得把几个 Prompt 用 if-else 串起来就算“工作流”了。
+Nhiều developer mới bắt đầu làm AI workflow đều từng có những băn khoăn tương tự: Đây chẳng phải chỉ là workflow truyền thống thay vỏ thôi ư? Tại sao không dùng các engine trưởng thành như Camunda, Temporal? Thậm chí cho rằng nối vài Prompt với nhau bằng if-else là đã có "workflow" rồi.
 
-但真正上手做项目后，这些想法很快会被现实打脸。LLM 的输出天然不确定，单次生成往往不达标，工具调用随时可能失败，上下文窗口还有硬上限。光“跑一遍就完事”的线性流程不够用，你需要的是一套能**动态决策、自动修正、可控收敛**的执行机制。
+Nhưng khi thực sự bắt tay làm dự án, những suy nghĩ đó sẽ nhanh chóng bị thực tế đập tan. Output của LLM vốn dĩ không xác định, một lần sinh ra thường không đạt yêu cầu, gọi tool có thể thất bại bất cứ lúc nào, và context window còn có giới hạn cứng. Chỉ cần "chạy một lần là xong" theo dạng tuyến tính là chưa đủ, bạn cần một cơ chế thực thi có thể **quyết định động, tự động sửa lỗi, hội tụ có kiểm soát**.
 
-今天这篇文章就来梳理 AI 工作流中三个核心概念——**Workflow、Graph、Loop**，帮你建立从概念到实现的完整认知。本文约 1.9w 字，建议收藏，通过本文你将搞懂：
+Bài viết hôm nay sẽ tổng hợp ba khái niệm cốt lõi trong AI workflow — **Workflow, Graph, Loop**, giúp bạn xây dựng nhận thức hoàn chỉnh từ khái niệm đến triển khai. Bài viết khoảng 1.9 vạn từ, khuyến nghị lưu lại, qua bài này bạn sẽ hiểu được:
 
-1. **为什么 AI 系统需要工作流**：单轮对话和固定流程为什么不够用？动态决策、自动修正、可控收敛分别解决什么问题？
-2. **Workflow、Graph、Loop 三者的层次关系**：Workflow 是目标与过程，Graph 是结构与载体，Loop 是图上的控制模式——三者如何协作？
-3. **Graph 的核心元素**：Node（节点）、Edge（边）、State（状态）分别是什么？条件边、动态路由、循环边有何区别？State 的更新策略怎么选？
-4. **Loop 的设计要点**：固定次数循环 vs 条件驱动循环、嵌套循环的独立性、安全边界的三要素。
-5. **从概念到代码**：Spring AI Alibaba 和 LangGraph 的概念映射表 + 完整的“生成→审核→修改”工作流代码实现。
-6. **工作流设计的分水岭**：高抽象 vs 低抽象，Node、Edge、State 的抽象原则。
+1. **Tại sao hệ thống AI cần workflow**: Tại sao hội thoại một vòng và quy trình cố định là không đủ? Quyết định động, tự động sửa lỗi, hội tụ có kiểm soát giải quyết những vấn đề gì?
+2. **Mối quan hệ phân cấp của ba yếu tố Workflow, Graph, Loop**: Workflow là mục tiêu và quá trình, Graph là cấu trúc và carrier, Loop là mô hình điều khiển trên graph — ba yếu tố phối hợp với nhau như thế nào?
+3. **Các yếu tố cốt lõi của Graph**: Node (nút), Edge (cạnh), State (trạng thái) lần lượt là gì? Conditional edge, dynamic routing, loop edge có điểm gì khác nhau? Chiến lược cập nhật State nên chọn như thế nào?
+4. **Điểm thiết kế của Loop**: Vòng lặp cố định số lần vs vòng lặp điều kiện, tính độc lập của vòng lặp lồng nhau, ba yếu tố của an toàn giới hạn.
+5. **Từ khái niệm đến code**: Bảng ánh xạ khái niệm Spring AI Alibaba và LangGraph + triển khai code hoàn chỉnh workflow "sinh→đánh giá→sửa đổi".
+6. **Ranh giới thiết kế workflow**: Trừu tượng cao vs trừu tượng thấp, nguyên tắc trừu tượng của Node, Edge, State.
 
-> **系列阅读**：本文是 AI Agent 系列的一部分，相关文章：
+> **Đọc theo series**: Bài viết này là một phần của series AI Agent, các bài liên quan:
 >
-> - [AI Agent 核心概念：Agent Loop、Context Engineering、Tools 注册](https://javaguide.cn/ai/agent/agent-basis.html)
-> - [大模型提示词工程实践指南](https://javaguide.cn/ai/agent/prompt-engineering.html)
-> - [上下文工程实战指南：让 Agent 少犯蠢的工程方法论](https://javaguide.cn/ai/agent/context-engineering.html)
-> - [万字详解 Agent Skills：是什么？怎么用？和 Prompt、MCP 有什么区别？](https://javaguide.cn/ai/agent/skills.html)
-> - [万字拆解 MCP，附带工程实践](https://javaguide.cn/ai/agent/mcp.html)
-> - [一文搞懂 Harness Engineering：六层架构、上下文管理与一线团队实战](https://javaguide.cn/ai/agent/harness-engineering.html)
+> - [Khái niệm cốt lõi AI Agent: Agent Loop, Context Engineering, Đăng ký Tools](https://javaguide.cn/ai/agent/agent-basis.html)
+> - [Hướng dẫn thực hành Prompt Engineering cho LLM](https://javaguide.cn/ai/agent/prompt-engineering.html)
+> - [Hướng dẫn thực chiến Context Engineering: Phương pháp luận kỹ thuật giúp Agent ít mắc lỗi hơn](https://javaguide.cn/ai/agent/context-engineering.html)
+> - [Giải thích chi tiết Agent Skills: Là gì? Dùng như thế nào? Khác Prompt, MCP ở điểm nào?](https://javaguide.cn/ai/agent/skills.html)
+> - [Phân tích toàn diện MCP, kèm thực hành kỹ thuật](https://javaguide.cn/ai/agent/mcp.html)
+> - [Hiểu rõ Harness Engineering trong một bài: Kiến trúc sáu tầng, quản lý context và thực chiến nhóm](https://javaguide.cn/ai/agent/harness-engineering.html)
 
-## 一、为什么 AI 系统会需要工作流
+## Một, Tại sao hệ thống AI cần workflow
 
-单轮对话虽然可以回答问题，但很难稳定地**交付结果**。在真实场景中，一个完整任务往往不仅仅是“生成答案”，还包含检索信息、调用工具、输出结构化结果、质量检查、失败重试，以及在结果不满意时进行多轮修正。这些行为本身就是系统结构的一部分，靠一段超长 Prompt 解决不了，需要一种**可分支、可循环、可观测**的执行路径。
+Hội thoại một vòng tuy có thể trả lời câu hỏi, nhưng khó ổn định **giao kết quả**. Trong các tình huống thực tế, một nhiệm vụ hoàn chỉnh thường không chỉ là "sinh ra câu trả lời", mà còn bao gồm truy xuất thông tin, gọi tool, xuất ra kết quả có cấu trúc, kiểm tra chất lượng, thử lại khi thất bại, và sửa đổi nhiều vòng khi kết quả không thỏa mãn. Những hành vi này bản thân là một phần cấu trúc của hệ thống, không thể giải quyết bằng một Prompt siêu dài, cần một đường dẫn thực thi **có thể phân nhánh, có thể vòng lặp, có thể quan sát**.
 
-传统软件流程通常是确定性的：**输入固定、步骤固定、输出相对稳定**。但 LLM 的特点恰恰相反——它“能力很强，但不完全稳定”。它可能答非所问、格式错误、产生幻觉，或者在调用工具时失败。这就引出了三个核心问题：
+Quy trình phần mềm truyền thống thường là xác định: **đầu vào cố định, các bước cố định, đầu ra tương đối ổn định**. Nhưng đặc điểm của LLM lại ngược lại — nó "năng lực rất mạnh, nhưng không hoàn toàn ổn định". Nó có thể trả lời lạc đề, sai định dạng, tạo ra ảo giác, hoặc thất bại khi gọi tool. Điều này dẫn đến ba vấn đề cốt lõi:
 
-1. 下一步并不唯一，需要根据当前结果动态决策路径；
-2. 当结果不理想时，系统需要自动修正，而不是直接失败；
-3. 中间状态必须被记录，否则难以调试、追踪与恢复。
+1. Bước tiếp theo không phải là duy nhất, cần quyết định đường dẫn động dựa trên kết quả hiện tại;
+2. Khi kết quả không lý tưởng, hệ thống cần tự động sửa lỗi, thay vì trực tiếp thất bại;
+3. Trạng thái trung gian phải được ghi lại, nếu không khó debug, theo dõi và khôi phục.
 
-这也是为什么 AI 系统需要工作流思维。
+Đây cũng là lý do tại sao hệ thống AI cần tư duy workflow.
 
-以一个简单例子来看：当我们让 AI 写一篇文章时，一次生成的结果往往不够理想。直觉做法是手动复制结果，再附加新要求继续提问，但这种方式既不高效，也会快速消耗上下文。如果将这一过程结构化为“**审查 → 修改 → 再审查**”的循环，并设定停止条件（如达到质量标准或触达迭代上限），就能显著提升稳定性。
+Lấy một ví dụ đơn giản: khi chúng ta yêu cầu AI viết một bài viết, kết quả sinh ra một lần thường không đủ lý tưởng. Cách trực giác là sao chép kết quả thủ công, sau đó đính kèm yêu cầu mới tiếp tục hỏi, nhưng cách này vừa không hiệu quả lại tiêu hao context nhanh. Nếu cấu trúc hóa quá trình này thành vòng lặp "**đánh giá → sửa đổi → đánh giá lại**", và đặt điều kiện dừng (như đạt tiêu chuẩn chất lượng hoặc đến giới hạn lặp), thì có thể nâng cao đáng kể tính ổn định.
 
-说到底，工作流就是把一次性的生成过程，变成一个**可迭代、可收敛、可控制**的系统化流程。
+Nói tóm lại, workflow là biến quá trình sinh ra một lần, thành một quy trình hệ thống **có thể lặp, có thể hội tụ, có thể kiểm soát**.
 
-## 二、工作流是什么：从传统 Workflow 到 AI Workflow
+## Hai, Workflow là gì: Từ Workflow truyền thống đến AI Workflow
 
-![传统 Workflow 与 AI Workflow 对比](https://oss.javaguide.cn/github/javaguide/ai/workflow/traditional-vs-ai-workflow.svg)
+![So sánh Workflow truyền thống và AI Workflow](https://oss.javaguide.cn/github/javaguide/ai/workflow/traditional-vs-ai-workflow.svg)
 
-上图可以直观看到两类工作流的差异：传统 Workflow 更偏向“固定步骤 + 明确分支”的过程编排；AI Workflow 则更依赖运行时的状态（State）来动态决定下一步，并通过循环（Loop）把“生成—评估—修正”变成可收敛的过程。
+Hình trên có thể thấy trực quan sự khác biệt giữa hai loại workflow: Workflow truyền thống nghiêng về "bước cố định + phân nhánh rõ ràng" trong sắp xếp quy trình; AI Workflow thì phụ thuộc nhiều hơn vào State (trạng thái) khi chạy để quyết định bước tiếp theo một cách động, và thông qua Loop (vòng lặp) biến "sinh→đánh giá→sửa đổi" thành quá trình có thể hội tụ.
 
-### 2.1 传统工作流：在做什么？
+### 2.1 Workflow truyền thống: Đang làm gì?
 
-先说基本定义：**Workflow** 就是为了完成某个目标，把任务拆成若干步骤，并规定这些步骤如何协作推进。它回答的问题是：“这件事怎么做完？”
+Trước tiên nói về định nghĩa cơ bản: **Workflow** là chia nhiệm vụ thành nhiều bước và quy định cách các bước này phối hợp để hoàn thành một mục tiêu nào đó. Nó trả lời câu hỏi: "Việc này làm xong như thế nào?"
 
-在传统工作流体系中，流程设计虽然也支持事件驱动和动态分支（如 BPMN 2.0 的信号事件、Camunda 的 DMN 决策表），但其核心假设是：**给定相同输入，同一节点的执行结果是确定的**。以 BPMN 2.0 规范为代表的主流工作流引擎（如 Camunda、Temporal、Apache Airflow）支持并行网关、包容网关、子流程、补偿事务等丰富的控制结构，远非简单的线性顺序。但分支条件通常在设计时确定，运行时按照预定义路径执行。
+Trong hệ thống workflow truyền thống, dù thiết kế quy trình cũng hỗ trợ event-driven và phân nhánh động (như signal event của BPMN 2.0, DMN decision table của Camunda), nhưng giả định cốt lõi là: **Với cùng đầu vào, kết quả thực thi của cùng một node là xác định**. Các engine workflow chính thống đại diện theo đặc tả BPMN 2.0 (như Camunda, Temporal, Apache Airflow) hỗ trợ parallel gateway, inclusive gateway, sub-process, compensation transaction và nhiều cấu trúc điều khiển phong phú khác, không đơn giản chỉ là tuần tự tuyến tính. Nhưng điều kiện phân nhánh thường được xác định tại thời điểm thiết kế, khi chạy thực hiện theo đường dẫn đã được định nghĩa trước.
 
-AI 工作流与传统工作流的关键差异在于：路径选择依赖于运行时生成内容的质量评估，且同一节点可能因输出不确定性而需要反复执行。例如审批流程、订单流转、ETL 数据管道等传统场景中，分支条件是明确的（金额 > 10000 走高级审批）；而 AI 场景中，“生成结果是否达标”这个判断本身就需要运行时评估，且评估结论可能驱使流程回到之前的步骤反复修正。
+Sự khác biệt then chốt giữa AI workflow và workflow truyền thống là: Việc chọn đường dẫn phụ thuộc vào đánh giá chất lượng nội dung được sinh ra khi chạy, và cùng một node có thể cần thực thi lặp lại do tính không xác định của output. Ví dụ trong các tình huống truyền thống như quy trình phê duyệt, xử lý đơn hàng, ETL data pipeline, điều kiện phân nhánh rõ ràng (số tiền > 10000 thì qua phê duyệt cấp cao); còn trong tình huống AI, bản thân việc "kết quả sinh ra có đạt tiêu chuẩn không" cần đánh giá khi chạy, và kết quả đánh giá có thể thúc đẩy quy trình quay lại các bước trước đó để sửa đổi nhiều lần.
 
-### 2.2 AI 工作流：为什么一定会走向 Graph、Loop
+### 2.2 AI Workflow: Tại sao nhất định phải đi đến Graph, Loop
 
-到了 AI 场景，同样的“流程”一词，含义不太一样了。相比传统工作流强调的顺序性与确定性，AI 工作流需要处理的是一个充满不确定性的执行环境。我们面对的不再只是“按步骤执行”，还包括：
+Đến tình huống AI, cùng một từ "quy trình", ý nghĩa có phần khác. So với workflow truyền thống nhấn mạnh tính tuần tự và xác định, AI workflow cần xử lý một môi trường thực thi đầy bất định. Chúng ta đối mặt không chỉ là "thực thi từng bước", mà còn bao gồm:
 
-- 结果是否达标要在**运行时**判断。
-- 是否需要继续重试，要由**当前状态**决定。
-- 某一步失败后，系统不再是简单的报错然后结束，而是考虑是否应该降级、回退或换一种策略。
-- 节点之间传递的不只是参数，还包括上下文、草稿、评分、错误信息、历史轮次等**状态**。
+- Kết quả có đạt tiêu chuẩn hay không cần phán đoán **khi chạy**.
+- Có cần tiếp tục thử lại, phụ thuộc vào **trạng thái hiện tại**.
+- Khi một bước thất bại, hệ thống không còn đơn giản báo lỗi rồi kết thúc, mà xem xét có nên downgrade, rollback hay thử chiến lược khác không.
+- Những gì được truyền giữa các node không chỉ là tham số, mà còn bao gồm context, bản nháp, điểm số, thông tin lỗi, lịch sử vòng lặp và các **trạng thái** khác.
 
-所以 AI Workflow 与传统 Workflow 都有流程，差别在于前者更强调动态决策和状态驱动。一旦我们想要表达“下一步不唯一”或者“不满意就再来一轮”，线性列表就不够用，自然会落到 Graph（结构）与 Loop（回溯）这两类概念上。
+Vì vậy AI Workflow và truyền thống Workflow đều có quy trình, sự khác biệt là cái trước nhấn mạnh hơn quyết định động và trạng thái điều khiển. Một khi chúng ta muốn biểu đạt "bước tiếp theo không phải là duy nhất" hoặc "không thỏa mãn thì làm thêm một vòng", danh sách tuyến tính là không đủ, sẽ tự nhiên rơi vào hai loại khái niệm Graph (cấu trúc) và Loop (hồi quy).
 
-## 三、Graph（图）是工作流的结构表达（重要）
+## Ba, Graph (Đồ thị) là biểu đạt cấu trúc của workflow (Quan trọng)
 
-沿用贯穿案例：假如我们要搭一条「生成初稿 → 质量审核 → 不达标则修改 → 再回到审核」的路径。这里每一步对应图的 **Node**，步骤之间的走向由 **Edge** 表达，整条链路读写的共享上下文就是 **State**。
+Tiếp tục dùng case xuyên suốt: Giả sử chúng ta muốn xây một đường dẫn "sinh bản nháp → đánh giá chất lượng → không đạt thì sửa đổi → đánh giá lại". Mỗi bước ở đây tương ứng với **Node** trong đồ thị, hướng đi giữa các bước được biểu đạt bởi **Edge**, context chia sẻ được đọc ghi trong toàn bộ chuỗi là **State**.
 
-图里最基础的元素有三个：
+Ba yếu tố cơ bản nhất trong đồ thị là:
 
-- **Node（节点）**：表示一个执行单元，其主要有三大功能：读取状态（State）、执行业务逻辑并加工状态、将加工好的状态放回。在文章审核例子里，典型有「生成初稿」「质量审核」「按反馈修改」；此外还可以扩展检索、格式校验、人工审批等。
-- **Edge（边）**：是流程图中的控制流抽象，用于描述节点之间的执行路径及其触发条件，决定流程在运行时如何在不同节点之间进行调度与跳转。常见的边类型如下：
+- **Node (Nút)**: Biểu thị một đơn vị thực thi, có ba chức năng chính: đọc State, thực thi logic nghiệp vụ và xử lý State, đưa State đã xử lý trả lại. Trong ví dụ đánh giá bài viết, điển hình có "sinh bản nháp" "đánh giá chất lượng" "sửa đổi theo phản hồi"; ngoài ra còn có thể mở rộng truy xuất, kiểm tra định dạng, phê duyệt con người, v.v.
+- **Edge (Cạnh)**: Là trừu tượng luồng điều khiển trong flowchart, dùng để mô tả đường thực thi giữa các node và điều kiện kích hoạt, quyết định quy trình khi chạy điều phối và nhảy giữa các node như thế nào. Các loại cạnh thông dụng như sau:
 
-| 边的类型                    | 解释                                                                                                                                                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 顺序边（Sequential Edge）   | 节点按固定顺序执行，执行完当前节点后直接进入下一个节点，不依赖条件或状态判断。                                                                                                                |
-| 条件边（Conditional Edge）  | 在设计时定义的有限候选路径中，根据运行时状态（State）选择其一。候选目标节点在设计时确定，运行时只做选择。Spring AI Alibaba 通过 `addConditionalEdges()` 并传入候选节点映射实现。              |
-| 动态路由（Dynamic Routing） | 目标节点不在设计时完全预定义，而是由运行时逻辑（如 LLM 决策、map-reduce 分发）动态确定，候选集合可以是开放的。例如 LangGraph 的 `Send` API 可以在运行时动态决定向某个节点发起多少次并行调用。 |
-| 循环边（Loop Edge）         | 节点可以回到自身或前序节点重复执行，用于重试、迭代优化或循环推理，直到满足终止条件，通常是由条件边与顺序边结合形成。                                                                          |
-| 终止边（Terminal Edge）     | 将流程引导至结束状态，不再继续执行后续节点，用于输出最终结果或结束工作流。                                                                                                                    |
-| 并行边（Parallel Edge）     | 一个节点同时分发到多个后续节点并行执行，用于多任务处理、RAG/工具并发等场景。                                                                                                                  |
+| Loại cạnh                         | Giải thích                                                                                                                                                                                                                                                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Sequential Edge (Cạnh tuần tự)    | Các node thực thi theo thứ tự cố định, sau khi thực thi node hiện tại trực tiếp vào node tiếp theo, không phụ thuộc điều kiện hay phán đoán trạng thái.                                                                                                                                                                  |
+| Conditional Edge (Cạnh điều kiện) | Trong tập hợp đường dẫn ứng viên hữu hạn được xác định tại thời điểm thiết kế, chọn một trong số chúng dựa trên State khi chạy. Node đích ứng viên được xác định tại thời thiết kế, khi chạy chỉ thực hiện chọn lựa. Spring AI Alibaba triển khai thông qua `addConditionalEdges()` và truyền vào mapping node ứng viên. |
+| Dynamic Routing (Định tuyến động) | Node đích không hoàn toàn được định nghĩa trước tại thời điểm thiết kế, mà được xác định động bởi logic khi chạy (như quyết định LLM, phân phối map-reduce), tập hợp ứng viên có thể là mở. Ví dụ `Send` API của LangGraph có thể quyết định động tại runtime số lần gọi song song đến một node nào đó.                  |
+| Loop Edge (Cạnh vòng lặp)         | Node có thể quay lại chính nó hoặc node trước để thực thi lặp lại, dùng cho retry, tối ưu hóa lặp hoặc suy luận vòng lặp, cho đến khi điều kiện kết thúc được thỏa mãn, thường được hình thành bởi sự kết hợp conditional edge và sequential edge.                                                                       |
+| Terminal Edge (Cạnh kết thúc)     | Dẫn quy trình đến trạng thái kết thúc, không tiếp tục thực thi các node tiếp theo, dùng để xuất ra kết quả cuối cùng hoặc kết thúc workflow.                                                                                                                                                                             |
+| Parallel Edge (Cạnh song song)    | Một node phân phối đồng thời đến nhiều node tiếp theo để thực thi song song, dùng cho xử lý đa nhiệm, RAG/tool concurrency, v.v.                                                                                                                                                                                         |
 
-> 实际工程中，条件边和动态路由是一个连续谱系——条件边的候选集在设计时确定但选择逻辑可以依赖运行时状态（如 LLM 评分），动态路由的候选集本身在运行时才确定（如 LangGraph 的 `Send` API 动态创建并行分支）。多数场景下条件边已够用，动态路由适用于 map-reduce 等需要运行时决定并行分支数量的场景。
+> Trong kỹ thuật thực tế, conditional edge và dynamic routing là một phổ liên tục — tập hợp ứng viên của conditional edge được xác định tại thời điểm thiết kế nhưng logic chọn lựa có thể phụ thuộc vào state khi chạy (như điểm LLM), tập hợp ứng viên của dynamic routing bản thân được xác định khi chạy (như `Send` API của LangGraph tạo nhánh song song động). Phần lớn tình huống conditional edge là đủ dùng, dynamic routing phù hợp với map-reduce và các tình huống cần quyết định số lượng nhánh song song khi chạy.
 
-- **State（状态）**：表示在流程执行过程中持续被读写的共享上下文，是节点之间真正传递的“工作记忆”。它本质上是一个**键值对数据结构**（类似 Java 的 `Map<String, Object>`、Python 的 `dict`、TypeScript 的 `Record<string, any>`），用于在各节点之间传递和修改数据。
+- **State (Trạng thái)**: Biểu thị context chia sẻ được liên tục đọc ghi trong quá trình thực thi quy trình, là "bộ nhớ làm việc" thực sự được truyền giữa các node. Về bản chất nó là một **cấu trúc dữ liệu key-value** (tương tự `Map<String, Object>` của Java, `dict` của Python, `Record<string, any>` của TypeScript), dùng để truyền và sửa đổi dữ liệu giữa các node.
 
-需要注意的是，State 的设计不仅涉及“存什么”，还涉及“怎么更新”。在实际的工作流框架中，不同字段通常有不同的更新语义：
+Cần lưu ý rằng thiết kế State không chỉ liên quan đến "lưu gì", mà còn liên quan đến "cập nhật như thế nào". Trong các framework workflow thực tế, các trường khác nhau thường có ngữ nghĩa cập nhật khác nhau:
 
-- **覆盖（Replace）**：新值直接替换旧值。适用于单值字段，如分类结果、当前状态。在 Spring AI Alibaba 中对应 `ReplaceStrategy`，在 LangGraph 中对应无 reducer 的默认行为。
-- **追加（Append）**：新值追加到已有列表。适用于累积型字段，如对话历史（messages）。在 Spring AI Alibaba 中对应 `AppendStrategy`，在 LangGraph 中对应 `Annotated[list, operator.add]`。
-- **自定义合并（Custom Reducer）**：通过自定义函数决定合并逻辑，例如 LangGraph 的 `add_messages` 会根据消息 ID 进行追加或更新。
+- **Replace (Thay thế)**: Giá trị mới trực tiếp thay thế giá trị cũ. Phù hợp với các trường đơn giá trị, như kết quả phân loại, trạng thái hiện tại. Trong Spring AI Alibaba tương ứng với `ReplaceStrategy`, trong LangGraph tương ứng với hành vi mặc định không có reducer.
+- **Append (Thêm vào)**: Giá trị mới được thêm vào danh sách đã có. Phù hợp với các trường tích lũy, như lịch sử hội thoại (messages). Trong Spring AI Alibaba tương ứng với `AppendStrategy`, trong LangGraph tương ứng với `Annotated[list, operator.add]`.
+- **Custom Reducer (Reducer tùy chỉnh)**: Xác định logic hợp nhất thông qua hàm tùy chỉnh, ví dụ `add_messages` của LangGraph sẽ thêm vào hoặc cập nhật dựa trên message ID.
 
-当多个并行节点同时写入同一个使用覆盖语义的字段时，会出现竞态问题（LangGraph 会抛出 `INVALID_CONCURRENT_GRAPH_UPDATE` 错误）。因此，设计 State 时需要提前规划哪些字段可能被并行写入，并为它们选择合适的更新策略。
+Khi nhiều node song song đồng thời ghi vào cùng một trường sử dụng ngữ nghĩa replace, sẽ xuất hiện vấn đề race condition (LangGraph sẽ ném ra lỗi `INVALID_CONCURRENT_GRAPH_UPDATE`). Vì vậy khi thiết kế State cần lên kế hoạch trước các trường nào có thể được ghi đồng thời, và chọn chiến lược cập nhật phù hợp cho chúng.
 
-下面是一些常用的状态字段（可根据实际业务自由扩展，不必拘泥于样例）：
+Dưới đây là một số trường State thường dùng (có thể tự do mở rộng theo nghiệp vụ thực tế, không cần bị ràng buộc bởi ví dụ):
 
-| Key（字段名）      | Value 类型 | 说明                                                                                                                                         | 生命周期 |
-| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| input              | String     | 用户输入问题                                                                                                                                 | 全流程   |
-| messages           | List       | 对话历史                                                                                                                                     | 全流程   |
-| retrieval_result   | List       | RAG 检索结果                                                                                                                                 | 中间     |
-| tool_result        | Object     | 工具调用结果                                                                                                                                 | 中间     |
-| llm_response       | String     | LLM 原始输出                                                                                                                                 | 中间     |
-| intermediate_steps | List       | 中间执行步骤记录                                                                                                                             | 全流程   |
-| next_step          | String     | 控制流跳转节点（可选，部分框架如 Spring AI Alibaba 通过此字段配合条件边实现路由；其他框架如 LangGraph 通过条件边函数返回值路由，无需此字段） | 当前执行 |
-| output             | String     | 最终输出结果                                                                                                                                 | 结束     |
+| Key (Tên trường)   | Kiểu Value | Mô tả                                                                                                                                                                                                                                                           | Vòng đời          |
+| ------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| input              | String     | Câu hỏi đầu vào của người dùng                                                                                                                                                                                                                                  | Toàn quy trình    |
+| messages           | List       | Lịch sử hội thoại                                                                                                                                                                                                                                               | Toàn quy trình    |
+| retrieval_result   | List       | Kết quả truy xuất RAG                                                                                                                                                                                                                                           | Trung gian        |
+| tool_result        | Object     | Kết quả gọi tool                                                                                                                                                                                                                                                | Trung gian        |
+| llm_response       | String     | Output thô của LLM                                                                                                                                                                                                                                              | Trung gian        |
+| intermediate_steps | List       | Ghi lại các bước thực thi trung gian                                                                                                                                                                                                                            | Toàn quy trình    |
+| next_step          | String     | Node nhảy điều khiển luồng (tùy chọn, một số framework như Spring AI Alibaba thực hiện routing thông qua trường này kết hợp conditional edge; các framework khác như LangGraph routing thông qua giá trị trả về của hàm conditional edge, không cần trường này) | Thực thi hiện tại |
+| output             | String     | Kết quả output cuối cùng                                                                                                                                                                                                                                        | Kết thúc          |
 
-如果只看 Node 和 Edge，我们会得到一张“能跑起来的路径图”；加上 State，这张图才能在运行时做决策。
+Nếu chỉ xem Node và Edge, chúng ta sẽ có một "đồ thị đường dẫn có thể chạy được"; thêm State vào, đồ thị này mới có thể đưa ra quyết định khi chạy.
 
-图结构比线性结构更贴近 AI 系统的真实形态，因为很多 AI 应用的控制流本来就是图，只是早期常被临时写成 `if-else`、重试逻辑或分散在不同模块里的状态机。
+Cấu trúc đồ thị gần với hình thái thực tế của hệ thống AI hơn cấu trúc tuyến tính, vì nhiều ứng dụng AI về luồng điều khiển vốn là đồ thị, chỉ là giai đoạn đầu thường được viết tạm thành `if-else`, logic retry hoặc state machine phân tán trong các module khác nhau.
 
-## 四、Loop 是 Graph 上的回溯能力（重要）
+## Bốn, Loop là khả năng hồi quy trên Graph (Quan trọng)
 
-在同一套「文章审核」里：**审核不通过**时，控制流不应结束，而应沿某条边回到「修改」或「重新生成」——这就是 Loop 在业务上的含义。技术上，它表现为图上的**回边（Back Edge）**。
+Trong cùng một "đánh giá bài viết": khi **đánh giá không đạt**, luồng điều khiển không nên kết thúc, mà nên theo một cạnh nào đó quay về "sửa đổi" hoặc "sinh lại" — đây là ý nghĩa nghiệp vụ của Loop. Về kỹ thuật, nó biểu hiện là **back edge (cạnh ngược)** trong đồ thị.
 
-> 需要区分本文的 Loop 与 Agent 基础篇中的 **Agent Loop**。Agent Loop 是 Agent 的顶层运行引擎——整个 Agent 在一个 while 循环中反复执行“推理 → 行动 → 观察”直到任务完成。而本文的 Loop 是 Graph 内部的控制模式——特定节点子集通过回边形成的迭代修正循环。两者的关系是：Agent Loop 是外层循环，Graph Loop 可以嵌套在其中的某个节点或子图内。
+> Cần phân biệt Loop trong bài này với **Agent Loop** trong bài cơ bản Agent. Agent Loop là engine chạy cấp cao nhất của Agent — toàn bộ Agent trong một vòng lặp while liên tục thực thi "suy luận → hành động → quan sát" cho đến khi nhiệm vụ hoàn thành. Còn Loop trong bài này là mô hình điều khiển bên trong Graph — một tập hợp node cụ thể hình thành vòng lặp sửa đổi lặp lại thông qua back edge. Mối quan hệ giữa hai cái là: Agent Loop là vòng lặp ngoài, Graph Loop có thể lồng vào trong một node hoặc subgraph nào đó.
 
-![Loop 概览：循环机制示意](https://oss.javaguide.cn/github/javaguide/ai/workflow/loop-mechanism.svg)
+![Tổng quan Loop: Sơ đồ cơ chế vòng lặp](https://oss.javaguide.cn/github/javaguide/ai/workflow/loop-mechanism.svg)
 
-很多人第一次接触 AI 工作流时，会把 `Loop` 理解成“多跑几次”。这不算错，但还不够准确。更准确地说：**Loop 是图结构上的一种控制模式**。当某条边根据当前状态把控制流送回到先前节点时，就形成了 Loop，正如上图所示，重点在判断是否达标，在循环的内部 LLM 会根据提示词的要求对结果进行“评分”，如果满足就会输出，否则“打回重写”。
+Nhiều người lần đầu tiếp cận AI workflow, sẽ hiểu `Loop` là "chạy thêm mấy lần". Điều này không sai nhưng chưa chính xác lắm. Chính xác hơn là: **Loop là một mô hình điều khiển trên cấu trúc đồ thị**. Khi một cạnh nào đó dựa trên trạng thái hiện tại gửi luồng điều khiển trở lại node trước đó, tạo thành Loop, như hình trên thể hiện, trọng điểm là phán đoán có đạt tiêu chuẩn chưa, bên trong vòng lặp LLM sẽ "chấm điểm" kết quả theo yêu cầu trong prompt, nếu thỏa mãn thì xuất ra, nếu không thì "gửi lại để viết lại".
 
-常见的 Loop 主要有两种：
+Có hai loại Loop thông dụng:
 
-1. **固定次数循环**：更像 `for`。例如“最多重试 3 次”。
-2. **条件驱动循环**：更像 `while`。例如“只要评分低于 80 分，就继续修改”。
+1. **Vòng lặp số lần cố định**: Giống `for` hơn. Ví dụ "thử lại tối đa 3 lần".
+2. **Vòng lặp điều kiện**: Giống `while` hơn. Ví dụ "chỉ cần điểm thấp hơn 80, tiếp tục sửa đổi".
 
-AI 场景里，第二类通常更有代表性。因为“跑几次”往往不是先验确定的，而是由内容质量、工具执行结果、外部反馈共同决定的。但是实际开发中两者必须同时使用，因为 LLM 的不确定性可能会导致生成的内容一直不合格，此时我们就需要参考固定次数循环思想对内容进行降级兜底处理。
+Trong tình huống AI, loại thứ hai thường có tính đại diện hơn. Vì "chạy mấy lần" thường không xác định trước, mà được quyết định chung bởi chất lượng nội dung, kết quả thực thi tool, phản hồi bên ngoài. Nhưng trong phát triển thực tế hai loại phải dùng cùng nhau, vì tính không xác định của LLM có thể dẫn đến nội dung sinh ra mãi không đạt tiêu chuẩn, lúc này chúng ta cần tham khảo tư tưởng vòng lặp số lần cố định để downgrade xử lý nội dung.
 
-在实际工程中，还经常遇到**嵌套循环**的情况：外层循环负责“质量迭代”（生成 → 审核 → 修改），内层循环负责“工具重试”（某个节点内部调用外部 API 失败后的指数退避重试）。这两层循环的作用域、终止条件和计数器是独立的——内层重试耗尽不应影响外层的迭代预算，外层退出也不意味着内层可以无限制重试。设计嵌套循环时，需要为每层明确独立的退出条件和安全边界。
+Trong kỹ thuật thực tế, còn thường gặp tình huống **vòng lặp lồng nhau**: Vòng lặp ngoài phụ trách "lặp chất lượng" (sinh→đánh giá→sửa đổi), vòng lặp trong phụ trách "retry tool" (retry theo exponential backoff khi gọi external API thất bại bên trong một node cụ thể). Phạm vi tác dụng, điều kiện kết thúc và counter của hai tầng vòng lặp này là độc lập — vòng trong hết retry không nên ảnh hưởng đến ngân sách lặp của vòng ngoài, vòng ngoài thoát ra cũng không có nghĩa là vòng trong có thể retry vô hạn. Khi thiết kế vòng lặp lồng nhau, cần xác định rõ điều kiện thoát và ranh giới an toàn độc lập cho mỗi tầng.
 
-总之，一个可靠的 Loop 一定包含三件事：
+Tóm lại, một Loop đáng tin cậy nhất định bao gồm ba điều:
 
-- 继续条件：为什么还要再来一轮。
-- 退出条件：什么时候已经足够好，可以结束。
-- 安全边界：最大轮次、超时、预算、熔断条件。
+- Điều kiện tiếp tục: Tại sao cần làm thêm một vòng.
+- Điều kiện thoát: Khi nào đã đủ tốt, có thể kết thúc.
+- Ranh giới an toàn: Số vòng tối đa, timeout, ngân sách, điều kiện circuit breaker.
 
-如果没有这些约束，Loop 很容易从“自我修正”变成“无限打转”。
+Nếu không có những ràng buộc này, Loop rất dễ từ "tự sửa lỗi" biến thành "quay mãi không dừng".
 
-仍然放回文章审核的例子里，Loop 不只是“多试几次”，它是“审核结论驱动下一跳”。只有当评分未达标、且还没超过最大轮次时，流程才会从 `ReviewNode` 回到 `ReviseNode`；一旦达到阈值或触发边界条件，就应该退出并给出结果。到这里，循环已经变成了一种可控的回溯机制。
+Vẫn trong ví dụ đánh giá bài viết, Loop không chỉ là "thử thêm mấy lần", nó là "kết luận đánh giá điều khiển bước nhảy tiếp theo". Chỉ khi điểm chưa đạt, và chưa vượt số vòng tối đa, quy trình mới từ `ReviewNode` quay về `ReviseNode`; một khi đạt ngưỡng hoặc kích hoạt điều kiện biên, nên thoát ra và đưa ra kết quả. Đến đây, vòng lặp đã trở thành cơ chế hồi quy có thể kiểm soát.
 
-## 五、概念整合：把 Workflow、Graph、Loop 串起来
+## Năm, Tích hợp khái niệm: Kết nối Workflow, Graph, Loop
 
-![Workflow、Graph、Loop 三者关系概览](https://oss.javaguide.cn/github/javaguide/ai/workflow/workflow-graph-loop-relation.svg)
+![Tổng quan mối quan hệ Workflow, Graph, Loop](https://oss.javaguide.cn/github/javaguide/ai/workflow/workflow-graph-loop-relation.svg)
 
-可以用一句话收束三者的层次关系：**Workflow 是目标与过程，Graph 是结构与载体，Loop 是图上的控制模式。**
+Có thể dùng một câu để tóm tắt mối quan hệ phân cấp của ba yếu tố: **Workflow là mục tiêu và quá trình, Graph là cấu trúc và carrier, Loop là mô hình điều khiển trên đồ thị.**
 
-继续沿用同一个“写文章并审核”的例子：
+Tiếp tục dùng cùng một ví dụ "viết bài và đánh giá":
 
-- 当我们说“先生成初稿，再审核，不达标就修改，直到达标后输出”，我们描述的是 **Workflow**。
-- 当我们把 `生成节点 → 检查节点 → 修正节点` 画成节点与连线，并让它们共享同一份状态时，我们得到的是 **Graph**。
-- 当我们规定“审核不通过就回到修改，直到评分达标或达到上限”为止，我们定义的就是 **Loop**。
+- Khi chúng ta nói "trước tiên sinh bản nháp, sau đó đánh giá, không đạt thì sửa đổi, đến khi đạt tiêu chuẩn thì xuất ra", chúng ta đang mô tả **Workflow**.
+- Khi chúng ta vẽ `node sinh → node kiểm tra → node sửa` thành các node và đường nối, và cho chúng chia sẻ cùng một bộ trạng thái, chúng ta có được **Graph**.
+- Khi chúng ta quy định "đánh giá không đạt thì quay lại sửa đổi, đến khi đạt điểm hoặc đến giới hạn", chúng ta đang định nghĩa **Loop**.
 
-这三者是同一件事的三个观察角度：Workflow 关注任务目标，Graph 关注结构组织，Loop 关注回溯控制。
+Ba yếu tố này là ba góc nhìn quan sát về cùng một điều: Workflow tập trung mục tiêu nhiệm vụ, Graph tập trung tổ chức cấu trúc, Loop tập trung điều khiển hồi quy.
 
-## 六、从概念到实现：框架映射与代码示例
+## Sáu, Từ khái niệm đến triển khai: Ánh xạ framework và ví dụ code
 
-前面建立了 Node、Edge、State 的概念模型，接下来看这些概念如何映射到具体的框架。以下以 Spring AI Alibaba Graph（Java 生态）和 LangGraph（Python 生态）为例。
+Phía trên đã xây dựng mô hình khái niệm Node, Edge, State, tiếp theo xem những khái niệm này ánh xạ đến framework cụ thể như thế nào. Dưới đây lấy Spring AI Alibaba Graph (hệ sinh thái Java) và LangGraph (hệ sinh thái Python) làm ví dụ.
 
-### 概念映射表
+### Bảng ánh xạ khái niệm
 
-| 概念           | Spring AI Alibaba                      | LangGraph                                |
-| -------------- | -------------------------------------- | ---------------------------------------- |
-| 状态（State）  | `OverAllState` + `KeyStrategyFactory`  | `TypedDict` + `Annotated[type, reducer]` |
-| State 覆盖语义 | `ReplaceStrategy`                      | 默认（无 reducer）                       |
-| State 追加语义 | `AppendStrategy`                       | `Annotated[list, operator.add]`          |
-| 节点（Node）   | `NodeAction` 接口                      | 函数 / Runnable                          |
-| 顺序边         | `addEdge(source, target)`              | `add_edge(source, target)`               |
-| 条件边         | `addConditionalEdges(source, fn, map)` | `add_conditional_edges(source, fn)`      |
-| 循环           | 条件边回指先前节点 / `LoopAgent`       | 条件边回指先前节点                       |
-| 固定次数循环   | `LoopMode.count(N)`                    | 自行维护计数器                           |
-| 条件驱动循环   | `LoopMode.condition(predicate)`        | 条件边 + while 逻辑                      |
-| 持久化         | `MemorySaver` / `RedisSaver` 等        | `MemorySaver` / `SqliteSaver`            |
-| 人机协同       | `interruptBefore()` + `updateState()`  | `interrupt_before` + `update_state`      |
-| 编译执行       | `StateGraph.compile(CompileConfig)`    | `StateGraph.compile()`                   |
+| Khái niệm                   | Spring AI Alibaba                                | LangGraph                                |
+| --------------------------- | ------------------------------------------------ | ---------------------------------------- |
+| State (Trạng thái)          | `OverAllState` + `KeyStrategyFactory`            | `TypedDict` + `Annotated[type, reducer]` |
+| Ngữ nghĩa replace của State | `ReplaceStrategy`                                | Mặc định (không có reducer)              |
+| Ngữ nghĩa append của State  | `AppendStrategy`                                 | `Annotated[list, operator.add]`          |
+| Node (Nút)                  | Interface `NodeAction`                           | Hàm / Runnable                           |
+| Sequential edge             | `addEdge(source, target)`                        | `add_edge(source, target)`               |
+| Conditional edge            | `addConditionalEdges(source, fn, map)`           | `add_conditional_edges(source, fn)`      |
+| Loop                        | Conditional edge trỏ về node trước / `LoopAgent` | Conditional edge trỏ về node trước       |
+| Vòng lặp số lần cố định     | `LoopMode.count(N)`                              | Tự quản lý counter                       |
+| Vòng lặp điều kiện          | `LoopMode.condition(predicate)`                  | Conditional edge + while logic           |
+| Persistence                 | `MemorySaver` / `RedisSaver`, v.v.               | `MemorySaver` / `SqliteSaver`            |
+| Human-in-the-loop           | `interruptBefore()` + `updateState()`            | `interrupt_before` + `update_state`      |
+| Biên dịch thực thi          | `StateGraph.compile(CompileConfig)`              | `StateGraph.compile()`                   |
 
-### 实现示例：用 Spring AI Alibaba 构建文章审核工作流
+### Ví dụ triển khai: Xây dựng workflow đánh giá bài viết với Spring AI Alibaba
 
-考虑到我的公众号的读者偏 Java 技术栈，这里笔者就基于 Spring AI Alibaba Graph 来实现贯穿全文的“生成 → 审核 → 修改”工作流。
+Xem xét rằng độc giả của tôi thiên về stack Java, ở đây tác giả sẽ triển khai workflow "sinh→đánh giá→sửa đổi" xuyên suốt bài viết dựa trên Spring AI Alibaba Graph.
 
-**第一步：定义状态和更新策略**
+**Bước 1: Định nghĩa State và chiến lược cập nhật**
 
 ```java
 // 配置状态键策略：控制每个字段如何更新
 public static KeyStrategyFactory createKeyStrategyFactory() {
     return () -> {
         HashMap<String, KeyStrategy> strategies = new HashMap<>();
-        strategies.put(“input”, new ReplaceStrategy());          // 用户输入
-        strategies.put(“messages”, new AppendStrategy());        // 对话历史（追加）
-        strategies.put(“current_draft”, new ReplaceStrategy());  // 当前草稿（覆盖）
-        strategies.put(“review_score”, new ReplaceStrategy());   // 审核评分（覆盖）
-        strategies.put(“review_feedback”, new ReplaceStrategy()); // 审核反馈
-        strategies.put(“iteration_count”, new ReplaceStrategy()); // 迭代计数
-        strategies.put(“output”, new ReplaceStrategy());         // 最终输出
-        strategies.put(“next_node”, new ReplaceStrategy());      // 路由控制
+        strategies.put("input", new ReplaceStrategy());          // 用户输入
+        strategies.put("messages", new AppendStrategy());        // 对话历史（追加）
+        strategies.put("current_draft", new ReplaceStrategy());  // 当前草稿（覆盖）
+        strategies.put("review_score", new ReplaceStrategy());   // 审核评分（覆盖）
+        strategies.put("review_feedback", new ReplaceStrategy()); // 审核反馈
+        strategies.put("iteration_count", new ReplaceStrategy()); // 迭代计数
+        strategies.put("output", new ReplaceStrategy());         // 最终输出
+        strategies.put("next_node", new ReplaceStrategy());      // 路由控制
         return strategies;
     };
 }
 ```
 
-注意 `messages` 使用 `AppendStrategy`（对话历史持续追加），而 `current_draft` 使用 `ReplaceStrategy`（每次修改覆盖旧版本）。
+Lưu ý `messages` dùng `AppendStrategy` (lịch sử hội thoại liên tục thêm vào), còn `current_draft` dùng `ReplaceStrategy` (mỗi lần sửa đổi ghi đè phiên bản cũ).
 
-**第二步：实现节点**
+**Bước 2: Triển khai các Node**
 
 ```java
 // 生成初稿节点
@@ -224,15 +224,15 @@ public static class DraftNode implements NodeAction {
 
     @Override
     public Map<String, Object> apply(OverAllState state) throws Exception {
-        String input = state.value(“input”).map(v -> (String) v).orElse(“”);
+        String input = state.value("input").map(v -> (String) v).orElse("");
 
         String draft = chatClient.prompt()
-            .user(String.format(“请根据以下要求撰写文章：%s”, input))
+            .user(String.format("请根据以下要求撰写文章：%s", input))
             .call().content();
 
         return Map.of(
-            “current_draft”, draft,
-            “next_node”, “review”
+            "current_draft", draft,
+            "next_node", "review"
         );
     }
 }
@@ -247,24 +247,24 @@ public static class ReviewNode implements NodeAction {
 
     @Override
     public Map<String, Object> apply(OverAllState state) throws Exception {
-        String draft = state.value(“current_draft”).map(v -> (String) v).orElse(“”);
-        int count = state.value(“iteration_count”).map(v -> (int) v).orElse(0);
+        String draft = state.value("current_draft").map(v -> (String) v).orElse("");
+        int count = state.value("iteration_count").map(v -> (int) v).orElse(0);
 
         String prompt = String.format(
-            “请评估以下文章质量，给出 0-100 的评分和改进建议。\n” +
-            “以JSON格式返回：{\”score\”: 85, \”feedback\”: \”...\”}\n\n%s”, draft);
+            "请评估以下文章质量，给出 0-100 的评分和改进建议。\n" +
+            "以JSON格式返回：{\"score\": 85, \"feedback\": \"...\"}\n\n%s", draft);
 
         String response = chatClient.prompt().user(prompt).call().content();
         // 解析评分和反馈（实际项目中使用 Jackson/Gson）
         double score = parseScore(response);
         String feedback = parseFeedback(response);
 
-        String nextNode = (score >= 80 || count >= 3) ? “exit” : “revise”;
+        String nextNode = (score >= 80 || count >= 3) ? "exit" : "revise";
         return Map.of(
-            “review_score”, score,
-            “review_feedback”, feedback,
-            “iteration_count”, count + 1,
-            “next_node”, nextNode
+            "review_score", score,
+            "review_feedback", feedback,
+            "iteration_count", count + 1,
+            "next_node", nextNode
         );
     }
 }
@@ -279,16 +279,16 @@ public static class ReviseNode implements NodeAction {
 
     @Override
     public Map<String, Object> apply(OverAllState state) throws Exception {
-        String draft = state.value(“current_draft”).map(v -> (String) v).orElse(“”);
-        String feedback = state.value(“review_feedback”).map(v -> (String) v).orElse(“”);
+        String draft = state.value("current_draft").map(v -> (String) v).orElse("");
+        String feedback = state.value("review_feedback").map(v -> (String) v).orElse("");
 
         String revised = chatClient.prompt()
-            .user(String.format(“请根据反馈修改文章。\n\n原文：%s\n\n反馈意见：%s”, draft, feedback))
+            .user(String.format("请根据反馈修改文章。\n\n原文：%s\n\n反馈意见：%s", draft, feedback))
             .call().content();
 
         return Map.of(
-            “current_draft”, revised,
-            “next_node”, “review”
+            "current_draft", revised,
+            "next_node", "review"
         );
     }
 }
@@ -297,13 +297,13 @@ public static class ReviseNode implements NodeAction {
 public static class ExitNode implements NodeAction {
     @Override
     public Map<String, Object> apply(OverAllState state) throws Exception {
-        String draft = state.value(“current_draft”).map(v -> (String) v).orElse(“”);
-        return Map.of(“output”, draft);
+        String draft = state.value("current_draft").map(v -> (String) v).orElse("");
+        return Map.of("output", draft);
     }
 }
 ```
 
-**第三步：组装 Graph**
+**Bước 3: Lắp ráp Graph**
 
 ```java
 public static CompiledGraph buildWorkflow(ChatModel chatModel) throws GraphStateException {
@@ -315,37 +315,37 @@ public static CompiledGraph buildWorkflow(ChatModel chatModel) throws GraphState
     var exit = node_async(new ExitNode());
 
     StateGraph workflow = new StateGraph(createKeyStrategyFactory())
-        .addNode(“draft”, draft)
-        .addNode(“review”, review)
-        .addNode(“revise”, revise)
-        .addNode(“exit”, exit);
+        .addNode("draft", draft)
+        .addNode("review", review)
+        .addNode("revise", revise)
+        .addNode("exit", exit);
 
-    // 顺序边
-    workflow.addEdge(START, “draft”);
+    // Cạnh tuần tự
+    workflow.addEdge(START, "draft");
 
-    // 条件边：根据 next_node 字段决定路由
-    workflow.addConditionalEdges(“draft”,
+    // Cạnh điều kiện: quyết định routing dựa trên trường next_node
+    workflow.addConditionalEdges("draft",
         edge_async(state ->
-            (String) state.value(“next_node”).orElse(“review”)),
-        Map.of(“review”, “review”));
+            (String) state.value("next_node").orElse("review")),
+        Map.of("review", "review"));
 
-    workflow.addConditionalEdges(“review”,
+    workflow.addConditionalEdges("review",
         edge_async(state ->
-            (String) state.value(“next_node”).orElse(“exit”)),
+            (String) state.value("next_node").orElse("exit")),
         Map.of(
-            “revise”, “revise”,   // 审核不通过 → 修改
-            “exit”, “exit”        // 审核通过或达到上限 → 输出
+            "revise", "revise",   // Đánh giá không đạt → sửa đổi
+            "exit", "exit"        // Đánh giá đạt hoặc đến giới hạn → xuất ra
         ));
 
-    // 修改后回到审核节点，形成循环
-    workflow.addConditionalEdges(“revise”,
+    // Sau khi sửa đổi quay về node đánh giá, tạo thành vòng lặp
+    workflow.addConditionalEdges("revise",
         edge_async(state ->
-            (String) state.value(“next_node”).orElse(“review”)),
-        Map.of(“review”, “review”));
+            (String) state.value("next_node").orElse("review")),
+        Map.of("review", "review"));
 
-    workflow.addEdge(“exit”, END);
+    workflow.addEdge("exit", END);
 
-    // 配置持久化：生产环境建议使用 RedisSaver 或数据库 Saver
+    // Cấu hình persistence: môi trường production khuyến nghị dùng RedisSaver hoặc database Saver
     var saver = new MemorySaver();
     var compileConfig = CompileConfig.builder()
         .saverConfig(SaverConfig.builder().register(saver).build())
@@ -355,121 +355,121 @@ public static CompiledGraph buildWorkflow(ChatModel chatModel) throws GraphState
 }
 ```
 
-在这个实现中，可以看到：每个 Node 只做自己名字说的事（DraftNode 负责生成、ReviewNode 负责评估、ReviseNode 负责根据反馈修正），Edge（条件边）控制路由，State（`next_node`、`iteration_count`、`review_score`）驱动决策。Loop 通过 `review → revise → review` 的回边实现（审核不通过则由 ReviseNode 修正内容后重新进入审核），安全边界由 `iteration_count >= 3` 保证。持久化配置确保流程中断后可以从最近的 checkpoint 恢复，而不是从头开始——这对包含 Loop 的长时间运行工作流尤为重要：如果一个已迭代 2 轮的审核流程在第 3 轮中断，恢复后应该继续第 3 轮而不是重新从第 1 轮开始。
+Trong triển khai này, có thể thấy: Mỗi Node chỉ làm những gì tên nó nói (DraftNode phụ trách sinh ra, ReviewNode phụ trách đánh giá, ReviseNode phụ trách sửa đổi theo phản hồi), Edge (conditional edge) điều khiển routing, State (`next_node`, `iteration_count`, `review_score`) điều khiển quyết định. Loop được triển khai thông qua back edge `review → revise → review` (đánh giá không đạt thì ReviseNode sửa nội dung rồi quay lại đánh giá), ranh giới an toàn được đảm bảo bởi `iteration_count >= 3`. Cấu hình persistence đảm bảo quy trình có thể khôi phục từ checkpoint gần nhất sau khi bị gián đoạn, thay vì bắt đầu lại từ đầu — điều này đặc biệt quan trọng với các workflow chạy dài có Loop: Nếu một quy trình đánh giá đã lặp 2 vòng bị gián đoạn ở vòng 3, sau khi khôi phục nên tiếp tục vòng 3 chứ không phải bắt đầu lại từ vòng 1.
 
-> 更完整的示例（包括人机协同、持久化、流式输出）可参考 [Spring AI Alibaba Graph 官方文档](https://java2ai.com/docs/frameworks/graph-core/quick-start/)。
+> Ví dụ hoàn chỉnh hơn (bao gồm human-in-the-loop, persistence, streaming output) có thể tham khảo [tài liệu chính thức Spring AI Alibaba Graph](https://java2ai.com/docs/frameworks/graph-core/quick-start/).
 
-## 七、工作流设计的分水岭：抽象能力
+## Bảy, Ranh giới thiết kế workflow: Khả năng trừu tượng
 
-![高抽象与低抽象工作流对比](https://oss.javaguide.cn/github/javaguide/ai/workflow/abstraction-comparison.svg)
+![So sánh workflow trừu tượng cao và thấp](https://oss.javaguide.cn/github/javaguide/ai/workflow/abstraction-comparison.svg)
 
-上图可以看到高抽象工作流将四个判断节点抽象成一个判断节点：评估是否达标。如果使用低抽象，那么当我们需要减少/添加新的判断节点时，需要花费时间去阅读源码寻找对应的节点。好的工作流关键看 Node、Edge、State 的抽象能否经得起复用与扩展，和步骤多少关系不大。
+Hình trên có thể thấy workflow trừu tượng cao trừu tượng bốn node phán đoán thành một node phán đoán: đánh giá có đạt tiêu chuẩn chưa. Nếu dùng trừu tượng thấp, thì khi chúng ta cần giảm/thêm node phán đoán mới, cần tốn thời gian đọc source code để tìm node tương ứng. Workflow tốt quan trọng là xem trừu tượng của Node, Edge, State có chịu được tái sử dụng và mở rộng không, không liên quan nhiều đến số lượng bước.
 
-很多初学者设计工作流时，容易把每一步都写成具体动作，例如：调用模型生成文案；检查标题长度；检查语气是否合适；判断是否需要补资料；再调用模型修改。这样做短期可用，但流程会越来越碎，复用性也很差。更成熟的方式是把流程抽象到更稳定的结构层：
+Nhiều người mới bắt đầu thiết kế workflow, dễ viết mỗi bước thành hành động cụ thể, ví dụ: gọi model sinh copy; kiểm tra độ dài tiêu đề; kiểm tra ngữ khí có phù hợp không; phán đoán có cần bổ sung tài liệu không; lại gọi model sửa đổi. Làm như vậy ngắn hạn có thể dùng, nhưng quy trình sẽ ngày càng vụn vặt, tính tái sử dụng cũng rất kém. Cách trưởng thành hơn là trừu tượng quy trình lên lớp cấu trúc ổn định hơn:
 
-1. **Node 抽象职责边界**：在这个节点中产出的结果该是什么样子的，必须出现哪些信息。而不是抽象“这一次调了哪个 API”。
-2. **Edge 抽象流转规则**：在什么状态下允许去哪、何时结束。用条件边表达分支与循环，而不是在图外写满 if-else。
-3. **State 抽象推进任务时必须持久记住的信息**：工单快照、审核结论、重试次数、错误码等，让路径有据可依。
+1. **Node trừu tượng ranh giới trách nhiệm**: Kết quả được tạo ra trong node này nên như thế nào, phải xuất hiện thông tin nào. Thay vì trừu tượng "lần này gọi API nào".
+2. **Edge trừu tượng quy tắc chuyển tiếp**: Trong trạng thái nào được đến đâu, khi nào kết thúc. Dùng conditional edge biểu đạt phân nhánh và vòng lặp, thay vì viết đầy if-else bên ngoài đồ thị.
+3. **State trừu tượng thông tin nhất thiết phải ghi nhớ khi tiến hành nhiệm vụ**: Snapshot công việc, kết luận đánh giá, số lần retry, mã lỗi, v.v., để đường dẫn có căn cứ.
 
-例如在“生成并审核文章”的场景里，与其设计十几个零散节点来检查文章标题符不符合题意、文章字数是否满足要求，不如先抽象出几个更稳定的职责：
+Ví dụ trong tình huống "sinh và đánh giá bài viết", thay vì thiết kế hàng chục node rời rạc để kiểm tra tiêu đề có phù hợp với chủ đề không, số từ có đạt yêu cầu không, hãy trừu tượng ra một vài trách nhiệm ổn định hơn trước:
 
-- `DraftNode`：负责产出当前版本内容。
-- `ReviewNode`：负责评估当前结果是否达标。
-- `ReviseNode`：负责根据反馈修正内容。
-- `ExitNode`：负责在满足条件时输出最终结果。
+- `DraftNode`: Phụ trách tạo ra nội dung phiên bản hiện tại.
+- `ReviewNode`: Phụ trách đánh giá kết quả hiện tại có đạt tiêu chuẩn chưa.
+- `ReviseNode`: Phụ trách sửa đổi nội dung theo phản hồi.
+- `ExitNode`: Phụ trách xuất ra kết quả cuối cùng khi điều kiện được thỏa mãn.
 
-![Graph 核心元素：Node、Edge、State](https://oss.javaguide.cn/github/javaguide/ai/workflow/graph-core-elements.svg)
+![Yếu tố cốt lõi của Graph: Node, Edge, State](https://oss.javaguide.cn/github/javaguide/ai/workflow/graph-core-elements.svg)
 
-## 八、设计工作流时的注意事项
+## Tám, Những điều cần chú ý khi thiết kế workflow
 
-真正把工作流落地时，问题往往不出在“图不会画”，而出在细节没有提前设计好。下面这些是实践里最常见的坑。
+Khi thực sự triển khai workflow, vấn đề thường không nằm ở "không biết vẽ đồ thị", mà ở chỗ chi tiết chưa được thiết kế trước. Dưới đây là những cạm bẫy thường gặp nhất trong thực hành.
 
-### 1. State 设计的粒度
+### 1. Độ hạt của thiết kế State
 
-- 太粗：所有东西都塞进一个大对象里，谁改了哪个字段不好查。
-- 太细：字段拆得特别散，每个节点都要拼来拼去，容易出错。
-- 建议：按业务含义分几块，例如「用户原始输入一块」「当前生成结果一块」「审核/评分结论一块」「流程控制用的一块（如当前步骤、重试次数）」。
+- Quá thô: Tất cả mọi thứ nhét vào một object lớn, khó biết trường nào đã bị thay đổi.
+- Quá mịn: Trường được tách ra rất phân tán, mỗi node đều phải ghép lại, dễ gây lỗi.
+- Khuyến nghị: Phân thành vài khối theo ý nghĩa nghiệp vụ, ví dụ "đầu vào gốc của người dùng một khối", "kết quả sinh ra hiện tại một khối", "kết luận đánh giá/chấm điểm một khối", "dùng để điều khiển quy trình một khối (như bước hiện tại, số lần retry)".
 
-### 2. 循环终止条件（避免死循环）
+### 2. Điều kiện kết thúc vòng lặp (tránh vòng lặp vô hạn)
 
-不要只写“如果不满意就继续优化”，而要明确：
+Không chỉ viết "nếu không thỏa mãn thì tiếp tục tối ưu", mà phải xác định rõ:
 
-- 最大轮次是多少？
-- 评分阈值是多少？
-- 超时或成本超限时怎么办？
-- 连续失败后是否要 fallback。
+- Số vòng tối đa là bao nhiêu?
+- Ngưỡng điểm là bao nhiêu?
+- Phải làm gì khi timeout hoặc vượt ngân sách?
+- Có fallback sau khi liên tục thất bại không?
 
-### 3. 错误处理与 fallback
+### 3. Xử lý lỗi và fallback
 
-AI 工作流不是只处理“成功路径”。工具异常、模型超时、格式校验失败、外部接口限流，都应在图上有**明确边**：重试、降级（例如跳过某工具）、转人工、或输出“当前最优 + 错误说明”，而不是只靠外围 `try-catch` 吞掉。
+AI workflow không chỉ xử lý "đường dẫn thành công". Tool exception, model timeout, kiểm tra định dạng thất bại, external API bị rate limit, đều nên có **cạnh rõ ràng** trong đồ thị: retry, downgrade (ví dụ bỏ qua tool cụ thể), chuyển con người xử lý, hoặc xuất ra "hiện tại tốt nhất + mô tả lỗi", thay vì chỉ dùng `try-catch` bên ngoài để nuốt.
 
-Spring AI Alibaba 官方文档将错误分为四类，每类对应不同处理策略：
+Tài liệu chính thức Spring AI Alibaba phân loại lỗi thành bốn loại, mỗi loại tương ứng với chiến lược xử lý khác nhau:
 
-| 错误类型       | 示例                       | 处理策略                                              |
-| -------------- | -------------------------- | ----------------------------------------------------- |
-| 瞬时错误       | 网络超时、API 限流         | 指数退避重试，设置最大重试次数                        |
-| LLM 可恢复错误 | 工具调用失败、输出格式异常 | 将错误存入 State，循环回去让 LLM 根据错误信息调整策略 |
-| 用户可修复错误 | 缺少必要信息、指令不明确   | `interruptBefore` 暂停执行，等待人工输入后恢复        |
-| 意外错误       | 未知异常                   | 让异常冒泡，交给开发者调试                            |
+| Loại lỗi                  | Ví dụ                                            | Chiến lược xử lý                                                                        |
+| ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Lỗi thoáng qua            | Network timeout, API rate limit                  | Exponential backoff retry, đặt số lần retry tối đa                                      |
+| Lỗi LLM có thể khôi phục  | Gọi tool thất bại, output định dạng sai          | Lưu lỗi vào State, vòng lặp quay về để LLM điều chỉnh chiến lược dựa trên thông tin lỗi |
+| Lỗi người dùng có thể sửa | Thiếu thông tin cần thiết, chỉ thị không rõ ràng | `interruptBefore` tạm dừng thực thi, chờ đầu vào con người rồi tiếp tục                 |
+| Lỗi bất ngờ               | Exception không xác định                         | Để exception bubble up, giao cho developer debug                                        |
 
-这些策略可以直接映射到分布式系统中成熟的弹性模式：
+Những chiến lược này có thể ánh xạ trực tiếp đến các mẫu resilience trưởng thành trong hệ thống phân tán:
 
-- **指数退避重试**：工具调用超时 → 按 1s、2s、4s 递增间隔重试，设置最大次数（如 5 次），对认证失败等不可恢复错误直接跳过重试。
-- **熔断器（Circuit Breaker）**：连续 N 次 LLM 输出格式校验失败 → 熔断并降级到模板输出或更简单的模型，避免持续浪费 Token。
-- **舱壁隔离（Bulkhead）**：为不同外部 API 设置独立的并发上限，防止某个慢服务耗尽所有工作线程。
-- **补偿事务（Saga）**：多步骤操作中某步失败时，按反序执行已完成步骤的补偿操作（如撤销已创建的工单）。
+- **Exponential backoff retry**: Tool call timeout → retry theo khoảng cách tăng dần 1s, 2s, 4s, đặt số lần tối đa (như 5 lần), với lỗi không thể khôi phục như xác thực thất bại thì bỏ qua retry trực tiếp.
+- **Circuit Breaker (Cầu dao)**: Kiểm tra định dạng output LLM liên tục thất bại N lần → ngắt mạch và downgrade xuống output template hoặc model đơn giản hơn, tránh lãng phí Token liên tục.
+- **Bulkhead (Vách ngăn)**: Đặt giới hạn concurrency độc lập cho các external API khác nhau, ngăn một service chậm tiêu hao tất cả worker thread.
+- **Compensation Transaction (Giao dịch bù trừ)**: Khi một bước trong thao tác đa bước thất bại, thực thi các thao tác bù trừ của các bước đã hoàn thành theo thứ tự ngược lại (như thu hồi công việc đã tạo).
 
-> 需要注意，这些模式需要在节点内部或中间件层自行实现，Graph 框架提供的是执行骨架和状态管理，不是分布式弹性框架。具体实现建议：（1）重试和熔断逻辑封装在节点内部，通过 State 字段（如 `retry_count`、`circuit_state`）持久化状态；（2）舱壁隔离通过 Java 的 `Semaphore` 或 Resilience4j 在节点内实现；（3）补偿事务需要在 State 中记录已完成步骤的回滚信息，并设计专门的补偿节点。
+> Cần lưu ý, các mẫu này cần tự triển khai bên trong node hoặc tầng middleware, framework Graph cung cấp bộ khung thực thi và quản lý state, không phải là distributed resilience framework. Khuyến nghị triển khai cụ thể: (1) Logic retry và circuit breaker được đóng gói bên trong node, trạng thái được persist thông qua các trường State (như `retry_count`, `circuit_state`); (2) Bulkhead được triển khai bên trong node thông qua `Semaphore` của Java hoặc Resilience4j; (3) Compensation transaction cần ghi lại thông tin rollback của các bước đã hoàn thành trong State, và thiết kế các compensation node chuyên dụng.
 
-### 4. Token 消耗与成本控制
+### 4. Kiểm soát Token và chi phí
 
-Loop 会自然放大 Token 与延迟。设计时要提前思考：
+Loop sẽ tự nhiên khuếch đại Token và độ trễ. Khi thiết kế cần suy nghĩ trước:
 
-- 哪些节点必须调用大模型，哪些可以用代码替代。
-- 是否可以先粗筛，再精修。
-- 是否需要在达到“足够好”时就提前结束，而不是追求“理论最优”。
+- Node nào nhất thiết phải gọi LLM, node nào có thể dùng code thay thế.
+- Có thể lọc thô trước rồi tinh chỉnh sau không.
+- Có cần kết thúc sớm khi đã "đủ tốt", thay vì theo đuổi "tối ưu lý thuyết" không.
 
-### 5. 节点间数据传递格式
+### 5. Định dạng truyền dữ liệu giữa các node
 
-节点之间传什么、字段名怎么定义、结构化输出采用什么 schema，都应该尽早统一（例如统一用 JSON Schema 或 Pydantic 模型）。否则图一旦复杂，调试成本会急剧上升。
+Truyền gì giữa các node, tên trường được định nghĩa như thế nào, structured output dùng schema nào, đều nên được thống nhất sớm (ví dụ thống nhất dùng JSON Schema hoặc Pydantic model). Nếu không, một khi đồ thị phức tạp, chi phí debug sẽ tăng vọt.
 
-## 九、总结
+## Chín, Tổng kết
 
-用这套视角看问题，工作流就是一种工程建模能力。常见演进方向包括：
+Nhìn vấn đề từ góc độ này, workflow là một loại năng lực modeling kỹ thuật. Các hướng tiến hóa phổ biến bao gồm:
 
-- **Agent 化**：节点从「固定脚本」变成「能自主选工具、拆子目标」的执行单元，但底层仍需要清晰的图与状态边界，否则难以观测与兜底。
-- **多智能体协作**：多个角色分工、对话或委托；与 CrewAI、LangGraph 多子图等思路一致，难点往往在**共享 State 的权限**与**冲突解决**。
-- **人机协同**：在关键节点插入人工审核、标注或纠偏，把 HITL（human-in-the-loop）当作一等公民写进图与状态机。
-- **更长上下文与记忆**：工作流与 RAG、会话记忆结合时，要特别注意 State 里哪些该进向量库、哪些只该留在本轮任务上下文，避免成本和隐私失控。
-- **Agent 安全**：工作流为 LLM 输出引入了结构和约束，但也带来了新的攻击面。根据 OWASP LLM Top 10，需要重点关注三类威胁：
-  - **提示注入的级联影响**：恶意用户输入可能覆盖系统提示，在工作流中逐节点传播放大。防御方式包括输入过滤、系统提示与用户输入严格分隔、对 LLM 输出做安全检测后再传递给下游节点。
-  - **工具调用的权限边界**：遵循最小权限原则，每个节点只能访问其任务所需的工具，高风险操作（删除、发送）需通过人机协同节点确认。
-  - **输出内容安全过滤**：LLM 输出在进入下游系统（数据库、前端渲染、Shell 命令）前必须经过校验，防止注入攻击、隐私泄露和幻觉传播。
+- **Agent hóa**: Node từ "script cố định" biến thành đơn vị thực thi "có thể tự chọn tool, tách mục tiêu con", nhưng tầng dưới vẫn cần ranh giới đồ thị và state rõ ràng, nếu không khó quan sát và fallback.
+- **Cộng tác đa agent**: Nhiều vai phân công, đối thoại hoặc ủy thác; nhất quán với các tư tưởng CrewAI, LangGraph multi-subgraph, v.v., điểm khó thường ở **quyền của Shared State** và **giải quyết xung đột**.
+- **Human-in-the-loop**: Chèn đánh giá con người, gán nhãn hoặc hiệu chỉnh ở các node quan trọng, đưa HITL (human-in-the-loop) vào như là công dân hạng một trong đồ thị và state machine.
+- **Context dài hơn và bộ nhớ**: Khi workflow kết hợp với RAG, bộ nhớ hội thoại, cần đặc biệt chú ý phần nào trong State nên vào vector database, phần nào chỉ nên lưu trong context nhiệm vụ vòng này, tránh mất kiểm soát về chi phí và privacy.
+- **Bảo mật Agent**: Workflow mang lại cấu trúc và ràng buộc cho output LLM, nhưng cũng mang lại các attack surface mới. Theo OWASP LLM Top 10, cần chú trọng ba loại mối đe dọa:
+  - **Hiệu ứng cascade của prompt injection**: Đầu vào người dùng độc hại có thể ghi đè system prompt, lan truyền và khuếch đại qua từng node trong workflow. Cách phòng thủ bao gồm lọc đầu vào, tách biệt nghiêm ngặt system prompt và đầu vào người dùng, kiểm tra bảo mật output LLM trước khi truyền đến node downstream.
+  - **Ranh giới quyền của tool call**: Tuân theo nguyên tắc least privilege, mỗi node chỉ có thể truy cập tool cần thiết cho nhiệm vụ của nó, các thao tác rủi ro cao (xóa, gửi) cần được xác nhận qua human-in-the-loop node.
+  - **Lọc bảo mật nội dung output**: Output LLM trước khi vào hệ thống downstream (database, front-end rendering, Shell command) phải được kiểm tra, ngăn chặn injection attack, rò rỉ privacy và lan truyền ảo giác.
 
-除了上述通用风险，工作流还有两类特有的安全考量：
+Ngoài các rủi ro phổ biến trên, workflow còn có hai cân nhắc bảo mật đặc thù:
 
-- **State 污染**：恶意输入通过节点处理后写入 State 的路由控制字段（如 `next_node`），可能影响后续条件边路由，跳过审核节点直接到达输出。防御：对 State 中的路由控制字段做白名单校验。
-- **Loop 放大攻击**：恶意输入构造使 ReviewNode 永远返回低分，导致 Loop 达到最大轮次才退出，消耗大量 Token。防御：除了 `iteration_count` 上限外，增加 Token 消耗预算作为独立的安全边界。
+- **State pollution (Ô nhiễm State)**: Đầu vào độc hại sau khi được xử lý bởi node ghi vào trường điều khiển routing trong State (như `next_node`), có thể ảnh hưởng đến routing conditional edge phía sau, bỏ qua node đánh giá trực tiếp đến output. Phòng thủ: Kiểm tra whitelist với các trường điều khiển routing trong State.
+- **Loop amplification attack (Tấn công khuếch đại vòng lặp)**: Đầu vào độc hại được thiết kế để ReviewNode luôn trả về điểm thấp, khiến Loop đến số vòng tối đa mới thoát ra, tiêu hao lượng lớn Token. Phòng thủ: Ngoài giới hạn `iteration_count`, thêm ngân sách tiêu thụ Token làm ranh giới an toàn độc lập.
 
-工作流框架会更新换代，但「图结构 + 状态 + 可控循环」这层抽象基本不会变。理解这套底层机制，比追各种具体框架更有价值一些。
+Framework workflow sẽ được cập nhật và thay thế, nhưng lớp trừu tượng "cấu trúc đồ thị + state + vòng lặp có thể kiểm soát" này về cơ bản sẽ không thay đổi. Hiểu cơ chế tầng dưới này có giá trị hơn là chạy theo các framework cụ thể.
 
-AI 时代，语言已经越来越被弱化了。你只需要理解这些核心思想就够了，至于具体用什么语言，要看具体场景，具体编码的活都交给 AI。
+Trong thời đại AI, ngôn ngữ đang ngày càng bị thu nhỏ. Bạn chỉ cần hiểu những tư tưởng cốt lõi này là đủ, còn việc dùng ngôn ngữ cụ thể nào, phụ thuộc vào tình huống cụ thể, phần việc code cụ thể giao cho AI.
 
-### 面试准备要点
+### Điểm chuẩn bị phỏng vấn
 
-**高频问题**：
+**Câu hỏi thường gặp**:
 
-1. **为什么 AI 系统需要工作流？** → LLM 输出不确定，需要动态决策、自动修正和可控收敛
-2. **Workflow、Graph、Loop 三者什么关系？** → Workflow 是目标与过程，Graph 是结构与载体，Loop 是图上的控制模式
-3. **Graph Loop 和 Agent Loop 有什么区别？** → Agent Loop 是 Agent 的顶层运行引擎（推理→行动→观察循环），Graph Loop 是 Graph 内部的回溯控制模式（特定节点子集通过回边迭代修正），两者可以嵌套
-4. **Loop 如何防止死循环？** → 三要素：继续条件、退出条件、安全边界（最大轮次 + 超时 + Token 预算）
-5. **State 的更新策略怎么选？** → 单值字段用 Replace，累积字段用 Append，并行写入字段必须用 Reducer
-6. **条件边和动态路由的区别？** → 条件边候选集在设计时确定、运行时做选择；动态路由候选集在运行时才确定；实际是一个连续谱系
-7. **怎么理解 Graph 的抽象设计？** → Node 抽象职责边界（产出什么），Edge 抽象流转规则（何时去哪），State 抽象必须持久记住的信息
+1. **Tại sao hệ thống AI cần workflow?** → Output LLM không xác định, cần quyết định động, tự động sửa lỗi và hội tụ có kiểm soát
+2. **Mối quan hệ giữa Workflow, Graph, Loop?** → Workflow là mục tiêu và quá trình, Graph là cấu trúc và carrier, Loop là mô hình điều khiển trên đồ thị
+3. **Graph Loop và Agent Loop khác nhau ở điểm nào?** → Agent Loop là engine chạy cấp cao nhất của Agent (vòng lặp suy luận→hành động→quan sát), Graph Loop là mô hình điều khiển hồi quy bên trong Graph (tập hợp node cụ thể sửa đổi lặp qua back edge), hai cái có thể lồng nhau
+4. **Loop làm thế nào để ngăn dead loop?** → Ba yếu tố: điều kiện tiếp tục, điều kiện thoát, ranh giới an toàn (số vòng tối đa + timeout + ngân sách Token)
+5. **Chiến lược cập nhật State nên chọn như thế nào?** → Trường đơn giá trị dùng Replace, trường tích lũy dùng Append, trường ghi đồng thời phải dùng Reducer
+6. **Sự khác biệt giữa conditional edge và dynamic routing?** → Tập hợp ứng viên của conditional edge được xác định tại thời điểm thiết kế, chọn lựa khi chạy; tập hợp ứng viên của dynamic routing được xác định khi chạy; thực tế là một phổ liên tục
+7. **Hiểu thiết kế trừu tượng của Graph như thế nào?** → Node trừu tượng ranh giới trách nhiệm (tạo ra gì), Edge trừu tượng quy tắc chuyển tiếp (khi nào đến đâu), State trừu tượng thông tin nhất thiết phải ghi nhớ
 
-**追问准备**：
+**Chuẩn bị câu hỏi bổ sung**:
 
-- 工作流中断后怎么恢复？（持久化 + checkpoint 机制）
-- 节点内的错误怎么处理？（瞬时错误重试、LLM 可恢复错误循环回去、用户可修复错误转人工、意外错误冒泡）
-- Spring AI Alibaba 和 LangGraph 的循环实现有什么区别？（前者可用条件边回指或 LoopAgent，后者需自行维护计数器）
-- 工作流有哪些特有的安全风险？（State 污染影响路由、Loop 放大攻击消耗 Token）
+- Workflow gián đoạn rồi khôi phục như thế nào? (Persistence + cơ chế checkpoint)
+- Lỗi bên trong node xử lý thế nào? (Lỗi thoáng qua retry, lỗi LLM có thể khôi phục vòng lặp quay về, lỗi người dùng có thể sửa chuyển con người, lỗi bất ngờ bubble up)
+- Triển khai vòng lặp của Spring AI Alibaba và LangGraph có điểm gì khác nhau? (Cái trước có thể dùng conditional edge trỏ về hoặc LoopAgent, cái sau cần tự quản lý counter)
+- Workflow có những rủi ro bảo mật đặc thù nào? (State pollution ảnh hưởng routing, Loop amplification attack tiêu Token)

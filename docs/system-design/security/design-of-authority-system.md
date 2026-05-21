@@ -1,211 +1,210 @@
 ---
-title: 权限系统设计详解
-description: 基于角色的访问控制（Role-Based Access Control，简称 RBAC）指的是通过用户的角色（Role）授权其相关权限，实现了灵活的访问控制，相比直接授予用户权限，要更加简单、高效、可扩展。
-category: 系统设计
+title: Giải thích chi tiết thiết kế hệ thống phân quyền
+description: Role-Based Access Control (RBAC) là mô hình phân quyền thông qua role của user, thực hiện kiểm soát truy cập linh hoạt. So với việc cấp quyền trực tiếp cho user, RBAC đơn giản hơn, hiệu quả hơn và có khả năng mở rộng tốt hơn.
+category: System Design
 tag:
-  - 安全
+  - Security
 head:
   - - meta
     - name: keywords
-      content: 权限系统设计,RBAC,ABAC,用户角色权限,资源权限,权限模型,权限校验,授权系统
+      content: permission system design,RBAC,ABAC,user role permission,resource permission,permission model,permission validation,authorization system
 ---
 
 <!-- @include: @article-header.snippet.md -->
 
-> 作者：转转技术团队
+> Tác giả: Zhuanzhuan Tech Team
 >
-> 原文：<https://mp.weixin.qq.com/s/ONMuELjdHYa0yQceTj01Iw>
+> Bài gốc: <https://mp.weixin.qq.com/s/ONMuELjdHYa0yQceTj01Iw>
 
-## 老权限系统的问题与现状
+## Vấn đề và hiện trạng của hệ thống phân quyền cũ
 
-转转公司在过去并没有一个统一的权限管理系统，权限管理由各业务自行研发或是使用其他业务的权限系统，权限管理的不统一带来了不少问题：
+Zhuanzhuan trước đây không có một hệ thống quản lý phân quyền thống nhất, việc quản lý quyền hạn do từng nghiệp vụ tự nghiên cứu phát triển hoặc dùng hệ thống phân quyền của nghiệp vụ khác, sự thiếu thống nhất này gây ra nhiều vấn đề:
 
-1. 各业务重复造轮子，维护成本高
-2. 各系统只解决部分场景问题，方案不够通用，新项目选型时没有可靠的权限管理方案
-3. 缺乏统一的日志管理与审批流程，在授权信息追溯上十分困难
+1. Mỗi nghiệp vụ tự phát minh lại bánh xe, chi phí bảo trì cao
+2. Mỗi hệ thống chỉ giải quyết một phần vấn đề trong từng scenario, giải pháp không đủ tổng quát, khi chọn công nghệ cho project mới không có phương án quản lý phân quyền đáng tin cậy
+3. Thiếu quản lý log và quy trình phê duyệt thống nhất, rất khó truy vết thông tin ủy quyền
 
-基于上述问题，去年底公司启动建设转转统一权限系统，目标是开发一套灵活、易用、安全的权限管理系统，供各业务使用。
+Dựa trên các vấn đề trên, cuối năm ngoái công ty khởi động xây dựng hệ thống phân quyền thống nhất của Zhuanzhuan, mục tiêu là phát triển một hệ thống quản lý phân quyền linh hoạt, dễ dùng và an toàn để cung cấp cho các nghiệp vụ sử dụng.
 
-## 业界权限系统的设计方式
+## Các phương pháp thiết kế hệ thống phân quyền trong ngành
 
-目前业界主流的权限模型有两种，下面分别介绍下：
+Hiện tại ngành có hai mô hình phân quyền chính, dưới đây giới thiệu lần lượt:
 
-- **基于角色的访问控制（RBAC）**
-- **基于属性的访问控制（ABAC）**
+- **Role-Based Access Control (RBAC)**
+- **Attribute-Based Access Control (ABAC)**
 
-### RBAC 模型
+### Mô hình RBAC
 
-**基于角色的访问控制（Role-Based Access Control，简称 RBAC）** 指的是通过用户的角色（Role）授权其相关权限，实现了灵活的访问控制，相比直接授予用户权限，要更加简单、高效、可扩展。
+**Role-Based Access Control (RBAC)** là mô hình phân quyền thông qua role của user, thực hiện kiểm soát truy cập linh hoạt. So với việc cấp quyền trực tiếp cho user, RBAC đơn giản hơn, hiệu quả hơn và có khả năng mở rộng tốt hơn.
 
-一个用户可以拥有若干角色，每一个角色又可以被分配若干权限这样，就构造成“用户-角色-权限” 的授权模型。在这种模型中，用户与角色、角色与权限之间构成了多对多的关系。
+Một user có thể có nhiều role, mỗi role lại có thể được phân nhiều quyền, từ đó tạo thành mô hình ủy quyền "user - role - permission". Trong mô hình này, user với role, role với permission tạo thành quan hệ many-to-many.
 
-用一个图来描述如下：
+Mô tả bằng hình ảnh như sau:
 
-![RBAC 权限模型示意图](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
+![Sơ đồ mô hình phân quyền RBAC](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/rbac.png)
 
-当使用 `RBAC模型` 时，通过分析用户的实际情况，基于共同的职责和需求，授予他们不同角色。这种 `用户 -> 角色 -> 权限` 间的关系，让我们可以不用再单独管理单个用户权限，用户从授予的角色里面获取所需的权限。
+Khi sử dụng `RBAC model`, thông qua phân tích tình hình thực tế của user, dựa trên trách nhiệm và nhu cầu chung, cấp cho họ các role khác nhau. Mối quan hệ `user -> role -> permission` này cho phép chúng ta không cần quản lý riêng lẻ quyền của từng user, user lấy quyền cần thiết từ role được cấp.
 
-以一个简单的场景（Gitlab 的权限系统）为例，用户系统中有 `Admin`、`Maintainer`、`Operator` 三种角色，这三种角色分别具备不同的权限，比如只有 `Admin` 具备创建代码仓库、删除代码仓库的权限，其他的角色都不具备。我们授予某个用户 `Admin` 这个角色，他就具备了 **创建代码仓库** 和 **删除代码仓库** 这两个权限。
+Lấy ví dụ một scenario đơn giản (hệ thống phân quyền Gitlab), trong hệ thống user có 3 role: `Admin`, `Maintainer`, `Operator`. Ba role này có quyền khác nhau, ví dụ chỉ `Admin` mới có quyền tạo repository và xóa repository, các role khác không có. Chúng ta cấp role `Admin` cho một user, user đó sẽ có quyền **tạo repository** và **xóa repository**.
 
-通过 `RBAC模型` ，当存在多个用户拥有相同权限时，我们只需要创建好拥有该权限的角色，然后给不同的用户分配不同的角色，后续只需要修改角色的权限，就能自动修改角色内所有用户的权限。
+Thông qua `RBAC model`, khi có nhiều user có cùng quyền, chỉ cần tạo role có quyền đó, rồi cấp các role khác nhau cho từng user. Sau này chỉ cần sửa quyền của role là tự động sửa quyền của tất cả user trong role đó.
 
-### ABAC 模型
+### Mô hình ABAC
 
-**基于属性的访问控制（Attribute-Based Access Control，简称 ABAC）** 是一种比 `RBAC模型` 更加灵活的授权模型，它的原理是通过各种属性来动态判断一个操作是否可以被允许。这个模型在云系统中使用的比较多，比如 AWS，阿里云等。
+**Attribute-Based Access Control (ABAC)** là mô hình ủy quyền linh hoạt hơn `RBAC model`, nguyên lý là dùng các thuộc tính khác nhau để tính toán động xem một thao tác có được phép hay không. Mô hình này được dùng nhiều trong cloud systems như AWS, Alibaba Cloud.
 
-考虑下面这些场景的权限控制：
+Xem xét các scenario kiểm soát phân quyền sau:
 
-1. 授权某个人具体某本书的编辑权限
-2. 当一个文档的所属部门跟用户的部门相同时，用户可以访问这个文档
-3. 当用户是一个文档的拥有者并且文档的状态是草稿，用户可以编辑这个文档
-4. 早上九点前禁止 A 部门的人访问 B 系统
-5. 在除了上海以外的地方禁止以管理员身份访问 A 系统
-6. 用户对 2022-06-07 之前创建的订单有操作权限
+1. Cấp quyền chỉnh sửa một cuốn sách cụ thể cho một người cụ thể
+2. Khi phòng ban của document trùng với phòng ban của user, user có thể truy cập document đó
+3. Khi user là chủ sở hữu document và trạng thái document là draft, user có thể chỉnh sửa document
+4. Trước 9 giờ sáng, cấm người thuộc phòng A truy cập hệ thống B
+5. Ở bất kỳ đâu trừ Thượng Hải, cấm truy cập hệ thống A với tư cách admin
+6. User có quyền thao tác các đơn hàng được tạo trước ngày 2022-06-07
 
-可以发现上述的场景通过 `RBAC模型` 很难去实现，因为 `RBAC模型` 仅仅描述了用户可以做什么操作，但是操作的条件，以及操作的数据，`RBAC模型` 本身是没有这些限制的。但这恰恰是 `ABAC模型` 的长处，`ABAC模型` 的思想是基于用户、访问的数据的属性、以及各种环境因素去动态计算用户是否有权限进行操作。
+Có thể thấy các scenario trên rất khó triển khai bằng `RBAC model`, vì `RBAC model` chỉ mô tả user có thể thực hiện thao tác gì, nhưng điều kiện thao tác và dữ liệu thao tác thì `RBAC model` không có những giới hạn này. Đây chính là điểm mạnh của `ABAC model` — tư tưởng của nó là tính toán động xem user có quyền thực hiện thao tác hay không dựa trên user, thuộc tính dữ liệu được truy cập và các yếu tố môi trường khác nhau.
 
-#### ABAC 模型的原理
+#### Nguyên lý của mô hình ABAC
 
-在 `ABAC模型` 中，一个操作是否被允许是基于对象、资源、操作和环境信息共同动态计算决定的。
+Trong `ABAC model`, liệu một thao tác có được phép hay không được tính toán động dựa trên subject, resource, operation và environment information.
 
-- **对象**：对象是当前请求访问资源的用户。用户的属性包括 ID，个人资源，角色，部门和组织成员身份等
-- **资源**：资源是当前用户要访问的资产或对象，例如文件，数据，服务器，甚至 API
-- **操作**：操作是用户试图对资源进行的操作。常见的操作包括“读取”，“写入”，“编辑”，“复制”和“删除”
-- **环境**：环境是每个访问请求的上下文。环境属性包含访问的时间和位置，对象的设备，通信协议和加密强度等
+- **Subject**: Subject là user đang yêu cầu truy cập tài nguyên. Thuộc tính của user bao gồm ID, personal resource, role, department, organization membership, v.v.
+- **Resource**: Resource là asset hoặc object mà user muốn truy cập, ví dụ file, data, server, thậm chí API
+- **Operation**: Operation là thao tác mà user muốn thực hiện trên resource. Các thao tác phổ biến gồm "read", "write", "edit", "copy", "delete"
+- **Environment**: Environment là context của mỗi access request. Environment attributes bao gồm thời gian và địa điểm truy cập, thiết bị của subject, communication protocol và encryption strength, v.v.
 
-在 `ABAC模型` 的决策语句的执行过程中，决策引擎会根据定义好的决策语句，结合对象、资源、操作、环境等因素动态计算出决策结果。每当发生访问请求时，`ABAC模型` 决策系统都会分析属性值是否与已建立的策略匹配。如果有匹配的策略，访问请求就会被通过。
+Trong quá trình thực thi decision statement của `ABAC model`, decision engine sẽ tính toán dynamic decision result dựa trên các decision statement đã định nghĩa kết hợp các yếu tố subject, resource, operation, environment. Mỗi khi có access request, decision system của `ABAC model` sẽ phân tích xem attribute values có khớp với policy đã thiết lập hay không. Nếu có policy khớp, access request sẽ được thông qua.
 
-## 新权限系统的设计思想
+## Tư tưởng thiết kế của hệ thống phân quyền mới
 
-结合转转的业务现状，`RBAC模型` 满足了转转绝大部分业务场景，并且开发成本远低于 `ABAC模型` 的权限系统，所以新权限系统选择了基于 `RBAC模型` 来实现。对于实在无法满足的业务系统，我们选择了暂时性不支持，这样可以保障新权限系统的快速落地，更快的让业务使用起来。
+Kết hợp với tình hình nghiệp vụ thực tế của Zhuanzhuan, `RBAC model` đáp ứng được phần lớn các business scenario, và chi phí phát triển thấp hơn nhiều so với hệ thống phân quyền dùng `ABAC model`, nên hệ thống phân quyền mới chọn triển khai dựa trên `RBAC model`. Với những business system thực sự không thể đáp ứng, chúng tôi chọn cách tạm thời không hỗ trợ — điều này giúp hệ thống phân quyền mới triển khai nhanh hơn và để nghiệp vụ sử dụng sớm hơn.
 
-标准的 `RBAC模型` 是完全遵守 `用户 -> 角色 -> 权限` 这个链路的，也就是用户的权限完全由他所拥有的角色来控制，但是这样会有一个缺点，就是给用户加权限必须新增一个角色，导致实际操作起来效率比较低。所以我们在 `RBAC模型` 的基础上，新增了给用户直接增加权限的能力，也就是说既可以给用户添加角色，也可以给用户直接添加权限。最终用户的权限是由拥有的角色和权限点组合而成。
+Standard `RBAC model` hoàn toàn tuân theo chuỗi `user -> role -> permission`, tức là quyền của user hoàn toàn do các role user sở hữu kiểm soát. Nhưng điều này có một nhược điểm: muốn thêm quyền cho user phải tạo thêm một role mới, dẫn đến hiệu quả thao tác thực tế khá thấp. Vì vậy chúng tôi bổ sung thêm khả năng cấp quyền trực tiếp cho user trên nền `RBAC model` — tức là vừa có thể thêm role cho user, vừa có thể thêm trực tiếp quyền cho user. Quyền cuối cùng của user là tổ hợp của role và permission point sở hữu.
 
-**新权限系统的权限模型**：用户最终权限 = 用户拥有的角色带来的权限 + 用户独立配置的权限，两者取并集。
+**Permission model của hệ thống phân quyền mới**: Quyền cuối cùng của user = Quyền từ role user sở hữu + Quyền độc lập cấu hình cho user, lấy hợp của cả hai.
 
-新权限系统方案如下图：
+Sơ đồ hệ thống phân quyền mới như sau:
 
-![新权限系统方案](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-design.png)
+![Sơ đồ hệ thống phân quyền mới](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-design.png)
 
-- 首先，将集团所有的用户（包括外部用户），通过 **统一登录与注册** 功能实现了统一管理，同时与公司的组织架构信息模块打通，实现了同一个人员在所有系统中信息的一致，这也为后续基于组织架构进行权限管理提供了可行性。
-- 其次，因为新权限系统需要服务集团所有业务，所以需要支持多系统权限管理。用户进行权限管理前，需要先选择相应的系统，然后配置该系统的 **菜单权限** 和 **数据权限** 信息，建立好系统的各个权限点。_PS：菜单权限和数据权限的具体说明，下文会详细介绍。_
-- 最后，创建该系统下的不同角色，给不同角色配置好权限点。比如店长角色，拥有店员操作权限、本店数据查看权限等，配置好这个角色后，后续只需要给店长增加这个角色，就可以让他拥有对应的权限。
+- Đầu tiên, tất cả user của tập đoàn (bao gồm user bên ngoài) được quản lý thống nhất thông qua chức năng **đăng nhập và đăng ký thống nhất**, đồng thời kết nối với module thông tin cơ cấu tổ chức của công ty, đảm bảo thông tin của cùng một người nhất quán trên tất cả hệ thống — điều này cũng tạo ra tính khả thi cho việc quản lý phân quyền dựa trên cơ cấu tổ chức về sau.
+- Tiếp theo, vì hệ thống phân quyền mới cần phục vụ tất cả nghiệp vụ của tập đoàn, cần hỗ trợ quản lý phân quyền đa hệ thống. Trước khi user thực hiện quản lý phân quyền, cần chọn hệ thống tương ứng trước, rồi cấu hình thông tin **menu permission** và **data permission** của hệ thống đó, thiết lập các permission point của hệ thống. _PS: Giải thích cụ thể về menu permission và data permission sẽ được trình bày chi tiết ở phần sau._
+- Cuối cùng, tạo các role khác nhau trong hệ thống đó, cấu hình permission point cho các role khác nhau. Ví dụ role store manager có quyền thao tác nhân viên, quyền xem dữ liệu cửa hàng v.v. Sau khi cấu hình xong role này, chỉ cần thêm role này cho store manager là họ có được quyền tương ứng.
 
-完成上述配置后，就可以进行用户的权限管理了。有两种方式可以给用户加权限：
+Sau khi hoàn thành cấu hình trên, có thể thực hiện quản lý phân quyền cho user. Có hai cách để thêm quyền cho user:
 
-1. 先选用户，然后添加权限。该方式可以给用户添加任意角色或是菜单/数据权限点。
-2. 先选择角色，然后关联用户。该方式只可给用户添加角色，不能单独添加菜单/数据权限点。
+1. Chọn user trước, rồi thêm quyền. Cách này có thể thêm bất kỳ role hoặc menu/data permission point nào cho user.
+2. Chọn role trước, rồi liên kết user. Cách này chỉ có thể thêm role cho user, không thể thêm riêng lẻ menu/data permission point.
 
-这两种方式的具体设计方案，后文会详细说明。
+Thiết kế cụ thể của hai cách này sẽ được giải thích chi tiết ở phần sau.
 
-### 权限系统自身的权限管理
+### Quản lý phân quyền của chính hệ thống phân quyền
 
-对于权限系统来说，首先需要设计好系统自身的权限管理，也就是需要管理好 ”谁可以进入权限系统，谁可以管理其他系统的权限“，对于权限系统自身的用户，会分为三类：
+Đối với hệ thống phân quyền, trước tiên cần thiết kế tốt quản lý phân quyền của chính hệ thống — tức là cần quản lý tốt "ai có thể vào hệ thống phân quyền, ai có thể quản lý phân quyền của các hệ thống khác". User của chính hệ thống phân quyền được chia thành 3 loại:
 
-1. **超级管理员**：拥有权限系统的全部操作权限，可以进行系统自身的任何操作，也可以管理接入权限的应用系统的管理操作。
-2. **权限操作用户**：拥有至少一个已接入的应用系统的超级管理员角色的用户。该用户能进行的操作限定在所拥有的应用系统权限范围内。权限操作用户是一种身份，无需分配，而是根据规则自动获得的。
-3. **普通用户**：普通用户也可以认为是一种身份，除去上述 2 类人，其余的都为普通用户。他们只能申请接入系统以及访问权限申请页面。
+1. **Super Admin**: Có toàn quyền thao tác hệ thống phân quyền, có thể thực hiện bất kỳ thao tác nào trong hệ thống và quản lý các hệ thống ứng dụng đã kết nối với phân quyền.
+2. **Permission Operator**: User có role super admin của ít nhất một hệ thống ứng dụng đã kết nối. User này chỉ có thể thực hiện các thao tác trong phạm vi quyền của các hệ thống ứng dụng mình quản lý. Permission Operator là một loại identity, không cần phân công mà được tự động có dựa trên quy tắc.
+3. **Normal User**: Normal user cũng có thể coi là một loại identity, ngoài 2 loại trên, tất cả còn lại đều là normal user. Họ chỉ có thể xin kết nối hệ thống và truy cập trang xin cấp quyền.
 
-### 权限类型的定义
+### Định nghĩa các loại quyền
 
-新权限系统中，我们把权限分为两大类，分别是：
+Trong hệ thống phân quyền mới, chúng tôi chia quyền thành 2 loại:
 
-- **菜单功能权限**：包括系统的目录导航、菜单的访问权限，以及按钮和 API 操作的权限
-- **数据权限**：包括定义数据的查询范围权限，在不同系统中，通常叫做 “组织”、”站点“等，在新权限系统中，统一称作 ”组织“ 来管理数据权限
+- **Menu Function Permission**: Bao gồm quyền truy cập directory navigation, menu của hệ thống, cũng như quyền thao tác button và API
+- **Data Permission**: Bao gồm định nghĩa phạm vi truy vấn data, trong các hệ thống khác nhau thường gọi là "organization", "site", v.v. Trong hệ thống phân quyền mới, thống nhất gọi là "organization" để quản lý data permission
 
-### 默认角色的分类
+### Phân loại default role
 
-每个系统中设计了三个默认角色，用来满足基本的权限管理需求，分别如下：
+Mỗi hệ thống được thiết kế 3 default role để đáp ứng nhu cầu quản lý phân quyền cơ bản:
 
-- **超级管理员**：该角色拥有该系统的全部权限，可以修改系统的角色权限等配置，可以给其他用户授权。
-- **系统管理员**：该角色拥有给其他用户授权以及修改系统的角色权限等配置能力，但角色本身不具有任何权限。
-- **授权管理员**：该角色拥有给其他用户授权的能力。但是授权的范围不超出自己所拥有的权限。
+- **Super Admin**: Role này có toàn quyền trong hệ thống đó, có thể sửa cấu hình role permission, có thể ủy quyền cho user khác.
+- **System Admin**: Role này có khả năng ủy quyền cho user khác và sửa cấu hình role permission, nhưng bản thân role không có bất kỳ quyền nào.
+- **Authorization Admin**: Role này có khả năng ủy quyền cho user khác. Nhưng phạm vi ủy quyền không vượt quá quyền mà mình đang có.
 
-> 举个栗子：授权管理员 A 可以给 B 用户添加权限，但添加的范围 小于等于 A 用户已拥有的权限。
+> Ví dụ: Authorization Admin A có thể thêm quyền cho user B, nhưng phạm vi thêm nhỏ hơn hoặc bằng quyền mà user A đang có.
 
-经过这么区分，把 **拥有权限** 和 **拥有授权能力** ，这两部分给分隔开来，可以满足所有的权限控制的场景。
+Qua sự phân chia này, **có quyền** và **có khả năng ủy quyền** được tách biệt, có thể đáp ứng tất cả các scenario kiểm soát phân quyền.
 
-## 新权限系统的核心模块设计
+## Thiết kế core module của hệ thống phân quyền mới
 
-上面介绍了新权限系统的整体设计思想，接下来分别介绍下核心模块的设计
+Phần trên đã giới thiệu tư tưởng thiết kế tổng thể của hệ thống phân quyền mới, tiếp theo giới thiệu lần lượt thiết kế các core module.
 
-### 系统/菜单/数据权限管理
+### Quản lý hệ thống/menu/data permission
 
-把一个新系统接入权限系统有下列步骤：
+Các bước để kết nối một hệ thống mới vào hệ thống phân quyền:
 
-1. 创建系统
-2. 配置菜单功能权限
-3. 配置数据权限（可选）
-4. 创建系统的角色
+1. Tạo hệ thống
+2. Cấu hình menu function permission
+3. Cấu hình data permission (tùy chọn)
+4. Tạo role cho hệ thống
 
-其中，1、2、3 的步骤，都是在系统管理模块完成，具体流程如下图:
+Trong đó, bước 1, 2, 3 đều được thực hiện trong module quản lý hệ thống, quy trình cụ thể như hình dưới:
 
-![系统接入流程图](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-design-access-flow-chart.png)
+![Sơ đồ quy trình kết nối hệ thống](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-design-access-flow-chart.png)
 
-用户可以对系统的基本信息进行增删改查的操作，不同系统之间通过 `系统编码` 作为唯一区分。同时 `系统编码` 也会用作于菜单和数据权限编码的前缀，通过这样的设计保证权限编码全局唯一性。
+User có thể thực hiện CRUD trên thông tin cơ bản của hệ thống, các hệ thống khác nhau được phân biệt duy nhất bằng `system code`. Đồng thời `system code` cũng được dùng làm prefix cho menu và data permission code, qua thiết kế này đảm bảo permission code duy nhất toàn cục.
 
-例如系统的编码为 `test_online`，那么该系统的菜单编码格式便为 `test_online:m_xxx`。
+Ví dụ system code là `test_online`, thì format menu code của hệ thống đó sẽ là `test_online:m_xxx`.
 
-系统管理界面设计如下：
+Giao diện quản lý hệ thống được thiết kế như sau:
 
-![系统管理界面设计](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-management-interface.png)
+![Thiết kế giao diện quản lý hệ thống](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-management-interface.png)
 
-#### 菜单管理
+#### Quản lý menu
 
-新权限系统首先对菜单进行了分类，分别是 `目录`、`菜单` 和 `操作`，示意如下图
+Hệ thống phân quyền mới phân loại menu thành `directory`, `menu` và `operation`, minh họa như hình dưới:
 
-![菜单管理界面](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-menu.png)
+![Giao diện quản lý menu](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-menu.png)
 
-它们分别代表的含义是：
+Ý nghĩa của chúng lần lượt là:
 
-- **目录**：指的是应用系统中最顶部的一级目录，通常在系统 Logo 的右边
-- **菜单**：指的是应用系统左侧的多层级菜单，通常在系统 Logo 的下面，也是最常用的菜单结构
-- **操作**：指页面中的按钮、接口等一系列可以定义为操作或页面元素的部分。
+- **Directory**: Là directory cấp đầu tiên trên cùng của hệ thống ứng dụng, thường ở bên phải logo hệ thống
+- **Menu**: Là multi-level menu ở phía trái hệ thống ứng dụng, thường ở bên dưới logo hệ thống, cũng là cấu trúc menu được dùng nhiều nhất
+- **Operation**: Là button, API và các phần tử có thể định nghĩa là operation hoặc page element trong trang.
 
-菜单管理界面设计如下：
+Giao diện quản lý menu được thiết kế như sau:
 
-![菜单管理界面设计](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-menu-management-interface.png)
+![Thiết kế giao diện quản lý menu](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/new-authority-system-menu-management-interface.png)
 
-菜单权限数据的使用，也提供两种方式：
+Dữ liệu menu permission cũng cung cấp hai cách sử dụng:
 
-- **动态菜单模式**：这种模式下，菜单的增删完全由权限系统接管。也就是说在权限系统增加菜单，应用系统会同步增加。这种模式好处是修改菜单无需项目上线。
-- **静态菜单模式**：菜单的增删由应用系统的前端控制，权限系统只控制访问权限。这种模式下，权限系统只能标识出用户是否拥有当前菜单的权限，而具体的显示控制是由前端根据权限数据来决定。
+- **Dynamic menu mode**: Trong mode này, việc thêm/xóa menu hoàn toàn do hệ thống phân quyền quản lý. Tức là thêm menu trong hệ thống phân quyền, hệ thống ứng dụng sẽ đồng bộ thêm theo. Ưu điểm của mode này là sửa menu không cần deploy lại project.
+- **Static menu mode**: Việc thêm/xóa menu do frontend của hệ thống ứng dụng kiểm soát, hệ thống phân quyền chỉ kiểm soát access permission. Trong mode này, hệ thống phân quyền chỉ đánh dấu user có quyền truy cập menu hiện tại hay không, còn việc hiển thị cụ thể do frontend quyết định dựa trên permission data.
 
-### 角色与用户管理
+### Quản lý role và user
 
-角色与用户管理都是可以直接改变用户权限的核心模块，整个设计思路如下图：
+Quản lý role và user đều là các core module có thể trực tiếp thay đổi quyền của user, toàn bộ tư tưởng thiết kế như hình dưới:
 
-![角色与用户管理模块设计](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/role-and-user-management.png)
+![Thiết kế module quản lý role và user](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/role-and-user-management.png)
 
-这个模块设计重点是需要考虑到批量操作。无论是通过角色关联用户，还是给用户批量增加/删除/重置权限，批量操作的场景都是系统需要设计好的。
+Điểm trọng tâm trong thiết kế module này là cần tính đến batch operation. Dù là liên kết user thông qua role, hay thêm/xóa/reset quyền hàng loạt cho user, các scenario batch operation đều cần được thiết kế tốt.
 
-### 权限申请
+### Xin cấp quyền
 
-除了给其他用户添加权限外，新权限系统同时支持了用户自主申请权限。这个模块除了常规的审批流（申请、审批、查看）等，有一个比较特别的功能，就是如何让用户能选对自己要的权限。所以在该模块的设计上，除了直接选择角色外，还支持通过菜单/数据权限点，反向选择角色，如下图：
+Ngoài việc thêm quyền cho user khác, hệ thống phân quyền mới còn hỗ trợ user tự xin cấp quyền. Module này ngoài quy trình phê duyệt thông thường (xin, phê duyệt, xem), có một tính năng khá đặc biệt là làm thế nào để user chọn đúng quyền mình cần. Vì vậy trong thiết kế module này, ngoài việc chọn trực tiếp role, còn hỗ trợ chọn ngược role thông qua menu/data permission point, như hình dưới:
 
-![权限申请界面](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/permission-application.png)
+![Giao diện xin cấp quyền](https://oss.javaguide.cn/github/javaguide/system-design/security/design-of-authority-system/permission-application.png)
 
-### 操作日志
+### Operation log
 
-系统操作日志会分为两大类：
+System operation log được chia thành 2 loại lớn:
 
-1. **操作流水日志**：用户可看、可查的关键操作日志
-2. **服务 Log 日志**：系统服务运行过程中产生的 Log 日志,其中，服务 Log 日志信息量大于操作流水日志，但是不方便搜索查看。所以权限系统需要提供操作流水日志功能。
+1. **Operation audit log**: Log các thao tác quan trọng mà user có thể xem và tra cứu
+2. **Service log**: Log được tạo ra trong quá trình service của hệ thống chạy. Trong đó, thông tin trong service log nhiều hơn operation audit log, nhưng không tiện tìm kiếm xem. Vì vậy hệ thống phân quyền cần cung cấp chức năng operation audit log.
 
-在新权限系统中，用户所有的操作可以分为三类，分别为新增、更新、删除。所有的模块也可枚举，例如用户管理、角色管理、菜单管理等。明确这些信息后，那么一条日志就可以抽象为：什么人(Who)在什么时间(When)对哪些人(Target)的哪些模块做了哪些操作。
-这样把所有的记录都入库，就可以方便的进行日志的查看和筛选了。
+Trong hệ thống phân quyền mới, tất cả thao tác của user có thể chia thành 3 loại: tạo mới, cập nhật, xóa. Tất cả module cũng có thể enumerable, ví dụ quản lý user, quản lý role, quản lý menu, v.v. Khi xác định được những thông tin này, một log record có thể được trừu tượng hóa thành: Ai (Who) vào lúc nào (When) đã thực hiện thao tác gì trên module nào của đối tượng nào (Target). Như vậy lưu tất cả record vào database, có thể dễ dàng xem và lọc log.
 
-## 总结与展望
+## Tổng kết và triển vọng
 
-至此，新权限系统的核心设计思路与模块都已介绍完成，新系统在转转内部有大量的业务接入使用，权限管理相比以前方便了许多。权限系统作为每家公司的一个基础系统，灵活且完备的设计可以助力日后业务的发展更加高效。
+Đến đây, các tư tưởng thiết kế cốt lõi và module của hệ thống phân quyền mới đã được giới thiệu đầy đủ. Hệ thống mới được nhiều nghiệp vụ trong Zhuanzhuan kết nối sử dụng, quản lý phân quyền so với trước đây thuận tiện hơn rất nhiều. Hệ thống phân quyền là một hệ thống nền tảng của mỗi công ty, thiết kế linh hoạt và đầy đủ có thể giúp sự phát triển nghiệp vụ trong tương lai hiệu quả hơn.
 
-后续两篇：
+Hai bài tiếp theo:
 
-- [转转统一权限系统的设计与实现（后端实现篇）](https://mp.weixin.qq.com/s/hFTDckfxhSnoM_McP18Vkg)
-- [转转统一权限系统的设计与实现（前端实现篇）](https://mp.weixin.qq.com/s/a_P4JAwxgunhfmJvpBnWYA)
+- [Thiết kế và triển khai hệ thống phân quyền thống nhất Zhuanzhuan (Backend Implementation)](https://mp.weixin.qq.com/s/hFTDckfxhSnoM_McP18Vkg)
+- [Thiết kế và triển khai hệ thống phân quyền thống nhất Zhuanzhuan (Frontend Implementation)](https://mp.weixin.qq.com/s/a_P4JAwxgunhfmJvpBnWYA)
 
-## 参考
+## Tài liệu tham khảo
 
-- 选择合适的权限模型：<https://docs.authing.cn/v2/guides/access-control/choose-the-right-access-control-model.html>
+- Chọn mô hình kiểm soát truy cập phù hợp: <https://docs.authing.cn/v2/guides/access-control/choose-the-right-access-control-model.html>
 
 <!-- @include: @article-footer.snippet.md -->

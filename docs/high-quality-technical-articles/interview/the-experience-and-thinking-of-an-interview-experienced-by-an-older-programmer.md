@@ -1,367 +1,367 @@
 ---
-title: 一位大龄程序员所经历的面试的历炼和思考
-description: "一位大龄程序员所经历的面试的历炼和思考：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: Trải nghiệm và suy ngẫm về phỏng vấn của một lập trình viên lớn tuổi
+description: "Trải nghiệm và suy ngẫm về phỏng vấn của một lập trình viên lớn tuổi: tổng hợp các khái niệm trọng tâm, câu hỏi phổ biến và điểm thực hành về kỹ thuật và phỏng vấn, giúp bạn học hiệu quả và chuẩn bị phỏng vấn."
+category: Tuyển tập bài viết kỹ thuật chất lượng cao
 author: 琴水玉
 tag:
-  - 面试
+  - Phỏng vấn
 head:
   - - meta
     - name: keywords
       content: 大龄程序员面试,面试准备,简历优化,技术面试,面试心态,职业规划,面试技巧,技术原理
 ---
 
-> **推荐语**：本文的作者，今年 36 岁，已有 8 年 JAVA 开发经验。在阿里云三年半，有赞四年半，已是标准的大龄程序员了。在这篇文章中，作者给出了一些关于面试和个人能力提升的一些小建议，非常实用！
+> **Lời giới thiệu**: Tác giả của bài viết này năm nay 36 tuổi, đã có 8 năm kinh nghiệm phát triển JAVA. Làm tại Alibaba Cloud 3 năm rưỡi, Youzan 4 năm rưỡi — đã là một lập trình viên lớn tuổi tiêu chuẩn. Trong bài viết này, tác giả chia sẻ một số lời khuyên nhỏ về phỏng vấn và nâng cao năng lực cá nhân, rất thực tiễn!
 >
-> **内容概览**：
+> **Tóm tắt nội dung**:
 >
-> 1. 个人介绍，是对自己的一个更为清晰、深入和全面的认识契机。
-> 2. 简历是充分展示自己的浓缩精华，也是重新审视自己和过往经历的契机。不仅仅是简要介绍技能和经验，更要最大程度凸显自己的优势领域（差异化）。
-> 3. 我个人是不赞成海投的，而倾向于定向投。找准方向投，虽然目标更少，但更有效率。
-> 4. 技术探索，一定要先理解原理。原理不懂，就会浮于表层，不能真正掌握它。技术原理探究要掌握到什么程度？数据结构与算法设计、考量因素、技术机制、优化思路。要在脑中回放，直到一切细节而清晰可见。如果能够清晰有条理地表述出来，就更好了。技术原理探究，一定要看源码。看了源码与没看源码是有区别的。没看源码，虽然说得出来，但终是隔了一层纸；看了源码，才捅破了那层纸，有了自己的理解，也就能说得更加有底气了。当然，也可能是我缺乏演戏的本领。
-> 5. 要善于从失败中学习。正是在杭州四个月空档期的持续学习、思考、积累和提炼，以及面试失败的反思、不断调整对策、完善准备、改善原有的短板，采取更为合理的方式，才在回武汉的短短两个周内拿到比较满意的 offer 。
-> 6. 面试是通过沟通来理解双方的过程。面试中的问题，千变万化，但有一些问题是需要提前准备好的。
+> 1. Giới thiệu bản thân là cơ hội để hiểu rõ, sâu sắc và toàn diện hơn về chính mình.
+> 2. CV là tinh hoa cô đọng để thể hiện bản thân đầy đủ, cũng là cơ hội nhìn lại bản thân và quá khứ. Không chỉ giới thiệu tóm tắt kỹ năng và kinh nghiệm, mà còn cần làm nổi bật tối đa lĩnh vực thế mạnh của bạn (sự khác biệt hóa).
+> 3. Cá nhân tôi không tán thành ném CV tràn lan, mà thiên về đầu tư có định hướng. Đầu tư có định hướng, dù mục tiêu ít hơn nhưng hiệu quả hơn.
+> 4. Khám phá kỹ thuật nhất định phải hiểu nguyên lý trước. Không hiểu nguyên lý sẽ chỉ nắm được bề mặt, không thể thực sự làm chủ. Cần nắm vững nguyên lý kỹ thuật đến mức nào? Cấu trúc dữ liệu và thiết kế thuật toán, các yếu tố cần cân nhắc, cơ chế kỹ thuật, tư duy tối ưu. Cần phát lại trong đầu cho đến khi mọi chi tiết đều rõ ràng. Nếu có thể trình bày rõ ràng mạch lạc thì càng tốt. Khám phá nguyên lý kỹ thuật nhất định phải xem source code. Xem source code và không xem source code là khác nhau. Không xem source code, dù nói được nhưng vẫn cách một lớp giấy; xem source code rồi mới thực sự hiểu thấu, mới nói được chắc chắn hơn. Dĩ nhiên, có thể tôi thiếu khả năng diễn xuất.
+> 5. Cần giỏi học hỏi từ thất bại. Chính nhờ 4 tháng liên tục học hỏi, suy ngẫm, tích lũy và đúc kết trong thời gian trống tại Hàng Châu, cùng với việc rút kinh nghiệm từ những lần phỏng vấn thất bại, không ngừng điều chỉnh chiến lược, hoàn thiện sự chuẩn bị, khắc phục điểm yếu sẵn có và áp dụng cách tiếp cận hợp lý hơn, mới có thể nhận được offer khá ưng ý chỉ trong vòng hai tuần ngắn ngủi sau khi trở về Vũ Hán.
+> 6. Phỏng vấn là quá trình giao tiếp để hiểu nhau. Các câu hỏi trong phỏng vấn muôn hình muôn vẻ, nhưng có một số câu hỏi cần chuẩn bị trước.
 >
-> **原文地址**：<https://www.cnblogs.com/lovesqcc/p/14354921.html>
+> **Địa chỉ bài gốc**: <https://www.cnblogs.com/lovesqcc/p/14354921.html>
 
-从每一段经历中学习，在每一件事情中修行。善于从挫折中学习。
+Học hỏi từ mỗi trải nghiệm, tu dưỡng trong mỗi việc làm. Giỏi học hỏi từ thất bại.
 
-## 引子
+## Dẫn nhập
 
-我今年 36 岁，已有 8 年 JAVA 开发经验。在阿里云三年半，有赞四年半，已是标准的大龄程序员了。
+Tôi năm nay 36 tuổi, đã có 8 năm kinh nghiệm phát triển JAVA. Làm tại Alibaba Cloud 3 năm rưỡi, Youzan 4 năm rưỡi — đã là một lập trình viên lớn tuổi tiêu chuẩn.
 
-在多年的读书、学习和思考中，我的价值观、人生观和世界观也逐步塑造成型。我意识到自己的志趣在于做教育文化方面，因此在半冲动之下，8 月份下旬，裸辞去找工作了。有限理性难以阻挡冲动的个性。不建议裸辞，做事应该有规划、科学合理。
+Qua nhiều năm đọc sách, học hỏi và suy ngẫm, quan điểm giá trị, nhân sinh quan và thế giới quan của tôi cũng dần định hình. Tôi nhận ra sở thích của mình là trong lĩnh vực giáo dục và văn hóa, nên trong một khoảnh khắc bốc đồng, vào cuối tháng 8 tôi đã nghỉ việc trắng tay để đi tìm việc. Lý trí hữu hạn khó cản được cá tính bốc đồng. Không khuyến khích nghỉ trắng tay, làm việc gì cũng nên có kế hoạch, khoa học và hợp lý.
 
-尽管我最初认为自己“有理想有目标有意愿有能力”，找一份教育开发的工作应该不难，但事实上我还是过于乐观了。现实很快给我泼了一瓢瓢冷水。我屡战屡败，又屡败屡战。惊讶地发现自己还有这个韧性。面试是一项历炼，如果没有被失败击倒，那么从中会生长出一份韧性，这种韧性能让人走得更远。谁没有经历过失败的历练呢？失败是最伟大的导师了，如果你愿意跟他学一学的话。
+Dù ban đầu tôi nghĩ mình "có lý tưởng, có mục tiêu, có ý chí, có năng lực" và tìm một công việc phát triển giáo dục không khó, thực tế đã nhanh chóng dội cho tôi nhiều gáo nước lạnh. Tôi thua rồi lại thi, thi lại rồi thua. Ngạc nhiên khi nhận ra mình có sức bền như vậy. Phỏng vấn là một thử thách rèn luyện — nếu không bị thất bại đánh gục, bạn sẽ từ đó lớn lên một sức bền kiên nhẫn, và sức bền đó sẽ đưa bạn đi xa hơn. Ai chẳng trải qua thất bại? Thất bại là người thầy vĩ đại nhất, nếu bạn sẵn lòng học từ thầy ấy.
 
-在面试的过程中，我很快发现自己的劣势：
+Trong quá trình phỏng vấn, tôi nhanh chóng phát hiện ra những điểm yếu của mình:
 
-- 投入精力做业务，技术深度不够，对原理的理解局限于较浅的层次；
-- 视野不够开阔，局限于自己所做的订单业务线，对其它关联业务线（比如商品、营销、支付等）了解不够；
-- 思维不够开阔，大部分时间投入在开发和测试上，对运维、产品、业务、商业层面思考都思考不多；
-- 缺乏管理经验，年龄偏大；这两项劣势我一度低估，但逐渐凸显出来，甚至让我一度不自信，但最终我还是走出来了。
+- Đầu tư công sức vào nghiệp vụ, chiều sâu kỹ thuật chưa đủ, hiểu biết về nguyên lý còn giới hạn ở mức khá nông;
+- Tầm nhìn chưa đủ rộng, bị giới hạn trong mảng nghiệp vụ đơn hàng mình làm, chưa hiểu đủ về các mảng nghiệp vụ liên quan khác (như hàng hóa, marketing, thanh toán, v.v.);
+- Tư duy chưa đủ rộng, phần lớn thời gian đầu tư vào phát triển và kiểm thử, ít suy nghĩ về vận hành, sản phẩm, nghiệp vụ, thương mại;
+- Thiếu kinh nghiệm quản lý, tuổi tác lớn hơn. Hai điểm yếu này tôi từng đánh giá thấp, nhưng dần dần nổi bật, thậm chí khiến tôi một lúc mất tự tin, nhưng cuối cùng tôi vẫn vượt qua được.
 
-但我也有自己的优势。职业竞争的基本法则是稀缺性和差异化。能够解决大型项目的架构设计和攻克技术难题，精通某个高端技术领域是稀缺性体现；而能够做事能做到缜密周全精细化，有高并发大流量系统开发经验，则是差异性体现。稀缺性是上策，差异化是中策，而降格以求就是下策了。
+Nhưng tôi cũng có thế mạnh riêng. Quy tắc cơ bản của cạnh tranh nghề nghiệp là sự khan hiếm và sự khác biệt. Có thể giải quyết thiết kế kiến trúc cho các dự án lớn và chinh phục các vấn đề kỹ thuật khó, tinh thông một lĩnh vực kỹ thuật cao cấp — đó là biểu hiện của sự khan hiếm; còn làm việc tỉ mỉ, chu đáo, cẩn thận, có kinh nghiệm phát triển hệ thống concurrency cao, lưu lượng lớn — đó là biểu hiện của sự khác biệt. Sự khan hiếm là thượng sách, sự khác biệt là trung sách, còn hạ thấp yêu cầu là hạ sách.
 
-我缺乏稀缺性优势，但还有一点差异化优势：
+Tôi thiếu lợi thế khan hiếm, nhưng vẫn có một chút lợi thế khác biệt:
 
-- 对每一份工作都很踏实，时间均在 3 年 - 5 年之间，有一点大厂光环，能获得更多面试机会（虽然不一定能面上）；
-- 坚持写博客，孜孜不倦地追求软件开发的“道”，时常思考记录开发中遇到的问题及解决方案；
-- 做事认真严谨，能够从整体分析和思考问题，也很注重基础提升；
-- 对工程质量、性能优化、稳定性建设、业务配置化设计有实践经验；
-- 大流量微服务系统的长期开发维护经验。
+- Làm mỗi công việc đều rất chắc chắn, thời gian đều từ 3 năm đến 5 năm, có một chút hào quang từ các công ty lớn, có thể nhận được nhiều cơ hội phỏng vấn hơn (dù không nhất thiết đỗ);
+- Kiên trì viết blog, không ngừng theo đuổi "đạo" trong phát triển phần mềm, thường xuyên suy nghĩ và ghi lại các vấn đề gặp phải và giải pháp trong quá trình phát triển;
+- Làm việc nghiêm túc, cẩn thận, có thể phân tích và suy nghĩ vấn đề một cách tổng thể, cũng rất chú trọng nâng cao nền tảng;
+- Có kinh nghiệm thực hành về chất lượng kỹ thuật, tối ưu hiệu năng, xây dựng ổn định, thiết kế cấu hình nghiệp vụ;
+- Kinh nghiệm phát triển và bảo trì lâu dài hệ thống microservices lưu lượng lớn.
 
-我投出简历的公司并不多。在不多的面试中，我逐渐意识到网上的“斩获几十家大厂 offer”的说法并不可信。理由如下：
+Số công ty tôi nộp CV không nhiều. Trong số không nhiều lần phỏng vấn, tôi dần nhận ra cách nói "giành được hàng chục offer từ các big tech" trên mạng không đáng tin. Lý do như sau:
 
-- 如果能真斩获大量大厂 offer ，面试的级别很大概率是初级工程师。要知道面试 4 年以上的工程师，面试的深度和广度令人发指，从基础的算法、到各种中间件的原理机制到实际运维架构，无所不包，真个是沉浸在“技术的海洋”，除非一个人的背景和实力非常强大，平时也做了非常深且广的沉淀；
-- 一个背景和实力非常强大的人，是不会有兴趣去投入这么多精力去面各种公司，仅仅是为了吹嘘自己有多能耐；实力越强的人，他会有自己的选择逻辑，投的简历会更定向精准。话说，他为什么不花更多精力投入在那些能够让他有最大化收益的优秀企业呢？
-- 培训机构做的广告。因为他们最清楚新手需要的是信心，哪怕是伪装出来的信心。
+- Nếu thực sự giành được nhiều offer từ big tech, xác suất cao là phỏng vấn ở cấp kỹ sư sơ cấp. Cần biết rằng với kỹ sư 4 năm kinh nghiệm trở lên, độ sâu và rộng của phỏng vấn rất đáng gờm — từ thuật toán cơ bản, đến nguyên lý và cơ chế của các middleware, đến kiến trúc vận hành thực tế, bao quát mọi thứ, thực sự là "đắm chìm trong biển kỹ thuật", trừ khi một người có nền tảng và thực lực rất mạnh, và đã tích lũy được chiều sâu và rộng rất lớn;
+- Một người có nền tảng và thực lực rất mạnh sẽ không có hứng thú đầu tư nhiều công sức như vậy để phỏng vấn khắp nơi chỉ để khoe khoang năng lực. Người càng mạnh càng có logic lựa chọn riêng, CV gửi đi sẽ định hướng và chính xác hơn. Nói thật, sao họ không đầu tư nhiều công sức hơn vào những doanh nghiệp xuất sắc có thể mang lại lợi ích tối đa cho họ?
+- Quảng cáo của trung tâm đào tạo. Vì họ hiểu rõ nhất rằng người mới cần sự tự tin, dù là sự tự tin giả tạo.
 
-好了，闲话不多说了。我讲讲自己在面试中所经受的历练和思考吧。
+Thôi, nói nhiều rồi. Để tôi kể về những thử thách và suy ngẫm trong quá trình phỏng vấn của mình.
 
-## 准备工作
+## Chuẩn bị
 
-人生或许很长，但面试的时间很短，最长不过一小时或一个半小时。别人如何在短短一小时内能够更清晰地认识长达三十多年的你呢？这就需要你做大量细致的准备工作了。在某种程度上，面试与舞蹈有异曲同工之妙：台上五分钟，台下十年功。
+Cuộc đời có thể dài, nhưng thời gian phỏng vấn rất ngắn, nhiều nhất là một tiếng hay một tiếng rưỡi. Làm sao trong một tiếng ngắn ngủi, người ta có thể hiểu rõ hơn về bạn — người đã sống hơn ba mươi năm? Điều này đòi hỏi bạn phải chuẩn bị rất kỹ lưỡng. Ở một góc độ nào đó, phỏng vấn và múa ballet có điểm tương đồng: 5 phút trên sân khấu, 10 năm luyện tập dưới sân.
 
-准备工作主要包括简历准备、个人介绍、公司了解、技术探索、表述能力、常见问题、中高端职位、好的心态。准备工作是对自身和对外部世界的一次全面深入的重新认知。
+Chuẩn bị chủ yếu bao gồm: chuẩn bị CV, giới thiệu bản thân, tìm hiểu công ty, khám phá kỹ thuật, năng lực diễn đạt, câu hỏi thường gặp, vị trí trung-cao cấp, thái độ tốt. Chuẩn bị là quá trình nhận thức lại toàn diện và sâu sắc về bản thân và thế giới bên ngoài.
 
-初期，我以为自己准备很充分，简历改改就完事了。随着一次次受挫，才发现自己的准备很不充分。在现在的我看来，准备七分，应变三分。准备，就是要知己知彼，知道对方会问哪些问题（通常是系统/项目/技术的深度和广度）、自己应当如何作答；应变，就是当自己遇到不会、不懂、不知道的问题时，如何合理地展示自己的解决思路，以及根据面试中答不上来的问题查漏补缺，夯实基础。
+Ban đầu, tôi nghĩ mình đã chuẩn bị khá đầy đủ, sửa CV một chút là xong. Sau nhiều lần thất bại mới nhận ra sự chuẩn bị còn chưa đủ. Theo quan điểm hiện tại của tôi: chuẩn bị 7 phần, ứng biến 3 phần. Chuẩn bị là phải biết mình biết ta — biết đối phương sẽ hỏi những câu hỏi gì (thường là chiều sâu và rộng của hệ thống/dự án/kỹ thuật), bản thân nên trả lời thế nào. Ứng biến là khi gặp câu hỏi không biết, không hiểu, không rõ thì làm thế nào để thể hiện hợp lý tư duy giải quyết vấn đề của mình, cũng như sau khi trả lời không được câu hỏi trong phỏng vấn thì bổ sung lỗ hổng và củng cố nền tảng.
 
-这个过程，实际上也是学习的过程。持续的反思和提炼、学习新的内容、重新认识自己和过往经历等。
+Quá trình này thực ra cũng là quá trình học hỏi. Liên tục phản tư và đúc kết, học nội dung mới, nhận thức lại bản thân và quá khứ.
 
-### 简历准备
+### Chuẩn bị CV
 
-最开始，我做得比较简单。把以前的简历拿出来，添加上新的工作经历，略作修改，但整体上模板基本不变。
+Ban đầu tôi làm khá đơn giản. Lấy CV cũ ra, thêm kinh nghiệm làm việc mới, sửa sơ qua, nhưng nhìn chung mẫu CV hầu như không thay đổi.
 
-在基本面上，我做的是较为细致的，诚实地写上了自己擅长和熟悉的技能和经验经历，排版也尽力做得整洁美观（学过一些 UI 设计）。不浮夸也不故作谦虚。
+Về mặt cơ bản, tôi làm khá tỉ mỉ — trung thực ghi rõ kỹ năng và kinh nghiệm mình giỏi và quen, trình bày cũng cố gắng gọn gàng đẹp mắt (đã từng học một chút thiết kế UI). Không phóng đại cũng không giả tạo khiêm tốn.
 
-在扩展面上，我做的还是不够的。有一天，一位猎头打电话给我，问：“你最大的优势是什么？”。我顿时说不上来。当时也未多加思考。在后续面试屡遭失败之后，一度有些不自信之后，我开始仔细思考自己的优势来。然后将“对工程质量、性能优化、稳定性建设、业务配置化设计有深入思考和实践经验”写在了“技能素养”栏的第一行，因为这确实是我所做过的、最实在且脚踏实地的且具备概括性的。
+Về mặt mở rộng, tôi vẫn làm chưa đủ. Một ngày, một headhunter gọi điện hỏi: "Thế mạnh lớn nhất của bạn là gì?" Tôi bỗng nhiên không trả lời được. Lúc đó cũng không suy nghĩ thêm. Sau nhiều lần phỏng vấn thất bại, một lúc hơi mất tự tin, tôi bắt đầu suy nghĩ kỹ về thế mạnh của mình. Rồi ghi "có suy nghĩ sâu và kinh nghiệm thực hành về chất lượng kỹ thuật, tối ưu hiệu năng, xây dựng ổn định, thiết kế cấu hình nghiệp vụ" vào dòng đầu tiên trong mục "kỹ năng và phẩm chất", vì đây thực sự là điều tôi đã làm, thực chất và bám sát thực tế, đồng thời mang tính khái quát.
 
-有时，简历内容的编排顺序也很重要。之前，我把掌握的语言及技术写在前面，而“项目管理能力和团队影响力”之类的写在后面。但投年糕妈妈之后，未有面试直接被拉到不合适里面，受到了刺激，我意识到或许是对方觉得我管理经验不足。因此，刻意将“项目管理能力和团队影响力”提到了前面，表示自己是重视管理方面的，不过，投过新的简历之后，没有回应。我意识到，这样的编排顺序可能会让人误解我是管理能力偏重的（事实上有一位 HR 问我是不是还在写代码），但实际上管理方面我是欠缺的，最后，我还是调回了原来的顺序，凸出自己“工程师的本色”。后面，我又做了一些语句的编排上的修改。
+Đôi khi thứ tự sắp xếp nội dung CV cũng rất quan trọng. Trước đây tôi đặt các ngôn ngữ và kỹ thuật nắm vững lên đầu, còn "năng lực quản lý dự án và ảnh hưởng nhóm" thì viết ở phía sau. Nhưng sau khi nộp cho Nian Gao Mama mà không có phản hồi phỏng vấn trực tiếp bị xếp vào "không phù hợp", tôi bị kích thích và nhận ra rằng có lẽ họ cho rằng tôi thiếu kinh nghiệm quản lý. Vì vậy tôi cố tình đưa "năng lực quản lý dự án và ảnh hưởng nhóm" lên trước, tỏ ra mình coi trọng khía cạnh quản lý. Tuy nhiên sau khi nộp CV mới vẫn không có phản hồi. Tôi nhận ra cách sắp xếp này có thể gây hiểu lầm rằng tôi thiên về quản lý hơn (thực ra có một HR hỏi tôi có còn viết code không), nhưng thực tế tôi thiếu kỹ năng quản lý. Cuối cùng tôi vẫn điều chỉnh lại thứ tự ban đầu, làm nổi bật "bản sắc kỹ sư" của mình. Sau đó tôi còn sửa đổi một số câu văn trong cách sắp xếp.
 
-随着面试的进展，有时，也会发现自己的简历上写得不够或者以前做得不够的地方。比如，在订单导出这段经历里，我只是写了大幅提升性能和稳定性，显得定性描述化，因此，我添加了一些量化的东西（2w 阻塞 => 300w+，1w/1min）作为证实；比如，8 月份离职，到 12 月份面试的时候，有一段空档期，有些企业会问到这个。因此，我索性加了一句话，说明这段时间我在干些啥；比如，代表性系统和项目，每一个系统和项目的价值和意义（不一定写在上面，但是心里要有数）。功夫要下足。
+Khi phỏng vấn tiến triển, đôi khi cũng nhận ra những chỗ chưa viết đủ trong CV hoặc chưa làm đủ trước đây. Ví dụ, trong kinh nghiệm xuất đơn hàng, tôi chỉ ghi là "cải thiện đáng kể hiệu năng và ổn định", mang tính mô tả định tính, vì vậy tôi thêm một số con số định lượng (2w tắc nghẽn → 300w+, 1w/1phút) làm bằng chứng. Ví dụ, nghỉ việc tháng 8, đến tháng 12 phỏng vấn có một khoảng trống, một số doanh nghiệp sẽ hỏi về điều này. Vì vậy tôi thêm một câu giải thích thời gian đó tôi đang làm gì. Ví dụ, hệ thống và dự án đại diện — giá trị và ý nghĩa của từng hệ thống và dự án (không nhất thiết phải ghi vào CV, nhưng trong đầu phải rõ). Công sức phải bỏ ra đủ.
 
-再比如，我很详细地写了有赞的工作经历及经验，但阿里云的那段基本没动。而有些企业对这段经历更感兴趣，我却觉得没太多可说的，留在脑海里的只有少量印象深刻的东西，以及一些博客文章的记录，相比这段工作经历来说显得太单薄。这里实质上不是简历的问题，而是过往经历复盘的问题。建议，在每个项目结束后，都要写个自我复盘。避免时间将这些可贵的经历冲淡。
+Ví dụ khác, tôi ghi rất chi tiết kinh nghiệm làm việc tại Youzan, nhưng phần Alibaba Cloud hầu như không chỉnh sửa. Một số doanh nghiệp lại quan tâm hơn đến giai đoạn đó, còn tôi thì thấy không có nhiều thứ để nói, chỉ còn ít ấn tượng trong đầu và một số bài blog ghi lại — quá mỏng so với giai đoạn làm việc đó. Vấn đề thực chất ở đây không phải là CV, mà là vấn đề tổng kết lại kinh nghiệm quá khứ. Tôi khuyến nghị: sau mỗi dự án kết thúc, hãy tự tổng kết lại. Tránh để thời gian làm mờ nhạt những kinh nghiệm quý báu đó.
 
-每个人其实都有很多可说的东西，但记录下来的又有多少呢？值得谈道的有多少呢？过往不努力，面试徒伤悲。
+Thực ra ai cũng có rất nhiều điều có thể nói, nhưng ghi lại được bao nhiêu? Đáng kể lại bao nhiêu? Không cố gắng bây giờ, khi phỏng vấn chỉ biết than thở.
 
-**简历更新的心得**：
+**Bài học cập nhật CV**:
 
-- 简历是充分展示自己的浓缩精华，也是重新审视自己和过往经历的契机；
-- 不仅仅是简要介绍技能和经验，更要最大程度凸显自己的优势领域（差异化）；
-- 增强工作经历的表述，凸显贡献，赢得别人的认可；
-- 复盘并记录每一个项目中的收获，为跳槽和面试打下好的铺垫。
+- CV là tinh hoa cô đọng để thể hiện bản thân đầy đủ, cũng là cơ hội nhìn lại bản thân và quá khứ;
+- Không chỉ giới thiệu tóm tắt kỹ năng và kinh nghiệm, mà còn cần làm nổi bật tối đa lĩnh vực thế mạnh của bạn (sự khác biệt hóa);
+- Tăng cường diễn đạt kinh nghiệm làm việc, làm nổi bật đóng góp, giành được sự công nhận của người khác;
+- Tổng kết và ghi lại thu hoạch từ mỗi dự án, đặt nền tảng tốt cho việc nhảy việc và phỏng vấn.
 
-### 个人介绍
+### Giới thiệu bản thân
 
-面试前通常会要求做个简要的个人介绍。个人介绍通常作为进入面试的前奏曲和缓冲阶段，缓和下紧张气氛。
+Trước khi phỏng vấn thường được yêu cầu giới thiệu bản thân ngắn gọn. Phần giới thiệu bản thân thường là khúc dạo đầu và giai đoạn đệm vào phỏng vấn, giúp giảm bớt không khí căng thẳng.
 
-我最开始的个人介绍，个性啊业余生活啊工作经历啊志趣啊等等，似乎不知道该说些什么。实际上，个人介绍是一个充分展示自己的主页。主页应当让自己最最核心的优势一目了然（需要挖掘自己的经历并仔细提炼）。我现在的个人介绍一般会包括：个性（比如偏安静）、做事风格（工作认真严谨、注重质量、善于整体思考）、最大优势（owner 意识、执行力、工程把控能力）、工作经历简述（在每个公司的工作负责什么、贡献了什么、收获了什么）。个人介绍简明扼要，无需赘言。
+Ban đầu giới thiệu bản thân của tôi — cá tính, cuộc sống nghiệp dư, kinh nghiệm làm việc, sở thích, v.v. — dường như không biết nên nói gì. Thực ra, giới thiệu bản thân là trang chủ để thể hiện bản thân đầy đủ. Trang chủ phải làm nổi bật ngay những thế mạnh cốt lõi nhất của bạn (cần khai thác kinh nghiệm và đúc kết kỹ lưỡng). Giới thiệu bản thân hiện tại của tôi thường bao gồm: cá tính (ví dụ hướng nội), phong cách làm việc (nghiêm túc cẩn thận, chú trọng chất lượng, giỏi tư duy tổng thể), thế mạnh lớn nhất (ý thức owner, năng lực thực thi, kiểm soát kỹ thuật), tóm tắt kinh nghiệm làm việc (ở mỗi công ty phụ trách gì, đóng góp gì, thu hoạch gì). Giới thiệu bản thân ngắn gọn súc tích, không cần dài dòng.
 
-个人介绍，是对自己的一个更为清晰、深入和全面的认识契机。
+Giới thiệu bản thân là cơ hội để hiểu rõ, sâu sắc và toàn diện hơn về chính mình.
 
-### 公司了解
+### Tìm hiểu công ty
 
-很多人可能跟我一样，对公司业务了解甚少，就直接投出去了。这样其实是不合理的。首先，我个人是不赞成海投的，而倾向于定向投。找准方向投，虽然目标更少，但更有效率。这跟租房一样，我一般在豆瓣上租房，虽然目标源少，但逮着一个就是好运。
+Nhiều người có thể giống tôi — biết rất ít về nghiệp vụ công ty nhưng vẫn nộp CV. Điều này thực ra không hợp lý. Thứ nhất, cá nhân tôi không tán thành ném CV tràn lan, mà thiên về đầu tư có định hướng. Đầu tư có định hướng, dù mục tiêu ít hơn nhưng hiệu quả hơn. Việc này giống như thuê nhà — tôi thường thuê nhà trên Douban, dù nguồn ít hơn nhưng hễ tìm được là nhà tốt.
 
-投一家公司，是因为这家公司符合意向，值得争取，而不是因为这是一家公司。就像找对象，不是为了找一个女人。要确定这家公司是否符合意向，就应当多去了解这家公司：主营业务、未来发展及规划、所在行业及地位、财务状况、业界及网络评价等。
+Nộp vào một công ty là vì công ty đó đáp ứng kỳ vọng, đáng để cố gắng giành, chứ không phải vì đó là một công ty. Giống như tìm người yêu — không phải để tìm một người phụ nữ. Để xác định một công ty có đáp ứng kỳ vọng hay không, nên tìm hiểu thêm về công ty đó: nghiệp vụ chính, định hướng phát triển tương lai, ngành nghề và vị thế, tình hình tài chính, đánh giá từ ngành và mạng xã hội, v.v.
 
-在面试的过程中适当谈到公司的业务及思考，是可加分项。亦可用于“你有什么想问的？”的提问。
+Trong quá trình phỏng vấn đề cập đến nghiệp vụ và suy nghĩ về công ty một cách phù hợp là điểm cộng. Cũng có thể dùng cho câu hỏi "Bạn có muốn hỏi điều gì không?".
 
-### 技术探索
+### Khám phá kỹ thuật
 
-技术能力是一个技术人的基本素养。因此，我觉得，无论未来做什么工作，技术能力过硬，总归是最不可或缺的不可忽视的。
+Năng lực kỹ thuật là phẩm chất cơ bản của người làm kỹ thuật. Vì vậy tôi cho rằng dù trong tương lai làm công việc gì, năng lực kỹ thuật vững chắc luôn là điều không thể thiếu và không thể bỏ qua.
 
-原理和设计思想是软件技术中最为精髓的东西。一般软件技术可以分为两个方面：
+Nguyên lý và tư tưởng thiết kế là tinh túy nhất trong kỹ thuật phần mềm. Kỹ thuật phần mềm thông thường có thể chia thành hai khía cạnh:
 
-- 原理：事物如何工作的基本规律和流程；
-- 架构：如何组织大规模逻辑的艺术。
+- **Nguyên lý**: Quy luật và quy trình cơ bản về cách vật hoạt động;
+- **Kiến trúc**: Nghệ thuật tổ chức logic quy mô lớn.
 
-**技术探索，一定要先理解原理。原理不懂，就会浮于表层，不能真正掌握它。技术原理探究要掌握到什么程度？数据结构与算法设计、考量因素、技术机制、优化思路。要在脑中回放，直到一切细节而清晰可见。如果能够清晰有条理地表述出来，就更好了。**
+**Khám phá kỹ thuật nhất định phải hiểu nguyên lý trước. Không hiểu nguyên lý sẽ chỉ nắm được bề mặt, không thể thực sự làm chủ. Cần nắm vững nguyên lý kỹ thuật đến mức nào? Cấu trúc dữ liệu và thiết kế thuật toán, các yếu tố cần cân nhắc, cơ chế kỹ thuật, tư duy tối ưu. Cần phát lại trong đầu cho đến khi mọi chi tiết đều rõ ràng. Nếu có thể trình bày rõ ràng mạch lạc thì càng tốt.**
 
-**技术原理探究，一定要看源码。看了源码与没看源码是有区别的。没看源码，虽然说得出来，但终是隔了一层纸；看了源码，才捅破了那层纸，有了自己的理解，也就能说得更加有底气了。当然，也可能是我缺乏演戏的本领。**
+**Khám phá nguyên lý kỹ thuật nhất định phải xem source code. Xem source code và không xem source code là khác nhau. Không xem source code, dù nói được nhưng vẫn cách một lớp giấy; xem source code rồi mới thực sự thấu hiểu, mới nói được chắc chắn hơn. Dĩ nhiên, có thể tôi thiếu khả năng diễn xuất.**
 
-我个人不太赞成刷题式面试。虽然刷题确实是进厂的捷径，但也有缺点：
+Tôi cá nhân không tán thành kiểu luyện đề chuẩn bị phỏng vấn. Dù luyện đề đúng là con đường tắt để vào công ty, nhưng cũng có nhược điểm:
 
-- 它依然是别人的知识体系，而不是自己总结的知识体系；
-- 技术探究是为了未来的工作准备，而不是为了应对一时之需，否则即使进去了还是会处于麻痹状态。
+- Đó vẫn là hệ thống kiến thức của người khác chứ không phải hệ thống kiến thức tự mình tổng hợp;
+- Khám phá kỹ thuật là để chuẩn bị cho công việc tương lai, chứ không phải đối phó nhu cầu nhất thời — nếu không thì dù vào được vẫn ở trạng thái mê mờ.
 
-经过系统的整理，我逐步形成了适合自己的技术体系结构：[“互联网应用服务端的常用技术思想与机制纲要”](https://www.cnblogs.com/lovesqcc/p/13633409.html) 。在这个基础上，再博采众长，看看面试题进行自测和查漏补缺，是更恰当的方式。我会在这个体系上深耕细作。
+Qua quá trình tổng hợp có hệ thống, tôi dần hình thành cấu trúc hệ thống kỹ thuật phù hợp với bản thân: ["Tóm tắt các tư tưởng và cơ chế kỹ thuật phổ biến cho server-side ứng dụng internet"](https://www.cnblogs.com/lovesqcc/p/13633409.html). Trên nền tảng đó, học hỏi thêm từ các nguồn khác, xem các câu hỏi phỏng vấn để tự kiểm tra và bổ sung lỗ hổng — đó là cách phù hợp hơn. Tôi sẽ tiếp tục đào sâu hệ thống đó.
 
-### 表述能力
+### Năng lực diễn đạt
 
-目前，绝大多数企业的主要面试形式是通过口头沟通进行的，少部分企业可能有笔试或机试。口头沟通的形式是有其局限性的。对表述能力的要求比较高，而对专业能力的凸显并不明显。一个人掌握的专业和经验的深度和广度，很难通过几分钟的表述呈现出来。往往深度和广度越大，反而越难表述。而技术人员往往疏于表达。
+Hiện tại, hình thức phỏng vấn chính của hầu hết doanh nghiệp là giao tiếp miệng, một số doanh nghiệp có thể có bài kiểm tra viết hoặc thực hành. Hình thức giao tiếp miệng có giới hạn nhất định — yêu cầu cao về năng lực diễn đạt, nhưng không thể hiện rõ năng lực chuyên môn. Chiều sâu và rộng về chuyên môn và kinh nghiệm của một người rất khó thể hiện qua vài phút diễn đạt. Thường thì chiều sâu và rộng càng lớn, càng khó diễn đạt. Còn người làm kỹ thuật thường ít rèn luyện diễn đạt.
 
-我平时写得多说得少，说起来不利索。有时没讲清楚背景，就直接展开，兼之啰嗦、跳跃和回旋往复（这种方式可能更适合写小说），让面试官有时摸不着头脑。表述的条理性和清晰性也是很重要的。不妨自己测试一下：Dubbo 的架构设计是怎样的？ Redis 的持久化机制是怎样的？然后自己回答试试看。
+Tôi thường viết nhiều nói ít, nói không trôi chảy. Đôi khi chưa giải thích rõ bối cảnh đã triển khai luôn, kết hợp với lắm lời, hay nhảy chủ đề và lặp đi lặp lại (cách này có thể phù hợp hơn với viết tiểu thuyết), khiến người phỏng vấn đôi khi không hiểu đầu đuôi. Tính mạch lạc và rõ ràng trong diễn đạt cũng rất quan trọng. Hãy thử tự kiểm tra: Kiến trúc của Dubbo là gì? Cơ chế lưu trữ bền vững của Redis là gì? Rồi tự trả lời xem sao.
 
-表述能力的基本法则：
+Các nguyên tắc cơ bản của diễn đạt:
 
-- 先总后分，先整体后局部；
-- 先说基本思路，然后说优化；
-- 体现互动。先综述，然后向面试官询问要听哪方面，再分述。避免自己一脑瓜子倾倒出来，让面试官猝不及防；系统设计的场景题，多问一些要求，比如时间要求、空间要求、要支持多大数据量或并发量、是否要考虑某些情况等。
+- Tổng trước, phân sau; tổng thể trước, bộ phận sau;
+- Nói ý tưởng cơ bản trước, sau đó nói tối ưu;
+- Thể hiện tương tác. Trình bày tổng quan trước, sau đó hỏi người phỏng vấn muốn nghe khía cạnh nào, rồi mới trình bày chi tiết. Tránh trút ra một bãi, khiến người phỏng vấn bất ngờ. Với các câu hỏi thiết kế hệ thống, hãy hỏi thêm nhiều yêu cầu, như yêu cầu thời gian, yêu cầu không gian, cần hỗ trợ bao nhiêu dữ liệu hay lưu lượng đồng thời, có cần xem xét một số trường hợp hay không.
 
-### 常见问题
+### Câu hỏi thường gặp
 
-面试是通过沟通来理解双方的过程。面试中的问题，千变万化，但有一些问题是需要提前准备好的。
+Phỏng vấn là quá trình giao tiếp để hiểu nhau. Các câu hỏi trong phỏng vấn muôn hình muôn vẻ, nhưng có một số câu hỏi cần chuẩn bị trước.
 
-比如“灵魂 N 问”：
+Ví dụ "N câu hỏi linh hồn":
 
-- 你为什么从 XXX 离职？
-- 你的期望薪资是多少？
-- 你有一段空档期，能解释下怎么回事么？
-- 你的职业规划是怎样的？
+- Tại sao bạn rời khỏi XXX?
+- Mức lương kỳ vọng của bạn là bao nhiêu?
+- Bạn có một khoảng trống, có thể giải thích không?
+- Kế hoạch nghề nghiệp của bạn là gì?
 
-高频技术问题：
+Các câu hỏi kỹ thuật có tần suất cao:
 
-- 基础：数据结构与算法、网络；
-- 微服务：技术体系、组件、基础设施等；
-- Dubbo：Dubbo 整体架构、扩展机制、服务暴露、引用、调用、优雅停机等；
-- MySQL：索引与事务的实现原理、SQL 优化、分库分表；
-- Redis : 数据结构、缓存、分布式锁、持久化机制、复制机制；
-- 分布式：分布式事务、一致性问题；
-- 消息中间件：原理、对比；
-- 架构：架构设计方法、架构经验、设计模式；
-- 性能优化：JVM、GC、应用层面的性能优化；
-- 并发基础：ConcurrentHashMap, AQS, CAS，线程池等；
-- 高并发：IO 多路复用；缓存问题及方案；
-- 稳定性：稳定性的思想及经验；
-- 生产问题：工具及排查方法。
+- Nền tảng: Cấu trúc dữ liệu và thuật toán, mạng máy tính;
+- Microservices: Hệ thống kỹ thuật, các component, cơ sở hạ tầng;
+- Dubbo: Kiến trúc tổng thể, cơ chế mở rộng, phơi bày dịch vụ, tham chiếu, gọi, tắt máy graceful;
+- MySQL: Nguyên lý triển khai index và transaction, tối ưu SQL, phân tách DB và bảng;
+- Redis: Cấu trúc dữ liệu, cache, distributed lock, cơ chế lưu trữ bền vững, cơ chế replication;
+- Phân tán: Distributed transaction, vấn đề nhất quán;
+- Message middleware: Nguyên lý, so sánh;
+- Kiến trúc: Phương pháp thiết kế kiến trúc, kinh nghiệm kiến trúc, design pattern;
+- Tối ưu hiệu năng: JVM, GC, tối ưu hiệu năng cấp ứng dụng;
+- Concurrency cơ bản: ConcurrentHashMap, AQS, CAS, thread pool;
+- High concurrency: IO multiplexing; các vấn đề cache và giải pháp;
+- Ổn định: Tư tưởng và kinh nghiệm về ổn định;
+- Vấn đề production: Công cụ và phương pháp điều tra.
 
-### 中高端职位
+### Vị trí trung-cao cấp
 
-说起来，我这人可能有点不太自信。我是怀着“踏实做一个工程师”的思想投简历的。
+Nói thật, tôi người có lẽ hơi thiếu tự tin. Tôi nộp CV với tâm thế "yên tâm làm một kỹ sư".
 
-对于大龄程序员，企业的期望更高。我的每一份“高级工程师”投递，自动被转换为“技术专家”或“架构师”。无力反驳，倍感压力。面试中高端职位，需要更多准备：
+Với lập trình viên lớn tuổi, doanh nghiệp kỳ vọng cao hơn. Mỗi lần tôi nộp "Senior Engineer", đều tự động bị chuyển thành "Technical Expert" hoặc "Architect". Không thể phản bác, cảm thấy áp lực rất lớn. Phỏng vấn vị trí trung-cao cấp cần chuẩn bị nhiều hơn:
 
-- 你有带团队经历吗？
-- 在你 X 年的工作经历中，有多少时间用于架构设计？
-- 架构过程是怎样的？你有哪些架构设计思想或方法论？
+- Bạn có kinh nghiệm dẫn dắt nhóm không?
+- Trong X năm kinh nghiệm làm việc, bạn dành bao nhiêu thời gian cho thiết kế kiến trúc?
+- Quy trình kiến trúc như thế nào? Bạn có những tư tưởng hay phương pháp luận nào về thiết kế kiến trúc?
 
-如果不作准备，就被一下子问懵，乱了阵脚。实际上，我或许还是存着侥幸心理把“技术专家”和“架构师”岗位当做“高工”来面试的，也就无一不遭遇失败了。显然，我把次序弄反了：应当以“技术专家”和“架构师”的规格来面试高级工程师。
+Nếu không chuẩn bị, bị hỏi một cái là hoảng loạn. Thực ra tôi có lẽ vẫn còn tâm lý may mắn — phỏng vấn vị trí "Technical Expert" và "Architect" như phỏng vấn "Senior Engineer". Kết quả không thi nào không thất bại. Rõ ràng tôi đã làm ngược: phải phỏng vấn Senior Engineer với tiêu chuẩn Technical Expert và Architect.
 
-好吧，那就迎难而上吧！我不是惧怕挑战的人。
+Thôi, đã vậy thì đón nhận thôi! Tôi không phải người sợ thử thách.
 
-此外，“技术专家”和“架构师”职位应当至少留一天的时间来准备。已经有丰富经验的技术专家和架构师可以忽略。
+Ngoài ra, với vị trí "Technical Expert" và "Architect", ít nhất cần dành một ngày để chuẩn bị. Những Technical Expert và Architect đã có kinh nghiệm phong phú có thể bỏ qua điều này.
 
-### 好的心态
+### Thái độ tốt
 
-保持好的心态也尤为重要。我经历了“乐观-不自信-重拾信心”的心态变化过程。
+Duy trì thái độ tốt cũng vô cùng quan trọng. Tôi đã trải qua quá trình thay đổi thái độ: "lạc quan → mất tự tin → lấy lại tự tin".
 
-很长一段时间，由于“求成心切”，生怕某个技术问题回答不上来搞砸，因此小心谨慎，略显紧张，结果已经梳理好的往往说不清楚或者说得不够有条理。冲着“拿 offer ”的心态去面试，真的很难受，会觉得每场面试都很被动那么难过，甚至有点想要“降格以求”。
+Trong một thời gian dài, vì "quá muốn thành công", sợ không trả lời được câu hỏi kỹ thuật nào đó sẽ hỏng, nên thận trọng và hơi căng thẳng. Kết quả là những gì đã chuẩn bị kỹ lại thường không nói rõ được hoặc nói không mạch lạc. Đi phỏng vấn với tâm lý "phải lấy offer" thực sự rất khổ, cảm thấy mỗi buổi phỏng vấn đều bị động, khó chịu, thậm chí có lúc muốn "hạ tiêu chuẩn".
 
-有时，我在想：咋就混成这个样子了呢？按理来说，这个时候我应该有能力去追求自己喜爱的事业了啊！还是平时有点松懈了，视野狭窄，积累不够，导致今天的不利处境。
+Đôi khi tôi tự hỏi: Sao lại ra nông nỗi này nhỉ? Lẽ ra ở tuổi này tôi phải có khả năng theo đuổi sự nghiệp mình yêu thích rồi chứ! Có lẽ bình thường hơi lười biếng, tầm nhìn hẹp, tích lũy chưa đủ, dẫn đến hoàn cảnh bất lợi hôm nay.
 
-我是一个守时的人，也希望对方尽可能守时。杭州的面试官中，基本是守时的，即使迟到也在心理接受范围内，回武汉面试后，节奏就有点被少量企业带偏了。有一两次，我甚至不确定面试官什么时候进入会议。我想，难道这是人才应该受到的“礼待”吗？我有点被轻微冒犯的感觉了。不过我还是“很有涵养地”表示没事。但我始终觉得：面试官迟到，是对人才的不尊重。进入不尊重人才的公司，我是怀有疑虑的。良禽择木而栖，良臣择主而事。难道我能因为此刻的不利处境，而放弃一些基本的原则底线，而屈从于一份不尊重人才的 offer 吗？
+Tôi là người đúng giờ, cũng mong đối phương giữ đúng giờ. Người phỏng vấn tại Hàng Châu cơ bản đúng giờ, dù trễ cũng trong mức chấp nhận được. Khi về Vũ Hán phỏng vấn, nhịp điệu lại bị một số công ty làm lệch. Có một hai lần tôi thậm chí không biết người phỏng vấn sẽ vào phòng họp khi nào. Tôi nghĩ, đây là "sự tiếp đãi" đối với nhân tài sao? Tôi cảm thấy bị xúc phạm nhẹ. Dù sao tôi vẫn "rất có giáo dưỡng" và nói không sao. Nhưng tôi luôn cho rằng: người phỏng vấn đến trễ là sự thiếu tôn trọng nhân tài. Gia nhập công ty không tôn trọng nhân tài, tôi rất nghi ngại. Chim hiền chọn cây mà đậu, tôi chẳng lẽ vì hoàn cảnh bất lợi hiện tại mà từ bỏ một số nguyên tắc cơ bản, chấp nhận một offer không tôn trọng nhân tài?
 
-我意识到：一个人应当用其实力去赢得对方的尊重和赏识，以后的合作才会更顺畅。不若，哪怕惜其无缘，亦不可强留。无论别人怎么存疑，心无旁骛地打磨实力，挖掘自己的才干和优势，终会发出自己的光芒。因此，我的心态顿时转变了：应当专注去沟通，与对方充分认识了解，赢得对方心服的认可，而不是拿到一张入门券，成为干活的工具。
+Tôi nhận ra: Một người nên dùng thực lực để giành được sự tôn trọng và yêu quý của đối phương, như vậy sự hợp tác sau này mới thuận lợi hơn. Nếu không có duyên thì tiếc, nhưng không nên cưỡng cầu. Dù người khác nghi ngờ gì, hãy một lòng mài giũa thực lực, khai thác tài năng và thế mạnh của mình, cuối cùng sẽ tỏa ra ánh sáng riêng. Vì vậy thái độ của tôi thay đổi ngay lập tức: nên tập trung giao tiếp, hiểu nhau đầy đủ với đối phương, giành được sự công nhận thực lòng của họ, chứ không phải chỉ lấy được một tấm vé vào cửa, trở thành công cụ làm việc.
 
-有一个“石头和玉”的小故事，把自己当做人才，并努力去提升自己，才能获得“人才的礼遇”；把自己当石头贱卖，放松努力，也就只能得到“石头的礼遇”。尽管一个人不一定马上就具备人才的能力，但在自己的内心里，就应当从人才的视角去观察待入职的企业，而不仅仅是为了找一份“赚更多钱”的工作。
+Có một câu chuyện nhỏ về "đá và ngọc" — hãy coi mình là nhân tài và nỗ lực nâng cao bản thân, mới có thể nhận được "sự đãi ngộ của nhân tài". Tự coi mình như đá bán rẻ, buông lỏng nỗ lực, thì chỉ nhận được "sự đãi ngộ của đá". Dù một người chưa nhất thiết ngay lập tức có năng lực của nhân tài, nhưng trong nội tâm phải từ góc nhìn nhân tài để quan sát doanh nghiệp sắp gia nhập, chứ không chỉ là để tìm một công việc "kiếm nhiều tiền hơn".
 
-此外，焦虑也是不必要的。焦虑的实质是现实与目标的差距。一个人总可以评估目标的合理性及如何达成目标。如果目标过高，则适当调整目标级别；目标可行，则作出合理的决策，并通过持续的努力和恰当的出击来实现目标。决策、努力和出击能力都是可以持续修炼的。
+Ngoài ra, lo lắng cũng không cần thiết. Bản chất của lo lắng là khoảng cách giữa thực tế và mục tiêu. Một người luôn có thể đánh giá tính hợp lý của mục tiêu và cách đạt được mục tiêu. Nếu mục tiêu quá cao thì điều chỉnh cấp độ mục tiêu; nếu mục tiêu khả thi thì ra quyết định hợp lý, và thông qua nỗ lực liên tục và hành động đúng đắn để đạt được mục tiêu. Năng lực quyết định, nỗ lực và hành động đều có thể liên tục rèn luyện.
 
-## 面试历炼
+## Trải nghiệm phỏng vấn
 
-技术人的面试还是更偏重于技术，因此，技术的深度和广度还是要好好准备的。面试官和候选人的处境是不一样的，一个面试官问的只是少量点，但是多个面试官合起来就是一个面。明白这一点，作为面试官的你就不要忘乎所以，以为自己就比候选人厉害。
+Phỏng vấn của người làm kỹ thuật vẫn nghiêng nhiều về kỹ thuật, vì vậy chiều sâu và rộng về kỹ thuật cần chuẩn bị tốt. Tình huống của người phỏng vấn và ứng viên khác nhau — người phỏng vấn chỉ hỏi một số điểm ít ỏi, nhưng nhiều người phỏng vấn cộng lại thì tạo thành một mảng rộng. Hiểu điều này, là người phỏng vấn bạn đừng quá tự mãn, tưởng mình giỏi hơn ứng viên.
 
-我面的企业不多，因为我已经打算从事教育事业，用“志趣和驱动力”这项就直接过滤了很多企业的面试邀请。在杭州面试的基本是教育企业，连阿里华为等抛来的橄榄枝都婉拒了（尽管我也不一定能面上）。虽然做法有点“直男”，但投入最多精力于自己期望从事的行业和事业，才是值得的。
+Tôi không phỏng vấn nhiều công ty, vì đã quyết định theo đuổi sự nghiệp giáo dục, dùng "sở thích và động lực" để lọc thẳng nhiều lời mời phỏng vấn. Ở Hàng Châu cơ bản chỉ phỏng vấn các công ty giáo dục, thậm chí từ chối cả lời mời từ Alibaba, Huawei (dù tôi chưa chắc đỗ). Cách làm có vẻ "thẳng nam" một chút, nhưng đầu tư nhiều nhất vào ngành và sự nghiệp mình mong muốn mới là điều xứng đáng.
 
-我所认为的教育事业，并不局限于现在常谈起的在线教育或 K12 教育，而是一个教育体系，任何可以更好滴起到教育效果的事业，包括而不限于教学、阅读、音乐、设计等。
+Sự nghiệp giáo dục tôi quan niệm không chỉ giới hạn ở giáo dục trực tuyến hay giáo dục K12 thường được nói đến, mà là một hệ thống giáo dục — bất kỳ sự nghiệp nào có thể phát huy hiệu quả giáo dục tốt hơn, bao gồm nhưng không giới hạn ở giảng dạy, đọc sách, âm nhạc, thiết kế.
 
-### 接力棒科技-高工
+### Jielibang Technology - Senior Engineer
 
-面的第一家。畅谈一番后，没音讯了。但我也没有太在意。面试官问的比较偏交易业务性的东西，较深的就是如何保证应用的数据一致性了。
+Công ty đầu tiên. Sau một cuộc trò chuyện dài, không có tin tức. Nhưng tôi cũng không quan tâm lắm. Người phỏng vấn hỏi nhiều về nghiệp vụ giao dịch, sâu nhất là làm thế nào đảm bảo tính nhất quán dữ liệu của ứng dụng.
 
-此时的我，就像在路上扔了一颗探路的小石子，尚未意识到自己的处境。
+Lúc này tôi giống như ném một viên đá nhỏ thăm đường, chưa ý thức được hoàn cảnh của mình.
 
-### 网易云音乐-高工
+### NetEase Cloud Music - Senior Engineer
 
-接着是网易云音乐。大厂就是大厂。一面问的尽是缓存、分布式锁、Dubbo、ZK， MQ 中间件相关的机制。很遗憾，由于我平时关于技术原理的沉淀还是很少，基本是“一问两不知”，挂得很出彩。
+Tiếp theo là NetEase Cloud Music. Big tech là big tech. Vòng 1 hỏi toàn những thứ liên quan đến cơ chế của cache, distributed lock, Dubbo, ZooKeeper, MQ middleware. Rất tiếc, vì tôi bình thường tích lũy về nguyên lý kỹ thuật còn rất ít, cơ bản là "không biết gì", trượt một cách rực rỡ.
 
-此时，我初步意识到自己的技术底子还很薄弱，也就开始了广阔的技术学习和夯实，自底向上地梳理原理和逻辑，系统地进行整理总结，最终初步形成了自己的互联网服务端技术知识体系结构。
+Lúc này tôi bắt đầu nhận ra nền kỹ thuật của mình còn khá mỏng, và bắt đầu học hỏi kỹ thuật rộng rãi để củng cố, từ dưới lên tổng hợp nguyên lý và logic, hệ thống hóa tổng kết, cuối cùng hình thành bước đầu cấu trúc kiến thức kỹ thuật server-side internet của riêng mình.
 
-### 铭师堂-技术专家
+### Mingshitang - Technical Expert
 
-架构师面试的。问的相对多了一些，DB, Redis 等。反馈是技术还行，但缺乏管理经验。这是我第一次意识到大龄程序员缺乏管理经验的不利。中小企业的技术专家线招聘中，往往附加了管理经验的需求。应聘时要注意。
+Phỏng vấn bởi kiến trúc sư. Hỏi tương đối nhiều hơn, DB, Redis, v.v. Phản hồi là kỹ thuật ổn, nhưng thiếu kinh nghiệm quản lý. Đây là lần đầu tiên tôi nhận ra bất lợi khi lập trình viên lớn tuổi thiếu kinh nghiệm quản lý. Trong tuyển dụng đường Technical Expert của các công ty vừa và nhỏ, thường đính kèm yêu cầu kinh nghiệm quản lý. Cần chú ý khi ứng tuyển.
 
-缺乏管理经验，该怎么办呢？思考过一段时间后，我的想法是：
+Thiếu kinh nghiệm quản lý thì làm thế nào? Sau một thời gian suy nghĩ, tôi có những ý tưởng như sau:
 
-- 改变能改变的，不能改变的，学习它。比如技术原理的学习是我能够改变的，但管理经验属于难以一时改变的，那就多了解点管理的基本理论吧。
-- 从经历中挖掘相关经验。虽然我没有正式带团队的实际经验，但是有带项目和带工程师，管控某个业务线的基本管理经验。多多挖掘自己的经历。
+- Thay đổi những gì có thể thay đổi, với những gì không thể thay đổi thì học về nó. Ví dụ học nguyên lý kỹ thuật là điều tôi có thể thay đổi, nhưng kinh nghiệm quản lý là điều khó thay đổi trong thời gian ngắn, vậy thì hãy tìm hiểu thêm về các lý thuyết quản lý cơ bản.
+- Khai thác kinh nghiệm liên quan từ quá khứ. Dù tôi không có kinh nghiệm dẫn dắt nhóm chính thức, nhưng có kinh nghiệm quản lý cơ bản về dẫn dắt dự án, kèm cặp kỹ sư, quản lý một mảng nghiệp vụ. Hãy khai thác nhiều hơn từ kinh nghiệm của mình.
 
-### 字节教育-高工
+### ByteDance Education - Senior Engineer
 
-字节教育面试，我给自己挖了不少坑往里跳。
+Phỏng vấn ByteDance Education, tôi tự đào nhiều cái hố rồi nhảy vào.
 
-比如面试官问，讲一个你比较成就感的项目经历。我选择的是近 4 年前的周期购项目。虽然这是我入职有赞的第一个有代表性的项目，但时间太久，又没有详细记录，很多技术细节遗忘不清晰了。我讲到当时印象比较深的“一体化”设计思想，却忘记了当时为什么会有这种思想（未做仔细记录）。
+Ví dụ người phỏng vấn hỏi hãy kể về một dự án bạn cảm thấy thành tựu nhất. Tôi chọn dự án mua định kỳ gần 4 năm trước. Dù đây là dự án đại diện đầu tiên khi tôi gia nhập Youzan, nhưng thời gian quá lâu, lại không ghi chép chi tiết, nhiều chi tiết kỹ thuật đã quên không còn rõ. Tôi đề cập đến tư tưởng thiết kế "tích hợp hóa" lúc đó ấn tượng khá sâu, nhưng lại quên mất tại sao lại có tư tưởng đó (không ghi chép kỹ).
 
-再比如，一个上课的场景题，我问是用 CS 架构还是 BS 架构？面试官说用 CS 架构吧。这不是给自己挖坑吗？明明自己不熟悉 CS 架构，何必问这个选择呢，不如直接按照 BS 架构来讲解。哎！
+Ví dụ khác, có một câu hỏi tình huống về lớp học, tôi hỏi dùng kiến trúc CS hay BS? Người phỏng vấn nói dùng kiến trúc CS đi. Đây chẳng phải tự đào hố cho mình sao? Rõ ràng mình không quen với kiến trúc CS, sao lại hỏi lựa chọn đó, thà nói thẳng theo kiến trúc BS còn hơn. Ôi!
 
-字节教育给我的反馈是：业务 Sense 不错，系统设计能力有待提高。我觉得还是比较中肯的。因此，也开始注重系统设计实战方面的文章阅读和思考训练。
+ByteDance Education phản hồi với tôi là: Business Sense tốt, năng lực thiết kế hệ thống cần cải thiện. Tôi thấy khá xác đáng. Vì vậy cũng bắt đầu chú trọng đọc và suy nghĩ về các bài viết về thiết kế hệ thống thực chiến.
 
-经验是：
+Kinh nghiệm là:
 
-- 做项目时，要详细记录每个项目的技术栈、技术决策及原因、技术细节，为面试做好铺垫；
-- 提前准备好印象最深刻的最代表性的系统和项目，避免选择距离当前时间较久的缺乏详细记录的项目；
-- 选择熟悉的项目和架构，至少有好的第一印象，不然给面试官的印象就是你啥都不会。
+- Khi làm dự án, cần ghi chép chi tiết về tech stack, quyết định kỹ thuật và lý do, các chi tiết kỹ thuật, đặt nền tảng tốt cho phỏng vấn;
+- Chuẩn bị trước hệ thống và dự án ấn tượng nhất và có tính đại diện nhất, tránh chọn dự án thời gian xa, thiếu ghi chép chi tiết;
+- Chọn dự án và kiến trúc quen thuộc, ít nhất tạo ấn tượng ban đầu tốt, nếu không người phỏng vấn sẽ thấy bạn không biết gì.
 
-### 咪咕数媒-架构师
+### Migu Digital Media - Architect
 
-好家伙，一下子 3 位面试官群面。可能我以前经历的太少了吧。似乎国企面试较高端职位，喜欢采取这种形式。兼听则明偏听则暗嘛。问的问题也很广泛，从 ES 的基本原理，到机房的数据迁移。有些技术机制虽然学习过，但不牢固，不清晰，答的也不好。比如 ES 的搜索原理优化，讲过倒排索引后，我对 Term Index 和 Trie 树 讲不清楚。这说明，知道并不代表真正理解了。只有能够清晰有条理地把思路和细节都讲清楚，才算是真正理解了。
+Trời ơi, một lúc 3 người phỏng vấn cùng một lúc. Có lẽ tôi ít gặp hình thức này trước đây. Có vẻ phỏng vấn vị trí cao tại doanh nghiệp nhà nước thích áp dụng hình thức này. Nghe nhiều ý kiến sẽ sáng suốt hơn. Các câu hỏi cũng rất rộng, từ nguyên lý cơ bản của ES đến di chuyển dữ liệu giữa các cụm máy chủ. Một số cơ chế kỹ thuật dù đã học nhưng chưa vững, chưa rõ, trả lời cũng không tốt. Ví dụ về tối ưu nguyên lý tìm kiếm của ES, sau khi nói về inverted index, tôi giải thích không rõ về Term Index và Trie tree. Điều này nói lên rằng biết không có nghĩa là thực sự hiểu. Chỉ khi có thể trình bày rõ ràng mạch lạc cả tư duy lẫn chi tiết thì mới coi là thực sự hiểu.
 
-印象深刻的是，有一个问题：你有哪些架构思想？这是第一次被问到架构设计方面的东西，我顿时有点慌乱。虽然平时多有思考，也有写过文章，却没有形成系统精炼的方法论，结果就是答的比较凌乱。
+Ấn tượng sâu sắc là có một câu hỏi: Bạn có những tư tưởng kiến trúc nào? Đây là lần đầu tiên được hỏi về thiết kế kiến trúc, tôi hơi hoảng loạn. Dù bình thường cũng hay suy nghĩ, cũng có viết bài, nhưng chưa hình thành phương pháp luận có hệ thống và súc tích, kết quả là trả lời khá lộn xộn.
 
-### 涂鸦智能-高工
+### Tuya Smart - Senior Engineer
 
-应聘涂鸦智能，是因为我觉得这家企业不错。优秀的企业至少应该多沟通一下，说不准以后有合作机会呢！看问题的思维要开阔一些，不能死守在自己想到的那一个事情上。
+Ứng tuyển Tuya Smart vì tôi thấy doanh nghiệp này không tồi. Doanh nghiệp xuất sắc ít nhất nên giao tiếp thêm, biết đâu sau này có cơ hội hợp tác! Tư duy nhìn vấn đề phải rộng hơn, đừng chỉ bám vào một việc mình nghĩ đến.
 
-涂鸦智能给我的整体观感还是不错的。面试官也很有礼貌有耐心，整体架构、技术和项目都问了很多，问到了我熟悉的地方，答得也还可以。也许我的经验正好是切中他们的需求吧。
+Ấn tượng tổng thể về Tuya Smart không tệ. Người phỏng vấn lịch sự, có kiên nhẫn, hỏi rất nhiều về kiến trúc tổng thể, kỹ thuật và dự án, hỏi trúng vào chỗ tôi quen, trả lời cũng còn được. Có lẽ kinh nghiệm của tôi vừa khớp với nhu cầu của họ.
 
-若不是当时想做教育的执念特别强，我很大概率会入职涂鸦智能。物联网在我看来应该是很有趣的领域。
+Nếu không phải lúc đó muốn làm giáo dục quá mạnh mẽ, xác suất cao là tôi đã gia nhập Tuya Smart. IoT theo tôi nên là lĩnh vực khá thú vị.
 
-### 跟谁学-技术专家
+### Genshui Xue - Technical Expert
 
-“跟谁学”基本能答上来。不过反馈是：对于提问抓重点的能力有所欠缺，对于技术的归纳整理也不够。我当时还有点不服气，认为自己写了那么多文章，也算是有不少思考，怎能算是总结不够呢？顶多是有技术盲点。技术犹如海洋，谁能没有盲点？
+Cơ bản trả lời được. Nhưng phản hồi là: năng lực nắm bắt trọng điểm khi trả lời câu hỏi còn thiếu, tổng hợp kỹ thuật cũng chưa đủ. Lúc đó tôi còn hơi không phục, nghĩ mình viết nhiều bài như vậy, cũng có khá nhiều suy nghĩ, sao gọi là tổng kết chưa đủ? Nhiều nhất là còn điểm mù kỹ thuật. Kỹ thuật như biển cả, ai chẳng có điểm mù?
 
-不过现在反观，确实距离自己应该有的程度不够。对技术原理机制和生产问题排查的总结不够，不够清晰细致；对设计实践的经验总结也不够，不够系统扎实。这个事情还要持续深入地去做。
+Nhưng nhìn lại bây giờ, quả thực còn xa mức mình lẽ ra phải có. Tổng kết về nguyên lý cơ chế kỹ thuật và điều tra vấn đề production còn chưa đủ, chưa đủ rõ ràng và tỉ mỉ; tổng kết kinh nghiệm thực hành thiết kế cũng chưa đủ, chưa đủ hệ thống và vững chắc. Việc này cần tiếp tục đào sâu và làm.
 
-此外，面得越多，越发现自己的表述能力确实有所欠缺。啰嗦、容易就一点展开说个没完、脱离背景直接说方案、跳跃、回旋往复，然后面试官很可能没耐心了。应该遵循“先总后分”、“基本思路-实现-优化”的一些基本逻辑来作答会更好一些。表述能力真的很重要，不可只顾着敲代码。还有每次面教育企业就不免紧张，生怕错过这个机会。
+Ngoài ra, càng phỏng vấn nhiều càng nhận ra năng lực diễn đạt của mình còn thiếu. Lắm lời, dễ khai triển một điểm không ngừng, nói thẳng vào giải pháp mà không giải thích bối cảnh, hay nhảy chủ đề và lặp đi lặp lại — người phỏng vấn rất có thể mất kiên nhẫn. Nên tuân theo logic cơ bản "tổng trước phân sau", "ý tưởng cơ bản → triển khai → tối ưu" để trả lời sẽ tốt hơn. Năng lực diễn đạt thực sự rất quan trọng, không thể chỉ lo gõ code. Còn mỗi lần phỏng vấn công ty giáo dục lại không khỏi căng thẳng, sợ bỏ lỡ cơ hội.
 
-这是第二家直接告诉我年龄与经验不匹配的企业，加深了我对年龄偏大的忧虑，以致于开始有点不自信了。
+Đây là công ty thứ hai trực tiếp nói với tôi rằng tuổi tác và kinh nghiệm không khớp, làm sâu thêm lo lắng về tuổi tác lớn, đến mức bắt đầu hơi mất tự tin.
 
-那么我又是怎么重拾信心的呢？有一句老话：“留得青山在，不怕没柴烧”。就算我年龄比较大，如果我的技术能力打磨得足够硬朗，就不信找不到一家能够认可我的企业。大不了我去做开源项目好了。具备好的技术能力，并不一定就局限在企业的范围内去发挥作用，也没必要局限于那些被年龄偏见所蒙蔽的人的认知里。外界的认可固然重要，内在的可贵性却远胜于外在。
+Vậy tôi lấy lại tự tin như thế nào? Có một câu nói cũ: "Còn núi xanh, không lo thiếu củi đốt". Dù tuổi tác lớn hơn, nếu năng lực kỹ thuật mài giũa đủ vững, tôi không tin không tìm được một công ty có thể công nhận mình. Thêm nữa tôi có thể tham gia các dự án mã nguồn mở. Có năng lực kỹ thuật tốt không nhất thiết bị giới hạn trong phạm vi doanh nghiệp, cũng không nhất thiết bị giới hạn trong nhận thức của những người bị định kiến tuổi tác che mờ. Sự công nhận từ bên ngoài cố nhiên quan trọng, nhưng giá trị bên trong còn quý hơn sự bề ngoài.
 
-### 亿童文教-架构师
+### Yitong Wenjiao - Architect
 
-也是采用的 3 人同时面试。主要问的是项目经历，技术方面问得倒不是深入。个人觉得答得还行。面试官也问了架构设计相关的问题，我答得一般。此时，我仍然没有意识到自己在以面“高级工程师”的规格来面试“架构师”岗位。
+Cũng là 3 người phỏng vấn cùng một lúc. Chủ yếu hỏi về kinh nghiệm dự án, kỹ thuật hỏi không sâu. Cá nhân thấy trả lời còn được. Người phỏng vấn cũng hỏi về thiết kế kiến trúc, tôi trả lời bình thường. Lúc này tôi vẫn chưa nhận ra mình đang dùng tiêu chuẩn phỏng vấn "Senior Engineer" để phỏng vấn vị trí "Architect".
 
-面试官比较温和，HR 也在积极联系和沟通，感觉还不错。只是，我没有主动去问反馈意见，也就没有下文了。
+Người phỏng vấn khá ôn hòa, HR cũng tích cực liên hệ và giao tiếp, cảm giác không tệ. Chỉ là tôi không chủ động hỏi phản hồi, nên cũng không có tin tiếp theo.
 
-### 新东方-高工
+### New Oriental - Senior Engineer
 
-面试新东方，主要是因为切中我做教育的期望，虽然职位需求是做信息管理系统，距离我理想中的业务还有一定距离。经过沟通了解，他们更需要的是对运维方面更熟悉的工程师，不过我正好对运维方面不太熟悉，平时关注不多，因此不太符合他们的真实招聘要求。面试官也是很温和的人，老家在宜昌，是我本科上大学的地方，面试体验不错。
+Phỏng vấn New Oriental chủ yếu vì khớp với kỳ vọng làm giáo dục của tôi, dù vị trí yêu cầu là làm hệ thống quản lý thông tin, vẫn còn khoảng cách với nghiệp vụ lý tưởng. Qua giao tiếp tìm hiểu, họ cần kỹ sư quen hơn với vận hành, còn tôi vừa không quen với vận hành, bình thường ít quan tâm, nên không quá phù hợp với yêu cầu tuyển dụng thực tế. Người phỏng vấn cũng là người ôn hòa, quê ở Nghi Xương — nơi tôi học đại học — trải nghiệm phỏng vấn không tệ.
 
-以后要花些时间学习一些运维相关的东西。作为一名优秀的工程师和合格的架构师，是要广泛学习和熟悉系统所采用的各种组件、中间件、运维部署等的。要有综观能力，不过我醒悟的可能有点迟。Better later than never.
+Sau này cần dành thời gian học một số thứ liên quan đến vận hành. Là một kỹ sư xuất sắc và kiến trúc sư đủ năng lực, cần học hỏi rộng và quen thuộc với các loại component, middleware, vận hành và triển khai mà hệ thống sử dụng. Cần có năng lực tổng quan, nhưng tôi nhận ra có lẽ hơi muộn. Better later than never.
 
-### ZOOM-高工
+### ZOOM - Senior Engineer
 
-ZOOM 的一位面试官或许是我见过的所有面试官中最差劲的。共有两位面试官，一位显得很有耐心，另一位则挺着胖胖的肚子，还打着哈欠，一副不怎么关心面试和候选人的样子。我心想，你要不想面，为啥还要来面呢？你以为候选人就低你一等么？换个位置我可以暴打你。不过我还是很有礼貌的，当做什么事也没发生。公司在挑人，候选人也在挑选公司。
+Một người phỏng vấn của ZOOM có lẽ là người phỏng vấn kém nhất tôi từng gặp. Có hai người phỏng vấn — một người có vẻ rất kiên nhẫn, còn người kia thì đang ngồi với cái bụng phệ, vừa ngáp, một dáng vẻ không quan tâm đến phỏng vấn và ứng viên. Tôi nghĩ, không muốn phỏng vấn thì đến đây làm gì? Bạn nghĩ ứng viên thấp hơn bạn một bậc à? Đổi vị trí tôi có thể cho bạn một bài. Nhưng tôi vẫn rất lịch sự, như thể không có chuyện gì xảy ra. Công ty đang chọn người, ứng viên cũng đang chọn công ty.
 
-想想，ZOOM 还是疫情期间我们公司用过的远程通信会议软件。印象还不错，有这样的工程师和面试官藏于其中，我也是服了。难倒他是传说中的大大神？据我所知，国外对国内的互联网软件技术设施基本呈碾压态势，中国大部分企业所用的框架、中间件、基础设施等基本是拿国外的来用或者做定制化，真正有自研的很少，有什么好自满的呢？
+Nghĩ lại, ZOOM là phần mềm hội nghị từ xa mà công ty chúng tôi dùng trong thời dịch. Ấn tượng không tệ, nhưng có kỹ sư và người phỏng vấn như vậy ở bên trong, tôi cũng phục luôn. Lẽ nào anh ta là đại thần huyền thoại? Theo tôi biết, về cơ sở hạ tầng phần mềm internet, nước ngoài về cơ bản áp đảo trong nước. Phần lớn doanh nghiệp Trung Quốc dùng framework, middleware, cơ sở hạ tầng của nước ngoài hoặc tùy chỉnh từ đó, thực sự tự nghiên cứu rất ít. Có gì đáng tự mãn?
 
-### 阿优文化-高工
+### AYou Culture - Senior Engineer
 
-阿优文化有四轮技术面。其中第一个技术面给我印象比较深刻。看上去，面试官对操作系统的原理机制特别擅长和熟悉。很多问题我都没答上来。本以为挂了，不过又给了扳回一局的机会。第二位面试问的项目经历和技术问题是我很熟悉的。第三位面试官问的比较广泛，有答的上来的，有答不上来的。不过面试官很耐心。第四位是技术总监，也问得很广泛细致。
+AYou Culture có 4 vòng phỏng vấn kỹ thuật. Vòng 1 kỹ thuật để lại ấn tượng khá sâu với tôi. Trông có vẻ người phỏng vấn đặc biệt giỏi và quen thuộc về nguyên lý cơ chế hệ điều hành. Nhiều câu hỏi tôi không trả lời được. Tưởng trượt rồi, nhưng lại được cơ hội lật ngược tình thế. Vòng 2 hỏi kinh nghiệm dự án và câu hỏi kỹ thuật mà tôi rất quen. Vòng 3 hỏi rộng, có câu trả lời được có câu không, nhưng người phỏng vấn rất kiên nhẫn. Vòng 4 là Giám đốc Kỹ thuật, hỏi cũng rất rộng và tỉ mỉ.
 
-整体来说，面试氛围还是很宽松的。不过，阿优当时的招聘需求并不强烈，估计是希望后续有机会时再联系我。可惜我那时准备回武汉了。主要是考虑父母年事已高，希望能多陪陪父母。
+Nhìn chung, không khí phỏng vấn khá thoải mái. Tuy nhiên nhu cầu tuyển dụng của AYou lúc đó không cấp bách, họ nghĩ sau này có cơ hội sẽ liên hệ lại. Tiếc là lúc đó tôi chuẩn bị về Vũ Hán rồi. Chủ yếu là cân nhắc bố mẹ đã cao tuổi, muốn ở bên cạnh nhiều hơn.
 
-想想，我想问题做决策还是过于简单的，不会做很复杂的计算和权衡。
+Nghĩ lại, cách tôi suy nghĩ và ra quyết định vẫn còn khá đơn giản, không biết tính toán và cân nhắc phức tạp.
 
-### 小米-专家/架构
+### Xiaomi - Expert/Architect
 
-应聘小米，主要是因为职位与之前在有赞做的很相似，都是做交易中台相关。浏览小米官网之后，觉得他们做的事情很棒，可是与我想做教育文化事业的初衷不太贴合。
+Ứng tuyển Xiaomi chủ yếu vì vị trí rất giống với những gì tôi làm ở Youzan trước đây — đều là về Transaction Middle Platform. Sau khi duyệt website của Xiaomi, thấy những gì họ làm rất hay, nhưng không quá khớp với chí hướng ban đầu muốn làm sự nghiệp giáo dục văn hóa.
 
-加入小米的意愿不太强烈，面试也就失去了大半动力。我这个性子还是要改一改。
+Động lực gia nhập Xiaomi không mạnh lắm, phỏng vấn cũng mất đi nhiều động lực. Cá tính này cần thay đổi.
 
-### 视觉中国-高工
+### Visual China - Senior Engineer
 
-围绕技术、项目和经历来问。总体来说，技术深度并不是太难，项目方面也涉及到了。人力面前辈很温和，我以为会针对自己的经历进行一番“轰炸”，结果是为前辈讲了讲有赞的产品服务和生意模式，然后略略带了下自己的一些经历。
+Hỏi xung quanh kỹ thuật, dự án và kinh nghiệm. Nhìn chung chiều sâu kỹ thuật không quá khó, cũng đề cập đến dự án. Vòng HR rất ôn hòa. Tôi tưởng sẽ bị "dội bom" về kinh nghiệm của mình, kết quả là kể cho HR nghe về sản phẩm, dịch vụ và mô hình kinh doanh của Youzan, rồi lướt qua một chút kinh nghiệm của mình.
 
-### 科大讯飞-架构师
+### iFLYTEK - Architect
 
-一二面，感觉面试官对安排的面试不太感兴趣。架构师，至少是一个对技术和设计能力非常高要求的职位。一面的技术和架构都问了些，二面总围绕我的背景和非技术相关的东西问，似乎对我的外在更关注，而对我自身的技术和设计能力不感兴趣。交流偏浅。
+Vòng 1 và vòng 2, cảm giác người phỏng vấn không mấy hứng thú với phỏng vấn đã được sắp xếp. Architect, ít nhất là vị trí yêu cầu rất cao về năng lực kỹ thuật và thiết kế. Vòng 1 hỏi một số kỹ thuật và kiến trúc. Vòng 2 cứ hỏi xung quanh lý lịch và những thứ không liên quan kỹ thuật của tôi, dường như quan tâm nhiều hơn đến ngoại hình của tôi hơn là năng lực kỹ thuật và thiết kế của mình. Giao tiếp khá nông.
 
-能力固然有高下之分，但尊重人才的基本礼节却是不变的。尊重人才，是指聚焦人才的能力和才学，而不是一些与才学不甚相关的东西。
+Năng lực có thể có cao thấp, nhưng phép lịch sự cơ bản tôn trọng nhân tài là bất biến. Tôn trọng nhân tài là tập trung vào năng lực và tài năng của họ, chứ không phải những thứ ít liên quan đến tài năng.
 
-### 青藤云-高工
+### Qingteng Cloud - Senior Engineer
 
-青藤云的技术面试风格是温和的。感受到坦率交流的味道，被认可的感觉。感受到 HR 求才若渴的心情。和我之前认为的“应当用其实力去赢得对方的尊重和赏识”不谋而合。
+Phong cách phỏng vấn của Qingteng Cloud là ôn hòa. Cảm nhận được mùi vị giao tiếp thẳng thắn, cảm giác được công nhận. Cảm nhận HR như khát nhân tài. Khớp với quan điểm trước đây của tôi "nên dùng thực lực để giành được sự tôn trọng và yêu quý của đối phương".
 
-### 腾讯会议-高工
+### Tencent Meeting - Senior Engineer
 
-和腾讯面试官是用腾讯会议软件面试腾讯会议的职位。哈哈。由于网络不太稳定，面试过程充满了磕磕碰碰，一句话没说完整就听不清楚了。可想情况如何。但是我们都很有很有很有耐心，最终一起完成了一面。面试是双方智慧与力量的较量，更是双方一起去完成一件事情、发现彼此的合作。这样想来，传统的“单方考验筛选式”的面试观念需要革新。
+Phỏng vấn với người phỏng vấn Tencent qua phần mềm Tencent Meeting để ứng tuyển vị trí Tencent Meeting. Ha ha. Vì mạng không ổn định, quá trình phỏng vấn đầy những trục trặc — nói chưa hết câu đã không nghe rõ. Bạn tưởng tượng xem. Nhưng chúng tôi đều rất rất rất kiên nhẫn, cuối cùng cùng nhau hoàn thành vòng 1. Phỏng vấn là cuộc đấu trí và sức mạnh của cả hai bên, hơn hết là cùng nhau hoàn thành một việc, khám phá nhau. Nghĩ như vậy, quan niệm phỏng vấn kiểu truyền thống "một phía kiểm tra lựa chọn" cần được đổi mới.
 
-由于我已经拿到 offer , 且腾讯会议的事情并不太贴合自己的初衷，因此，我与腾讯方面沟通，停止了二面。
+Vì tôi đã có offer, và công việc của Tencent Meeting không quá khớp với chí hướng ban đầu, nên tôi trao đổi với Tencent và dừng vòng 2.
 
-### 最终选择
+### Lựa chọn cuối cùng
 
-当拿到多个 offer 时，如何选择呢？我个人主要看重：
+Khi có nhiều offer, làm thế nào để lựa chọn? Cá nhân tôi coi trọng:
 
-1. 志趣与驱动力；
-2. 薪资待遇；
-3. 公司发展前景和个人发展空间；
-4. 工作氛围；
-5. 小而有战斗力的企业。
+1. Sở thích và động lực;
+2. Lương và đãi ngộ;
+3. Triển vọng phát triển công ty và không gian phát triển cá nhân;
+4. Môi trường làm việc;
+5. Công ty nhỏ nhưng có chiến đấu lực.
 
-在视觉中国与青藤云之间如何选择？作个对比：
+Chọn thế nào giữa Visual China và Qingteng Cloud? So sánh:
 
-- 薪资待遇：两者的薪资待遇不相上下，也都是认可我的；视觉中国给出的是 Leader 的职位，而青藤云给出的是核心业务的承诺；
-- 工作氛围：青藤云应该更偏工程师文化氛围，而视觉中国更偏业务化；
-- 挑战性：青藤云的技术挑战更强，而视觉中国的业务挑战性更强；
-- 志趣与驱动力：视觉中国更符合我想做文化的事情，而青藤云安全并不贴合我想做教育文化事业的初衷，而且比较偏技术和底层（我更希望做一些人文性的事情）。但青藤云做的是关于安全的事情，安全是一件很有价值很有意义的事情。而且，以后安全也可以服务于教育行业。有点曲线救国的味道。尤其是创始人张福的理想主义信念“让安全之光照亮互联网的每个角落”及自己的身体力行，让人更有一些触动。最终，我觉得做安全比做图片版权保护稍胜出一小筹。
+- Lương và đãi ngộ: Hai bên không chênh lệch nhiều, cũng đều công nhận tôi. Visual China đưa ra vị trí Leader, còn Qingteng Cloud hứa hẹn về nghiệp vụ cốt lõi;
+- Môi trường làm việc: Qingteng Cloud có lẽ thiên về văn hóa kỹ sư hơn, còn Visual China thiên về nghiệp vụ hơn;
+- Tính thử thách: Thử thách kỹ thuật của Qingteng Cloud mạnh hơn, còn thử thách nghiệp vụ của Visual China mạnh hơn;
+- Sở thích và động lực: Visual China khớp hơn với mong muốn làm văn hóa của tôi, còn bảo mật của Qingteng Cloud không quá khớp với chí hướng ban đầu muốn làm sự nghiệp giáo dục văn hóa, hơn nữa thiên về kỹ thuật và tầng dưới (tôi muốn làm những thứ có tính nhân văn hơn). Nhưng Qingteng Cloud làm về bảo mật, bảo mật là việc rất có giá trị và ý nghĩa. Hơn nữa sau này bảo mật cũng có thể phục vụ ngành giáo dục. Có vẻ là đi đường vòng đến đích. Đặc biệt là lý tưởng chủ nghĩa của người sáng lập Zhang Fu "để ánh sáng bảo mật chiếu sáng mọi góc khuất của internet" và thân thể lực hành của ông, tạo cho tôi ấn tượng sâu sắc hơn. Cuối cùng tôi thấy làm bảo mật hơn làm bảo vệ bản quyền hình ảnh một chút.
 
-此外，我觉得做教育，更适合自己的是编程教育，或者是工程师教育。我还想成为一名系统设计师。还需要积累更多生产实践经验。可以多与初中级工程师打交道，在企业内部做培训指导。或者工作之余录制视频，上传到 B 站，服务广大吃瓜群众。将来，我或许还会写一本关于编程设计的书，汇聚毕生所学。
+Ngoài ra, tôi nghĩ để làm giáo dục, điều phù hợp hơn với bản thân là giáo dục lập trình, hay giáo dục kỹ sư. Tôi còn muốn trở thành một System Designer. Vẫn cần tích lũy thêm nhiều kinh nghiệm thực hành production. Có thể giao tiếp nhiều hơn với kỹ sư sơ-trung cấp, làm đào tạo hướng dẫn nội bộ công ty. Hoặc trong thời gian rảnh quay video, đăng lên B站, phục vụ cộng đồng. Trong tương lai, có lẽ tôi còn sẽ viết một cuốn sách về thiết kế lập trình, tổng kết tất cả những gì tôi học được trong cuộc đời.
 
-因此，经过一天慎重的考虑，我决定，加入青藤云安全。当然，做这个选择的同时，也意味着我选择了一个更大的挑战：在安全方面我基本一穷二白，需要学习很多很多的知识和经验，对于我这个大龄程序员来说，是一项不小的挑战。
+Vì vậy, sau một ngày cân nhắc kỹ lưỡng, tôi quyết định gia nhập Qingteng Cloud Security. Tất nhiên, đưa ra lựa chọn này cũng đồng nghĩa với việc tôi chấp nhận một thử thách lớn hơn: về bảo mật tôi gần như trắng tay, cần học rất nhiều kiến thức và kinh nghiệm — đối với tôi, một lập trình viên lớn tuổi, đây là một thử thách không nhỏ.
 
-## 小结
+## Tóm tắt
 
-很多事情都有解决的方法，即使“头疼的”大龄程序员找工作也不例外。确立明确清晰的目标、制定科学合理的决策、持续的努力、掌握基本面、恰当的出击，终能斩获胜利的果实。但要强调一下：功夫在平时。平时要是不累积好，面试的时候就要花更多时间去学习，会受挫、磕磕碰碰、过得也不太舒坦。还是平摊到平时比较好。此外，平时视野也要保持开阔，切忌在面试的时候才“幡然醒悟”。
+Nhiều việc đều có cách giải quyết, kể cả việc "đau đầu" như lập trình viên lớn tuổi tìm việc cũng không ngoại lệ. Xác định mục tiêu rõ ràng, đưa ra quyết định khoa học và hợp lý, nỗ lực liên tục, nắm vững nền tảng, ra tay đúng thời điểm — cuối cùng sẽ hái được quả thành công. Nhưng cần nhấn mạnh một điều: công phu ở bình thường. Bình thường không tích lũy tốt, khi phỏng vấn sẽ phải bỏ nhiều thời gian học hỏi hơn, sẽ vấp ngã, khó khăn, cuộc sống cũng không thoải mái. Vẫn là trải đều ra bình thường thì tốt hơn. Ngoài ra, tầm nhìn bình thường cũng cần giữ rộng, tránh "đến khi phỏng vấn mới chợt tỉnh ngộ".
 
-一个重要经验是，要善于从失败中学习。正是在杭州四个月空档期的持续学习、思考、积累和提炼，以及面试失败的反思、不断调整对策、完善准备、改善原有的短板，采取更为合理的方式，才在回武汉的短短两个周内拿到比较满意的 offer 。
+Một kinh nghiệm quan trọng là cần giỏi học hỏi từ thất bại. Chính nhờ 4 tháng liên tục học hỏi, suy ngẫm, tích lũy và đúc kết trong thời gian trống tại Hàng Châu, cùng với việc rút kinh nghiệm từ những lần phỏng vấn thất bại, không ngừng điều chỉnh chiến lược, hoàn thiện sự chuẩn bị, khắc phục điểm yếu sẵn có và áp dụng cách tiếp cận hợp lý hơn, mới có thể nhận được offer khá ưng ý chỉ trong vòng hai tuần ngắn ngủi sau khi trở về Vũ Hán.
 
-此外，值得提及的是，对于技术人员，写博客是一件很有价值的事情。面试通过沟通去了解对方，有其局限性所在。面试未能筛选出符合的人才其实是有比较大概率的：
+Ngoài ra, cũng đáng đề cập rằng với người làm kỹ thuật, viết blog là việc rất có giá trị. Phỏng vấn thông qua giao tiếp để hiểu nhau có giới hạn nhất định. Phỏng vấn không tìm ra được nhân tài phù hợp thực ra có xác suất khá lớn:
 
-1. 面试的时间很短，即使是很有经验的面试官，也会看走眼（根本局限性）；
-2. 面试官问到的正好是自己不会的（运气问题）；
-3. 面试官情绪不好，没兴趣（运气问题）；
-4. 面试官自身的水平。
+1. Thời gian phỏng vấn ngắn, kể cả người phỏng vấn dày dạn kinh nghiệm cũng có thể nhìn nhầm (giới hạn cơ bản);
+2. Người phỏng vấn hỏi đúng vào chỗ bạn không biết (vấn đề may rủi);
+3. Người phỏng vấn không có tâm trạng tốt, không có hứng (vấn đề may rủi);
+4. Trình độ của bản thân người phỏng vấn.
 
-因此，具备真才实学而被 PASS 掉，并不值得伤心。写博客的意义在于，有更多展示自己思考和平时工作的维度。
+Vì vậy, có thực lực thực sự mà bị PASS không đáng buồn. Ý nghĩa của việc viết blog là có thêm chiều không gian để thể hiện suy nghĩ và công việc bình thường của mình.
 
-尊重人才的企业，一定是希望从多方面去认识候选人（在优点和缺点之间选择确认是否符合期望），包括博客；不尊重人才的企业，则会倾向于用偷懒的方法，对候选人真实的本领不在意，用一些外在的标准去快速过滤，固然高效，最终对人才的识别能力并不会有多大进步。
+Doanh nghiệp tôn trọng nhân tài nhất định muốn hiểu ứng viên từ nhiều góc độ (trong ưu và nhược điểm lựa chọn xem có khớp với kỳ vọng không), bao gồm cả blog; doanh nghiệp không tôn trọng nhân tài sẽ thiên về dùng cách lười biếng, không quan tâm đến thực lực thực sự của ứng viên, dùng một số tiêu chuẩn bề ngoài để lọc nhanh. Cố nhiên hiệu quả, nhưng cuối cùng năng lực nhận diện nhân tài sẽ không tiến bộ nhiều.
 
-经过这一段面试的历炼，我觉得现在相比离职时的自己，又有了不少进步的。不说脱胎换骨，至少也是蜕了一层皮吧。差距，差距还是有的。起码面试那些知名大厂企业的技术专家和架构师还有差距。这与我平时工作的挑战性、认知视野的局限性及总结不足有关。下一次，我希望积蓄足够实力做到更好，和内心热爱的有价值有意义的事情再近一些些。
+Qua giai đoạn rèn luyện phỏng vấn này, tôi thấy bây giờ so với bản thân lúc nghỉ việc, mình đã có nhiều tiến bộ. Không dám nói là lột xác hoàn toàn, nhưng ít nhất cũng lột một lớp da. Khoảng cách vẫn còn đó. Ít nhất còn khoảng cách khi phỏng vấn các vị trí Technical Expert và Architect ở các big tech nổi tiếng. Điều này liên quan đến tính thử thách trong công việc bình thường, giới hạn tầm nhìn nhận thức và sự tổng kết chưa đủ. Lần sau, tôi hy vọng tích lũy đủ thực lực để làm tốt hơn, và tiến gần hơn một chút đến những điều có giá trị và ý nghĩa mà trái tim mình yêu thích.
 
-面试，其实也是一段工作经历。
+Phỏng vấn, thực ra cũng là một giai đoạn kinh nghiệm làm việc.
 
 <!-- @include: @article-footer.snippet.md -->

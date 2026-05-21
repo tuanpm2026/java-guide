@@ -1,200 +1,200 @@
 ---
-title: OSI 和 TCP/IP 网络分层模型详解（基础）
-description: 详解 OSI 与 TCP/IP 的分层模型与职责划分，结合历史与实践对比两者差异与工程取舍。
-category: 计算机基础
+title: Giải thích chi tiết mô hình phân tầng OSI và TCP/IP（Cơ bản）
+description: Giải thích chi tiết mô hình phân tầng và phân chia trách nhiệm của OSI và TCP/IP, kết hợp lịch sử và thực tiễn để so sánh sự khác biệt và đánh đổi kỹ thuật giữa hai mô hình.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
-      content: OSI 七层,TCP/IP 四层,分层模型,职责划分,协议栈,对比
+      content: OSI 7 tầng,TCP/IP 4 tầng,mô hình phân tầng,phân chia trách nhiệm,protocol stack,so sánh
 ---
 
-## OSI 七层模型
+## Mô hình 7 tầng OSI
 
-**OSI 七层模型** 是国际标准化组织提出一个网络分层模型，其大体结构以及每一层提供的功能如下图所示：
+**Mô hình 7 tầng OSI** là mô hình phân tầng mạng được Tổ chức Tiêu chuẩn hóa Quốc tế đề xuất. Cấu trúc tổng thể và chức năng của mỗi tầng được minh họa trong hình dưới đây:
 
-![OSI 七层模型](https://oss.javaguide.cn/github/javaguide/cs-basics/network/osi-7-model.png)
+![Mô hình 7 tầng OSI](https://oss.javaguide.cn/github/javaguide/cs-basics/network/osi-7-model.png)
 
-每一层都专注做一件事情，并且每一层都需要使用下一层提供的功能比如传输层需要使用网络层提供的路由和寻址功能，这样传输层才知道把数据传输到哪里去。
+Mỗi tầng tập trung làm một việc cụ thể, và mỗi tầng cần sử dụng chức năng do tầng dưới cung cấp. Ví dụ, tầng vận chuyển cần sử dụng chức năng định tuyến và đánh địa chỉ do tầng mạng cung cấp, nhờ đó tầng vận chuyển mới biết gửi dữ liệu đến đâu.
 
-**OSI 的七层体系结构概念清楚，理论也很完整，但是它比较复杂而且不实用，而且有些功能在多个层中重复出现。**
+**Mô hình 7 tầng OSI có khái niệm rõ ràng và lý thuyết hoàn chỉnh, nhưng khá phức tạp và không thực tiễn, hơn nữa một số chức năng xuất hiện lặp lại ở nhiều tầng.**
 
-上面这种图可能比较抽象，再来一个比较生动的图片。下面这个图片是我在国外的一个网站上看到的，非常赞！
+Hình trên có thể hơi trừu tượng, đây là một hình minh họa sinh động hơn. Hình dưới tôi tìm được trên một trang web nước ngoài, rất hay!
 
-![osi七层模型2](https://oss.javaguide.cn/github/javaguide/osi七层模型2.png)
+![Mô hình 7 tầng OSI (2)](https://oss.javaguide.cn/github/javaguide/osi七层模型2.png)
 
-**既然 OSI 七层模型这么厉害，为什么干不过 TCP/IP 四层模型呢？**
+**Mô hình OSI 7 tầng tốt vậy, tại sao lại thua mô hình TCP/IP 4 tầng?**
 
-的确，OSI 七层模型当时一直被一些大公司甚至一些国家政府支持。这样的背景下，为什么会失败呢？我觉得主要有下面几方面原因：
+Quả thực, mô hình OSI 7 tầng khi đó được nhiều công ty lớn thậm chí một số chính phủ quốc gia ủng hộ. Với bối cảnh như vậy, tại sao nó lại thất bại? Tôi cho rằng có một vài lý do chính sau:
 
-1. OSI 的专家缺乏实际经验，他们在完成 OSI 标准时缺乏商业驱动力
-2. OSI 的协议实现起来过分复杂，而且运行效率很低
-3. OSI 制定标准的周期太长，因而使得按 OSI 标准生产的设备无法及时进入市场（20 世纪 90 年代初期，虽然整套的 OSI 国际标准都已经制定出来，但基于 TCP/IP 的互联网已经抢先在全球相当大的范围成功运行了）
-4. OSI 的层次划分不太合理，有些功能在多个层次中重复出现。
+1. Các chuyên gia thiết kế OSI thiếu kinh nghiệm thực tế, họ thiếu động lực thương mại khi hoàn thiện tiêu chuẩn OSI.
+2. Việc triển khai giao thức OSI quá phức tạp và hiệu suất vận hành rất thấp.
+3. Chu kỳ ban hành tiêu chuẩn OSI quá dài, khiến các thiết bị sản xuất theo tiêu chuẩn OSI không thể kịp thời ra thị trường (đầu thập niên 1990, dù toàn bộ tiêu chuẩn OSI quốc tế đã được ban hành, Internet dựa trên TCP/IP đã vận hành thành công trên phạm vi khá rộng toàn cầu).
+4. Việc phân chia các tầng OSI không hoàn toàn hợp lý, một số chức năng xuất hiện lặp lại ở nhiều tầng.
 
-OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础。为了更好地去了解网络分层，OSI 七层模型还是非常有必要学习的。
+Mô hình OSI 7 tầng dù thất bại nhưng vẫn cung cấp nhiều nền tảng lý thuyết hữu ích. Để hiểu tốt hơn về phân tầng mạng, mô hình OSI 7 tầng vẫn rất cần thiết phải học.
 
-最后再分享一个关于 OSI 七层模型非常不错的总结图片！
+Cuối cùng chia sẻ một hình tổng kết rất hay về mô hình OSI 7 tầng!
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/osi-model-detail.png)
 
-## TCP/IP 四层模型
+## Mô hình 4 tầng TCP/IP
 
-**TCP/IP 四层模型** 是目前被广泛采用的一种模型,我们可以将 TCP / IP 模型看作是 OSI 七层模型的精简版本，由以下 4 层组成：
+**Mô hình 4 tầng TCP/IP** là mô hình được sử dụng rộng rãi hiện nay. Ta có thể coi mô hình TCP/IP như phiên bản tinh gọn của mô hình OSI 7 tầng, bao gồm 4 tầng sau:
 
-1. 应用层
-2. 传输层
-3. 网络层
-4. 网络接口层
+1. Tầng ứng dụng (Application layer)
+2. Tầng vận chuyển (Transport layer)
+3. Tầng mạng (Network layer)
+4. Tầng giao tiếp mạng (Network interface layer)
 
-需要注意的是，我们并不能将 TCP/IP 四层模型 和 OSI 七层模型完全精确地匹配起来，不过可以简单将两者对应起来，如下图所示：
+Cần lưu ý rằng ta không thể ánh xạ chính xác hoàn toàn mô hình TCP/IP 4 tầng với mô hình OSI 7 tầng, nhưng có thể đối chiếu đơn giản như hình dưới:
 
-![TCP/IP 四层模型](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-ip-4-model.png)
+![Mô hình TCP/IP 4 tầng](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-ip-4-model.png)
 
-### 应用层（Application layer）
+### Tầng ứng dụng（Application layer）
 
-**应用层位于传输层之上，主要提供两个终端设备上的应用程序之间信息交换的服务，它定义了信息交换的格式，消息会交给下一层传输层来传输。** 我们把应用层交互的数据单元称为报文。
+**Tầng ứng dụng nằm trên tầng vận chuyển, chủ yếu cung cấp dịch vụ trao đổi thông tin giữa các ứng dụng trên hai thiết bị đầu cuối, định nghĩa định dạng trao đổi thông tin, các message sẽ được chuyển cho tầng vận chuyển bên dưới để truyền tải.** Đơn vị dữ liệu tương tác ở tầng ứng dụng gọi là datagram (bản tin).
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-five-layer-sample-diagram.png)
 
-应用层协议定义了网络通信规则，对于不同的网络应用需要不同的应用层协议。在互联网中应用层协议很多，如支持 Web 应用的 HTTP 协议，支持电子邮件的 SMTP 协议等等。
+Giao thức tầng ứng dụng định nghĩa các quy tắc giao tiếp mạng. Với các ứng dụng mạng khác nhau cần có giao thức tầng ứng dụng khác nhau. Trên Internet có rất nhiều giao thức tầng ứng dụng, ví dụ HTTP hỗ trợ ứng dụng Web, SMTP hỗ trợ email, v.v.
 
-**应用层常见协议**：
+**Các giao thức tầng ứng dụng phổ biến**:
 
-![应用层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/application-layer-protocol.png)
+![Các giao thức tầng ứng dụng phổ biến](https://oss.javaguide.cn/github/javaguide/cs-basics/network/application-layer-protocol.png)
 
-- **HTTP（Hypertext Transfer Protocol，超文本传输协议）**：基于 TCP 协议，是一种用于传输超文本和多媒体内容的协议，主要是为 Web 浏览器与 Web 服务器之间的通信而设计的。当我们使用浏览器浏览网页的时候，我们网页就是通过 HTTP 请求进行加载的。
-- **SMTP（Simple Mail Transfer Protocol，简单邮件发送协议）**：基于 TCP 协议，是一种用于发送电子邮件的协议。注意 ⚠️：SMTP 协议只负责邮件的发送，而不是接收。要从邮件服务器接收邮件，需要使用 POP3 或 IMAP 协议。
-- **POP3/IMAP（邮件接收协议）**：基于 TCP 协议，两者都是负责邮件接收的协议。IMAP 协议是比 POP3 更新的协议，它在功能和性能上都更加强大。IMAP 支持邮件搜索、标记、分类、归档等高级功能，而且可以在多个设备之间同步邮件状态。几乎所有现代电子邮件客户端和服务器都支持 IMAP。
-- **FTP（File Transfer Protocol，文件传输协议）** : 基于 TCP 协议，是一种用于在计算机之间传输文件的协议，可以屏蔽操作系统和文件存储方式。注意 ⚠️：FTP 是一种不安全的协议，因为它在传输过程中不会对数据进行加密。建议在传输敏感数据时使用更安全的协议，如 SFTP。
-- **Telnet（远程登陆协议）**：基于 TCP 协议，用于通过一个终端登陆到其他服务器。Telnet 协议的最大缺点之一是所有数据（包括用户名和密码）均以明文形式发送，这有潜在的安全风险。这就是为什么如今很少使用 Telnet，而是使用一种称为 SSH 的非常安全的网络传输协议的主要原因。
-- **SSH（Secure Shell Protocol，安全的网络传输协议）**：基于 TCP 协议，通过加密和认证机制实现安全的访问和文件传输等业务
-- **RTP（Real-time Transport Protocol，实时传输协议）**：通常基于 UDP 协议，但也支持 TCP 协议。它提供了端到端的实时传输数据的功能，但不包含资源预留存、不保证实时传输质量，这些功能由 WebRTC 实现。
-- **DNS（Domain Name System，域名管理系统）**: 通常基于 UDP 协议（端口 53），用于解决域名和 IP 地址的映射问题。当响应数据过大或进行区域传送时会改用 TCP。
+- **HTTP (HyperText Transfer Protocol — Giao thức truyền tải siêu văn bản)**: Dựa trên TCP, là giao thức truyền tải siêu văn bản và nội dung đa phương tiện, chủ yếu được thiết kế cho giao tiếp giữa trình duyệt Web và Web server. Khi duyệt web, các trang web được tải qua HTTP request.
+- **SMTP (Simple Mail Transfer Protocol — Giao thức truyền mail đơn giản)**: Dựa trên TCP, là giao thức gửi email. Lưu ý ⚠️: SMTP chỉ phụ trách gửi mail, không nhận mail. Để nhận mail từ mail server cần dùng giao thức POP3 hoặc IMAP.
+- **POP3/IMAP (Giao thức nhận mail)**: Dựa trên TCP, cả hai đều phụ trách nhận mail. IMAP là giao thức mới hơn POP3, mạnh hơn về cả tính năng lẫn hiệu suất. IMAP hỗ trợ tìm kiếm, đánh dấu, phân loại, lưu trữ email và đồng bộ trạng thái email trên nhiều thiết bị. Hầu hết các email client và server hiện đại đều hỗ trợ IMAP.
+- **FTP (File Transfer Protocol — Giao thức truyền file)**: Dựa trên TCP, là giao thức truyền file giữa các máy tính, có thể che giấu sự khác biệt về hệ điều hành và phương thức lưu trữ file. Lưu ý ⚠️: FTP là giao thức không an toàn vì không mã hóa dữ liệu trong quá trình truyền. Nên dùng các giao thức an toàn hơn như SFTP khi truyền dữ liệu nhạy cảm.
+- **Telnet (Giao thức đăng nhập từ xa)**: Dựa trên TCP, dùng để đăng nhập vào server khác qua một terminal. Nhược điểm lớn nhất của Telnet là toàn bộ dữ liệu (bao gồm username và password) đều được gửi dưới dạng plain text, tiềm ẩn rủi ro bảo mật. Đó là lý do tại sao ngày nay ít dùng Telnet mà chuyển sang dùng giao thức bảo mật SSH.
+- **SSH (Secure Shell Protocol — Giao thức shell an toàn)**: Dựa trên TCP, thực hiện truy cập an toàn và truyền file thông qua cơ chế mã hóa và xác thực.
+- **RTP (Real-time Transport Protocol — Giao thức truyền tải thời gian thực)**: Thường dựa trên UDP nhưng cũng hỗ trợ TCP. Cung cấp chức năng truyền dữ liệu thời gian thực end-to-end, nhưng không bao gồm đặt trước tài nguyên, không đảm bảo chất lượng truyền tải thời gian thực — các chức năng này do WebRTC thực hiện.
+- **DNS (Domain Name System — Hệ thống quản lý tên miền)**: Thường dựa trên UDP (cổng 53), dùng để giải quyết vấn đề ánh xạ tên miền và địa chỉ IP. Khi response data quá lớn hoặc thực hiện zone transfer sẽ chuyển sang dùng TCP.
 
-关于这些协议的详细介绍请看 [应用层常见协议总结（应用层）](./application-layer-protocol.md) 这篇文章。
+Xem bài [Tổng hợp các giao thức tầng ứng dụng phổ biến](./application-layer-protocol.md) để tìm hiểu chi tiết các giao thức này.
 
-### 传输层（Transport layer）
+### Tầng vận chuyển（Transport layer）
 
-**传输层的主要任务就是负责向两台终端设备进程之间的通信提供通用的数据传输服务。** 应用进程利用该服务传送应用层报文。“通用的”是指并不针对某一个特定的网络应用，而是多种应用可以使用同一个运输层服务。
+**Nhiệm vụ chính của tầng vận chuyển là cung cấp dịch vụ truyền dữ liệu chung cho giao tiếp giữa các tiến trình trên hai thiết bị đầu cuối.** Các tiến trình ứng dụng sử dụng dịch vụ này để truyền các datagram tầng ứng dụng. "Chung" có nghĩa là không dành riêng cho một ứng dụng cụ thể, mà nhiều ứng dụng có thể cùng sử dụng một dịch vụ tầng vận chuyển.
 
-**传输层常见协议**：
+**Các giao thức tầng vận chuyển phổ biến**:
 
-![传输层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/transport-layer-protocol.png)
+![Các giao thức tầng vận chuyển phổ biến](https://oss.javaguide.cn/github/javaguide/cs-basics/network/transport-layer-protocol.png)
 
-- **TCP（Transmission Control Protocol，传输控制协议 ）**：提供 **面向连接** 的，**可靠** 的数据传输服务。
-- **UDP（User Datagram Protocol，用户数据协议）**：提供 **无连接** 的，**尽最大努力** 的数据传输服务（不保证数据传输的可靠性），简单高效。
+- **TCP (Transmission Control Protocol — Giao thức kiểm soát truyền tải)**: Cung cấp dịch vụ truyền dữ liệu **hướng kết nối** (connection-oriented) và **đáng tin cậy** (reliable).
+- **UDP (User Datagram Protocol — Giao thức datagram người dùng)**: Cung cấp dịch vụ truyền dữ liệu **không kết nối** (connectionless), **best-effort** (không đảm bảo độ tin cậy truyền dữ liệu), đơn giản và hiệu quả.
 
-### 网络层（Network layer）
+### Tầng mạng（Network layer）
 
-**网络层负责为分组交换网上的不同主机提供通信服务。** 在发送数据时，网络层把运输层产生的报文段或用户数据报封装成分组和包进行传送。在 TCP/IP 体系结构中，由于网络层使用 IP 协议，因此分组也叫 IP 数据报，简称数据报。
+**Tầng mạng chịu trách nhiệm cung cấp dịch vụ giao tiếp cho các host khác nhau trên mạng chuyển mạch gói.** Khi gửi dữ liệu, tầng mạng đóng gói các segment hoặc user datagram từ tầng vận chuyển thành packet (gói tin) để truyền tải. Trong kiến trúc TCP/IP, vì tầng mạng dùng giao thức IP nên packet cũng được gọi là IP datagram, viết tắt là datagram.
 
-⚠️ 注意：**不要把运输层的“用户数据报 UDP”和网络层的“IP 数据报”弄混**。
+⚠️ Lưu ý: **Đừng nhầm lẫn "UDP (User Datagram)" của tầng vận chuyển với "IP datagram" của tầng mạng**.
 
-**网络层的还有一个任务就是选择合适的路由，使源主机运输层所传下来的分组，能通过网络层中的路由器找到目的主机。**
+**Một nhiệm vụ khác của tầng mạng là chọn route phù hợp, để các packet từ tầng vận chuyển của host nguồn có thể tìm đến host đích thông qua các router trong tầng mạng.**
 
-这里强调指出，网络层中的“网络”二字已经不是我们通常谈到的具体网络，而是指计算机网络体系结构模型中第三层的名称。
+Cần nhấn mạnh rằng từ "mạng" trong "tầng mạng" không còn là các mạng cụ thể mà ta thường nói đến, mà là tên của tầng thứ ba trong mô hình kiến trúc mạng máy tính.
 
-互联网是由大量的异构（heterogeneous）网络通过路由器（router）相互连接起来的。互联网使用的网络层协议是无连接的网际协议（Internet Protocol）和许多路由选择协议，因此互联网的网络层也叫做 **网际层** 或 **IP 层**。
+Internet được kết nối từ rất nhiều mạng không đồng nhất (heterogeneous) thông qua các router. Giao thức tầng mạng Internet dùng là Internet Protocol (IP) không kết nối và nhiều giao thức định tuyến, do đó tầng mạng của Internet còn được gọi là **tầng Internet** hay **tầng IP**.
 
-**网络层常见协议**：
+**Các giao thức tầng mạng phổ biến**:
 
-![网络层常见协议](images/network-model/nerwork-layer-protocol.png)
+![Các giao thức tầng mạng phổ biến](images/network-model/nerwork-layer-protocol.png)
 
-- **IP（Internet Protocol，网际协议）**：TCP/IP 协议中最重要的协议之一，主要作用是定义数据包的格式、对数据包进行路由和寻址，以便它们可以跨网络传播并到达正确的目的地。目前 IP 协议主要分为两种，一种是过去的 IPv4，另一种是较新的 IPv6，目前这两种协议都在使用，但后者已经被提议来取代前者。
-- **ARP（Address Resolution Protocol，地址解析协议）**：ARP 协议解决的是网络层地址和链路层地址之间的转换问题。因为一个 IP 数据报在物理上传输的过程中，总是需要知道下一跳（物理上的下一个目的地）该去往何处，但 IP 地址属于逻辑地址，而 MAC 地址才是物理地址，ARP 协议解决了 IP 地址转 MAC 地址的一些问题。
-- **ICMP（Internet Control Message Protocol，互联网控制报文协议）**：一种用于传输网络状态和错误消息的协议，常用于网络诊断和故障排除。例如，Ping 工具就使用了 ICMP 协议来测试网络连通性。
-- **NAT（Network Address Translation，网络地址转换协议）**：NAT 协议的应用场景如同它的名称——网络地址转换，应用于内部网到外部网的地址转换过程中。具体地说，在一个小的子网（局域网，LAN）内，各主机使用的是同一个 LAN 下的 IP 地址，但在该 LAN 以外，在广域网（WAN）中，需要一个统一的 IP 地址来标识该 LAN 在整个 Internet 上的位置。
-- **OSPF（Open Shortest Path First，开放式最短路径优先）** ）：一种内部网关协议（Interior Gateway Protocol，IGP），也是广泛使用的一种动态路由协议，基于链路状态算法，考虑了链路的带宽、延迟等因素来选择最佳路径。
-- **RIP(Routing Information Protocol，路由信息协议）**：一种内部网关协议（Interior Gateway Protocol，IGP），也是一种动态路由协议，基于距离向量算法，使用固定的跳数作为度量标准，选择跳数最少的路径作为最佳路径。
-- **BGP（Border Gateway Protocol，边界网关协议）**：一种用来在路由选择域之间交换网络层可达性信息（Network Layer Reachability Information，NLRI）的路由选择协议，具有高度的灵活性和可扩展性。
+- **IP (Internet Protocol — Giao thức Internet)**: Một trong các giao thức quan trọng nhất của TCP/IP, chức năng chính là định nghĩa định dạng gói tin, định tuyến và đánh địa chỉ gói tin để chúng có thể truyền qua mạng và đến đúng đích. Hiện tại giao thức IP chủ yếu có hai loại: IPv4 cũ và IPv6 mới hơn; cả hai đang được sử dụng, nhưng IPv6 đã được đề xuất thay thế IPv4.
+- **ARP (Address Resolution Protocol — Giao thức phân giải địa chỉ)**: ARP giải quyết vấn đề chuyển đổi giữa địa chỉ tầng mạng (IP) và địa chỉ tầng liên kết (MAC). Vì trong quá trình truyền vật lý của IP datagram, luôn cần biết hop tiếp theo (đích vật lý tiếp theo) là ở đâu, nhưng địa chỉ IP là địa chỉ logic còn MAC mới là địa chỉ vật lý, ARP giải quyết một số vấn đề chuyển đổi từ IP sang MAC.
+- **ICMP (Internet Control Message Protocol — Giao thức bản tin kiểm soát Internet)**: Giao thức dùng để truyền trạng thái mạng và thông báo lỗi, thường dùng cho chẩn đoán và khắc phục sự cố mạng. Ví dụ công cụ Ping dùng giao thức ICMP để kiểm tra kết nối mạng.
+- **NAT (Network Address Translation — Giao thức dịch địa chỉ mạng)**: Đúng như tên gọi, NAT được ứng dụng trong quá trình chuyển đổi địa chỉ từ mạng nội bộ ra mạng ngoài. Cụ thể, trong một subnet nhỏ (LAN), các host dùng địa chỉ IP trong cùng LAN đó, nhưng ngoài LAN, trên WAN cần một địa chỉ IP thống nhất để định danh LAN đó trên toàn Internet.
+- **OSPF (Open Shortest Path First — Giao thức đường ngắn nhất mở đầu tiên)**: Một giao thức cổng nội bộ (Interior Gateway Protocol — IGP), cũng là giao thức định tuyến động được sử dụng rộng rãi, dựa trên thuật toán trạng thái liên kết, xem xét băng thông, độ trễ của liên kết để chọn đường đi tối ưu.
+- **RIP (Routing Information Protocol — Giao thức thông tin định tuyến)**: Một giao thức cổng nội bộ (IGP), cũng là giao thức định tuyến động, dựa trên thuật toán vector khoảng cách, dùng số hop cố định làm thước đo, chọn đường ít hop nhất làm đường tối ưu.
+- **BGP (Border Gateway Protocol — Giao thức cổng biên)**: Giao thức định tuyến dùng để trao đổi thông tin về khả năng tiếp cận tầng mạng (NLRI — Network Layer Reachability Information) giữa các miền định tuyến, có tính linh hoạt và khả năng mở rộng cao.
 
-### 网络接口层（Network interface layer）
+### Tầng giao tiếp mạng（Network interface layer）
 
-我们可以把网络接口层看作是数据链路层和物理层的合体。
+Ta có thể coi tầng giao tiếp mạng là sự kết hợp của tầng liên kết dữ liệu và tầng vật lý.
 
-1. 数据链路层(data link layer)通常简称为链路层（ 两台主机之间的数据传输，总是在一段一段的链路上传送的）。**数据链路层的作用是将网络层交下来的 IP 数据报组装成帧，在两个相邻节点间的链路上传送帧。每一帧包括数据和必要的控制信息（如同步信息，地址信息，差错控制等）。**
-2. **物理层的作用是实现相邻计算机节点之间比特流的透明传送，尽可能屏蔽掉具体传输介质和物理设备的差异**
+1. Tầng liên kết dữ liệu (data link layer) thường được viết tắt là tầng liên kết (dữ liệu truyền giữa hai host luôn được truyền qua từng đoạn liên kết). **Chức năng của tầng liên kết dữ liệu là đóng khung (frame) các IP datagram nhận từ tầng mạng, truyền frame trên liên kết giữa hai node kề nhau. Mỗi frame bao gồm dữ liệu và thông tin điều khiển cần thiết (như thông tin đồng bộ, thông tin địa chỉ, kiểm soát lỗi, v.v.).**
+2. **Chức năng của tầng vật lý là thực hiện truyền tải transparent bit stream giữa các node máy tính kề nhau, che giấu tối đa sự khác biệt của môi trường truyền dẫn và thiết bị vật lý cụ thể.**
 
-网络接口层重要功能和协议如下图所示：
+Các chức năng và giao thức quan trọng của tầng giao tiếp mạng được minh họa trong hình dưới:
 
-![网络接口层重要功能和协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-interface-layer-protocol.png)
+![Các chức năng và giao thức quan trọng của tầng giao tiếp mạng](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-interface-layer-protocol.png)
 
-### 总结
+### Tổng kết
 
-简单总结一下每一层包含的协议和核心技术:
+Tóm tắt ngắn gọn các giao thức và công nghệ cốt lõi của từng tầng:
 
-![TCP/IP 各层协议概览](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-protocol-overview.png)
+![Tổng quan các giao thức TCP/IP theo tầng](https://oss.javaguide.cn/github/javaguide/cs-basics/network/network-protocol-overview.png)
 
-**应用层协议** :
+**Giao thức tầng ứng dụng**:
 
-- HTTP（Hypertext Transfer Protocol，超文本传输协议）
-- SMTP（Simple Mail Transfer Protocol，简单邮件发送协议）
-- POP3/IMAP（邮件接收协议）
-- FTP（File Transfer Protocol，文件传输协议）
-- Telnet（远程登陆协议）
-- SSH（Secure Shell Protocol，安全的网络传输协议）
-- RTP（Real-time Transport Protocol，实时传输协议）
-- DNS（Domain Name System，域名管理系统）
+- HTTP (HyperText Transfer Protocol — Giao thức truyền tải siêu văn bản)
+- SMTP (Simple Mail Transfer Protocol — Giao thức truyền mail đơn giản)
+- POP3/IMAP (Giao thức nhận mail)
+- FTP (File Transfer Protocol — Giao thức truyền file)
+- Telnet (Giao thức đăng nhập từ xa)
+- SSH (Secure Shell Protocol — Giao thức shell an toàn)
+- RTP (Real-time Transport Protocol — Giao thức truyền tải thời gian thực)
+- DNS (Domain Name System — Hệ thống quản lý tên miền)
 - ……
 
-**传输层协议** :
+**Giao thức tầng vận chuyển**:
 
-- TCP 协议
-  - 报文段结构
-  - 可靠数据传输
-  - 流量控制
-  - 拥塞控制
-- UDP 协议
-  - 报文段结构
-  - RDT（可靠数据传输协议）
+- Giao thức TCP
+  - Cấu trúc segment
+  - Truyền dữ liệu đáng tin cậy
+  - Kiểm soát luồng (Flow control)
+  - Kiểm soát tắc nghẽn (Congestion control)
+- Giao thức UDP
+  - Cấu trúc segment
+  - RDT (Reliable Data Transfer Protocol — Giao thức truyền dữ liệu đáng tin cậy)
 
-**网络层协议** :
+**Giao thức tầng mạng**:
 
-- IP（Internet Protocol，网际协议）
-- ARP（Address Resolution Protocol，地址解析协议）
-- ICMP 协议（控制报文协议，用于发送控制消息）
-- NAT（Network Address Translation，网络地址转换协议）
-- OSPF（Open Shortest Path First，开放式最短路径优先）
-- RIP(Routing Information Protocol，路由信息协议）
-- BGP（Border Gateway Protocol，边界网关协议）
+- IP (Internet Protocol — Giao thức Internet)
+- ARP (Address Resolution Protocol — Giao thức phân giải địa chỉ)
+- Giao thức ICMP (Giao thức bản tin kiểm soát, dùng để gửi thông điệp điều khiển)
+- NAT (Network Address Translation — Giao thức dịch địa chỉ mạng)
+- OSPF (Open Shortest Path First — Giao thức đường ngắn nhất mở đầu tiên)
+- RIP (Routing Information Protocol — Giao thức thông tin định tuyến)
+- BGP (Border Gateway Protocol — Giao thức cổng biên)
 - ……
 
-**网络接口层** :
+**Tầng giao tiếp mạng**:
 
-- 差错检测技术
-- 多路访问协议（信道复用技术）
-- CSMA/CD 协议
-- MAC 协议
-- 以太网技术
+- Công nghệ phát hiện lỗi
+- Giao thức đa truy cập (Công nghệ ghép kênh)
+- Giao thức CSMA/CD
+- Giao thức MAC
+- Công nghệ Ethernet
 - ……
 
-## 网络分层的原因
+## Lý do phân tầng mạng
 
-在这篇文章的最后，我想聊聊：“为什么网络要分层？”。
+Ở cuối bài này, tôi muốn bàn về: "Tại sao mạng cần phân tầng?"
 
-说到分层，我们先从我们平时使用框架开发一个后台程序来说，我们往往会按照每一层做不同的事情的原则将系统分为三层（复杂的系统分层会更多）:
+Nói đến phân tầng, hãy bắt đầu từ việc phát triển một chương trình backend thông thường bằng framework. Chúng ta thường phân hệ thống thành ba tầng theo nguyên tắc mỗi tầng làm những việc khác nhau (các hệ thống phức tạp hơn có thể có nhiều tầng hơn):
 
-1. Repository（数据库操作）
-2. Service（业务操作）
-3. Controller（前后端数据交互）
+1. Repository (thao tác với database)
+2. Service (thao tác nghiệp vụ)
+3. Controller (trao đổi dữ liệu giữa frontend và backend)
 
-**复杂的系统需要分层，因为每一层都需要专注于一类事情。网络分层的原因也是一样，每一层只专注于做一类事情。**
+**Các hệ thống phức tạp cần phân tầng vì mỗi tầng cần tập trung vào một loại công việc. Lý do phân tầng mạng cũng tương tự — mỗi tầng chỉ tập trung vào một loại công việc.**
 
-好了，再来说回：“为什么网络要分层？”。我觉得主要有 3 方面的原因：
+Vậy tại sao mạng cần phân tầng? Tôi cho rằng có 3 lý do chính:
 
-1. **各层之间相互独立**：各层之间相互独立，各层之间不需要关心其他层是如何实现的，只需要知道自己如何调用下层提供好的功能就可以了（可以简单理解为接口调用）**。这个和我们对开发时系统进行分层是一个道理。**
-2. **提高了整体灵活性**：每一层都可以使用最适合的技术来实现，你只需要保证你提供的功能以及暴露的接口的规则没有改变就行了。**这个和我们平时开发系统的时候要求的高内聚、低耦合的原则也是可以对应上的。**
-3. **大问题化小**：分层可以将复杂的网络问题分解为许多比较小的、界线比较清晰简单的小问题来处理和解决。这样使得复杂的计算机网络系统变得易于设计，实现和标准化。 **这个和我们平时开发的时候，一般会将系统功能分解，然后将复杂的问题分解为容易理解的更小的问题是相对应的，这些较小的问题具有更好的边界（目标和接口）定义。**
+1. **Các tầng độc lập với nhau**: Các tầng không cần quan tâm đến cách các tầng khác được triển khai, chỉ cần biết cách gọi các chức năng do tầng dưới cung cấp (có thể hiểu đơn giản là gọi interface). **Điều này giống với nguyên tắc phân tầng hệ thống trong phát triển phần mềm.**
+2. **Tăng tính linh hoạt tổng thể**: Mỗi tầng có thể dùng công nghệ phù hợp nhất để triển khai, chỉ cần đảm bảo chức năng cung cấp và quy tắc interface không thay đổi. **Điều này tương ứng với nguyên tắc high cohesion, low coupling trong phát triển hệ thống.**
+3. **Chia nhỏ vấn đề lớn**: Phân tầng có thể chia vấn đề mạng phức tạp thành nhiều vấn đề nhỏ hơn, ranh giới rõ ràng hơn để xử lý và giải quyết. Điều này giúp hệ thống mạng máy tính phức tạp trở nên dễ thiết kế, triển khai và chuẩn hóa. **Điều này tương ứng với việc phát triển phần mềm thông thường — ta thường phân rã chức năng hệ thống, chia vấn đề phức tạp thành các vấn đề nhỏ hơn dễ hiểu hơn với ranh giới (mục tiêu và interface) được định nghĩa rõ ràng hơn.**
 
-我想到了计算机世界非常非常有名的一句话，这里分享一下：
+Tôi nghĩ đến một câu nói rất nổi tiếng trong thế giới máy tính, xin chia sẻ ở đây:
 
-> 计算机科学领域的任何问题都可以通过增加一个间接的中间层来解决，计算机整个体系从上到下都是按照严格的层次结构设计的。
+> Bất kỳ vấn đề nào trong lĩnh vực khoa học máy tính đều có thể được giải quyết bằng cách thêm một tầng trung gian gián tiếp. Toàn bộ kiến trúc máy tính từ trên xuống dưới đều được thiết kế theo cấu trúc phân tầng nghiêm ngặt.
 
-## 参考
+## Tài liệu tham khảo
 
-- TCP/IP model vs OSI model：<https://fiberbit.com.tw/tcpip-model-vs-osi-model/>
-- Data Encapsulation and the TCP/IP Protocol Stack：<https://docs.oracle.com/cd/E19683-01/806-4075/ipov-32/index.html>
+- TCP/IP model vs OSI model: <https://fiberbit.com.tw/tcpip-model-vs-osi-model/>
+- Data Encapsulation and the TCP/IP Protocol Stack: <https://docs.oracle.com/cd/E19683-01/806-4075/ipov-32/index.html>
 
 <!-- @include: @article-footer.snippet.md -->

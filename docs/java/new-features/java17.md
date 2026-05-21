@@ -1,88 +1,88 @@
 ---
-title: Java 17 新特性概览（重要）
-description: 总结 JDK 17 的重要更新与 JEP，涵盖密封类、记录类与模式匹配等特性。
+title: Tổng quan các tính năng mới trong Java 17 (Quan trọng)
+description: Tổng kết các cập nhật và JEP quan trọng của JDK 17, bao gồm sealed class, record class và pattern matching.
 category: Java
 tag:
-  - Java新特性
+  - Java tính năng mới
 head:
   - - meta
     - name: keywords
-      content: Java 17,JDK17,LTS,密封类,记录类,模式匹配,API 更新,JEP
+      content: Java 17,JDK17,LTS,sealed class,record class,pattern matching,API update,JEP
 ---
 
-Java 17 在 2021 年 9 月 14 日正式发布，是一个长期支持（LTS）版本。
+Java 17 phát hành chính thức ngày 14/9/2021 — là phiên bản LTS (Long-Term Support).
 
-下面这张图是 Oracle 官方给出的 Oracle JDK 支持的时间线。可以看得到，Java 17 最多可以支持到 2029 年 9 月份。
+Hình dưới là timeline hỗ trợ Oracle JDK chính thức từ Oracle. Có thể thấy Java 17 hỗ trợ tối đa đến tháng 9/2029.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/new-features/4c1611fad59449edbbd6e233690e9fa7.png)
 
-Java 17 将是继 Java 8 以来最重要的长期支持（LTS）版本，是 Java 社区八年努力的成果。Spring 6.x 和 Spring Boot 3.x 最低支持的就是 Java 17。
+Java 17 sẽ là phiên bản LTS quan trọng nhất kể từ Java 8 — là thành quả 8 năm nỗ lực của cộng đồng Java. Spring 6.x và Spring Boot 3.x hỗ trợ tối thiểu là Java 17.
 
-JDK 17 共有 14 个新特性，这篇文章会挑选其中较为重要的一些新特性进行详细介绍：
+JDK 17 có tổng cộng 14 tính năng mới. Bài này sẽ chọn giới thiệu chi tiết một số tính năng quan trọng hơn:
 
-- [JEP 356: Enhanced Pseudo-Random Number Generators（增强的伪随机数生成器）](https://openjdk.java.net/jeps/356)
-- [JEP 398: Deprecate the Applet API for Removal（标记弃用 Applet API 以便移除）](https://openjdk.java.net/jeps/398)
-- [JEP 406: Pattern Matching for switch (Preview)（switch 模式匹配，预览）](https://openjdk.java.net/jeps/406)
-- [JEP 407: Remove RMI Activation（移除 RMI 激活机制）](https://openjdk.java.net/jeps/407)
-- [JEP 409: Sealed Classes（密封类，转正）](https://openjdk.java.net/jeps/409)
-- [JEP 410: Remove the Experimental AOT and JIT Compiler（移除实验性的 AOT 和 JIT 编译器）](https://openjdk.java.net/jeps/410)
-- [JEP 411: Deprecate the Security Manager for Removal（标记弃用安全管理器以便移除）](https://openjdk.java.net/jeps/411)
-- [JEP 412: Foreign Function & Memory API (Incubator)（外部函数和内存 API，第一次孵化）](https://openjdk.java.net/jeps/412)
-- [JEP 414: Vector API (Second Incubator)（向量 API，第二次孵化）](https://openjdk.java.net/jeps/414)
+- [JEP 356: Enhanced Pseudo-Random Number Generators](https://openjdk.java.net/jeps/356)
+- [JEP 398: Deprecate the Applet API for Removal](https://openjdk.java.net/jeps/398)
+- [JEP 406: Pattern Matching for switch (Preview)](https://openjdk.java.net/jeps/406)
+- [JEP 407: Remove RMI Activation](https://openjdk.java.net/jeps/407)
+- [JEP 409: Sealed Classes (Chính thức)](https://openjdk.java.net/jeps/409)
+- [JEP 410: Remove the Experimental AOT and JIT Compiler](https://openjdk.java.net/jeps/410)
+- [JEP 411: Deprecate the Security Manager for Removal](https://openjdk.java.net/jeps/411)
+- [JEP 412: Foreign Function & Memory API (Incubator)](https://openjdk.java.net/jeps/412)
+- [JEP 414: Vector API (Second Incubator)](https://openjdk.java.net/jeps/414)
 
-下图是从 JDK 8 到 JDK 16 每个版本的更新带来的新特性数量和更新时间：
+Hình dưới là số lượng tính năng mới và thời gian cập nhật từng phiên bản từ JDK 8 đến JDK 16:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
 
-相关阅读：[OpenJDK Java 17 文档](https://openjdk.java.net/projects/jdk/17/) 。
+Đọc thêm: [OpenJDK Java 17 Documentation](https://openjdk.java.net/projects/jdk/17/).
 
-## JEP 356: Enhanced Pseudo-Random Number Generators（增强的伪随机数生成器）
+## JEP 356: Enhanced Pseudo-Random Number Generators
 
-JDK 17 之前，我们可以借助 `Random`、`ThreadLocalRandom`和`SplittableRandom`来生成随机数。不过，这 3 个类都各有缺陷，且缺少常见的伪随机算法支持。
+Trước JDK 17, có thể dùng `Random`, `ThreadLocalRandom` và `SplittableRandom` để sinh số ngẫu nhiên. Tuy nhiên cả 3 class này đều có nhược điểm riêng và thiếu hỗ trợ các thuật toán pseudo-random phổ biến.
 
-Java 17 为伪随机数生成器 （pseudorandom number generator，PRNG，又称为确定性随机位生成器）增加了新的接口类型和实现，使得开发者更容易在应用程序中互换使用各种 PRNG 算法。
+Java 17 bổ sung các interface type và implementation mới cho pseudo-random number generator (PRNG, còn gọi là deterministic random bit generator), giúp developer dễ dàng hơn khi hoán đổi qua lại giữa các PRNG algorithm trong ứng dụng.
 
-> [PRNG](https://ctf-wiki.org/crypto/streamcipher/prng/intro/) 用来生成接近于绝对随机数序列的数字序列。一般来说，PRNG 会依赖于一个初始值，也称为种子，来生成对应的伪随机数序列。只要种子确定了，PRNG 所生成的随机数就是完全确定的，因此其生成的随机数序列并不是真正随机的。
+> [PRNG](https://ctf-wiki.org/crypto/streamcipher/prng/intro/) dùng để sinh ra sequence số gần với sequence số ngẫu nhiên tuyệt đối. Thông thường PRNG phụ thuộc vào một giá trị khởi đầu gọi là seed để sinh sequence pseudo-random tương ứng. Chỉ cần seed được xác định, sequence random do PRNG sinh ra là hoàn toàn xác định, nên sequence nó tạo ra không phải random thực sự.
 
-使用示例：
+Ví dụ sử dụng:
 
 ```java
 RandomGeneratorFactory<RandomGenerator> l128X256MixRandom = RandomGeneratorFactory.of("L128X256MixRandom");
-// 使用时间戳作为随机数种子
+// Dùng timestamp làm random seed
 RandomGenerator randomGenerator = l128X256MixRandom.create(System.currentTimeMillis());
-// 生成随机数
+// Sinh số ngẫu nhiên
 randomGenerator.nextInt(10);
 ```
 
-## JEP 398: Deprecate the Applet API for Removal（标记弃用 Applet API 以便移除）
+## JEP 398: Deprecate the Applet API for Removal
 
-Applet API 用于编写在 Web 浏览器端运行的 Java 小程序，很多年前就已经被淘汰了，已经没有理由使用了。
+Applet API dùng để viết Java applet chạy trong Web browser, đã bị loại bỏ từ nhiều năm trước và không còn lý do gì để dùng nữa.
 
-Applet API 在 Java 9 时被标记弃用（[JEP 289](https://openjdk.java.net/jeps/289)），但不是为了删除。
+Applet API đã bị đánh dấu deprecated trong Java 9 ([JEP 289](https://openjdk.java.net/jeps/289)), nhưng không phải để xóa.
 
-## JEP 406: Pattern Matching for switch（switch 模式匹配，预览）
+## JEP 406: Pattern Matching for switch (Preview)
 
-正如 `instanceof` 一样， `switch` 也紧跟着增加了类型匹配自动转换功能。
+Giống như `instanceof`, `switch` cũng bổ sung tính năng type matching tự động.
 
-`instanceof` 代码示例：
+Ví dụ code `instanceof`:
 
 ```java
-// Old code
+// Code cũ
 if (o instanceof String) {
     String s = (String)o;
     ... use s ...
 }
 
-// New code
+// Code mới
 if (o instanceof String s) {
     ... use s ...
 }
 ```
 
-`switch` 代码示例：
+Ví dụ code `switch`:
 
 ```java
-// Old code
+// Code cũ
 static String formatter(Object o) {
     String formatted = "unknown";
     if (o instanceof Integer i) {
@@ -97,7 +97,7 @@ static String formatter(Object o) {
     return formatted;
 }
 
-// New code
+// Code mới
 static String formatterPatternSwitch(Object o) {
     return switch (o) {
         case Integer i -> String.format("int %d", i);
@@ -107,13 +107,12 @@ static String formatterPatternSwitch(Object o) {
         default        -> o.toString();
     };
 }
-
 ```
 
-对于 `null` 值的判断也进行了优化。
+Kiểm tra giá trị `null` cũng được tối ưu:
 
 ```java
-// Old code
+// Code cũ
 static void testFooBar(String s) {
     if (s == null) {
         System.out.println("oops!");
@@ -125,7 +124,7 @@ static void testFooBar(String s) {
     }
 }
 
-// New code
+// Code mới
 static void testFooBar(String s) {
     switch (s) {
         case null         -> System.out.println("Oops");
@@ -135,42 +134,42 @@ static void testFooBar(String s) {
 }
 ```
 
-## JEP 407: Remove RMI Activation（移除 RMI 激活机制）
+## JEP 407: Remove RMI Activation
 
-删除远程方法调用 (RMI) 激活机制，同时保留 RMI 的其余部分。RMI 激活机制已过时且不再使用。
+Xóa cơ chế activation của Remote Method Invocation (RMI), giữ lại phần còn lại của RMI. Cơ chế RMI activation đã lỗi thời và không còn được dùng.
 
-## JEP 409: Sealed Classes（密封类）
+## JEP 409: Sealed Classes (Chính thức)
 
-密封类由 [JEP 360](https://openjdk.java.net/jeps/360) 提出预览，集成到了 Java 15 中。在 JDK 16 中， 密封类得到了改进（更加严格的引用检查和密封类的继承关系），由 [JEP 397](https://openjdk.java.net/jeps/397) 提出了再次预览。
+Sealed class được đề xuất preview qua [JEP 360](https://openjdk.java.net/jeps/360), được tích hợp vào Java 15. Trong JDK 16, sealed class được cải tiến (kiểm tra reference nghiêm ngặt hơn và quan hệ kế thừa của sealed class), và được đề xuất preview lần nữa qua [JEP 397](https://openjdk.java.net/jeps/397).
 
-在 [Java 14 & 15 新特性概览](./java14-15.md) 中，我有详细介绍到密封类，这里就不再做额外的介绍了。
+Trong [Tổng quan tính năng mới Java 14 & 15](./java14-15.md), tôi đã giới thiệu chi tiết về sealed class nên không nhắc lại ở đây.
 
-## JEP 410: Remove the Experimental AOT and JIT Compiler（移除实验性的 AOT 和 JIT 编译器）
+## JEP 410: Remove the Experimental AOT and JIT Compiler
 
-在 Java 9 的 [JEP 295](https://openjdk.java.net/jeps/295) ,引入了实验性的提前 (AOT) 编译器，在启动虚拟机之前将 Java 类编译为本机代码。
+Trong Java 9 qua [JEP 295](https://openjdk.java.net/jeps/295), đã giới thiệu experimental Ahead-of-Time (AOT) compiler để compile Java class thành native code trước khi JVM khởi động.
 
-Java 17，删除实验性的提前 (AOT) 和即时 (JIT) 编译器，因为该编译器自推出以来很少使用，维护它所需的工作量很大。保留实验性的 Java 级 JVM 编译器接口 (JVMCI)，以便开发人员可以继续使用外部构建的编译器版本进行 JIT 编译。
+Java 17 xóa experimental AOT và JIT compiler vì chúng hiếm khi được dùng kể từ khi ra mắt và việc duy trì chúng đòi hỏi nhiều công sức. Giữ lại experimental Java-level JVM Compiler Interface (JVMCI) để developer vẫn có thể dùng external build version compiler để JIT compilation.
 
-## JEP 411: Deprecate the Security Manager for Removal（标记弃用安全管理器以便移除）
+## JEP 411: Deprecate the Security Manager for Removal
 
-弃用安全管理器以便在将来的版本中删除。
+Deprecated Security Manager để xóa trong phiên bản tương lai.
 
-安全管理器可追溯到 Java 1.0，多年来，它一直不是保护客户端 Java 代码的主要方法，也很少用于保护服务器端代码。为了推动 Java 向前发展，Java 17 弃用安全管理器，以便与旧版 Applet API ( [JEP 398](https://openjdk.java.net/jeps/398) ) 一起移除。
+Security Manager có từ Java 1.0. Nhiều năm qua, nó không phải phương pháp chính để bảo vệ client-side Java code, cũng hiếm khi được dùng để bảo vệ server-side code. Để thúc đẩy Java tiến lên phía trước, Java 17 deprecated Security Manager để xóa cùng với Applet API cũ ([JEP 398](https://openjdk.java.net/jeps/398)).
 
-## JEP 412: Foreign Function & Memory API（外部函数和内存 API，孵化）
+## JEP 412: Foreign Function & Memory API (Incubation)
 
-Java 程序可以通过该 API 与 Java 运行时之外的代码和数据进行互操作。通过高效地调用外部函数（即 JVM 之外的代码）和安全地访问外部内存（即不受 JVM 管理的内存），该 API 使 Java 程序能够调用本机库并处理本机数据，而不会像 JNI 那样危险和脆弱。
+Java program có thể tương tác với code và data bên ngoài Java runtime thông qua API này. Bằng cách gọi hiệu quả foreign function (code bên ngoài JVM) và truy cập an toàn foreign memory (memory không do JVM quản lý), API này cho phép Java program gọi native library và xử lý native data mà không nguy hiểm và dễ vỡ như JNI.
 
-外部函数和内存 API 在 Java 17 中进行了第一轮孵化，由 [JEP 412](https://openjdk.java.net/jeps/412) 提出。第二轮孵化由[JEP 419](https://openjdk.org/jeps/419) 提出并集成到了 Java 18 中，预览由 [JEP 424](https://openjdk.org/jeps/424) 提出并集成到了 Java 19 中。
+Foreign Function & Memory API trải qua vòng incubation đầu tiên trong Java 17 qua [JEP 412](https://openjdk.java.net/jeps/412). Vòng incubation thứ hai qua [JEP 419](https://openjdk.org/jeps/419) được tích hợp vào Java 18, preview qua [JEP 424](https://openjdk.org/jeps/424) được tích hợp vào Java 19.
 
-在 [Java 19 新特性概览](./java19.md) 中，我有详细介绍到外部函数和内存 API，这里就不再做额外的介绍了。
+Trong [Tổng quan tính năng mới Java 19](./java19.md), tôi đã giới thiệu chi tiết về Foreign Function & Memory API nên không nhắc lại ở đây.
 
-## JEP 414: Vector API（向量 API，第二次孵化）
+## JEP 414: Vector API (Incubation lần 2)
 
-向量（Vector） API 最初由 [JEP 338](https://openjdk.java.net/jeps/338) 提出，并作为[孵化 API](http://openjdk.java.net/jeps/11)集成到 Java 16 中。第二轮孵化由 [JEP 414](https://openjdk.java.net/jeps/414) 提出并集成到 Java 17 中，第三轮孵化由 [JEP 417](https://openjdk.java.net/jeps/417) 提出并集成到 Java 18 中，第四轮由 [JEP 426](https://openjdk.java.net/jeps/426) 提出并集成到了 Java 19 中。
+Vector API ban đầu được đề xuất qua [JEP 338](https://openjdk.java.net/jeps/338), được tích hợp vào Java 16 như [incubation API](http://openjdk.java.net/jeps/11). Vòng incubation thứ hai qua [JEP 414](https://openjdk.java.net/jeps/414) được tích hợp vào Java 17, vòng ba qua [JEP 417](https://openjdk.java.net/jeps/417) được tích hợp vào Java 18, vòng bốn qua [JEP 426](https://openjdk.java.net/jeps/426) được tích hợp vào Java 19.
 
-该孵化器 API 提供了一个 API 的初始迭代以表达一些向量计算，这些计算在运行时可靠地编译为支持的 CPU 架构上的最佳向量硬件指令，从而获得优于同等标量计算的性能，充分利用单指令多数据（SIMD）技术（大多数现代 CPU 上都可以使用的一种指令）。尽管 HotSpot 支持自动向量化，但是可转换的标量操作集有限且易受代码更改的影响。该 API 将使开发人员能够轻松地用 Java 编写可移植的高性能向量算法。
+Incubator API này cung cấp initial iteration của API để biểu đạt một số vector computation. Các computation này có thể được compile đáng tin cậy tại runtime thành optimal vector hardware instruction trên CPU architecture được hỗ trợ — đạt hiệu năng vượt trội so với scalar computation tương đương, tận dụng đầy đủ kỹ thuật SIMD (Single Instruction Multiple Data — instruction có thể dùng trên hầu hết CPU hiện đại). Dù HotSpot hỗ trợ auto-vectorization, nhưng tập scalar operation có thể convert còn hạn chế và dễ bị ảnh hưởng bởi code changes. API này sẽ cho phép developer dễ dàng viết portable high-performance vector algorithm bằng Java.
 
-在 [Java 18 新特性概览](./java18.md) 中，我有详细介绍到向量 API，这里就不再做额外的介绍了。
+Trong [Tổng quan tính năng mới Java 18](./java18.md), tôi đã giới thiệu chi tiết về Vector API nên không nhắc lại ở đây.
 
 <!-- @include: @article-footer.snippet.md -->

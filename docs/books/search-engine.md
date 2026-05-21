@@ -1,34 +1,34 @@
 ---
-title: 搜索引擎必读经典书籍
-description: 搜索引擎书籍推荐，Lucene入门、Elasticsearch核心技术与实战、源码解析与优化实战等经典书籍精选。
-category: 计算机书籍
+title: Sách kinh điển phải đọc về Search Engine
+description: Gợi ý sách về search engine, tuyển chọn các sách kinh điển như Lucene in Action, Elasticsearch core technology and practice, source code analysis and optimization.
+category: Computer Books
 icon: "search"
 ---
 
 ## Lucene
 
-Elasticsearch 在 Apache Lucene 的基础上开发而成，学习 ES 之前，建议简单了解一下 Lucene 的相关概念。
+Elasticsearch được phát triển trên nền tảng Apache Lucene. Trước khi học ES, khuyến nghị tìm hiểu sơ về các khái niệm liên quan đến Lucene.
 
-**[《Lucene 实战》](https://book.douban.com/subject/6440615/)** 是国内为数不多的中文版本讲 Lucene 的书籍，适合用来学习和了解 Lucene 相关的概念和常见操作。
+**[《Lucene in Action》](https://book.douban.com/subject/6440615/)** là một trong số ít sách tiếng Trung viết về Lucene, phù hợp để học và tìm hiểu về các khái niệm và thao tác phổ biến liên quan đến Lucene.
 
-![《Lucene实战》-实战](https://oss.javaguide.cn/github/javaguide/books/vAJkdYEyol4e6Nr.png)
+![《Lucene in Action》](https://oss.javaguide.cn/github/javaguide/books/vAJkdYEyol4e6Nr.png)
 
 ## Elasticsearch
 
-**[《一本书讲透 Elasticsearch：原理、进阶与工程实践》](https://book.douban.com/subject/36716996/)**
+**[《Một cuốn sách giải thích Elasticsearch: Nguyên lý, Nâng cao và Thực hành Engineering》](https://book.douban.com/subject/36716996/)**
 
 ![](https://oss.javaguide.cn/github/javaguide/books/one-book-guide-to-elasticsearch.png)
 
-基于 8.x 版本编写，目前全网最新的 Elasticsearch 讲解书籍。内容覆盖 Elastic 官方认证的核心知识点，源自真实项目案例和企业级问题解答。
+Được viết dựa trên phiên bản 8.x, hiện là cuốn sách giảng dạy Elasticsearch mới nhất trên toàn mạng. Nội dung bao phủ các kiến thức cốt lõi được Elastic official certification công nhận, bắt nguồn từ các case study thực tế và giải đáp vấn đề cấp độ enterprise.
 
-**[《Elasticsearch 核心技术与实战》](http://gk.link/a/10bcT "《Elasticsearch 核心技术与实战》")**
+**[《Elasticsearch Core Technology and Practice》](http://gk.link/a/10bcT "《Elasticsearch Core Technology and Practice》")**
 
-极客时间的这门课程基于 Elasticsearch 7.1 版本讲解，还算比较新。并且，作者是 eBay 资深技术专家，有 20 年的行业经验，课程质量有保障！
+Khóa học này của Geek Time giảng dạy dựa trên Elasticsearch phiên bản 7.1, còn tương đối mới. Và tác giả là senior technical expert của eBay với 20 năm kinh nghiệm trong ngành, chất lượng khóa học được đảm bảo!
 
-![《Elasticsearch 核心技术与实战》-极客时间](https://oss.javaguide.cn/github/javaguide/csdn/20210420231125225.png)
+![《Elasticsearch Core Technology and Practice》 - Geek Time](https://oss.javaguide.cn/github/javaguide/csdn/20210420231125225.png)
 
-**[《Elasticsearch 源码解析与优化实战》](https://book.douban.com/subject/30386800/)**
+**[《Elasticsearch Source Code Analysis and Optimization Practice》](https://book.douban.com/subject/30386800/)**
 
-![《Elasticsearch 源码解析与优化实战》-豆瓣](https://oss.javaguide.cn/p3-juejin/f856485931a945639d5c23aaed74fb38~tplv-k3u1fbpfcp-zoom-1.png)
+![《Elasticsearch Source Code Analysis and Optimization Practice》 - Douban](https://oss.javaguide.cn/p3-juejin/f856485931a945639d5c23aaed74fb38~tplv-k3u1fbpfcp-zoom-1.png)
 
-如果你想进一步深入研究 Elasticsearch 原理的话，可以看看张超老师的这本书。这是市面上唯一一本写 Elasticsearch 源码的书。
+Nếu bạn muốn nghiên cứu sâu hơn về nguyên lý Elasticsearch, có thể đọc cuốn sách này của thầy Zhang Chao. Đây là cuốn sách duy nhất trên thị trường viết về source code Elasticsearch.

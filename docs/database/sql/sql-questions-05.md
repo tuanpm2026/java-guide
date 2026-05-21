@@ -1,9 +1,9 @@
 ---
-title: SQL常见面试题总结（5）
-description: SQL常见面试题总结第五篇，详解NULL空值处理技巧，包括IFNULL、COALESCE函数，以及使用CASE WHEN进行条件统计和完成率计算。
-category: 数据库
+title: Tổng hợp câu hỏi phỏng vấn SQL thường gặp (5)
+description: Phần 5 tổng hợp câu hỏi phỏng vấn SQL thường gặp, giải thích chi tiết kỹ thuật xử lý giá trị NULL, bao gồm các hàm IFNULL, COALESCE, và sử dụng CASE WHEN để thống kê có điều kiện và tính tỷ lệ hoàn thành.
+category: Cơ sở dữ liệu
 tag:
-  - 数据库基础
+  - Cơ bản về cơ sở dữ liệu
   - SQL
 head:
   - - meta
@@ -11,17 +11,17 @@ head:
       content: SQL面试题,NULL空值处理,IFNULL,COALESCE,CASE WHEN,条件统计,完成率计算
 ---
 
-> 题目来源于：[牛客题霸 - SQL 进阶挑战](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=240)
+> Nguồn câu hỏi từ: [NowCoder - Thử thách SQL Nâng cao](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=240)
 
-较难或者困难的题目可以根据自身实际情况和面试需要来决定是否要跳过。
+Các câu hỏi khó hoặc rất khó có thể bỏ qua tùy theo tình huống thực tế và nhu cầu phỏng vấn của bạn.
 
-## 空值处理
+## Xử lý giá trị NULL
 
-### 统计有未完成状态的试卷的未完成数和未完成率
+### Thống kê số lần chưa hoàn thành và tỷ lệ chưa hoàn thành của bài thi có trạng thái chưa hoàn thành
 
-**描述**：
+**Mô tả**:
 
-现有试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分），数据如下：
+Cho bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）, dữ liệu như sau:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -29,21 +29,21 @@ head:
 | 2   | 1001 | 9001    | 2021-05-02 10:01:01 | 2021-05-02 10:30:01 | 81     |
 | 3   | 1001 | 9001    | 2021-09-02 12:01:01 | (NULL)              | (NULL) |
 
-请统计有未完成状态的试卷的未完成数 incomplete_cnt 和未完成率 incomplete_rate。由示例数据结果输出如下：
+Hãy thống kê số lần chưa hoàn thành incomplete_cnt và tỷ lệ chưa hoàn thành incomplete_rate của các đề thi có trạng thái chưa hoàn thành. Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | exam_id | incomplete_cnt | complete_rate |
 | ------- | -------------- | ------------- |
 | 9001    | 1              | 0.333         |
 
-解释：试卷 9001 有 3 次被作答的记录，其中两次完成，1 次未完成，因此未完成数为 1，未完成率为 0.333（保留 3 位小数）
+Giải thích: Đề thi 9001 có 3 lần được làm, trong đó hai lần hoàn thành, 1 lần chưa hoàn thành, do đó số lần chưa hoàn thành là 1, tỷ lệ chưa hoàn thành là 0.333 (làm tròn đến 3 chữ số thập phân)
 
-**思路**：
+**Tư duy**:
 
-这题只需要注意一个是有条件限制，一个是没条件限制的；要么分别查询条件，然后合并；要么直接在 select 里面进行条件判断。
+Câu hỏi này chỉ cần lưu ý một cái có điều kiện hạn chế, một cái không có điều kiện hạn chế; hoặc truy vấn riêng từng điều kiện rồi kết hợp; hoặc trực tiếp thực hiện phán định điều kiện trong select.
 
-**答案**：
+**Đáp án**:
 
-写法 1：
+Cách viết 1:
 
 ```sql
 SELECT
@@ -58,9 +58,9 @@ HAVING
     (COUNT(*) - COUNT(submit_time)) > 0;
 ```
 
-利用 `COUNT(*)`统计分组内的总记录数，`COUNT(submit_time)` 只统计 `submit_time` 字段不为 NULL 的记录数（即已完成数）。两者相减，就是未完成数。
+Sử dụng `COUNT(*)` để đếm tổng số bản ghi trong nhóm, `COUNT(submit_time)` chỉ đếm số bản ghi mà trường `submit_time` không phải NULL (tức là số đã hoàn thành). Lấy hiệu hai giá trị đó chính là số chưa hoàn thành.
 
-写法 2：
+Cách viết 2:
 
 ```sql
 SELECT
@@ -75,9 +75,9 @@ HAVING
     COUNT(CASE WHEN submit_time IS NULL THEN 1 END) > 0;
 ```
 
-使用 `CASE` 表达式，当条件满足时返回一个非 `NULL` 值（例如 1），否则返回 `NULL`。然后用 `COUNT` 函数来统计非 `NULL` 值的数量。
+Sử dụng biểu thức `CASE`, khi điều kiện thỏa mãn trả về một giá trị khác `NULL` (ví dụ 1), ngược lại trả về `NULL`. Sau đó dùng hàm `COUNT` để đếm số giá trị khác `NULL`.
 
-写法 3：
+Cách viết 3:
 
 ```sql
 SELECT
@@ -92,20 +92,20 @@ HAVING
     incomplete_cnt > 0;
 ```
 
-利用 `SUM` 函数对一个表达式求和。当 `submit_time` 为 `NULL` 时，表达式 `(submit_time IS NULL)` 的值为 1 (TRUE)，否则为 0 (FALSE)。将这些 1 和 0 加起来，就得到了未完成的数量。
+Sử dụng hàm `SUM` để tính tổng của một biểu thức. Khi `submit_time` là `NULL`, biểu thức `(submit_time IS NULL)` có giá trị là 1 (TRUE), ngược lại là 0 (FALSE). Cộng tất cả các 1 và 0 lại ta được số lần chưa hoàn thành.
 
-### 0 级用户高难度试卷的平均用时和平均得分
+### Thời gian làm bài trung bình và điểm trung bình của đề thi khó dành cho người dùng cấp 0
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间），数据如下：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）, dữ liệu như sau:
 
 | id  | uid  | nick_name | achievement | level | job  | register_time       |
 | --- | ---- | --------- | ----------- | ----- | ---- | ------------------- |
 | 1   | 1001 | 牛客 1 号 | 10          | 0     | 算法 | 2020-01-01 10:00:00 |
 | 2   | 1002 | 牛客 2 号 | 2100        | 6     | 算法 | 2020-01-01 10:00:00 |
 
-试卷信息表 `examination_info`（`exam_id` 试卷 ID, `tag` 试卷类别, `difficulty` 试卷难度, `duration` 考试时长, `release_time` 发布时间），数据如下：
+Bảng thông tin đề thi `examination_info`（`exam_id` ID đề thi, `tag` danh mục đề thi, `difficulty` độ khó đề thi, `duration` thời lượng thi, `release_time` thời gian phát hành）, dữ liệu như sau:
 
 | id  | exam_id | tag  | difficulty | duration | release_time        |
 | --- | ------- | ---- | ---------- | -------- | ------------------- |
@@ -113,7 +113,7 @@ HAVING
 | 2   | 9002    | SQL  | easy       | 60       | 2020-01-01 10:00:00 |
 | 3   | 9004    | 算法 | medium     | 80       | 2020-01-01 10:00:00 |
 
-试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分），数据如下：
+Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）, dữ liệu như sau:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -125,17 +125,17 @@ HAVING
 | 6   | 1001 | 9002    | 2021-09-01 12:01:01 | (NULL)              | (NULL) |
 | 7   | 1002 | 9002    | 2021-05-05 18:01:01 | 2021-05-05 18:59:02 | 90     |
 
-请输出每个 0 级用户所有的高难度试卷考试平均用时和平均得分，未完成的默认试卷最大考试时长和 0 分处理。由示例数据结果输出如下：
+Hãy xuất thời gian làm bài trung bình và điểm trung bình của tất cả các bài thi đề khó của mỗi người dùng cấp 0, các bài chưa hoàn thành mặc định lấy thời lượng thi tối đa và 0 điểm. Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | avg_score | avg_time_took |
 | ---- | --------- | ------------- |
 | 1001 | 33        | 36.7          |
 
-解释：0 级用户有 1001，高难度试卷有 9001，1001 作答 9001 的记录有 3 条，分别用时 20 分钟、未完成（试卷时长 60 分钟）、30 分钟（未满 31 分钟），分别得分为 80 分、未完成（0 分处理）、20 分。因此他的平均用时为 110/3=36.7（保留一位小数），平均得分为 33 分（取整）
+Giải thích: Người dùng cấp 0 có 1001, đề thi khó có 9001, 1001 có 3 bản ghi làm bài 9001, lần lượt mất 20 phút, chưa hoàn thành (thời lượng thi 60 phút), 30 phút (chưa đủ 31 phút), điểm lần lượt là 80, chưa hoàn thành (tính 0 điểm), 20. Vì vậy thời gian làm bài trung bình là 110/3=36.7 (làm tròn 1 chữ số thập phân), điểm trung bình là 33 (làm tròn)
 
-**思路**：这题用`IF`是判断的最方便的，因为涉及到 NULL 值的判断。当然 `case when`也可以，大同小异。这题的难点就在于空值的处理，其他的这些查询条件什么的，我相信难不倒大家。
+**Tư duy**: Câu hỏi này dùng `IF` là cách phán định thuận tiện nhất, vì liên quan đến xử lý giá trị NULL. Tất nhiên `case when` cũng được, đại đồng tiểu dị. Điểm khó của câu hỏi này chính là xử lý giá trị null, còn những điều kiện truy vấn khác thì không khó.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT UID,
@@ -153,13 +153,13 @@ GROUP BY UID
 ORDER BY UID
 ```
 
-## 高级条件语句
+## Câu lệnh điều kiện nâng cao
 
-### 筛选限定昵称成就值活跃日期的用户（较难）
+### Lọc người dùng theo điều kiện biệt danh, điểm thành tựu và ngày hoạt động (khó hơn)
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name   | achievement | level | job  | register_time       |
 | --- | ---- | ----------- | ----------- | ----- | ---- | ------------------- |
@@ -169,7 +169,7 @@ ORDER BY UID
 | 4   | 1004 | 牛客 4 号   | 2500        | 6     | 算法 | 2020-01-01 10:00:00 |
 | 5   | 1005 | 牛客 5 号   | 3000        | 7     | C++  | 2020-01-01 10:00:00 |
 
-试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分）：
+Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -192,7 +192,7 @@ ORDER BY UID
 | 14  | 1005 | 9001    | 2021-02-01 11:01:01 | 2021-02-01 11:31:01 | 84     |
 | 15  | 1006 | 9001    | 2021-02-01 11:01:01 | 2021-02-01 11:31:01 | 84     |
 
-题目练习记录表 `practice_record`（`uid` 用户 ID, `question_id` 题目 ID, `submit_time` 提交时间, `score` 得分）：
+Bảng bản ghi luyện tập câu hỏi `practice_record`（`uid` ID người dùng, `question_id` ID câu hỏi, `submit_time` thời gian nộp, `score` điểm số）:
 
 | id  | uid  | question_id | submit_time         | score |
 | --- | ---- | ----------- | ------------------- | ----- |
@@ -202,31 +202,31 @@ ORDER BY UID
 | 4   | 1002 | 8002        | 2021-09-02 19:38:01 | 70    |
 | 5   | 1003 | 8002        | 2021-09-01 19:38:01 | 80    |
 
-请找到昵称以『牛客』开头『号』结尾、成就值在 1200~2500 之间，且最近一次活跃（答题或作答试卷）在 2021 年 9 月的用户信息。
+Hãy tìm người dùng có biệt danh bắt đầu bằng "牛客" và kết thúc bằng "号", điểm thành tựu từ 1200~2500, và lần hoạt động gần nhất (làm bài hoặc làm đề thi) vào tháng 9 năm 2021.
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | nick_name | achievement |
 | ---- | --------- | ----------- |
 | 1002 | 牛客 2 号 | 1200        |
 
-**解释**：昵称以『牛客』开头『号』结尾且成就值在 1200~2500 之间的有 1002、1004；
+**Giải thích**: Những người có biệt danh bắt đầu bằng "牛客" kết thúc bằng "号" và điểm thành tựu từ 1200~2500 là 1002, 1004;
 
-1002 最近一次试卷区活跃为 2021 年 9 月，最近一次题目区活跃为 2021 年 9 月；1004 最近一次试卷区活跃为 2021 年 8 月，题目区未活跃。
+Lần hoạt động gần nhất trong khu đề thi của 1002 là tháng 9 năm 2021, lần hoạt động gần nhất trong khu luyện câu là tháng 9 năm 2021; Lần hoạt động gần nhất trong khu đề thi của 1004 là tháng 8 năm 2021, khu câu không hoạt động.
 
-因此最终满足条件的只有 1002。
+Vì vậy chỉ có 1002 thỏa mãn điều kiện.
 
-**思路**：
+**Tư duy**:
 
-先根据条件列出主要查询语句
+Trước tiên liệt kê câu truy vấn chính theo các điều kiện
 
-昵称以『牛客』开头『号』结尾: `nick_name LIKE "牛客%号"`
+Biệt danh bắt đầu bằng "牛客" kết thúc bằng "号": `nick_name LIKE "牛客%号"`
 
-成就值在 1200~2500 之间：`achievement BETWEEN 1200 AND 2500`
+Điểm thành tựu từ 1200~2500: `achievement BETWEEN 1200 AND 2500`
 
-第三个条件因为限定了为 9 月，所以直接写就行：`( date_format( record.submit_time, '%Y%m' )= 202109 OR date_format( pr.submit_time, '%Y%m' )= 202109 )`
+Điều kiện thứ ba vì giới hạn là tháng 9, nên viết trực tiếp: `( date_format( record.submit_time, '%Y%m' )= 202109 OR date_format( pr.submit_time, '%Y%m' )= 202109 )`
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT DISTINCT u_info.uid,
@@ -243,11 +243,11 @@ WHERE u_info.nick_name LIKE "牛客%号"
 GROUP BY u_info.uid
 ```
 
-### 筛选昵称规则和试卷规则的作答记录（较难）
+### Lọc bản ghi làm bài theo quy tắc biệt danh và quy tắc đề thi (khó hơn)
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name    | achievement | level | job  | register_time       |
 | --- | ---- | ------------ | ----------- | ----- | ---- | ------------------- |
@@ -258,7 +258,7 @@ GROUP BY u_info.uid
 | 5   | 1005 | 牛客 555 号  | 2000        | 7     | C++  | 2020-01-01 10:00:00 |
 | 6   | 1006 | 666666       | 3000        | 6     | C++  | 2020-01-01 10:00:00 |
 
-试卷信息表 `examination_info`（`exam_id` 试卷 ID, `tag` 试卷类别, `difficulty` 试卷难度, `duration` 考试时长, `release_time` 发布时间）：
+Bảng thông tin đề thi `examination_info`（`exam_id` ID đề thi, `tag` danh mục đề thi, `difficulty` độ khó đề thi, `duration` thời lượng thi, `release_time` thời gian phát hành）:
 
 | id  | exam_id | tag | difficulty | duration | release_time        |
 | --- | ------- | --- | ---------- | -------- | ------------------- |
@@ -266,7 +266,7 @@ GROUP BY u_info.uid
 | 2   | 9002    | c#  | hard       | 80       | 2020-01-01 10:00:00 |
 | 3   | 9003    | SQL | medium     | 70       | 2020-01-01 10:00:00 |
 
-试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分）：
+Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -289,7 +289,7 @@ GROUP BY u_info.uid
 | 14  | 1005 | 9001    | 2021-02-01 11:01:01 | 2021-02-01 11:31:01 | 84     |
 | 15  | 1006 | 9001    | 2021-02-01 11:01:01 | 2021-09-01 11:31:01 | 84     |
 
-找到昵称以"牛客"+纯数字+"号"或者纯数字组成的用户对于字母 c 开头的试卷类别（如 C,C++,c#等）的已完成的试卷 ID 和平均得分，按用户 ID、平均分升序排序。由示例数据结果输出如下：
+Tìm ID đề thi đã hoàn thành và điểm trung bình của người dùng có biệt danh là "牛客"+số nguyên thuần túy+"号" hoặc chỉ gồm số nguyên thuần túy đối với danh mục đề thi bắt đầu bằng chữ c (như C, C++, c# v.v.), sắp xếp theo ID người dùng và điểm trung bình tăng dần. Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | exam_id | avg_score |
 | ---- | ------- | --------- |
@@ -298,25 +298,25 @@ GROUP BY u_info.uid
 | 1005 | 9001    | 84        |
 | 1006 | 9001    | 84        |
 
-解释：昵称满足条件的用户有 1002、1004、1005、1006；
+Giải thích: Người dùng có biệt danh thỏa mãn điều kiện là 1002, 1004, 1005, 1006;
 
-c 开头的试卷有 9001、9002；
+Đề thi bắt đầu bằng c có 9001, 9002;
 
-满足上述条件的作答记录中，1002 完成 9001 的得分有 81、80，平均分为 81（80.5 取整四舍五入得 81）；
+Trong bản ghi làm bài thỏa mãn điều kiện trên, điểm 1002 hoàn thành 9001 là 81, 80, điểm trung bình là 81 (80.5 làm tròn được 81);
 
-1002 完成 9002 的得分有 90、82、83，平均分为 85；
+Điểm 1002 hoàn thành 9002 là 90, 82, 83, điểm trung bình là 85;
 
-**思路**：
+**Tư duy**:
 
-还是老样子，既然给出了条件，就先把各个条件先写出来
+Vẫn như cũ, đã cho các điều kiện thì viết từng điều kiện ra trước
 
-找到昵称以"牛客"+纯数字+"号"或者纯数字组成的用户： 我最开始是这么写的：`nick_name LIKE '牛客%号' OR nick_name REGEXP '^[0-9]+$'`，如果表中有个 “牛客 H 号” ，那也能通过。
+Tìm người dùng có biệt danh là "牛客"+số nguyên thuần túy+"号" hoặc chỉ gồm số nguyên thuần túy: Ban đầu tôi viết như sau: `nick_name LIKE '牛客%号' OR nick_name REGEXP '^[0-9]+$'`, nhưng nếu trong bảng có "牛客 H 号" thì cũng vượt qua được.
 
-所以这里还得用正则： `nick_name LIKE '^牛客[0-9]+号'`
+Vì vậy ở đây cần dùng regex: `nick_name LIKE '^牛客[0-9]+号'`
 
-对于字母 c 开头的试卷类别： `e_info.tag LIKE 'c%'` 或者 `tag regexp '^c|^C'` 第一个也能匹配到大写 C
+Đối với danh mục đề thi bắt đầu bằng chữ c: `e_info.tag LIKE 'c%'` hoặc `tag regexp '^c|^C'` cái đầu cũng khớp được chữ C hoa
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT UID,
@@ -337,11 +337,11 @@ GROUP BY UID,exam_id
 ORDER BY UID,avg_score;
 ```
 
-### 根据指定记录是否存在输出不同情况（困难）
+### Xuất kết quả khác nhau dựa trên sự tồn tại của bản ghi được chỉ định (khó)
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name   | achievement | level | job  | register_time       |
 | --- | ---- | ----------- | ----------- | ----- | ---- | ------------------- |
@@ -352,7 +352,7 @@ ORDER BY UID,avg_score;
 | 5   | 1005 | 牛客 555 号 | 2000        | 7     | C++  | 2020-01-01 10:00:00 |
 | 6   | 1006 | 666666      | 3000        | 6     | C++  | 2020-01-01 10:00:00 |
 
-试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分）：
+Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -370,9 +370,9 @@ ORDER BY UID,avg_score;
 | 12  | 1003 | 9003    | 2021-02-06 12:01:01 | (NULL)              | (NULL) |
 | 13  | 1003 | 9001    | 2021-09-07 10:01:01 | 2021-09-07 10:31:01 | 89     |
 
-请你筛选表中的数据，当有任意一个 0 级用户未完成试卷数大于 2 时，输出每个 0 级用户的试卷未完成数和未完成率（保留 3 位小数）；若不存在这样的用户，则输出所有有作答记录的用户的这两个指标。结果按未完成率升序排序。
+Hãy lọc dữ liệu trong bảng: khi có bất kỳ người dùng cấp 0 nào có số đề thi chưa hoàn thành lớn hơn 2, xuất số đề thi chưa hoàn thành và tỷ lệ chưa hoàn thành (giữ 3 chữ số thập phân) của mỗi người dùng cấp 0; nếu không tồn tại người dùng như vậy, thì xuất hai chỉ số này của tất cả người dùng có bản ghi làm bài. Kết quả sắp xếp theo tỷ lệ chưa hoàn thành tăng dần.
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | incomplete_cnt | incomplete_rate |
 | ---- | -------------- | --------------- |
@@ -380,17 +380,17 @@ ORDER BY UID,avg_score;
 | 1003 | 1              | 0.500           |
 | 1001 | 4              | 0.667           |
 
-**解释**：0 级用户有 1001、1003、1004；他们作答试卷数和未完成数分别为：6:4、2:1、0:0；
+**Giải thích**: Người dùng cấp 0 là 1001, 1003, 1004; số đề thi đã làm và số chưa hoàn thành lần lượt là: 6:4, 2:1, 0:0;
 
-存在 1001 这个 0 级用户未完成试卷数大于 2，因此输出这三个用户的未完成数和未完成率（1004 未作答过试卷，未完成率默认填 0，保留 3 位小数后是 0.000）；
+Tồn tại người dùng cấp 0 là 1001 có số đề thi chưa hoàn thành lớn hơn 2, do đó xuất hai chỉ số của ba người dùng này (1004 chưa từng làm đề thi, tỷ lệ chưa hoàn thành mặc định là 0, sau khi giữ 3 chữ số thập phân là 0.000);
 
-结果按照未完成率升序排序。
+Kết quả sắp xếp theo tỷ lệ chưa hoàn thành tăng dần.
 
-附：如果 1001 不满足『未完成试卷数大于 2』，则需要输出 1001、1002、1003 的这两个指标，因为试卷作答记录表里只有这三个用户的作答记录。
+Chú thích: Nếu 1001 không thỏa mãn "số đề thi chưa hoàn thành lớn hơn 2", thì cần xuất hai chỉ số này của 1001, 1002, 1003, vì trong bảng bản ghi làm bài chỉ có bản ghi làm bài của ba người dùng này.
 
-**思路**：
+**Tư duy**:
 
-先把可能满足条件**“0 级用户未完成试卷数大于 2”**的 SQL 写出来
+Trước tiên viết SQL cho điều kiện có thể thỏa mãn **"số đề thi chưa hoàn thành của người dùng cấp 0 lớn hơn 2"**
 
 ```sql
 SELECT ui.uid UID
@@ -406,9 +406,9 @@ GROUP BY ui.uid
 HAVING sum(IF(er.submit_time IS NULL, 1, 0)) > 2
 ```
 
-然后再分别写出两种情况的 SQL 查询语句：
+Sau đó viết riêng câu truy vấn SQL cho hai trường hợp:
 
-情况 1. 查询存在条件要求的 0 级用户的试卷未完成率
+Trường hợp 1. Truy vấn tỷ lệ đề thi chưa hoàn thành của người dùng cấp 0 thỏa mãn điều kiện
 
 ```sql
 SELECT
@@ -440,7 +440,7 @@ ORDER BY
 	incomplete_rate
 ```
 
-情况 2. 查询不存在条件要求时所有有作答记录的 yong 用户的试卷未完成率
+Trường hợp 2. Truy vấn tỷ lệ đề thi chưa hoàn thành của tất cả người dùng có bản ghi làm bài khi không tồn tại điều kiện yêu cầu
 
 ```sql
 SELECT
@@ -461,7 +461,7 @@ ORDER BY
 	incomplete_rate
 ```
 
-拼在一起，就是答案
+Ghép lại, đó là đáp án
 
 ```sql
 WITH host_user AS
@@ -519,7 +519,7 @@ UNION ALL
    WHERE t2.uid IS NULL)
 ```
 
-V2 版本（根据上面做出的改进，答案缩短了，逻辑更强）：
+Phiên bản V2 (cải tiến từ phiên bản trên, câu trả lời ngắn hơn, logic chặt chẽ hơn):
 
 ```sql
 SELECT
@@ -563,11 +563,11 @@ CASE
 	incomplete_rate #5.结果按未完成率升序排序
 ```
 
-### 各用户等级的不同得分表现占比（较难）
+### Phân phối điểm theo cấp độ người dùng (khó hơn)
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name    | achievement | level | job  | register_time       |
 | --- | ---- | ------------ | ----------- | ----- | ---- | ------------------- |
@@ -578,7 +578,7 @@ CASE
 | 5   | 1005 | 牛客 555 号  | 2000        | 7     | C++  | 2020-01-01 10:00:00 |
 | 6   | 1006 | 666666       | 3000        | 6     | C++  | 2020-01-01 10:00:00 |
 
-试卷作答记录表 exam_record（uid 用户 ID, exam_id 试卷 ID, start_time 开始作答时间, submit_time 交卷时间, score 得分）：
+Bảng bản ghi làm bài thi exam_record（uid ID người dùng, exam_id ID đề thi, start_time thời gian bắt đầu làm bài, submit_time thời gian nộp bài, score điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -594,9 +594,9 @@ CASE
 | 10  | 1002 | 9003    | 2020-02-01 12:01:01 | 2020-02-01 12:31:01 | 82     |
 | 11  | 1002 | 9003    | 2020-02-02 12:11:01 | 2020-02-02 12:41:01 | 76     |
 
-为了得到用户试卷作答的定性表现，我们将试卷得分按分界点[90,75,60]分为优良中差四个得分等级（分界点划分到左区间），请统计不同用户等级的人在完成过的试卷中各得分等级占比（结果保留 3 位小数），未完成过试卷的用户无需输出，结果按用户等级降序、占比降序排序。
+Để đánh giá định tính kết quả làm bài của người dùng, chúng ta chia điểm đề thi theo điểm mốc [90,75,60] thành bốn mức điểm xuất sắc, tốt, trung bình, kém (điểm mốc chia vào khoảng trái), hãy thống kê tỷ lệ của từng mức điểm đối với từng cấp độ người dùng đã hoàn thành đề thi (kết quả giữ 3 chữ số thập phân), người dùng chưa hoàn thành đề thi không cần xuất, kết quả sắp xếp theo cấp độ người dùng giảm dần, tỷ lệ giảm dần.
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | level | score_grade | ratio |
 | ----- | ----------- | ----- |
@@ -607,7 +607,7 @@ CASE
 | 0     | 优          | 0.167 |
 | 0     | 差          | 0.167 |
 
-解释：完成过试卷的用户有 1001、1002；完成了的试卷对应的用户等级和分数等级如下：
+Giải thích: Người dùng đã hoàn thành đề thi là 1001, 1002; cấp độ người dùng và mức điểm tương ứng như sau:
 
 | uid  | exam_id | score | level | score_grade |
 | ---- | ------- | ----- | ----- | ----------- |
@@ -621,11 +621,11 @@ CASE
 | 1002 | 9003    | 82    | 3     | 良          |
 | 1002 | 9003    | 76    | 3     | 良          |
 
-因此 0 级用户（只有 1001）的各分数等级比例为：优 1/6，良 1/6，中 1/6，差 3/6；3 级用户（只有 1002）各分数等级比例为：优 1/3，良 2/3。结果保留 3 位小数。
+Vì vậy tỷ lệ mức điểm của người dùng cấp 0 (chỉ có 1001) là: xuất sắc 1/6, tốt 1/6, trung bình 1/6, kém 3/6; người dùng cấp 3 (chỉ có 1002) là: xuất sắc 1/3, tốt 2/3. Kết quả giữ 3 chữ số thập phân.
 
-**思路**：
+**Tư duy**:
 
-先把 **“将试卷得分按分界点[90,75,60]分为优良中差四个得分等级”**这个条件写出来，这里可以用到`case when`
+Trước tiên viết điều kiện **"chia điểm đề thi theo điểm mốc [90,75,60] thành bốn mức điểm xuất sắc, tốt, trung bình, kém"**, ở đây có thể dùng `case when`
 
 ```sql
 CASE
@@ -638,9 +638,9 @@ CASE
 END
 ```
 
-这题的关键点就在于这，其他剩下的就是条件拼接了
+Đây là điểm mấu chốt của câu hỏi này, phần còn lại chỉ là ghép các điều kiện
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT a.LEVEL,
@@ -673,13 +673,13 @@ ORDER BY a.LEVEL DESC,
          ratio DESC
 ```
 
-## 限量查询
+## Truy vấn giới hạn
 
-### 注册时间最早的三个人
+### Ba người đăng ký sớm nhất
 
-**描述**：
+**Mô tả**:
 
-现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name    | achievement | level | job  | register_time       |
 | --- | ---- | ------------ | ----------- | ----- | ---- | ------------------- |
@@ -690,7 +690,7 @@ ORDER BY a.LEVEL DESC,
 | 5   | 1005 | 牛客 555 号  | 4000        | 7     | C++  | 2020-01-11 10:00:00 |
 | 6   | 1006 | 666666       | 3000        | 6     | C++  | 2020-11-01 10:00:00 |
 
-请从中找到注册时间最早的 3 个人。由示例数据结果输出如下：
+Hãy tìm 3 người đăng ký sớm nhất. Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | nick_name    | register_time       |
 | ---- | ------------ | ------------------- |
@@ -698,9 +698,9 @@ ORDER BY a.LEVEL DESC,
 | 1003 | 牛客 3 号 ♂ | 2020-01-02 10:00:00 |
 | 1004 | 牛客 4 号    | 2020-01-02 11:00:00 |
 
-解释：按注册时间排序后选取前三名，输出其用户 ID、昵称、注册时间。
+Giải thích: Sắp xếp theo thời gian đăng ký và lấy ba người đầu tiên, xuất ID người dùng, biệt danh, thời gian đăng ký.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT uid, nick_name, register_time
@@ -709,9 +709,9 @@ SELECT uid, nick_name, register_time
     LIMIT 3
 ```
 
-### 注册当天就完成了试卷的名单第三页（较难）
+### Trang thứ ba trong danh sách những người hoàn thành đề thi ngay ngày đăng ký (khó hơn)
 
-**描述**：现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+**Mô tả**: Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name    | achievement | level | job  | register_time       |
 | --- | ---- | ------------ | ----------- | ----- | ---- | ------------------- |
@@ -727,7 +727,7 @@ SELECT uid, nick_name, register_time
 | 10  | 1010 | 牛客 10 号   | 25          | 0     | 算法 | 2020-01-02 11:00:00 |
 | 11  | 1011 | 666666       | 3000        | 6     | C++  | 2020-01-02 10:00:00 |
 
-试卷信息表 examination_info（exam_id 试卷 ID, tag 试卷类别, difficulty 试卷难度, duration 考试时长, release_time 发布时间）：
+Bảng thông tin đề thi examination_info（exam_id ID đề thi, tag danh mục đề thi, difficulty độ khó đề thi, duration thời lượng thi, release_time thời gian phát hành）:
 
 | id  | exam_id | tag  | difficulty | duration | release_time        |
 | --- | ------- | ---- | ---------- | -------- | ------------------- |
@@ -735,7 +735,7 @@ SELECT uid, nick_name, register_time
 | 2   | 9002    | 算法 | hard       | 80       | 2020-01-01 10:00:00 |
 | 3   | 9003    | SQL  | medium     | 70       | 2020-01-01 10:00:00 |
 
-试卷作答记录表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分）：
+Bảng bản ghi làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score |
 | --- | ---- | ------- | ------------------- | ------------------- | ----- |
@@ -755,9 +755,9 @@ SELECT uid, nick_name, register_time
 
 ![](https://oss.javaguide.cn/github/javaguide/database/sql/D2B491866B85826119EE3474F10D3636.png)
 
-找到求职方向为算法工程师，且注册当天就完成了算法类试卷的人，按参加过的所有考试最高得分排名。排名榜很长，我们将采用分页展示，每页 3 条，现在需要你取出第 3 页（页码从 1 开始）的人的信息。
+Tìm những người có hướng tìm việc là kỹ sư thuật toán và đã hoàn thành đề thi thuật toán ngay ngày đăng ký, xếp hạng theo điểm cao nhất trong tất cả các kỳ thi đã tham gia. Bảng xếp hạng rất dài, chúng ta sẽ phân trang hiển thị, mỗi trang 3 bản ghi, bây giờ cần lấy thông tin người trên trang thứ 3 (số trang bắt đầu từ 1).
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | level | register_time       | max_score |
 | ---- | ----- | ------------------- | --------- |
@@ -765,9 +765,9 @@ SELECT uid, nick_name, register_time
 | 1003 | 0     | 2020-01-01 10:00:00 | 75        |
 | 1004 | 0     | 2020-01-01 11:00:00 | 60        |
 
-解释：除了 1011 其他用户的求职方向都为算法工程师；算法类试卷有 9001 和 9002，11 个用户注册当天都完成了算法类试卷；计算他们的所有考试最大分时，只有 1002 和 1008 完成了两次考试，其他人只完成了一场考试，1002 两场考试最高分为 81，1008 最高分为 99。
+Giải thích: Ngoài 1011, tất cả người dùng khác đều có hướng tìm việc là kỹ sư thuật toán; đề thi thuật toán có 9001 và 9002, 11 người dùng đều hoàn thành đề thi thuật toán ngay ngày đăng ký; khi tính điểm tối đa trong tất cả các kỳ thi, chỉ có 1002 và 1008 hoàn thành hai kỳ thi, những người khác chỉ hoàn thành một kỳ thi, điểm tối đa của 1002 trong hai kỳ thi là 81, điểm tối đa của 1008 là 99.
 
-按最高分排名如下：
+Xếp hạng theo điểm cao nhất:
 
 | uid  | level | register_time       | max_score |
 | ---- | ----- | ------------------- | --------- |
@@ -782,15 +782,15 @@ SELECT uid, nick_name, register_time
 | 1004 | 0     | 2020-01-01 11:00:00 | 60        |
 | 1006 | 0     | 2020-01-02 11:00:00 | 20        |
 
-每页 3 条，第三页也就是第 7~9 条，返回 1010、1003、1004 的行记录即可。
+Mỗi trang 3 bản ghi, trang thứ ba tức là bản ghi thứ 7~9, trả về bản ghi của 1010, 1003, 1004.
 
-**思路**：
+**Tư duy**:
 
-1. 每页三条，即需要取出第三页的人的信息，要用到`limit`
+1. Mỗi trang 3 bản ghi, tức là cần lấy thông tin người trên trang thứ ba, phải dùng `limit`
 
-2. 统计求职方向为算法工程师且注册当天就完成了算法类试卷的人的**信息和每次记录的得分**，先求满足条件的用户，后用 left join 做连接查找信息和每次记录的得分
+2. Thống kê thông tin và điểm mỗi lần thi của người có hướng tìm việc là kỹ sư thuật toán và đã hoàn thành đề thi thuật toán ngay ngày đăng ký, trước tiên tìm người dùng thỏa mãn điều kiện, sau đó dùng left join để kết nối tìm thông tin và điểm mỗi lần thi
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT t1.uid,
@@ -810,11 +810,11 @@ ORDER BY max_score DESC
 LIMIT 6,3
 ```
 
-## 文本转换函数
+## Hàm chuyển đổi văn bản
 
-### 修复串列了的记录
+### Sửa các bản ghi bị nhập sai cột
 
-**描述**：现有试卷信息表 `examination_info`（`exam_id` 试卷 ID, `tag` 试卷类别, `difficulty` 试卷难度, `duration` 考试时长, `release_time` 发布时间）：
+**Mô tả**: Cho bảng thông tin đề thi `examination_info`（`exam_id` ID đề thi, `tag` danh mục đề thi, `difficulty` độ khó đề thi, `duration` thời lượng thi, `release_time` thời gian phát hành）:
 
 | id  | exam_id | tag            | difficulty | duration | release_time        |
 | --- | ------- | -------------- | ---------- | -------- | ------------------- |
@@ -823,63 +823,63 @@ LIMIT 6,3
 | 3   | 9003    | SQL            | medium     | 70       | 2021-01-01 10:00:00 |
 | 4   | 9004    | 算法,medium,80 |            | 0        | 2021-01-01 10:00:00 |
 
-录题同学有一次手误将部分记录的试题类别 tag、难度、时长同时录入到了 tag 字段，请帮忙找出这些录错了的记录，并拆分后按正确的列类型输出。
+Bạn nhập đề có một lần nhầm lẫn nhập đồng thời danh mục đề thi tag, độ khó và thời lượng vào trường tag, hãy giúp tìm ra những bản ghi bị nhập sai đó và tách ra xuất theo đúng kiểu cột.
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | exam_id | tag  | difficulty | duration |
 | ------- | ---- | ---------- | -------- |
 | 9004    | 算法 | medium     | 80       |
 
-**思路**：
+**Tư duy**:
 
-先来学习下本题要用到的函数
+Trước tiên tìm hiểu hàm sẽ dùng trong bài này
 
-`SUBSTRING_INDEX` 函数用于提取字符串中指定分隔符的部分。它接受三个参数：原始字符串、分隔符和指定要返回的部分的数量。
+Hàm `SUBSTRING_INDEX` dùng để trích xuất một phần chuỗi tại dấu phân cách được chỉ định. Nó nhận ba tham số: chuỗi gốc, dấu phân cách và số lượng phần cần trả về.
 
-以下是 `SUBSTRING_INDEX` 函数的语法：
+Cú pháp của hàm `SUBSTRING_INDEX`:
 
 ```sql
 SUBSTRING_INDEX(str, delimiter, count)
 ```
 
-- `str`：要进行分割的原始字符串。
-- `delimiter`：用作分割的字符串或字符。
-- `count`：指定要返回的部分的数量。
-  - 如果 `count` 大于 0，则返回从左边开始的前 `count` 个部分（以分隔符为界）。
-  - 如果 `count` 小于 0，则返回从右边开始的前 `count` 个部分（以分隔符为界），即从右侧向左计数。
+- `str`: Chuỗi gốc cần tách.
+- `delimiter`: Chuỗi hoặc ký tự dùng làm dấu phân cách.
+- `count`: Số lượng phần cần trả về.
+  - Nếu `count` lớn hơn 0, trả về `count` phần đầu tiên từ bên trái (tính theo dấu phân cách).
+  - Nếu `count` nhỏ hơn 0, trả về `count` phần đầu tiên từ bên phải (tính theo dấu phân cách), tức là đếm từ bên phải sang trái.
 
-下面是一些示例，演示了 `SUBSTRING_INDEX` 函数的使用：
+Dưới đây là một số ví dụ minh họa cách dùng hàm `SUBSTRING_INDEX`:
 
-1. 提取字符串中的第一个部分：
+1. Trích xuất phần đầu tiên của chuỗi:
 
    ```sql
    SELECT SUBSTRING_INDEX('apple,banana,cherry', ',', 1);
    -- 输出结果：'apple'
    ```
 
-2. 提取字符串中的最后一个部分：
+2. Trích xuất phần cuối cùng của chuỗi:
 
    ```sql
    SELECT SUBSTRING_INDEX('apple,banana,cherry', ',', -1);
    -- 输出结果：'cherry'
    ```
 
-3. 提取字符串中的前两个部分：
+3. Trích xuất hai phần đầu tiên của chuỗi:
 
    ```sql
    SELECT SUBSTRING_INDEX('apple,banana,cherry', ',', 2);
    -- 输出结果：'apple,banana'
    ```
 
-4. 提取字符串中的最后两个部分：
+4. Trích xuất hai phần cuối cùng của chuỗi:
 
    ```sql
    SELECT SUBSTRING_INDEX('apple,banana,cherry', ',', -2);
    -- 输出结果：'banana,cherry'
    ```
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT
@@ -893,9 +893,9 @@ WHERE
 	difficulty = ''
 ```
 
-### 对过长的昵称截取处理
+### Xử lý cắt ngắn biệt danh quá dài
 
-**描述**：现有用户信息表 `user_info`（`uid` 用户 ID，`nick_name` 昵称, `achievement` 成就值, `level` 等级, `job` 职业方向, `register_time` 注册时间）：
+**Mô tả**: Cho bảng thông tin người dùng `user_info`（`uid` ID người dùng，`nick_name` biệt danh, `achievement` điểm thành tựu, `level` cấp độ, `job` hướng nghề nghiệp, `register_time` thời gian đăng ký）:
 
 | id  | uid  | nick_name              | achievement | level | job  | register_time       |
 | --- | ---- | ---------------------- | ----------- | ----- | ---- | ------------------- |
@@ -906,38 +906,38 @@ WHERE
 | 5   | 1005 | 牛客 5678901234 号     | 4000        | 7     | 算法 | 2020-01-11 10:00:00 |
 | 6   | 1006 | 牛客 67890123456789 号 | 25          | 0     | 算法 | 2020-01-02 11:00:00 |
 
-有的用户的昵称特别长，在一些展示场景会导致样式混乱，因此需要将特别长的昵称转换一下再输出，请输出字符数大于 10 的用户信息，对于字符数大于 13 的用户输出前 10 个字符然后加上三个点号：『...』。
+Một số người dùng có biệt danh rất dài, điều này sẽ gây lộn xộn giao diện trong một số trường hợp hiển thị, do đó cần chuyển đổi những biệt danh đặc biệt dài trước khi xuất, hãy xuất thông tin người dùng có số ký tự lớn hơn 10, đối với người dùng có số ký tự lớn hơn 13 thì xuất 10 ký tự đầu tiên sau đó thêm ba dấu chấm: "...".
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | uid  | nick_name          |
 | ---- | ------------------ |
 | 1005 | 牛客 5678901234 号 |
 | 1006 | 牛客 67890123...   |
 
-解释：字符数大于 10 的用户有 1005 和 1006，长度分别为 13、17；因此需要对 1006 的昵称截断输出。
+Giải thích: Người dùng có số ký tự lớn hơn 10 là 1005 và 1006, độ dài lần lượt là 13, 17; do đó cần cắt ngắn biệt danh của 1006 khi xuất.
 
-**思路**：
+**Tư duy**:
 
-这题涉及到字符的计算，要计算字符串的字符数（即字符串的长度），可以使用 `LENGTH` 函数或 `CHAR_LENGTH` 函数。这两个函数的区别在于对待多字节字符的方式。
+Câu hỏi này liên quan đến tính toán ký tự, để tính số ký tự của chuỗi (tức là độ dài chuỗi), có thể dùng hàm `LENGTH` hoặc `CHAR_LENGTH`. Sự khác biệt giữa hai hàm này là cách xử lý ký tự đa byte.
 
-1. `LENGTH` 函数：它返回给定字符串的字节数。对于包含多字节字符的字符串，每个字符都会被当作一个字节来计算。
+1. Hàm `LENGTH`: Nó trả về số byte của chuỗi đã cho. Đối với chuỗi chứa ký tự đa byte, mỗi ký tự được tính là một byte.
 
-示例：
+Ví dụ:
 
 ```sql
 SELECT LENGTH('你好'); -- 输出结果：6，因为 '你好' 中的每个汉字每个占3个字节
 ```
 
-1. `CHAR_LENGTH` 函数：它返回给定字符串的字符数。对于包含多字节字符的字符串，每个字符会被当作一个字符来计算。
+1. Hàm `CHAR_LENGTH`: Nó trả về số ký tự của chuỗi đã cho. Đối với chuỗi chứa ký tự đa byte, mỗi ký tự được tính là một ký tự.
 
-示例：
+Ví dụ:
 
 ```sql
 SELECT CHAR_LENGTH('你好'); -- 输出结果：2，因为 '你好' 中有两个字符，即两个汉字
 ```
 
-**答案**：
+**Đáp án**:
 
 ```sql
 SELECT
@@ -955,11 +955,11 @@ GROUP BY
 	uid;
 ```
 
-### 大小写混乱时的筛选统计（较难）
+### Thống kê lọc khi chữ hoa chữ thường lẫn lộn (khó hơn)
 
-**描述**：
+**Mô tả**:
 
-现有试卷信息表 `examination_info`（`exam_id` 试卷 ID, `tag` 试卷类别, `difficulty` 试卷难度, `duration` 考试时长, `release_time` 发布时间）：
+Cho bảng thông tin đề thi `examination_info`（`exam_id` ID đề thi, `tag` danh mục đề thi, `difficulty` độ khó đề thi, `duration` thời lượng thi, `release_time` thời gian phát hành）:
 
 | id  | exam_id | tag  | difficulty | duration | release_time        |
 | --- | ------- | ---- | ---------- | -------- | ------------------- |
@@ -974,7 +974,7 @@ GROUP BY
 | 9   | 9009    | SQL  | medium     | 70       | 2021-01-01 10:00:00 |
 | 10  | 9010    | SQL  | medium     | 70       | 2021-01-01 10:00:00 |
 
-试卷作答信息表 `exam_record`（`uid` 用户 ID, `exam_id` 试卷 ID, `start_time` 开始作答时间, `submit_time` 交卷时间, `score` 得分）：
+Bảng thông tin làm bài thi `exam_record`（`uid` ID người dùng, `exam_id` ID đề thi, `start_time` thời gian bắt đầu làm bài, `submit_time` thời gian nộp bài, `score` điểm số）:
 
 | id  | uid  | exam_id | start_time          | submit_time         | score  |
 | --- | ---- | ------- | ------------------- | ------------------- | ------ |
@@ -992,17 +992,17 @@ GROUP BY
 | 12  | 1010 | 9001    | 2020-01-02 12:11:01 | (NULL)              | (NULL) |
 | 13  | 1010 | 9001    | 2020-02-02 12:01:01 | 2020-01-02 10:31:01 | 89     |
 
-试卷的类别 tag 可能出现大小写混乱的情况，请先筛选出试卷作答数小于 3 的类别 tag，统计将其转换为大写后对应的原本试卷作答数。
+Danh mục đề thi tag có thể xảy ra tình trạng lẫn lộn chữ hoa chữ thường, hãy trước tiên lọc ra danh mục tag có số lần làm bài nhỏ hơn 3, thống kê số lần làm bài gốc tương ứng với đề thi khi chuyển thành chữ hoa.
 
-如果转换后 tag 并没有发生变化，不输出该条结果。
+Nếu sau khi chuyển đổi tag không thay đổi, không xuất kết quả đó.
 
-由示例数据结果输出如下：
+Kết quả đầu ra từ dữ liệu mẫu như sau:
 
 | tag | answer_cnt |
 | --- | ---------- |
 | C++ | 6          |
 
-解释：被作答过的试卷有 9001、9002、9003、9004，他们的 tag 和被作答次数如下：
+Giải thích: Các đề thi đã được làm là 9001, 9002, 9003, 9004, tag và số lần được làm của chúng như sau:
 
 | exam_id | tag  | answer_cnt |
 | ------- | ---- | ---------- |
@@ -1011,21 +1011,21 @@ GROUP BY
 | 9003    | c++  | 2          |
 | 9004    | sql  | 2          |
 
-作答次数小于 3 的 tag 有 c++和 sql，而转为大写后只有 C++本来就有作答数，于是输出 c++转化大写后的作答次数为 6。
+Các tag có số lần làm nhỏ hơn 3 là c++ và sql, sau khi chuyển thành chữ hoa chỉ có C++ đã có số lần làm, vì vậy xuất số lần làm sau khi chuyển c++ thành chữ hoa là 6.
 
-**思路**：
+**Tư duy**:
 
-首先，这题有点混乱，9004 根据示例数据查出来只有 1 次，这里显示有 2 次。
+Trước tiên, câu hỏi này có chút lộn xộn, 9004 theo dữ liệu mẫu chỉ có 1 lần, nhưng ở đây hiển thị 2 lần.
 
-先看一下大小写转换函数：
+Trước tiên xem các hàm chuyển đổi chữ hoa chữ thường:
 
-1.`UPPER(s)`或`UCASE(s)`函数可以将字符串 s 中的字母字符全部转换成大写字母；
+1.`UPPER(s)` hoặc `UCASE(s)` có thể chuyển tất cả ký tự chữ cái trong chuỗi s thành chữ hoa;
 
-2.`LOWER(s)`或者`LCASE(s)`函数可以将字符串 s 中的字母字符全部转换成小写字母。
+2.`LOWER(s)` hoặc `LCASE(s)` có thể chuyển tất cả ký tự chữ cái trong chuỗi s thành chữ thường.
 
-难点在于相同表做连接要查询不同的值
+Điểm khó là cùng một bảng kết nối để truy vấn các giá trị khác nhau
 
-**答案**：
+**Đáp án**:
 
 ```sql
 WITH a AS

@@ -1,22 +1,22 @@
 ---
-title: DelayQueue 源码分析
-description: DelayQueue源码深度解析：详解延迟队列实现原理、Delayed接口使用、延时任务调度、订单超时取消等应用场景、基于PriorityQueue的线程安全设计。
+title: Phân tích mã nguồn DelayQueue
+description: Phân tích chuyên sâu mã nguồn DelayQueue：giải thích nguyên lý triển khai hàng đợi trễ, sử dụng Delayed interface, lập lịch tác vụ trì hoãn, các tình huống ứng dụng như hủy đơn hàng khi hết thời gian, thiết kế thread-safe dựa trên PriorityQueue.
 category: Java
 tag:
-  - Java集合
+  - Java Collection
 head:
   - - meta
     - name: keywords
       content: DelayQueue源码,延迟队列,Delayed接口,延时任务,定时任务,订单超时,PriorityQueue实现
 ---
 
-## DelayQueue 简介
+## Giới thiệu về DelayQueue
 
-`DelayQueue` 是 JUC 包(`java.util.concurrent)`为我们提供的延迟队列，用于实现延时任务比如订单下单 15 分钟未支付直接取消。它是 `BlockingQueue` 的一种，底层是一个基于 `PriorityQueue` 实现的一个无界队列，是线程安全的。关于`PriorityQueue`可以参考笔者编写的这篇文章：[PriorityQueue 源码分析](./priorityqueue-source-code.md) 。
+`DelayQueue` là hàng đợi trễ được cung cấp bởi gói JUC (`java.util.concurrent`) để triển khai các tác vụ trì hoãn, ví dụ như hủy đơn hàng chưa thanh toán sau 15 phút. Đây là một dạng `BlockingQueue`, bên dưới là một hàng đợi không giới hạn được triển khai dựa trên `PriorityQueue`, và thread-safe. Về `PriorityQueue` bạn có thể tham khảo bài viết: [Phân tích mã nguồn PriorityQueue](./priorityqueue-source-code.md).
 
-![BlockingQueue 的实现类](https://oss.javaguide.cn/github/javaguide/java/collection/blocking-queue-hierarchy.png)
+![Các lớp triển khai BlockingQueue](https://oss.javaguide.cn/github/javaguide/java/collection/blocking-queue-hierarchy.png)
 
-`DelayQueue` 中存放的元素必须实现 `Delayed` 接口，并且需要重写 `getDelay()`方法（计算是否到期）。
+Các phần tử lưu trong `DelayQueue` bắt buộc phải triển khai interface `Delayed` và cần override phương thức `getDelay()` (để tính xem đã đến hạn chưa).
 
 ```java
 public interface Delayed extends Comparable<Delayed> {
@@ -24,25 +24,25 @@ public interface Delayed extends Comparable<Delayed> {
 }
 ```
 
-默认情况下, `DelayQueue` 会按照到期时间升序编排任务。只有当元素过期时（`getDelay()`方法返回值小于等于 0），才能从队列中取出。
+Theo mặc định, `DelayQueue` sẽ sắp xếp các tác vụ theo thứ tự tăng dần của thời gian đến hạn. Chỉ khi phần tử hết hạn (phương thức `getDelay()` trả về giá trị nhỏ hơn hoặc bằng 0) thì mới có thể lấy ra khỏi hàng đợi.
 
-## DelayQueue 发展史
+## Lịch sử phát triển của DelayQueue
 
-- `DelayQueue` 最早是在 Java 5 中引入的，作为 `java.util.concurrent` 包中的一部分，用于支持基于时间的任务调度和缓存过期删除等场景，该版本仅仅支持延迟功能的实现，还未解决线程安全问题。
-- 在 Java 6 中，`DelayQueue` 的实现进行了优化，通过使用 `ReentrantLock` 和 `Condition` 解决线程安全及线程间交互的效率，提高了其性能和可靠性。
-- 在 Java 7 中，`DelayQueue` 的实现进行了进一步的优化，通过使用 CAS 操作实现元素的添加和移除操作，提高了其并发操作性能。
-- 在 Java 8 中，`DelayQueue` 的实现没有进行重大变化，但是在 `java.time` 包中引入了新的时间类，如 `Duration` 和 `Instant`，使得使用 `DelayQueue` 进行基于时间的调度更加方便和灵活。
-- 在 Java 9 中，`DelayQueue` 的实现进行了一些微小的改进，主要是对代码进行了一些优化和精简。
+- `DelayQueue` được giới thiệu lần đầu trong Java 5, là một phần của gói `java.util.concurrent`, dùng để hỗ trợ lập lịch tác vụ theo thời gian và xóa cache hết hạn. Phiên bản này chỉ hỗ trợ chức năng trì hoãn, chưa giải quyết vấn đề thread-safety.
+- Trong Java 6, triển khai của `DelayQueue` được tối ưu hóa, sử dụng `ReentrantLock` và `Condition` để giải quyết thread-safety và hiệu quả tương tác giữa các luồng, cải thiện hiệu năng và độ tin cậy.
+- Trong Java 7, triển khai của `DelayQueue` được tối ưu hóa thêm, sử dụng các thao tác CAS để thực hiện thêm và xóa phần tử, cải thiện hiệu năng cho các thao tác đồng thời.
+- Trong Java 8, triển khai của `DelayQueue` không có thay đổi lớn, nhưng gói `java.time` đã giới thiệu các lớp thời gian mới như `Duration` và `Instant`, giúp việc lập lịch dựa trên thời gian với `DelayQueue` trở nên thuận tiện và linh hoạt hơn.
+- Trong Java 9, triển khai của `DelayQueue` có một số cải tiến nhỏ, chủ yếu là tối ưu hóa và tinh gọn code.
 
-总的来说，`DelayQueue` 的发展史主要是通过优化其实现方式和提高其性能和可靠性，使其更加适用于基于时间的调度和缓存过期删除等场景。
+Tóm lại, lịch sử phát triển của `DelayQueue` chủ yếu là tối ưu hóa cách triển khai và cải thiện hiệu năng, độ tin cậy, giúp nó phù hợp hơn với các tình huống lập lịch theo thời gian và xóa cache hết hạn.
 
-## DelayQueue 常见使用场景示例
+## Ví dụ các trường hợp sử dụng phổ biến của DelayQueue
 
-我们这里希望任务可以按照我们预期的时间执行，例如提交 3 个任务，分别要求 1s、2s、3s 后执行，即使是乱序添加，1s 后要求 1s 执行的任务会准时执行。
+Chúng ta mong muốn các tác vụ có thể được thực thi theo thời gian dự kiến, ví dụ gửi 3 tác vụ yêu cầu thực thi sau 1s, 2s, 3s tương ứng, dù thêm vào theo thứ tự bất kỳ, sau 1s tác vụ yêu cầu 1s vẫn sẽ được thực thi đúng giờ.
 
-![延迟任务](https://oss.javaguide.cn/github/javaguide/java/collection/delayed-task.png)
+![Tác vụ trì hoãn](https://oss.javaguide.cn/github/javaguide/java/collection/delayed-task.png)
 
-对此我们可以使用 `DelayQueue` 来实现,所以我们首先需要继承 `Delayed` 实现 `DelayedTask`，实现 `getDelay` 方法以及优先级比较 `compareTo`。
+Để làm điều này, chúng ta có thể sử dụng `DelayQueue`. Trước tiên cần kế thừa `Delayed` để triển khai `DelayedTask`, triển khai phương thức `getDelay` và so sánh độ ưu tiên `compareTo`.
 
 ```java
 /**
@@ -89,7 +89,7 @@ public class DelayedTask implements Delayed {
 }
 ```
 
-完成任务的封装之后，使用就很简单了，设置好多久到期然后将任务提交到延迟队列中即可。
+Sau khi hoàn thành việc đóng gói tác vụ, việc sử dụng rất đơn giản: chỉ cần đặt thời gian hết hạn rồi gửi tác vụ vào hàng đợi trễ.
 
 ```java
 // 创建延迟队列，并添加任务
@@ -110,7 +110,7 @@ while (!delayQueue.isEmpty()) {
 }
 ```
 
-从输出结果可以看出，即使笔者先提到 2s 到期的任务，1s 到期的任务 Task1 还是优先执行的。
+Từ kết quả đầu ra, ta thấy rằng dù tác vụ hết hạn sau 2s được thêm vào trước, tác vụ Task1 hết hạn sau 1s vẫn được thực thi trước.
 
 ```java
 Task 1
@@ -118,11 +118,11 @@ Task 2
 Task 3
 ```
 
-## DelayQueue 源码解析
+## Phân tích mã nguồn DelayQueue
 
-这里以 JDK1.8 为例，分析一下 `DelayQueue` 的底层核心源码。
+Dưới đây lấy JDK1.8 làm ví dụ để phân tích mã nguồn cốt lõi của `DelayQueue`.
 
-`DelayQueue` 的类定义如下：
+Định nghĩa lớp `DelayQueue` như sau:
 
 ```java
 public class DelayQueue<E extends Delayed> extends AbstractQueue<E> implements BlockingQueue<E>
@@ -131,13 +131,13 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E> implements B
 }
 ```
 
-`DelayQueue` 继承了 `AbstractQueue` 类，实现了 `BlockingQueue` 接口。
+`DelayQueue` kế thừa lớp `AbstractQueue` và triển khai interface `BlockingQueue`.
 
-![DelayQueue类图](https://oss.javaguide.cn/github/javaguide/java/collection/delayqueue-class-diagram.png)
+![Sơ đồ lớp DelayQueue](https://oss.javaguide.cn/github/javaguide/java/collection/delayqueue-class-diagram.png)
 
-### 核心成员变量
+### Các biến thành viên cốt lõi
 
-`DelayQueue` 的 4 个核心成员变量如下：
+`DelayQueue` có 4 biến thành viên cốt lõi như sau:
 
 ```java
 //可重入锁，实现线程安全的关键
@@ -151,14 +151,14 @@ private Thread leader = null;
 private final Condition available = lock.newCondition();
 ```
 
-- `lock` : 我们都知道 `DelayQueue` 存取是线程安全的，所以为了保证存取元素时线程安全，我们就需要在存取时上锁，而 `DelayQueue` 就是基于 `ReentrantLock` 独占锁确保存取操作的线程安全。
-- `q` : 延迟队列要求元素按照到期时间进行升序排列，所以元素添加时势必需要进行优先级排序,所以 `DelayQueue` 底层元素的存取都是通过这个优先队列 `PriorityQueue` 的成员变量 `q` 来管理的。
-- `leader` : 延迟队列的任务只有到期之后才会执行,对于没有到期的任务只有等待,为了确保优先级最高的任务到期后可以即刻被执行,设计者就用 `leader` 来管理延迟任务，只有 `leader` 所指向的线程才具备定时等待任务到期执行的权限，而其他那些优先级低的任务只能无限期等待，直到 `leader` 线程执行完手头的延迟任务后唤醒它。
-- `available` : 上文讲述 `leader` 线程时提到的等待唤醒操作的交互就是通过 `available` 实现的，假如线程 1 尝试在空的 `DelayQueue` 获取任务时，`available` 就会将其放入等待队列中。直到有一个线程添加一个延迟任务后通过 `available` 的 `signal` 方法将其唤醒。
+- `lock`: Chúng ta đều biết rằng việc truy xuất `DelayQueue` là thread-safe, vì vậy để đảm bảo an toàn luồng khi thêm/lấy phần tử, cần phải khóa. `DelayQueue` sử dụng khóa độc quyền `ReentrantLock` để đảm bảo an toàn luồng cho các thao tác truy xuất.
+- `q`: Hàng đợi trễ yêu cầu các phần tử được sắp xếp tăng dần theo thời gian hết hạn, vì vậy khi thêm phần tử cần sắp xếp theo độ ưu tiên. Do đó việc truy xuất phần tử của `DelayQueue` được quản lý thông qua biến thành viên `q` là `PriorityQueue`.
+- `leader`: Các tác vụ trong hàng đợi trễ chỉ được thực thi sau khi hết hạn, các tác vụ chưa hết hạn phải chờ. Để đảm bảo tác vụ có độ ưu tiên cao nhất có thể được thực thi ngay khi hết hạn, người thiết kế dùng `leader` để quản lý các tác vụ trì hoãn. Chỉ luồng được `leader` trỏ đến mới có quyền chờ có giới hạn thời gian đến khi tác vụ hết hạn, còn những tác vụ có độ ưu tiên thấp hơn chỉ có thể chờ vô thời hạn cho đến khi luồng `leader` hoàn thành tác vụ trì hoãn hiện tại và đánh thức chúng.
+- `available`: Hoạt động chờ và đánh thức được đề cập khi nói về luồng `leader` được thực hiện thông qua `available`. Giả sử luồng 1 cố lấy tác vụ từ `DelayQueue` rỗng, `available` sẽ đưa nó vào hàng đợi chờ. Cho đến khi một luồng nào đó thêm một tác vụ trì hoãn và đánh thức nó thông qua phương thức `signal` của `available`.
 
-### 构造方法
+### Phương thức khởi tạo
 
-相较于其他的并发容器，延迟队列的构造方法比较简单，它只有两个构造方法，因为所有成员变量在类加载时都已经初始完成了，所以默认构造方法什么也没做。还有一个传入 `Collection` 对象的构造方法，它会将调用 `addAll()`方法将集合元素存到优先队列 `q` 中。
+So với các container đồng thời khác, phương thức khởi tạo của hàng đợi trễ khá đơn giản — chỉ có hai phương thức. Vì tất cả biến thành viên đã được khởi tạo khi class được nạp, nên constructor mặc định không làm gì cả. Còn có một constructor nhận đối tượng `Collection`, nó sẽ gọi `addAll()` để lưu các phần tử của collection vào hàng đợi ưu tiên `q`.
 
 ```java
 public DelayQueue() {}
@@ -168,19 +168,19 @@ public DelayQueue(Collection<? extends E> c) {
 }
 ```
 
-### 添加元素
+### Thêm phần tử
 
-`DelayQueue` 添加元素的方法无论是 `add`、`put` 还是 `offer`,本质上就是调用一下 `offer` ,所以了解延迟队列的添加逻辑我们只需阅读 offer 方法即可。
+Dù dùng `add`, `put` hay `offer` để thêm phần tử vào `DelayQueue`, bản chất đều gọi `offer`, vì vậy để hiểu logic thêm phần tử của hàng đợi trễ, chỉ cần đọc phương thức `offer`.
 
-`offer` 方法的整体逻辑为:
+Logic tổng thể của phương thức `offer` như sau:
 
-1. 尝试获取 `lock` 。
-2. 如果上锁成功,则调 `q` 的 `offer` 方法将元素存放到优先队列中。
-3. 调用 `peek` 方法看看当前队首元素是否就是本次入队的元素,如果是则说明当前这个元素是即将到期的任务(即优先级最高的元素)，于是将 `leader` 设置为空,通知因为队列为空时调用 `take` 等方法导致阻塞的线程来争抢元素。
-4. 上述步骤执行完成，释放 `lock`。
-5. 返回 true。
+1. Cố gắng lấy `lock`.
+2. Nếu khóa thành công, gọi phương thức `offer` của `q` để lưu phần tử vào hàng đợi ưu tiên.
+3. Gọi phương thức `peek` để kiểm tra xem phần tử đầu hàng đợi hiện tại có phải là phần tử vừa được thêm vào không. Nếu đúng thì phần tử này là tác vụ sắp hết hạn (tức là phần tử có độ ưu tiên cao nhất), vì vậy đặt `leader` thành null và thông báo cho các luồng bị chặn do gọi `take` khi hàng đợi trống để tranh giành phần tử.
+4. Sau khi hoàn thành các bước trên, giải phóng `lock`.
+5. Trả về true.
 
-源码如下，笔者已详细注释，读者可自行参阅:
+Mã nguồn như sau, đã được chú thích chi tiết:
 
 ```java
 public boolean offer(E e) {
@@ -204,34 +204,34 @@ public boolean offer(E e) {
 }
 ```
 
-### 获取元素
+### Lấy phần tử
 
-`DelayQueue` 中获取元素的方式分为阻塞式和非阻塞式，先来看看逻辑比较复杂的阻塞式获取元素方法 `take`,为了让读者可以更直观的了解阻塞式获取元素的全流程，笔者将以 3 个线程并发获取元素为例讲述 `take` 的工作流程。
+Cách lấy phần tử trong `DelayQueue` chia thành hai dạng: chặn (blocking) và không chặn (non-blocking). Hãy xem trước phương thức lấy phần tử theo dạng chặn `take` với logic phức tạp hơn. Để giúp bạn hiểu rõ toàn bộ quy trình, chúng ta sẽ lấy ví dụ 3 luồng đồng thời lấy phần tử để mô tả luồng làm việc của `take`.
 
-> 想要理解下面的内容，需要用到 AQS 相关的知识，推荐阅读下面这两篇文章：
+> Để hiểu nội dung dưới đây, cần có kiến thức về AQS. Khuyến nghị đọc hai bài viết sau:
 >
-> - [图文讲解 AQS ，一起看看 AQS 的源码……(图文较长)](https://xie.infoq.cn/article/5a3cc0b709012d40cb9f41986)
-> - [AQS 都看完了，Condition 原理可不能少！](https://xie.infoq.cn/article/0223d5e5f19726b36b084b10d)
+> - [Giải thích AQS bằng hình ảnh, cùng xem mã nguồn AQS…(bài viết khá dài)](https://xie.infoq.cn/article/5a3cc0b709012d40cb9f41986)
+> - [Đã đọc AQS xong, không thể bỏ qua nguyên lý Condition!](https://xie.infoq.cn/article/0223d5e5f19726b36b084b10d)
 
-1、首先， 3 个线程会尝试获取可重入锁 `lock`,假设我们现在有 3 个线程分别是 t1、t2、t3,随后 t1 得到了锁，而 t2、t3 没有抢到锁，故将这两个线程存入等待队列中。
+1. Đầu tiên, 3 luồng sẽ cố gắng lấy khóa `lock` tái nhập. Giả sử có 3 luồng t1, t2, t3, t1 lấy được khóa còn t2, t3 không lấy được và được lưu vào hàng đợi chờ.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/collection/delayqueue-take-0.png)
 
-2、紧接着 t1 开始进行元素获取的逻辑。
+2. Tiếp theo, t1 bắt đầu thực hiện logic lấy phần tử.
 
-3、线程 t1 首先会查看 `DelayQueue` 队列首元素是否为空。
+3. Luồng t1 sẽ kiểm tra xem phần tử đầu tiên của hàng đợi `DelayQueue` có rỗng không.
 
-4、如果元素为空，则说明当前队列没有任何元素，故 t1 就会被阻塞存到 `conditionWaiter` 这个队列中。
+4. Nếu phần tử rỗng, nghĩa là hàng đợi hiện tại không có phần tử nào, t1 sẽ bị chặn và lưu vào hàng đợi `conditionWaiter`.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/collection/delayqueue-take-1.png)
 
-注意，调用 `await` 之后 t1 就会释放 `lcok` 锁，假如 `DelayQueue` 持续为空，那么 t2、t3 也会像 t1 一样执行相同的逻辑并进入 `conditionWaiter` 队列中。
+Lưu ý rằng sau khi gọi `await`, t1 sẽ giải phóng khóa `lock`. Nếu `DelayQueue` tiếp tục rỗng, t2 và t3 cũng sẽ thực hiện logic tương tự và vào hàng đợi `conditionWaiter`.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/collection/delayqueue-take-2.png)
 
-如果元素不为空，则判断当前任务是否到期，如果元素到期，则直接返回出去。如果元素未到期，则判断当前 `leader` 线程(`DelayQueue` 中唯一一个可以等待并获取元素的线程引用)是否为空，若不为空，则说明当前 `leader` 正在等待执行一个优先级比当前元素还高的元素到期，故当前线程 t1 只能调用 `await` 进入无限期等待，等到 `leader` 取得元素后唤醒。反之，若 `leader` 线程为空，则将当前线程设置为 leader 并进入有限期等待,到期后取出元素并返回。
+Nếu phần tử không rỗng, kiểm tra xem tác vụ hiện tại có hết hạn chưa. Nếu đã hết hạn, trả về ngay. Nếu chưa hết hạn, kiểm tra xem luồng `leader` hiện tại (tham chiếu đến luồng duy nhất trong `DelayQueue` có thể chờ và lấy phần tử) có rỗng không. Nếu không rỗng, nghĩa là `leader` đang chờ một phần tử có độ ưu tiên cao hơn phần tử hiện tại hết hạn, nên luồng t1 chỉ có thể gọi `await` để chờ vô thời hạn cho đến khi `leader` lấy được phần tử và đánh thức nó. Ngược lại, nếu luồng `leader` rỗng, đặt luồng hiện tại làm leader và chờ có giới hạn thời gian, khi hết hạn lấy phần tử và trả về.
 
-自此我们阻塞式获取元素的逻辑都已完成后,源码如下，读者可自行参阅:
+Đến đây, logic lấy phần tử theo dạng chặn đã hoàn tất. Mã nguồn như sau:
 
 ```java
 public E take() throws InterruptedException {
@@ -281,15 +281,15 @@ public E take() throws InterruptedException {
 }
 ```
 
-我们再来看看非阻塞的获取元素方法 `poll` ，逻辑比较简单，整体步骤如下:
+Tiếp theo xem phương thức lấy phần tử không chặn `poll`, logic khá đơn giản, các bước như sau:
 
-1. 尝试获取可重入锁。
-2. 查看队列第一个元素,判断元素是否为空。
-3. 若元素为空，或者元素未到期，则直接返回空。
-4. 若元素不为空且到期了，直接调用 `poll` 返回出去。
-5. 释放可重入锁 `lock` 。
+1. Cố gắng lấy khóa tái nhập.
+2. Xem phần tử đầu tiên trong hàng đợi, kiểm tra xem phần tử có rỗng không.
+3. Nếu phần tử rỗng hoặc chưa hết hạn, trả về null trực tiếp.
+4. Nếu phần tử không rỗng và đã hết hạn, gọi `poll` để trả về.
+5. Giải phóng khóa tái nhập `lock`.
 
-源码如下,读者可自行参阅源码及注释:
+Mã nguồn như sau:
 
 ```java
 public E poll() {
@@ -313,14 +313,14 @@ public E poll() {
 }
 ```
 
-### 查看元素
+### Xem phần tử
 
-上文获取元素时都会调用到 `peek` 方法，peek 顾名思义仅仅窥探一下队列中的元素，它的步骤就 4 步:
+Phương thức `peek` được gọi khi lấy phần tử ở các phần trên. `peek` theo đúng nghĩa chỉ là "nhìn lướt qua" phần tử trong hàng đợi, các bước chỉ gồm 4 bước:
 
-1. 上锁。
-2. 调用优先队列 q 的 peek 方法查看索引 0 位置的元素。
-3. 释放锁。
-4. 将元素返回出去。
+1. Khóa.
+2. Gọi phương thức `peek` của hàng đợi ưu tiên `q` để xem phần tử ở vị trí 0.
+3. Giải phóng khóa.
+4. Trả về phần tử.
 
 ```java
 public E peek() {
@@ -334,31 +334,31 @@ public E peek() {
 }
 ```
 
-## DelayQueue 常见面试题
+## Các câu hỏi phỏng vấn thường gặp về DelayQueue
 
-### DelayQueue 的实现原理是什么？
+### Nguyên lý triển khai của DelayQueue là gì?
 
-`DelayQueue` 底层是使用优先队列 `PriorityQueue` 来存储元素，而 `PriorityQueue` 采用二叉小顶堆的思想确保值小的元素排在最前面，这就使得 `DelayQueue` 对于延迟任务优先级的管理就变得十分方便了。同时 `DelayQueue` 为了保证线程安全还用到了可重入锁 `ReentrantLock`,确保单位时间内只有一个线程可以操作延迟队列。最后，为了实现多线程之间等待和唤醒的交互效率，`DelayQueue` 还用到了 `Condition`，通过 `Condition` 的 `await` 和 `signal` 方法完成多线程之间的等待唤醒。
+`DelayQueue` bên dưới sử dụng hàng đợi ưu tiên `PriorityQueue` để lưu trữ các phần tử, trong khi `PriorityQueue` sử dụng ý tưởng heap nhỏ nhị phân để đảm bảo các phần tử có giá trị nhỏ hơn được xếp trước, điều này giúp `DelayQueue` quản lý độ ưu tiên của các tác vụ trì hoãn rất thuận tiện. Đồng thời, `DelayQueue` sử dụng khóa tái nhập `ReentrantLock` để đảm bảo thread-safety, chỉ một luồng có thể thao tác với hàng đợi trễ tại một thời điểm. Cuối cùng, để triển khai hiệu quả tương tác chờ và đánh thức giữa các luồng, `DelayQueue` còn sử dụng `Condition`, thông qua các phương thức `await` và `signal` của `Condition` để hoàn thành việc chờ và đánh thức giữa các luồng.
 
-### DelayQueue 的实现是否线程安全？
+### Triển khai của DelayQueue có thread-safe không?
 
-`DelayQueue` 的实现是线程安全的，它通过 `ReentrantLock` 实现了互斥访问和 `Condition` 实现了线程间的等待和唤醒操作，可以保证多线程环境下的安全性和可靠性。
+Triển khai của `DelayQueue` là thread-safe. Nó sử dụng `ReentrantLock` để triển khai truy cập loại trừ lẫn nhau và `Condition` để triển khai các thao tác chờ và đánh thức giữa các luồng, đảm bảo tính an toàn và độ tin cậy trong môi trường đa luồng.
 
-### DelayQueue 的使用场景有哪些？
+### Các trường hợp sử dụng phổ biến của DelayQueue là gì?
 
-`DelayQueue` 通常用于实现定时任务调度和缓存过期删除等场景。在定时任务调度中，需要将需要执行的任务封装成延迟任务对象，并将其添加到 `DelayQueue` 中，`DelayQueue` 会自动按照剩余延迟时间进行升序排序(默认情况)，以保证任务能够按照时间先后顺序执行。对于缓存过期这个场景而言，在数据被缓存到内存之后，我们可以将缓存的 key 封装成一个延迟的删除任务，并将其添加到 `DelayQueue` 中，当数据过期时，拿到这个任务的 key，将这个 key 从内存中移除。
+`DelayQueue` thường được dùng trong các trường hợp lập lịch tác vụ định thời và xóa cache hết hạn. Trong lập lịch tác vụ định thời, cần đóng gói tác vụ cần thực hiện thành đối tượng tác vụ trì hoãn và thêm vào `DelayQueue`, `DelayQueue` sẽ tự động sắp xếp tăng dần theo thời gian trễ còn lại (theo mặc định) để đảm bảo các tác vụ được thực hiện theo thứ tự thời gian. Đối với tình huống cache hết hạn, sau khi dữ liệu được cache vào bộ nhớ, chúng ta có thể đóng gói key của cache thành một tác vụ xóa có trễ và thêm vào `DelayQueue`. Khi dữ liệu hết hạn, lấy key của tác vụ đó và xóa key đó khỏi bộ nhớ.
 
-### DelayQueue 中 Delayed 接口的作用是什么？
+### Vai trò của interface Delayed trong DelayQueue là gì?
 
-`Delayed` 接口定义了元素的剩余延迟时间(`getDelay`)和元素之间的比较规则(该接口继承了 `Comparable` 接口)。若希望元素能够存放到 `DelayQueue` 中，就必须实现 `Delayed` 接口的 `getDelay()` 方法和 `compareTo()` 方法，否则 `DelayQueue` 无法得知当前任务剩余时长和任务优先级的比较。
+Interface `Delayed` định nghĩa thời gian trễ còn lại của phần tử (`getDelay`) và quy tắc so sánh giữa các phần tử (interface này kế thừa interface `Comparable`). Nếu muốn phần tử có thể được lưu vào `DelayQueue`, bắt buộc phải triển khai phương thức `getDelay()` và `compareTo()` của interface `Delayed`, nếu không `DelayQueue` không thể biết thời gian còn lại của tác vụ hiện tại và không thể so sánh độ ưu tiên.
 
-### DelayQueue 和 Timer/TimerTask 的区别是什么？
+### Sự khác biệt giữa DelayQueue và Timer/TimerTask là gì?
 
-`DelayQueue` 和 `Timer/TimerTask` 都可以用于实现定时任务调度，但是它们的实现方式不同。`DelayQueue` 是基于优先级队列和堆排序算法实现的，可以实现多个任务按照时间先后顺序执行；而 `Timer/TimerTask` 是基于单线程实现的，只能按照任务的执行顺序依次执行，如果某个任务执行时间过长，会影响其他任务的执行。另外，`DelayQueue` 还支持动态添加和移除任务，而 `Timer/TimerTask` 只能在创建时指定任务。
+Cả `DelayQueue` và `Timer/TimerTask` đều có thể dùng để lập lịch tác vụ định thời, nhưng cách triển khai khác nhau. `DelayQueue` được triển khai dựa trên hàng đợi ưu tiên và thuật toán sắp xếp heap, có thể thực hiện nhiều tác vụ theo thứ tự thời gian; còn `Timer/TimerTask` được triển khai dựa trên luồng đơn, chỉ có thể thực hiện các tác vụ theo thứ tự, nếu một tác vụ mất quá nhiều thời gian sẽ ảnh hưởng đến các tác vụ khác. Ngoài ra, `DelayQueue` còn hỗ trợ thêm và xóa tác vụ động, còn `Timer/TimerTask` chỉ có thể chỉ định tác vụ khi tạo.
 
-## 参考文献
+## Tài liệu tham khảo
 
 - 《深入理解高并发编程：JDK 核心技术》:
-- 一口气说出 Java 6 种延时队列的实现方法(面试官也得服):<https://www.jb51.net/article/186192.htm>
-- 图解 DelayQueue 源码（java 8）——延时队列的小九九: <https://blog.csdn.net/every__day/article/details/113810985>
+- Nói một lúc về 6 cách triển khai hàng đợi trễ trong Java (diện kiến cả nhà tuyển dụng): <https://www.jb51.net/article/186192.htm>
+- Giải thích bằng hình ảnh mã nguồn DelayQueue (java 8) — bí quyết của hàng đợi trễ: <https://blog.csdn.net/every__day/article/details/113810985>
 <!-- @include: @article-footer.snippet.md -->

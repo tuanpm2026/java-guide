@@ -1,45 +1,45 @@
 ---
-title: 敏感词过滤方案总结
-description: 敏感词过滤方案详解，从暴力匹配到 Trie 树、AC 自动机的算法演进，涵盖复杂度分析、工程实践与高并发优化策略。
-category: 系统设计
+title: Tổng hợp các phương án lọc từ nhạy cảm
+description: Giải thích chi tiết các phương án lọc từ nhạy cảm, từ thuật toán khớp brute force đến Trie tree, AC automaton, bao gồm phân tích độ phức tạp, thực hành kỹ thuật và chiến lược tối ưu trong môi trường đồng thời cao.
+category: Thiết kế hệ thống
 tag:
-  - 安全
-  - 数据结构
+  - Bảo mật
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
       content: 敏感词过滤,Trie树,DFA算法,AC自动机,双数组Trie,字符串匹配,KMP算法,内容安全,原子热替换
 ---
 
-敏感词过滤是内容安全的核心环节。无论是社交媒体、电商平台、在线游戏，还是如今的 AI 应用，都需要对输入和生成的内容进行实时过滤，防止色情、暴力、仇恨言论等违规信息传播。
+Lọc từ nhạy cảm là khâu cốt lõi của an toàn nội dung. Dù là mạng xã hội, nền tảng thương mại điện tử, trò chơi trực tuyến, hay các ứng dụng AI ngày nay, đều cần lọc thời gian thực nội dung đầu vào và nội dung được tạo ra, ngăn chặn sự lan truyền của các thông tin vi phạm như nội dung khiêu dâm, bạo lực, phát biểu thù hận.
 
-从技术角度看，敏感词过滤本质上是**多模式字符串匹配问题**：在一段文本中同时查找多个关键词。
+Từ góc độ kỹ thuật, lọc từ nhạy cảm về bản chất là **vấn đề khớp chuỗi đa mẫu**: tìm đồng thời nhiều từ khóa trong một đoạn văn bản.
 
-这篇文章接近 2 万字，我会从算法演进开始讲起，还会分享一些生产经验例如对抗变形词、高并发优化、词库管理。
+Bài viết này gần 2 vạn chữ, tôi sẽ bắt đầu từ sự tiến hóa thuật toán, và chia sẻ một số kinh nghiệm thực tế như đối phó với từ biến dạng, tối ưu đồng thời cao, quản lý từ điển.
 
-**核心结论**：
+**Kết luận cốt lõi**:
 
-| 算法                   | 适用场景               | 特点                         |
-| ---------------------- | ---------------------- | ---------------------------- |
-| **Trie 树**            | 词库规模较小（< 1 万） | 实现简单，易于理解           |
-| **AC 自动机**          | 高吞吐量场景           | 单次扫描匹配所有词，性能最优 |
-| **双数组 Trie（DAT）** | 大规模词库（> 1 万）   | 内存占用低，构建成本高       |
+| Thuật toán                  | Tình huống phù hợp           | Đặc điểm                                      |
+| --------------------------- | ---------------------------- | --------------------------------------------- |
+| **Trie tree**               | Quy mô từ điển nhỏ (< 1 vạn) | Triển khai đơn giản, dễ hiểu                  |
+| **AC automaton**            | Tình huống thông lượng cao   | Một lần quét khớp tất cả từ, hiệu năng tối ưu |
+| **Double-Array Trie (DAT)** | Từ điển quy mô lớn (> 1 vạn) | Chiếm dụng bộ nhớ thấp, chi phí xây dựng cao  |
 
-## 算法演进
+## Tiến hóa thuật toán
 
-下面按**从简单到复杂**的顺序，逐步介绍各类敏感词过滤算法，看看每一步优化的动机和效果。
+Dưới đây theo thứ tự **từ đơn giản đến phức tạp**, giới thiệu dần các thuật toán lọc từ nhạy cảm, xem mỗi bước tối ưu có động cơ và hiệu quả gì.
 
-### 暴力匹配（BF 算法）
+### Khớp brute force (Thuật toán BF)
 
-**暴力匹配（Brute Force）** 是最直观的方案：遍历文本的每个位置，尝试用每个敏感词进行匹配。
+**Khớp brute force (Brute Force)** là phương án trực quan nhất: duyệt qua từng vị trí trong văn bản, thử khớp từng từ nhạy cảm.
 
-假设敏感词库有 `n` 个词，平均长度为 `m`，待匹配文本长度为 `L`：
+Giả sử từ điển nhạy cảm có `n` từ, độ dài trung bình là `m`, độ dài văn bản cần khớp là `L`:
 
 ```java
 public List<String> bruteForceMatch(String text, List<String> words) {
     List<String> result = new ArrayList<>();
-    for (String word : words) {              // O(n)：遍历每个敏感词
-        if (text.contains(word)) {           // O(L × m)：朴素子串匹配
+    for (String word : words) {              // O(n)：duyệt qua từng từ nhạy cảm
+        if (text.contains(word)) {           // O(L × m)：khớp chuỗi con brute force
             result.add(word);
         }
     }
@@ -47,77 +47,77 @@ public List<String> bruteForceMatch(String text, List<String> words) {
 }
 ```
 
-**时间复杂度**：O(n × L × m)
+**Độ phức tạp thời gian**: O(n × L × m)
 
-| 场景   | 敏感词数 | 文本长度 | 平均词长 | 操作次数 |
-| ------ | -------- | -------- | -------- | -------- |
-| 小规模 | 100      | 1000     | 5        | 50 万    |
-| 中规模 | 1000     | 5000     | 5        | 2500 万  |
-| 大规模 | 10000    | 10000    | 5        | 5 亿     |
+| Tình huống | Số từ nhạy cảm | Độ dài văn bản | Độ dài từ TB | Số thao tác |
+| ---------- | -------------- | -------------- | ------------ | ----------- |
+| Quy mô nhỏ | 100            | 1000           | 5            | 50 vạn      |
+| Quy mô TB  | 1000           | 5000           | 5            | 2500 vạn    |
+| Quy mô lớn | 10000          | 10000          | 5            | 5 tỷ        |
 
-**问题分析**：
+**Phân tích vấn đề**:
 
-1. **重复扫描**：每个敏感词都要遍历整段文本，大量字符被重复比较。
-2. **无状态复用**：敏感词之间没有关联，无法利用已匹配的信息。
-3. **扩展性差**：词库增长时性能线性下降。
+1. **Quét lặp**: Mỗi từ nhạy cảm đều phải duyệt qua toàn bộ đoạn văn, nhiều ký tự bị so sánh lặp đi lặp lại.
+2. **Không tái sử dụng trạng thái**: Không có liên kết giữa các từ nhạy cảm, không thể tận dụng thông tin đã khớp.
+3. **Khả năng mở rộng kém**: Khi từ điển tăng trưởng, hiệu năng giảm tuyến tính.
 
-当词库达到万级别时，暴力匹配的延迟会达到秒级，完全无法满足线上服务的性能要求。
+Khi từ điển đạt đến vạn từ, độ trễ khớp brute force sẽ đạt đến cấp giây, hoàn toàn không đáp ứng được yêu cầu hiệu năng của dịch vụ trực tuyến.
 
-### Trie 树：利用前缀减少比较
+### Trie tree: Tận dụng tiền tố để giảm so sánh
 
-**Trie 树**（发音为 /ˈtraɪ/）也称为字典树、前缀树，通过**空间换时间**的策略优化暴力匹配。核心思想是：利用字符串的**公共前缀**来减少存储空间和查询时间的开销。
+**Trie tree** (phát âm /ˈtraɪ/) còn gọi là từ điển cây, cây tiền tố, tối ưu khớp brute force qua chiến lược **không gian đổi thời gian**. Ý tưởng cốt lõi là: tận dụng **tiền tố chung** của chuỗi để giảm chi phí lưu trữ và thời gian truy vấn.
 
-浏览器搜索框的关键词提示功能就可以基于 Trie 树实现：
+Chức năng gợi ý từ khóa trong thanh tìm kiếm trình duyệt có thể được triển khai dựa trên Trie tree:
 
-![浏览器 Trie 树效果展示](https://oss.javaguide.cn/github/javaguide/system-design/security/brower-trie.png)
+![Hiệu ứng demo Trie tree trình duyệt](https://oss.javaguide.cn/github/javaguide/system-design/security/brower-trie.png)
 
-#### 基本性质
+#### Tính chất cơ bản
 
-Trie 树具有以下 3 个基本性质：
+Trie tree có 3 tính chất cơ bản sau:
 
-1. **根节点不包含字符**，除根节点外每一个节点只包含一个字符。
-2. **从根节点到某一节点**，路径上经过的字符连接起来，就是该节点对应的字符串。
-3. **每个节点的所有子节点包含的字符都不相同**。
+1. **Nút gốc không chứa ký tự**, ngoài nút gốc mỗi nút chỉ chứa một ký tự.
+2. **Từ nút gốc đến một nút nào đó**, các ký tự trên đường đi nối lại tạo thành chuỗi tương ứng với nút đó.
+3. **Tất cả các nút con của mỗi nút chứa các ký tự khác nhau**.
 
-#### 结构示例
+#### Ví dụ cấu trúc
 
-假设敏感词库中有以下词汇：
+Giả sử trong từ điển nhạy cảm có các từ sau:
 
 - 高清视频
 - 高清 CV
 - 东京冷
 - 东京热
 
-构造的 Trie 树结构如下（红色节点表示字符串终止）：
+Cấu trúc Trie tree được xây dựng như sau (nút màu đỏ đánh dấu kết thúc chuỗi):
 
-![敏感词 Trie 树](https://oss.javaguide.cn/github/javaguide/system-design/security/sensitive-word-trie.png)
+![Trie tree từ nhạy cảm](https://oss.javaguide.cn/github/javaguide/system-design/security/sensitive-word-trie.png)
 
-当查找字符串“东京热”时，将其拆分为单个字符“东”、“京”、“热”，然后从根节点逐层匹配。
+Khi tìm kiếm chuỗi "东京热", hãy tách nó thành các ký tự đơn "东", "京", "热", sau đó khớp từng tầng từ nút gốc.
 
-#### 与暴力匹配的对比
+#### So sánh với khớp brute force
 
-假设词库为 `["she", "he", "his", "hers"]`，在文本 `"ushers"` 中查找：
+Giả sử từ điển là `["she", "he", "his", "hers"]`, tìm trong văn bản `"ushers"`:
 
-| 算法     | 匹配过程                 | 字符比较次数 |
-| -------- | ------------------------ | ------------ |
-| 暴力匹配 | 分别用 4 个词扫描文本    | 约 24 次¹    |
-| Trie 树  | 从每个位置开始，沿树匹配 | 约 10 次     |
+| Thuật toán       | Quá trình khớp                      | Số lần so sánh ký tự |
+| ---------------- | ----------------------------------- | -------------------- |
+| Khớp brute force | Lần lượt quét văn bản với 4 từ      | Khoảng 24 lần¹       |
+| Trie tree        | Từ mỗi vị trí bắt đầu, khớp dọc cây | Khoảng 10 lần        |
 
-> ¹ 此处为简化估算（词数 × 文本长度），实际最坏比较次数取决于每个词的长度与文本位置，会更高。
+> ¹ Đây là ước tính đơn giản hóa (số từ × độ dài văn bản), số lần so sánh tối tệ thực tế phụ thuộc vào độ dài từng từ và vị trí văn bản, sẽ cao hơn.
 
-Trie 树的优势在于：**所有敏感词共享同一棵树**，一次遍历就能尝试匹配所有词。
+Ưu thế của Trie tree là: **tất cả từ nhạy cảm chia sẻ cùng một cây**, một lần duyệt có thể thử khớp tất cả từ.
 
-#### 复杂度分析
+#### Phân tích độ phức tạp
 
-| 指标       | HashMap 实现 | 数组实现     |
-| ---------- | ------------ | ------------ |
-| 预处理     | O(n × m)     | O(n × m × σ) |
-| 查询时间   | O(L × m)     | O(L × m)     |
-| 空间复杂度 | O(n × m)     | O(n × m × σ) |
+| Chỉ số                 | Triển khai HashMap | Triển khai mảng |
+| ---------------------- | ------------------ | --------------- |
+| Tiền xử lý             | O(n × m)           | O(n × m × σ)    |
+| Thời gian truy vấn     | O(L × m)           | O(L × m)        |
+| Độ phức tạp không gian | O(n × m)           | O(n × m × σ)    |
 
-> σ 为字符集大小（汉字约 2 万，ASCII 仅 128）。本文代码示例采用 `HashMap` 实现，适合中文等大字符集；数组实现适合小字符集（如纯英文）。
+> σ là kích thước bộ ký tự (khoảng 2 vạn ký tự Hán, ASCII chỉ 128). Ví dụ code trong bài sử dụng triển khai `HashMap`, phù hợp với bộ ký tự lớn như tiếng Trung; triển khai mảng phù hợp với bộ ký tự nhỏ (như thuần tiếng Anh).
 
-#### 代码示例
+#### Ví dụ code
 
 ```java
 public class SimpleTrie {
@@ -128,7 +128,7 @@ public class SimpleTrie {
 
     private final Node root = new Node();
 
-    // 添加敏感词
+    // Thêm từ nhạy cảm
     public void addWord(String word) {
         Node node = root;
         for (char c : word.toCharArray()) {
@@ -137,7 +137,7 @@ public class SimpleTrie {
         node.isEnd = true;
     }
 
-    // 检测文本中是否包含敏感词
+    // Phát hiện văn bản có chứa từ nhạy cảm không
     public boolean contains(String text) {
         for (int i = 0; i < text.length(); i++) {
             Node node = root;
@@ -150,7 +150,7 @@ public class SimpleTrie {
         return false;
     }
 
-    // 获取文本中所有匹配的敏感词
+    // Lấy tất cả từ nhạy cảm khớp trong văn bản
     public List<String> matchAll(String text) {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < text.length(); i++) {
@@ -168,100 +168,100 @@ public class SimpleTrie {
 }
 ```
 
-#### Trie 树的局限性
+#### Hạn chế của Trie tree
 
-虽然 Trie 树相比暴力匹配有显著提升，但仍存在**回溯问题**：
+Dù Trie tree cải thiện đáng kể so với khớp brute force, nhưng vẫn còn **vấn đề backtrack**:
 
-在文本 `"ushers"` 中查找词库 `["she", "he", "his"]`：
+Trong văn bản `"ushers"` tìm từ điển `["she", "he", "his"]`:
 
-1. 从位置 1 开始，匹配 `"s" → "h" → "e"`，找到 `"she"`
-2. 匹配完成后，**回到位置 2**，重新匹配 `"h" → "e"`，找到 `"he"`
+1. Bắt đầu từ vị trí 1, khớp `"s" → "h" → "e"`, tìm thấy `"she"`
+2. Sau khi khớp xong, **quay lại vị trí 2**, bắt đầu lại khớp `"h" → "e"`, tìm thấy `"he"`
 
-这种“匹配失败后回退到下一位置重新开始”的策略，在最坏情况下（如文本 `"aaaaaaaa"` 匹配词 `"aaaaab"`）会退化到 O(L × m)。
+Chiến lược "quay lui về vị trí tiếp theo sau khi khớp thất bại" này, trong trường hợp xấu nhất (ví dụ văn bản `"aaaaaaaa"` khớp từ `"aaaaab"`) sẽ thoái hóa về O(L × m).
 
-能否做到**完全不回溯**？这就引出了 AC 自动机。
+Có thể **hoàn toàn không backtrack** không? Điều này dẫn đến AC automaton.
 
-**注意**：[Apache Commons Collections](https://mvnrepository.com/artifact/org.apache.commons/commons-collections4) 提供的 `PatriciaTrie` 是基于**位操作**的压缩二进制 Trie（PATRICIA = Practical Algorithm To Retrieve Information Coded In Alphanumeric），与本文描述的**字符级 Trie** 原理不同，不适合直接用于中文敏感词过滤场景。
+**Lưu ý**: `PatriciaTrie` được cung cấp bởi [Apache Commons Collections](https://mvnrepository.com/artifact/org.apache.commons/commons-collections4) là Trie nhị phân nén dựa trên **bit operation** (PATRICIA = Practical Algorithm To Retrieve Information Coded In Alphanumeric), nguyên lý khác với **Trie cấp ký tự** được mô tả trong bài này, không phù hợp để trực tiếp sử dụng cho tình huống lọc từ nhạy cảm tiếng Trung.
 
-### AC 自动机：单次扫描匹配所有词
+### AC automaton: Một lần quét khớp tất cả từ
 
-**AC 自动机（Aho-Corasick Automaton）** 是一种建立在 Trie 树之上的多模式匹配算法，由贝尔实验室的 Alfred V. Aho 和 Margaret J. Corasick 于 1975 年提出。
+**AC automaton (Aho-Corasick Automaton)** là thuật toán khớp đa mẫu được xây dựng trên Trie tree, được đề xuất bởi Alfred V. Aho và Margaret J. Corasick tại Bell Labs năm 1975.
 
-其核心思想与 KMP 算法一脉相承：**利用已匹配的信息，在失配时跳转到合适位置继续匹配，避免回溯**。区别在于 KMP 处理单模式串，而 AC 自动机处理多模式串。
+Ý tưởng cốt lõi giống với thuật toán KMP: **tận dụng thông tin đã khớp, khi khớp thất bại nhảy đến vị trí thích hợp để tiếp tục khớp, tránh backtrack**. Điểm khác biệt là KMP xử lý chuỗi mẫu đơn, còn AC automaton xử lý chuỗi đa mẫu.
 
-#### 核心组件
+#### Các thành phần cốt lõi
 
-AC 自动机的运行依赖于三个核心函数：
+Hoạt động của AC automaton dựa vào ba hàm cốt lõi:
 
-| 函数             | 作用                                                 |
-| ---------------- | ---------------------------------------------------- |
-| **goto 函数**    | 状态转移：从当前状态读入字符后跳转到哪个状态         |
-| **failure 函数** | 失配跳转：失配时跳转到「最长相同后缀」状态，避免回溯 |
-| **output 函数**  | 输出匹配：记录每个状态对应的匹配词集合               |
+| Hàm             | Vai trò                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| **Hàm goto**    | Chuyển đổi trạng thái: sau khi đọc ký tự từ trạng thái hiện tại nhảy đến trạng thái nào           |
+| **Hàm failure** | Nhảy khi thất bại: khi thất bại nhảy đến trạng thái "hậu tố dài nhất giống nhau", tránh backtrack |
+| **Hàm output**  | Đầu ra khớp: ghi lại tập hợp từ khớp tương ứng với mỗi trạng thái                                 |
 
-#### 构建步骤
+#### Các bước xây dựng
 
-AC 自动机的构建分为三步：
+Xây dựng AC automaton gồm ba bước:
 
-![AC 自动机构建与匹配流程](https://oss.javaguide.cn/github/javaguide/system-design/security/sensitive-word-ac-automaton-flow.png)
+![Luồng xây dựng và khớp AC automaton](https://oss.javaguide.cn/github/javaguide/system-design/security/sensitive-word-ac-automaton-flow.png)
 
-**第一步：构建 Trie 树**
+**Bước một: Xây dựng Trie tree**
 
-将所有模式串插入 Trie 树，形成自动机的基础骨架。每个模式串的末尾节点打上终止标记。
+Chèn tất cả chuỗi mẫu vào Trie tree, tạo thành khung cơ bản của automaton. Đánh dấu kết thúc trên nút cuối của mỗi chuỗi mẫu.
 
-**第二步：构建 fail 指针（核心）**
+**Bước hai: Xây dựng con trỏ fail (cốt lõi)**
 
-fail 指针是 AC 自动机的核心机制。它的作用是：**当当前字符无法继续匹配时，跳转到哪个状态继续尝试，而不是回到起点**。
+Con trỏ fail là cơ chế cốt lõi của AC automaton. Vai trò của nó là: **khi ký tự hiện tại không thể tiếp tục khớp, nhảy đến trạng thái nào để tiếp tục thử, thay vì quay về điểm bắt đầu**.
 
-构建过程使用 BFS（广度优先搜索）逐层遍历，对于当前节点 `temp`：
+Quá trình xây dựng sử dụng BFS (duyệt theo chiều rộng) duyệt theo từng tầng, cho nút hiện tại `temp`:
 
-1. 找到 `temp` 父节点的 fail 节点
-2. 在该 fail 节点的子节点中寻找与 `temp` 字符相同的节点
-3. 若存在，则 `temp.fail` 指向该子节点
-4. 若不存在，继续找 fail 节点的 fail 节点，直到找到或到达 root
+1. Tìm nút fail của nút cha `temp`
+2. Trong các nút con của nút fail đó tìm nút có cùng ký tự với `temp`
+3. Nếu tìm thấy, thì `temp.fail` trỏ đến nút con đó
+4. Nếu không tìm thấy, tiếp tục tìm nút fail của fail, đến khi tìm thấy hoặc về root
 
-**fail 指针的本质**：指向当前状态对应字符串的**最长后缀**所在的状态。
+**Bản chất của con trỏ fail**: Trỏ đến trạng thái mà **hậu tố dài nhất** của chuỗi tương ứng với trạng thái hiện tại đang ở đó.
 
-::: tip 与 KMP 的关系
-fail 指针就是 KMP 算法中 next 数组在 Trie 树上的泛化。例如：`"she"` 的后缀 `"he"` 与 `"he"` 的前缀相同，因此 `"she"` 结尾的 `'e'` 的 fail 指针指向 `"he"` 中的 `'e'`。
+::: tip Mối quan hệ với KMP
+Con trỏ fail là tổng quát hóa của mảng next trong thuật toán KMP trên Trie tree. Ví dụ: hậu tố `"he"` của `"she"` giống với tiền tố của `"he"`, vì vậy con trỏ fail của `'e'` kết thúc `"she"` trỏ đến `'e'` trong `"he"`.
 :::
 
-**第三步：模式匹配**
+**Bước ba: Khớp mẫu**
 
-从文本串头部开始扫描，指针 `p` 初始指向 root：
+Bắt đầu quét từ đầu chuỗi văn bản, con trỏ `p` ban đầu trỏ đến root:
 
-1. **状态转移**：若当前字符在 `p` 的子节点中，`p` 下移；否则沿 fail 链回退，直到能匹配或回到 root
-2. **收集输出**：【关键】每次转移后，**必须沿 fail 链遍历一次**，收集所有终止状态的匹配词
+1. **Chuyển đổi trạng thái**: Nếu ký tự hiện tại trong các nút con của `p`, `p` di chuyển xuống; nếu không, lùi theo chuỗi fail, đến khi có thể khớp hoặc về root
+2. **Thu thập đầu ra**: **[Quan trọng]** Sau mỗi lần chuyển đổi, **phải duyệt một lần theo chuỗi fail**, thu thập tất cả từ khớp ở các trạng thái kết thúc
 
-为什么要沿 fail 链遍历？因为一个长词的后缀可能是另一个短词。例如 `"she"` 匹配成功时，沿 fail 链可以找到 `"he"`，否则会漏掉嵌套词。
+Tại sao phải duyệt theo chuỗi fail? Vì hậu tố của một từ dài có thể là một từ ngắn khác. Ví dụ khi `"she"` khớp thành công, duyệt theo chuỗi fail có thể tìm thấy `"he"`, nếu không sẽ bỏ lỡ từ lồng ghép.
 
-#### 代码示例
+#### Ví dụ code
 
 ```java
 public class AhoCorasickAutomaton {
     private static class Node {
         Map<Character, Node> children = new HashMap<>();
-        Node fail;                    // 失配指针
-        List<String> outputs = new ArrayList<>(); // 该状态对应的匹配词
+        Node fail;                    // Con trỏ thất bại
+        List<String> outputs = new ArrayList<>(); // Từ khớp tương ứng với trạng thái này
     }
 
     private final Node root = new Node();
 
-    // 第一步：构建 Trie 树
+    // Bước một: Xây dựng Trie tree
     public void addWord(String word) {
         Node node = root;
         for (char c : word.toCharArray()) {
             node = node.children.computeIfAbsent(c, k -> new Node());
         }
-        node.outputs.add(word); // 末尾节点记录匹配词
+        node.outputs.add(word); // Nút cuối ghi lại từ khớp
     }
 
-    // 第二步：构建 fail 指针（BFS）
+    // Bước hai: Xây dựng con trỏ fail (BFS)
     public void buildFailPointer() {
         Queue<Node> queue = new LinkedList<>();
         root.fail = root;
 
-        // 根节点的直接子节点，fail 指向根
+        // Các nút con trực tiếp của nút gốc, fail trỏ về root
         for (Node child : root.children.values()) {
             child.fail = root;
             queue.offer(child);
@@ -273,36 +273,36 @@ public class AhoCorasickAutomaton {
                 char c = entry.getKey();
                 Node child = entry.getValue();
 
-                // 沿父节点的 fail 链查找是否有字符 c 的转移
+                // Dọc theo chuỗi fail của nút cha tìm xem có chuyển đổi ký tự c không
                 Node fail = current.fail;
                 while (fail != root && !fail.children.containsKey(c)) {
                     fail = fail.fail;
                 }
                 child.fail = fail.children.getOrDefault(c, root);
-                // 避免自环：如果 fail 指向了自己，改为指向根
+                // Tránh vòng lặp tự: nếu fail trỏ về chính nó, đổi thành trỏ về root
                 if (child.fail == child) {
                     child.fail = root;
                 }
-                // 合并 fail 节点的输出（关键！）
+                // Hợp nhất đầu ra của nút fail (quan trọng!)
                 child.outputs.addAll(child.fail.outputs);
                 queue.offer(child);
             }
         }
     }
 
-    // 第三步：模式匹配（单次扫描）
+    // Bước ba: Khớp mẫu (một lần quét)
     public List<String> match(String text) {
         List<String> result = new ArrayList<>();
         Node state = root;
 
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            // 沿 fail 链找到能处理字符 c 的状态
+            // Dọc theo chuỗi fail tìm trạng thái có thể xử lý ký tự c
             while (state != root && !state.children.containsKey(c)) {
                 state = state.fail;
             }
             state = state.children.getOrDefault(c, root);
-            // 收集当前状态的所有匹配词（已通过 fail 链合并）
+            // Thu thập tất cả từ khớp của trạng thái hiện tại (đã hợp nhất qua chuỗi fail)
             result.addAll(state.outputs);
         }
         return result;
@@ -310,7 +310,7 @@ public class AhoCorasickAutomaton {
 }
 ```
 
-使用示例：
+Ví dụ sử dụng:
 
 ```java
 AhoCorasickAutomaton ac = new AhoCorasickAutomaton();
@@ -318,50 +318,50 @@ ac.addWord("she");
 ac.addWord("he");
 ac.addWord("her");
 ac.addWord("hers");
-ac.buildFailPointer(); // 插入完所有词后，构建一次 fail 指针
+ac.buildFailPointer(); // Sau khi chèn tất cả từ, xây dựng một lần con trỏ fail
 
 List<String> matches = ac.match("ushers");
-// 输出: [she, he, her, hers]
+// Đầu ra: [she, he, her, hers]
 ```
 
-#### 性能对比
+#### So sánh hiệu năng
 
-| 算法      | 预处理    | 匹配时间     | 特点                                              |
-| --------- | --------- | ------------ | ------------------------------------------------- |
-| 暴力匹配  | O(1)      | O(L × n × m) | 每个词单独扫描                                    |
-| Trie 树   | O(n × m)  | O(L × m)     | 可能回溯                                          |
-| AC 自动机 | O(n × m)¹ | O(L + z)     | 单次扫描，z 为所有匹配命中的总次数（含重叠匹配）² |
+| Thuật toán       | Tiền xử lý | Thời gian khớp | Đặc điểm                                                      |
+| ---------------- | ---------- | -------------- | ------------------------------------------------------------- |
+| Khớp brute force | O(1)       | O(L × n × m)   | Mỗi từ quét riêng biệt                                        |
+| Trie tree        | O(n × m)   | O(L × m)       | Có thể backtrack                                              |
+| AC automaton     | O(n × m)¹  | O(L + z)       | Một lần quét, z là tổng số lần khớp (bao gồm khớp chồng lấp)² |
 
-> 1. 使用 HashMap 存储子节点时为 O(n × m)；若使用数组存储（需预分配字符集大小 σ），则为 O(n × m × σ)。
-> 2. 极端场景下，若词库中存在大量嵌套词（如 "a", "ab", "abc", ..., "abc...z"），z 可能远大于 L，此时耗时由 z 主导。实际工程中敏感词库通常不会出现这种极端嵌套。
+> 1. Khi dùng HashMap lưu nút con là O(n × m); nếu dùng mảng (cần phân bổ trước kích thước bộ ký tự σ), thì là O(n × m × σ).
+> 2. Trong tình huống cực đoan, nếu từ điển có nhiều từ lồng nhau (như "a", "ab", "abc", ..., "abc...z"), z có thể lớn hơn nhiều so với L, lúc này thời gian do z chi phối. Trong thực tế kỹ thuật thông thường từ điển nhạy cảm không có lồng ghép cực đoan như vậy.
 
-AC 自动机实现了**线性时间匹配**，与敏感词数量无关，只与文本长度和匹配结果数量相关。
+AC automaton thực hiện **khớp thời gian tuyến tính**, không liên quan đến số lượng từ nhạy cảm, chỉ liên quan đến độ dài văn bản và số lượng kết quả khớp.
 
-将 AC 自动机与 DAT 结合（[AhoCorasickDoubleArrayTrie](https://github.com/hankcs/AhoCorasickDoubleArrayTrie)），可以兼顾匹配效率和内存占用。
+Kết hợp AC automaton với DAT ([AhoCorasickDoubleArrayTrie](https://github.com/hankcs/AhoCorasickDoubleArrayTrie)), có thể đồng thời đảm bảo hiệu quả khớp và chiếm dụng bộ nhớ.
 
-### 双数组 Trie（DAT）：压缩内存占用
+### Double-Array Trie (DAT): Nén chiếm dụng bộ nhớ
 
-标准 Trie 树内存占用较大（每个节点需要一个 Map），实际工程中通常使用改进版——**双数组 Trie（Double-Array Trie，DAT）**。
+Trie tree tiêu chuẩn chiếm dụng bộ nhớ lớn (mỗi nút cần một Map), trong thực tế kỹ thuật thường dùng phiên bản cải tiến—**Double-Array Trie (DAT)**.
 
-DAT 由日本的 Aoe Jun-ichi 等人在 1989 年的论文[《An Efficient Implementation of Trie Structures》](https://www.co-ding.com/assets/pdf/dat.pdf)中提出。它通过两个整型数组（base[] 和 check[]）压缩 Trie 结构：
+DAT được đề xuất bởi Aoe Jun-ichi và các cộng sự tại Nhật Bản trong bài báo [《An Efficient Implementation of Trie Structures》](https://www.co-ding.com/assets/pdf/dat.pdf) năm 1989. Nó nén cấu trúc Trie qua hai mảng số nguyên (base[] và check[]):
 
-| 特性       | 标准 Trie（数组实现） | 双数组 Trie                  |
-| ---------- | --------------------- | ---------------------------- |
-| 空间复杂度 | O(n × m × σ)          | O(n × m)                     |
-| 内存占用   | 较大                  | 通常可降至数组实现的 20%~30% |
-| 实现复杂度 | 简单                  | 较复杂（需处理冲突）         |
+| Đặc tính               | Trie tiêu chuẩn (triển khai mảng) | Double-Array Trie                                       |
+| ---------------------- | --------------------------------- | ------------------------------------------------------- |
+| Độ phức tạp không gian | O(n × m × σ)                      | O(n × m)                                                |
+| Chiếm dụng bộ nhớ      | Khá lớn                           | Thường có thể giảm xuống 20%~30% so với triển khai mảng |
+| Độ phức tạp triển khai | Đơn giản                          | Khá phức tạp (cần xử lý xung đột)                       |
 
-**注意**：DAT 的压缩效率与词库的公共前缀比例强相关。极端情况下（无公共前缀），压缩效果有限。
+**Lưu ý**: Hiệu quả nén của DAT có liên quan chặt chẽ với tỷ lệ tiền tố chung của từ điển. Trong trường hợp cực đoan (không có tiền tố chung), hiệu quả nén hạn chế.
 
-参考实现：<https://github.com/komiya-atsushi/darts-java>
+Tham khảo triển khai: <https://github.com/komiya-atsushi/darts-java>
 
-### DFA 实现：工程化封装
+### Triển khai DFA: Đóng gói kỹ thuật
 
-**DFA（Deterministic Finite Automaton，确定性有限自动机）** 是自动机理论中的概念。从实现角度看，Trie 从根出发的一次匹配过程本身就是一个 DFA 运行——每个节点代表一个状态，每条边代表一个字符转移。不过，普通 Trie 匹配需要从文本的每个位置重新启动 DFA，而 AC 自动机通过 fail 指针补全了所有状态转移，才是真正的**单次扫描多模式 DFA**。
+**DFA (Deterministic Finite Automaton, Ôtô hữu hạn tất định)** là khái niệm trong lý thuyết automaton. Từ góc độ triển khai, một lần khớp từ gốc của Trie bản thân đã là một quá trình chạy DFA—mỗi nút đại diện cho một trạng thái, mỗi cạnh đại diện cho một chuyển đổi ký tự. Tuy nhiên, khớp Trie thông thường cần khởi động lại DFA từ mỗi vị trí trong văn bản, còn AC automaton thông qua con trỏ fail hoàn thiện tất cả chuyển đổi trạng thái, mới là **DFA đa mẫu một lần quét** thực sự.
 
-[Hutool 5.8.x](https://hutool.cn/docs/#/dfa/%E6%A6%82%E8%BF%B0) 提供了基于 DFA 的敏感词过滤实现（底层为 Trie）：
+[Hutool 5.8.x](https://hutool.cn/docs/#/dfa/%E6%A6%82%E8%BF%B0) cung cấp triển khai lọc từ nhạy cảm dựa trên DFA (lớp dưới là Trie):
 
-![Hutool 的 DFA 算法](https://oss.javaguide.cn/github/javaguide/system-design/security/hutool-dfa.png)
+![Thuật toán DFA của Hutool](https://oss.javaguide.cn/github/javaguide/system-design/security/hutool-dfa.png)
 
 ```java
 WordTree wordTree = new WordTree();
@@ -371,58 +371,58 @@ wordTree.addWord("憨憨");
 
 String text = "那人真是个大憨憨！";
 
-// 获得第一个匹配的关键字
+// Lấy từ khóa đầu tiên khớp
 String matchStr = wordTree.match(text);
-System.out.println(matchStr); // 输出: 大
+System.out.println(matchStr); // Đầu ra: 大
 
 // matchAll(text, limit, isDensityMatch, isGreedy)
-// - limit: 匹配数量上限，-1 表示不限制
-// - isDensityMatch: 是否密度匹配（在已匹配词内部继续寻找重叠词）
-// - isGreedy: 是否贪婪匹配（true 匹配最长关键词，false 匹配最短关键词）
+// - limit: giới hạn số lượng khớp, -1 là không giới hạn
+// - isDensityMatch: có khớp mật độ không (tiếp tục tìm từ chồng lấp bên trong từ đã khớp)
+// - isGreedy: có khớp tham lam không (true khớp từ dài nhất, false khớp từ ngắn nhất)
 List<String> matchStrList = wordTree.matchAll(text, -1, false, false);
-System.out.println(matchStrList); // 输出: [大, 憨憨]
+System.out.println(matchStrList); // Đầu ra: [大, 憨憨]
 
 List<String> matchStrList2 = wordTree.matchAll(text, -1, false, true);
-System.out.println(matchStrList2); // 输出: [大, 大憨憨]
+System.out.println(matchStrList2); // Đầu ra: [大, 大憨憨]
 ```
 
-**输出解释**：
+**Giải thích đầu ra**:
 
-- `matchAll(text, -1, false, false)`：非贪婪 + 非密度匹配
+- `matchAll(text, -1, false, false)`: Không tham lam + không khớp mật độ
 
-  - 从位置 0 开始，`"大"` 匹配成功（最短匹配）
-  - 跳过已匹配字符后，`"憨憨"` 从位置 2 开始匹配成功
-  - 结果：`[大, 憨憨]`
+  - Bắt đầu từ vị trí 0, `"大"` khớp thành công (khớp ngắn nhất)
+  - Sau khi bỏ qua ký tự đã khớp, `"憨憨"` bắt đầu từ vị trí 2 khớp thành công
+  - Kết quả: `[大, 憨憨]`
 
-- `matchAll(text, -1, false, true)`：贪婪 + 非密度匹配
-  - 从位置 0 开始，`"大憨憨"` 匹配成功（最长匹配）
-  - 同时 `"大"` 也匹配成功（作为前缀）
-  - 结果：`[大, 大憨憨]`
+- `matchAll(text, -1, false, true)`: Tham lam + không khớp mật độ
+  - Bắt đầu từ vị trí 0, `"大憨憨"` khớp thành công (khớp dài nhất)
+  - Đồng thời `"大"` cũng khớp thành công (là tiền tố)
+  - Kết quả: `[大, 大憨憨]`
 
-## 对抗变形词
+## Đối phó với từ biến dạng
 
-实际场景中，用户常通过以下方式绕过敏感词过滤：
+Trong tình huống thực tế, người dùng thường dùng các cách sau để vượt qua lọc từ nhạy cảm:
 
-| 变形方式 | 示例                  | 应对策略               |
-| -------- | --------------------- | ---------------------- |
-| 谐音字   | “赌博” → “读博”       | 维护谐音词库           |
-| 插入符号 | "fuck" → "f\*u\*c\*k" | 预处理去除特殊字符     |
-| 繁简混用 | “台灣” → “台湾”       | 统一转换为简体后再匹配 |
-| 全角字符 | "abc" → "ａｂｃ"      | 全角转半角             |
+| Cách biến dạng            | Ví dụ                 | Chiến lược ứng phó                           |
+| ------------------------- | --------------------- | -------------------------------------------- |
+| Đồng âm                   | "赌博" → "读博"       | Duy trì từ điển đồng âm                      |
+| Chèn ký tự đặc biệt       | "fuck" → "f\*u\*c\*k" | Tiền xử lý loại bỏ ký tự đặc biệt            |
+| Hỗn hợp phồn thể giản thể | "台灣" → "台湾"       | Thống nhất chuyển đổi sang giản thể rồi khớp |
+| Ký tự toàn góc            | "abc" → "ａｂｃ"      | Chuyển toàn góc sang nửa góc                 |
 
-**前置清洗**是处理变形词的常用策略：在匹配前对文本进行标准化处理。
+**Tiền làm sạch** là chiến lược phổ biến để xử lý từ biến dạng: chuẩn hóa văn bản trước khi khớp.
 
 ```java
 public String preprocess(String text) {
     StringBuilder sb = new StringBuilder();
     for (char c : text.toCharArray()) {
-        c = toHalfWidth(c);                    // 全角转半角
-        c = Character.toLowerCase(c);          // 统一小写
-        if (isChineseOrAlphanumeric(c)) {      // 保留中文和字母数字
+        c = toHalfWidth(c);                    // Toàn góc sang nửa góc
+        c = Character.toLowerCase(c);          // Thống nhất chữ thường
+        if (isChineseOrAlphanumeric(c)) {      // Giữ lại tiếng Trung và chữ số
             sb.append(c);
         }
     }
-    return toSimplifiedChinese(sb.toString()); // 繁转简
+    return toSimplifiedChinese(sb.toString()); // Phồn thể sang giản thể
 }
 
 private char toHalfWidth(char c) {
@@ -434,23 +434,23 @@ private char toHalfWidth(char c) {
 
 private boolean isChineseOrAlphanumeric(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-        || (c >= '0' && c <= '9') || (c >= '\u4e00' && c <= '\u9fa5');
+        || (c >= '0' && c <= '9') || (c >= '一' && c <= '龥');
 }
 ```
 
-[ToolGood.Words](https://github.com/toolgood/ToolGood.Words) 等成熟库已内置繁简互换、全角半角转换等功能，可直接使用。
+Các thư viện trưởng thành như [ToolGood.Words](https://github.com/toolgood/ToolGood.Words) đã tích hợp sẵn các chức năng như chuyển đổi phồn giản thể, chuyển đổi toàn góc nửa góc, có thể sử dụng trực tiếp.
 
-::: warning 注意
+::: warning Lưu ý
 
-- **位置映射**：`preprocess` 方法会去除特殊字符，导致清洗后的文本与原文位置不再一一对应。如果业务需要返回敏感词在原文中的精确位置（如高亮标注、部分替换），需要维护一张从清洗后位置到原文位置的映射表。
-- **Unicode 限制**：上述代码使用 `char` 遍历字符。Java 的 `char` 是 UTF-16 编码单元，BMP 之外的字符（如部分 emoji、汉字扩展区字符）会占用两个 `char`（surrogate pair），逐 `char` 遍历会导致这些字符被错误拆分。如果需要支持补充平面字符，应使用 `codePoints()` 流处理。
+- **Ánh xạ vị trí**: Phương thức `preprocess` sẽ loại bỏ ký tự đặc biệt, dẫn đến vị trí văn bản sau làm sạch và văn bản gốc không còn tương ứng một-một. Nếu nghiệp vụ cần trả về vị trí chính xác của từ nhạy cảm trong văn bản gốc (như đánh dấu nổi bật, thay thế một phần), cần duy trì bảng ánh xạ từ vị trí sau làm sạch sang vị trí gốc.
+- **Giới hạn Unicode**: Code trên dùng `char` duyệt ký tự. `char` của Java là đơn vị mã hóa UTF-16, các ký tự ngoài BMP (như một số emoji, ký tự mở rộng chữ Hán) sẽ chiếm hai `char` (surrogate pair), duyệt theo `char` sẽ làm những ký tự này bị tách sai. Nếu cần hỗ trợ ký tự mặt phẳng bổ sung, nên sử dụng luồng `codePoints()` xử lý.
   :::
 
-## 高并发优化
+## Tối ưu đồng thời cao
 
-### 原子热替换：支持词库热更新
+### Hoán đổi nóng nguyên tử: Hỗ trợ cập nhật nóng từ điển
 
-生产环境中，敏感词库需要频繁更新，但不能影响正在进行的匹配请求。通过 `AtomicReference` 实现原子热替换（Atomic Hot-Swap）：先在后台构建新 Trie，构建完成后原子替换旧实例，确保读线程不受影响。
+Trong môi trường sản xuất, từ điển nhạy cảm cần cập nhật thường xuyên, nhưng không thể ảnh hưởng đến các yêu cầu khớp đang thực hiện. Thực hiện hoán đổi nóng nguyên tử (Atomic Hot-Swap) qua `AtomicReference`: trước tiên xây dựng Trie mới ở nền, sau khi xây dựng xong thay thế nguyên tử Trie cũ, đảm bảo luồng đọc không bị ảnh hưởng.
 
 ```java
 public class SensitiveWordFilter {
@@ -460,16 +460,16 @@ public class SensitiveWordFilter {
         this.trieRef = new AtomicReference<>(buildTrie(initialWords));
     }
 
-    // 匹配时获取当前 Trie
+    // Khi khớp lấy Trie hiện tại
     public List<String> match(String text) {
         SimpleTrie trie = trieRef.get();
         return trie != null ? trie.matchAll(text) : Collections.emptyList();
     }
 
-    // 更新词库：先构建新 Trie，再原子发布
+    // Cập nhật từ điển: trước tiên xây dựng Trie mới, rồi publish nguyên tử
     public void refreshWords(List<String> newWords) {
         SimpleTrie newTrie = buildTrie(newWords);
-        trieRef.set(newTrie);  // 原子发布，对读线程立即可见
+        trieRef.set(newTrie);  // Publish nguyên tử, hiển thị ngay với luồng đọc
     }
 
     private SimpleTrie buildTrie(List<String> words) {
@@ -482,29 +482,29 @@ public class SensitiveWordFilter {
 }
 ```
 
-**关键点**：
+**Điểm mấu chốt**:
 
-- 使用 `AtomicReference` 确保切换操作是原子的。
-- 旧 Trie 可能仍有线程在使用，依赖 GC 自动回收。
-- 可在后台异步构建新 Trie，不影响服务响应。
+- Sử dụng `AtomicReference` đảm bảo thao tác chuyển đổi là nguyên tử.
+- Trie cũ có thể vẫn còn luồng đang sử dụng, phụ thuộc GC để tự thu hồi.
+- Có thể xây dựng Trie mới bất đồng bộ ở nền, không ảnh hưởng đến phản hồi dịch vụ.
 
-### 并行处理：超长文本分段
+### Xử lý song song: Phân đoạn văn bản dài
 
-对于超长文本（如文章、评论），可以分段后并行处理。
+Đối với văn bản cực dài (như bài viết, bình luận), có thể xử lý song song sau khi phân đoạn.
 
-**注意**：分段时必须加入重叠区域，否则会遗漏跨边界的敏感词。
+**Lưu ý**: Khi phân đoạn phải thêm vùng chồng lấp, nếu không sẽ bỏ sót từ nhạy cảm bắc qua biên.
 
 ```java
-// 使用独立线程池，避免占用 ForkJoinPool.commonPool()
+// Dùng thread pool độc lập, tránh chiếm dụng ForkJoinPool.commonPool()
 private final ExecutorService filterExecutor =
     new ThreadPoolExecutor(
         4, 8, 60L, TimeUnit.SECONDS,
         LinkedBlockingQueue<>(1000),
-        new ThreadPoolExecutor.CallerRunsPolicy() // 队列满时由调用线程执行，实现背压
+        new ThreadPoolExecutor.CallerRunsPolicy() // Khi hàng đợi đầy, luồng gọi thực thi, thực hiện back pressure
     );
 
 public List<String> parallelMatch(String text, int chunkSize, int maxWordLength) {
-    // 重叠区域 = 最长敏感词长度 - 1，防止跨边界漏词
+    // Vùng chồng lấp = độ dài từ nhạy cảm dài nhất - 1, ngăn bỏ sót từ bắc qua biên
     int overlap = maxWordLength - 1;
     List<CompletableFuture<List<String>>> futures = new ArrayList<>();
 
@@ -513,7 +513,7 @@ public List<String> parallelMatch(String text, int chunkSize, int maxWordLength)
         int end = Math.min(i + chunkSize + overlap, text.length());
         String chunk = text.substring(start, end);
 
-        // 显式传入自定义线程池
+        // Truyền rõ ràng thread pool tùy chỉnh
         futures.add(CompletableFuture.supplyAsync(() ->
             trieRef.get().matchAll(chunk), filterExecutor
         ));
@@ -526,94 +526,94 @@ public List<String> parallelMatch(String text, int chunkSize, int maxWordLength)
 }
 ```
 
-**为什么需要重叠区域？**
+**Tại sao cần vùng chồng lấp?**
 
-假设敏感词 `"赌博网站"` 长度为 4，分块大小为 100。若文本恰好从位置 99 开始出现该词，会被切分到两个 chunk：
+Giả sử từ nhạy cảm `"赌博网站"` dài 4 ký tự, kích thước khối là 100. Nếu văn bản vừa xuất hiện từ đó từ vị trí 99, sẽ bị cắt thành hai chunk:
 
-- chunk1: `...文本结束于位置99赌`
-- chunk2: `博网站继续...`
+- chunk1: `...văn bản kết thúc ở vị trí 99赌`
+- chunk2: `博网站tiếp theo...`
 
-两个 chunk 都无法匹配完整的 `"赌博网站"`，导致漏报。重叠区域确保每个敏感词都能在至少一个 chunk 中完整出现。
+Cả hai chunk đều không thể khớp hoàn chỉnh `"赌博网站"`, dẫn đến báo thiếu. Vùng chồng lấp đảm bảo mỗi từ nhạy cảm đều có thể xuất hiện hoàn chỉnh trong ít nhất một chunk.
 
-### 快速排除：布隆过滤器
+### Loại trừ nhanh: Bloom filter
 
-使用**布隆过滤器（Bloom Filter）** 做初筛，可以快速排除不含敏感词的文本。
+Dùng **Bloom filter** để lọc sơ bộ, có thể nhanh chóng loại trừ văn bản không chứa từ nhạy cảm.
 
-**适用前提**：该方案仅在绝大多数文本不含敏感词且布隆过滤器假阳性率极低时有收益。因为 `quickCheck` 本身的复杂度为 O(L × maxWordLen)，与 Trie 匹配同阶，如果文本频繁命中布隆过滤器（假阳性），反而会增加额外开销。
+**Điều kiện tiên quyết phù hợp**: Phương án này chỉ có lợi khi phần lớn văn bản không chứa từ nhạy cảm và tỷ lệ dương tính giả của Bloom filter cực thấp. Vì bản thân `quickCheck` có độ phức tạp O(L × maxWordLen), cùng bậc với khớp Trie, nếu văn bản thường xuyên kích hoạt Bloom filter (dương tính giả), ngược lại sẽ tăng thêm chi phí.
 
-**注意**：布隆过滤器检测的是单个元素的集合成员关系，需要对文本的子串进行检测，而非整段文本。
+**Lưu ý**: Bloom filter phát hiện mối quan hệ thành viên tập hợp của phần tử đơn lẻ, cần phát hiện các chuỗi con của văn bản, chứ không phải toàn bộ đoạn văn.
 
 ```java
 public List<String> matchWithBloomFilter(String text, int maxWordLength) {
-    // 快速检测：扫描所有可能的子串
+    // Kiểm tra nhanh: quét tất cả chuỗi con có thể
     if (!quickCheck(text, maxWordLength)) {
-        return Collections.emptyList();  // 确定不包含敏感词
+        return Collections.emptyList();  // Chắc chắn không chứa từ nhạy cảm
     }
-    // 可能包含敏感词，进行精确匹配
+    // Có thể chứa từ nhạy cảm, tiến hành khớp chính xác
     return trieRef.get().matchAll(text);
 }
 
 private boolean quickCheck(String text, int maxWordLen) {
-    BloomFilter<String> filter = getBloomFilter();  // 包含所有敏感词的布隆过滤器
+    BloomFilter<String> filter = getBloomFilter();  // Bloom filter chứa tất cả từ nhạy cảm
     for (int i = 0; i < text.length(); i++) {
         for (int len = 1; len <= maxWordLen && i + len <= text.length(); len++) {
             if (filter.mightContain(text.substring(i, i + len))) {
-                return true;  // 可能包含，需精确匹配
+                return true;  // Có thể chứa, cần khớp chính xác
             }
         }
     }
-    return false;  // 确定不包含
+    return false;  // Chắc chắn không chứa
 }
 ```
 
-**适用场景**：敏感词覆盖率较低时，布隆过滤器可以快速排除大量不含敏感词的文本，减少 Trie 匹配次数。但布隆过滤器的扫描本身也有开销（O(L × maxWordLen)），需根据实际数据特征评估是否启用。
+**Tình huống phù hợp**: Khi tỷ lệ phủ từ nhạy cảm thấp, Bloom filter có thể nhanh chóng loại trừ nhiều văn bản không chứa từ nhạy cảm, giảm số lần khớp Trie. Nhưng bản thân quét Bloom filter cũng có chi phí (O(L × maxWordLen)), cần đánh giá có nên kích hoạt hay không dựa trên đặc điểm dữ liệu thực tế.
 
-## 开源项目
+## Dự án mã nguồn mở
 
-| 项目                                                                               | 语言                 | 最低 JDK | 特点                                                                        | 适用场景             |
-| ---------------------------------------------------------------------------------- | -------------------- | -------- | --------------------------------------------------------------------------- | -------------------- |
-| [ToolGood.Words](https://github.com/toolgood/ToolGood.Words)                       | C#/Java/Python/Go/JS | Java 8+  | 多语言支持，内置繁简互换、全角半角、拼音转换；C# 版本过滤速度超 3 亿字符/秒 | 多语言项目           |
-| [Hutool DFA](https://hutool.cn/docs/#/dfa/%E6%A6%82%E8%BF%B0)                      | Java                 | Java 8+  | 轻量级，API 简洁，基于 Trie 实现                                            | 中小规模词库         |
-| [AhoCorasickDoubleArrayTrie](https://github.com/hankcs/AhoCorasickDoubleArrayTrie) | Java                 | Java 7+  | AC 自动机 + 双数组 Trie，性能优异                                           | 大规模词库、高吞吐量 |
+| Dự án                                                                              | Ngôn ngữ             | JDK tối thiểu | Đặc điểm                                                                                                                                   | Tình huống phù hợp                  |
+| ---------------------------------------------------------------------------------- | -------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| [ToolGood.Words](https://github.com/toolgood/ToolGood.Words)                       | C#/Java/Python/Go/JS | Java 8+       | Hỗ trợ đa ngôn ngữ, tích hợp chuyển đổi phồn giản thể, toàn góc nửa góc, chuyển đổi phiên âm; phiên bản C# tốc độ lọc vượt 3 tỷ ký tự/giây | Dự án đa ngôn ngữ                   |
+| [Hutool DFA](https://hutool.cn/docs/#/dfa/%E6%A6%82%E8%BF%B0)                      | Java                 | Java 8+       | Nhẹ, API đơn giản, triển khai dựa trên Trie                                                                                                | Từ điển quy mô vừa nhỏ              |
+| [AhoCorasickDoubleArrayTrie](https://github.com/hankcs/AhoCorasickDoubleArrayTrie) | Java                 | Java 7+       | AC automaton + Double-Array Trie, hiệu năng xuất sắc                                                                                       | Từ điển quy mô lớn, thông lượng cao |
 
-## 生产建议
+## Khuyến nghị sản xuất
 
-### 词库管理
+### Quản lý từ điển
 
-- **定期更新**：敏感词库需要持续维护，支持热加载避免重启服务。
-- **分级管理**：按业务场景分为高/中/低敏感度，采用不同的处理策略（直接拦截、人工审核、记录日志）。
-- **白名单机制**：维护白名单防止误杀。典型场景如敏感词 "XXX" 误杀正常词汇 "XXY"（子串误匹配）、"公安" 误杀 "办公安排" 等。常见应对策略包括白名单词组排除、要求最小匹配长度（如仅匹配完整词而非子串）、上下文窗口判定等。
-- **匹配日志**：记录匹配结果用于词库优化和误报分析。
+- **Cập nhật định kỳ**: Từ điển nhạy cảm cần duy trì liên tục, hỗ trợ tải nóng tránh khởi động lại dịch vụ.
+- **Quản lý phân cấp**: Theo tình huống nghiệp vụ chia thành độ nhạy cảm cao/trung/thấp, áp dụng chiến lược xử lý khác nhau (chặn trực tiếp, kiểm duyệt thủ công, ghi log).
+- **Cơ chế danh sách trắng**: Duy trì danh sách trắng ngăn chặn nhận diện sai. Tình huống điển hình như từ nhạy cảm "XXX" nhận diện sai từ thông thường "XXY" (khớp chuỗi con sai), "公安" nhận diện sai "办公安排", v.v. Các chiến lược ứng phó phổ biến bao gồm loại trừ từ nhóm danh sách trắng, yêu cầu độ dài khớp tối thiểu (như chỉ khớp từ hoàn chỉnh chứ không phải chuỗi con), phán định cửa sổ ngữ cảnh, v.v.
+- **Log khớp**: Ghi lại kết quả khớp để tối ưu từ điển và phân tích báo cáo sai.
 
-### 异常处理
+### Xử lý ngoại lệ
 
-- **词库加载失败**：构建新 Trie 失败时（如 OOM、文件损坏），应保留旧 Trie 不变，记录错误日志并告警。
-- **空词库处理**：词库为空时应记录 WARN 日志，而非静默放行所有文本。
-- **匹配超时**：超长文本 + 大词库场景，可设置超时熔断，降级为放行或人工审核。
+- **Tải từ điển thất bại**: Khi xây dựng Trie mới thất bại (như OOM, file hỏng), nên giữ nguyên Trie cũ, ghi log lỗi và cảnh báo.
+- **Xử lý từ điển trống**: Khi từ điển trống nên ghi log WARN, thay vì im lặng cho qua tất cả văn bản.
+- **Khớp timeout**: Trong tình huống văn bản cực dài + từ điển lớn, có thể đặt timeout circuit breaker, hạ cấp thành cho qua hoặc kiểm duyệt thủ công.
 
-### 监控指标
+### Chỉ số giám sát
 
-| 指标            | 建议阈值 | 说明                             |
-| --------------- | -------- | -------------------------------- |
-| 匹配延迟（p99） | < 10ms   | 单次过滤耗时                     |
-| 误报率          | < 1%     | 正常内容被误判为敏感词           |
-| 漏报率          | 持续监控 | 敏感内容未被识别                 |
-| 词库命中率      | 按需分析 | 各敏感词的触发频率，用于词库优化 |
+| Chỉ số                  | Ngưỡng khuyến nghị     | Mô tả                                                        |
+| ----------------------- | ---------------------- | ------------------------------------------------------------ |
+| Độ trễ khớp (p99)       | < 10ms                 | Thời gian lọc mỗi lần                                        |
+| Tỷ lệ báo sai           | < 1%                   | Nội dung bình thường bị nhận diện sai là nhạy cảm            |
+| Tỷ lệ bỏ sót            | Giám sát liên tục      | Nội dung nhạy cảm không được nhận diện                       |
+| Tỷ lệ kích hoạt từ điển | Phân tích theo nhu cầu | Tần số kích hoạt của mỗi từ nhạy cảm, dùng để tối ưu từ điển |
 
-### 架构建议
+### Khuyến nghị kiến trúc
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/sensitive-word-filter-arch.png)
 
-## 参考资料
+## Tài liệu tham khảo
 
-### 学术论文
+### Bài báo khoa học
 
-- Aho, A.V. and Corasick, M.J. (1975). "[Efficient string matching: An aid to bibliographic search](https://dl.acm.org/doi/10.1145/360825.360855)." _Communications of the ACM_, 18(6), 333-340.（AC 自动机原始论文）
+- Aho, A.V. and Corasick, M.J. (1975). "[Efficient string matching: An aid to bibliographic search](https://dl.acm.org/doi/10.1145/360825.360855)." _Communications of the ACM_, 18(6), 333-340.（Bài báo gốc AC automaton）
 - Aoe, J., Morimoto, K., and Sato, T. (1989). "[An Efficient Implementation of Trie Structures](https://www.co-ding.com/assets/pdf/dat.pdf)." _Software: Practice and Experience_.
 
-### 相关专利
+### Bằng sáng chế liên quan
 
-- [一种敏感词自动过滤管理系统](https://patents.google.com/patent/CN101964000B)
-- [一种网络游戏中敏感词过滤方法及系统](https://patents.google.com/patent/CN103714160A/zh)
+- [Một hệ thống quản lý lọc từ nhạy cảm tự động](https://patents.google.com/patent/CN101964000B)
+- [Một phương pháp và hệ thống lọc từ nhạy cảm trong trò chơi mạng](https://patents.google.com/patent/CN103714160A/zh)
 
 <!-- @include: @article-footer.snippet.md -->

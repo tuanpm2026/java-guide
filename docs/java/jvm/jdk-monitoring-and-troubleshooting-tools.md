@@ -1,6 +1,6 @@
 ---
-title: JDK监控和故障处理工具总结
-description: 汇总 JDK 常用监控与排错工具及使用示例，辅助定位与分析 JVM 问题。
+title: Tổng hợp các công cụ giám sát và xử lý sự cố JDK
+description: Tổng hợp các công cụ giám sát và xử lý lỗi phổ biến của JDK kèm ví dụ sử dụng, hỗ trợ định vị và phân tích sự cố JVM.
 category: Java
 tag:
   - JVM
@@ -10,22 +10,22 @@ head:
       content: JDK 工具,jps,jstat,jmap,jstack,jvisualvm,诊断,监控
 ---
 
-## JDK 命令行工具
+## Công cụ dòng lệnh JDK
 
-这些命令在 JDK 安装目录下的 bin 目录下：
+Các lệnh này nằm trong thư mục bin của thư mục cài đặt JDK:
 
-- **`jps`** (JVM Process Status）: 类似 UNIX 的 `ps` 命令。用于查看所有 Java 进程的启动类、传入参数和 Java 虚拟机参数等信息；
-- **`jstat`**（JVM Statistics Monitoring Tool）: 用于收集 HotSpot 虚拟机各方面的运行数据;
-- **`jinfo`** (Configuration Info for Java) : Configuration Info for Java,显示虚拟机配置信息;
-- **`jmap`** (Memory Map for Java) : 生成堆转储快照;
-- **`jhat`** (JVM Heap Dump Browser) : 用于分析 heapdump 文件，它会建立一个 HTTP/HTML 服务器，让用户可以在浏览器上查看分析结果。JDK9 移除了 jhat；
-- **`jstack`** (Stack Trace for Java) : 生成虚拟机当前时刻的线程快照，线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈的集合。
+- **`jps`** (JVM Process Status): tương tự lệnh `ps` trên UNIX. Dùng để xem thông tin về tất cả các tiến trình Java đang chạy, bao gồm tên lớp khởi động, tham số đầu vào và tham số JVM;
+- **`jstat`** (JVM Statistics Monitoring Tool): dùng để thu thập dữ liệu vận hành của các khía cạnh khác nhau trong HotSpot Virtual Machine;
+- **`jinfo`** (Configuration Info for Java): hiển thị thông tin cấu hình của máy ảo;
+- **`jmap`** (Memory Map for Java): tạo snapshot heap dump;
+- **`jhat`** (JVM Heap Dump Browser): dùng để phân tích file heapdump, nó sẽ tạo một máy chủ HTTP/HTML để người dùng xem kết quả phân tích trên trình duyệt. JDK9 đã loại bỏ jhat;
+- **`jstack`** (Stack Trace for Java): tạo snapshot luồng tại thời điểm hiện tại của máy ảo — snapshot luồng là tập hợp stack phương thức đang thực thi của mỗi luồng trong máy ảo.
 
-### `jps`:查看所有 Java 进程
+### `jps`: Xem tất cả tiến trình Java
 
-`jps`(JVM Process Status) 命令类似 UNIX 的 `ps` 命令。
+Lệnh `jps` (JVM Process Status) tương tự lệnh `ps` trên UNIX.
 
-`jps`：显示虚拟机执行主类名称以及这些进程的本地虚拟机唯一 ID（Local Virtual Machine Identifier,LVMID）。`jps -q`：只输出进程的本地虚拟机唯一 ID。
+`jps`: hiển thị tên lớp main của máy ảo và Local Virtual Machine Identifier (LVMID) của các tiến trình. `jps -q`: chỉ xuất LVMID của tiến trình.
 
 ```powershell
 C:\Users\SnailClimb>jps
@@ -36,7 +36,7 @@ C:\Users\SnailClimb>jps
 17340 NettyServer
 ```
 
-`jps -l`:输出主类的全名，如果进程执行的是 Jar 包，输出 Jar 路径。
+`jps -l`: xuất tên đầy đủ của lớp main; nếu tiến trình chạy từ file Jar thì xuất đường dẫn Jar.
 
 ```powershell
 C:\Users\SnailClimb>jps -l
@@ -47,42 +47,42 @@ C:\Users\SnailClimb>jps -l
 17340 firstNettyDemo.NettyServer
 ```
 
-`jps -v`：输出虚拟机进程启动时 JVM 参数。
+`jps -v`: xuất các tham số JVM khi khởi động tiến trình máy ảo.
 
-`jps -m`：输出传递给 Java 进程 main() 函数的参数。
+`jps -m`: xuất tham số truyền vào hàm main() của tiến trình Java.
 
-### `jstat`: 监视虚拟机各种运行状态信息
+### `jstat`: Giám sát các thông tin trạng thái vận hành của máy ảo
 
-jstat（JVM Statistics Monitoring Tool） 使用于监视虚拟机各种运行状态信息的命令行工具。 它可以显示本地或者远程（需要远程主机提供 RMI 支持）虚拟机进程中的类信息、内存、垃圾收集、JIT 编译等运行数据，在没有 GUI，只提供了纯文本控制台环境的服务器上，它将是运行期间定位虚拟机性能问题的首选工具。
+jstat (JVM Statistics Monitoring Tool) là công cụ dòng lệnh dùng để giám sát các thông tin trạng thái vận hành của máy ảo. Nó có thể hiển thị thông tin về class, bộ nhớ, thu gom rác, biên dịch JIT v.v. của tiến trình máy ảo local hoặc remote (yêu cầu máy chủ remote hỗ trợ RMI). Trên các máy chủ không có GUI, chỉ có môi trường console thuần văn bản, đây sẽ là công cụ đầu tiên được chọn để định vị vấn đề hiệu suất máy ảo trong runtime.
 
-**`jstat` 命令使用格式：**
+**Cú pháp lệnh `jstat`:**
 
 ```powershell
 jstat -<option> [-t] [-h<lines>] <vmid> [<interval> [<count>]]
 ```
 
-比如 `jstat -gc -h3 31736 1000 10`表示分析进程 id 为 31736 的 gc 情况，每隔 1000ms 打印一次记录，打印 10 次停止，每 3 行后打印指标头部。
+Ví dụ `jstat -gc -h3 31736 1000 10` có nghĩa là phân tích tình trạng GC của tiến trình id 31736, in kết quả mỗi 1000ms, dừng sau 10 lần in, in tiêu đề chỉ số sau mỗi 3 dòng.
 
-**常见的 option 如下：**
+**Các option thông dụng:**
 
-- `jstat -class vmid`：显示 ClassLoader 的相关信息；
-- `jstat -compiler vmid`：显示 JIT 编译的相关信息；
-- `jstat -gc vmid`：显示与 GC 相关的堆信息；
-- `jstat -gccapacity vmid`：显示各个代的容量及使用情况；
-- `jstat -gcnew vmid`：显示新生代信息；
-- `jstat -gcnewcapcacity vmid`：显示新生代大小与使用情况；
-- `jstat -gcold vmid`：显示老年代和永久代的行为统计，从 jdk1.8 开始,该选项仅表示老年代，因为永久代被移除了；
-- `jstat -gcoldcapacity vmid`：显示老年代的大小；
-- `jstat -gcpermcapacity vmid`：显示永久代大小，从 jdk1.8 开始,该选项不存在了，因为永久代被移除了；
-- `jstat -gcutil vmid`：显示垃圾收集信息；
+- `jstat -class vmid`: hiển thị thông tin liên quan đến ClassLoader;
+- `jstat -compiler vmid`: hiển thị thông tin liên quan đến biên dịch JIT;
+- `jstat -gc vmid`: hiển thị thông tin heap liên quan đến GC;
+- `jstat -gccapacity vmid`: hiển thị dung lượng và mức sử dụng của từng thế hệ;
+- `jstat -gcnew vmid`: hiển thị thông tin thế hệ mới (Young Generation);
+- `jstat -gcnewcapcacity vmid`: hiển thị kích thước và mức sử dụng của thế hệ mới;
+- `jstat -gcold vmid`: hiển thị thống kê hành vi của thế hệ cũ và thế hệ vĩnh viễn; từ jdk1.8 trở đi, option này chỉ biểu thị thế hệ cũ vì thế hệ vĩnh viễn đã bị loại bỏ;
+- `jstat -gcoldcapacity vmid`: hiển thị kích thước của thế hệ cũ;
+- `jstat -gcpermcapacity vmid`: hiển thị kích thước thế hệ vĩnh viễn; từ jdk1.8 trở đi, option này không còn tồn tại vì thế hệ vĩnh viễn đã bị loại bỏ;
+- `jstat -gcutil vmid`: hiển thị thông tin thu gom rác;
 
-另外，加上 `-t`参数可以在输出信息上加一个 Timestamp 列，显示程序的运行时间。
+Ngoài ra, thêm tham số `-t` có thể thêm cột Timestamp vào đầu ra, hiển thị thời gian chạy của chương trình.
 
-### `jinfo`: 实时地查看和调整虚拟机各项参数
+### `jinfo`: Xem và điều chỉnh các tham số máy ảo theo thời gian thực
 
-`jinfo vmid` :输出当前 jvm 进程的全部参数和系统属性 (第一部分是系统的属性，第二部分是 JVM 的参数)。
+`jinfo vmid`: xuất tất cả tham số và thuộc tính hệ thống của tiến trình jvm hiện tại (phần đầu là thuộc tính hệ thống, phần sau là tham số JVM).
 
-`jinfo -flag name vmid` :输出对应名称的参数的具体值。比如输出 MaxHeapSize、查看当前 jvm 进程是否开启打印 GC 日志 ( `-XX:PrintGCDetails` :详细 GC 日志模式，这两个都是默认关闭的)。
+`jinfo -flag name vmid`: xuất giá trị cụ thể của tham số theo tên. Ví dụ xuất MaxHeapSize, kiểm tra tiến trình jvm hiện tại có bật in log GC không (`-XX:PrintGCDetails`: chế độ log GC chi tiết, cả hai đều tắt mặc định).
 
 ```powershell
 C:\Users\SnailClimb>jinfo  -flag MaxHeapSize 17340
@@ -91,9 +91,9 @@ C:\Users\SnailClimb>jinfo  -flag PrintGC 17340
 -XX:-PrintGC
 ```
 
-使用 jinfo 可以在不重启虚拟机的情况下，可以动态的修改 jvm 的参数。尤其在线上的环境特别有用,请看下面的例子：
+Sử dụng jinfo có thể thay đổi tham số jvm một cách động mà không cần khởi động lại máy ảo. Điều này đặc biệt hữu ích trong môi trường production, xem ví dụ dưới đây:
 
-`jinfo -flag [+|-]name vmid` 开启或者关闭对应名称的参数。
+`jinfo -flag [+|-]name vmid`: bật hoặc tắt tham số theo tên.
 
 ```powershell
 C:\Users\SnailClimb>jinfo  -flag  PrintGC 17340
@@ -105,13 +105,13 @@ C:\Users\SnailClimb>jinfo  -flag  PrintGC 17340
 -XX:+PrintGC
 ```
 
-### `jmap`:生成堆转储快照
+### `jmap`: Tạo snapshot heap dump
 
-`jmap`（Memory Map for Java）命令用于生成堆转储快照。 如果不使用 `jmap` 命令，要想获取 Java 堆转储，可以使用 `“-XX:+HeapDumpOnOutOfMemoryError”` 参数，可以让虚拟机在 OOM 异常出现之后自动生成 dump 文件，Linux 命令下可以通过 `kill -3` 发送进程退出信号也能拿到 dump 文件。
+Lệnh `jmap` (Memory Map for Java) dùng để tạo snapshot heap dump. Nếu không dùng lệnh `jmap`, để lấy Java heap dump có thể dùng tham số `"-XX:+HeapDumpOnOutOfMemoryError"` để máy ảo tự động tạo file dump sau khi xảy ra ngoại lệ OOM. Trên Linux, cũng có thể lấy file dump bằng cách gửi tín hiệu thoát tiến trình qua `kill -3`.
 
-`jmap` 的作用并不仅仅是为了获取 dump 文件，它还可以查询 finalizer 执行队列、Java 堆和永久代的详细信息，如空间使用率、当前使用的是哪种收集器等。和`jinfo`一样，`jmap`有不少功能在 Windows 平台下也是受限制的。
+`jmap` không chỉ dùng để lấy file dump — nó còn có thể truy vấn hàng đợi thực thi finalizer, thông tin chi tiết về Java heap và thế hệ vĩnh viễn, như tỷ lệ sử dụng không gian, loại collector đang dùng v.v. Giống `jinfo`, nhiều tính năng của `jmap` cũng bị hạn chế trên nền tảng Windows.
 
-示例：将指定应用程序的堆快照输出到桌面。后面，可以通过 jhat、Visual VM 等工具分析该堆文件。
+Ví dụ: xuất snapshot heap của ứng dụng chỉ định ra desktop. Sau đó có thể phân tích file heap bằng các công cụ như jhat, Visual VM.
 
 ```powershell
 C:\Users\SnailClimb>jmap -dump:format=b,file=C:\Users\SnailClimb\Desktop\heap.hprof 17340
@@ -119,9 +119,9 @@ Dumping heap to C:\Users\SnailClimb\Desktop\heap.hprof ...
 Heap dump file created
 ```
 
-### **`jhat`**: 分析 heapdump 文件
+### **`jhat`**: Phân tích file heapdump
 
-**`jhat`** 用于分析 heapdump 文件，它会建立一个 HTTP/HTML 服务器，让用户可以在浏览器上查看分析结果。
+**`jhat`** dùng để phân tích file heapdump, nó sẽ tạo một máy chủ HTTP/HTML để người dùng xem kết quả phân tích trên trình duyệt.
 
 ```powershell
 C:\Users\SnailClimb>jhat C:\Users\SnailClimb\Desktop\heap.hprof
@@ -136,17 +136,17 @@ Started HTTP server on port 7000
 Server is ready.
 ```
 
-访问 <http://localhost:7000/>
+Truy cập <http://localhost:7000/>
 
-注意⚠️：JDK9 移除了 jhat（[JEP 241: Remove the jhat Tool](https://openjdk.org/jeps/241)），你可以使用其替代品 Eclipse Memory Analyzer Tool (MAT) 和 VisualVM，这也是官方所推荐的。
+Lưu ý: JDK9 đã loại bỏ jhat ([JEP 241: Remove the jhat Tool](https://openjdk.org/jeps/241)). Bạn có thể dùng các công cụ thay thế được khuyến nghị chính thức là Eclipse Memory Analyzer Tool (MAT) và VisualVM.
 
-### **`jstack`** :生成虚拟机当前时刻的线程快照
+### **`jstack`**: Tạo snapshot luồng tại thời điểm hiện tại của máy ảo
 
-`jstack`（Stack Trace for Java）命令用于生成虚拟机当前时刻的线程快照。线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈的集合.
+Lệnh `jstack` (Stack Trace for Java) dùng để tạo snapshot luồng tại thời điểm hiện tại của máy ảo. Snapshot luồng là tập hợp stack phương thức đang thực thi của mỗi luồng trong máy ảo hiện tại.
 
-生成线程快照的目的主要是定位线程长时间出现停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等都是导致线程长时间停顿的原因。线程出现停顿的时候通过`jstack`来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做些什么事情，或者在等待些什么资源。
+Mục đích chính của việc tạo snapshot luồng là xác định nguyên nhân luồng bị dừng trong thời gian dài, chẳng hạn như deadlock giữa các luồng, vòng lặp vô tận, chờ tài nguyên bên ngoài trong thời gian dài v.v. Khi luồng bị dừng, dùng `jstack` để xem call stack của từng luồng, từ đó biết luồng không phản hồi đang làm gì ở background hoặc đang chờ tài nguyên gì.
 
-**下面是一个线程死锁的代码。我们下面会通过 `jstack` 命令进行死锁检查，输出死锁信息，找到发生死锁的线程。**
+**Dưới đây là đoạn code tạo deadlock giữa các luồng. Chúng ta sẽ dùng lệnh `jstack` để kiểm tra deadlock, xuất thông tin deadlock và tìm ra luồng xảy ra deadlock.**
 
 ```java
 public class DeadLockDemo {
@@ -196,9 +196,9 @@ Thread[线程 1,5,main]waiting get resource2
 Thread[线程 2,5,main]waiting get resource1
 ```
 
-线程 A 通过 synchronized (resource1) 获得 resource1 的监视器锁，然后通过`Thread.sleep(1000);`让线程 A 休眠 1s 为的是让线程 B 得到执行然后获取到 resource2 的监视器锁。线程 A 和线程 B 休眠结束了都开始企图请求获取对方的资源，然后这两个线程就会陷入互相等待的状态，这也就产生了死锁。
+Luồng A lấy được monitor lock của resource1 qua synchronized (resource1), sau đó dùng `Thread.sleep(1000)` để cho luồng A ngủ 1 giây nhằm cho luồng B có cơ hội chạy và lấy monitor lock của resource2. Khi cả luồng A và luồng B thức dậy, cả hai đều cố gắng lấy tài nguyên của nhau, dẫn đến tình trạng chờ nhau vô tận — đây chính là deadlock.
 
-**通过 `jstack` 命令分析：**
+**Phân tích bằng lệnh `jstack`:**
 
 ```powershell
 C:\Users\SnailClimb>jps
@@ -214,7 +214,7 @@ C:\Users\SnailClimb>jps
 C:\Users\SnailClimb>jstack 9256
 ```
 
-输出的部分内容如下：
+Một phần kết quả đầu ra như sau:
 
 ```powershell
 Found one Java-level deadlock:
@@ -244,19 +244,19 @@ Java stack information for the threads listed above:
 Found 1 deadlock.
 ```
 
-可以看到 `jstack` 命令已经帮我们找到发生死锁的线程的具体信息。
+Có thể thấy lệnh `jstack` đã giúp chúng ta tìm ra thông tin cụ thể về luồng xảy ra deadlock.
 
-## JDK 可视化分析工具
+## Công cụ phân tích trực quan JDK
 
-### JConsole:Java 监视与管理控制台
+### JConsole: Bảng điều khiển giám sát và quản lý Java
 
-JConsole 是基于 JMX 的可视化监视、管理工具。可以很方便的监视本地及远程服务器的 java 进程的内存使用情况。你可以在控制台输入`jconsole`命令启动或者在 JDK 目录下的 bin 目录找到`jconsole.exe`然后双击启动。
+JConsole là công cụ giám sát và quản lý trực quan dựa trên JMX. Nó có thể giám sát thuận tiện mức sử dụng bộ nhớ của tiến trình Java trên máy local và remote. Bạn có thể khởi động bằng lệnh `jconsole` trong console hoặc tìm `jconsole.exe` trong thư mục bin của JDK và double-click để chạy.
 
-#### 连接 Jconsole
+#### Kết nối Jconsole
 
-![连接 Jconsole](./pictures/jdk监控和故障处理工具总结/1JConsole连接.png)
+![Kết nối Jconsole](./pictures/jdk监控和故障处理工具总结/1JConsole连接.png)
 
-如果需要使用 JConsole 连接远程进程，可以在远程 Java 程序启动时加上下面这些参数:
+Nếu cần dùng JConsole để kết nối tiến trình remote, hãy thêm các tham số sau khi khởi động chương trình Java remote:
 
 ```properties
 -Djava.rmi.server.hostname=外网访问 ip 地址
@@ -265,66 +265,66 @@ JConsole 是基于 JMX 的可视化监视、管理工具。可以很方便的监
 -Dcom.sun.management.jmxremote.ssl=false
 ```
 
-在使用 JConsole 连接时，远程进程地址如下：
+Khi kết nối bằng JConsole, địa chỉ tiến trình remote như sau:
 
 ```plain
 外网访问 ip 地址:60001
 ```
 
-#### 查看 Java 程序概况
+#### Xem tổng quan chương trình Java
 
-![查看 Java 程序概况 ](./pictures/jdk监控和故障处理工具总结/2查看Java程序概况.png)
+![Xem tổng quan chương trình Java](./pictures/jdk监控和故障处理工具总结/2查看Java程序概况.png)
 
-#### 内存监控
+#### Giám sát bộ nhớ
 
-JConsole 可以显示当前内存的详细信息。不仅包括堆内存/非堆内存的整体信息，还可以细化到 eden 区、survivor 区等的使用情况，如下图所示。
+JConsole có thể hiển thị thông tin chi tiết về bộ nhớ hiện tại. Không chỉ bao gồm thông tin tổng thể về heap memory/non-heap memory, mà còn có thể xem chi tiết mức sử dụng của từng vùng như eden, survivor, như hình dưới đây.
 
-点击右边的“执行 GC(G)”按钮可以强制应用程序执行一个 Full GC。
+Nhấn nút "Thực thi GC (G)" bên phải để buộc ứng dụng thực hiện một Full GC.
 
-> - **新生代 GC（Minor GC）**:指发生新生代的垃圾收集动作，Minor GC 非常频繁，回收速度一般也比较快。
-> - **老年代 GC（Major GC/Full GC）**:指发生在老年代的 GC，出现了 Major GC 经常会伴随至少一次的 Minor GC（并非绝对），Major GC 的速度一般会比 Minor GC 的慢 10 倍以上。
+> - **GC thế hệ mới (Minor GC)**: chỉ hoạt động thu gom rác xảy ra ở thế hệ mới, Minor GC rất thường xuyên và tốc độ thu hồi thường khá nhanh.
+> - **GC thế hệ cũ (Major GC/Full GC)**: chỉ hoạt động GC xảy ra ở thế hệ cũ, khi xuất hiện Major GC thường đi kèm ít nhất một lần Minor GC (không tuyệt đối), tốc độ Major GC thường chậm hơn Minor GC ít nhất 10 lần.
 
-![内存监控 ](./pictures/jdk监控和故障处理工具总结/3内存监控.png)
+![Giám sát bộ nhớ](./pictures/jdk监控和故障处理工具总结/3内存监控.png)
 
-#### 线程监控
+#### Giám sát luồng
 
-类似我们前面讲的 `jstack` 命令，不过这个是可视化的。
+Tương tự lệnh `jstack` đã đề cập ở trên, nhưng ở dạng trực quan.
 
-最下面有一个"检测死锁 (D)"按钮，点击这个按钮可以自动为你找到发生死锁的线程以及它们的详细信息 。
+Phía dưới có nút "Phát hiện Deadlock (D)", nhấn vào đó có thể tự động tìm luồng xảy ra deadlock và thông tin chi tiết của chúng.
 
-![线程监控 ](./pictures/jdk监控和故障处理工具总结/4线程监控.png)
+![Giám sát luồng](./pictures/jdk监控和故障处理工具总结/4线程监控.png)
 
-### Visual VM:多合一故障处理工具
+### Visual VM: Công cụ xử lý sự cố đa năng
 
-VisualVM 提供在 Java 虚拟机 (Java Virtual Machine, JVM) 上运行的 Java 应用程序的详细信息。在 VisualVM 的图形用户界面中，您可以方便、快捷地查看多个 Java 应用程序的相关信息。Visual VM 官网：<https://visualvm.github.io/> 。Visual VM 中文文档:<https://visualvm.github.io/documentation.html>。
+VisualVM cung cấp thông tin chi tiết về các ứng dụng Java đang chạy trên Java Virtual Machine (JVM). Trong giao diện đồ họa của VisualVM, bạn có thể xem thông tin liên quan đến nhiều ứng dụng Java một cách thuận tiện và nhanh chóng. Trang chủ Visual VM: <https://visualvm.github.io/>. Tài liệu tiếng Trung Visual VM: <https://visualvm.github.io/documentation.html>.
 
-下面这段话摘自《深入理解 Java 虚拟机》。
+Đoạn dưới đây trích từ cuốn "Hiểu sâu về Java Virtual Machine".
 
-> VisualVM（All-in-One Java Troubleshooting Tool）是到目前为止随 JDK 发布的功能最强大的运行监视和故障处理程序，官方在 VisualVM 的软件说明中写上了“All-in-One”的描述字样，预示着他除了运行监视、故障处理外，还提供了很多其他方面的功能，如性能分析（Profiling）。VisualVM 的性能分析功能甚至比起 JProfiler、YourKit 等专业且收费的 Profiling 工具都不会逊色多少，而且 VisualVM 还有一个很大的优点：不需要被监视的程序基于特殊 Agent 运行，因此他对应用程序的实际性能的影响很小，使得他可以直接应用在生产环境中。这个优点是 JProfiler、YourKit 等工具无法与之媲美的。
+> VisualVM (All-in-One Java Troubleshooting Tool) là chương trình giám sát vận hành và xử lý sự cố mạnh nhất được phát hành kèm JDK cho đến nay. Tài liệu phần mềm chính thức của VisualVM có ghi mô tả "All-in-One", ngụ ý rằng ngoài giám sát vận hành và xử lý sự cố, nó còn cung cấp nhiều tính năng khác như phân tích hiệu suất (Profiling). Tính năng phân tích hiệu suất của VisualVM thậm chí không thua kém so với các công cụ Profiling chuyên nghiệp có tính phí như JProfiler, YourKit. Hơn nữa, VisualVM còn có một ưu điểm lớn: chương trình được giám sát không cần chạy dựa trên Agent đặc biệt, do đó ảnh hưởng đến hiệu suất thực tế của ứng dụng rất nhỏ, có thể áp dụng trực tiếp trong môi trường production. Đây là ưu điểm mà JProfiler, YourKit và các công cụ khác không thể sánh bằng.
 
-VisualVM 基于 NetBeans 平台开发，因此他一开始就具备了插件扩展功能的特性，通过插件扩展支持，VisualVM 可以做到：
+VisualVM được phát triển dựa trên nền tảng NetBeans, do đó ngay từ đầu nó đã có tính năng mở rộng plugin. Thông qua hỗ trợ mở rộng plugin, VisualVM có thể:
 
-- 显示虚拟机进程以及进程的配置、环境信息（jps、jinfo）。
-- 监视应用程序的 CPU、GC、堆、方法区以及线程的信息（jstat、jstack）。
-- dump 以及分析堆转储快照（jmap、jhat）。
-- 方法级的程序运行性能分析，找到被调用最多、运行时间最长的方法。
-- 离线程序快照：收集程序的运行时配置、线程 dump、内存 dump 等信息建立一个快照，可以将快照发送开发者处进行 Bug 反馈。
-- 其他 plugins 的无限的可能性……
+- Hiển thị tiến trình máy ảo cùng thông tin cấu hình và môi trường của tiến trình (jps, jinfo).
+- Giám sát thông tin CPU, GC, heap, method area và luồng của ứng dụng (jstat, jstack).
+- Dump và phân tích snapshot heap dump (jmap, jhat).
+- Phân tích hiệu suất chạy chương trình ở cấp độ phương thức, tìm phương thức được gọi nhiều nhất và chạy lâu nhất.
+- Snapshot chương trình offline: thu thập cấu hình runtime, thread dump, memory dump v.v. của chương trình để tạo snapshot, có thể gửi snapshot cho developer để phản hồi Bug.
+- Vô số khả năng từ các plugin khác...
 
-这里就不具体介绍 VisualVM 的使用，如果想了解的话可以看:
+Ở đây không giới thiệu chi tiết cách dùng VisualVM. Nếu muốn tìm hiểu, có thể xem:
 
 - <https://visualvm.github.io/documentation.html>
 - <https://www.ibm.com/developerworks/cn/java/j-lo-visualvm/index.html>
 
-### MAT：内存分析器工具
+### MAT: Công cụ phân tích bộ nhớ
 
-MAT（Memory Analyzer Tool）是一款快速便捷且功能强大丰富的 JVM 堆内存离线分析工具。其通过展现 JVM 异常时所记录的运行时堆转储快照（Heap dump）状态（正常运行时也可以做堆转储分析），帮助定位内存泄漏问题或优化大内存消耗逻辑。
+MAT (Memory Analyzer Tool) là công cụ phân tích offline heap memory JVM nhanh, tiện lợi và đầy đủ tính năng. Nó hiển thị trạng thái snapshot heap dump được ghi lại khi JVM gặp sự cố (cũng có thể thực hiện phân tích heap dump trong lúc chạy bình thường), giúp định vị vấn đề rò rỉ bộ nhớ hoặc tối ưu hóa logic tiêu thụ bộ nhớ lớn.
 
-在遇到 OOM 和 GC 问题的时候，我一般会首选使用 MAT 分析 dump 文件在，这也是该工具应用最多的一个场景。
+Khi gặp vấn đề OOM và GC, tôi thường chọn MAT để phân tích file dump trước tiên — đây cũng là kịch bản được ứng dụng nhiều nhất của công cụ này.
 
-关于 MAT 的详细介绍推荐下面这两篇文章，写的很不错：
+Để tìm hiểu chi tiết về MAT, khuyến nghị hai bài viết sau đây, được viết rất hay:
 
-- [JVM 内存分析工具 MAT 的深度讲解与实践—入门篇](https://juejin.cn/post/6908665391136899079)
-- [JVM 内存分析工具 MAT 的深度讲解与实践—进阶篇](https://juejin.cn/post/6911624328472133646)
+- [Hướng dẫn chuyên sâu và thực hành công cụ phân tích bộ nhớ JVM MAT — Phần nhập môn](https://juejin.cn/post/6908665391136899079)
+- [Hướng dẫn chuyên sâu và thực hành công cụ phân tích bộ nhớ JVM MAT — Phần nâng cao](https://juejin.cn/post/6911624328472133646)
 
 <!-- @include: @article-footer.snippet.md -->

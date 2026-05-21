@@ -1,143 +1,141 @@
 ---
-title: 单元测试到底是什么？应该怎么做？
-description: 单元测试入门指南，涵盖单元测试概念、Mock与Stub技术、测试金字塔及JUnit测试框架使用方法。
-category: 代码质量
+title: Unit Test thực chất là gì? Nên làm như thế nào?
+description: Hướng dẫn nhập môn unit test, bao gồm khái niệm unit test, kỹ thuật Mock và Stub, test pyramid và cách dùng JUnit test framework.
+category: Code Quality
 head:
   - - meta
     - name: keywords
-      content: 单元测试,Unit Testing,Mock,Stub,Fake,测试金字塔,可测试性,TDD,JUnit
+      content: unit test,Unit Testing,Mock,Stub,Fake,test pyramid,testability,TDD,JUnit
 ---
 
-> 本文重构完善自[谈谈为什么写单元测试 - 键盘男 - 2016](https://www.jianshu.com/p/fa41fb80d2b8)这篇文章。
+> Bài này được tái cấu trúc và hoàn thiện từ bài [Bàn về tại sao viết unit test - Keyboard Man - 2016](https://www.jianshu.com/p/fa41fb80d2b8).
 
-## 何谓单元测试？
+## Unit Test là gì?
 
-维基百科是这样介绍单元测试的：
+Wikipedia giới thiệu unit test như sau:
 
-> 在计算机编程中，单元测试（Unit Testing）是针对程序模块（软件设计的最小单位）进行的正确性检验测试工作。
+> Trong lập trình máy tính, Unit Testing là công việc kiểm tra tính đúng đắn nhắm vào program module (đơn vị thiết kế nhỏ nhất của phần mềm).
 >
-> 程序单元是应用的 **最小可测试部件** 。在过程化编程中，一个单元就是单个程序、函数、过程等；对于面向对象编程，最小单元就是方法，包括基类（超类）、抽象类、或者派生类（子类）中的方法。
+> Program unit là **phần có thể test nhỏ nhất** của ứng dụng. Trong procedural programming, một unit là single program, function, procedure, v.v. Với OOP, unit nhỏ nhất là method, bao gồm method trong base class (superclass), abstract class hay derived class (subclass).
 
-由于每个单元有独立的逻辑，在做单元测试时，为了隔离外部依赖，确保这些依赖不影响验证逻辑，我们经常会用到 Fake、Stub 与 Mock 。
+Vì mỗi unit có logic độc lập, khi unit test cần isolate external dependency, đảm bảo các dependency đó không ảnh hưởng đến verification logic. Chúng ta thường dùng Fake, Stub và Mock.
 
-关于 Fake、Mock 与 Stub 这几个概念的解读，可以看看这篇文章：[测试中 Fakes、Mocks 以及 Stubs 概念明晰 - 王下邀月熊 - 2018](https://zhuanlan.zhihu.com/p/26942686) 。
+Về giải thích các khái niệm Fake, Mock và Stub, xem bài: [Làm rõ khái niệm Fakes, Mocks và Stubs trong testing - Wang Xia Yao Yue Xiong - 2018](https://zhuanlan.zhihu.com/p/26942686).
 
-## 为什么需要单元测试？
+## Tại sao cần Unit Test?
 
-### 为重构保驾护航
+### Bảo vệ Refactoring
 
-我在[重构](./refactoring.md)这篇文章中这样写到：
+Trong bài [refactoring](./refactoring.md) tôi viết:
 
-> 单元测试可以为重构提供信心，降低重构的成本。我们要像重视生产代码那样，重视单元测试。
+> Unit test có thể cung cấp confidence cho refactoring, giảm chi phí refactoring. Chúng ta nên coi trọng unit test như coi trọng production code.
 
-每个开发者都会经历重构，重构后把代码改坏了的情况并不少见，很可能你只是修改了一个很简单的方法就导致系统出现了一个比较严重的错误。
+Mỗi developer đều trải qua refactoring. Tình trạng code bị hỏng sau khi refactor không phải hiếm gặp — có thể chỉ sửa một method đơn giản mà gây ra lỗi nghiêm trọng trong hệ thống.
 
-如果有了单元测试的话，就不会存在这个隐患了。写完一个类，把单元测试写了，确保这个类逻辑正确；写第二个类，单元测试……写 100 个类，道理一样，每个类做到第一点“保证逻辑正确性”，100 个类拼在一起肯定不出问题。你大可以放心一边重构，一边运行 APP；而不是整体重构完，提心吊胆地 run。
+Nếu có unit test thì không còn rủi ro ẩn này nữa. Viết xong một class thì viết unit test, đảm bảo logic của class đúng. Viết class thứ hai, unit test... Viết 100 class, tương tự, mỗi class đạt điểm đầu tiên "đảm bảo logic đúng" — 100 class ghép lại chắc chắn không có vấn đề. Bạn có thể yên tâm vừa refactor vừa chạy APP — thay vì refactor xong toàn bộ rồi hồi hộp run.
 
-### 提高代码质量
+### Cải thiện chất lượng code
 
-由于每个单元有独立的逻辑，做单元测试时需要隔离外部依赖，确保这些依赖不影响验证逻辑。因为要把各种依赖分离，单元测试会促进工程进行组件拆分，整理工程依赖关系，更大程度减少代码耦合。这样写出来的代码，更好维护，更好扩展，从而提高代码质量。
+Vì mỗi unit có logic độc lập, khi unit test cần isolate external dependency, đảm bảo các dependency không ảnh hưởng đến verification logic. Vì phải tách các dependency, unit test thúc đẩy project chia nhỏ component, sắp xếp lại dependency relationship của project — giảm thiểu code coupling nhiều hơn. Code viết như vậy dễ maintain hơn, dễ extend hơn, từ đó cải thiện chất lượng code.
 
-### 减少 bug
+### Giảm bug
 
-一个机器，由各种细小的零件组成，如果其中某件零件坏了，机器运行故障。必须保证每个零件都按设计图要求的规格，机器才能正常运行。
+Một cỗ máy gồm nhiều chi tiết nhỏ. Nếu một chi tiết hỏng, máy vận hành sai. Phải đảm bảo mỗi chi tiết đúng theo spec trong bản thiết kế thì máy mới vận hành bình thường.
 
-一个可单元测试的工程，会把业务、功能分割成规模更小、有独立的逻辑部件，称为单元。单元测试的目标，就是保证各个单元的逻辑正确性。单元测试保障工程各个“零件”按“规格”（需求）执行，从而保证整个“机器”（项目）运行正确，最大限度减少 bug。
+Một project có thể unit test sẽ chia nhỏ business, feature thành các unit nhỏ hơn có logic độc lập. Mục tiêu của unit test là đảm bảo tính đúng đắn logic của từng unit. Unit test đảm bảo mỗi "chi tiết" của project thực thi theo "spec" (yêu cầu), từ đó đảm bảo toàn bộ "cỗ máy" (project) vận hành đúng, giảm thiểu bug tối đa.
 
-### 快速定位 bug
+### Nhanh chóng locate bug
 
-如果程序有 bug，我们运行一次全部单元测试，找到不通过的测试，可以很快地定位对应的执行代码。修复代码后，运行对应的单元测试；如还不通过，继续修改，运行测试……直到**测试通过**。
+Nếu program có bug, chạy tất cả unit test một lần, tìm test không pass — có thể nhanh chóng locate execution code tương ứng. Sau khi fix code, chạy unit test tương ứng. Nếu vẫn không pass, tiếp tục sửa, chạy test... Cho đến khi **test pass**.
 
-### 持续集成依赖单元测试
+### CI phụ thuộc Unit Test
 
-持续集成需要依赖单元测试，当持续集成服务自动构建新代码之后，会自动运行单元测试来发现代码错误。
+Continuous Integration cần dựa vào unit test. Khi CI service tự động build code mới, sẽ tự động chạy unit test để phát hiện code error.
 
-## 谁逼你写单元测试？
+## Ai bắt bạn viết Unit Test?
 
-### 领导要求
+### Leader yêu cầu
 
-有些经验丰富的领导，或多或少都会要求团队写单元测试。对于有一定工作经验的队友，这要求挺合理；对于经验尚浅的、毕业生，恐怕要死要活了，连代码都写不好，还要写单元测试，are you kidding me？
+Một số leader có kinh nghiệm sẽ yêu cầu team viết unit test. Với teammate có một chút kinh nghiệm, yêu cầu này khá hợp lý. Với người ít kinh nghiệm, mới tốt nghiệp — có thể gần chết, viết code còn chưa tốt mà còn phải viết unit test, are you kidding me?
 
-培训新人单元测试用法，是一项艰巨的任务。新人代码风格未形成，也不知道单元测试多重要，强制单元测试会让他们感到困惑，没办法按自己思路写代码。
+Đào tạo người mới cách dùng unit test là nhiệm vụ khó khăn. Người mới chưa hình thành code style, cũng không biết unit test quan trọng thế nào. Bắt buộc unit test sẽ khiến họ bối rối, không thể viết code theo suy nghĩ của mình.
 
-### 大牛都写单元测试
+### Các expert đều viết Unit Test
 
-国外很多家喻户晓的开源项目，都有大量单元测试。例如，[retrofit](https://link.jianshu.com?t=https://github.com/square/retrofit/tree/master/retrofit/src/test/java/retrofit2)、[okhttp](https://link.jianshu.com?t=https://github.com/square/okhttp/tree/master/okhttp-tests/src/test/java/okhttp3)、[butterknife](https://link.jianshu.com?t=https://github.com/JakeWharton/butterknife/tree/master/butterknife-compiler/src/test/java/butterknife)…… 国外大牛都写单元测试，我们也写吧！
+Nhiều open source project nổi tiếng ở nước ngoài đều có lượng lớn unit test. Ví dụ retrofit, okhttp, butterknife... Expert nước ngoài đều viết unit test, chúng ta cũng viết thôi!
 
-很多读者都有这种想法，一开始满腔热血。当真要对自己项目单元测试时，便困难重重，很大原因是项目对单元测试不友好。最后只能对一些不痛不痒的工具类做单元测试，久而久之，当初美好愿望也不了了之。
+Nhiều bạn đọc có suy nghĩ này, ban đầu rất hứng khởi. Khi thực sự cần unit test cho project của mình thì gặp đủ khó khăn. Lý do lớn là project không thân thiện với unit test. Cuối cùng chỉ có thể unit test một số utility class không đáng kể. Dần dần ước muốn ban đầu cũng tan thành mây khói.
 
-### 保住面子
+### Giữ thể diện
 
-都是有些许年经验的老鸟，还天天被测试同学追 bug，好意思么？花多一点时间写单元测试，确保没低级 bug，还能彰显大牛风范，何乐而不为？
+Đã là developer có vài năm kinh nghiệm mà hàng ngày bị tester đuổi bug thì có mặt mũi nào? Bỏ thêm chút thời gian viết unit test, đảm bảo không có low-level bug, còn thể hiện phong cách expert — sao không làm?
 
-### 心虚
+### Không tự tin
 
-笔者也是个不太相信自己代码的人，总觉得哪里会突然冒出莫名其妙的 bug，也怕别人不小心改了自己的代码（被害妄想症），新版本上线提心吊胆……花点时间写单元测试，有事没事跑一下测试，确保原逻辑没问题，至少能睡安稳一点。
+Tác giả cũng là người không mấy tin tưởng code của mình, luôn cảm thấy đâu đó sẽ bất ngờ có bug khó hiểu, cũng sợ người khác vô tình sửa code của mình (paranoia), mỗi lần deploy version mới đều hồi hộp... Bỏ chút thời gian viết unit test, có rảnh thì chạy test, đảm bảo logic cũ không có vấn đề — ít nhất ngủ yên hơn.
 
-## TDD 测试驱动开发
+## TDD - Test-Driven Development
 
-### 何谓 TDD？
+### TDD là gì?
 
-TDD 即 Test-Driven Development（ 测试驱动开发），这是敏捷开发的一项核心实践和技术，也是一种设计方法论。
+TDD là Test-Driven Development (Phát triển hướng kiểm thử). Đây là một core practice và technology của Agile development, cũng là một design methodology.
 
-TDD 原理是开发功能代码之前，先编写测试用例代码，然后针对测试用例编写功能代码，使其能够通过。
+Nguyên lý TDD là viết test case code trước khi viết functional code, rồi mới viết functional code nhắm vào test case để nó pass được.
 
-TDD 的节奏：“红 - 绿 - 重构”。
+Nhịp điệu của TDD: "Red - Green - Refactor".
 
 ![](https://static001.geekbang.org/resource/image/09/7f/090e1fc6aff08b4aa66376f776c2337f.png)
 
-由于 TDD 对开发人员要求非常高，跟传统开发思维不一样，因此实施起来相当困难。
+Vì TDD có yêu cầu rất cao với developer, khác với traditional development mindset, nên triển khai khá khó khăn.
 
-TDD 在很多人眼中是不实用的，一来他们并不理解测试“驱动”开发的含义，但更重要的是，他们很少会做任务分解。而任务分解是做好 TDD 的关键点。只有把任务分解到可以测试的地步，才能够有针对性地写测试。
+TDD trong mắt nhiều người là không thực dụng. Một là họ không hiểu ý nghĩa "driving" development trong testing. Nhưng quan trọng hơn là họ hiếm khi phân rã task. Mà task decomposition là điểm mấu chốt để làm tốt TDD. Chỉ khi phân rã task đến mức có thể test được thì mới có thể viết test có mục tiêu.
 
-### TDD 优缺点分析
+### Phân tích ưu nhược điểm của TDD
 
-测试驱动开发有好处也有坏处。因为每个测试用例都是根据需求来的，或者说把一个大需求分解成若干小需求编写测试用例，所以测试用例写出来后，开发者写的执行代码，必须满足测试用例。如果测试不通过，则修改执行代码，直到测试用例通过。
+TDD có ưu và nhược điểm. Vì mỗi test case đều đến từ requirement, hay nói cách khác là chia nhỏ requirement lớn thành nhiều requirement nhỏ để viết test case. Sau khi test case được viết ra, execution code developer viết phải thỏa test case. Nếu test không pass thì sửa execution code cho đến khi test case pass.
 
-**优点**：
+**Ưu điểm**:
 
-1. 帮你整理需求，梳理思路；
-2. 帮你设计出更合理的接口（空想的话很容易设计出屎）；
-3. 减小代码出现 bug 的概率；
-4. 提高开发效率（前提是正确且熟练使用 TDD）。
+1. Giúp sắp xếp requirement, làm rõ tư duy.
+2. Giúp thiết kế interface hợp lý hơn (nếu chỉ tưởng tượng rất dễ thiết kế ra thứ tệ).
+3. Giảm xác suất code có bug.
+4. Tăng development efficiency (với điều kiện dùng TDD đúng và thành thạo).
 
-**缺点**：
+**Nhược điểm**:
 
-1. 能用好 TDD 的人非常少，看似简单，实则门槛很高；
-2. 投入开发资源（时间和精力）通常会更多；
-3. 由于测试用例在未进行代码设计前写；很有可能限制开发者对代码整体设计；
-4. 可能引起开发人员不满情绪，我觉得这点很严重，毕竟不是人人都喜欢单元测试，尽管单元测试会带给我们相当多的好处。
+1. Người dùng được TDD rất ít, trông có vẻ đơn giản nhưng threshold thực ra rất cao.
+2. Đầu tư development resource (thời gian và công sức) thường nhiều hơn.
+3. Vì test case được viết trước khi design code, rất có thể hạn chế developer trong thiết kế tổng thể code.
+4. Có thể gây bất mãn với developer. Tôi cho điểm này rất nghiêm trọng — không phải ai cũng thích unit test dù unit test mang lại nhiều lợi ích.
 
-相关阅读：[如何用正确的姿势打开 TDD？ - 陈天 - 2017](https://zhuanlan.zhihu.com/p/24997923) 。
+Đọc liên quan: [Cách mở TDD với tư thế đúng đắn - Chen Tian - 2017](https://zhuanlan.zhihu.com/p/24997923).
 
-## 单测框架如何选择？
+## Chọn Unit Test Framework như thế nào?
 
-对于单测来说，目前常用的单测框架有：JUnit、Mockito、Spock、PowerMock、JMockit、TestableMock 等等。
+Với unit test, các framework phổ biến hiện nay gồm: JUnit, Mockito, Spock, PowerMock, JMockit, TestableMock, v.v.
 
-JUnit 几乎是默认选择，但是其不支持 Mock，因此我们还需要选择一个 Mock 工具。Mockito 和 Spock 是最主流的两款 Mock 工具，一般都是在这两者中选择。
+JUnit gần như là lựa chọn mặc định nhưng không hỗ trợ Mock, nên cần chọn thêm một Mock tool. Mockito và Spock là hai Mock tool phổ biến nhất — thường chọn một trong hai.
 
-究竟是选择 Mockito 还是 Spock 呢？我这里做了一些简单的对比分析：
+Rốt cuộc nên chọn Mockito hay Spock? Tôi đã phân tích so sánh đơn giản:
 
-- Spock 没办法 Mock 静态方法和私有方法 ，Mockito 3.4.0 以后，支持静态方法的 Mock，具体可以看这个 issue：<https://github.com/mockito/mockito/issues/1013>，具体教程可以看这篇文章：<https://www.baeldung.com/mockito-mock-static-methods。>
-- Spock 基于 Groovy，写出来的测试代码更清晰易读，比较规范(自带 given-when-then 的常用测试结构规范)。Mockito 没有具体的结构规范，需要项目组自己约定一个或者遵守比较好的测试代码实践。通常来说，同样的测试用例，Spock 的代码要更简洁。
-- Mockito 使用的人群更广泛，稳定可靠。并且，Mockito 是 SpringBoot Test 默认集成的 Mock 工具。
+- Spock không thể Mock static method và private method. Mockito từ 3.4.0 trở đi hỗ trợ Mock static method. Xem issue này: <https://github.com/mockito/mockito/issues/1013>. Tutorial cụ thể: <https://www.baeldung.com/mockito-mock-static-methods>.
+- Spock dựa trên Groovy, test code viết ra rõ ràng dễ đọc hơn, khá chuẩn mực (tích hợp sẵn quy chuẩn cấu trúc test given-when-then phổ biến). Mockito không có quy chuẩn cấu trúc cụ thể — cần project team tự thỏa thuận hay tuân theo best practice về test code. Thông thường với cùng test case, code Spock ngắn gọn hơn.
+- Mockito được nhiều người dùng hơn, ổn định và đáng tin cậy. Hơn nữa Mockito là Mock tool mà SpringBoot Test tích hợp mặc định.
 
-Mockito 和 Spock 都是非常不错的 Mock 工具，相对来说，Mockito 的适用性更强一些。
+Cả Mockito và Spock đều là Mock tool rất tốt. Tương đối mà nói, Mockito có applicability rộng hơn.
 
-## 总结
+## Tổng kết
 
-单元测试确实会带给你相当多的好处，但不是立刻体验出来。正如买重疾保险，交了很多保费，没病没痛，十几年甚至几十年都用不上，最好就是一辈子用不上理赔，身体健康最重要。单元测试也一样，写了可以买个放心，对代码的一种保障，有 bug 尽快测出来，没 bug 就最好，总不能说“写那么多单元测试，结果测不出 bug，浪费时间”吧？
+Unit test thực sự mang lại nhiều lợi ích, nhưng không trải nghiệm được ngay lập tức. Giống như mua bảo hiểm trọng bệnh — đóng nhiều phí, không ốm đau, hàng chục năm thậm chí cả đời không dùng đến. Tốt nhất là cả đời không cần dùng bảo hiểm, sức khỏe mới quan trọng nhất. Unit test cũng vậy — viết ra mua được sự yên tâm, là bảo đảm cho code. Có bug thì phát hiện sớm, không bug thì tốt nhất. Không thể nói "viết nhiều unit test như vậy mà không phát hiện được bug, lãng phí thời gian" được chứ?
 
-以下是个人对单元测试一些建议：
+Dưới đây là một số gợi ý cá nhân về unit test:
 
-> - 越重要的代码，越要写单元测试；
-> - 代码做不到单元测试，多思考如何改进，而不是放弃；
-> - 边写业务代码，边写单元测试，而不是完成整个新功能后再写；
-> - 多思考如何改进、简化测试代码。
-> - 测试代码需要随着生产代码的演进而重构或者修改，如果测试不能保持整洁，只会越来越难修改。
+> - Code càng quan trọng, càng phải viết unit test.
+> - Code không thể unit test thì nên nghĩ nhiều hơn về cách cải thiện, chứ không phải từ bỏ.
+> - Vừa viết business code vừa viết unit test, chứ không phải sau khi hoàn thành toàn bộ feature mới viết.
+> - Nên nghĩ nhiều hơn về cách cải tiến, đơn giản hóa test code.
+> - Test code cần được refactor hoặc modify theo sự phát triển của production code. Nếu test không thể giữ clean, sẽ ngày càng khó sửa đổi.
 
-作为一名经验丰富的程序员，写单元测试更多的是**对自己的代码负责**。有测试用例的代码，别人更容易看懂，以后别人接手你的代码时，也可能放心做改动。
+Là một developer giàu kinh nghiệm, viết unit test nhiều hơn là **chịu trách nhiệm với code của mình**. Code có test case, người khác dễ hiểu hơn. Khi người khác tiếp nhận code của bạn cũng có thể tự tin thực hiện thay đổi.
 
-**多敲代码实践，多跟有单元测试经验的工程师交流**，你会发现写单元测试获得的收益会更多。
-
-<!-- @include: @article-footer.snippet.md -->
+**Thực hành nhiều hơn, giao lưu nhiều hơn với engineer có kinh nghiệm về unit test** — bạn sẽ thấy lợi ích từ viết unit test ngày càng nhiều hơn.

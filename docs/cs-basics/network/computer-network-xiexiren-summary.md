@@ -1,326 +1,326 @@
 ---
-title: 《计算机网络》（谢希仁）内容总结
-description: 基于《计算机网络》教材的学习笔记，梳理术语与分层模型等核心知识点，便于期末复习与面试巩固。
-category: 计算机基础
+title: Tóm tắt nội dung "Mạng máy tính" (Tạ Hy Nhân)
+description: Ghi chú học tập dựa trên giáo trình "Mạng máy tính", tổng hợp các thuật ngữ và mô hình phân lớp cùng các kiến thức cốt lõi, thuận tiện cho ôn tập cuối kỳ và củng cố phỏng vấn.
+category: Cơ bản máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
       content: 计算机网络,谢希仁,术语,分层模型,链路,主机,教材总结
 ---
 
-本文是我在大二学习计算机网络期间整理， 大部分内容都来自于谢希仁老师的[《计算机网络》第七版](https://www.elias.ltd/usr/local/etc/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf)这本书。为了内容更容易理解，我对之前的整理进行了一波重构，并配上了一些相关的示意图便于理解。
+Bài viết này được tôi tổng hợp trong thời gian học mạng máy tính năm hai đại học, phần lớn nội dung đến từ cuốn [《Mạng máy tính》 phiên bản thứ 7 của thầy Tạ Hy Nhân](https://www.elias.ltd/usr/local/etc/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf). Để nội dung dễ hiểu hơn, tôi đã cấu trúc lại những ghi chú trước đây và thêm một số hình minh họa liên quan để dễ hiểu hơn.
 
 ![](https://oss.javaguide.cn/p3-juejin/fb5d8645cd55484ab0177f25a13e97db~tplv-k3u1fbpfcp-zoom-1.png)
 
-相关问题：[如何评价谢希仁的计算机网络（第七版）？ - 知乎](https://www.zhihu.com/question/327872966) 。
+Câu hỏi liên quan: [Bạn đánh giá như thế nào về cuốn Mạng máy tính (phiên bản thứ 7) của Tạ Hy Nhân? - Zhihu](https://www.zhihu.com/question/327872966).
 
-## 1. 计算机网络概述
+## 1. Tổng quan về mạng máy tính
 
-### 1.1. 基本术语
+### 1.1. Thuật ngữ cơ bản
 
-1. **结点 （node）**：网络中的结点可以是计算机，集线器，交换机或路由器等。
-2. **链路（link ）** : 从一个结点到另一个结点的一段物理线路。中间没有任何其他交点。
-3. **主机（host）**：连接在因特网上的计算机。
-4. **ISP（Internet Service Provider）**：因特网服务提供者（提供商）。
+1. **Nút (node)**: Nút trong mạng có thể là máy tính, hub, switch hoặc router v.v.
+2. **Liên kết (link)**: Một đoạn đường vật lý từ nút này đến nút khác. Không có bất kỳ nút nào khác ở giữa.
+3. **Host**: Máy tính kết nối trên Internet.
+4. **ISP (Internet Service Provider)**: Nhà cung cấp dịch vụ Internet.
 
    ![ISP (Internet Service Provider) Definition](https://oss.javaguide.cn/p3-juejin/e77e26123d404d438d0c5943e3c65893~tplv-k3u1fbpfcp-zoom-1.png)
 
-5. **IXP（Internet eXchange Point）**：互联网交换点 IXP 的主要作用就是允许两个网络直接相连并交换分组，而不需要再通过第三个网络来转发分组。
+5. **IXP (Internet eXchange Point)**: Điểm trao đổi Internet. Chức năng chính của IXP là cho phép hai mạng kết nối trực tiếp và trao đổi gói tin, mà không cần phải chuyển tiếp gói tin qua mạng thứ ba.
 
    ![IXP Traffic Levels During the Stratos Skydive — RIPE Labs](https://oss.javaguide.cn/p3-juejin/7f9a6ddaa09441ceac11cb77f7a69d8f~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:center;font-size:13px;color:gray">https://labs.ripe.net/Members/fergalc/ixp-traffic-during-stratos-skydive</p>
 
-6. **RFC(Request For Comments)**：意思是“请求评议”，包含了关于 Internet 几乎所有的重要的文字资料。
-7. **广域网 WAN（Wide Area Network）**：任务是通过长距离运送主机发送的数据。
-8. **城域网 MAN（Metropolitan Area Network）**：用来将多个局域网进行互连。
-9. **局域网 LAN（Local Area Network）**：学校或企业大多拥有多个互连的局域网。
+6. **RFC (Request For Comments)**: Có nghĩa là "Yêu cầu nhận xét", chứa hầu hết các tài liệu văn bản quan trọng về Internet.
+7. **Mạng diện rộng WAN (Wide Area Network)**: Nhiệm vụ là vận chuyển dữ liệu do host gửi qua khoảng cách dài.
+8. **Mạng đô thị MAN (Metropolitan Area Network)**: Dùng để kết nối nhiều mạng cục bộ lại với nhau.
+9. **Mạng cục bộ LAN (Local Area Network)**: Hầu hết trường học hoặc doanh nghiệp đều có nhiều mạng cục bộ được kết nối với nhau.
 
    ![MAN & WMAN | Red de área metropolitana, Redes informaticas, Par trenzado](https://oss.javaguide.cn/p3-juejin/eb48d21b2e984a63a26250010d7adac4~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:center;font-size:13px;color:gray">http://conexionesmanwman.blogspot.com/</p>
 
-10. **个人区域网 PAN（Personal Area Network）**：在个人工作的地方把属于个人使用的电子设备用无线技术连接起来的网络 。
+10. **Mạng cá nhân PAN (Personal Area Network)**: Mạng kết nối các thiết bị điện tử cá nhân bằng công nghệ không dây tại nơi làm việc cá nhân.
 
     ![Advantages and disadvantages of personal area network (PAN) - IT Release](https://oss.javaguide.cn/p3-juejin/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.png)
 
     <p style="text-align:center;font-size:13px;color:gray">https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
 
-11. **分组（packet ）**：因特网中传送的数据单元。由首部 header 和数据段组成。分组又称为包，首部可称为包头。
-12. **存储转发（store and forward ）**：路由器收到一个分组，先检查分组是否正确，并过滤掉冲突包错误。确定包正确后，取出目的地址，通过查找表找到想要发送的输出端口地址，然后将该包发送出去。
+11. **Gói tin (packet)**: Đơn vị dữ liệu truyền trên Internet. Gồm header và data segment. Gói tin còn gọi là packet, header còn gọi là packet header.
+12. **Lưu và chuyển tiếp (store and forward)**: Router nhận một gói tin, kiểm tra xem gói tin có đúng không và lọc bỏ các gói lỗi xung đột. Sau khi xác định gói đúng, lấy địa chỉ đích, tra bảng để tìm địa chỉ cổng đầu ra muốn gửi, sau đó gửi gói đó đi.
 
     ![](https://oss.javaguide.cn/p3-juejin/addb6b2211444a4da9e0ffc129dd444f~tplv-k3u1fbpfcp-zoom-1.gif)
 
-13. **带宽（bandwidth）**：在计算机网络中，表示在单位时间内从网络中的某一点到另一点所能通过的“最高数据率”。常用来表示网络的通信线路所能传送数据的能力。单位是“比特每秒”，记为 b/s。
-14. **吞吐量（throughput ）**：表示在单位时间内通过某个网络（或信道、接口）的数据量。吞吐量更经常地用于对现实世界中的网络的一种测量，以便知道实际上到底有多少数据量能够通过网络。吞吐量受网络的带宽或网络的额定速率的限制。
+13. **Băng thông (bandwidth)**: Trong mạng máy tính, biểu thị "tốc độ dữ liệu tối đa" có thể truyền từ điểm này đến điểm khác trong mạng trong đơn vị thời gian. Thường dùng để biểu thị khả năng truyền dữ liệu của đường truyền mạng. Đơn vị là "bit mỗi giây", ký hiệu là b/s.
+14. **Thông lượng (throughput)**: Biểu thị lượng dữ liệu đi qua một mạng nhất định (hoặc kênh, giao diện) trong đơn vị thời gian. Thông lượng thường được dùng để đo lường mạng trong thế giới thực, để biết thực tế có bao nhiêu dữ liệu có thể đi qua mạng. Thông lượng bị giới hạn bởi băng thông hoặc tốc độ danh định của mạng.
 
-### 1.2. 重要知识点总结
+### 1.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. **计算机网络（简称网络）把许多计算机连接在一起，而互联网把许多网络连接在一起，是网络的网络。**
-2. 小写字母 i 开头的 internet（互联网）是通用名词，它泛指由多个计算机网络相互连接而成的网络。在这些网络之间的通信协议（即通信规则）可以是任意的。大写字母 I 开头的 Internet（互联网）是专用名词，它指全球最大的，开放的，由众多网络相互连接而成的特定的互联网，并采用 TCP/IP 协议作为通信规则，其前身为 ARPANET。Internet 的推荐译名为因特网，现在一般流行称为互联网。
-3. 路由器是实现分组交换的关键构件，其任务是转发收到的分组，这是网络核心部分最重要的功能。分组交换采用存储转发技术，表示把一个报文（要发送的整块数据）分为几个分组后再进行传送。在发送报文之前，先把较长的报文划分成为一个个更小的等长数据段。在每个数据段的前面加上一些由必要的控制信息组成的首部后，就构成了一个分组。分组又称为包。分组是在互联网中传送的数据单元，正是由于分组的头部包含了诸如目的地址和源地址等重要控制信息，每一个分组才能在互联网中独立的选择传输路径，并正确地交付到分组传输的终点。
-4. 互联网按工作方式可划分为边缘部分和核心部分。主机在网络的边缘部分，其作用是进行信息处理。由大量网络和连接这些网络的路由器组成核心部分，其作用是提供连通性和交换。
-5. 计算机通信是计算机中进程（即运行着的程序）之间的通信。计算机网络采用的通信方式是客户-服务器方式（C/S 方式）和对等连接方式（P2P 方式）。
-6. 客户和服务器都是指通信中所涉及的应用进程。客户是服务请求方，服务器是服务提供方。
-7. 按照作用范围的不同，计算机网络分为广域网 WAN，城域网 MAN，局域网 LAN，个人区域网 PAN。
-8. **计算机网络最常用的性能指标是：速率，带宽，吞吐量，时延（发送时延，处理时延，排队时延），时延带宽积，往返时间和信道利用率。**
-9. 网络协议即协议，是为进行网络中的数据交换而建立的规则。计算机网络的各层以及其协议集合，称为网络的体系结构。
-10. **五层体系结构由应用层，运输层，网络层（网际层），数据链路层，物理层组成。运输层最主要的协议是 TCP 和 UDP 协议，网络层最重要的协议是 IP 协议。**
+1. **Mạng máy tính (gọi tắt là mạng) kết nối nhiều máy tính lại với nhau, còn Internet kết nối nhiều mạng lại với nhau, là mạng của các mạng.**
+2. Internet viết chữ thường (internet) là danh từ chung, chỉ mạng được tạo thành từ nhiều mạng máy tính kết nối với nhau. Giao thức truyền thông giữa các mạng này có thể là bất kỳ. Internet viết hoa chữ đầu (Internet) là danh từ riêng, chỉ mạng cụ thể lớn nhất thế giới, mở, được tạo thành từ nhiều mạng kết nối với nhau, sử dụng giao thức TCP/IP làm quy tắc truyền thông, tiền thân là ARPANET. Tên dịch khuyến nghị của Internet là "Nhân đặc mạng", hiện nay thường gọi là Internet.
+3. Router là thành phần then chốt để thực hiện packet switching, nhiệm vụ của nó là chuyển tiếp các gói nhận được, đây là chức năng quan trọng nhất của phần lõi mạng. Packet switching sử dụng công nghệ lưu và chuyển tiếp, tức là chia một bản tin (toàn bộ khối dữ liệu cần gửi) thành nhiều gói trước khi truyền. Trước khi gửi bản tin, trước tiên chia bản tin dài thành các đoạn dữ liệu bằng nhau nhỏ hơn. Thêm header bao gồm thông tin điều khiển cần thiết vào đầu mỗi đoạn dữ liệu, tạo thành một gói tin. Gói tin còn gọi là packet. Gói tin là đơn vị dữ liệu truyền trên Internet, chính vì header của gói tin chứa thông tin điều khiển quan trọng như địa chỉ đích và địa chỉ nguồn, mỗi gói tin mới có thể chọn đường truyền độc lập trên Internet và được giao đúng đến điểm cuối truyền gói.
+4. Internet có thể chia thành phần biên và phần lõi theo cách hoạt động. Host ở phần biên của mạng, vai trò là xử lý thông tin. Phần lõi bao gồm nhiều mạng và các router kết nối các mạng này, vai trò là cung cấp kết nối và switching.
+5. Truyền thông máy tính là truyền thông giữa các process (tức là các chương trình đang chạy) trong máy tính. Phương thức truyền thông mà mạng máy tính sử dụng là phương thức client-server (C/S) và phương thức peer-to-peer (P2P).
+6. Cả client và server đều chỉ các process ứng dụng liên quan trong truyền thông. Client là bên yêu cầu dịch vụ, server là bên cung cấp dịch vụ.
+7. Theo phạm vi hoạt động khác nhau, mạng máy tính chia thành mạng diện rộng WAN, mạng đô thị MAN, mạng cục bộ LAN, mạng cá nhân PAN.
+8. **Các chỉ số hiệu năng phổ biến nhất của mạng máy tính là: tốc độ, băng thông, thông lượng, độ trễ (độ trễ gửi, độ trễ xử lý, độ trễ hàng đợi), tích độ trễ băng thông, thời gian khứ hồi và tỷ lệ sử dụng kênh.**
+9. Giao thức mạng, tức là giao thức, là các quy tắc được thiết lập để thực hiện trao đổi dữ liệu trong mạng. Các lớp của mạng máy tính và tập hợp giao thức của chúng gọi là kiến trúc mạng.
+10. **Kiến trúc năm lớp bao gồm lớp ứng dụng, lớp vận chuyển, lớp mạng (lớp internet), lớp liên kết dữ liệu, lớp vật lý. Giao thức quan trọng nhất của lớp vận chuyển là TCP và UDP, giao thức quan trọng nhất của lớp mạng là IP.**
 
 ![](https://oss.javaguide.cn/p3-juejin/acec0fa44041449b8088872dcd7c0b3a~tplv-k3u1fbpfcp-zoom-1.gif)
 
-下面的内容会介绍计算机网络的五层体系结构：**物理层+数据链路层+网络层（网际层）+运输层+应用层**。
+Nội dung sau sẽ giới thiệu kiến trúc năm lớp của mạng máy tính: **Lớp vật lý + Lớp liên kết dữ liệu + Lớp mạng (Lớp internet) + Lớp vận chuyển + Lớp ứng dụng**.
 
-## 2. 物理层（Physical Layer）
+## 2. Lớp vật lý (Physical Layer)
 
-![物理层](https://oss.javaguide.cn/p3-juejin/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp vật lý](https://oss.javaguide.cn/p3-juejin/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 2.1. 基本术语
+### 2.1. Thuật ngữ cơ bản
 
-1. **数据（data）**：运送消息的实体。
-2. **信号（signal）**：数据的电气的或电磁的表现。或者说信号是适合在传输介质上传输的对象。
-3. **码元（ code）**：在使用时间域（或简称为时域）的波形来表示数字信号时，代表不同离散数值的基本波形。
-4. **单工（simplex ）**：只能有一个方向的通信而没有反方向的交互。
-5. **半双工（half duplex ）**：通信的双方都可以发送信息，但不能双方同时发送(当然也就不能同时接收)。
-6. **全双工（full duplex）**：通信的双方可以同时发送和接收信息。
+1. **Dữ liệu (data)**: Thực thể mang thông điệp.
+2. **Tín hiệu (signal)**: Biểu hiện điện hoặc điện từ của dữ liệu. Hay nói cách khác, tín hiệu là đối tượng phù hợp để truyền trên môi trường truyền dẫn.
+3. **Phần tử mã (code)**: Khi dùng dạng sóng trong miền thời gian (hay còn gọi tắt là miền thời gian) để biểu diễn tín hiệu số, dạng sóng cơ bản biểu diễn các giá trị rời rạc khác nhau.
+4. **Đơn công (simplex)**: Chỉ có thể truyền thông theo một hướng mà không có tương tác theo hướng ngược lại.
+5. **Bán song công (half duplex)**: Cả hai bên truyền thông đều có thể gửi thông tin, nhưng không thể gửi đồng thời (tất nhiên cũng không thể nhận đồng thời).
+6. **Song công toàn phần (full duplex)**: Cả hai bên truyền thông có thể gửi và nhận thông tin cùng lúc.
 
    ![](https://oss.javaguide.cn/p3-juejin/b1f02095b7c34eafb3c255ee81f58c2a~tplv-k3u1fbpfcp-zoom-1.png)
 
-7. **失真**：失去真实性，主要是指接受到的信号和发送的信号不同，有磨损和衰减。影响失真程度的因素：1.码元传输速率 2.信号传输距离 3.噪声干扰 4.传输媒体质量
+7. **Méo tín hiệu (distortion)**: Mất tính trung thực, chủ yếu là tín hiệu nhận được khác với tín hiệu gửi, có mài mòn và suy hao. Các yếu tố ảnh hưởng đến mức độ méo: 1. Tốc độ truyền phần tử mã 2. Khoảng cách truyền tín hiệu 3. Nhiễu 4. Chất lượng môi trường truyền dẫn
 
    ![](https://oss.javaguide.cn/p3-juejin/f939342f543046459ffabdc476f7bca4~tplv-k3u1fbpfcp-zoom-1.png)
 
-8. **奈氏准则**：在任何信道中，码元的传输的效率是有上限的，传输速率超过此上限，就会出现严重的码间串扰问题，使接收端对码元的判决（即识别）成为不可能。
-9. **香农定理**：在带宽受限且有噪声的信道中，为了不产生误差，信息的数据传输速率有上限值。
-10. **基带信号（baseband signal）**：来自信源的信号。指没有经过调制的数字信号或模拟信号。
-11. **带通（频带）信号（bandpass signal）**：把基带信号经过载波调制后，把信号的频率范围搬移到较高的频段以便在信道中传输（即仅在一段频率范围内能够通过信道），这里调制过后的信号就是带通信号。
-12. **调制（modulation ）**：对信号源的信息进行处理后加到载波信号上，使其变为适合在信道传输的形式的过程。
-13. **信噪比（signal-to-noise ratio ）**：指信号的平均功率和噪声的平均功率之比，记为 S/N。信噪比（dB）=10\*log10（S/N）。
-14. **信道复用（channel multiplexing ）**：指多个用户共享同一个信道。（并不一定是同时）。
+8. **Tiêu chuẩn Nyquist (Nyquist criterion)**: Trong bất kỳ kênh nào, hiệu quả truyền phần tử mã có giới hạn trên, nếu tốc độ truyền vượt quá giới hạn trên này, sẽ xảy ra vấn đề nhiễu liên phần tử mã nghiêm trọng, khiến việc phán đoán (tức nhận dạng) phần tử mã ở phía thu trở nên không thể.
+9. **Định lý Shannon (Shannon theorem)**: Trong kênh bị giới hạn băng thông và có nhiễu, để không tạo ra lỗi, tốc độ truyền dữ liệu thông tin có giới hạn trên.
+10. **Tín hiệu baseband (baseband signal)**: Tín hiệu từ nguồn. Chỉ tín hiệu số hoặc tín hiệu tương tự chưa được điều chế.
+11. **Tín hiệu bandpass (bandpass signal)**: Tín hiệu baseband được điều chế sóng mang, dịch chuyển dải tần tín hiệu lên dải tần cao hơn để truyền trong kênh (tức chỉ có thể đi qua kênh trong một dải tần nhất định), tín hiệu sau khi điều chế là tín hiệu bandpass.
+12. **Điều chế (modulation)**: Quá trình xử lý thông tin từ nguồn tín hiệu rồi thêm vào tín hiệu sóng mang, biến nó thành dạng phù hợp để truyền trong kênh.
+13. **Tỷ số tín hiệu trên nhiễu (signal-to-noise ratio)**: Tỷ lệ giữa công suất trung bình của tín hiệu và công suất trung bình của nhiễu, ký hiệu là S/N. SNR (dB) = 10\*log10(S/N).
+14. **Ghép kênh (channel multiplexing)**: Nhiều người dùng chia sẻ cùng một kênh. (Không nhất thiết phải cùng lúc).
 
-    ![信道复用技术](https://oss.javaguide.cn/p3-juejin/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.png)
+    ![Công nghệ ghép kênh](https://oss.javaguide.cn/p3-juejin/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.png)
 
-15. **比特率（bit rate ）**：单位时间（每秒）内传送的比特数。
-16. **波特率（baud rate）**：单位时间载波调制状态改变的次数。针对数据信号对载波的调制速率。
-17. **复用（multiplexing）**：共享信道的方法。
-18. **ADSL（Asymmetric Digital Subscriber Line ）**：非对称数字用户线。
-19. **光纤同轴混合网（HFC 网）**：在目前覆盖范围很广的有线电视网的基础上开发的一种居民宽带接入网
+15. **Tốc độ bit (bit rate)**: Số bit được truyền trong đơn vị thời gian (mỗi giây).
+16. **Tốc độ baud (baud rate)**: Số lần thay đổi trạng thái điều chế sóng mang trong đơn vị thời gian. Đối với tốc độ điều chế của tín hiệu dữ liệu lên sóng mang.
+17. **Ghép kênh (multiplexing)**: Phương pháp chia sẻ kênh.
+18. **ADSL (Asymmetric Digital Subscriber Line)**: Đường dây thuê bao số không đối xứng.
+19. **Mạng lai quang-đồng trục (HFC network)**: Một loại mạng truy cập băng rộng dân dụng được phát triển trên cơ sở mạng truyền hình cáp hiện có có phạm vi bao phủ rộng.
 
-### 2.2. 重要知识点总结
+### 2.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. **物理层的主要任务就是确定与传输媒体接口有关的一些特性，如机械特性，电气特性，功能特性，过程特性。**
-2. 一个数据通信系统可划分为三大部分，即源系统，传输系统，目的系统。源系统包括源点（或源站，信源）和发送器，目的系统包括接收器和终点。
-3. **通信的目的是传送消息。如话音，文字，图像等都是消息，数据是运送消息的实体。信号则是数据的电气或电磁的表现。**
-4. 根据信号中代表消息的参数的取值方式不同，信号可分为模拟信号（或连续信号）和数字信号（或离散信号）。在使用时间域（简称时域）的波形表示数字信号时，代表不同离散数值的基本波形称为码元。
-5. 根据双方信息交互的方式，通信可划分为单向通信（或单工通信），双向交替通信（或半双工通信），双向同时通信（全双工通信）。
-6. 来自信源的信号称为基带信号。信号要在信道上传输就要经过调制。调制有基带调制和带通调制之分。最基本的带通调制方法有调幅，调频和调相。还有更复杂的调制方法，如正交振幅调制。
-7. 要提高数据在信道上的传递速率，可以使用更好的传输媒体，或使用先进的调制技术。但数据传输速率不可能任意被提高。
-8. 传输媒体可分为两大类，即导引型传输媒体（双绞线，同轴电缆，光纤）和非导引型传输媒体（无线，红外，大气激光）。
-9. 为了有效利用光纤资源，在光纤干线和用户之间广泛使用无源光网络 PON。无源光网络无需配备电源，其长期运营成本和管理成本都很低。最流行的无源光网络是以太网无源光网络 EPON 和吉比特无源光网络 GPON。
+1. **Nhiệm vụ chính của lớp vật lý là xác định một số đặc tính liên quan đến giao diện với môi trường truyền dẫn, như đặc tính cơ học, đặc tính điện, đặc tính chức năng, đặc tính quy trình.**
+2. Một hệ thống truyền thông dữ liệu có thể chia thành ba phần: hệ thống nguồn, hệ thống truyền dẫn, hệ thống đích. Hệ thống nguồn bao gồm điểm nguồn (hoặc trạm nguồn, nguồn thông tin) và bộ phát, hệ thống đích bao gồm bộ thu và điểm đích.
+3. **Mục đích của truyền thông là truyền thông điệp. Giọng nói, văn bản, hình ảnh v.v. đều là thông điệp, dữ liệu là thực thể mang thông điệp. Tín hiệu là biểu hiện điện hoặc điện từ của dữ liệu.**
+4. Theo cách lấy giá trị của tham số biểu diễn thông điệp trong tín hiệu khác nhau, tín hiệu có thể chia thành tín hiệu tương tự (hoặc tín hiệu liên tục) và tín hiệu số (hoặc tín hiệu rời rạc). Khi dùng dạng sóng trong miền thời gian để biểu diễn tín hiệu số, dạng sóng cơ bản biểu diễn các giá trị rời rạc khác nhau gọi là phần tử mã.
+5. Theo phương thức trao đổi thông tin giữa hai bên, truyền thông có thể chia thành truyền thông một chiều (hoặc truyền thông đơn công), truyền thông hai chiều xen kẽ (hoặc truyền thông bán song công), truyền thông hai chiều đồng thời (truyền thông song công toàn phần).
+6. Tín hiệu từ nguồn gọi là tín hiệu baseband. Tín hiệu cần điều chế để truyền trên kênh. Điều chế có baseband modulation và bandpass modulation. Các phương pháp bandpass modulation cơ bản nhất là điều biên, điều tần và điều pha. Còn có các phương pháp điều chế phức tạp hơn, như điều chế biên độ vuông góc (QAM).
+7. Để nâng cao tốc độ truyền dữ liệu trên kênh, có thể sử dụng môi trường truyền dẫn tốt hơn hoặc sử dụng kỹ thuật điều chế tiên tiến. Nhưng tốc độ truyền dữ liệu không thể tăng tùy ý.
+8. Môi trường truyền dẫn có thể chia thành hai loại: môi trường truyền dẫn có dẫn hướng (dây xoắn đôi, cáp đồng trục, cáp quang) và môi trường truyền dẫn không có dẫn hướng (không dây, hồng ngoại, laser khí quyển).
+9. Để sử dụng hiệu quả tài nguyên cáp quang, mạng quang thụ động PON được sử dụng rộng rãi giữa đường trục cáp quang và người dùng. Mạng quang thụ động không cần nguồn điện, chi phí vận hành và quản lý lâu dài rất thấp. Mạng quang thụ động phổ biến nhất là EPON (Ethernet PON) và GPON (Gigabit PON).
 
-### 2.3. 补充
+### 2.3. Bổ sung
 
-#### 2.3.1. 物理层主要做啥？
+#### 2.3.1. Lớp vật lý làm gì?
 
-物理层主要做的事情就是 **透明地传送比特流**。也可以将物理层的主要任务描述为确定与传输媒体的接口的一些特性，即：机械特性（接口所用接线器的一些物理属性如形状和尺寸），电气特性（接口电缆的各条线上出现的电压的范围），功能特性（某条线上出现的某一电平的电压的意义），过程特性（对于不同功能的各种可能事件的出现顺序）。
+Lớp vật lý chủ yếu làm việc là **truyền trong suốt luồng bit**. Cũng có thể mô tả nhiệm vụ chính của lớp vật lý là xác định một số đặc tính của giao diện với môi trường truyền dẫn, tức là: đặc tính cơ học (một số thuộc tính vật lý của đầu nối giao diện như hình dạng và kích thước), đặc tính điện (phạm vi điện áp xuất hiện trên các đường cáp giao diện), đặc tính chức năng (ý nghĩa của một mức điện áp nhất định xuất hiện trên một đường nào đó), đặc tính quy trình (thứ tự xuất hiện của các sự kiện khả thi cho các chức năng khác nhau).
 
-**物理层考虑的是怎样才能在连接各种计算机的传输媒体上传输数据比特流，而不是指具体的传输媒体。** 现有的计算机网络中的硬件设备和传输媒体的种类非常繁多，而且通信手段也有许多不同的方式。物理层的作用正是尽可能地屏蔽掉这些传输媒体和通信手段的差异，使物理层上面的数据链路层感觉不到这些差异，这样就可以使数据链路层只考虑完成本层的协议和服务，而不必考虑网络的具体传输媒体和通信手段是什么。
+**Lớp vật lý xem xét cách truyền luồng bit dữ liệu trên môi trường truyền dẫn kết nối các loại máy tính, chứ không phải chỉ môi trường truyền dẫn cụ thể.** Trong các mạng máy tính hiện tại, các loại thiết bị phần cứng và môi trường truyền dẫn rất đa dạng, và phương tiện truyền thông cũng có nhiều cách khác nhau. Vai trò của lớp vật lý chính là che giấu sự khác biệt của các môi trường truyền dẫn và phương tiện truyền thông này càng nhiều càng tốt, để lớp liên kết dữ liệu phía trên lớp vật lý không cảm nhận được những sự khác biệt này, cho phép lớp liên kết dữ liệu chỉ cần xem xét việc hoàn thành giao thức và dịch vụ của lớp riêng mình, mà không cần quan tâm môi trường truyền dẫn và phương tiện truyền thông cụ thể của mạng là gì.
 
-#### 2.3.2. 几种常用的信道复用技术
+#### 2.3.2. Một số kỹ thuật ghép kênh thường dùng
 
-1. **频分复用(FDM)**：所有用户在同样的时间占用不同的带宽资源。
-2. **时分复用（TDM）**：所有用户在不同的时间占用同样的频带宽度（分时不分频）。
-3. **统计时分复用 (Statistic TDM)**：改进的时分复用，能够明显提高信道的利用率。
-4. **码分复用(CDM)**：用户使用经过特殊挑选的不同码型，因此各用户之间不会造成干扰。这种系统发送的信号有很强的抗干扰能力，其频谱类似于白噪声，不易被敌人发现。
-5. **波分复用( WDM)**：波分复用就是光的频分复用。
+1. **Ghép kênh phân chia tần số (FDM - Frequency Division Multiplexing)**: Tất cả người dùng chiếm các tài nguyên băng thông khác nhau cùng lúc.
+2. **Ghép kênh phân chia thời gian (TDM - Time Division Multiplexing)**: Tất cả người dùng chiếm cùng một băng thông tần số ở các thời điểm khác nhau (phân chia thời gian không phân chia tần số).
+3. **Ghép kênh phân chia thời gian thống kê (Statistic TDM)**: TDM cải tiến, có thể cải thiện đáng kể tỷ lệ sử dụng kênh.
+4. **Ghép kênh phân chia mã (CDM - Code Division Multiplexing)**: Người dùng sử dụng các kiểu mã khác nhau được chọn đặc biệt, do đó các người dùng không gây nhiễu cho nhau. Tín hiệu do hệ thống này gửi có khả năng chống nhiễu rất mạnh, phổ của nó tương tự nhiễu trắng, không dễ bị kẻ thù phát hiện.
+5. **Ghép kênh phân chia bước sóng (WDM - Wavelength Division Multiplexing)**: Ghép kênh phân chia bước sóng chính là ghép kênh phân chia tần số của ánh sáng.
 
-#### 2.3.3. 几种常用的宽带接入技术，主要是 ADSL 和 FTTx
+#### 2.3.3. Một số kỹ thuật truy cập băng rộng thường dùng, chủ yếu là ADSL và FTTx
 
-用户到互联网的宽带接入方法有非对称数字用户线 ADSL（用数字技术对现有的模拟电话线进行改造，而不需要重新布线。ADSL 的快速版本是甚高速数字用户线 VDSL。），光纤同轴混合网 HFC（是在目前覆盖范围很广的有线电视网的基础上开发的一种居民宽带接入网）和 FTTx（即光纤到······）。
+Các phương pháp truy cập băng rộng từ người dùng đến Internet bao gồm ADSL không đối xứng (sử dụng kỹ thuật số để cải tạo đường điện thoại tương tự hiện có, không cần đi dây lại. Phiên bản nhanh của ADSL là VDSL - Very high speed Digital Subscriber Line), mạng lai quang-đồng trục HFC (loại mạng truy cập băng rộng dân dụng được phát triển trên cơ sở mạng truyền hình cáp hiện có có phạm vi bao phủ rộng) và FTTx (tức là cáp quang đến...).
 
-## 3. 数据链路层（Data Link Layer）
+## 3. Lớp liên kết dữ liệu (Data Link Layer)
 
-![数据链路层](https://oss.javaguide.cn/p3-juejin/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp liên kết dữ liệu](https://oss.javaguide.cn/p3-juejin/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 3.1. 基本术语
+### 3.1. Thuật ngữ cơ bản
 
-1. **链路（link）**：一个结点到相邻结点的一段物理链路。
-2. **数据链路（data link）**：把实现控制数据运输的协议的硬件和软件加到链路上就构成了数据链路。
-3. **循环冗余检验 CRC（Cyclic Redundancy Check）**：为了保证数据传输的可靠性，CRC 是数据链路层广泛使用的一种检错技术。
-4. **帧（frame）**：一个数据链路层的传输单元，由一个数据链路层首部和其携带的封包所组成协议数据单元。
-5. **MTU（Maximum Transfer Uint ）**：最大传送单元。帧的数据部分的长度上限。
-6. **误码率 BER（Bit Error Rate ）**：在一段时间内，传输错误的比特占所传输比特总数的比率。
-7. **PPP（Point-to-Point Protocol ）**：点对点协议。即用户计算机和 ISP 进行通信时所使用的数据链路层协议。以下是 PPP 帧的示意图：
+1. **Liên kết (link)**: Một đoạn đường vật lý từ nút này đến nút lân cận.
+2. **Liên kết dữ liệu (data link)**: Thêm phần cứng và phần mềm thực hiện giao thức kiểm soát truyền dữ liệu vào liên kết là tạo thành liên kết dữ liệu.
+3. **Kiểm tra dư vòng CRC (Cyclic Redundancy Check)**: Để đảm bảo độ tin cậy của truyền dữ liệu, CRC là một kỹ thuật phát hiện lỗi được sử dụng rộng rãi trong lớp liên kết dữ liệu.
+4. **Khung (frame)**: Một đơn vị truyền của lớp liên kết dữ liệu, bao gồm một header lớp liên kết dữ liệu và PDU gói được mang theo.
+5. **MTU (Maximum Transfer Unit)**: Đơn vị truyền tối đa. Giới hạn trên của độ dài phần dữ liệu của khung.
+6. **Tỷ lệ lỗi bit BER (Bit Error Rate)**: Trong một khoảng thời gian, tỷ lệ bit truyền sai trong tổng số bit được truyền.
+7. **PPP (Point-to-Point Protocol)**: Giao thức điểm-điểm. Tức là giao thức lớp liên kết dữ liệu được sử dụng khi máy tính người dùng giao tiếp với ISP. Dưới đây là sơ đồ khung PPP:
    ![PPP](https://oss.javaguide.cn/p3-juejin/6b0310d3103c4149a725a28aaf001899~tplv-k3u1fbpfcp-zoom-1.jpeg)
-8. **MAC 地址（Media Access Control 或者 Medium Access Control）**：意译为媒体访问控制，或称为物理地址、硬件地址，用来定义网络设备的位置。在 OSI 模型中，第三层网络层负责 IP 地址，第二层数据链路层则负责 MAC 地址。因此一个主机会有一个 MAC 地址，而每个网络位置会有一个专属于它的 IP 地址 。地址是识别某个系统的重要标识符，“名字指出我们所要寻找的资源，地址指出资源所在的地方，路由告诉我们如何到达该处。”
+8. **Địa chỉ MAC (Media Access Control hoặc Medium Access Control)**: Dịch nghĩa là kiểm soát truy cập phương tiện, hay còn gọi là địa chỉ vật lý, địa chỉ phần cứng, dùng để xác định vị trí của thiết bị mạng. Trong mô hình OSI, lớp 3 mạng chịu trách nhiệm địa chỉ IP, lớp 2 liên kết dữ liệu chịu trách nhiệm địa chỉ MAC. Do đó một host sẽ có một địa chỉ MAC, và mỗi vị trí mạng sẽ có một địa chỉ IP riêng dành cho nó. Địa chỉ là định danh quan trọng để nhận dạng một hệ thống, "tên chỉ ra tài nguyên chúng ta đang tìm kiếm, địa chỉ chỉ ra nơi tài nguyên đang ở, routing cho chúng ta biết cách đến đó."
 
    ![ARP (Address Resolution Protocol) explained](https://oss.javaguide.cn/p3-juejin/057b83e7ec5b4c149e56255a3be89141~tplv-k3u1fbpfcp-zoom-1.png)
 
-9. **网桥（bridge）**：一种用于数据链路层实现中继，连接两个或多个局域网的网络互连设备。
-10. **交换机（switch ）**：广义的来说，交换机指的是一种通信系统中完成信息交换的设备。这里工作在数据链路层的交换机指的是交换式集线器，其实质是一个多接口的网桥
+9. **Bridge (cầu nối)**: Thiết bị kết nối mạng dùng để relay ở lớp liên kết dữ liệu, kết nối hai hoặc nhiều mạng cục bộ.
+10. **Switch (bộ chuyển mạch)**: Theo nghĩa rộng, switch là thiết bị hoàn thành trao đổi thông tin trong hệ thống truyền thông. Switch hoạt động ở lớp liên kết dữ liệu ở đây là switching hub, thực chất là một bridge nhiều cổng.
 
-### 3.2. 重要知识点总结
+### 3.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. 链路是从一个结点到相邻结点的一段物理链路，数据链路则在链路的基础上增加了一些必要的硬件（如网络适配器）和软件（如协议的实现）
-2. 数据链路层使用的主要是**点对点信道**和**广播信道**两种。
-3. 数据链路层传输的协议数据单元是帧。数据链路层的三个基本问题是：**封装成帧**，**透明传输**和**差错检测**
-4. **循环冗余检验 CRC** 是一种检错方法，而帧检验序列 FCS 是添加在数据后面的冗余码
-5. **点对点协议 PPP** 是数据链路层使用最多的一种协议，它的特点是：简单，只检测差错而不去纠正差错，不使用序号，也不进行流量控制，可同时支持多种网络层协议
-6. PPPoE 是为宽带上网的主机使用的链路层协议
-7. **局域网的优点是：具有广播功能，从一个站点可方便地访问全网；便于系统的扩展和逐渐演变；提高了系统的可靠性，可用性和生存性。**
-8. 计算机与外接局域网通信需要通过通信适配器（或网络适配器），它又称为网络接口卡或网卡。**计算器的硬件地址就在适配器的 ROM 中**。
-9. 以太网采用的无连接的工作方式，对发送的数据帧不进行编号，也不要求对方发回确认。目的站收到有差错帧就把它丢掉，其他什么也不做
-10. 以太网采用的协议是具有冲突检测的**载波监听多点接入 CSMA/CD**。协议的特点是：**发送前先监听，边发送边监听，一旦发现总线上出现了碰撞，就立即停止发送。然后按照退避算法等待一段随机时间后再次发送。** 因此，每一个站点在自己发送数据之后的一小段时间内，存在着遭遇碰撞的可能性。以太网上的各站点平等地争用以太网信道
-11. 以太网的适配器具有过滤功能，它只接收单播帧，广播帧和多播帧。
-12. 使用集线器可以在物理层扩展以太网（扩展后的以太网仍然是一个网络）
+1. Liên kết là một đoạn đường vật lý từ nút này đến nút lân cận, liên kết dữ liệu bổ sung một số phần cứng cần thiết (như network adapter) và phần mềm (như triển khai giao thức) trên cơ sở liên kết.
+2. Lớp liên kết dữ liệu chủ yếu sử dụng hai loại kênh: **kênh điểm-điểm** và **kênh broadcast**.
+3. Đơn vị dữ liệu giao thức được truyền trong lớp liên kết dữ liệu là khung. Ba vấn đề cơ bản của lớp liên kết dữ liệu là: **đóng gói thành khung**, **truyền trong suốt** và **phát hiện lỗi**.
+4. **Kiểm tra dư vòng CRC** là một phương pháp phát hiện lỗi, còn FCS (Frame Check Sequence) là mã dư được thêm vào sau dữ liệu.
+5. **Giao thức điểm-điểm PPP** là giao thức được sử dụng nhiều nhất trong lớp liên kết dữ liệu, đặc điểm của nó là: đơn giản, chỉ phát hiện lỗi mà không sửa lỗi, không sử dụng số thứ tự, cũng không thực hiện kiểm soát luồng, có thể hỗ trợ nhiều giao thức lớp mạng đồng thời.
+6. PPPoE là giao thức lớp liên kết sử dụng cho host truy cập băng rộng.
+7. **Ưu điểm của LAN là: có chức năng broadcast, có thể truy cập toàn mạng thuận tiện từ một trạm; dễ mở rộng và phát triển dần dần; cải thiện độ tin cậy, tính khả dụng và khả năng sống còn của hệ thống.**
+8. Máy tính cần giao tiếp với LAN bên ngoài thông qua communication adapter (hoặc network adapter), còn gọi là network interface card hoặc NIC. **Địa chỉ phần cứng của máy tính nằm trong ROM của adapter**.
+9. Ethernet sử dụng phương thức làm việc không kết nối, không đánh số các khung dữ liệu được gửi, cũng không yêu cầu phía kia gửi xác nhận. Trạm đích nhận được khung lỗi thì bỏ đi, không làm gì khác.
+10. Giao thức Ethernet sử dụng là **CSMA/CD (Carrier Sense Multiple Access with Collision Detection)**. Đặc điểm của giao thức: **nghe trước khi gửi, nghe trong khi gửi, ngay khi phát hiện xung đột trên bus, lập tức dừng gửi. Sau đó chờ một khoảng thời gian ngẫu nhiên theo thuật toán back-off rồi gửi lại.** Do đó, mỗi trạm trong một khoảng thời gian nhỏ sau khi tự gửi dữ liệu đều có khả năng gặp xung đột. Các trạm trên Ethernet cạnh tranh bình đẳng kênh Ethernet.
+11. Adapter Ethernet có chức năng lọc, nó chỉ nhận khung unicast, khung broadcast và khung multicast.
+12. Sử dụng hub có thể mở rộng Ethernet ở lớp vật lý (Ethernet mở rộng vẫn là một mạng).
 
-### 3.3. 补充
+### 3.3. Bổ sung
 
-1. 数据链路层的点对点信道和广播信道的特点，以及这两种信道所使用的协议（PPP 协议以及 CSMA/CD 协议）的特点
-2. 数据链路层的三个基本问题：**封装成帧**，**透明传输**，**差错检测**
-3. 以太网的 MAC 层硬件地址
-4. 适配器，转发器，集线器，网桥，以太网交换机的作用以及适用场合
+1. Đặc điểm của kênh điểm-điểm và kênh broadcast trong lớp liên kết dữ liệu, và đặc điểm của các giao thức sử dụng cho hai loại kênh này (giao thức PPP và giao thức CSMA/CD).
+2. Ba vấn đề cơ bản của lớp liên kết dữ liệu: **đóng gói thành khung**, **truyền trong suốt**, **phát hiện lỗi**.
+3. Địa chỉ phần cứng MAC của Ethernet.
+4. Vai trò và tình huống áp dụng của adapter, repeater, hub, bridge, Ethernet switch.
 
-## 4. 网络层（Network Layer）
+## 4. Lớp mạng (Network Layer)
 
-![网络层](https://oss.javaguide.cn/p3-juejin/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp mạng](https://oss.javaguide.cn/p3-juejin/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 4.1. 基本术语
+### 4.1. Thuật ngữ cơ bản
 
-1. **虚电路（Virtual Circuit）** : 在两个终端设备的逻辑或物理端口之间，通过建立的双向的透明传输通道。虚电路表示这只是一条逻辑上的连接，分组都沿着这条逻辑连接按照存储转发方式传送，而并不是真正建立了一条物理连接。
-2. **IP（Internet Protocol ）** : 网际协议 IP 是 TCP/IP 体系中两个最主要的协议之一，是 TCP/IP 体系结构网际层的核心。配套的有 ARP，RARP，ICMP，IGMP。
-3. **ARP（Address Resolution Protocol）** : 地址解析协议。地址解析协议 ARP 把 IP 地址解析为硬件地址。
-4. **ICMP（Internet Control Message Protocol ）**：网际控制报文协议 （ICMP 允许主机或路由器报告差错情况和提供有关异常情况的报告）。
-5. **子网掩码（subnet mask ）**：它是一种用来指明一个 IP 地址的哪些位标识的是主机所在的子网以及哪些位标识的是主机的位掩码。子网掩码不能单独存在，它必须结合 IP 地址一起使用。
-6. **CIDR（ Classless Inter-Domain Routing ）**：无分类域间路由选择 （特点是消除了传统的 A 类、B 类和 C 类地址以及划分子网的概念，并使用各种长度的“网络前缀”(network-prefix)来代替分类地址中的网络号和子网号）。
-7. **默认路由（default route）**：当在路由表中查不到能到达目的地址的路由时，路由器选择的路由。默认路由还可以减小路由表所占用的空间和搜索路由表所用的时间。
-8. **路由选择算法（Routing Algorithm）**：路由选择协议的核心部分。因特网采用自适应的，分层次的路由选择协议。
+1. **Mạch ảo (Virtual Circuit)**: Kênh truyền trong suốt hai chiều được thiết lập giữa các cổng logic hoặc vật lý của hai thiết bị đầu cuối. Mạch ảo có nghĩa là đây chỉ là một kết nối logic, các gói được truyền theo kết nối logic này theo phương thức lưu và chuyển tiếp, chứ không thực sự thiết lập kết nối vật lý.
+2. **IP (Internet Protocol)**: Giao thức Internet IP là một trong hai giao thức chính nhất trong hệ thống TCP/IP, là lõi của lớp internet trong kiến trúc TCP/IP. Kèm theo có ARP, RARP, ICMP, IGMP.
+3. **ARP (Address Resolution Protocol)**: Giao thức phân giải địa chỉ. ARP phân giải địa chỉ IP thành địa chỉ phần cứng.
+4. **ICMP (Internet Control Message Protocol)**: Giao thức thông điệp kiểm soát Internet (ICMP cho phép host hoặc router báo cáo tình huống lỗi và cung cấp báo cáo về các tình huống bất thường).
+5. **Subnet mask**: Đây là bitmask dùng để chỉ ra các bit nào của địa chỉ IP xác định subnet mà host thuộc về và các bit nào xác định host. Subnet mask không thể tồn tại độc lập, nó phải kết hợp với địa chỉ IP để sử dụng.
+6. **CIDR (Classless Inter-Domain Routing)**: Định tuyến liên miền không phân lớp (đặc điểm là loại bỏ khái niệm địa chỉ lớp A, B và C truyền thống và phân chia subnet, sử dụng "tiền tố mạng" (network-prefix) với độ dài khác nhau để thay thế số mạng và số subnet trong địa chỉ phân lớp).
+7. **Default route (tuyến mặc định)**: Tuyến được router chọn khi không tìm thấy tuyến đến địa chỉ đích trong bảng định tuyến. Default route cũng có thể giảm không gian chiếm bởi bảng định tuyến và thời gian tìm kiếm trong bảng định tuyến.
+8. **Thuật toán định tuyến (Routing Algorithm)**: Phần cốt lõi của giao thức định tuyến. Internet sử dụng giao thức định tuyến thích ứng, phân lớp.
 
-### 4.2. 重要知识点总结
+### 4.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. **TCP/IP 协议中的网络层向上只提供简单灵活的，无连接的，尽最大努力交付的数据报服务。网络层不提供服务质量的承诺，不保证分组交付的时限，所传送的分组可能出错、丢失、重复和失序。进程之间通信的可靠性由运输层负责**
-2. 在互联网的交付有两种，一是在本网络直接交付不用经过路由器，另一种是和其他网络的间接交付，至少经过一个路由器，但最后一次一定是直接交付
-3. 分类的 IP 地址由网络号字段（指明网络）和主机号字段（指明主机）组成。网络号字段最前面的类别指明 IP 地址的类别。IP 地址是一种分等级的地址结构。IP 地址管理机构分配 IP 地址时只分配网络号，主机号由得到该网络号的单位自行分配。路由器根据目的主机所连接的网络号来转发分组。一个路由器至少连接到两个网络，所以一个路由器至少应当有两个不同的 IP 地址
-4. IP 数据报分为首部和数据两部分。首部的前一部分是固定长度，共 20 字节，是所有 IP 数据包必须具有的（源地址，目的地址，总长度等重要地段都固定在首部）。一些长度可变的可选字段固定在首部的后面。IP 首部中的生存时间给出了 IP 数据报在互联网中所能经过的最大路由器数。可防止 IP 数据报在互联网中无限制的兜圈子。
-5. **地址解析协议 ARP 把 IP 地址解析为硬件地址。ARP 的高速缓存可以大大减少网络上的通信量。因为这样可以使主机下次再与同样地址的主机通信时，可以直接从高速缓存中找到所需要的硬件地址而不需要再去以广播方式发送 ARP 请求分组**
-6. 无分类域间路由选择 CIDR 是解决目前 IP 地址紧缺的一个好办法。CIDR 记法在 IP 地址后面加上斜线“/”，然后写上前缀所占的位数。前缀（或网络前缀）用来指明网络，前缀后面的部分是后缀，用来指明主机。CIDR 把前缀都相同的连续的 IP 地址组成一个“CIDR 地址块”，IP 地址分配都以 CIDR 地址块为单位。
-7. 网际控制报文协议是 IP 层的协议。ICMP 报文作为 IP 数据报的数据，加上首部后组成 IP 数据报发送出去。使用 ICMP 数据报并不是为了实现可靠传输。ICMP 允许主机或路由器报告差错情况和提供有关异常情况的报告。ICMP 报文的种类有两种，即 ICMP 差错报告报文和 ICMP 询问报文。
-8. **要解决 IP 地址耗尽的问题，最根本的办法是采用具有更大地址空间的新版本 IP 协议-IPv6。** IPv6 所带来的变化有 ① 更大的地址空间（采用 128 位地址）② 灵活的首部格式 ③ 改进的选项 ④ 支持即插即用 ⑤ 支持资源的预分配 ⑥IPv6 的首部改为 8 字节对齐。
-9. **虚拟专用网络 VPN 利用公用的互联网作为本机构专用网之间的通信载体。VPN 内使用互联网的专用地址。一个 VPN 至少要有一个路由器具有合法的全球 IP 地址，这样才能和本系统的另一个 VPN 通过互联网进行通信。所有通过互联网传送的数据都需要加密。**
-10. MPLS 的特点是：① 支持面向连接的服务质量 ② 支持流量工程，平衡网络负载 ③ 有效的支持虚拟专用网 VPN。MPLS 在入口节点给每一个 IP 数据报打上固定长度的“标记”，然后根据标记在第二层（链路层）用硬件进行转发（在标记交换路由器中进行标记交换），因而转发速率大大加快。
+1. **Lớp mạng trong giao thức TCP/IP chỉ cung cấp dịch vụ datagram đơn giản, linh hoạt, không kết nối, cố gắng giao tốt nhất. Lớp mạng không cam kết chất lượng dịch vụ, không đảm bảo thời hạn giao gói, các gói được truyền có thể bị lỗi, mất mát, trùng lặp và mất thứ tự. Độ tin cậy của truyền thông giữa các process do lớp vận chuyển chịu trách nhiệm.**
+2. Có hai loại giao hàng trên Internet, một là giao hàng trực tiếp trong cùng mạng không cần qua router, loại kia là giao hàng gián tiếp với các mạng khác, đi qua ít nhất một router, nhưng lần cuối cùng nhất định là giao hàng trực tiếp.
+3. Địa chỉ IP phân lớp bao gồm trường số mạng (chỉ định mạng) và trường số host (chỉ định host). Trường số mạng ở phần đầu nhất chỉ ra loại địa chỉ IP. Địa chỉ IP là cấu trúc địa chỉ phân cấp. Khi cơ quan quản lý địa chỉ IP phân bổ địa chỉ IP, chỉ phân bổ số mạng, số host do đơn vị nhận số mạng đó tự phân bổ. Router chuyển tiếp gói tin dựa trên số mạng mà host đích kết nối. Một router kết nối đến ít nhất hai mạng, vì vậy một router phải có ít nhất hai địa chỉ IP khác nhau.
+4. IP datagram chia thành header và data hai phần. Phần trước của header là độ dài cố định, tổng cộng 20 byte, đây là phần tất cả IP packet đều phải có (địa chỉ nguồn, địa chỉ đích, tổng độ dài và các trường quan trọng khác đều cố định trong header). Một số trường tùy chọn có độ dài biến đổi được cố định ở phần sau của header. Time to live trong IP header chỉ số router tối đa mà IP datagram có thể đi qua trong Internet. Có thể ngăn IP datagram đi vòng vô hạn trên Internet.
+5. **Giao thức phân giải địa chỉ ARP phân giải địa chỉ IP thành địa chỉ phần cứng. Cache tốc độ cao của ARP có thể giảm đáng kể lưu lượng truyền thông trên mạng. Vì vậy khi host lần sau giao tiếp với host có cùng địa chỉ, có thể tìm thấy địa chỉ phần cứng cần thiết trực tiếp từ cache tốc độ cao mà không cần gửi ARP request lại theo cách broadcast.**
+6. CIDR không phân lớp là một giải pháp tốt để giải quyết tình trạng thiếu địa chỉ IP hiện tại. Ký pháp CIDR thêm dấu gạch chéo "/" sau địa chỉ IP, sau đó viết số bit mà tiền tố chiếm. Tiền tố (hoặc network prefix) dùng để chỉ định mạng, phần sau tiền tố là hậu tố, dùng để chỉ định host. CIDR gộp các địa chỉ IP liên tiếp có tiền tố giống nhau thành một "CIDR address block", phân bổ địa chỉ IP đều theo đơn vị CIDR address block.
+7. ICMP là giao thức của lớp IP. ICMP message được gửi đi như dữ liệu của IP datagram, thêm header tạo thành IP datagram gửi đi. Sử dụng ICMP datagram không phải để thực hiện truyền đáng tin cậy. ICMP cho phép host hoặc router báo cáo tình huống lỗi và cung cấp báo cáo về các tình huống bất thường. Có hai loại ICMP message: ICMP error reporting message và ICMP inquiry message.
+8. **Để giải quyết vấn đề cạn kiệt địa chỉ IP, giải pháp căn bản nhất là sử dụng phiên bản IP mới với không gian địa chỉ lớn hơn - IPv6.** Những thay đổi mà IPv6 mang lại: ① Không gian địa chỉ lớn hơn (sử dụng địa chỉ 128 bit) ② Format header linh hoạt ③ Options cải tiến ④ Hỗ trợ plug-and-play ⑤ Hỗ trợ pre-allocation tài nguyên ⑥ Header IPv6 được căn chỉnh 8 byte.
+9. **Mạng riêng ảo VPN sử dụng Internet công cộng như phương tiện truyền thông giữa các mạng riêng của tổ chức. VPN sử dụng địa chỉ riêng của Internet bên trong. Một VPN phải có ít nhất một router có địa chỉ IP toàn cầu hợp lệ để có thể giao tiếp với VPN khác của cùng hệ thống qua Internet. Tất cả dữ liệu được truyền qua Internet cần được mã hóa.**
+10. Đặc điểm của MPLS: ① Hỗ trợ chất lượng dịch vụ hướng kết nối ② Hỗ trợ traffic engineering, cân bằng tải mạng ③ Hỗ trợ hiệu quả VPN. MPLS đánh "nhãn" có độ dài cố định lên mỗi IP datagram tại node đầu vào, sau đó dựa trên nhãn để chuyển tiếp bằng phần cứng ở lớp 2 (lớp liên kết) (thực hiện label switching tại label switching router), do đó tốc độ chuyển tiếp tăng lên đáng kể.
 
-## 5. 传输层（Transport Layer）
+## 5. Lớp vận chuyển (Transport Layer)
 
-![传输层](https://oss.javaguide.cn/p3-juejin/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp vận chuyển](https://oss.javaguide.cn/p3-juejin/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 5.1. 基本术语
+### 5.1. Thuật ngữ cơ bản
 
-1. **进程（process）**：指计算机中正在运行的程序实体。
-2. **应用进程互相通信**：一台主机的进程和另一台主机中的一个进程交换数据的过程（另外注意通信真正的端点不是主机而是主机中的进程，也就是说端到端的通信是应用进程之间的通信）。
-3. **传输层的复用与分用**：复用指发送方不同的进程都可以通过同一个运输层协议传送数据。分用指接收方的运输层在剥去报文的首部后能把这些数据正确的交付到目的应用进程。
-4. **TCP（Transmission Control Protocol）**：传输控制协议。
-5. **UDP（User Datagram Protocol）**：用户数据报协议。
+1. **Process (tiến trình)**: Chỉ thực thể chương trình đang chạy trong máy tính.
+2. **Giao tiếp giữa các process ứng dụng**: Quá trình một process trên host này trao đổi dữ liệu với một process trên host khác (lưu ý thêm rằng điểm cuối thực sự của truyền thông không phải là host mà là process trong host, tức là truyền thông đầu-cuối là truyền thông giữa các process ứng dụng).
+3. **Multiplexing và demultiplexing ở lớp vận chuyển**: Multiplexing nghĩa là các process khác nhau ở phía gửi đều có thể truyền dữ liệu qua cùng một giao thức lớp vận chuyển. Demultiplexing nghĩa là lớp vận chuyển ở phía nhận sau khi gỡ header của message có thể giao đúng dữ liệu đến process ứng dụng đích.
+4. **TCP (Transmission Control Protocol)**: Giao thức điều khiển truyền dữ liệu.
+5. **UDP (User Datagram Protocol)**: Giao thức datagram người dùng.
 
-   ![TCP 和 UDP](https://oss.javaguide.cn/p3-juejin/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.png)
+   ![TCP và UDP](https://oss.javaguide.cn/p3-juejin/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.png)
 
-6. **端口（port）**：端口的目的是为了确认对方机器的哪个进程在与自己进行交互，比如 MSN 和 QQ 的端口不同，如果没有端口就可能出现 QQ 进程和 MSN 交互错误。端口又称协议端口号。
-7. **停止等待协议（stop-and-wait）**：指发送方每发送完一个分组就停止发送，等待对方确认，在收到确认之后在发送下一个分组。
-8. **流量控制** : 就是让发送方的发送速率不要太快，既要让接收方来得及接收，也不要使网络发生拥塞。
-9. **拥塞控制**：防止过多的数据注入到网络中，这样可以使网络中的路由器或链路不致过载。拥塞控制所要做的都有一个前提，就是网络能够承受现有的网络负荷。
+6. **Port (cổng)**: Mục đích của port là để xác nhận process nào của máy kia đang tương tác với mình, ví dụ MSN và QQ có port khác nhau, nếu không có port có thể xảy ra lỗi process QQ tương tác với MSN. Port còn gọi là protocol port number.
+7. **Stop-and-wait protocol**: Chỉ sau khi bên gửi gửi xong một gói thì dừng gửi, chờ xác nhận của phía kia, sau khi nhận được xác nhận mới gửi gói tiếp theo.
+8. **Kiểm soát luồng (flow control)**: Không để tốc độ gửi của bên gửi quá nhanh, vừa để bên nhận kịp nhận, vừa không gây tắc nghẽn mạng.
+9. **Kiểm soát tắc nghẽn (congestion control)**: Ngăn quá nhiều dữ liệu được đưa vào mạng, để các router hoặc link trong mạng không bị quá tải. Điều kiện tiên quyết cho mọi việc kiểm soát tắc nghẽn là mạng có thể chịu được tải mạng hiện tại.
 
-### 5.2. 重要知识点总结
+### 5.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. **运输层提供应用进程之间的逻辑通信，也就是说，运输层之间的通信并不是真正在两个运输层之间直接传输数据。运输层向应用层屏蔽了下面网络的细节（如网络拓补，所采用的路由选择协议等），它使应用进程之间看起来好像两个运输层实体之间有一条端到端的逻辑通信信道。**
-2. **网络层为主机提供逻辑通信，而运输层为应用进程之间提供端到端的逻辑通信。**
-3. 运输层的两个重要协议是用户数据报协议 UDP 和传输控制协议 TCP。按照 OSI 的术语，两个对等运输实体在通信时传送的数据单位叫做运输协议数据单元 TPDU（Transport Protocol Data Unit）。但在 TCP/IP 体系中，则根据所使用的协议是 TCP 或 UDP，分别称之为 TCP 报文段或 UDP 用户数据报。
-4. **UDP 在传送数据之前不需要先建立连接，远地主机在收到 UDP 报文后，不需要给出任何确认。虽然 UDP 不提供可靠交付，但在某些情况下 UDP 确是一种最有效的工作方式。 TCP 提供面向连接的服务。在传送数据之前必须先建立连接，数据传送结束后要释放连接。TCP 不提供广播或多播服务。由于 TCP 要提供可靠的，面向连接的传输服务，难以避免地增加了许多开销，如确认，流量控制，计时器以及连接管理等。这不仅使协议数据单元的首部增大很多，还要占用许多处理机资源。**
-5. 硬件端口是不同硬件设备进行交互的接口，而软件端口是应用层各种协议进程与运输实体进行层间交互的一种地址。UDP 和 TCP 的首部格式中都有源端口和目的端口这两个重要字段。当运输层收到 IP 层交上来的运输层报文时，就能够根据其首部中的目的端口号把数据交付应用层的目的应用层。（两个进程之间进行通信不光要知道对方 IP 地址而且要知道对方的端口号(为了找到对方计算机中的应用进程)）
-6. 运输层用一个 16 位端口号标志一个端口。端口号只有本地意义，它只是为了标志计算机应用层中的各个进程在和运输层交互时的层间接口。在互联网的不同计算机中，相同的端口号是没有关联的。协议端口号简称端口。虽然通信的终点是应用进程，但只要把所发送的报文交到目的主机的某个合适端口，剩下的工作（最后交付目的进程）就由 TCP 和 UDP 来完成。
-7. 运输层的端口号分为服务器端使用的端口号（0&tilde;1023 指派给熟知端口，1024&tilde;49151 是登记端口号）和客户端暂时使用的端口号（49152&tilde;65535）
-8. **UDP 的主要特点是 ① 无连接 ② 尽最大努力交付 ③ 面向报文 ④ 无拥塞控制 ⑤ 支持一对一，一对多，多对一和多对多的交互通信 ⑥ 首部开销小（只有四个字段：源端口，目的端口，长度和检验和）**
-9. **TCP 的主要特点是 ① 面向连接 ② 每一条 TCP 连接只能是一对一的 ③ 提供可靠交付 ④ 提供全双工通信 ⑤ 面向字节流**
-10. **TCP 用主机的 IP 地址加上主机上的端口号作为 TCP 连接的端点。这样的端点就叫做套接字（socket）或插口。套接字用（IP 地址：端口号）来表示。每一条 TCP 连接唯一地被通信两端的两个端点所确定。**
-11. 停止等待协议是为了实现可靠传输的，它的基本原理就是每发完一个分组就停止发送，等待对方确认。在收到确认后再发下一个分组。
-12. 为了提高传输效率，发送方可以不使用低效率的停止等待协议，而是采用流水线传输。流水线传输就是发送方可连续发送多个分组，不必每发完一个分组就停下来等待对方确认。这样可使信道上一直有数据不间断的在传送。这种传输方式可以明显提高信道利用率。
-13. 停止等待协议中超时重传是指只要超过一段时间仍然没有收到确认，就重传前面发送过的分组（认为刚才发送过的分组丢失了）。因此每发送完一个分组需要设置一个超时计时器，其重传时间应比数据在分组传输的平均往返时间更长一些。这种自动重传方式常称为自动重传请求 ARQ。另外在停止等待协议中若收到重复分组，就丢弃该分组，但同时还要发送确认。连续 ARQ 协议可提高信道利用率。发送维持一个发送窗口，凡位于发送窗口内的分组可连续发送出去，而不需要等待对方确认。接收方一般采用累积确认，对按序到达的最后一个分组发送确认，表明到这个分组位置的所有分组都已经正确收到了。
-14. TCP 报文段的前 20 个字节是固定的，其后有 40 字节长度的可选字段。如果加入可选字段后首部长度不是 4 的整数倍字节，需要在再在之后用 0 填充。因此，TCP 首部的长度取值为 20+4n 字节,最长为 60 字节。
-15. **TCP 使用滑动窗口机制。发送窗口里面的序号表示允许发送的序号。发送窗口后沿的后面部分表示已发送且已收到确认，而发送窗口前沿的前面部分表示不允许发送。发送窗口后沿的变化情况有两种可能，即不动（没有收到新的确认）和前移（收到了新的确认）。发送窗口的前沿通常是不断向前移动的。一般来说，我们总是希望数据传输更快一些。但如果发送方把数据发送的过快，接收方就可能来不及接收，这就会造成数据的丢失。所谓流量控制就是让发送方的发送速率不要太快，要让接收方来得及接收。**
-16. 在某段时间，若对网络中某一资源的需求超过了该资源所能提供的可用部分，网络的性能就要变坏。这种情况就叫拥塞。拥塞控制就是为了防止过多的数据注入到网络中，这样就可以使网络中的路由器或链路不致过载。拥塞控制所要做的都有一个前提，就是网络能够承受现有的网络负荷。拥塞控制是一个全局性的过程，涉及到所有的主机，所有的路由器，以及与降低网络传输性能有关的所有因素。相反，流量控制往往是点对点通信量的控制，是个端到端的问题。流量控制所要做到的就是抑制发送端发送数据的速率，以便使接收端来得及接收。
-17. **为了进行拥塞控制，TCP 发送方要维持一个拥塞窗口 cwnd 的状态变量。拥塞控制窗口的大小取决于网络的拥塞程度，并且动态变化。发送方让自己的发送窗口取为拥塞窗口和接收方的接受窗口中较小的一个。**
-18. **TCP 的拥塞控制采用了四种算法，即慢开始，拥塞避免，快重传和快恢复。在网络层也可以使路由器采用适当的分组丢弃策略（如主动队列管理 AQM），以减少网络拥塞的发生。**
-19. 运输连接的三个阶段，即：连接建立，数据传送和连接释放。
-20. **主动发起 TCP 连接建立的应用进程叫做客户，而被动等待连接建立的应用进程叫做服务器。TCP 连接采用三报文握手机制。服务器要确认用户的连接请求，然后客户要对服务器的确认进行确认。**
-21. TCP 的连接释放采用四报文握手机制。任何一方都可以在数据传送结束后发出连接释放的通知，待对方确认后进入半关闭状态。当另一方也没有数据再发送时，则发送连接释放通知，对方确认后就完全关闭了 TCP 连接
+1. **Lớp vận chuyển cung cấp truyền thông logic giữa các process ứng dụng, tức là truyền thông giữa các lớp vận chuyển không thực sự truyền dữ liệu trực tiếp giữa hai lớp vận chuyển. Lớp vận chuyển che giấu các chi tiết mạng bên dưới (như cấu trúc topology mạng, giao thức định tuyến được sử dụng, v.v.) khỏi lớp ứng dụng, nó làm cho các process ứng dụng trông như thể có một kênh truyền thông logic đầu-cuối giữa hai thực thể lớp vận chuyển.**
+2. **Lớp mạng cung cấp truyền thông logic cho host, còn lớp vận chuyển cung cấp truyền thông logic đầu-cuối cho các process ứng dụng.**
+3. Hai giao thức quan trọng của lớp vận chuyển là UDP (User Datagram Protocol) và TCP (Transmission Control Protocol). Theo thuật ngữ OSI, đơn vị dữ liệu được truyền khi hai thực thể vận chuyển ngang hàng giao tiếp gọi là TPDU (Transport Protocol Data Unit). Nhưng trong hệ thống TCP/IP, tùy thuộc vào giao thức sử dụng là TCP hay UDP, gọi tương ứng là TCP segment hoặc UDP user datagram.
+4. **UDP không cần thiết lập kết nối trước khi truyền dữ liệu, host từ xa nhận UDP message không cần đưa ra bất kỳ xác nhận nào. Mặc dù UDP không cung cấp giao hàng đáng tin cậy, nhưng trong một số trường hợp UDP thực sự là phương thức làm việc hiệu quả nhất. TCP cung cấp dịch vụ hướng kết nối. Phải thiết lập kết nối trước khi truyền dữ liệu, sau khi truyền dữ liệu xong phải giải phóng kết nối. TCP không cung cấp dịch vụ broadcast hoặc multicast. Vì TCP cần cung cấp dịch vụ truyền đáng tin cậy, hướng kết nối, không thể tránh khỏi việc thêm nhiều chi phí, như xác nhận, kiểm soát luồng, timer và quản lý kết nối. Điều này không chỉ làm tăng đáng kể header của PDU mà còn chiếm nhiều tài nguyên CPU.**
+5. Hardware port là giao diện cho các thiết bị phần cứng khác nhau tương tác, còn software port là một loại địa chỉ để các process giao thức lớp ứng dụng khác nhau tương tác với thực thể vận chuyển trong giao tiếp inter-layer. Cả format header của UDP và TCP đều có hai trường quan trọng là source port và destination port. Khi lớp vận chuyển nhận được transport layer message từ lớp IP, có thể giao dữ liệu đến destination application layer dựa trên destination port number trong header. (Để hai process giao tiếp với nhau không chỉ cần biết địa chỉ IP của đối phương mà còn phải biết port number của đối phương (để tìm process ứng dụng trong máy tính đối phương))
+6. Lớp vận chuyển dùng số port 16 bit để đánh dấu một port. Port number chỉ có ý nghĩa cục bộ, nó chỉ để đánh dấu giao diện inter-layer khi các process của lớp ứng dụng máy tính tương tác với lớp vận chuyển. Trong các máy tính khác nhau trên Internet, cùng port number không có liên quan. Protocol port number viết tắt là port. Mặc dù điểm cuối của truyền thông là process ứng dụng, nhưng chỉ cần giao message được gửi đến một port thích hợp nào đó của host đích, công việc còn lại (giao cuối cùng đến process đích) sẽ do TCP và UDP hoàn thành.
+7. Port number của lớp vận chuyển chia thành port number phía server sử dụng (0~1023 được gán cho well-known port, 1024~49151 là registered port number) và port number tạm thời phía client sử dụng (49152~65535).
+8. **Đặc điểm chính của UDP là ① Không kết nối ② Cố gắng giao tốt nhất ③ Hướng message ④ Không có kiểm soát tắc nghẽn ⑤ Hỗ trợ truyền thông tương tác one-to-one, one-to-many, many-to-one và many-to-many ⑥ Chi phí header nhỏ (chỉ có bốn trường: source port, destination port, length và checksum)**
+9. **Đặc điểm chính của TCP là ① Hướng kết nối ② Mỗi kết nối TCP chỉ có thể là one-to-one ③ Cung cấp giao hàng đáng tin cậy ④ Cung cấp truyền thông song công toàn phần ⑤ Hướng byte stream**
+10. **TCP dùng địa chỉ IP của host cộng với port number của host làm endpoint của kết nối TCP. Endpoint như vậy gọi là socket (ổ cắm) hoặc plug-in. Socket được biểu diễn bằng (địa chỉ IP:port number). Mỗi kết nối TCP được xác định duy nhất bởi hai endpoint ở hai đầu truyền thông.**
+11. Stop-and-wait protocol là để thực hiện truyền đáng tin cậy, nguyên lý cơ bản là gửi xong một gói thì dừng gửi, chờ xác nhận của phía kia. Sau khi nhận được xác nhận mới gửi gói tiếp theo.
+12. Để cải thiện hiệu quả truyền, bên gửi có thể không dùng stop-and-wait protocol hiệu quả thấp mà sử dụng truyền pipeline. Truyền pipeline là bên gửi có thể liên tục gửi nhiều gói, không cần dừng chờ xác nhận của phía kia sau mỗi gói. Điều này có thể giữ cho kênh luôn có dữ liệu truyền không gián đoạn. Phương thức truyền này có thể cải thiện đáng kể tỷ lệ sử dụng kênh.
+13. Retransmission timeout trong stop-and-wait protocol nghĩa là chỉ cần quá một khoảng thời gian mà vẫn chưa nhận được xác nhận, thì retransmit gói đã gửi trước đó (cho rằng gói vừa gửi đã bị mất). Do đó sau mỗi lần gửi xong một gói cần đặt một timer timeout, thời gian retransmit phải dài hơn thời gian khứ hồi trung bình trong quá trình truyền gói. Phương thức tự động retransmit này thường gọi là ARQ (Automatic Repeat reQuest). Ngoài ra trong stop-and-wait protocol nếu nhận được gói trùng lặp, hủy gói đó, nhưng đồng thời cũng phải gửi xác nhận. Continuous ARQ protocol có thể cải thiện tỷ lệ sử dụng kênh. Bên gửi duy trì một cửa sổ gửi, tất cả gói trong cửa sổ gửi đều có thể được gửi liên tục, không cần chờ xác nhận của phía kia. Phía nhận thường sử dụng cumulative acknowledgment, gửi xác nhận cho gói cuối cùng đến theo thứ tự, chỉ ra rằng tất cả các gói đến vị trí này đều đã được nhận đúng.
+14. 20 byte đầu tiên của TCP segment là cố định, theo sau là trường tùy chọn có độ dài tối đa 40 byte. Nếu thêm trường tùy chọn khiến độ dài header không phải bội số nguyên của 4 byte, cần thêm 0 vào sau đó. Do đó, độ dài header TCP có giá trị 20+4n byte, tối đa 60 byte.
+15. **TCP sử dụng cơ chế cửa sổ trượt. Số thứ tự trong cửa sổ gửi biểu thị số thứ tự được phép gửi. Phần sau phần sau của cửa sổ gửi biểu thị đã gửi và đã nhận được xác nhận, còn phần trước phần trước của cửa sổ gửi biểu thị không được phép gửi. Phần sau của cửa sổ gửi có hai khả năng thay đổi: không di chuyển (không nhận được xác nhận mới) và di chuyển về phía trước (nhận được xác nhận mới). Phần trước của cửa sổ gửi thường liên tục di chuyển về phía trước. Nói chung, chúng ta luôn muốn truyền dữ liệu nhanh hơn. Nhưng nếu bên gửi gửi dữ liệu quá nhanh, bên nhận có thể không kịp nhận, điều này sẽ gây mất dữ liệu. Kiểm soát luồng là không để tốc độ gửi của bên gửi quá nhanh, để bên nhận kịp nhận.**
+16. Trong một khoảng thời gian nhất định, nếu nhu cầu đối với một tài nguyên nhất định trong mạng vượt quá phần sẵn có mà tài nguyên đó có thể cung cấp, hiệu suất mạng sẽ xấu đi. Tình huống này gọi là tắc nghẽn. Kiểm soát tắc nghẽn là để ngăn quá nhiều dữ liệu được đưa vào mạng, để các router hoặc link trong mạng không bị quá tải. Điều kiện tiên quyết cho mọi việc kiểm soát tắc nghẽn là mạng có thể chịu được tải mạng hiện tại. Kiểm soát tắc nghẽn là một quá trình toàn cục, liên quan đến tất cả host, tất cả router, và tất cả các yếu tố liên quan đến giảm hiệu suất truyền mạng. Ngược lại, kiểm soát luồng thường là kiểm soát lưu lượng truyền thông point-to-point, là vấn đề đầu-cuối. Kiểm soát luồng cần làm là kiềm chế tốc độ gửi dữ liệu của bên gửi, để bên nhận kịp nhận.
+17. **Để kiểm soát tắc nghẽn, bên gửi TCP cần duy trì biến trạng thái cửa sổ tắc nghẽn cwnd. Kích thước cửa sổ tắc nghẽn phụ thuộc vào mức độ tắc nghẽn mạng và thay đổi động. Bên gửi lấy cửa sổ gửi bằng giá trị nhỏ hơn trong cửa sổ tắc nghẽn và cửa sổ nhận của bên nhận.**
+18. **Kiểm soát tắc nghẽn TCP sử dụng bốn thuật toán: slow start, congestion avoidance, fast retransmit và fast recovery. Ở lớp mạng cũng có thể để router sử dụng chính sách hủy gói phù hợp (như AQM - Active Queue Management), để giảm sự xuất hiện của tắc nghẽn mạng.**
+19. Ba giai đoạn của kết nối vận chuyển: thiết lập kết nối, truyền dữ liệu và giải phóng kết nối.
+20. **Process ứng dụng chủ động khởi tạo thiết lập kết nối TCP gọi là client, còn process ứng dụng bị động chờ kết nối được thiết lập gọi là server. Kết nối TCP sử dụng cơ chế bắt tay ba bước. Server phải xác nhận yêu cầu kết nối của người dùng, sau đó client phải xác nhận xác nhận của server.**
+21. Giải phóng kết nối TCP sử dụng cơ chế bắt tay bốn bước. Bất kỳ bên nào cũng có thể gửi thông báo giải phóng kết nối sau khi truyền dữ liệu xong, sau khi phía kia xác nhận, vào trạng thái half-close. Khi bên kia cũng không có dữ liệu gửi nữa, gửi thông báo giải phóng kết nối, sau khi phía kia xác nhận, kết nối TCP được hoàn toàn đóng.
 
-### 5.3. 补充（重要）
+### 5.3. Bổ sung (Quan trọng)
 
-以下知识点需要重点关注：
+Các kiến thức sau cần được chú ý đặc biệt:
 
-1. 端口和套接字的意义
-2. UDP 和 TCP 的区别以及两者的应用场景
-3. 在不可靠的网络上实现可靠传输的工作原理，停止等待协议和 ARQ 协议
-4. TCP 的滑动窗口，流量控制，拥塞控制和连接管理
-5. TCP 的三次握手，四次挥手机制
+1. Ý nghĩa của port và socket
+2. Sự khác biệt giữa UDP và TCP và tình huống ứng dụng của cả hai
+3. Nguyên lý hoạt động để thực hiện truyền đáng tin cậy trên mạng không đáng tin cậy, stop-and-wait protocol và ARQ protocol
+4. Cửa sổ trượt TCP, kiểm soát luồng, kiểm soát tắc nghẽn và quản lý kết nối
+5. Cơ chế bắt tay ba bước, bắt tay bốn bước của TCP
 
-## 6. 应用层（Application Layer）
+## 6. Lớp ứng dụng (Application Layer)
 
-![应用层](https://oss.javaguide.cn/p3-juejin/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.png)
+![Lớp ứng dụng](https://oss.javaguide.cn/p3-juejin/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 6.1. 基本术语
+### 6.1. Thuật ngữ cơ bản
 
-1. **域名系统（DNS）**：域名系统（DNS，Domain Name System）将人类可读的域名 (例如，www.baidu.com) 转换为机器可读的 IP 地址 (例如，220.181.38.148)。我们可以将其理解为专为互联网设计的电话薄。
+1. **Hệ thống tên miền (DNS)**: DNS (Domain Name System) chuyển đổi tên miền mà con người có thể đọc được (ví dụ, www.baidu.com) thành địa chỉ IP mà máy móc có thể đọc được (ví dụ, 220.181.38.148). Chúng ta có thể hiểu nó như danh bạ điện thoại được thiết kế đặc biệt cho Internet.
 
    ![](https://oss.javaguide.cn/p3-juejin/e7da4b07947f4c0094d46dc96a067df0~tplv-k3u1fbpfcp-zoom-1.png)
 
    <p style="text-align:right;font-size:12px">https://www.seobility.net/en/wiki/HTTP_headers</p>
 
-2. **文件传输协议（FTP）**：FTP 是 File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于 Internet 上的控制文件的双向传输。同时，它也是一个应用程序（Application）。基于不同的操作系统有不同的 FTP 应用程序，而所有这些应用程序都遵守同一种协议以传输文件。在 FTP 的使用当中，用户经常遇到两个概念："下载"（Download）和"上传"（Upload）。 "下载"文件就是从远程主机拷贝文件至自己的计算机上；"上传"文件就是将文件从自己的计算机中拷贝至远程主机上。用 Internet 语言来说，用户可通过客户机程序向（从）远程主机上传（下载）文件。
+2. **Giao thức truyền tệp (FTP)**: FTP là viết tắt tiếng Anh của File Transfer Protocol (Giao thức truyền tệp), viết tắt tiếng Trung là "văn truyền giao thức". Dùng để truyền tệp hai chiều trên Internet. Đồng thời, nó cũng là một chương trình ứng dụng. Có các ứng dụng FTP khác nhau dựa trên các hệ điều hành khác nhau, và tất cả các ứng dụng này đều tuân theo cùng một giao thức để truyền tệp. Trong quá trình sử dụng FTP, người dùng thường gặp hai khái niệm: "Download" (tải xuống) và "Upload" (tải lên). "Download" là sao chép tệp từ remote host về máy tính của mình; "Upload" là sao chép tệp từ máy tính của mình lên remote host.
 
-   ![FTP工作过程](https://oss.javaguide.cn/p3-juejin/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.png)
+   ![Quá trình làm việc của FTP](https://oss.javaguide.cn/p3-juejin/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.png)
 
-3. **简单文件传输协议（TFTP）**：TFTP（Trivial File Transfer Protocol,简单文件传输协议）是 TCP/IP 协议族中的一个用来在客户机与服务器之间进行简单文件传输的协议，提供不复杂、开销不大的文件传输服务。端口号为 69。
-4. **远程终端协议（TELNET）**：Telnet 协议是 TCP/IP 协议族中的一员，是 Internet 远程登陆服务的标准协议和主要方式。它为用户提供了在本地计算机上完成远程主机工作的能力。在终端使用者的电脑上使用 telnet 程序，用它连接到服务器。终端使用者可以在 telnet 程序中输入命令，这些命令会在服务器上运行，就像直接在服务器的控制台上输入一样。可以在本地就能控制服务器。要开始一个 telnet 会话，必须输入用户名和密码来登录服务器。Telnet 是常用的远程控制 Web 服务器的方法。
-5. **万维网（WWW）**：WWW 是环球信息网的缩写，（亦作“Web”、“WWW”、“'W3'”，英文全称为“World Wide Web”），中文名字为“万维网”，"环球网"等，常简称为 Web。分为 Web 客户端和 Web 服务器程序。WWW 可以让 Web 客户端（常用浏览器）访问浏览 Web 服务器上的页面。是一个由许多互相链接的超文本组成的系统，通过互联网访问。在这个系统中，每个有用的事物，称为一样“资源”；并且由一个全局“统一资源标识符”（URI）标识；这些资源通过超文本传输协议（Hypertext Transfer Protocol）传送给用户，而后者通过点击链接来获得资源。万维网联盟（英语：World Wide Web Consortium，简称 W3C），又称 W3C 理事会。1994 年 10 月在麻省理工学院（MIT）计算机科学实验室成立。万维网联盟的创建者是万维网的发明者蒂姆·伯纳斯-李。万维网并不等同互联网，万维网只是互联网所能提供的服务其中之一，是靠着互联网运行的一项服务。
-6. **万维网的大致工作工程：**
+3. **Giao thức truyền tệp đơn giản (TFTP)**: TFTP (Trivial File Transfer Protocol) là một giao thức trong họ giao thức TCP/IP dùng để truyền tệp đơn giản giữa client và server, cung cấp dịch vụ truyền tệp không phức tạp, chi phí thấp. Port number là 69.
+4. **Giao thức terminal từ xa (TELNET)**: Giao thức Telnet là thành viên của họ giao thức TCP/IP, là giao thức tiêu chuẩn và phương thức chính của dịch vụ đăng nhập từ xa Internet. Nó cung cấp cho người dùng khả năng thực hiện công việc trên remote host từ máy tính cục bộ. Người dùng terminal sử dụng chương trình telnet trên máy tính của mình để kết nối đến server. Người dùng terminal có thể nhập lệnh trong chương trình telnet, các lệnh này sẽ chạy trên server, giống như nhập trực tiếp trên console của server. Có thể điều khiển server từ local. Để bắt đầu một phiên telnet, phải nhập tên người dùng và mật khẩu để đăng nhập vào server. Telnet là phương pháp phổ biến để điều khiển từ xa Web server.
+5. **World Wide Web (WWW)**: WWW là viết tắt của World Wide Web, tên tiếng Việt là "mạng toàn cầu". Gồm chương trình Web client và Web server. WWW cho phép Web client (thường là trình duyệt) truy cập và duyệt các trang trên Web server. Là một hệ thống bao gồm nhiều hypertext liên kết với nhau, được truy cập qua Internet. Trong hệ thống này, mỗi thứ có ích gọi là một "tài nguyên"; và được xác định bởi một "Uniform Resource Identifier" (URI) toàn cầu; các tài nguyên này được truyền đến người dùng thông qua Hypertext Transfer Protocol (HTTP), và người dùng lấy tài nguyên bằng cách nhấp vào link. World Wide Web Consortium (W3C), còn gọi là Hội đồng W3C. Được thành lập vào tháng 10 năm 1994 tại phòng thí nghiệm khoa học máy tính của MIT. Người tạo ra World Wide Web Consortium là người phát minh ra WWW, Tim Berners-Lee. WWW không giống Internet, WWW chỉ là một trong những dịch vụ mà Internet có thể cung cấp, là một dịch vụ chạy nhờ Internet.
+6. **Quy trình làm việc đại khái của WWW:**
 
-   ![万维网的大致工作工程](https://oss.javaguide.cn/p3-juejin/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.jpeg)
+   ![Quy trình làm việc đại khái của WWW](https://oss.javaguide.cn/p3-juejin/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
-7. **统一资源定位符（URL）**：统一资源定位符是对可以从互联网上得到的资源的位置和访问方法的一种简洁的表示，是互联网上标准资源的地址。互联网上的每个文件都有一个唯一的 URL，它包含的信息指出文件的位置以及浏览器应该怎么处理它。
-8. **超文本传输协议（HTTP）**：超文本传输协议（HTTP，HyperText Transfer Protocol)是互联网上应用最为广泛的一种网络协议。所有的 WWW 文件都必须遵守这个标准。设计 HTTP 最初的目的是为了提供一种发布和接收 HTML 页面的方法。1960 年美国人 Ted Nelson 构思了一种通过计算机处理文本信息的方法，并称之为超文本（hypertext）,这成为了 HTTP 超文本传输协议标准架构的发展根基。
+7. **URL (Uniform Resource Locator)**: URL là biểu diễn ngắn gọn về vị trí và phương thức truy cập tài nguyên có thể lấy từ Internet, là địa chỉ của tài nguyên tiêu chuẩn trên Internet. Mỗi tệp trên Internet đều có một URL duy nhất, thông tin nó chứa chỉ ra vị trí của tệp và cách trình duyệt xử lý nó.
+8. **HTTP (Hypertext Transfer Protocol)**: HTTP (HyperText Transfer Protocol) là giao thức mạng được sử dụng rộng rãi nhất trên Internet. Tất cả các tệp WWW đều phải tuân theo tiêu chuẩn này. Mục đích ban đầu thiết kế HTTP là để cung cấp một phương pháp xuất bản và nhận các trang HTML. Năm 1960, người Mỹ Ted Nelson đã nghĩ ra một phương pháp xử lý thông tin văn bản thông qua máy tính và gọi nó là hypertext, đây trở thành nền tảng phát triển của kiến trúc tiêu chuẩn giao thức truyền siêu văn bản HTTP.
 
-   HTTP 协议的本质就是一种浏览器与服务器之间约定好的通信格式。HTTP 的原理如下图所示：
+   Bản chất của giao thức HTTP chính là một định dạng truyền thông được thỏa thuận giữa trình duyệt và server. Nguyên lý HTTP như hình dưới:
 
    ![](https://oss.javaguide.cn/p3-juejin/8e3efca026654874bde8be88c96e1783~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
-9. **代理服务器（Proxy Server）**：代理服务器（Proxy Server）是一种网络实体，它又称为万维网高速缓存。 代理服务器把最近的一些请求和响应暂存在本地磁盘中。当新请求到达时，若代理服务器发现这个请求与暂时存放的请求相同，就返回暂存的响应，而不需要按 URL 的地址再次去互联网访问该资源。代理服务器可在客户端或服务器工作，也可以在中间系统工作。
-10. **简单邮件传输协议(SMTP)** : SMTP（Simple Mail Transfer Protocol）即简单邮件传输协议,它是一组用于由源地址到目的地址传送邮件的规则，由它来控制信件的中转方式。 SMTP 协议属于 TCP/IP 协议簇，它帮助每台计算机在发送或中转信件时找到下一个目的地。 通过 SMTP 协议所指定的服务器,就可以把 E-mail 寄到收信人的服务器上了，整个过程只要几分钟。SMTP 服务器则是遵循 SMTP 协议的发送邮件服务器，用来发送或中转发出的电子邮件。
+9. **Proxy Server (máy chủ proxy)**: Proxy Server là một thực thể mạng, còn gọi là WWW cache tốc độ cao. Proxy server lưu tạm một số request và response gần đây vào đĩa cục bộ. Khi request mới đến, nếu proxy server phát hiện request này giống với request đã lưu tạm, sẽ trả về response đã lưu, mà không cần truy cập tài nguyên đó trên Internet theo URL một lần nữa. Proxy server có thể làm việc ở phía client hoặc server, cũng có thể làm việc ở hệ thống trung gian.
+10. **SMTP (Simple Mail Transfer Protocol)**: SMTP là một nhóm quy tắc để truyền mail từ địa chỉ nguồn đến địa chỉ đích, kiểm soát cách thức chuyển tiếp thư. Giao thức SMTP thuộc họ giao thức TCP/IP, nó giúp mỗi máy tính tìm đến đích tiếp theo khi gửi hoặc chuyển tiếp thư. Thông qua server được chỉ định bởi giao thức SMTP, có thể gửi E-mail đến server của người nhận, toàn bộ quá trình chỉ mất vài phút. SMTP server là mail server gửi thư tuân theo giao thức SMTP, dùng để gửi hoặc chuyển tiếp email gửi đi.
 
-    ![一个电子邮件被发送的过程](https://oss.javaguide.cn/p3-juejin/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.png)
+    ![Quá trình một email được gửi đi](https://oss.javaguide.cn/p3-juejin/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.png)
 
     <p style="text-align:right;font-size:12px">https://www.campaignmonitor.com/resources/knowledge-base/what-is-the-code-that-makes-bcc-or-cc-operate-in-an-email/</p>
 
-11. **搜索引擎** :搜索引擎（Search Engine）是指根据一定的策略、运用特定的计算机程序从互联网上搜集信息，在对信息进行组织和处理后，为用户提供检索服务，将用户检索相关的信息展示给用户的系统。搜索引擎包括全文索引、目录索引、元搜索引擎、垂直搜索引擎、集合式搜索引擎、门户搜索引擎与免费链接列表等。
+11. **Search engine (công cụ tìm kiếm)**: Search engine (Search Engine) là hệ thống thu thập thông tin từ Internet theo chiến lược nhất định sử dụng chương trình máy tính cụ thể, sau khi tổ chức và xử lý thông tin, cung cấp dịch vụ tra cứu cho người dùng, hiển thị thông tin liên quan đến tra cứu của người dùng cho người dùng. Search engine bao gồm full-text index, directory index, meta search engine, vertical search engine, aggregated search engine, portal search engine và free link list v.v.
 
-12. **垂直搜索引擎**：垂直搜索引擎是针对某一个行业的专业搜索引擎，是搜索引擎的细分和延伸，是对网页库中的某类专门的信息进行一次整合，定向分字段抽取出需要的数据进行处理后再以某种形式返回给用户。垂直搜索是相对通用搜索引擎的信息量大、查询不准确、深度不够等提出来的新的搜索引擎服务模式，通过针对某一特定领域、某一特定人群或某一特定需求提供的有一定价值的信息和相关服务。其特点就是“专、精、深”，且具有行业色彩，相比较通用搜索引擎的海量信息无序化，垂直搜索引擎则显得更加专注、具体和深入。
-13. **全文索引** :全文索引技术是目前搜索引擎的关键技术。试想在 1M 大小的文件中搜索一个词，可能需要几秒，在 100M 的文件中可能需要几十秒，如果在更大的文件中搜索那么就需要更大的系统开销，这样的开销是不现实的。所以在这样的矛盾下出现了全文索引技术，有时候有人叫倒排文档技术。
-14. **目录索引**：目录索引（ search index/directory)，顾名思义就是将网站分门别类地存放在相应的目录中，因此用户在查询信息时，可选择关键词搜索，也可按分类目录逐层查找。
+12. **Vertical search engine (công cụ tìm kiếm theo chiều dọc)**: Vertical search engine là search engine chuyên nghiệp nhắm vào một ngành cụ thể, là sự phân chia và mở rộng của search engine, là tích hợp một loại thông tin chuyên biệt trong thư viện trang web, trích xuất có định hướng các dữ liệu cần thiết theo trường sau khi xử lý rồi trả về cho người dùng theo một hình thức nào đó. Tìm kiếm theo chiều dọc được đề xuất so với search engine chung có lượng thông tin lớn, tra cứu không chính xác, độ sâu không đủ v.v., là mô hình dịch vụ search engine mới cung cấp thông tin có giá trị và dịch vụ liên quan nhắm vào một lĩnh vực cụ thể, một nhóm người cụ thể hoặc một nhu cầu cụ thể. Đặc điểm của nó là "chuyên, tinh, sâu", và có màu sắc ngành, so với thông tin hỗn loạn quy mô lớn của search engine chung, vertical search engine trông chuyên tập trung hơn, cụ thể và sâu sắc hơn.
+13. **Full-text index (chỉ mục toàn văn)**: Kỹ thuật full-text index là công nghệ then chốt của search engine hiện nay. Thử nghĩ tìm kiếm một từ trong tệp 1MB có thể mất vài giây, trong tệp 100MB có thể mất vài chục giây, nếu tìm kiếm trong tệp lớn hơn sẽ cần chi phí hệ thống lớn hơn, chi phí như vậy không thực tế. Do đó trong mâu thuẫn như vậy đã xuất hiện kỹ thuật full-text index, đôi khi còn gọi là kỹ thuật inverted document.
+14. **Directory index (chỉ mục thư mục)**: Directory index (search index/directory), như tên gọi là lưu trữ các trang web theo phân loại trong các thư mục tương ứng, do đó khi người dùng tra cứu thông tin, có thể chọn tìm kiếm theo từ khóa, cũng có thể tra cứu từng lớp theo thư mục phân loại.
 
-### 6.2. 重要知识点总结
+### 6.2. Tổng hợp các điểm kiến thức quan trọng
 
-1. 文件传输协议（FTP）使用 TCP 可靠的运输服务。FTP 使用客户服务器方式。一个 FTP 服务器进程可以同时为多个用户提供服务。在进行文件传输时，FTP 的客户和服务器之间要先建立两个并行的 TCP 连接:控制连接和数据连接。实际用于传输文件的是数据连接。
-2. 万维网客户程序与服务器之间进行交互使用的协议是超文本传输协议 HTTP。HTTP 使用 TCP 连接进行可靠传输。但 HTTP 本身是无连接、无状态的。HTTP/1.1 协议使用了持续连接（分为非流水线方式和流水线方式）
-3. 电子邮件把邮件发送到收件人使用的邮件服务器，并放在其中的收件人邮箱中，收件人可随时上网到自己使用的邮件服务器读取，相当于电子邮箱。
-4. 一个电子邮件系统有三个重要组成构件：用户代理、邮件服务器、邮件协议（包括邮件发送协议，如 SMTP，和邮件读取协议，如 POP3 和 IMAP）。用户代理和邮件服务器都要运行这些协议。
+1. Giao thức truyền tệp (FTP) sử dụng dịch vụ vận chuyển đáng tin cậy TCP. FTP sử dụng phương thức client-server. Một process FTP server có thể phục vụ nhiều người dùng cùng lúc. Khi truyền tệp, client và server FTP phải thiết lập hai kết nối TCP song song: connection điều khiển và connection dữ liệu. Thực tế dùng để truyền tệp là data connection.
+2. Giao thức tương tác giữa WWW client và server là HTTP. HTTP sử dụng kết nối TCP để truyền đáng tin cậy. Nhưng HTTP bản thân là không kết nối, không trạng thái. Giao thức HTTP/1.1 sử dụng persistent connection (chia thành non-pipeline và pipeline).
+3. Email gửi thư đến mail server người nhận sử dụng và đặt vào hòm thư người nhận, người nhận có thể đăng nhập mạng bất cứ lúc nào để đọc trên mail server của mình, tương đương với hòm thư điện tử.
+4. Một hệ thống email có ba thành phần quan trọng: user agent, mail server, mail protocol (bao gồm giao thức gửi mail như SMTP, và giao thức đọc mail như POP3 và IMAP). Cả user agent và mail server đều phải chạy các giao thức này.
 
-### 6.3. 补充（重要）
+### 6.3. Bổ sung (Quan trọng)
 
-以下知识点需要重点关注：
+Các kiến thức sau cần được chú ý đặc biệt:
 
-1. 应用层的常见协议（重点关注 HTTP 协议）
-2. 域名系统-从域名解析出 IP 地址
-3. 访问一个网站大致的过程
-4. 系统调用和应用编程接口概念
+1. Các giao thức phổ biến của lớp ứng dụng (trọng tâm là giao thức HTTP)
+2. Hệ thống tên miền - phân giải tên miền thành địa chỉ IP
+3. Quy trình đại khái truy cập một website
+4. Khái niệm system call và application programming interface
 
 <!-- @include: @article-footer.snippet.md -->

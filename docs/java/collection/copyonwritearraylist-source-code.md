@@ -1,53 +1,53 @@
 ---
-title: CopyOnWriteArrayList 源码分析
-description: CopyOnWriteArrayList源码深度解析：详解写时复制COW机制、适用读多写少场景、线程安全List实现、快照一致性保证及内存开销权衡。
+title: Phân tích mã nguồn CopyOnWriteArrayList
+description: Phân tích chuyên sâu mã nguồn CopyOnWriteArrayList: giải thích chi tiết cơ chế Copy-On-Write (COW), phù hợp với kịch bản đọc nhiều ghi ít, triển khai List an toàn luồng, đảm bảo tính nhất quán snapshot và cân nhắc về chi phí bộ nhớ.
 category: Java
 tag:
-  - Java集合
+  - Java Collections
 head:
   - - meta
     - name: keywords
       content: CopyOnWriteArrayList源码,写时复制COW,线程安全List,读多写少,并发容器,快照一致性
 ---
 
-## CopyOnWriteArrayList 简介
+## Giới thiệu về CopyOnWriteArrayList
 
-在 JDK1.5 之前，如果想要使用并发安全的 `List` 只能选择 `Vector`。而 `Vector` 是一种老旧的集合，已经被淘汰。`Vector` 对于增删改查等方法基本都加了 `synchronized`，这种方式虽然能够保证同步，但这相当于对整个 `Vector` 加上了一把大锁，使得每个方法执行的时候都要去获得锁，导致性能非常低下。
+Trước JDK1.5, nếu muốn sử dụng `List` an toàn trong môi trường đồng thời, chỉ có thể chọn `Vector`. Tuy nhiên `Vector` là một tập hợp cũ đã lỗi thời. Hầu hết các phương thức thêm, xóa, sửa, truy vấn của `Vector` đều được gắn `synchronized`, cách này tuy đảm bảo đồng bộ nhưng thực chất là đặt một khóa lớn lên toàn bộ `Vector`, khiến mỗi phương thức khi thực thi đều phải chờ lấy khóa, dẫn đến hiệu suất rất thấp.
 
-JDK1.5 引入了 `Java.util.concurrent`（JUC）包，其中提供了很多线程安全且并发性能良好的容器，其中唯一的线程安全 `List` 实现就是 `CopyOnWriteArrayList` 。关于`java.util.concurrent` 包下常见并发容器的总结，可以看我写的这篇文章：[Java 常见并发容器总结](https://javaguide.cn/java/concurrent/java-concurrent-collections.html) 。
+JDK1.5 giới thiệu gói `Java.util.concurrent` (JUC), cung cấp nhiều container vừa an toàn luồng vừa có hiệu suất đồng thời tốt. Trong số đó, triển khai `List` an toàn luồng duy nhất là `CopyOnWriteArrayList`. Để tìm hiểu tổng quan về các container đồng thời phổ biến trong gói `java.util.concurrent`, bạn có thể đọc bài viết của tôi: [Tổng hợp các container đồng thời phổ biến trong Java](https://javaguide.cn/java/concurrent/java-concurrent-collections.html).
 
-### CopyOnWriteArrayList 到底有什么厉害之处？
+### CopyOnWriteArrayList có gì đặc biệt?
 
-对于大部分业务场景来说，读取操作往往是远大于写入操作的。由于读取操作不会对原有数据进行修改，因此，对于每次读取都进行加锁其实是一种资源浪费。相比之下，我们应该允许多个线程同时访问 `List` 的内部数据，毕竟对于读取操作来说是安全的。
+Đối với phần lớn các kịch bản nghiệp vụ, thao tác đọc thường nhiều hơn rất nhiều so với thao tác ghi. Vì thao tác đọc không sửa đổi dữ liệu gốc, nên việc khóa mỗi lần đọc thực ra là lãng phí tài nguyên. Thay vào đó, chúng ta nên cho phép nhiều luồng cùng lúc truy cập dữ liệu nội bộ của `List`, vì thao tác đọc vốn là an toàn.
 
-这种思路与 `ReentrantReadWriteLock` 读写锁的设计思想非常类似，即读读不互斥、读写互斥、写写互斥（只有读读不互斥）。`CopyOnWriteArrayList` 更进一步地实现了这一思想。为了将读操作性能发挥到极致，`CopyOnWriteArrayList` 中的读取操作是完全无需加锁的。更加厉害的是，写入操作也不会阻塞读取操作，只有写写才会互斥。这样一来，读操作的性能就可以大幅度提升。
+Tư tưởng này rất giống với thiết kế khóa đọc-ghi `ReentrantReadWriteLock`: đọc-đọc không loại trừ nhau, đọc-ghi loại trừ nhau, ghi-ghi loại trừ nhau (chỉ đọc-đọc là không loại trừ). `CopyOnWriteArrayList` triển khai tư tưởng này ở mức độ cao hơn. Để tối ưu tối đa hiệu suất đọc, thao tác đọc trong `CopyOnWriteArrayList` hoàn toàn không cần khóa. Đặc biệt hơn, thao tác ghi cũng không chặn thao tác đọc — chỉ có ghi-ghi mới loại trừ nhau. Nhờ đó, hiệu suất đọc có thể được nâng cao đáng kể.
 
-`CopyOnWriteArrayList` 线程安全的核心在于其采用了 **写时复制（Copy-On-Write）** 的策略，从 `CopyOnWriteArrayList` 的名字就能看出了。
+Cốt lõi đảm bảo an toàn luồng của `CopyOnWriteArrayList` nằm ở chiến lược **Sao chép khi ghi (Copy-On-Write)**, điều này đã thể hiện ngay trong tên gọi của nó.
 
-### Copy-On-Write 的思想是什么？
+### Tư tưởng của Copy-On-Write là gì?
 
-`CopyOnWriteArrayList`名字中的“Copy-On-Write”即写时复制，简称 COW。
+"Copy-On-Write" trong tên `CopyOnWriteArrayList` có nghĩa là sao chép khi ghi, viết tắt là COW.
 
-下面是维基百科对 Copy-On-Write 的介绍，介绍的挺不错：
+Dưới đây là phần giới thiệu về Copy-On-Write từ Wikipedia, khá súc tích:
 
-> 写入时复制（英语：Copy-on-write，简称 COW）是一种计算机程序设计领域的优化策略。其核心思想是，如果有多个调用者（callers）同时请求相同资源（如内存或磁盘上的数据存储），他们会共同获取相同的指针指向相同的资源，直到某个调用者试图修改资源的内容时，系统才会真正复制一份专用副本（private copy）给该调用者，而其他调用者所见到的最初的资源仍然保持不变。这过程对其他的调用者都是透明的。此作法主要的优点是如果调用者没有修改该资源，就不会有副本（private copy）被创建，因此多个调用者只是读取操作时可以共享同一份资源。
+> Sao chép khi ghi (tiếng Anh: Copy-on-write, viết tắt COW) là một chiến lược tối ưu hóa trong lĩnh vực thiết kế chương trình máy tính. Ý tưởng cốt lõi là: nếu có nhiều caller cùng yêu cầu truy cập cùng một tài nguyên (chẳng hạn như dữ liệu trong bộ nhớ hay ổ đĩa), họ sẽ cùng nhận được một con trỏ trỏ đến tài nguyên đó. Chỉ khi một caller cố gắng sửa đổi nội dung tài nguyên, hệ thống mới thực sự tạo ra một bản sao riêng (private copy) cho caller đó, trong khi các caller khác vẫn thấy tài nguyên ban đầu không thay đổi. Quá trình này trong suốt với các caller còn lại. Ưu điểm chính của cách làm này là nếu caller không sửa đổi tài nguyên thì không có bản sao nào được tạo ra, do đó nhiều caller chỉ đọc có thể dùng chung một tài nguyên.
 
-这里再以 `CopyOnWriteArrayList`为例介绍：当需要修改（ `add`，`set`、`remove` 等操作） `CopyOnWriteArrayList` 的内容时，不会直接修改原数组，而是会先创建底层数组的副本，对副本数组进行修改，修改完之后再将修改后的数组赋值回去，这样就可以保证写操作不会影响读操作了。
+Lấy `CopyOnWriteArrayList` làm ví dụ: khi cần sửa đổi (các thao tác `add`, `set`, `remove`, v.v.) nội dung của `CopyOnWriteArrayList`, thay vì sửa trực tiếp mảng gốc, nó sẽ tạo một bản sao của mảng bên dưới, thực hiện sửa đổi trên bản sao đó, sau đó gán lại mảng đã sửa đổi. Nhờ vậy, thao tác ghi không ảnh hưởng đến thao tác đọc.
 
-可以看出，写时复制机制非常适合读多写少的并发场景，能够极大地提高系统的并发性能。
+Có thể thấy, cơ chế sao chép khi ghi rất phù hợp với kịch bản đồng thời đọc nhiều ghi ít, có thể nâng cao đáng kể hiệu suất đồng thời của hệ thống.
 
-不过，写时复制机制并不是银弹，其依然存在一些缺点，下面列举几点：
+Tuy nhiên, cơ chế sao chép khi ghi không phải là giải pháp hoàn hảo cho mọi tình huống, nó vẫn có một số nhược điểm:
 
-1. 内存占用：每次写操作都需要复制一份原始数据，会占用额外的内存空间，在数据量比较大的情况下，可能会导致内存资源不足。
-2. 写操作开销：每一次写操作都需要复制一份原始数据，然后再进行修改和替换，所以写操作的开销相对较大，在写入比较频繁的场景下，性能可能会受到影响。
-3. 数据一致性问题：修改操作不会立即反映到最终结果中，还需要等待复制完成，这可能会导致一定的数据一致性问题。
+1. Chiếm dụng bộ nhớ: mỗi thao tác ghi đều cần sao chép toàn bộ dữ liệu gốc, tốn thêm không gian bộ nhớ. Khi lượng dữ liệu lớn, có thể dẫn đến thiếu tài nguyên bộ nhớ.
+2. Chi phí ghi cao: mỗi thao tác ghi đều phải sao chép dữ liệu gốc rồi mới sửa đổi và thay thế, nên chi phí ghi tương đối lớn. Trong kịch bản ghi thường xuyên, hiệu suất có thể bị ảnh hưởng.
+3. Vấn đề nhất quán dữ liệu: thao tác sửa đổi không phản ánh ngay vào kết quả cuối cùng mà phải chờ sao chép hoàn tất, điều này có thể gây ra một số vấn đề về nhất quán dữ liệu.
 4. ……
 
-## CopyOnWriteArrayList 源码分析
+## Phân tích mã nguồn CopyOnWriteArrayList
 
-这里以 JDK1.8 为例，分析一下 `CopyOnWriteArrayList` 的底层核心源码。
+Dưới đây phân tích mã nguồn cốt lõi của `CopyOnWriteArrayList` dựa trên JDK1.8.
 
-`CopyOnWriteArrayList` 的类定义如下：
+Định nghĩa lớp `CopyOnWriteArrayList` như sau:
 
 ```java
 public class CopyOnWriteArrayList<E>
@@ -58,18 +58,18 @@ implements List<E>, RandomAccess, Cloneable, Serializable
 }
 ```
 
-`CopyOnWriteArrayList` 实现了以下接口：
+`CopyOnWriteArrayList` triển khai các interface sau:
 
-- `List` : 表明它是一个列表，支持添加、删除、查找等操作，并且可以通过下标进行访问。
-- `RandomAccess` ：这是一个标志接口，表明实现这个接口的 `List` 集合是支持 **快速随机访问** 的。
-- `Cloneable` ：表明它具有拷贝能力，可以进行深拷贝或浅拷贝操作。
-- `Serializable` : 表明它可以进行序列化操作，也就是可以将对象转换为字节流进行持久化存储或网络传输，非常方便。
+- `List`: cho thấy đây là một danh sách, hỗ trợ thêm, xóa, tìm kiếm và truy cập qua chỉ số.
+- `RandomAccess`: đây là interface đánh dấu, cho biết tập hợp `List` này hỗ trợ **truy cập ngẫu nhiên nhanh**.
+- `Cloneable`: cho thấy nó có khả năng sao chép, có thể thực hiện deep copy hoặc shallow copy.
+- `Serializable`: cho thấy nó có thể được tuần tự hóa, tức là có thể chuyển đối tượng thành luồng byte để lưu trữ lâu dài hoặc truyền qua mạng.
 
-![CopyOnWriteArrayList 类图](https://oss.javaguide.cn/github/javaguide/java/collection/copyonwritearraylist-class-diagram.png)
+![Biểu đồ lớp CopyOnWriteArrayList](https://oss.javaguide.cn/github/javaguide/java/collection/copyonwritearraylist-class-diagram.png)
 
-### 初始化
+### Khởi tạo
 
-`CopyOnWriteArrayList` 中有一个无参构造函数和两个有参构造函数。
+`CopyOnWriteArrayList` có một constructor không tham số và hai constructor có tham số.
 
 ```java
 // 创建一个空的 CopyOnWriteArrayList
@@ -97,15 +97,15 @@ public CopyOnWriteArrayList(E[] toCopyIn) {
 }
 ```
 
-### 插入元素
+### Chèn phần tử
 
-`CopyOnWriteArrayList` 的 `add()`方法有三个版本：
+Phương thức `add()` của `CopyOnWriteArrayList` có ba phiên bản:
 
-- `add(E e)`：在 `CopyOnWriteArrayList` 的尾部插入元素。
-- `add(int index, E element)`：在 `CopyOnWriteArrayList` 的指定位置插入元素。
-- `addIfAbsent(E e)`：如果指定元素不存在，那么添加该元素。如果成功添加元素则返回 true。
+- `add(E e)`: chèn phần tử vào cuối `CopyOnWriteArrayList`.
+- `add(int index, E element)`: chèn phần tử vào vị trí chỉ định trong `CopyOnWriteArrayList`.
+- `addIfAbsent(E e)`: nếu phần tử chỉ định chưa tồn tại thì thêm vào. Trả về true nếu thêm thành công.
 
-这里以`add(E e)`为例进行介绍：
+Dưới đây lấy `add(E e)` làm ví dụ:
 
 ```java
 // 插入元素到 CopyOnWriteArrayList 的尾部
@@ -132,18 +132,18 @@ public boolean add(E e) {
 }
 ```
 
-从上面的源码可以看出：
+Từ mã nguồn trên có thể thấy:
 
-- `add`方法内部用到了 `ReentrantLock` 加锁，保证了同步，避免了多线程写的时候会复制出多个副本出来。锁被修饰保证了锁的内存地址肯定不会被修改，并且，释放锁的逻辑放在 `finally` 中，可以保证锁能被释放。
-- `CopyOnWriteArrayList` 通过复制底层数组的方式实现写操作，即先创建一个新的数组来容纳新添加的元素，然后在新数组中进行写操作，最后将新数组赋值给底层数组的引用，替换掉旧的数组。这也就证明了我们前面说的：`CopyOnWriteArrayList` 线程安全的核心在于其采用了 **写时复制（Copy-On-Write）** 的策略。
-- 每次写操作都需要通过 `Arrays.copyOf` 复制底层数组，时间复杂度是 O(n) 的，且会占用额外的内存空间。因此，`CopyOnWriteArrayList` 适用于读多写少的场景，在写操作不频繁且内存资源充足的情况下，可以提升系统的性能表现。
-- `CopyOnWriteArrayList` 中并没有类似于 `ArrayList` 的 `grow()` 方法扩容的操作。
+- Phương thức `add` sử dụng `ReentrantLock` để khóa, đảm bảo đồng bộ và tránh trường hợp nhiều luồng ghi đồng thời tạo ra nhiều bản sao. Khóa được khai báo là `final` đảm bảo địa chỉ bộ nhớ của khóa không thay đổi, và logic giải phóng khóa được đặt trong `finally` để đảm bảo khóa luôn được giải phóng.
+- `CopyOnWriteArrayList` thực hiện thao tác ghi bằng cách sao chép mảng bên dưới: tạo một mảng mới chứa phần tử cần thêm, thực hiện ghi trên mảng mới, sau đó gán mảng mới cho tham chiếu mảng bên dưới, thay thế mảng cũ. Điều này xác nhận điều đã nói ở trên: cốt lõi đảm bảo an toàn luồng của `CopyOnWriteArrayList` nằm ở chiến lược **Sao chép khi ghi (Copy-On-Write)**.
+- Mỗi thao tác ghi đều phải sao chép mảng bên dưới qua `Arrays.copyOf` với độ phức tạp thời gian O(n) và tốn thêm bộ nhớ. Vì vậy, `CopyOnWriteArrayList` phù hợp với kịch bản đọc nhiều ghi ít; khi ghi không thường xuyên và bộ nhớ đủ, nó có thể nâng cao hiệu suất hệ thống.
+- `CopyOnWriteArrayList` không có thao tác mở rộng `grow()` như `ArrayList`.
 
-> `Arrays.copyOf` 方法的时间复杂度是 O(n)，其中 n 表示需要复制的数组长度。因为这个方法的实现原理是先创建一个新的数组，然后将源数组中的数据复制到新数组中，最后返回新数组。这个方法会复制整个数组，因此其时间复杂度与数组长度成正比，即 O(n)。值得注意的是，由于底层调用了系统级别的拷贝指令，因此在实际应用中这个方法的性能表现比较优秀，但是也需要注意控制复制的数据量，避免出现内存占用过高的情况。
+> Độ phức tạp thời gian của phương thức `Arrays.copyOf` là O(n), trong đó n là độ dài mảng cần sao chép. Nguyên lý của phương thức này là tạo một mảng mới, sao chép dữ liệu từ mảng nguồn sang mảng mới rồi trả về. Phương thức này sao chép toàn bộ mảng nên độ phức tạp tỉ lệ thuận với độ dài mảng, tức O(n). Đáng chú ý là vì bên dưới gọi lệnh sao chép cấp hệ thống, hiệu suất thực tế của phương thức này khá tốt, nhưng cũng cần lưu ý kiểm soát lượng dữ liệu sao chép để tránh chiếm dụng bộ nhớ quá mức.
 
-### 读取元素
+### Đọc phần tử
 
-`CopyOnWriteArrayList` 的读取操作是基于内部数组 `array` 并没有发生实际的修改，因此在读取操作时不需要进行同步控制和锁操作，可以保证数据的安全性。这种机制下，多个线程可以同时读取列表中的元素。
+Thao tác đọc của `CopyOnWriteArrayList` dựa trên mảng nội bộ `array` và không thực sự sửa đổi dữ liệu, nên không cần kiểm soát đồng bộ hay khóa trong khi đọc, đảm bảo an toàn dữ liệu. Với cơ chế này, nhiều luồng có thể đọc phần tử trong danh sách cùng lúc.
 
 ```java
 // 底层数组，只能通过getArray和setArray方法访问
@@ -162,20 +162,20 @@ private E get(Object[] a, int index) {
 }
 ```
 
-不过，`get`方法是弱一致性的，在某些情况下可能读到旧的元素值。
+Tuy nhiên, phương thức `get` có tính nhất quán yếu, trong một số trường hợp có thể đọc được giá trị phần tử cũ.
 
-`get(int index)`方法是分两步进行的：
+Phương thức `get(int index)` thực hiện qua hai bước:
 
-1. 通过`getArray()`获取当前数组的引用；
-2. 直接从数组中获取下标为 index 的元素。
+1. Lấy tham chiếu mảng hiện tại qua `getArray()`;
+2. Lấy phần tử tại chỉ số index trực tiếp từ mảng.
 
-这个过程并没有加锁，所以在并发环境下可能出现如下情况：
+Quá trình này không có khóa, nên trong môi trường đồng thời có thể xảy ra tình huống sau:
 
-1. 线程 1 调用`get(int index)`方法获取值，内部通过`getArray()`方法获取到了 array 属性值；
-2. 线程 2 调用`CopyOnWriteArrayList`的`add`、`set`、`remove` 等修改方法时，内部通过`setArray`方法修改了`array`属性的值；
-3. 线程 1 还是从旧的 `array` 数组中取值。
+1. Luồng 1 gọi `get(int index)` để lấy giá trị, bên trong lấy được giá trị thuộc tính `array` qua `getArray()`;
+2. Luồng 2 gọi các phương thức sửa đổi `add`, `set`, `remove`, v.v. của `CopyOnWriteArrayList`, bên trong thay đổi giá trị thuộc tính `array` qua `setArray`;
+3. Luồng 1 vẫn lấy giá trị từ mảng `array` cũ.
 
-### 获取列表中元素的个数
+### Lấy số lượng phần tử trong danh sách
 
 ```java
 public int size() {
@@ -183,18 +183,18 @@ public int size() {
 }
 ```
 
-`CopyOnWriteArrayList`中的`array`数组每次复制都刚好能够容纳下所有元素，并不像`ArrayList`那样会预留一定的空间。因此，`CopyOnWriteArrayList`中并没有`size`属性`CopyOnWriteArrayList`的底层数组的长度就是元素个数，因此`size()`方法只要返回数组长度就可以了。
+Mảng `array` trong `CopyOnWriteArrayList` mỗi lần sao chép đều vừa đúng chứa tất cả các phần tử, không có khoảng dự phòng như `ArrayList`. Vì vậy, `CopyOnWriteArrayList` không có thuộc tính `size` — độ dài mảng bên dưới chính là số lượng phần tử, nên phương thức `size()` chỉ cần trả về độ dài mảng.
 
-### 删除元素
+### Xóa phần tử
 
-`CopyOnWriteArrayList`删除元素相关的方法一共有 4 个：
+`CopyOnWriteArrayList` có tổng cộng 4 phương thức liên quan đến xóa phần tử:
 
-1. `remove(int index)`：移除此列表中指定位置上的元素。将任何后续元素向左移动（从它们的索引中减去 1）。
-2. `boolean remove(Object o)`：删除此列表中首次出现的指定元素，如果不存在该元素则返回 false。
-3. `boolean removeAll(Collection<?> c)`：从此列表中删除指定集合中包含的所有元素。
-4. `void clear()`：移除此列表中的所有元素。
+1. `remove(int index)`: xóa phần tử tại vị trí chỉ định. Dịch chuyển các phần tử phía sau sang trái (trừ 1 từ chỉ số của chúng).
+2. `boolean remove(Object o)`: xóa lần xuất hiện đầu tiên của phần tử chỉ định, trả về false nếu không tồn tại.
+3. `boolean removeAll(Collection<?> c)`: xóa khỏi danh sách tất cả phần tử có trong tập hợp chỉ định.
+4. `void clear()`: xóa tất cả phần tử trong danh sách.
 
-这里以`remove(int index)`为例进行介绍：
+Dưới đây lấy `remove(int index)` làm ví dụ:
 
 ```java
 public E remove(int index) {
@@ -232,12 +232,12 @@ public E remove(int index) {
 }
 ```
 
-### 判断元素是否存在
+### Kiểm tra sự tồn tại của phần tử
 
-`CopyOnWriteArrayList`提供了两个用于判断指定元素是否在列表中的方法：
+`CopyOnWriteArrayList` cung cấp hai phương thức để kiểm tra xem phần tử chỉ định có trong danh sách hay không:
 
-- `contains(Object o)`：判断是否包含指定元素。
-- `containsAll(Collection<?> c)`：判断是否保证指定集合的全部元素。
+- `contains(Object o)`: kiểm tra có chứa phần tử chỉ định không.
+- `containsAll(Collection<?> c)`: kiểm tra có chứa tất cả phần tử của tập hợp chỉ định không.
 
 ```java
 // 判断是否包含指定元素
@@ -265,9 +265,9 @@ public boolean containsAll(Collection<?> c) {
 }
 ```
 
-## CopyOnWriteArrayList 常用方法测试
+## Kiểm tra các phương thức thông dụng của CopyOnWriteArrayList
 
-代码：
+Mã nguồn:
 
 ```java
 // 创建一个 CopyOnWriteArrayList 对象
@@ -308,15 +308,15 @@ list.clear();
 System.out.println("列表清空后为：" + list);
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```plain
-列表更新后为：[Java, Golang]
-列表插入元素后为：[PHP, Java, Golang]
-列表大小为：3
-批量删除结果：true
-列表批量删除元素后为：[PHP]
-列表清空后为：[]
+Danh sách sau khi cập nhật: [Java, Golang]
+Danh sách sau khi chèn phần tử: [PHP, Java, Golang]
+Kích thước danh sách: 3
+Kết quả xóa hàng loạt: true
+Danh sách sau khi xóa hàng loạt: [PHP]
+Danh sách sau khi xóa toàn bộ: []
 ```
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,133 +1,133 @@
 ---
-title: TCP 传输可靠性保障（传输层）
-description: 系统梳理 TCP 的可靠性保障机制，覆盖重传/选择确认、流量与拥塞控制，明确端到端可靠传输的实现要点。
-category: 计算机基础
+title: Đảm bảo độ tin cậy truyền tải TCP（Tầng vận chuyển）
+description: Hệ thống hóa các cơ chế đảm bảo độ tin cậy của TCP, bao gồm retransmit/SACK, kiểm soát luồng và kiểm soát tắc nghẽn, làm rõ các điểm cốt lõi để triển khai truyền tải đáng tin cậy end-to-end.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
-      content: TCP,可靠性,重传,SACK,流量控制,拥塞控制,滑动窗口,校验和
+      content: TCP,độ tin cậy,retransmit,SACK,kiểm soát luồng,kiểm soát tắc nghẽn,sliding window,checksum
 ---
 
-## TCP 如何保证传输的可靠性？
+## TCP đảm bảo độ tin cậy truyền tải như thế nào?
 
-1. **基于数据块传输**：应用数据被分割成 TCP 认为最适合发送的数据块，再传输给网络层，数据块被称为报文段或段。
-2. **对失序数据包重新排序以及去重**：TCP 为了保证不发生丢包，就给每个包一个序列号，有了序列号能够将接收到的数据根据序列号排序，并且去掉重复序列号的数据就可以实现数据包去重。
-3. **校验和** : TCP 将保持它首部和数据的检验和。这是一个端到端的检验和，目的是检测数据在传输过程中的任何变化。如果收到段的检验和有差错，TCP 将丢弃这个报文段和不确认收到此报文段。
-4. **重传机制** : 在数据包丢失或延迟的情况下，重新发送数据包，直到收到对方的确认应答（ACK）。TCP 重传机制主要有：基于计时器的重传（也就是超时重传）、快速重传（基于接收端的反馈信息来引发重传）、SACK（在快速重传的基础上，返回最近收到的报文段的序列号范围，这样客户端就知道，哪些数据包已经到达服务器了）、D-SACK（重复 SACK，在 SACK 的基础上，额外携带信息，告知发送方有哪些数据包自己重复接收了）。关于重传机制的详细介绍，可以查看[详解 TCP 超时与重传机制](https://zhuanlan.zhihu.com/p/101702312)这篇文章。
-5. **流量控制** : TCP 连接的每一方都有固定大小的缓冲空间，TCP 的接收端只允许发送端发送接收端缓冲区能接纳的数据。当接收方来不及处理发送方的数据，能提示发送方降低发送的速率，防止包丢失。TCP 使用的流量控制协议是可变大小的滑动窗口协议（TCP 利用滑动窗口实现流量控制）。
-6. **拥塞控制** : 当网络拥塞时，减少数据的发送。TCP 在发送数据的时候，需要考虑两个因素：一是接收方的接收能力，二是网络的拥塞程度。接收方的接收能力由滑动窗口表示，表示接收方还有多少缓冲区可以用来接收数据。网络的拥塞程度由拥塞窗口表示，它是发送方根据网络状况自己维护的一个值，表示发送方认为可以在网络中传输的数据量。发送方发送数据的大小是滑动窗口和拥塞窗口的最小值，这样可以保证发送方既不会超过接收方的接收能力，也不会造成网络的过度拥塞。
+1. **Truyền theo khối dữ liệu**: Dữ liệu ứng dụng được chia thành các khối mà TCP cho là phù hợp nhất để gửi, rồi truyền cho tầng mạng. Các khối dữ liệu này gọi là segment.
+2. **Sắp xếp lại và loại bỏ trùng lặp các gói tin không đúng thứ tự**: Để đảm bảo không bị mất gói, TCP gán cho mỗi gói một số thứ tự (sequence number). Nhờ số thứ tự, dữ liệu nhận được có thể được sắp xếp theo thứ tự và loại bỏ dữ liệu trùng lặp sequence number.
+3. **Checksum**: TCP duy trì checksum của header và dữ liệu. Đây là checksum end-to-end, mục đích là phát hiện bất kỳ thay đổi nào trong quá trình truyền dữ liệu. Nếu checksum của segment nhận được có lỗi, TCP sẽ loại bỏ segment đó và không xác nhận.
+4. **Cơ chế retransmit**: Trong trường hợp gói tin bị mất hoặc trễ, gửi lại gói tin cho đến khi nhận được xác nhận (ACK) từ đối phương. Các cơ chế retransmit TCP chủ yếu bao gồm: retransmit dựa trên timer (timeout retransmit), fast retransmit (kích hoạt retransmit dựa trên phản hồi từ receiver), SACK (trên cơ sở fast retransmit, trả về phạm vi sequence number của segment nhận được gần nhất, giúp client biết gói nào đã đến server), D-SACK (Duplicate SACK, trên cơ sở SACK, mang thêm thông tin cho sender biết gói nào được receiver nhận trùng lặp). Xem bài [Giải thích chi tiết cơ chế timeout và retransmit TCP](https://zhuanlan.zhihu.com/p/101702312) để tìm hiểu chi tiết.
+5. **Kiểm soát luồng (Flow Control)**: Mỗi bên của kết nối TCP có không gian buffer cố định, phía receiver của TCP chỉ cho phép phía sender gửi dữ liệu mà receiver buffer có thể chứa. Khi receiver không kịp xử lý dữ liệu của sender, có thể nhắc sender giảm tốc độ gửi, tránh mất gói. Giao thức kiểm soát luồng TCP sử dụng là giao thức sliding window kích thước thay đổi (TCP sử dụng sliding window để thực hiện kiểm soát luồng).
+6. **Kiểm soát tắc nghẽn (Congestion Control)**: Giảm lượng dữ liệu gửi khi mạng tắc nghẽn. Khi gửi dữ liệu, TCP cần xem xét hai yếu tố: một là khả năng nhận của receiver, hai là mức độ tắc nghẽn mạng. Khả năng nhận của receiver được biểu diễn bằng sliding window, cho biết receiver còn bao nhiêu buffer để nhận dữ liệu. Mức độ tắc nghẽn mạng được biểu diễn bằng congestion window, là giá trị sender tự duy trì dựa trên tình trạng mạng, biểu diễn lượng dữ liệu sender cho rằng có thể truyền trên mạng. Kích thước dữ liệu sender gửi là giá trị nhỏ hơn giữa sliding window và congestion window, đảm bảo sender không vượt quá khả năng nhận của receiver và không gây tắc nghẽn mạng quá mức.
 
-## TCP 如何实现流量控制？
+## TCP thực hiện kiểm soát luồng như thế nào?
 
-**TCP 利用滑动窗口实现流量控制。流量控制是为了控制发送方发送速率，保证接收方来得及接收。** 接收方发送的确认报文中的窗口字段可以用来控制发送方窗口大小，从而影响发送方的发送速率。将窗口字段设置为 0，则发送方不能发送数据。
+**TCP sử dụng sliding window để thực hiện kiểm soát luồng. Kiểm soát luồng nhằm kiểm soát tốc độ gửi của sender, đảm bảo receiver kịp nhận.** Trường window trong segment xác nhận do receiver gửi có thể dùng để kiểm soát kích thước cửa sổ sender, từ đó ảnh hưởng đến tốc độ gửi của sender. Đặt trường window về 0 thì sender không thể gửi dữ liệu.
 
-**为什么需要流量控制?** 这是因为双方在通信的时候，发送方的速率与接收方的速率是不一定相等，如果发送方的发送速率太快，会导致接收方处理不过来。如果接收方处理不过来的话，就只能把处理不过来的数据存在 **接收缓冲区(Receiving Buffers)** 里（失序的数据包也会被存放在缓存区里）。如果缓存区满了发送方还在狂发数据的话，接收方只能把收到的数据包丢掉。出现丢包问题的同时又疯狂浪费着珍贵的网络资源。因此，我们需要控制发送方的发送速率，让接收方与发送方处于一种动态平衡才好。
+**Tại sao cần kiểm soát luồng?** Vì trong quá trình giao tiếp, tốc độ gửi của sender và tốc độ nhận của receiver không nhất thiết bằng nhau. Nếu tốc độ gửi của sender quá nhanh, receiver sẽ không kịp xử lý. Nếu receiver không kịp xử lý, chỉ có thể lưu dữ liệu chưa kịp xử lý vào **Receiving Buffers** (dữ liệu không theo thứ tự cũng được lưu trong buffer). Nếu buffer đầy mà sender vẫn tiếp tục gửi điên cuồng, receiver chỉ có thể vứt bỏ các gói tin nhận được. Vừa xảy ra vấn đề mất gói vừa lãng phí tài nguyên mạng quý báu. Do đó cần kiểm soát tốc độ gửi của sender để sender và receiver ở trạng thái cân bằng động.
 
-这里需要注意的是（常见误区）：
+Cần lưu ý (hiểu nhầm phổ biến):
 
-- 发送端不等同于客户端
-- 接收端不等同于服务端
+- Sender không đồng nghĩa với client
+- Receiver không đồng nghĩa với server
 
-TCP 为全双工(Full-Duplex, FDX)通信，双方可以进行双向通信，客户端和服务端既可能是发送端又可能是服务端。因此，两端各有一个发送缓冲区与接收缓冲区，两端都各自维护一个发送窗口和一个接收窗口。接收窗口大小取决于应用、系统、硬件的限制（TCP 传输速率不能大于应用的数据处理速率）。通信双方的发送窗口和接收窗口的要求相同
+TCP là giao tiếp full-duplex (FDX), cả hai bên có thể giao tiếp hai chiều, client và server đều có thể vừa là sender vừa là receiver. Do đó, mỗi đầu có một send buffer và một receive buffer, cả hai đầu đều tự duy trì một send window và một receive window. Kích thước receive window phụ thuộc vào giới hạn của ứng dụng, hệ thống, phần cứng (tốc độ truyền TCP không thể lớn hơn tốc độ xử lý dữ liệu của ứng dụng). Yêu cầu send window và receive window của hai bên giao tiếp là như nhau.
 
-**TCP 发送窗口可以划分成四个部分**：
+**Send window TCP có thể chia thành bốn phần**:
 
-1. 已经发送并且确认的 TCP 段（已经发送并确认）；
-2. 已经发送但是没有确认的 TCP 段（已经发送未确认）；
-3. 未发送但是接收方准备接收的 TCP 段（可以发送）；
-4. 未发送并且接收方也并未准备接受的 TCP 段（不可发送）。
+1. Segment TCP đã gửi và đã được xác nhận (đã gửi, đã xác nhận);
+2. Segment TCP đã gửi nhưng chưa được xác nhận (đã gửi, chưa xác nhận);
+3. Segment TCP chưa gửi nhưng receiver sẵn sàng nhận (có thể gửi);
+4. Segment TCP chưa gửi và receiver cũng chưa sẵn sàng nhận (không thể gửi).
 
-**TCP 发送窗口结构图示**：
+**Sơ đồ cấu trúc send window TCP**:
 
-![TCP发送窗口结构](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-send-window.png)
+![Cấu trúc send window TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-send-window.png)
 
-- **SND.WND**：发送窗口。
-- **SND.UNA**：Send Unacknowledged 指针，指向发送窗口的第一个字节。
-- **SND.NXT**：Send Next 指针，指向可用窗口的第一个字节。
+- **SND.WND**: Send window.
+- **SND.UNA**: Con trỏ Send Unacknowledged, trỏ đến byte đầu tiên của send window.
+- **SND.NXT**: Con trỏ Send Next, trỏ đến byte đầu tiên của available window.
 
-**可用窗口大小** = `SND.UNA + SND.WND - SND.NXT` 。
+**Kích thước available window** = `SND.UNA + SND.WND - SND.NXT`.
 
-**TCP 接收窗口可以划分成三个部分**：
+**Receive window TCP có thể chia thành ba phần**:
 
-1. 已经接收并且已经确认的 TCP 段（已经接收并确认）；
-2. 等待接收且允许发送方发送 TCP 段（可以接收未确认）；
-3. 不可接收且不允许发送方发送 TCP 段（不可接收）。
+1. Segment TCP đã nhận và đã xác nhận (đã nhận, đã xác nhận);
+2. Chờ nhận và cho phép sender gửi segment TCP (có thể nhận, chưa xác nhận);
+3. Không thể nhận và không cho phép sender gửi segment TCP (không thể nhận).
 
-**TCP 接收窗口结构图示**：
+**Sơ đồ cấu trúc receive window TCP**:
 
-![TCP接收窗口结构](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-receive-window.png)
+![Cấu trúc receive window TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-receive-window.png)
 
-**接收窗口的大小是根据接收端处理数据的速度动态调整的。** 如果接收端读取数据快，接收窗口可能会扩大。 否则，它可能会缩小。
+**Kích thước receive window được điều chỉnh động dựa trên tốc độ xử lý dữ liệu của receiver.** Nếu receiver đọc dữ liệu nhanh, receive window có thể mở rộng. Ngược lại có thể thu hẹp.
 
-另外，这里的滑动窗口大小只是为了演示使用，实际窗口大小通常会远远大于这个值。
+Ngoài ra, kích thước sliding window ở đây chỉ dùng để minh họa, kích thước window thực tế thường lớn hơn nhiều so với giá trị này.
 
-## TCP 的拥塞控制是怎么实现的？
+## Kiểm soát tắc nghẽn của TCP được thực hiện như thế nào?
 
-在某段时间，若对网络中某一资源的需求超过了该资源所能提供的可用部分，网络的性能就要变坏。这种情况就叫拥塞。拥塞控制就是为了防止过多的数据注入到网络中，这样就可以使网络中的路由器或链路不致过载。拥塞控制所要做的都有一个前提，就是网络能够承受现有的网络负荷。拥塞控制是一个全局性的过程，涉及到所有的主机，所有的路由器，以及与降低网络传输性能有关的所有因素。相反，流量控制往往是点对点通信量的控制，是个端到端的问题。流量控制所要做到的就是抑制发送端发送数据的速率，以便使接收端来得及接收。
+Trong một khoảng thời gian nhất định, nếu nhu cầu về một tài nguyên nào đó trong mạng vượt quá phần khả dụng mà tài nguyên đó có thể cung cấp, hiệu suất mạng sẽ trở nên tệ hơn. Tình trạng này gọi là tắc nghẽn. Kiểm soát tắc nghẽn nhằm ngăn quá nhiều dữ liệu được đưa vào mạng, tránh router hoặc liên kết trong mạng bị quá tải. Tất cả các biện pháp kiểm soát tắc nghẽn đều có một tiền đề là mạng có thể chịu đựng tải mạng hiện tại. Kiểm soát tắc nghẽn là một quá trình toàn cục, liên quan đến tất cả host, tất cả router và tất cả các yếu tố liên quan đến giảm hiệu suất truyền tải mạng. Ngược lại, kiểm soát luồng thường là kiểm soát lưu lượng giao tiếp điểm-điểm, là vấn đề end-to-end. Mục tiêu của kiểm soát luồng là kiềm chế tốc độ gửi dữ liệu của sender để receiver kịp nhận.
 
-![TCP的拥塞控制](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-congestion-control.png)
+![Kiểm soát tắc nghẽn TCP](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-congestion-control.png)
 
-为了进行拥塞控制，TCP 发送方要维持一个 **拥塞窗口(cwnd)** 的状态变量。拥塞控制窗口的大小取决于网络的拥塞程度，并且动态变化。发送方让自己的发送窗口取为拥塞窗口和接收方的接受窗口中较小的一个。
+Để thực hiện kiểm soát tắc nghẽn, TCP sender phải duy trì một biến trạng thái **congestion window (cwnd)**. Kích thước congestion window phụ thuộc vào mức độ tắc nghẽn mạng và thay đổi động. Sender đặt send window của mình bằng giá trị nhỏ hơn giữa congestion window và receive window của receiver.
 
-TCP 的拥塞控制采用了四种算法，即 **慢开始**、 **拥塞避免**、**快重传** 和 **快恢复**。在网络层也可以使路由器采用适当的分组丢弃策略（如主动队列管理 AQM），以减少网络拥塞的发生。
+Kiểm soát tắc nghẽn TCP sử dụng bốn thuật toán: **Slow Start (khởi đầu chậm)**, **Congestion Avoidance (tránh tắc nghẽn)**, **Fast Retransmit (truyền lại nhanh)** và **Fast Recovery (phục hồi nhanh)**. Ở tầng mạng cũng có thể cho router áp dụng chiến lược loại bỏ gói phù hợp (như Active Queue Management — AQM) để giảm xảy ra tắc nghẽn mạng.
 
-- **慢开始：** 慢开始算法的思路是当主机开始发送数据时，如果立即把大量数据字节注入到网络，那么可能会引起网络阻塞，因为现在还不知道网络的负荷情况。经验表明，较好的方法是先探测一下，即由小到大逐渐增大发送窗口，也就是由小到大逐渐增大拥塞窗口数值。cwnd 初始值为 1，每经过一个传播轮次，cwnd 加倍。
-- **拥塞避免：** 拥塞避免算法的思路是让拥塞窗口 cwnd 缓慢增大，即每经过一个往返时间 RTT 就把发送方的 cwnd 加 1.
-- **快重传与快恢复：** 在 TCP/IP 中，快速重传和恢复（fast retransmit and recovery，FRR）是一种拥塞控制算法，它能快速恢复丢失的数据包。没有 FRR，如果数据包丢失了，TCP 将会使用定时器来要求传输暂停。在暂停的这段时间内，没有新的或复制的数据包被发送。有了 FRR，如果接收机接收到一个不按顺序的数据段，它会立即给发送机发送一个重复确认。如果发送机接收到三个重复确认，它会假定确认件指出的数据段丢失了，并立即重传这些丢失的数据段。有了 FRR，就不会因为重传时要求的暂停被耽误。 　当有单独的数据包丢失时，快速重传和恢复（FRR）能最有效地工作。当有多个数据信息包在某一段很短的时间内丢失时，它则不能很有效地工作。
+- **Slow Start**: Ý tưởng của thuật toán slow start là khi host bắt đầu gửi dữ liệu, nếu ngay lập tức đưa lượng lớn byte dữ liệu vào mạng, có thể gây tắc nghẽn mạng vì lúc này chưa biết tình trạng tải mạng. Kinh nghiệm cho thấy cách tốt hơn là thăm dò trước, tức là tăng dần send window từ nhỏ đến lớn, nghĩa là tăng dần giá trị congestion window từ nhỏ đến lớn. cwnd khởi đầu bằng 1, mỗi vòng truyền lan qua, cwnd tăng gấp đôi.
+- **Congestion Avoidance**: Ý tưởng của thuật toán congestion avoidance là cho congestion window cwnd tăng chậm dần, tức là mỗi RTT (Round-Trip Time) chỉ tăng cwnd của sender thêm 1.
+- **Fast Retransmit và Fast Recovery**: Trong TCP/IP, Fast Retransmit and Recovery (FRR) là một thuật toán kiểm soát tắc nghẽn có thể phục hồi nhanh các gói tin bị mất. Nếu không có FRR, khi một gói tin bị mất, TCP sẽ dùng timer để yêu cầu tạm dừng truyền. Trong thời gian tạm dừng này, không có gói mới hay gói trùng lặp nào được gửi. Với FRR, nếu receiver nhận được một segment không theo thứ tự, nó ngay lập tức gửi cho sender một duplicate ACK (xác nhận trùng lặp). Nếu sender nhận được ba duplicate ACK, nó sẽ giả định rằng segment được chỉ ra trong ACK đã bị mất và ngay lập tức retransmit các segment bị mất đó. Với FRR, không bị trì hoãn bởi việc tạm dừng yêu cầu trong quá trình retransmit. Khi chỉ có một gói dữ liệu đơn lẻ bị mất, FRR hoạt động hiệu quả nhất. Khi nhiều gói dữ liệu bị mất trong một khoảng thời gian ngắn, nó không hoạt động hiệu quả.
 
-## ARQ 协议了解吗?
+## Bạn có hiểu giao thức ARQ không?
 
-**自动重传请求**（Automatic Repeat-reQuest，ARQ）是 OSI 模型中数据链路层和传输层的错误纠正协议之一。它通过使用确认和超时这两个机制，在不可靠服务的基础上实现可靠的信息传输。如果发送方在发送后一段时间之内没有收到确认信息（Acknowledgements，就是我们常说的 ACK），它通常会重新发送，直到收到确认或者重试超过一定的次数。
+**ARQ (Automatic Repeat-reQuest — Yêu cầu phát lại tự động)** là một trong các giao thức sửa lỗi ở tầng data link và tầng vận chuyển trong mô hình OSI. Nó thực hiện truyền thông tin đáng tin cậy trên cơ sở dịch vụ không đáng tin cậy thông qua hai cơ chế: xác nhận và timeout. Nếu sender không nhận được thông tin xác nhận (ACK) trong một khoảng thời gian sau khi gửi, nó thường sẽ gửi lại cho đến khi nhận được xác nhận hoặc đã thử lại vượt quá số lần nhất định.
 
-ARQ 包括停止等待 ARQ 协议和连续 ARQ 协议。
+ARQ bao gồm giao thức Stop-and-Wait ARQ và giao thức Continuous ARQ.
 
-### 停止等待 ARQ 协议
+### Giao thức Stop-and-Wait ARQ
 
-停止等待协议是为了实现可靠传输的，它的基本原理就是每发完一个分组就停止发送，等待对方确认（回复 ACK）。如果过了一段时间（超时时间后），还是没有收到 ACK 确认，说明没有发送成功，需要重新发送，直到收到确认后再发下一个分组；
+Giao thức Stop-and-Wait nhằm thực hiện truyền đáng tin cậy. Nguyên lý cơ bản là gửi xong mỗi packet thì dừng gửi, chờ đối phương xác nhận (trả ACK). Nếu sau một khoảng thời gian (timeout) vẫn không nhận được xác nhận ACK, nghĩa là gửi không thành công, cần gửi lại cho đến khi nhận được xác nhận mới gửi packet tiếp theo.
 
-在停止等待协议中，若接收方收到重复分组，就丢弃该分组，但同时还要发送确认。
+Trong giao thức Stop-and-Wait, nếu receiver nhận được packet trùng lặp, sẽ loại bỏ packet đó nhưng vẫn phải gửi xác nhận.
 
-**1) 无差错情况:**
+**1) Trường hợp không có lỗi:**
 
-发送方发送分组,接收方在规定时间内收到,并且回复确认.发送方再次发送。
+Sender gửi packet, receiver nhận trong thời gian quy định và trả lời xác nhận. Sender tiếp tục gửi.
 
-**2) 出现差错情况（超时重传）:**
+**2) Trường hợp có lỗi (timeout retransmit):**
 
-停止等待协议中超时重传是指只要超过一段时间仍然没有收到确认，就重传前面发送过的分组（认为刚才发送过的分组丢失了）。因此每发送完一个分组需要设置一个超时计时器，其重传时间应比数据在分组传输的平均往返时间更长一些。这种自动重传方式常称为 **自动重传请求 ARQ** 。另外在停止等待协议中若收到重复分组，就丢弃该分组，但同时还要发送确认。
+Timeout retransmit trong giao thức Stop-and-Wait là chỉ cần vượt quá một khoảng thời gian mà vẫn không nhận được xác nhận, sẽ retransmit packet đã gửi trước đó (coi rằng packet vừa gửi đã bị mất). Do đó, sau mỗi lần gửi xong một packet cần đặt một timeout timer, thời gian retransmit phải dài hơn RTT trung bình của gói tin trong mạng. Cách tự động retransmit này thường được gọi là **ARQ (Automatic Repeat-reQuest)**. Ngoài ra trong giao thức Stop-and-Wait, nếu nhận được packet trùng lặp thì loại bỏ packet đó nhưng vẫn phải gửi xác nhận.
 
-**3) 确认丢失和确认迟到**
+**3) Xác nhận bị mất và xác nhận bị trễ**
 
-- **确认丢失**：确认消息在传输过程丢失。当 A 发送 M1 消息，B 收到后，B 向 A 发送了一个 M1 确认消息，但却在传输过程中丢失。而 A 并不知道，在超时计时过后，A 重传 M1 消息，B 再次收到该消息后采取以下两点措施：1. 丢弃这个重复的 M1 消息，不向上层交付。 2. 向 A 发送确认消息。（不会认为已经发送过了，就不再发送。A 能重传，就证明 B 的确认消息丢失）。
-- **确认迟到**：确认消息在传输过程中迟到。A 发送 M1 消息，B 收到并发送确认。在超时时间内没有收到确认消息，A 重传 M1 消息，B 仍然收到并继续发送确认消息（B 收到了 2 份 M1）。此时 A 收到了 B 第二次发送的确认消息。接着发送其他数据。过了一会，A 收到了 B 第一次发送的对 M1 的确认消息（A 也收到了 2 份确认消息）。处理如下：1. A 收到重复的确认后，直接丢弃。2. B 收到重复的 M1 后，也直接丢弃重复的 M1。
+- **Xác nhận bị mất**: Message xác nhận bị mất trong quá trình truyền. Khi A gửi message M1, B nhận được và gửi message xác nhận M1 cho A, nhưng bị mất trong quá trình truyền. A không biết điều này, sau timeout A gửi lại M1, B nhận lại message này thực hiện hai biện pháp sau: 1. Loại bỏ message M1 trùng lặp này, không chuyển lên tầng trên. 2. Gửi message xác nhận cho A. (Không phải vì đã gửi rồi thì không gửi nữa. A có thể retransmit, chứng tỏ message xác nhận của B đã bị mất).
+- **Xác nhận bị trễ**: Message xác nhận bị trễ trong quá trình truyền. A gửi M1, B nhận và gửi xác nhận. Trong thời gian timeout không nhận được xác nhận, A retransmit M1, B vẫn nhận và tiếp tục gửi xác nhận (B nhận được 2 bản M1). Lúc này A nhận được message xác nhận thứ hai do B gửi. Tiếp tục gửi dữ liệu khác. Sau một lúc, A nhận được message xác nhận M1 đầu tiên do B gửi (A cũng nhận được 2 bản xác nhận). Xử lý như sau: 1. A nhận được xác nhận trùng lặp thì bỏ qua thẳng. 2. B nhận được M1 trùng lặp cũng bỏ qua thẳng M1 trùng lặp.
 
-### 连续 ARQ 协议
+### Giao thức Continuous ARQ
 
-连续 ARQ 协议可提高信道利用率。发送方维持一个发送窗口，凡位于发送窗口内的分组可以连续发送出去，而不需要等待对方确认。接收方一般采用累计确认，对按序到达的最后一个分组发送确认，表明到这个分组为止的所有分组都已经正确收到了。
+Giao thức Continuous ARQ có thể cải thiện hiệu quả sử dụng kênh. Sender duy trì một send window, tất cả các packet nằm trong send window có thể được gửi liên tục mà không cần chờ đối phương xác nhận. Receiver thường dùng cumulative acknowledgement, gửi xác nhận cho packet cuối cùng đến theo thứ tự, cho biết tất cả các packet đến packet này đều đã nhận đúng.
 
-- **优点：** 信道利用率高，容易实现，即使确认丢失，也不必重传。
-- **缺点：** 不能向发送方反映出接收方已经正确收到的所有分组的信息。 比如：发送方发送了 5 条 消息，中间第三条丢失（3 号），这时接收方只能对前两个发送确认。发送方无法知道后三个分组的下落，而只好把后三个全部重传一次。这也叫 Go-Back-N（回退 N），表示需要退回来重传已经发送过的 N 个消息。
+- **Ưu điểm**: Hiệu quả sử dụng kênh cao, dễ triển khai, ngay cả khi xác nhận bị mất cũng không cần retransmit.
+- **Nhược điểm**: Không thể thông báo cho sender biết thông tin về tất cả các packet mà receiver đã nhận đúng. Ví dụ: sender gửi 5 message, packet thứ 3 ở giữa bị mất (số 3), lúc này receiver chỉ có thể gửi xác nhận cho hai packet đầu. Sender không biết số phận của 3 packet sau, đành phải gửi lại cả 3 packet đó. Đây còn gọi là Go-Back-N (quay lại N), nghĩa là cần quay lại retransmit N message đã gửi trước đó.
 
-## 超时重传如何实现？超时重传时间怎么确定？
+## Timeout retransmit được thực hiện như thế nào? RTO được xác định như thế nào?
 
-当发送方发送数据之后，它启动一个定时器，等待目的端确认收到这个报文段。接收端实体对已成功收到的包发回一个相应的确认信息（ACK）。如果发送端实体在合理的往返时延（RTT）内未收到确认消息，那么对应的数据包就被假设为[已丢失](https://zh.wikipedia.org/wiki/丢包)并进行重传。
+Khi sender gửi dữ liệu, nó khởi động một timer, chờ đầu nhận xác nhận nhận được segment này. Receiver gửi lại ACK tương ứng cho mỗi packet đã nhận thành công. Nếu sender không nhận được xác nhận trong RTT (Round-Trip Time) hợp lý, gói tin tương ứng được giả định là [đã mất](https://zh.wikipedia.org/wiki/丢包) và được retransmit.
 
-- RTT（Round Trip Time）：往返时间，也就是数据包从发出去到收到对应 ACK 的时间。
-- RTO（Retransmission Time Out）：重传超时时间，即从数据发送时刻算起，超过这个时间便执行重传。
+- RTT (Round Trip Time): Thời gian khứ hồi, là thời gian từ khi gửi gói tin đến khi nhận được ACK tương ứng.
+- RTO (Retransmission Time Out): Thời gian timeout retransmit, tức là tính từ thời điểm gửi dữ liệu, vượt quá thời gian này thì thực hiện retransmit.
 
-RTO 的确定是一个关键问题，因为它直接影响到 TCP 的性能和效率。如果 RTO 设置得太小，会导致不必要的重传，增加网络负担；如果 RTO 设置得太大，会导致数据传输的延迟，降低吞吐量。因此，RTO 应该根据网络的实际状况，动态地进行调整。
+Việc xác định RTO là vấn đề quan trọng vì nó ảnh hưởng trực tiếp đến hiệu suất và hiệu quả của TCP. Nếu RTO đặt quá nhỏ, sẽ gây retransmit không cần thiết, tăng tải mạng; nếu RTO đặt quá lớn, sẽ gây trễ truyền dữ liệu, giảm throughput. Do đó RTO cần được điều chỉnh động dựa trên tình trạng thực tế của mạng.
 
-RTT 的值会随着网络的波动而变化，所以 TCP 不能直接使用 RTT 作为 RTO。为了动态地调整 RTO，TCP 协议采用了一些算法，如加权移动平均（EWMA）算法，Karn 算法，Jacobson 算法等，这些算法都是根据往返时延（RTT）的测量和变化来估计 RTO 的值。
+Giá trị RTT thay đổi theo biến động của mạng, nên TCP không thể dùng trực tiếp RTT làm RTO. Để điều chỉnh RTO động, giao thức TCP sử dụng một số thuật toán như EWMA (Exponentially Weighted Moving Average), thuật toán Karn, thuật toán Jacobson, v.v. Các thuật toán này đều ước tính giá trị RTO dựa trên đo lường và thay đổi của RTT.
 
-## 参考
+## Tài liệu tham khảo
 
-1. 《计算机网络（第 7 版）》
-2. 《图解 HTTP》
+1. 《Mạng máy tính (Phiên bản 7)》
+2. 《Giải thích HTTP bằng hình ảnh》
 3. [https://www.9tut.com/tcp-and-udp-tutorial](https://www.9tut.com/tcp-and-udp-tutorial)
 4. [https://github.com/wolverinn/Waking-Up/blob/master/Computer%20Network.md](https://github.com/wolverinn/Waking-Up/blob/master/Computer%20Network.md)
-5. TCP Flow Control—[https://www.brianstorti.com/tcp-flow-control/](https://www.brianstorti.com/tcp-flow-control/)
-6. TCP 流量控制(Flow Control)：<https://notfalse.net/24/tcp-flow-control>
-7. TCP 之滑动窗口原理 : <https://cloud.tencent.com/developer/article/1857363>
+5. TCP Flow Control — [https://www.brianstorti.com/tcp-flow-control/](https://www.brianstorti.com/tcp-flow-control/)
+6. TCP Flow Control: <https://notfalse.net/24/tcp-flow-control>
+7. Nguyên lý sliding window TCP: <https://cloud.tencent.com/developer/article/1857363>
 
 <!-- @include: @article-footer.snippet.md -->

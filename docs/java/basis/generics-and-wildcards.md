@@ -1,38 +1,39 @@
 ---
-title: 泛型&通配符详解
-description: 全面解析Java泛型与通配符：深入理解类型擦除机制、上界下界通配符用法、PECS原则应用，掌握泛型编程核心技巧。
+title: Chi Tiết Về Kiểu Dữ Liệu Chung & Ký Tự Đại Diện
+description: Phân tích toàn diện về kiểu dữ liệu chung Java và ký tự đại diện Hiểu sâu cơ chế xóa kiểu, cách sử dụng ký tự đại diện giới hạn trên và dưới, nguyên tắc PECS, nắm vững kỹ thuật lập trình kiểu dữ liệu chung cốt lõi.
 category: Java
 tag:
-  - Java基础
+  - Java Cơ Bản
 head:
   - - meta
     - name: keywords
-      content: Java泛型,通配符,类型擦除,泛型边界,PECS原则,泛型方法,上界下界通配符,泛型接口
+      content: Java kiểu dữ liệu chung, ký tự đại diện, xóa kiểu, giới hạn kiểu dữ liệu, nguyên tắc PECS, phương thức kiểu dữ liệu chung, giao diện kiểu dữ liệu chung
 ---
 
-## 泛型
+## Kiểu Dữ Liệu Chung
 
-### 什么是泛型？有什么作用？
+### Kiểu Dữ Liệu Chung Là Gì? Có Tác Dụng Gì?
 
-**Java 泛型（Generics）** 是 JDK 5 中引入的一个新特性。使用泛型参数，可以增强代码的可读性以及稳定性。**如无特别说明，以下行为以 Java 8 为准。**
+**Kiểu dữ liệu chung Java (Generics)** là tính năng mới được giới thiệu trong JDK 5. Sử dụng tham số kiểu dữ liệu chung, có thể tăng khả năng đọc hiểu và tính ổn định của code. **Nếu không có hướng dẫn đặc biệt, hành động sau đây dựa trên Java 8.**
 
-编译器可以对泛型参数进行检测，并且通过泛型参数可以指定传入的对象类型。比如 `ArrayList<Person> persons = new ArrayList<Person>()` 这行代码指明了该 `ArrayList` 只能传入 `Person` 类型的对象，如果传入其他类型会报错（JDK 7 起可写 `new ArrayList<>()`，由编译器推断类型参数）。
+Trình biên dịch có thể kiểm tra tham số kiểu dữ liệu chung, và thông qua tham số kiểu dữ liệu chung có thể chỉ định loại đối tượng được truyền vào. Ví dụ `ArrayList<Person> persons = new ArrayList<Person>()` dòng code này chỉ rõ rằng `ArrayList` này chỉ có thể chứa các đối tượng kiểu `Person`, nếu truyền vào kiểu khác sẽ báo lỗi (từ JDK 7 có thể viết `new ArrayList<>()`, trình biên dịch sẽ suy luận tham số kiểu).
 
 ```java
 ArrayList<E> extends AbstractList<E>
 ```
 
-并且，原生 `List` 返回类型是 `Object` ，需要手动转换类型才能使用，使用泛型后编译器自动转换。
+Ngoài ra, `List` gốc có kiểu trả về là `Object`, cần chuyển đổi kiểu thủ công để sử dụng, sử dụng kiểu dữ liệu chung sau khi trình biên dịch tự động chuyển đổi.
 
-### 泛型的使用方式有哪几种？
+### Có Bao Nhiêu Cách Sử Dụng Kiểu Dữ Liệu Chung?
 
-泛型一般有三种使用方式:**泛型类**、**泛型接口**、**泛型方法**。
+Kiểu dữ liệu chung thường có ba cách sử dụng: **lớp kiểu dữ liệu chung**, **giao diện kiểu dữ liệu chung**, **phương thức kiểu dữ liệu chung**.
 
-**1.泛型类**：
+**1. Lớp Kiểu Dữ Liệu Chung:**
 
 ```java
-//此处T可以随便写为任意标识，常见的如T、E、K、V等形式的参数常用于表示泛型
-//在实例化泛型类时，必须指定T的具体类型
+// T ở đây có thể là bất kỳ định danh nào, các định danh như T, E, K, V thường được sử dụng
+// để đại diện cho tham số kiểu dữ liệu chung
+// Khi tạo instance của lớp kiểu dữ liệu chung, phải chỉ định kiểu cụ thể của T
 public class Generic<T>{
 
     private T key;
@@ -47,14 +48,14 @@ public class Generic<T>{
 }
 ```
 
-如何实例化泛型类：
+Cách tạo instance của lớp kiểu dữ liệu chung:
 
 ```java
 Generic<Integer> genericInteger = new Generic<Integer>(123456);
-// JDK 7 起可写：new Generic<>(123456)
+// Từ JDK 7 có thể viết: new Generic<>(123456)
 ```
 
-**2.泛型接口** ：
+**2. Giao Diện Kiểu Dữ Liệu Chung:**
 
 ```java
 public interface Generator<T> {
@@ -62,7 +63,7 @@ public interface Generator<T> {
 }
 ```
 
-实现泛型接口，不指定类型：
+Triển khai giao diện kiểu dữ liệu chung, không chỉ định kiểu:
 
 ```java
 class GeneratorImpl<T> implements Generator<T>{
@@ -73,7 +74,7 @@ class GeneratorImpl<T> implements Generator<T>{
 }
 ```
 
-实现泛型接口，指定类型：
+Triển khai giao diện kiểu dữ liệu chung, chỉ định kiểu:
 
 ```java
 class GeneratorImpl implements Generator<String> {
@@ -84,7 +85,7 @@ class GeneratorImpl implements Generator<String> {
 }
 ```
 
-**3.泛型方法** ：
+**3. Phương Thức Kiểu Dữ Liệu Chung:**
 
 ```java
    public static < E > void printArray( E[] inputArray )
@@ -96,71 +97,69 @@ class GeneratorImpl implements Generator<String> {
     }
 ```
 
-使用：
+Cách sử dụng:
 
 ```java
-// 创建不同类型数组： Integer, Double 和 Character
+// Tạo mảng các kiểu khác nhau: Integer, Double và Character
 Integer[] intArray = { 1, 2, 3 };
 String[] stringArray = { "Hello", "World" };
 printArray( intArray  );
 printArray( stringArray  );
 ```
 
-### 项目中哪里用到了泛型？
+### Dự Án Sử Dụng Kiểu Dữ Liệu Chung Ở Đâu?
 
-- 自定义接口通用返回结果 `CommonResult<T>` 通过参数 `T` 可根据具体的返回类型动态指定结果的数据类型
-- 定义 `Excel` 处理类 `ExcelUtil<T>` 用于动态指定 `Excel` 导出的数据类型
-- 构建集合工具类（参考 `Collections` 中的 `sort`, `binarySearch` 方法）。
+- Tự định nghĩa giao diện kết quả trả về chung `CommonResult<T>` thông qua tham số `T` có thể xác định động kiểu dữ liệu của kết quả dựa trên kiểu trả về cụ thể
+- Định nghĩa lớp xử lý `Excel` `ExcelUtil<T>` để xác định động kiểu dữ liệu của dữ liệu xuất Excel
+- Xây dựng lớp tiện ích tập hợp (tham khảo các phương thức `sort`, `binarySearch` trong `Collections`)
 - ……
 
-### 什么是泛型擦除机制？为什么要擦除?
+### Cơ Chế Xóa Kiểu Dữ Liệu Chung Là Gì? Tại Sao Phải Xóa?
 
-**Java 的泛型是伪泛型，这是因为 Java 在编译期间，所有的泛型信息都会被擦掉，这也就是通常所说类型擦除 。**
+**Kiểu dữ liệu chung của Java là giả, vì Java trong quá trình biên dịch, tất cả thông tin kiểu dữ liệu chung đều sẽ bị xóa, đây cũng là cách gọi thường thấy của xóa kiểu.**
 
-编译器会在编译期间会动态地将泛型 `T` 擦除为 `Object` 或将 `T extends xxx` 擦除为其限定类型 `xxx` 。
+Trình biên dịch sẽ xóa động kiểu dữ liệu chung `T` thành `Object` hoặc xóa `T extends xxx` thành kiểu giới hạn `xxx` trong quá trình biên dịch.
 
-因此，泛型本质上其实还是编译器的行为，为了保证引入泛型机制但不创建新的类型，减少虚拟机的运行开销，编译器通过擦除将泛型类转化为一般类。
+Do đó, kiểu dữ liệu chung về cơ bản thực chất là hành vi của trình biên dịch, để đảm bảo giới thiệu cơ chế kiểu dữ liệu chung nhưng không tạo ra kiểu mới, giảm chi phí runtime của máy ảo, trình biên dịch thông qua xóa sẽ chuyển đổi lớp kiểu dữ liệu chung thành lớp thông thường.
 
-这里说的可能有点抽象，我举个例子：
+Điều này có thể hơi trừu tượng, tôi sẽ đưa ra một ví dụ:
 
 ```java
 List<Integer> list = new ArrayList<>();
 
 list.add(12);
-//1.编译期间直接添加会报错
+//1. Trong quá trình biên dịch sẽ báo lỗi trực tiếp
 list.add("a");
 Class<? extends List> clazz = list.getClass();
 Method add = clazz.getDeclaredMethod("add", Object.class);
-//2.运行期间通过反射添加，是可以的
+//2. Trong thời gian chạy thông qua phản ánh, có thể được thêm vào
 add.invoke(list, "kl");
 
 System.out.println(list)
 ```
 
-再来举一个例子 : 由于泛型擦除的问题，下面的方法重载会报错。
+Một ví dụ khác: Do vấn đề xóa kiểu dữ liệu chung, việc nạp chồng phương thức sau đây sẽ báo lỗi.
 
 ```java
 public void print(List<String> list)  { }
 public void print(List<Integer> list) { }
 ```
 
-![泛型擦除的问题](https://oss.javaguide.cn/github/javaguide/java/basis/generics-runtime-erasure.png)
+Nguyên nhân cũng rất đơn giản, sau khi xóa kiểu dữ liệu chung, `List<String>` và `List<Integer>` đều trở thành `List` sau khi biên dịch.
 
-原因也很简单，泛型擦除之后，`List<String>` 与 `List<Integer>` 在编译以后都变成了 `List` 。
+**Vì trình biên dịch phải xóa kiểu dữ liệu chung, vậy tại sao vẫn phải sử dụng kiểu dữ liệu chung? Dùng Object thay thế được không?**
 
-**既然编译器要把泛型擦除，那为什么还要用泛型呢？用 Object 代替不行吗？**
+Câu hỏi này thực chất là kiểm tra biểu diễn tác dụng của kiểu dữ liệu chung:
 
-这个问题其实在变相考察泛型的作用：
+- Có thể sử dụng kiểu dữ liệu chung để kiểm tra kiểu trong thời gian biên dịch.
 
-- 使用泛型可在编译期间进行类型检测。
+- Sử dụng kiểu `Object` cần thêm chuyển đổi kiểu ép buộc thủ công, giảm khả năng đọc hiểu code, tăng xác suất lỗi.
 
-- 使用 `Object` 类型需要手动添加强制类型转换，降低代码可读性，提高出错概率。
+- Kiểu dữ liệu chung có thể sử dụng kiểu tự giới hạn như `T extends Comparable`.
 
-- 泛型可以使用自限定类型如 `T extends Comparable` 。
+### Phương Thức Cầu Nối Là Gì?
 
-### 什么是桥方法？
-
-桥方法(`Bridge Method`) 用于继承泛型类时保证多态。
+Phương thức cầu nối (`Bridge Method`) dùng để bảo tồn đa hình khi kế thừa lớp kiểu dữ liệu chung.
 
 ```java
 class Node<T> {
@@ -175,7 +174,8 @@ class Node<T> {
 class MyNode extends Node<Integer> {
     public MyNode(Integer data) { super(data); }
 
-  	// Node<T> 泛型擦除后为 setData(Object data)，而子类 MyNode 中并没有重写该方法，所以编译器会加入该桥方法保证多态
+  	// Sau khi xóa kiểu dữ liệu chung, Node<T> trở thành setData(Object data), còn lớp con MyNode không có phương thức override này,
+   	// vì vậy trình biên dịch sẽ thêm phương thức cầu nối này để bảo tồn đa hình
    	public void setData(Object data) {
         setData((Integer) data);
     }
@@ -187,22 +187,22 @@ class MyNode extends Node<Integer> {
 }
 ```
 
-⚠️**注意** ：桥方法为编译器自动生成，非手写。
+⚠️ **Lưu Ý**: Phương thức cầu nối được trình biên dịch tự động tạo ra, không phải viết thủ công.
 
-### 泛型有哪些限制？为什么？
+### Kiểu Dữ Liệu Chung Có Những Hạn Chế Nào? Tại Sao?
 
-泛型的限制一般是由泛型擦除机制导致的。擦除为 `Object` 后无法进行类型判断
+Các hạn chế của kiểu dữ liệu chung thường do cơ chế xóa kiểu dữ liệu chung gây ra. Sau khi xóa thành `Object` không thể xác định kiểu
 
-- 只能声明不能实例化 `T` 类型变量。
-- 泛型参数不能是基本类型。因为基本类型不是 `Object` 子类，应该用基本类型对应的引用类型代替。
-- 不能实例化泛型参数的数组。擦除后为 `Object` 后无法进行类型判断。
-- 不能实例化泛型数组。
-- 泛型无法使用 `instanceof` 对类型参数 T 做运行期判断；`getClass()` 在擦除后也无法区分不同泛型实参（如 `List<String>` 与 `List<Integer>` 均得到 `List.class`）。
-- 不能实现两个不同泛型参数的同一接口，擦除后多个父类的桥方法将冲突
-- 不能使用 `static` 修饰泛型变量
+- Chỉ có thể khai báo không thể tạo instance biến kiểu `T`.
+- Tham số kiểu dữ liệu chung không thể là kiểu dữ liệu cơ bản. Vì kiểu dữ liệu cơ bản không phải là lớp con của `Object`, nên nên sử dụng kiểu tham chiếu tương ứng với kiểu dữ liệu cơ bản.
+- Không thể tạo instance mảng của tham số kiểu dữ liệu chung. Sau khi xóa thành `Object` không thể xác định kiểu.
+- Không thể tạo instance mảng kiểu dữ liệu chung.
+- Kiểu dữ liệu chung không thể sử dụng `instanceof` để xác định kiểu tham số `T` trong thời gian chạy; `getClass()` cũng không thể phân biệt các tham số kiểu dữ liệu chung khác nhau sau khi xóa (ví dụ `List<String>` và `List<Integer>` đều nhận được `List.class`).
+- Không thể triển khai hai giao diện khác nhau với cùng tham số kiểu dữ liệu chung, phương thức cầu nối của nhiều lớp cha sẽ xung đột sau khi xóa
+- Không thể sử dụng `static` để sửa đổi biến kiểu dữ liệu chung
 - ……
 
-### 以下代码是否能编译，为什么？
+### Mã Code Dưới Đây Có Thể Biên Dịch Được Không? Tại Sao?
 
 ```java
 public final class Algorithm {
@@ -212,7 +212,7 @@ public final class Algorithm {
 }
 ```
 
-无法编译，因为 x 和 y 都会被擦除为 `Object` 类型， `Object` 无法使用 `>` 进行比较
+Không thể biên dịch, vì x và y sẽ bị xóa thành kiểu `Object`, `Object` không thể sử dụng `>` để so sánh
 
 ```java
 public class Singleton<T> {
@@ -228,95 +228,95 @@ public class Singleton<T> {
 }
 ```
 
-无法编译，因为不能使用 `static` 修饰泛型 `T` 。
+Không thể biên dịch, vì không thể sử dụng `static` để sửa đổi `T` kiểu dữ liệu chung.
 
-## 通配符
+## Ký Tự Đại Diện
 
-### 什么是通配符？有什么作用？
+### Ký Tự Đại Diện Là Gì? Có Tác Dụng Gì?
 
-泛型类型是固定的，某些场景下使用起来不太灵活，于是，通配符就来了！通配符可以允许类型参数变化，用来解决泛型无法协变的问题。
+Kiểu dữ liệu chung là cố định, một số tình huống nhất định khiến việc sử dụng không linh hoạt, vì vậy ký tự đại diện ra đời! Ký tự đại diện có thể cho phép tham số kiểu dữ liệu thay đổi, được sử dụng để giải quyết vấn đề kiểu dữ liệu chung không thể hiệp biến.
 
-举个例子：
+Ví dụ:
 
 ```java
-// 限制类型为 Person 的子类
+// Giới hạn kiểu là lớp con của Person
 <? extends Person>
-// 限制类型为 Manager 的父类
+// Giới hạn kiểu là lớp cha của Manager
 <? super Manager>
 ```
 
-### 通配符 ？和常用的泛型 T 之间有什么区别？
+### Khác Biệt Giữa Ký Tự Đại Diện ? Và Kiểu Dữ Liệu Chung T Thường Được Sử Dụng Là Gì?
 
-- `T` 可以用于声明变量或常量而 `?` 不行。
-- `T` 一般用于声明泛型类或方法，通配符 `?` 一般用于泛型方法的调用代码和形参。
-- `T` 在编译期会被擦除为限定类型或 `Object`。通配符 `?` 在方法内部会被编译器「捕获」为某个具体但未知的类型（capture），因此不能向 `List<?>` 写入除 `null` 外的元素，但可配合泛型方法使用。
+- `T` có thể được sử dụng để khai báo biến hoặc hằng số trong khi `?` thì không.
+- `T` thường được sử dụng để khai báo lớp kiểu dữ liệu chung hoặc phương thức, ký tự đại diện `?` thường được sử dụng trong mã gọi phương thức kiểu dữ liệu chung và tham số hình thức.
+- `T` sẽ bị xóa thành kiểu giới hạn hoặc `Object` trong quá trình biên dịch. Ký tự đại diện `?` sẽ bị trình biên dịch "bắt" thành một kiểu cụ thể nhưng chưa biết (capture) bên trong phương thức, do đó không thể ghi dữ liệu vào `List<?>` ngoại trừ `null`, nhưng có thể sử dụng cùng với phương thức kiểu dữ liệu chung.
 
-### 什么是无界通配符？
+### Ký Tự Đại Diện Không Giới Hạn Là Gì?
 
-无界通配符可以接收任何泛型类型数据，用于实现不依赖于具体类型参数的简单方法，可以捕获参数类型并交由泛型方法进行处理。
+Ký tự đại diện không giới hạn có thể nhận bất kỳ dữ liệu kiểu dữ liệu chung nào, được sử dụng để triển khai các phương thức đơn giản không phụ thuộc vào tham số kiểu cụ thể, có thể bắt tham số kiểu và giao cho phương thức kiểu dữ liệu chung xử lý.
 
 ```java
 void testMethod(Person<?> p) {
-  // 泛型方法自行处理
+  // Phương thức kiểu dữ liệu chung tự xử lý
 }
 ```
 
-**`List<?>` 和 `List` 有区别吗？** 当然有！
+**Có Khác Biệt Giữa `List<?>` Và `List` Không?** Dĩ nhiên là có!
 
-- `List<?> list` 表示 `list` 的元素类型是**某个未知但固定的类型**（即「存在某一类型 `T`，list 是 `List<T>`」），因此编译器不允许向其中添加除 `null` 外的任何元素，以避免类型不安全。
-- `List list` 表示 `list` 持有的元素类型是 `Object`，因此可以添加任何类型的对象，但编译器会给出警告。
+- `List<?> list` biểu thị các phần tử của `list` là **một kiểu nhất định nhưng chưa biết** (tức là có một kiểu `T`, `list` là `List<T>`), do đó trình biên dịch không cho phép thêm bất kỳ phần tử nào vào ngoại trừ `null`, để tránh không an toàn về kiểu.
+- `List list` biểu thị kiểu phần tử mà `list` nắm giữ là `Object`, do đó có thể thêm bất kỳ kiểu đối tượng nào, nhưng trình biên dịch sẽ đưa ra cảnh báo.
 
 ```java
 List<?> list = new ArrayList<>();
-list.add("sss");//报错
+list.add("sss");//báo lỗi
 List list2 = new ArrayList<>();
-list2.add("sss");//警告信息
+list2.add("sss");//cảnh báo
 ```
 
-### 什么是上边界通配符？什么是下边界通配符？
+### Ký Tự Đại Diện Giới Hạn Trên Là Gì? Ký Tự Đại Diện Giới Hạn Dưới Là Gì?
 
-在使用泛型的时候，我们还可以为传入的泛型类型实参进行上下边界的限制，如：**类型实参只准传入某种类型的父类或某种类型的子类**。
+Khi sử dụng kiểu dữ liệu chung, chúng ta còn có thể giới hạn giới hạn trên và dưới của tham số kiểu dữ liệu truyền vào, chẳng hạn: **tham số kiểu chỉ cho phép truyền vào kiểu cha hoặc lớp con của loại nào đó**.
 
-**上边界通配符 `extends`** 可以实现泛型的向上转型即传入的类型实参必须是指定类型的子类型。
+**Ký Tự Đại Diện Giới Hạn Trên `extends`** có thể thực hiện chuyển đổi kiểu dữ liệu chung lên tức là kiểu truyền vào phải là lớp con của kiểu chỉ định.
 
-举个例子：
+Ví dụ:
 
 ```java
-// 限制必须是 Person 类的子类
+// Giới hạn phải là lớp con của lớp Person
 <? extends Person>
 ```
 
-类型边界可以设置多个，还可以对 `T` 类型进行限制。
+Giới hạn kiểu có thể được đặt thành nhiều giới hạn, cũng có thể giới hạn kiểu `T`.
 
 ```java
 <T extends T1 & T2>
 <T extends XXX>
 ```
 
-**下边界通配符 `super`** 与上边界通配符 `extends`刚好相反，它可以实现泛型的向下转型即传入的类型实参必须是指定类型的父类型。
+**Ký Tự Đại Diện Giới Hạn Dưới `super`** là đối lập với ký tự đại diện giới hạn trên `extends`, nó có thể thực hiện chuyển đổi kiểu dữ liệu chung xuống tức là tham số kiểu truyền vào phải là lớp cha của kiểu chỉ định.
 
-举个例子：
+Ví dụ:
 
 ```java
-//  限制必须是 Employee 类的父类
+// Giới hạn phải là lớp cha của lớp Employee
 List<? super Employee>
 ```
 
-**`? extends xxx` 和 `? super xxx` 有什么区别?**
+**Khác Biệt Giữa `? extends xxx` Và `? super xxx` Là Gì?**
 
-两者接收参数的范围不同。并且，使用 `? extends xxx` 声明的泛型参数只能调用 `get()` 方法返回 `xxx` 类型，调用 `set()` 报错。使用 `? super xxx` 声明的泛型参数只能调用 `set()` 方法接收 xxx 类型，调用 `get()` 报错。
+Phạm vi nhận tham số của hai loại khác nhau. Ngoài ra, sử dụng tham số kiểu dữ liệu chung được khai báo bằng `? extends xxx` chỉ có thể gọi phương thức `get()` để trả về kiểu `xxx`, gọi `set()` sẽ báo lỗi. Sử dụng tham số kiểu dữ liệu chung được khai báo bằng `? super xxx` chỉ có thể gọi phương thức `set()` để nhận kiểu xxx, gọi `get()` sẽ báo lỗi.
 
-**PECS 原则（Producer Extends, Consumer Super）**：从数据结构**取**元素时用 `extends`（生产者，Producer）；向数据结构**写**元素时用 `super`（消费者，Consumer）。例如：`List<? extends Number>` 只能从中读取 `Number`，不能写入；`List<? super Integer>` 可以写入 `Integer` 及其子类，读取时得到的是 `Object`。`Collections.copy(List<? super T> dest, List<? extends T> src)` 就是典型用法：从 `src` 读、往 `dest` 写。
+**Nguyên Tắc PECS (Producer Extends, Consumer Super)**: Khi **lấy** phần tử từ cấu trúc dữ liệu sử dụng `extends` (nhà sản xuất, Producer); khi **ghi** phần tử vào cấu trúc dữ liệu sử dụng `super` (người tiêu dùng, Consumer). Ví dụ: `List<? extends Number>` chỉ có thể đọc `Number`, không thể ghi; `List<? super Integer>` có thể ghi `Integer` và lớp con của nó, khi đọc được `Object`. `Collections.copy(List<? super T> dest, List<? extends T> src)` là cách sử dụng điển hình: đọc từ `src`, ghi vào `dest`.
 
-**`T extends xxx` 和 `? extends xxx` 又有什么区别？**
+**Khác Biệt Giữa `T extends xxx` Và `? extends xxx` Là Gì?**
 
-`T extends xxx` 用于定义泛型类和方法，擦除后为 xxx 类型， `? extends xxx` 用于声明方法形参，接收 xxx 和其子类型。
+`T extends xxx` được sử dụng để định nghĩa lớp kiểu dữ liệu chung và phương thức, sau khi xóa sẽ trở thành kiểu `xxx`, `? extends xxx` được sử dụng để khai báo tham số hình thức của phương thức, nhận `xxx` và các loại con của nó.
 
-**`Class<?>` 和 `Class` 的区别？**
+**Khác Biệt Giữa `Class<?>` Và `Class` Là Gì?**
 
-直接使用 Class 的话会有一个类型警告，使用 `Class<?>` 则没有，因为 Class 是一个泛型类，接收原生类型会产生警告
+Sử dụng trực tiếp `Class` sẽ có cảnh báo kiểu, sử dụng `Class<?>` không có, vì `Class` là một lớp kiểu dữ liệu chung, nhận kiểu gốc sẽ sản sinh cảnh báo
 
-### 以下代码是否能编译，为什么？
+### Mã Code Dưới Đây Có Thể Biên Dịch Được Không? Tại Sao?
 
 ```java
 class Shape { /* ... */ }
@@ -329,7 +329,7 @@ Node<Circle> nc = new Node<>();
 Node<Shape>  ns = nc;
 ```
 
-不能，因为`Node<Circle>` 不是 `Node<Shape>` 的子类
+Không, vì `Node<Circle>` không phải là lớp con của `Node<Shape>`
 
 ```java
 class Shape { /* ... */ }
@@ -344,7 +344,7 @@ ChildNode<Circle> nc = new ChildNode<>();
 Node<Circle>  ns = nc;
 ```
 
-可以编译，`ChildNode<Circle>` 是 `Node<Circle>` 的子类
+Có thể biên dịch được, `ChildNode<Circle>` là lớp con của `Node<Circle>`
 
 ```java
 public static void print(List<? extends Number> list) {
@@ -354,9 +354,9 @@ public static void print(List<? extends Number> list) {
 }
 ```
 
-可以编译，`List<? extends Number>` 可以往外取元素，但是无法调用 `add()` 添加元素。
+Có thể biên dịch được, `List<? extends Number>` có thể lấy ra phần tử, nhưng không thể gọi `add()` để thêm phần tử.
 
-## 参考
+## Tài Liệu Tham Khảo
 
-- Java 官方文档 ： https://docs.oracle.com/javase/tutorial/java/generics/index.html
-- Java 基础 一文搞懂泛型：https://www.cnblogs.com/XiiX/p/14719568.html
+- Tài Liệu Chính Thức Java: https://docs.oracle.com/javase/tutorial/java/generics/index.html
+- Java Cơ Bản - Một Bài Viết Làm Rõ Kiểu Dữ Liệu Chung: https://www.cnblogs.com/XiiX/p/14719568.html

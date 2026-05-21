@@ -1,174 +1,174 @@
 ---
-title: 坚持写技术博客六年了!
-description: 坚持写技术博客六年的心得分享，写博客的好处、如何坚持下去、写哪些方向的博客、实用写作技巧等经验总结。
-category: 走近作者
+title: Kiên trì viết blog kỹ thuật sáu năm!
+description: Chia sẻ kinh nghiệm sau sáu năm kiên trì viết blog kỹ thuật, lợi ích của việc viết blog, cách kiên trì, nên viết về hướng nào, tổng kết các kỹ năng viết thực dụng.
+category: Về tác giả
 tag:
-  - 杂谈
+  - Tâm sự
 ---
 
-坚持写技术博客已经有六年了，也算是一个小小的里程碑了。
+Đã kiên trì viết blog kỹ thuật được sáu năm rồi, cũng được coi là một cột mốc nhỏ.
 
-一开始，我写技术博客就是简单地总结自己课堂上学习的课程比如网络、操作系统。渐渐地，我开始撰写一些更为系统化的知识点详解和面试常见问题总结。
+Ban đầu, mình viết blog kỹ thuật chỉ đơn giản là tổng kết các bài học trên lớp như network, operating systems. Dần dần, mình bắt đầu viết những bài giải thích kiến thức có hệ thống hơn và tổng hợp các câu hỏi phỏng vấn phổ biến.
 
-![JavaGuide 首页](https://oss.javaguide.cn/about-the-author/college-life/image-20230408131717766.png)
+![JavaGuide Homepage](https://oss.javaguide.cn/about-the-author/college-life/image-20230408131717766.png)
 
-许多人都想写技术博客，但却不清楚这对他们有何好处。有些人开始写技术博客，却不知道如何坚持下去，也不知道该写些什么。这篇文章我会认真聊聊我对记录技术博客的一些看法和心得，或许可以帮助你解决这些问题。
+Nhiều người muốn viết blog kỹ thuật nhưng không biết điều đó có lợi ích gì cho họ. Một số người bắt đầu viết blog kỹ thuật nhưng không biết cách kiên trì, cũng không biết nên viết về gì. Bài viết này mình sẽ chia sẻ nghiêm túc về một số quan điểm và kinh nghiệm của mình về việc ghi chép blog kỹ thuật, hy vọng có thể giúp bạn giải quyết những vấn đề này.
 
-## 写技术博客有哪些好处？
+## Viết blog kỹ thuật có những lợi ích gì?
 
-### 学习效果更好，加深知识点的认识
+### Hiệu quả học tập tốt hơn, hiểu sâu hơn về các kiến thức
 
-**费曼学习法** 大家应该已经比较清楚了，这是一个经过实践证明非常有效的学习方式。费曼学习法的命名源自 Richard Feynman，这位物理学家曾获得过诺贝尔物理学奖，也曾参与过曼哈顿计划。
+**Phương pháp học Feynman** chắc mọi người đã khá quen. Đây là một phương pháp học được chứng minh rất hiệu quả qua thực tiễn. Feynman learning method được đặt tên theo Richard Feynman, nhà vật lý đã đoạt giải Nobel Vật lý và từng tham gia Manhattan Project.
 
-所谓费曼学习法，就是当你学习了一个新知识之后，想象自己是一个老师：用最简单、最浅显直白的话复述、表达复杂深奥的知识，最好不要使用行业术语，让非行业内的人也能听懂。为了达到这种效果，最好想象你是在给一个 80 多岁或 8 岁的小孩子上课，甚至他们都能听懂。
+Phương pháp học Feynman là sau khi học một kiến thức mới, hãy tưởng tượng mình là một giáo viên: dùng những lời đơn giản, dễ hiểu nhất để diễn đạt lại kiến thức phức tạp, sâu sắc, tốt nhất không dùng thuật ngữ chuyên ngành, để người không trong ngành cũng có thể hiểu được. Để đạt được hiệu quả này, tốt nhất hãy tưởng tượng mình đang giảng cho một cụ già 80 tuổi hoặc đứa trẻ 8 tuổi, thậm chí họ cũng phải hiểu được.
 
-![教授别人学习效果最好](https://oss.javaguide.cn/about-the-author/college-life/v2-19373c2e61873c5083ee4b1d1523f8f5_720w.png)
+![Dạy người khác có hiệu quả học tốt nhất](https://oss.javaguide.cn/about-the-author/college-life/v2-19373c2e61873c5083ee4b1d1523f8f5_720w.png)
 
-看书、看视频这类都属于是被动学习，学习效果比较差。费曼学习方法属于主动学习，学习效果非常好。
+Đọc sách, xem video đều là học thụ động, hiệu quả học tương đối kém. Feynman learning method là học chủ động, hiệu quả học rất tốt.
 
-**写技术博客实际就是教别人的一种方式。** 不过，记录技术博客的时候是可以有专业术语（除非你的文章群体是非技术人员），只是你需要用自己的话表述出来，尽量让别人一看就懂。**切忌照搬书籍或者直接复制粘贴其他人的总结！**
+**Viết blog kỹ thuật thực ra là một cách dạy người khác.** Tuy nhiên khi ghi chép blog kỹ thuật có thể dùng thuật ngữ chuyên ngành (trừ khi bài viết của bạn hướng đến đối tượng không phải kỹ thuật), chỉ là bạn cần dùng lời của mình để diễn đạt, cố gắng để người khác nhìn vào là hiểu. **Tuyệt đối không được copy sách hoặc trực tiếp copy-paste tổng kết của người khác!**
 
-如果我们被动的学习某个知识点，可能大部分时候都是仅仅满足自己能够会用的层面，你并不会深究其原理，甚至很多关键概念都没搞懂。
+Nếu chúng ta học thụ động về một kiến thức, phần lớn thời gian chỉ dừng ở mức bản thân dùng được là thỏa mãn, bạn sẽ không tìm hiểu sâu về nguyên lý, thậm chí nhiều khái niệm quan trọng cũng chưa hiểu rõ.
 
-如果你是要将你所学到的知识总结成一篇博客的话，一定会加深你对这个知识点的思考。很多时候，你为了将一个知识点讲清楚，你回去查阅很多资料，甚至需要查看很多源码，这些细小的积累在潜移默化中加深了你对这个知识点的认识。
+Nếu bạn cần tổng kết kiến thức đã học thành một bài blog, chắc chắn sẽ khiến bạn suy nghĩ sâu hơn về kiến thức đó. Nhiều khi, để giải thích rõ một kiến thức, bạn phải tìm kiếm nhiều tài liệu, thậm chí cần xem rất nhiều source code. Những tích lũy nhỏ này trong quá trình mưa dầm thấm lâu giúp bạn hiểu sâu hơn về kiến thức đó.
 
-甚至，我还经常会遇到这种情况：**写博客的过程中，自己突然意识到自己对于某个知识点的理解存在错误。**
+Thậm chí, mình còn thường xuyên gặp trường hợp: **Trong quá trình viết blog, đột nhiên nhận ra mình hiểu sai về một kiến thức nào đó.**
 
-**写博客本身就是一个对自己学习到的知识进行总结、回顾、思考的过程。记录博客也是对于自己学习历程的一种记录。随着时间的流逝、年龄的增长，这又何尝不是一笔宝贵的精神财富呢？**
+**Viết blog bản thân nó là một quá trình tổng kết, ôn lại và suy nghĩ về kiến thức đã học. Ghi chép blog cũng là một cách ghi lại hành trình học tập của bản thân. Theo dòng thời gian, tuổi tác lớn dần, đây không phải là một tài sản tinh thần quý giá sao?**
 
-知识星球的一位球友还提到写技术博客有助于完善自己的知识体系：
+Một thành viên trong Knowledge Planet cũng đề cập rằng viết blog kỹ thuật giúp hoàn thiện hệ thống kiến thức của bản thân:
 
-![写技术博客有助于完善自己的知识体系](https://oss.javaguide.cn/about-the-author/college-life/image-20230408121336432.png)
+![Viết blog kỹ thuật giúp hoàn thiện hệ thống kiến thức](https://oss.javaguide.cn/about-the-author/college-life/image-20230408121336432.png)
 
-### 帮助别人的同时获得成就感
+### Giúp đỡ người khác đồng thời có được cảm giác thành tựu
 
-就像我们程序员希望自己的产品能够得到大家的认可和喜欢一样。我们写技术博客在某一方面当然也是为了能够得到别人的认可。
+Giống như chúng ta là programmers muốn sản phẩm của mình được mọi người công nhận và yêu thích. Việc viết blog kỹ thuật của chúng ta ở một khía cạnh nào đó cũng là muốn được người khác công nhận.
 
-**当你写的东西对别人产生帮助的时候，你会产生成就感和幸福感。**
+**Khi những thứ bạn viết có ích cho người khác, bạn sẽ có cảm giác thành tựu và hạnh phúc.**
 
-![读者的认可](https://oss.javaguide.cn/about-the-author/college-life/image-20230404181906257.png)
+![Sự công nhận của độc giả](https://oss.javaguide.cn/about-the-author/college-life/image-20230404181906257.png)
 
-这种成就感和幸福感会作为 **正向反馈** ，继续激励你写博客。
+Cảm giác thành tựu và hạnh phúc này sẽ trở thành **positive feedback**, tiếp tục khuyến khích bạn viết blog.
 
-但是，即使受到很多读者的赞赏，也要保持谦虚学习的太多。人外有人，比你技术更厉害的读者多了去，一定要虚心学习！
+Nhưng dù nhận được nhiều lời khen của độc giả, cũng phải giữ thái độ khiêm tốn học hỏi. Ngoài kia còn có người tài hơn mình, độc giả kỹ thuật giỏi hơn bạn nhiều lắm, nhất định phải khiêm tốn học hỏi!
 
-当然，你可以可能会受到很多非议。可能会有很多人说你写的文章没有深度，还可能会有很多人说你闲的蛋疼，你写的东西网上/书上都有。
+Tất nhiên, bạn có thể sẽ nhận nhiều chỉ trích. Có thể nhiều người nói bài viết của bạn không có chiều sâu, cũng có thể nhiều người nói bạn rảnh quá, thứ bạn viết trên mạng/trong sách đã có rồi.
 
-**坦然对待这些非议，做好自己，走好自己的路就好！用行动自证！**
+**Bình thản đón nhận những chỉ trích đó, làm tốt bản thân, đi đúng con đường của mình là được! Dùng hành động để tự chứng minh!**
 
-### 可能会有额外的收入
+### Có thể có thêm thu nhập
 
-写博客可能还会为你带来经济收入。输出价值的同时，还能够有合理的经济收入，这是最好的状态！
+Viết blog cũng có thể mang lại thu nhập kinh tế cho bạn. Vừa tạo ra giá trị, vừa có thu nhập kinh tế hợp lý, đây là trạng thái tốt nhất!
 
-为什么说是可能呢？ **因为就目前来看，大部分人还是很难短期通过写博客有收入。我也不建议大家一开始写博客就奔着赚钱的目的，这样功利性太强了，效果可能反而不好。就比如说你坚持了写了半年发现赚不到钱，那你可能就会坚持不下去了。**
+Tại sao nói là "có thể"? **Vì theo tình hình hiện tại, phần lớn mọi người vẫn khó có thu nhập từ viết blog trong ngắn hạn. Mình cũng không khuyến nghị mọi người ngay từ đầu viết blog với mục đích kiếm tiền, như vậy quá thực dụng, hiệu quả có thể ngược lại. Ví dụ bạn kiên trì viết nửa năm mà thấy không kiếm được tiền, có thể bạn sẽ không kiên trì được nữa.**
 
-我自己从大二开始写博客，大三下学期开始将自己的文章发布到公众号上，一直到大四下学期，才通过写博客赚到属于自己的第一笔钱。
+Bản thân mình bắt đầu viết blog từ năm 2, đến học kỳ 2 năm 3 mới bắt đầu đăng bài lên công khai, mãi đến học kỳ 2 năm 4, mới kiếm được đồng tiền đầu tiên từ viết blog.
 
-第一笔钱是通过微信公众号接某培训机构的推广获得的。没记错的话，当时通过这个推广为自己带来了大约 **500** 元的收入。虽然这不是很多，但对于还在上大学的我来说，这笔钱非常宝贵。那时我才知道，原来写作真的可以赚钱，这也让我更有动力去分享自己的写作。可惜的是，在接了两次这家培训机构的广告之后，它就倒闭了。
+Đồng tiền đầu tiên là qua quảng cáo của một trung tâm đào tạo trên WeChat Official Account. Nếu nhớ không nhầm, lần quảng cáo đó mang lại khoảng **500** tệ. Dù không nhiều, nhưng với một sinh viên đại học như mình lúc đó, khoản tiền này rất quý. Lúc đó mình mới biết, hóa ra viết lách thật sự có thể kiếm tiền, điều này cũng cho mình thêm động lực chia sẻ. Đáng tiếc là sau khi nhận hai lần quảng cáo của trung tâm đào tạo đó, nó đóng cửa rồi.
 
-之后，很长一段时间我都没有接到过广告。直到网易的课程合作找上门，一篇文章 1000 元，每个月接近一篇，发了接近两年，这也算是我在大学期间比较稳定的一份收入来源了。
+Sau đó, một thời gian dài mình không nhận được quảng cáo nào. Cho đến khi hợp tác khóa học với NetEase, 1000 tệ một bài, gần một bài mỗi tháng, đăng gần hai năm, đây cũng là nguồn thu nhập khá ổn định của mình thời đại học.
 
-![网易的课程合作](https://oss.javaguide.cn/about-the-author/college-life/image-20230408115720135.png)
+![Hợp tác khóa học với NetEase](https://oss.javaguide.cn/about-the-author/college-life/image-20230408115720135.png)
 
-老粉应该大部分都是通过 JavaGuide 这个项目认识我的，这是我在大三开始准备秋招面试时创建的一个项目。没想到这个项目竟然火了一把，一度霸占了 GitHub 榜单。可能当时国内这类开源文档教程类项目太少了，所以这个项目受欢迎程度非常高。
+Độc giả lâu năm chắc hầu hết biết mình qua dự án JavaGuide, đây là dự án mình tạo ra khi năm 3 bắt đầu chuẩn bị cho mùa tuyển dụng mùa thu. Không ngờ dự án này lại nổi tiếng, từng chiếm đứng bảng xếp hạng GitHub một thời. Có lẽ lúc đó trong nước loại dự án tài liệu open source như thế này còn hiếm, nên dự án được đón nhận rất tốt.
 
-![JavaGuide Star 趋势](https://oss.javaguide.cn/about-the-author/college-life/image-20230408131849198.png)
+![JavaGuide Star Trend](https://oss.javaguide.cn/about-the-author/college-life/image-20230408131849198.png)
 
-项目火了之后，有一个国内比较大的云服务公司找到我，说是要赞助 JavaGuide 这个项目。我既惊又喜，担心别人是骗子，反复确认合同之后，最终确定以每月 1000 元的费用在我的项目首页加上对方公司的 banner。
+Sau khi dự án nổi tiếng, một công ty dịch vụ đám mây khá lớn trong nước tìm đến mình, nói muốn tài trợ cho dự án JavaGuide. Vừa ngạc nhiên vừa vui, lo ngại người ta lừa đảo, xác nhận hợp đồng nhiều lần, cuối cùng chốt phí 1000 tệ/tháng để đặt banner của công ty họ lên trang chủ dự án mình.
 
-随着时间的推移，以及自己后来写了一些比较受欢迎、比较受众的文章，我的博客知名度也有所提升，通过写博客的收入也增加了不少。
+Theo thời gian, cùng với một số bài viết được nhiều người chào đón và đọc về sau, độ nổi tiếng blog của mình cũng tăng lên, thu nhập từ viết blog cũng tăng lên đáng kể.
 
-### 增加个人影响力
+### Tăng ảnh hưởng cá nhân
 
-写技术博客是一种展示自己技术水平和经验的方式，能够让更多的人了解你的专业领域知识和技能。持续分享优质的技术文章，一定能够在技术领域增加个人影响力，这一点是毋庸置疑的。
+Viết blog kỹ thuật là cách thể hiện trình độ và kinh nghiệm kỹ thuật của bản thân, giúp nhiều người hơn biết đến kiến thức và kỹ năng chuyên môn của bạn. Liên tục chia sẻ bài viết kỹ thuật chất lượng cao, chắc chắn có thể tăng ảnh hưởng cá nhân trong lĩnh vực kỹ thuật, điều này không cần nghi ngờ.
 
-有了个人影响力之后，不论是对你后面找工作，还是搞付费知识分享或者出书，都非常有帮助。
+Sau khi có ảnh hưởng cá nhân, dù là tìm việc làm sau này, hay làm chia sẻ kiến thức có phí hay xuất bản sách, đều rất hữu ích.
 
-拿我自己来说，已经很多知名出版社的编辑找过我，协商出一本的书的事情。这种机会应该也是很多人梦寐以求的。不过，我都一一拒绝了，因为觉得自己远远没有达到能够写书的水平。
+Lấy bản thân mình làm ví dụ, đã có nhiều biên tập của các nhà xuất bản nổi tiếng tìm đến mình, thương lượng về việc xuất bản sách. Cơ hội này chắc cũng là điều nhiều người mơ ước. Tuy nhiên mình đều từ chối, vì cảm thấy bản thân còn lâu mới đạt trình độ có thể viết sách được.
 
-![电子工业出版社编辑邀约出书](https://oss.javaguide.cn/about-the-author/college-life/image-20230408121132211.png)
+![Biên tập nhà xuất bản Electronic Industry mời viết sách](https://oss.javaguide.cn/about-the-author/college-life/image-20230408121132211.png)
 
-其实不出书最主要的原因还是自己嫌麻烦，整个流程的事情太多了。我自己又是比较佛系随性的人，平时也不想把时间都留给工作。
+Thực ra lý do chính không xuất bản sách là mình thấy phiền phức, quy trình cả đống việc. Mình lại là người khá free-spirit, bình thường cũng không muốn dành hết thời gian cho công việc.
 
-## 怎样才能坚持写技术博客？
+## Làm thế nào để kiên trì viết blog kỹ thuật?
 
-**不可否认，人都是有懒性的，这是人的本性。我们需要一个目标/动力来 Push 一下自己。**
+**Không thể phủ nhận, con người ai cũng có tính lười, đây là bản năng của con người. Chúng ta cần một mục tiêu/động lực để thúc đẩy bản thân.**
 
-就技术写作而言，你的目标可以以技术文章的数量为标准，比如：
+Về viết kỹ thuật, mục tiêu của bạn có thể lấy số lượng bài kỹ thuật làm tiêu chuẩn, ví dụ:
 
-- 一年写多少篇技术文章。我个人觉得一年的范围还是太长了，不太容易定一个比较合适的目标。
-- 每月输出一篇高质量的技术文章。这个相对容易实现一些，每月一篇，一年也有十二篇了，也很不错了。
+- Viết bao nhiêu bài kỹ thuật mỗi năm. Mình cá nhân thấy phạm vi một năm còn khá dài, không dễ đặt một mục tiêu phù hợp.
+- Mỗi tháng xuất một bài kỹ thuật chất lượng cao. Cái này tương đối dễ thực hiện hơn, mỗi tháng một bài, một năm cũng được mười hai bài, cũng rất tốt.
 
-不过，以技术文章的数量为目标有点功利化，文章的质量同样很重要。一篇高质量的技术文可能需要花费一周甚至半个月的业余时间才能写完。一定要避免自己刻意追求数量，而忽略质量，迷失技术写作的本心。
+Tuy nhiên, lấy số lượng bài kỹ thuật làm mục tiêu hơi thực dụng, chất lượng bài cũng rất quan trọng. Một bài kỹ thuật chất lượng cao có thể cần tốn một tuần thậm chí nửa tháng thời gian rảnh mới viết xong. Nhất định phải tránh tình trạng cố tình chạy theo số lượng mà bỏ qua chất lượng, làm mất đi bản chất của viết kỹ thuật.
 
-我个人给自己定的目标是：**每个月至少写一篇原创技术文章或者认真修改完善过去写的三篇技术文章** （像开源项目推荐、开源项目学习、个人经验分享、面经分享等等类型的文章不会被记入）。
+Mục tiêu mình đặt cho bản thân là: **Mỗi tháng ít nhất viết một bài kỹ thuật nguyên tác hoặc nghiêm túc chỉnh sửa hoàn thiện ba bài kỹ thuật đã viết trước đây** (các loại bài như giới thiệu dự án open source, học tập dự án open source, chia sẻ kinh nghiệm cá nhân, chia sẻ kinh nghiệm phỏng vấn... sẽ không được tính).
 
-我的目标对我来说比较容易完成，因此不会出现为了完成目标而应付任务的情况。在我状态比较好，工作也不是很忙的时候，还会经常超额完成任务。下图是我今年 3 月份完成的任务（任务管理工具：Microsoft To-Do）。除了 gossip 协议是去年写的之外，其他都是 3 月份完成的。
+Mục tiêu của mình tương đối dễ hoàn thành, vì vậy không có chuyện làm cho qua loa chỉ để hoàn thành mục tiêu. Khi mình có trạng thái tốt, công việc cũng không quá bận, còn thường xuyên vượt mức. Hình dưới là task mình hoàn thành trong tháng 3 năm nay (task management tool: Microsoft To-Do). Ngoài gossip protocol viết năm ngoái, phần còn lại đều hoàn thành trong tháng 3.
 
 ![](https://oss.javaguide.cn/about-the-author/college-life/image-20230404181033089.png)
 
-如果觉得以文章数量为标准过于功利的话，也可以比较随性地按照自己的节奏来写作。不过，一般这种情况下，你很可能过段时间就忘了还有这件事，开始慢慢抵触写博客。
+Nếu thấy lấy số lượng bài làm tiêu chuẩn quá thực dụng, cũng có thể viết theo nhịp của bản thân một cách tự do hơn. Tuy nhiên, thông thường trong tình huống này, bạn rất có thể sau một thời gian sẽ quên mất còn việc này, bắt đầu dần dần né tránh viết blog.
 
-写完一篇技术文章之后，我们不光要同步到自己的博客，还要分发到国内一些常见的技术社区比如博客园、掘金。**分发到其他平台的原因是获得关注进而收获正向反馈（动力来源之一）与建议，这是技术写作能坚持下去的非常重要的一步，一定要重视！！！**
+Sau khi viết xong một bài kỹ thuật, không chỉ đồng bộ lên blog của mình, còn cần phân phối đến một số cộng đồng kỹ thuật phổ biến trong nước như Cnblogs, Juejin. **Lý do phân phối sang các platform khác là để nhận được sự chú ý và từ đó thu được positive feedback (một trong những nguồn động lực) và gợi ý. Đây là bước rất quan trọng để có thể kiên trì viết kỹ thuật, nhất định phải coi trọng!!!**
 
-说实话，当你写完一篇自认为还不错的文章的幸福感和成就感还是有的。**但是，让自己去做这件事情还是比较痛苦的。** 就好比你让自己出去玩很简单，为了达到这个目的，你可以有各种借口。但是，想要自己老老实实学习，还是需要某个外力来督促自己的。
+Nói thật, khi bạn viết xong một bài mình tự thấy còn ổn thì cảm giác hạnh phúc và thành tựu vẫn có. **Nhưng, thôi thúc bản thân làm việc đó vẫn khá khó chịu.** Giống như bạn rủ bản thân ra ngoài chơi rất đơn giản, để đạt mục đích đó bạn có thể có đủ loại lý do. Nhưng muốn bản thân ngồi yên học bài, vẫn cần một ngoại lực nào đó thúc đẩy.
 
-## 写哪些方向的博客比较好？
+## Nên viết blog theo hướng nào thì tốt?
 
-通常来说，写下面这些方向的博客会比较好：
+Thông thường, viết blog theo các hướng sau sẽ tốt hơn:
 
-1. **详细讲解某个知识点**：一定要有自己的思考而不是东拼西凑。不仅要介绍知识点的基本概念和原理，还需要适当结合实际案例和应用场景进行举例说明。
-2. **问题排查/性能优化经历**：需要详细描述清楚具体的场景以及解决办法。一定要有足够的细节描述，包括出现问题的具体场景、问题的根本原因、解决问题的思路和具体步骤等等。同时，要注重实践性和可操作性，帮助读者更好地学习理解。
-3. **源码阅读记录**：从一个功能点出发描述其底层源码实现，谈谈你从源码中学到了什么。
+1. **Giải thích chi tiết một kiến thức cụ thể**: Nhất định phải có suy nghĩ của riêng mình chứ không phải ghép nhặt từ nhiều nơi. Không chỉ giới thiệu khái niệm và nguyên lý cơ bản của kiến thức, còn cần kết hợp hợp lý với case study thực tế và use cases để minh họa.
+2. **Kinh nghiệm troubleshooting/performance optimization**: Cần mô tả chi tiết scenario cụ thể và cách giải quyết. Nhất định phải có mô tả đủ chi tiết, bao gồm scenario cụ thể xảy ra vấn đề, nguyên nhân gốc rễ của vấn đề, ý tưởng và các bước cụ thể giải quyết vấn đề... Đồng thời chú trọng tính thực tiễn và khả năng thao tác, giúp độc giả học tập và hiểu tốt hơn.
+3. **Ghi chép đọc source code**: Bắt đầu từ một feature để mô tả implementation của underlying source code, nói về những gì bạn học được từ source code.
 
-最重要的是一定要重视 Markdown 规范，不然内容再好也会显得不专业。
+Quan trọng nhất là nhất định phải coi trọng Markdown conventions, không thì dù nội dung tốt đến đâu cũng trông không chuyên nghiệp.
 
-详见 [Markdown 规范](../javaguide/contribution-guideline.md) （很重要，尽量按照规范来，对你工作中写文档会非常有帮助）
+Chi tiết xem [Markdown conventions](../javaguide/contribution-guideline.md) (rất quan trọng, cố gắng tuân theo conventions, sẽ rất có ích cho việc viết documentation trong công việc của bạn)
 
-## 有没有什么写作技巧分享？
+## Có kỹ năng viết nào để chia sẻ không?
 
-### 句子不要过长
+### Câu không được quá dài
 
-句子不要过长，尽量使用短句（但也不要太短），这样读者更容易阅读和理解。
+Câu không nên quá dài, cố gắng dùng câu ngắn (nhưng cũng đừng quá ngắn), như vậy độc giả dễ đọc và hiểu hơn.
 
-### 尽量让文章更加生动有趣
+### Cố gắng làm cho bài viết sinh động thú vị
 
-尽量让文章更加生动有趣，比如你可以适当举一些形象的例子、用一些有趣的段子、歇后语或者网络热词。
+Cố gắng làm bài viết sinh động thú vị hơn, ví dụ bạn có thể đưa ra một số ví dụ hình tượng, dùng một số câu chuyện vui, câu cửa miệng hay từ lóng mạng.
 
-不过，这个也主要看你的文章风格。
+Tuy nhiên điều này cũng phụ thuộc vào phong cách bài viết của bạn.
 
-### 使用简单明了的语言
+### Dùng ngôn ngữ đơn giản rõ ràng
 
-避免使用阅读者可能无法理解的行话或复杂语言。
+Tránh dùng jargon hoặc ngôn ngữ phức tạp mà độc giả có thể không hiểu.
 
-注重清晰度和说服力，保持简单。简单的写作是有说服力的，一个五句话的好论点会比一百句话的精彩论点更能打动人。为什么格言、箴言这类文字容易让人接受，与简洁、直白也有些关系。
+Chú trọng sự rõ ràng và sức thuyết phục, giữ cho đơn giản. Viết đơn giản là có sức thuyết phục, một lập luận tốt năm câu sẽ ấn tượng hơn nhiều so với trăm câu xuất sắc. Tại sao châm ngôn, cách ngôn dễ được chấp nhận, cũng có liên quan đến sự ngắn gọn, trực tiếp.
 
-### 使用视觉效果
+### Dùng visual aids
 
-图表、图像等视觉效果可以让朴素的文本内容更容易理解。记得在适当的地方使用视觉效果来增强你的文章的表现力。
+Charts, hình ảnh và các visual aids có thể giúp nội dung text đơn thuần dễ hiểu hơn. Nhớ dùng visual aids ở những chỗ thích hợp để tăng cường sức biểu đạt của bài viết.
 
 ![](https://oss.javaguide.cn/about-the-author/college-life/image-20230404192458759.png)
 
-### 技术文章配图色彩要鲜明
+### Màu sắc hình ảnh trong bài kỹ thuật phải rõ ràng
 
-下面是同样内容的两张图，都是通过 drawio 画的，小伙伴们更喜欢哪一张呢？
+Dưới đây là hai hình cùng nội dung, đều vẽ bằng drawio, mọi người thích cái nào hơn?
 
-我相信大部分小伙伴都会选择后面一个色彩更鲜明的！
+Mình tin hầu hết mọi người sẽ chọn cái sau có màu sắc rõ ràng hơn!
 
-色彩的调整不过花费了我不到 30s 的时间，带来的阅读体验的上升却是非常之大！
+Điều chỉnh màu sắc tốn của mình không đến 30 giây, nhưng sự cải thiện về trải nghiệm đọc lại rất lớn!
 
 ![](https://oss.javaguide.cn/2021-1/image-20210104182517226.png)
 
-### 确定你的读者
+### Xác định độc giả của bạn
 
-写作之前，思考一下你的文章的主要受众全体是谁。受众群体确定之后，你可以根据受众的需求和理解水平调整你的写作风格和内容难易程度。
+Trước khi viết, hãy suy nghĩ xem đối tượng chính của bài viết là ai. Sau khi xác định đối tượng, bạn có thể điều chỉnh phong cách viết và độ khó nội dung theo nhu cầu và mức độ hiểu của đối tượng.
 
-### 审查和修改
+### Xem xét và chỉnh sửa
 
-在发表之前一定要审查和修改你的文章。这将帮助你发现错误、澄清任何令人困惑的信息并提高文档的整体质量。
+Trước khi đăng nhất định phải xem xét và chỉnh sửa bài viết. Điều này sẽ giúp bạn phát hiện lỗi, làm rõ những thông tin có thể gây nhầm lẫn và nâng cao chất lượng tổng thể của tài liệu.
 
-**好文是改出来的，切记！！！**
+**Bài tốt là bài được chỉnh sửa ra, hãy ghi nhớ!!!**
 
-## 总结
+## Tổng kết
 
-总的来说，写技术博客是一件利己利彼的事情。你可能会从中收获到很多东西，你写的东西也可能对别人也有很大的帮助。但是，写技术博客还是比较耗费自己时间的，你需要和工作以及生活做好权衡。
+Nói chung, viết blog kỹ thuật là việc có lợi cho bản thân lẫn người khác. Bạn có thể thu được rất nhiều từ đó, và những gì bạn viết cũng có thể có ích lớn cho người khác. Nhưng viết blog kỹ thuật cũng khá tốn thời gian, bạn cần cân bằng tốt với công việc và cuộc sống.

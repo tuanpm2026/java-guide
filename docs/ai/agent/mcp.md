@@ -1,6 +1,6 @@
 ---
-title: 万字拆解 MCP，附带工程实践
-description: 深入解析 MCP 协议核心概念，涵盖 MCP 四大核心能力、四层分层架构、JSON-RPC 2.0 通信机制及生产级 MCP Server 开发最佳实践。
+title: Giải mã MCP kèm thực hành kỹ thuật
+description: Phân tích chuyên sâu các khái niệm cốt lõi của MCP protocol, bao gồm bốn năng lực cốt lõi của MCP, kiến trúc bốn tầng, cơ chế giao tiếp JSON-RPC 2.0 và các best practice phát triển MCP Server production-grade.
 category: AI 应用开发
 head:
   - - meta
@@ -8,130 +8,130 @@ head:
       content: MCP,Model Context Protocol,JSON-RPC,Function Calling,AI Agent,工具接入,Anthropic
 ---
 
-在 LLM 应用开发从”单体调用”向”复杂 Agent”演进的当下，开发者最头疼的其实不是换模型——框架早把不同模型的 API 差异给封装好了。**真正让人抓狂的是工具接入的碎片化**：每次想让 AI 用上 GitHub、本地文件或者 MySQL，就得为 Claude、GPT、DeepSeek 分别写一套适配代码。改一个工具接口，得同步维护好几套代码，又烦又容易出错。
+Trong bối cảnh phát triển ứng dụng LLM đang tiến hóa từ "đơn thể gọi" sang "Complex Agent", điều khiến lập trình viên đau đầu nhất thực ra không phải là việc đổi mô hình — framework đã đóng gói sẵn sự khác biệt API giữa các mô hình. **Điều thực sự khiến người ta phát điên là sự phân mảnh trong việc tích hợp công cụ**: Mỗi lần muốn cho AI dùng GitHub, file local hoặc MySQL, phải viết riêng một bộ adapter code cho Claude, GPT, DeepSeek. Thay đổi một tool interface, phải đồng bộ bảo trì vài bộ code, vừa phiền vừa dễ lỗi.
 
-**MCP (Model Context Protocol)** 的出现，就是要终结这种混乱。它被形象地称为 **“AI 领域的 USB-C 接口”**，通过统一的通信协议，让工具开发者**一次开发 MCP Server**，之后所有支持 MCP 的 AI 应用都能直接复用，真正实现模型与外部数据源、工具的高效解耦。
+**MCP (Model Context Protocol)** ra đời chính là để chấm dứt sự hỗn loạn này. Nó được ví von hình tượng là **"cổng USB-C trong lĩnh vực AI"**, thông qua giao thức giao tiếp thống nhất, giúp lập trình viên công cụ **phát triển MCP Server một lần**, sau đó tất cả ứng dụng AI hỗ trợ MCP đều có thể tái sử dụng trực tiếp, thực sự giải phóng sự ghép nối giữa mô hình và các nguồn dữ liệu, công cụ bên ngoài.
 
-今天 Guide 就来分享几道 MCP 基础概念相关的问题，希望对大家有帮助。本文接近 1.6w 字，建议收藏，通过本文你讲搞懂：
+Hôm nay hãy cùng tìm hiểu một số câu hỏi liên quan đến khái niệm cơ bản MCP. Bài viết này gần 1.6 vạn chữ, nên bookmark lại, sau khi đọc xong bạn sẽ hiểu:
 
-1. ⭐ 什么是 MCP？它解决了什么核心问题？
-2. ⭐ MCP、Function Calling 和 Agent 有什么区别与联系？
-3. MCP v1.0 的四大核心能力是什么？
-4. ⭐ MCP 的四层分层架构是如何运行的？
-5. 为什么 MCP 选择了 JSON-RPC 2.0 而非 RESTful？
-6. ⭐️ MCP 支持哪些传输方式？（stdio、Streamable HTTP）
-7. ⭐ 生产环境下开发 MCP Server 有哪些必知的最佳实践？
+1. ⭐ MCP là gì? Nó giải quyết vấn đề cốt lõi gì?
+2. ⭐ MCP, Function Calling và Agent có những điểm khác biệt và liên hệ gì?
+3. Bốn năng lực cốt lõi của MCP v1.0 là gì?
+4. ⭐ Kiến trúc bốn tầng của MCP hoạt động như thế nào?
+5. Tại sao MCP chọn JSON-RPC 2.0 thay vì RESTful?
+6. ⭐️ MCP hỗ trợ những phương thức truyền dẫn nào? (stdio, Streamable HTTP)
+7. ⭐ Trong môi trường production, có những best practice nào cần biết khi phát triển MCP Server?
 
-## MCP 基础概念
+## Khái niệm cơ bản MCP
 
-### ⭐️ 什么是 MCP？它解决了什么问题？
+### ⭐️ MCP là gì? Nó giải quyết vấn đề gì?
 
-**MCP (Model Context Protocol)** 是 Anthropic 于 2024 年提出的开放协议，被誉为 **"AI 领域的 USB-C 接口标准"**。它通过 JSON-RPC 2.0 统一了 LLM 与外部数据源/工具的通信规范，解决了 AI 应用开发中的**复杂性和碎片化**问题。
+**MCP (Model Context Protocol)** là giao thức mở được Anthropic đề xuất vào năm 2024, được mệnh danh là **"chuẩn cổng USB-C trong lĩnh vực AI"**. Nó thống nhất thông qua JSON-RPC 2.0 các quy tắc giao tiếp giữa LLM với các nguồn dữ liệu/công cụ bên ngoài, giải quyết vấn đề **phức tạp và phân mảnh** trong phát triển ứng dụng AI.
 
-它允许 AI 接入数据源（如本地文件、数据库）、工具（如搜索引擎、计算器）以及工作流（如特定提示词），使其能够获取关键信息并执行具体任务。
+Nó cho phép AI kết nối với nguồn dữ liệu (như file local, database), công cụ (như search engine, máy tính) cũng như workflow (như các prompt cụ thể), giúp nó có thể lấy thông tin quan trọng và thực thi các tác vụ cụ thể.
 
-![MCP 图解](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
+![Sơ đồ MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
 
-在 MCP 出现之前，开发者为不同 LLM（OpenAI GPT、Claude、文心一言等）和不同后端系统集成工具时，需要编写大量**定制化的适配代码**。这导致了：
+Trước khi MCP xuất hiện, khi các lập trình viên tích hợp công cụ cho các LLM khác nhau (OpenAI GPT, Claude, Ernie Bot, v.v.) và các hệ thống backend khác nhau, họ phải viết lượng lớn **adapter code tùy chỉnh**. Điều này dẫn đến:
 
-- **重复工作**：同一功能需要为每个 LLM 重新实现。
-- **高昂维护成本**：API 变更需要多处同步修改。
-- **生态碎片化**：缺乏统一的工具接口标准。
+- **Công việc lặp lại**: Cùng một chức năng cần triển khai lại cho từng LLM.
+- **Chi phí bảo trì cao**: Thay đổi API cần cập nhật ở nhiều nơi.
+- **Phân mảnh hệ sinh thái**: Thiếu tiêu chuẩn tool interface thống nhất.
 
-MCP 通过定义**统一的通信协议**，让一次开发的工具可以跨多个 LLM 平台使用，就像 USB-C 接口让不同设备可以通用充电线一样。
+MCP thông qua việc định nghĩa **giao thức giao tiếp thống nhất**, giúp công cụ được phát triển một lần có thể dùng trên nhiều LLM platform, giống như cổng USB-C giúp các thiết bị khác nhau có thể dùng chung dây sạc.
 
-> 🌈 **拓展一下**：
+> 🌈 **Mở rộng thêm**:
 >
-> MCP 的核心价值在于**解耦和标准化**。就像 HTTP 统一了网页传输、RESTful API 统一了服务接口一样，MCP 统一了 AI 与外部世界的交互方式。没有这一层标准化，每接一个新工具就得适配一遍各家的 API，规模化基本无从谈起。
+> Giá trị cốt lõi của MCP nằm ở **decoupling và standardization**. Giống như HTTP thống nhất truyền tải web, RESTful API thống nhất service interface, MCP thống nhất cách AI tương tác với thế giới bên ngoài. Không có tầng chuẩn hóa này, mỗi lần kết nối một công cụ mới phải adapt lại API của từng nhà, việc scale về cơ bản là không thể.
 
-### MCP 的四大核心能力是什么？
+### Bốn năng lực cốt lõi của MCP là gì?
 
-MCP v1.0 定义了四种核心能力类型，覆盖了 LLM 与外部交互的主要场景：
+MCP v1.0 định nghĩa bốn loại năng lực cốt lõi, bao phủ các tình huống chính trong tương tác giữa LLM và bên ngoài:
 
-| **能力**               | **核心作用**                                                                                                                                                             | **实际场景举例**                                                                                                                                          | **失败路径与边界**                                                                              |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Resources (资源)**   | **只读数据流**。让模型能像读取本地文件一样读取外部数据。                                                                                                                 | 自动读取 GitHub Repo 里的文档、数据库中的历史记录                                                                                                         | 文件不存在返回 JSON-RPC 错误码 `-32004`；大文件需实现 **Chunking** 分块加载（建议单块 < 100KB） |
-| **Tools (工具)**       | **可执行动作**。模型可以主动触发的代码或 API。                                                                                                                           | 自动运行一段 Python 脚本、在 Slack 发送一条消息、执行 SQL                                                                                                 | **必须幂等设计**：防重试风暴；超时需配置退避策略（Backoff），建议 **P99 延迟 < 200ms**          |
-| **Prompts (提示模板)** | **预设指令集**。服务器提供给模型的"标准化操作指南"。                                                                                                                     | "重构这段代码"、"生成周报"等特定业务场景的 Prompt 模板                                                                                                    | 模板渲染失败需返回清晰错误信息                                                                  |
-| **Sampling (采样)**    | **让 MCP Server 能够请求 Host 端的 LLM 进行推理生成**。这打破了单向数据流，允许 Server 在获取数据后，利用 Host 强大的 LLM 能力进行总结、理解或生成，再将结果返回给用户。 | 日志分析：Server 读取几万行日志后，请求 Host 的 LLM 总结错误模式和根因。代码审查：代码分析工具提取代码片段，请求 Host 的 LLM 进行语义分析和生成优化建议。 | 超时需退避重试；**P99 协议握手延迟 < 500ms**（注：不包含 LLM 生成耗时）；用户拒绝时需优雅降级   |
+| **Năng lực**                  | **Tác dụng cốt lõi**                                                                                                                                                                                                                                                 | **Ví dụ tình huống thực tế**                                                                                                                                                                                                    | **Đường thất bại và ranh giới**                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resources (Tài nguyên)**    | **Luồng dữ liệu chỉ đọc**. Cho phép mô hình đọc dữ liệu bên ngoài như đọc file local.                                                                                                                                                                                | Tự động đọc tài liệu trong GitHub Repo, lịch sử trong database                                                                                                                                                                  | File không tồn tại trả về JSON-RPC error code `-32004`; file lớn cần triển khai **Chunking** (khuyến nghị chunk đơn < 100KB)                                               |
+| **Tools (Công cụ)**           | **Hành động có thể thực thi**. Code hoặc API mà mô hình có thể chủ động trigger.                                                                                                                                                                                     | Tự động chạy một đoạn Python script, gửi một tin nhắn trên Slack, thực thi SQL                                                                                                                                                  | **Phải thiết kế idempotent**: Phòng retry storm; timeout cần cấu hình Backoff strategy, khuyến nghị **P99 latency < 200ms**                                                |
+| **Prompts (Prompt template)** | **Tập chỉ dẫn preset**. "Hướng dẫn vận hành chuẩn hóa" mà server cung cấp cho mô hình.                                                                                                                                                                               | Prompt template cho các tình huống nghiệp vụ cụ thể như "refactor đoạn code này", "tạo báo cáo tuần"                                                                                                                            | Khi render template thất bại cần trả về thông báo lỗi rõ ràng                                                                                                              |
+| **Sampling (Lấy mẫu)**        | **Cho phép MCP Server yêu cầu Host end LLM thực hiện inference generation**. Điều này phá vỡ luồng dữ liệu một chiều, cho phép Server sau khi lấy dữ liệu, tận dụng năng lực LLM mạnh mẽ của Host để tóm tắt, hiểu hoặc generate, rồi trả kết quả về cho người dùng. | Phân tích log: Server đọc vài chục nghìn dòng log, yêu cầu Host LLM tóm tắt error pattern và root cause. Code review: Công cụ phân tích code trích xuất code snippet, yêu cầu Host LLM phân tích ngữ nghĩa và tạo gợi ý tối ưu. | Timeout cần retry với backoff; **P99 protocol handshake latency < 500ms** (lưu ý: không bao gồm thời gian LLM generation); cần graceful degradation khi người dùng từ chối |
 
-> **工程提示**：Tools 的幂等性设计至关重要。由于网络抖动或 LLM 推理不确定性，同一 Tool 可能被重复调用。建议通过唯一请求 ID（idempotency-key）或业务层面的去重机制（如数据库唯一索引）保证幂等。
+> **Gợi ý kỹ thuật**: Thiết kế idempotency của Tools là cực kỳ quan trọng. Do network jitter hoặc tính không xác định của LLM inference, cùng một Tool có thể bị gọi lặp lại. Khuyến nghị đảm bảo idempotency thông qua unique request ID (idempotency-key) hoặc cơ chế dedup ở tầng nghiệp vụ (như database unique index).
 
-### 为什么需要 MCP？
+### Tại sao cần MCP?
 
-#### 1. 弥补 LLM 天然短板
+#### 1. Bù đắp điểm yếu bẩm sinh của LLM
 
-LLM 在以下方面存在局限：
+LLM có hạn chế trong các lĩnh vực sau:
 
-| 短板           | 说明                        | MCP 的解决方案                |
-| -------------- | --------------------------- | ----------------------------- |
-| **精确计算**   | LLM 不擅长数值计算          | 通过 Tools 调用计算器或 Excel |
-| **实时信息**   | 训练数据有截止日期          | 通过 Resources 获取最新数据   |
-| **系统交互**   | 无法直接操作本地文件/数据库 | 通过 Tools 桥接系统 API       |
-| **定制化操作** | 难以执行特定业务逻辑        | 通过 Tools 封装业务能力       |
+| Điểm yếu                     | Giải thích                                       | Giải pháp của MCP                     |
+| ---------------------------- | ------------------------------------------------ | ------------------------------------- |
+| **Tính toán chính xác**      | LLM không giỏi tính toán số                      | Gọi máy tính hoặc Excel qua Tools     |
+| **Thông tin thời gian thực** | Dữ liệu huấn luyện có ngày cutoff                | Lấy dữ liệu mới nhất qua Resources    |
+| **Tương tác hệ thống**       | Không thể trực tiếp thao tác file/database local | Bridge system API qua Tools           |
+| **Thao tác tùy chỉnh**       | Khó thực thi logic nghiệp vụ cụ thể              | Đóng gói năng lực nghiệp vụ qua Tools |
 
-#### 2. 简化集成复杂度
+#### 2. Đơn giản hóa độ phức tạp tích hợp
 
-**传统方式**：
-
-```
-每个 LLM → 各自的 Function Calling 格式 → 定制化适配代码 → 外部系统
-```
-
-**使用 MCP 后**：
+**Cách truyền thống**:
 
 ```
-多个 LLM → 统一的 MCP 协议 → 一次开发的 MCP Server → 外部系统
+Mỗi LLM → Định dạng Function Calling riêng → Adapter code tùy chỉnh → Hệ thống bên ngoài
 ```
 
-#### 3. 扩展 AI 应用边界
+**Sau khi dùng MCP**:
 
-MCP 让 LLM 能够：
+```
+Nhiều LLM → Giao thức MCP thống nhất → MCP Server phát triển một lần → Hệ thống bên ngoài
+```
 
-- 📁 访问本地文件系统，构建个人知识库
-- 🗄️ 查询和操作数据库（MySQL、ES、Redis）
-- 🌐 调用外部 API（天气、地图、GitHub）
-- 🤖 控制浏览器和自动化工具
-- 📊 执行数据分析和可视化
+#### 3. Mở rộng ranh giới ứng dụng AI
 
-### ⭐️ MCP、Function Calling 和 Agent 有什么区别？
+MCP giúp LLM có thể:
 
-这是面试中的高频问题，需要从**定位、层次、关系**三个维度回答：
+- 📁 Truy cập file system local, xây dựng personal knowledge base
+- 🗄️ Truy vấn và thao tác database (MySQL, ES, Redis)
+- 🌐 Gọi external API (thời tiết, bản đồ, GitHub)
+- 🤖 Kiểm soát browser và automation tools
+- 📊 Thực thi phân tích dữ liệu và visualization
 
-| 对比维度     | **MCP v1.0**                          | **Function Calling**                                                  | **Agent**      |
-| ------------ | ------------------------------------- | --------------------------------------------------------------------- | -------------- |
-| **定位**     | **协议标准**                          | **调用机制**                                                          | **系统概念**   |
-| **本质**     | 应用层网络协议（JSON-RPC 2.0）        | LLM推理层能力（NL→JSON映射）                                          | 任务执行系统   |
-| **状态模型** | 有状态（持久连接，支持能力发现+执行） | 隐状态（多轮对话中保持上下文，如 OpenAI GPT-4o 的 tool_call_id 跟踪） | 可松可紧       |
-| **提出方**   | Anthropic (2024)                      | 各模型厂商（OpenAI、Anthropic等）                                     | 学术界/工业界  |
-| **耦合度**   | 松耦合（跨平台）                      | 紧耦合（依赖特定模型）                                                | 可松可紧       |
-| **实现方式** | 统一的 JSON-RPC                       | 各厂商私有格式                                                        | 多种技术组合   |
-| **应用场景** | 工具集成标准化                        | 单次/多次函数调用                                                     | 复杂任务自动化 |
+### ⭐️ MCP, Function Calling và Agent có những điểm khác biệt gì?
 
-**关系图解：**
+Đây là câu hỏi tần suất cao trong phỏng vấn, cần trả lời từ ba chiều **định vị, tầng bậc, quan hệ**:
 
-![ MCP、Function Calling 和 Agent 区别](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-fc-agent-relations.png)
+| Chiều so sánh           | **MCP v1.0**                                                            | **Function Calling**                                                                                    | **Agent**                   |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------- |
+| **Định vị**             | **Chuẩn protocol**                                                      | **Cơ chế gọi**                                                                                          | **Khái niệm hệ thống**      |
+| **Bản chất**            | Giao thức mạng tầng ứng dụng (JSON-RPC 2.0)                             | Năng lực tầng inference của LLM (ánh xạ NL→JSON)                                                        | Hệ thống thực thi tác vụ    |
+| **Mô hình trạng thái**  | Có trạng thái (kết nối bền vững, hỗ trợ capability discovery+execution) | Trạng thái ẩn (duy trì context trong hội thoại nhiều lượt, như theo dõi tool_call_id của OpenAI GPT-4o) | Linh hoạt                   |
+| **Đề xuất bởi**         | Anthropic (2024)                                                        | Các nhà cung cấp mô hình (OpenAI, Anthropic, v.v.)                                                      | Giới học thuật/công nghiệp  |
+| **Mức độ ghép**         | Ghép lỏng (cross-platform)                                              | Ghép chặt (phụ thuộc mô hình cụ thể)                                                                    | Linh hoạt                   |
+| **Cách triển khai**     | JSON-RPC thống nhất                                                     | Định dạng độc quyền của từng nhà cung cấp                                                               | Kết hợp nhiều kỹ thuật      |
+| **Trường hợp ứng dụng** | Chuẩn hóa tích hợp công cụ                                              | Gọi function một lần/nhiều lần                                                                          | Tự động hóa tác vụ phức tạp |
 
-**典型场景举例：**
+**Sơ đồ quan hệ:**
 
-| 场景                        | 使用方案             | 说明                         |
-| --------------------------- | -------------------- | ---------------------------- |
-| 让 Claude 读取本地文件      | **MCP**              | 需要标准化接口，可跨平台复用 |
-| 调用 OpenAI 的 weather_tool | **Function Calling** | 模型原生能力，简单直接       |
-| 自动化分析代码并修复 Bug    | **Agent**            | 需要多步规划和决策           |
-| 构建团队共享的知识库工具    | **MCP**              | 一次开发，多处使用           |
+![Sự khác biệt giữa MCP, Function Calling và Agent](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-fc-agent-relations.png)
 
-> 🐛 **常见误区**：
+**Ví dụ tình huống điển hình:**
+
+| Tình huống                                           | Phương án dùng       | Giải thích                                                 |
+| ---------------------------------------------------- | -------------------- | ---------------------------------------------------------- |
+| Để Claude đọc file local                             | **MCP**              | Cần interface chuẩn hóa, có thể tái sử dụng cross-platform |
+| Gọi weather_tool của OpenAI                          | **Function Calling** | Năng lực native của mô hình, đơn giản trực tiếp            |
+| Tự động phân tích code và fix Bug                    | **Agent**            | Cần lập kế hoạch và ra quyết định nhiều bước               |
+| Xây dựng công cụ knowledge base chia sẻ cho đội nhóm | **MCP**              | Phát triển một lần, dùng ở nhiều nơi                       |
+
+> 🐛 **Hiểu nhầm thường gặp**:
 >
-> 误区："MCP 会取代 Function Calling"
+> Hiểu nhầm: "MCP sẽ thay thế Function Calling"
 >
-> 纠正：**Function Calling 属于 LLM 的推理层能力**（将自然语言映射为结构化 JSON）。在 OpenAI GPT-4o 等模型中，它通过 `tool_call_id` 在多轮对话中保持**隐状态**，并非严格无状态；而 **MCP 是应用层的网络通信协议**（基于 JSON-RPC 2.0），提供**标准化的跨平台能力发现（Discovery）和执行（Execution）**。两者是不同层次、不同维度的协作关系：MCP 解决"如何跨平台标准化接入工具"，Function Calling 解决"模型如何将自然语言转化为结构化调用"。
+> Sửa lại: **Function Calling thuộc về năng lực tầng inference của LLM** (ánh xạ ngôn ngữ tự nhiên thành structured JSON). Trong các mô hình như OpenAI GPT-4o, nó duy trì **hidden state** trong hội thoại nhiều lượt thông qua `tool_call_id`, không phải hoàn toàn stateless; còn **MCP là giao thức giao tiếp mạng tầng ứng dụng** (dựa trên JSON-RPC 2.0), cung cấp **capability discovery (Discovery) và execution (Execution) cross-platform chuẩn hóa**. Hai loại là quan hệ cộng tác ở các tầng và chiều khác nhau: MCP giải quyết "cách kết nối công cụ cross-platform chuẩn hóa", Function Calling giải quyết "mô hình chuyển đổi ngôn ngữ tự nhiên thành structured call như thế nào".
 
-## MCP 架构
+## Kiến trúc MCP
 
-### ⭐️ MCP 的架构包含哪些核心组件？
+### ⭐️ Kiến trúc MCP bao gồm những thành phần cốt lõi nào?
 
-MCP 采用**分层架构设计**，包含四个核心组件：
+MCP áp dụng **thiết kế kiến trúc phân tầng**, bao gồm bốn thành phần cốt lõi:
 
 ```mermaid
 flowchart TB
@@ -167,28 +167,28 @@ flowchart TB
     linkStyle default stroke-width:2px,stroke:#333333,opacity:0.8
 ```
 
-**组件详解：**
+**Giải thích chi tiết các thành phần:**
 
-| 组件            | 定位        | 职责                                            | 代表产品                                     | 失败路径与性能指标                                                                                                            |
-| --------------- | ----------- | ----------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **MCP Host**    | 用户交互层  | 运行 AI 应用，托管 LLM，管理 MCP Client         | Claude Desktop v1.0、VS Code (Cline)、Cursor | Server 崩溃时需自动重连；建议支持 50+ 并发 Server 连接                                                                        |
-| **MCP Client**  | 连接管理层  | 与 MCP Server 建立 1:1 连接，转发 JSON-RPC 请求 | 集成在 Host 内部                             | **失败路径**：断连时需指数退避重连（初始 1s，最大 60s）；**性能指标**：连接建立 P99 < 100ms                                   |
-| **MCP Server**  | 能力暴露层  | 实现 MCP 协议，暴露 Resources/Tools 等能力      | 开发者使用 SDK 开发                          | **失败路径**：资源不存在返回 `-32004`，权限不足返回 `-32003`；**性能指标**：Tool 调用 P99 < 200ms，Resources 加载 P99 < 500ms |
-| **Data Source** | 数据/服务层 | 提供实际数据或执行操作                          | 文件系统、数据库、外部 API                   | 需实现连接池和熔断，防止级联故障                                                                                              |
+| Thành phần      | Định vị                   | Trách nhiệm                                                         | Sản phẩm đại diện                            | Đường thất bại và chỉ số hiệu suất                                                                                                                          |
+| --------------- | ------------------------- | ------------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MCP Host**    | Tầng tương tác người dùng | Chạy AI app, host LLM, quản lý MCP Client                           | Claude Desktop v1.0, VS Code (Cline), Cursor | Khi Server crash cần tự động reconnect; khuyến nghị hỗ trợ 50+ kết nối Server đồng thời                                                                     |
+| **MCP Client**  | Tầng quản lý kết nối      | Thiết lập kết nối 1:1 với MCP Server, chuyển tiếp JSON-RPC requests | Tích hợp bên trong Host                      | **Đường thất bại**: Khi ngắt kết nối cần reconnect exponential backoff (ban đầu 1s, tối đa 60s); **Chỉ số**: kết nối thiết lập P99 < 100ms                  |
+| **MCP Server**  | Tầng expose năng lực      | Triển khai MCP protocol, expose năng lực Resources/Tools, v.v.      | Lập trình viên phát triển dùng SDK           | **Đường thất bại**: Tài nguyên không tồn tại trả về `-32004`, không đủ quyền trả về `-32003`; **Chỉ số**: Tool call P99 < 200ms, Resources load P99 < 500ms |
+| **Data Source** | Tầng dữ liệu/dịch vụ      | Cung cấp dữ liệu thực tế hoặc thực thi thao tác                     | File system, database, external API          | Cần triển khai connection pool và circuit breaker, ngăn cascading failure                                                                                   |
 
-**重要特性：**
+**Đặc điểm quan trọng:**
 
-1. **一对多关系**：一个 Host 可以管理多个 Client，每个 Client 对应一个 Server
-2. **解耦设计**：Client 和 Server 通过 JSON-RPC 通信，不依赖具体实现
-3. **多实例支持**：可以同时连接多个不同功能的 MCP Server
+1. **Quan hệ một-nhiều**: Một Host có thể quản lý nhiều Client, mỗi Client tương ứng với một Server
+2. **Thiết kế decoupled**: Client và Server giao tiếp qua JSON-RPC, không phụ thuộc cài đặt cụ thể
+3. **Hỗ trợ đa instance**: Có thể đồng thời kết nối nhiều MCP Server chức năng khác nhau
 
-> 🐛 **常见误区**：
+> 🐛 **Hiểu nhầm thường gặp**:
 >
-> 很多开发者认为 Host 直接连接 Server。实际上，Host 内部会为每个配置的 Server 创建独立的 Client 实例。这种设计使得不同 Server 之间的连接互不影响。
+> Nhiều lập trình viên cho rằng Host kết nối trực tiếp với Server. Thực ra, bên trong Host sẽ tạo instance Client độc lập cho mỗi Server được cấu hình. Thiết kế này giúp kết nối giữa các Server khác nhau không ảnh hưởng lẫn nhau.
 
-### ⭐️ 请描述 MCP 的完整工作流程
+### ⭐️ Mô tả workflow hoàn chỉnh của MCP
 
-MCP 的工作流程可以分为 **7 个步骤**：
+Workflow của MCP có thể chia thành **7 bước**:
 
 ```mermaid
 sequenceDiagram
@@ -210,32 +210,32 @@ sequenceDiagram
     H-->>U: 返回分析结果
 ```
 
-**步骤详解：**
+**Giải thích chi tiết từng bước:**
 
-| 步骤               | 描述                                 | 关键点                         |
-| ------------------ | ------------------------------------ | ------------------------------ |
-| **1. 用户请求**    | 用户通过 Host 发送问题               | Host 首先接收用户输入          |
-| **2. LLM 推理**    | Host 内部的 LLM 判断是否需要外部能力 | 使用 Chain of Thought 进行思考 |
-| **3. 工具调用**    | LLM 决定调用哪个 Tool                | 通过 Client 发起调用           |
-| **4. 协议转换**    | Client 将调用转换为 JSON-RPC 请求    | 标准化的消息格式               |
-| **5. Server 处理** | MCP Server 解析请求并访问数据源      | 业务逻辑的真正执行者           |
-| **6. 数据返回**    | 结果沿原路返回给 LLM                 | JSON-RPC Response              |
-| **7. 最终生成**    | LLM 结合工具结果生成最终回复         | 用户体验的核心环节             |
+| Bước                       | Mô tả                                                        | Điểm then chốt                            |
+| -------------------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| **1. Yêu cầu người dùng**  | Người dùng gửi câu hỏi qua Host                              | Host nhận input người dùng trước tiên     |
+| **2. LLM inference**       | LLM bên trong Host phán đoán có cần năng lực bên ngoài không | Dùng Chain of Thought để suy nghĩ         |
+| **3. Gọi công cụ**         | LLM quyết định gọi Tool nào                                  | Khởi tạo gọi qua Client                   |
+| **4. Chuyển đổi protocol** | Client chuyển đổi lời gọi thành JSON-RPC request             | Định dạng message chuẩn hóa               |
+| **5. Server xử lý**        | MCP Server parse request và truy cập data source             | Người thực thi thực sự của business logic |
+| **6. Trả về dữ liệu**      | Kết quả được trả về cho LLM theo đường cũ                    | JSON-RPC Response                         |
+| **7. Generation cuối**     | LLM kết hợp kết quả công cụ tạo ra reply cuối cùng           | Phần cốt lõi của trải nghiệm người dùng   |
 
-### MCP 使用什么通信协议？
+### MCP sử dụng giao thức giao tiếp nào?
 
 #### JSON-RPC 2.0
 
-MCP 采用 **JSON-RPC 2.0** 作为应用层通信协议，原因如下：
+MCP áp dụng **JSON-RPC 2.0** làm giao thức giao tiếp tầng ứng dụng, lý do như sau:
 
-| 优势         | 说明                                                                                                                                                                                                                         |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **轻量级**   | 相比 gRPC，JSON-RPC 无需通过 Protobuf 进行额外的跨语言编译和桩代码生成，降低了接入阻力。但作为 Trade-off，JSON-RPC 缺乏原生的强类型约束，MCP 必须在应用层强依赖 JSON Schema 对 Tool 的入参进行严格的结构化声明与运行时校验。 |
-| **传输无关** | 可以运行在 stdio、HTTP、WebSocket 等多种传输层之上                                                                                                                                                                           |
-| **易调试**   | 纯文本格式，便于人工阅读和调试                                                                                                                                                                                               |
-| **广泛支持** | 几乎所有编程语言都有成熟的 JSON-RPC 库                                                                                                                                                                                       |
+| Ưu điểm                | Giải thích                                                                                                                                                                                                                                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nhẹ**                | So với gRPC, JSON-RPC không cần biên dịch Protobuf cross-language và sinh stub code, giảm ngưỡng tích hợp. Nhưng là trade-off, JSON-RPC thiếu ràng buộc kiểu dữ liệu mạnh native, MCP phải phụ thuộc nặng vào JSON Schema để khai báo có cấu trúc và xác thực runtime cho input parameter của Tool. |
+| **Transport-agnostic** | Có thể chạy trên nhiều transport layer như stdio, HTTP, WebSocket                                                                                                                                                                                                                                   |
+| **Dễ debug**           | Định dạng plain text, dễ đọc và debug thủ công                                                                                                                                                                                                                                                      |
+| **Hỗ trợ rộng rãi**    | Hầu hết ngôn ngữ lập trình đều có thư viện JSON-RPC trưởng thành                                                                                                                                                                                                                                    |
 
-**JSON-RPC 消息格式：**
+**Định dạng message JSON-RPC:**
 
 ```json
 // 请求
@@ -267,177 +267,177 @@ MCP 采用 **JSON-RPC 2.0** 作为应用层通信协议，原因如下：
 
 #### JSON-RPC vs HTTP
 
-| 对比维度     | HTTP (RESTful)               | JSON-RPC                   |
-| ------------ | ---------------------------- | -------------------------- |
-| **语义模型** | 面向资源 (Resource-Oriented) | 面向操作 (Action-Oriented) |
-| **调用方式** | GET/POST/PUT/DELETE + URI    | method 名 + 参数           |
-| **数据格式** | 灵活 (JSON/XML/HTML)         | 严格 JSON                  |
-| **功能特性** | 丰富 (状态码/缓存/重定向)    | 极简 (仅 RPC 规范)         |
-| **适用场景** | 公开 API、Web 服务           | 内部通信、工具调用         |
+| Chiều so sánh          | HTTP (RESTful)                         | JSON-RPC                         |
+| ---------------------- | -------------------------------------- | -------------------------------- |
+| **Mô hình ngữ nghĩa**  | Hướng tài nguyên (Resource-Oriented)   | Hướng thao tác (Action-Oriented) |
+| **Cách gọi**           | GET/POST/PUT/DELETE + URI              | Tên method + tham số             |
+| **Định dạng dữ liệu**  | Linh hoạt (JSON/XML/HTML)              | JSON nghiêm ngặt                 |
+| **Tính năng**          | Phong phú (status code/cache/redirect) | Tối giản (chỉ RPC spec)          |
+| **Trường hợp áp dụng** | Public API, Web service                | Giao tiếp nội bộ, gọi công cụ    |
 
-> 🌈 **拓展阅读**：
+> 🌈 **Đọc thêm**:
 >
-> - [JSON-RPC 2.0 官方规范](https://www.jsonrpc.org/specification)
+> - [Đặc tả chính thức JSON-RPC 2.0](https://www.jsonrpc.org/specification)
 > - [A gRPC transport for the Model Context Protocol](https://cloud.google.com/blog/products/networking/grpc-as-a-native-transport-for-mcp)
 
-### ⭐️ MCP 支持哪些传输方式？
+### ⭐️ MCP hỗ trợ những phương thức truyền dẫn nào?
 
-#### stdio（标准输入/输出）
+#### stdio (Standard Input/Output)
 
-| 特性         | 说明                                                    |
-| ------------ | ------------------------------------------------------- |
-| **适用场景** | 本地进程间通信 (IPC)                                    |
-| **实现方式** | Host 启动 MCP Server 作为子进程，通过 stdin/stdout 通信 |
-| **优势**     | 极度轻量，无网络开销，启动快                            |
-| **典型应用** | Claude Desktop、本地 IDE 插件                           |
+| Đặc điểm               | Giải thích                                                              |
+| ---------------------- | ----------------------------------------------------------------------- |
+| **Trường hợp áp dụng** | Giao tiếp inter-process local (IPC)                                     |
+| **Cách triển khai**    | Host khởi động MCP Server như child process, giao tiếp qua stdin/stdout |
+| **Ưu điểm**            | Cực kỳ nhẹ, không có network overhead, khởi động nhanh                  |
+| **Ứng dụng điển hình** | Claude Desktop, local IDE plugin                                        |
 
-**安全提示**：stdio 模式下 MCP Server 与 Host 同权限，恶意 Server 可读取任意文件。生产环境必须采用以下防护措施：
+**Gợi ý bảo mật**: Trong chế độ stdio, MCP Server và Host có cùng quyền hạn, Server độc hại có thể đọc bất kỳ file nào. Môi trường production phải áp dụng các biện pháp bảo vệ sau:
 
-- **系统级隔离**：引入基于 **cgroups** 与 **namespace** 的沙箱（如 Docker/gVisor），建议限制 **CPU < 10%** 配额、内存 < 512MB，防止资源耗尽。
-- **进程管理**：配置子进程的 **SIGTERM/SIGKILL** 优雅退出钩子，防止僵尸进程和文件描述符泄漏。
-- **源码审计**：审阅社区 Server 的源代码，只使用可信来源的 Server；建议建立沙箱突破审计日志。
-- **网络限制**：沙箱内禁止出站网络连接，防范数据外泄。
+- **Cách ly cấp hệ thống**: Giới thiệu sandbox dựa trên **cgroups** và **namespace** (như Docker/gVisor), khuyến nghị giới hạn **CPU < 10%** quota, bộ nhớ < 512MB, ngăn resource exhaustion.
+- **Quản lý process**: Cấu hình **SIGTERM/SIGKILL** graceful exit hook cho child process, ngăn zombie process và file descriptor leak.
+- **Audit source code**: Review source code của community Server, chỉ dùng Server từ nguồn đáng tin; khuyến nghị thiết lập sandbox breakout audit log.
+- **Hạn chế mạng**: Cấm kết nối mạng outbound trong sandbox, phòng chống data exfiltration.
 
-**Streamable HTTP 模式增强安全**：
+**Streamable HTTP mode tăng cường bảo mật**:
 
-- **认证机制**：每条请求携带标准 `Authorization` 头，支持 OAuth 2.0 或 API Key 认证（旧版 HTTP+SSE 只在建立 SSE 连接时校验一次，后续请求无法逐条鉴权）。
-- **传输加密**：强制 TLS 1.3，防止中间人攻击。
-- **访问控制**：基于 RBAC 限制 Resources 和 Tools 的访问权限。
+- **Cơ chế xác thực**: Mỗi request mang header `Authorization` chuẩn, hỗ trợ OAuth 2.0 hoặc API Key authentication (HTTP+SSE cũ chỉ xác thực một lần khi thiết lập kết nối SSE, các request tiếp theo không thể authenticate từng cái).
+- **Mã hóa truyền dẫn**: Bắt buộc TLS 1.3, ngăn man-in-the-middle attack.
+- **Kiểm soát truy cập**: Hạn chế quyền truy cập Resources và Tools dựa trên RBAC.
 
-#### Streamable HTTP（推荐）
+#### Streamable HTTP (Khuyến nghị)
 
-> MCP 协议版本 `2025-03-26` 正式引入 Streamable HTTP 传输方式，取代了旧版的 HTTP+SSE。旧版 HTTP+SSE 使用两个端点（`/sse` 持久连接 + `/sse/messages` 发送消息），已**标记为废弃**，不建议在新项目中使用。
+> Phiên bản MCP protocol `2025-03-26` chính thức giới thiệu phương thức truyền dẫn Streamable HTTP, thay thế HTTP+SSE cũ. HTTP+SSE cũ dùng hai endpoint (`/sse` persistent connection + `/sse/messages` gửi message), đã được **đánh dấu deprecated**, không nên dùng trong dự án mới.
 
-| 特性         | 说明                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------- |
-| **适用场景** | 远程部署、独立服务、生产环境                                                                |
-| **实现方式** | 单端点（如 `/mcp`），客户端 POST 发送 JSON-RPC 请求，服务端按需返回 JSON 响应或 SSE 流      |
-| **优势**     | 标准兼容性好（负载均衡器、API 网关、CORS 中间件开箱即用），每条请求独立鉴权，无需维护长连接 |
-| **典型应用** | Web 应用、团队共享的 MCP 服务、云端托管 MCP Server                                          |
+| Đặc điểm               | Giải thích                                                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Trường hợp áp dụng** | Remote deployment, standalone service, môi trường production                                                                                            |
+| **Cách triển khai**    | Single endpoint (như `/mcp`), client POST gửi JSON-RPC request, server trả về JSON response hoặc SSE stream theo nhu cầu                                |
+| **Ưu điểm**            | Tương thích chuẩn tốt (load balancer, API gateway, CORS middleware out-of-the-box), mỗi request authenticate độc lập, không cần duy trì long connection |
+| **Ứng dụng điển hình** | Web app, MCP service chia sẻ đội nhóm, cloud-hosted MCP Server                                                                                          |
 
-**Streamable HTTP 核心机制**：
+**Cơ chế cốt lõi của Streamable HTTP**:
 
-| 能力           | 说明                                                                                         |
-| -------------- | -------------------------------------------------------------------------------------------- |
-| **单端点交互** | 所有客户端→服务端消息通过 POST 发送到同一端点（如 `https://example.com/mcp`）                |
-| **灵活响应**   | 服务端返回 `application/json`（简单请求-响应）或 `text/event-stream`（流式推送，如进度通知） |
-| **会话管理**   | 通过 `Mcp-Session-Id` 响应头分配会话 ID，客户端在后续请求中携带                              |
-| **可恢复性**   | 基于 SSE 事件 ID + `Last-Event-ID` 请求头实现断线重连后消息补发                              |
-| **服务端推送** | 客户端可通过 GET 请求打开独立 SSE 流，接收服务端主动推送的通知和请求（可选能力）             |
+| Năng lực               | Giải thích                                                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Single endpoint**    | Tất cả message client→server được gửi qua POST đến cùng endpoint (như `https://example.com/mcp`)                                  |
+| **Phản hồi linh hoạt** | Server trả về `application/json` (request-response đơn giản) hoặc `text/event-stream` (streaming push, như progress notification) |
+| **Session management** | Phân bổ session ID qua response header `Mcp-Session-Id`, client mang theo trong các request tiếp theo                             |
+| **Khả năng phục hồi**  | Thực hiện message resend sau khi reconnect dựa trên SSE event ID + request header `Last-Event-ID`                                 |
+| **Server push**        | Client có thể mở SSE stream độc lập qua GET request, nhận notification và request chủ động push từ server (tính năng tùy chọn)    |
 
-**Streamable HTTP vs 旧版 HTTP+SSE 对比**：
+**So sánh Streamable HTTP vs HTTP+SSE cũ**:
 
-| 对比维度     | 旧版 HTTP+SSE（已废弃）                     | Streamable HTTP（当前推荐）                     |
-| ------------ | ------------------------------------------- | ----------------------------------------------- |
-| **端点数量** | 两个（`/sse` + `/sse/messages`）            | 一个（如 `/mcp`）                               |
-| **连接模型** | 必须维护持久 SSE 连接                       | 标准 HTTP 请求-响应，SSE 可选                   |
-| **认证**     | 仅连接建立时校验，后续无法逐条鉴权          | 每条 POST 请求携带 `Authorization` 头，逐条鉴权 |
-| **基础设施** | 需要粘性会话，与负载均衡器/API 网关兼容性差 | 与标准 HTTP 基础设施天然兼容                    |
-| **会话管理** | 非正式化                                    | `Mcp-Session-Id` 头，生命周期明确               |
+| Chiều so sánh          | HTTP+SSE cũ (đã deprecated)                                             | Streamable HTTP (khuyến nghị hiện tại)                              |
+| ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Số endpoint**        | Hai (`/sse` + `/sse/messages`)                                          | Một (như `/mcp`)                                                    |
+| **Mô hình kết nối**    | Phải duy trì persistent SSE connection                                  | HTTP request-response chuẩn, SSE tùy chọn                           |
+| **Xác thực**           | Chỉ xác thực khi thiết lập kết nối, không thể authenticate từng request | Mỗi POST request mang header `Authorization`, authenticate từng cái |
+| **Cơ sở hạ tầng**      | Cần sticky session, tương thích kém với load balancer/API gateway       | Tương thích tự nhiên với cơ sở hạ tầng HTTP chuẩn                   |
+| **Session management** | Không chính thức hóa                                                    | Header `Mcp-Session-Id`, lifecycle rõ ràng                          |
 
-**选型决策**：
+**Quyết định chọn lựa**:
 
-![MCP 传输方式选择](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-transport-decision.png)
+![Lựa chọn phương thức truyền dẫn MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-transport-decision.png)
 
-#### 传输层异常与背压分析（生产级考量）
+#### Phân tích Transport Layer Exceptions và Backpressure (Cân nhắc production-grade)
 
-| 风险类型                 | stdio 模式                                                            | Streamable HTTP 模式             | 工程防御手段                                               |
-| ------------------------ | --------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
-| **子进程僵死**           | 高：Server 异常退出时，Host 可能未正确回收子进程，产生 Zombie Process | 低：无子进程概念                 | 配置 `SIGCHLD` 信号处理器 + `waitpid` 兜底回收             |
-| **文件描述符泄漏**       | 高：stdin/stdout 管道未关闭会导致 FD Leak，最终耗尽系统资源           | 低：标准 HTTP 连接，框架自动管理 | 设置 FD 上限（`ulimit -n`），实现连接池健康检查            |
-| **连接中断**             | 中：Server 崩溃导致管道断裂                                           | 低：每次请求独立，天然容错       | 指数退避重试 + 熔断机制（Circuit Breaker）                 |
-| **背压（Backpressure）** | 缺失：stdio 无流量控制机制                                            | 原生支持：HTTP 状态码控制流量    | 实现滑动窗口限流，超出缓冲区时返回 `429 Too Many Requests` |
+| Loại rủi ro                 | Chế độ stdio                                                                                               | Chế độ Streamable HTTP                             | Biện pháp phòng thủ kỹ thuật                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Child process zombified** | Cao: Khi Server crash bất thường, Host có thể không thu hồi child process đúng cách, tạo ra Zombie Process | Thấp: Không có khái niệm child process             | Cấu hình `SIGCHLD` signal handler + `waitpid` fallback recovery                         |
+| **File descriptor leak**    | Cao: stdin/stdout pipe chưa đóng sẽ gây FD Leak, cuối cùng cạn kiệt system resource                        | Thấp: HTTP connection chuẩn, framework tự quản lý  | Đặt giới hạn FD (`ulimit -n`), triển khai connection pool health check                  |
+| **Connection interrupted**  | Trung: Server crash gây vỡ pipe                                                                            | Thấp: Mỗi request độc lập, tự nhiên fault-tolerant | Exponential backoff retry + circuit breaker                                             |
+| **Backpressure**            | Thiếu: stdio không có flow control                                                                         | Native support: HTTP status code kiểm soát traffic | Triển khai sliding window rate limiting, trả về `429 Too Many Requests` khi vượt buffer |
 
-## 工程实践
+## Thực hành kỹ thuật
 
-### 开发 MCP Server 时有哪些最佳实践？
+### Có những best practice nào khi phát triển MCP Server?
 
-#### 1. 工具粒度设计 (Tool Granularity)
+#### 1. Thiết kế độ hạt công cụ (Tool Granularity)
 
-**原则：单一职责，语义明确**
+**Nguyên tắc: Single responsibility, ngữ nghĩa rõ ràng**
 
-| 反面示例                         | 正面示例                                                   |
+| Ví dụ phản diện                  | Ví dụ chính diện                                           |
 | -------------------------------- | ---------------------------------------------------------- |
 | `execute_sql(sql)`               | `get_user_by_id(id)` / `list_active_orders()`              |
 | `file_operation(op, path, data)` | `read_file(path)` / `write_file(path, content)`            |
 | `database(action, params)`       | `query_userByEmail(email)` / `updateUserProfile(id, data)` |
 
-**设计建议**：
+**Khuyến nghị thiết kế**:
 
-- 工具名称使用**动词+名词**形式：`get_`、`list_`、`create_`、`update_`、`delete_`。
-- 参数类型要**明确且可验证**：使用 JSON Schema 定义`。
-- 避免过度抽象：不要把多个操作塞进一个工具`。
+- Tên công cụ dùng dạng **verb+noun**: `get_`, `list_`, `create_`, `update_`, `delete_`.
+- Kiểu tham số phải **rõ ràng và có thể xác thực**: Dùng JSON Schema để định nghĩa.
+- Tránh trừu tượng hóa quá mức: Đừng nhét nhiều thao tác vào một công cụ.
 
-#### 2. Context Window 管理
+#### 2. Quản lý Context Window
 
-MCP 的 Resources 能力可能一次性加载大量文本，导致：
+Năng lực Resources của MCP có thể một lần load lượng lớn văn bản, dẫn đến:
 
-| 问题           | 后果                                     | 解决方案                                                                                                                                                                                                                          |
-| -------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 上下文溢出     | LLM 无法处理完整内容                     | 实现**分块 (Chunking)** 逻辑                                                                                                                                                                                                      |
-| 中间丢失       | LLM 忽略上下文中间的内容                 | 提供**摘要 (Summarization)**                                                                                                                                                                                                      |
-| 成本过高       | Token 消耗过大                           | 实现**按需加载**和**增量同步**                                                                                                                                                                                                    |
-| **OOM 风险**   | **内存溢出导致 Server 被 Kill**          | **严格限制单条资源大小（如 < 10MB），超出时返回元数据而非全文**                                                                                                                                                                   |
-| **Token 爆炸** | **超出上下文窗口触发截断，丢失关键信息** | **限制绝对字符长度（如 < 1MB）、返回分页元数据，或依赖 Host 端的 Context Window 截断机制**。**注意：** 由于 MCP Server 是模型无感知的，严禁硬编码特定模型的 Tokenizer（如 `tiktoken`）进行预计算，否则接入其他 LLM 平台时会失效。 |
+| Vấn đề              | Hậu quả                                                          | Giải pháp                                                                                                                                                                                                                                                                                                                 |
+| ------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Context overflow    | LLM không xử lý được nội dung đầy đủ                             | Triển khai logic **Chunking**                                                                                                                                                                                                                                                                                             |
+| Lost in the middle  | LLM bỏ qua nội dung ở giữa context                               | Cung cấp **Summarization**                                                                                                                                                                                                                                                                                                |
+| Chi phí quá cao     | Token consumption quá lớn                                        | Triển khai **lazy loading** và **incremental sync**                                                                                                                                                                                                                                                                       |
+| **Rủi ro OOM**      | **Memory overflow khiến Server bị Kill**                         | **Giới hạn nghiêm ngặt kích thước tài nguyên đơn lẻ (như < 10MB), khi vượt trả về metadata thay vì toàn văn**                                                                                                                                                                                                             |
+| **Token explosion** | **Vượt context window gây truncation, mất thông tin quan trọng** | **Giới hạn độ dài ký tự tuyệt đối (như < 1MB), trả về pagination metadata, hoặc dựa vào cơ chế Context Window truncation phía Host**. **Lưu ý:** Vì MCP Server là model-agnostic, nghiêm cấm hardcode Tokenizer của mô hình cụ thể (như `tiktoken`) để tính toán trước, nếu không sẽ fail khi tích hợp LLM platform khác. |
 
-#### 3. 错误处理与用户体验
+#### 3. Xử lý lỗi và trải nghiệm người dùng
 
-| 错误类型           | 处理方式                   |
-| ------------------ | -------------------------- |
-| **参数验证失败**   | 返回清晰的错误提示和建议   |
-| **权限不足**       | 说明所需权限和申请方式     |
-| **服务暂时不可用** | 提供重试机制和预计恢复时间 |
-| **部分失败**       | 明确哪些操作成功、哪些失败 |
+| Loại lỗi                            | Cách xử lý                                            |
+| ----------------------------------- | ----------------------------------------------------- |
+| **Tham số xác thực thất bại**       | Trả về gợi ý lỗi và đề xuất rõ ràng                   |
+| **Không đủ quyền**                  | Giải thích quyền cần thiết và cách xin                |
+| **Dịch vụ tạm thời không khả dụng** | Cung cấp cơ chế retry và thời gian phục hồi dự kiến   |
+| **Thất bại một phần**               | Làm rõ thao tác nào thành công, thao tác nào thất bại |
 
-#### 4. 安全防护
+#### 4. Bảo vệ bảo mật
 
-| 风险             | 防护措施                     |
-| ---------------- | ---------------------------- |
-| **路径遍历攻击** | 验证文件路径，限制访问目录   |
-| **SQL 注入**     | 使用参数化查询，禁止拼接 SQL |
-| **敏感信息泄露** | 脱敏处理，避免返回完整凭证   |
-| **资源滥用**     | 实现速率限制和配额管理       |
+| Rủi ro                       | Biện pháp bảo vệ                              |
+| ---------------------------- | --------------------------------------------- |
+| **Path traversal attack**    | Xác thực file path, giới hạn thư mục truy cập |
+| **SQL injection**            | Dùng parameterized query, cấm ghép SQL        |
+| **Rò rỉ thông tin nhạy cảm** | Xử lý ẩn danh, tránh trả về credential đầy đủ |
+| **Lạm dụng tài nguyên**      | Triển khai rate limiting và quota management  |
 
-#### 5. 调试与监控
+#### 5. Debug và Monitoring
 
-**推荐工具**：
+**Công cụ khuyến nghị**:
 
-- [**MCP Inspector**](https://modelcontextprotocol.io/docs/tools/inspector)：官方调试工具，可模拟 Host 发送请求
+- [**MCP Inspector**](https://modelcontextprotocol.io/docs/tools/inspector): Công cụ debug chính thức, có thể mô phỏng Host gửi request
 
   ```bash
   npx @modelcontextprotocol/inspector node my-server.js
   ```
 
-- **日志记录**：记录所有 JSON-RPC 请求和响应
-- **性能监控**：跟踪响应时间、错误率、Token 消耗
-- **健康检查**：实现 `/health` 端点用于监控
+- **Ghi log**: Ghi lại tất cả JSON-RPC request và response
+- **Performance monitoring**: Theo dõi response time, error rate, Token consumption
+- **Health check**: Triển khai endpoint `/health` để monitoring
 
-### 如何开发一个自定义的 MCP 服务器？
+### Làm thế nào để phát triển một MCP Server tùy chỉnh?
 
-**开发流程：**
+**Quy trình phát triển:**
 
 ```
-1. 选择 SDK
-   ├─ TypeScript (官方首选)
+1. Chọn SDK
+   ├─ TypeScript (ưu tiên chính thức)
    ├─ Python
    └─ Java (Spring AI)
 
-2. 定义能力
-   ├─ Resources: 暴露哪些数据？
-   ├─ Tools: 提供哪些功能？
-   └─ Prompts: 有哪些常用操作模板？
+2. Định nghĩa năng lực
+   ├─ Resources: Expose dữ liệu nào?
+   ├─ Tools: Cung cấp chức năng gì?
+   └─ Prompts: Có những template thao tác phổ biến nào?
 
-3. 实现业务逻辑
-   └─ 连接数据源/服务，实现具体功能
+3. Triển khai business logic
+   └─ Kết nối data source/service, triển khai chức năng cụ thể
 
-4. 本地测试
-   └─ 使用 MCP Inspector 验证
+4. Test local
+   └─ Xác thực bằng MCP Inspector
 
-5. 部署配置
-   └─ 在 Host 中配置 Server 启动命令
+5. Cấu hình deploy
+   └─ Cấu hình lệnh khởi động Server trong Host
 ```
 
-**快速示例 (Python SDK)：**
+**Ví dụ nhanh (Python SDK):**
 
 ```python
 from mcp.server import Server
@@ -464,7 +464,7 @@ if __name__ == "__main__":
     server.run()
 ```
 
-**配置示例 (Claude Desktop)：**
+**Ví dụ cấu hình (Claude Desktop):**
 
 ```json
 {
@@ -480,7 +480,7 @@ if __name__ == "__main__":
 }
 ```
 
-> ⚠️ **工程提示**：在生产环境中，Python MCP Server 依赖 `mcp` SDK，直接使用全局 `python` 命令会因依赖缺失而启动失败。请使用虚拟环境中的 Python 解释器路径（如 `/path/to/venv/bin/python`），或推荐使用现代化包管理器（如 `uvx` 或 `npx`），例如：
+> ⚠️ **Gợi ý kỹ thuật**: Trong môi trường production, Python MCP Server phụ thuộc vào `mcp` SDK, dùng trực tiếp lệnh `python` toàn cục sẽ fail khi khởi động do thiếu dependency. Hãy dùng Python interpreter path trong virtual environment (như `/path/to/venv/bin/python`), hoặc khuyến nghị dùng package manager hiện đại (như `uvx` hoặc `npx`), ví dụ:
 >
 > ```json
 > {
@@ -489,48 +489,48 @@ if __name__ == "__main__":
 > }
 > ```
 >
-> 启动失败时，可查看 Claude Desktop 的 `mcp.log` 排查问题。
+> Khi khởi động thất bại, có thể xem `mcp.log` của Claude Desktop để debug.
 
-## 拓展阅读
+## Đọc thêm
 
-### 官方资源
+### Tài nguyên chính thức
 
-- [MCP 官方文档](https://modelcontextprotocol.io/)
-- [MCP GitHub 仓库](https://github.com/modelcontextprotocol)
-- [MCP Inspector 调试工具](https://github.com/modelcontextprotocol/inspector)
+- [Tài liệu chính thức MCP](https://modelcontextprotocol.io/)
+- [MCP GitHub repository](https://github.com/modelcontextprotocol)
+- [Công cụ debug MCP Inspector](https://github.com/modelcontextprotocol/inspector)
 
-### 社区资源
+### Tài nguyên cộng đồng
 
 - [Awesome MCP Servers](https://github.com/punkpeye/awesome-mcp-servers)
-- [MCP 官方 SDK](https://github.com/modelcontextprotocol/servers)
+- [MCP official SDK](https://github.com/modelcontextprotocol/servers)
 
-### 推荐文章
+### Bài viết khuyến nghị
 
 1. [从原理到示例：Java开发玩转MCP - 阿里云开发者](https://mp.weixin.qq.com/s/TYoJ9mQL8tgT7HjTQiSdlw)
 2. [MCP 实践：基于 MCP 架构实现知识库答疑系统 - 阿里云开发者](https://mp.weixin.qq.com/s/ETmbEAE7lNligcM_A_GF8A)
 3. [从零开始教你打造一个MCP客户端](https://mp.weixin.qq.com/s/zYgQEpdUC5C6WSpMXY8cxw)
 
-## 总结
+## Tổng kết
 
-MCP 协议把 AI 应用开发中碎片化的工具接入问题，拉到了一个统一的协议层上。通过本文，我们系统梳理了 MCP 的核心知识：
+MCP protocol đã kéo vấn đề tích hợp công cụ phân mảnh trong phát triển ứng dụng AI lên một tầng protocol thống nhất. Qua bài viết này, chúng ta đã hệ thống hóa các kiến thức cốt lõi của MCP:
 
-**核心要点回顾**：
+**Ôn lại các điểm cốt lõi**:
 
-1. **MCP 是什么**：AI 领域的"USB-C 接口"，通过 JSON-RPC 2.0 统一了 LLM 与外部工具的通信规范
-2. **四大核心能力**：Resources（只读数据）、Tools（可执行动作）、Prompts（预设指令）、Sampling（请求 LLM 推理）
-3. **四层架构**：Host → Client → Server → Data Source，一对多连接，模型无感知
-4. **传输方式**：stdio（本地）、Streamable HTTP（远程），各有适用场景
-5. **生产级实践**：工具粒度设计、Context Window 管理、安全防护、失败路径处理
+1. **MCP là gì**: "Cổng USB-C" trong lĩnh vực AI, thống nhất quy tắc giao tiếp giữa LLM và công cụ bên ngoài thông qua JSON-RPC 2.0
+2. **Bốn năng lực cốt lõi**: Resources (dữ liệu chỉ đọc), Tools (hành động có thể thực thi), Prompts (chỉ dẫn preset), Sampling (yêu cầu LLM inference)
+3. **Kiến trúc bốn tầng**: Host → Client → Server → Data Source, kết nối một-nhiều, model-agnostic
+4. **Phương thức truyền dẫn**: stdio (local), Streamable HTTP (remote), mỗi loại có trường hợp áp dụng riêng
+5. **Thực hành production-grade**: Thiết kế độ hạt công cụ, quản lý Context Window, bảo vệ bảo mật, xử lý đường thất bại
 
-**与其他概念的区别**：
+**Sự khác biệt với các khái niệm khác**:
 
-- MCP vs Function Calling：MCP 是协议标准，Function Calling 是 LLM 能力
-- MCP vs Agent：MCP 是基础设施，Agent 是应用层系统
+- MCP vs Function Calling: MCP là chuẩn protocol, Function Calling là năng lực LLM
+- MCP vs Agent: MCP là cơ sở hạ tầng, Agent là hệ thống tầng ứng dụng
 
-**学习建议**：
+**Khuyến nghị học tập**:
 
-1. **动手实践**：写一个简单的 MCP Server，理解 Host-Client-Server 的交互流程
-2. **阅读官方文档**：MCP 规范还在快速演进，保持对官方文档的关注
-3. **关注生态**：Awesome MCP Servers 收集了大量开源实现，是学习的好素材
+1. **Thực hành**: Viết một MCP Server đơn giản, hiểu quy trình tương tác Host-Client-Server
+2. **Đọc tài liệu chính thức**: Spec MCP vẫn đang tiến hóa nhanh, hãy theo dõi tài liệu chính thức
+3. **Chú ý hệ sinh thái**: Awesome MCP Servers tập hợp nhiều triển khai mã nguồn mở, là tài liệu học tốt
 
-MCP 生态还在快速演进，协议本身也在迭代（比如从 HTTP+SSE 到 Streamable HTTP）。建议从写一个最简单的 MCP Server 开始，边做边理解协议细节，比光看文档有效得多。
+Hệ sinh thái MCP vẫn đang tiến hóa nhanh chóng, bản thân protocol cũng đang được cập nhật (như từ HTTP+SSE sang Streamable HTTP). Khuyến nghị bắt đầu từ việc viết một MCP Server đơn giản nhất, vừa làm vừa hiểu chi tiết protocol, hiệu quả hơn nhiều so với chỉ đọc tài liệu.

@@ -1,7 +1,7 @@
 ---
-title: 一千行 MySQL 学习笔记
-description: 一千行MySQL学习笔记精华总结，涵盖数据库操作、表管理、SQL语法、索引、视图、存储过程、触发器等核心知识点，适合快速查阅和复习。
-category: 数据库
+title: Ghi Chú Học MySQL 1000 Dòng
+description: Tổng hợp tinh hoa ghi chú học MySQL 1000 dòng, bao gồm các thao tác database, quản lý bảng, cú pháp SQL, index, view, stored procedure, trigger và các kiến thức cốt lõi khác, phù hợp để tra cứu nhanh và ôn tập.
+category: Database
 tag:
   - MySQL
 head:
@@ -10,11 +10,11 @@ head:
       content: MySQL学习笔记,MySQL命令大全,SQL语法,数据库操作,表操作,索引,视图,存储过程,触发器
 ---
 
-> 原文地址：<https://shockerli.net/post/1000-line-mysql-note/> ，JavaGuide 对本文进行了简答排版，新增了目录。
+> Địa chỉ bài gốc: <https://shockerli.net/post/1000-line-mysql-note/>, JavaGuide đã thực hiện định dạng lại đơn giản và bổ sung mục lục.
 
-非常不错的总结，强烈建议保存下来，需要的时候看一看。
+Đây là bản tổng hợp rất hay, khuyến khích lưu lại để xem khi cần.
 
-### 基本操作
+### Thao tác cơ bản
 
 ```sql
 /* Windows服务 */
@@ -31,7 +31,7 @@ head:
 				SHOW VARIABLES
 ```
 
-### 数据库操作
+### Thao tác Database
 
 ```sql
 /* 数据库操作 */
@@ -55,7 +55,7 @@ head:
         同时删除该数据库相关的目录及其目录内容
 ```
 
-### 表的操作
+### Thao tác Bảng
 
 ```sql
 /* 表的操作  */
@@ -137,7 +137,7 @@ head:
     ANALYZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE tbl_name [, tbl_name] ...
 ```
 
-### 数据操作
+### Thao tác Dữ liệu
 
 ```sql
 /* 数据操作 */ ------------------
@@ -159,7 +159,7 @@ head:
     UPDATE 表名 SET 字段名=新值[, 字段名=新值] [更新条件]
 ```
 
-### 字符集编码
+### Mã hóa Character Set
 
 ```sql
 /* 字符集编码 */ ------------------
@@ -182,7 +182,7 @@ SET NAMES GBK;  -- 相当于完成以上三个设置
     COLLATE 校对集编码     设置校对集编码
 ```
 
-### 数据类型(列类型)
+### Kiểu dữ liệu (Kiểu cột)
 
 ```sql
 /* 数据类型（列类型） */ ------------------
@@ -284,7 +284,7 @@ set(val1, val2, val3...)
     当创建表时，SET成员值的尾部空格将自动被删除。
 ```
 
-### 列属性(列约束)
+### Thuộc tính cột (Ràng buộc cột)
 
 ```sql
 /* 列属性（列约束） */ ------------------
@@ -339,7 +339,7 @@ set(val1, val2, val3...)
 
 ```
 
-### 建表规范
+### Quy tắc tạo bảng
 
 ```sql
 /* 建表规范 */ ------------------
@@ -436,7 +436,7 @@ h. DISTINCT, ALL 选项
       每个select查询的字段列表(数量、类型)应一致，因为结果中的字段名以第一条select语句为准。
 ```
 
-### 子查询
+### Subquery (Truy vấn con)
 
 ```sql
 /* 子查询 */ ------------------
@@ -470,7 +470,7 @@ h. DISTINCT, ALL 选项
     all, some 可以配合其他运算符一起使用。
 ```
 
-### 连接查询(join)
+### Truy vấn kết hợp (JOIN)
 
 ```sql
 /* 连接查询(join) */ ------------------
@@ -513,7 +513,7 @@ TRUNCATE [TABLE] tbl_name
 4，当被用于带分区的表时，truncate 会保留分区
 ```
 
-### 备份与还原
+### Sao lưu và khôi phục
 
 ```sql
 /* 备份与还原 */ ------------------
@@ -539,7 +539,7 @@ mysqldump [options] --all--database
 　　mysql -u用户名 -p密码 库名 < 备份文件
 ```
 
-### 视图
+### View (Khung nhìn)
 
 ```sql
 什么是视图：
@@ -573,7 +573,7 @@ CREATE [OR REPLACE] [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}] VIEW view_name
     UNDEFINED   未定义(默认)，指的是MySQL自主去选择相应的算法。
 ```
 
-### 事务(transaction)
+### Transaction (Giao dịch)
 
 ```sql
 事务是指逻辑上的一组操作，组成这组操作的各个单元，要不全成功要不全失败。
@@ -624,7 +624,7 @@ CREATE [OR REPLACE] [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}] VIEW view_name
 
 ```
 
-### 锁表
+### Khóa bảng (Lock Table)
 
 ```sql
 /* 锁表 */
@@ -636,7 +636,7 @@ MyISAM 支持表锁，InnoDB 支持行锁
     UNLOCK TABLES
 ```
 
-### 触发器
+### Trigger
 
 ```sql
 /* 触发器 */ ------------------
@@ -689,7 +689,7 @@ end
 3. Replace 语法 如果有记录，则执行 before insert, before delete, after delete, after insert
 ```
 
-### SQL 编程
+### Lập trình SQL
 
 ```sql
 /* SQL编程 */ ------------------
@@ -824,7 +824,7 @@ INOUT，表示混合型
 注意，没有返回值。
 ```
 
-### 存储过程
+### Stored Procedure
 
 ```sql
 /* 存储过程 */ ------------------
@@ -845,7 +845,7 @@ BEGIN
 END
 ```
 
-### 用户和权限管理
+### Quản lý người dùng và quyền hạn
 
 ```sql
 /* 用户和权限管理 */ ------------------
@@ -927,7 +927,7 @@ USAGE   -- “无权限”的同义词
 GRANT OPTION    -- 允许授予权限
 ```
 
-### 表维护
+### Bảo trì bảng
 
 ```sql
 /* 表维护 */
@@ -940,7 +940,7 @@ option = {QUICK | FAST | MEDIUM | EXTENDED | CHANGED}
 OPTIMIZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE tbl_name [, tbl_name] ...
 ```
 
-### 杂项
+### Linh tinh
 
 ```sql
 /* 杂项 */ ------------------

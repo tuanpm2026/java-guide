@@ -1,34 +1,34 @@
 ---
-title: Java 10 新特性概览
-description: 概览 JDK 10 的主要更新，重点介绍 var 类型推断与其他平台改进。
+title: Tổng quan các tính năng mới trong Java 10
+description: Tổng quan các cập nhật chính của JDK 10, trọng tâm giới thiệu var type inference và các cải tiến platform khác.
 category: Java
 tag:
-  - Java新特性
+  - Java tính năng mới
 head:
   - - meta
     - name: keywords
-      content: Java 10,JDK10,var 局部变量类型推断,垃圾回收改进,性能
+      content: Java 10,JDK10,var local variable type inference,garbage collection improvements,performance
 ---
 
-**Java 10** 发布于 2018 年 3 月 20 日，这是一个非 LTS（长期支持）版本，Oracle 仅提供六个月的支持。
+**Java 10** phát hành ngày 20/3/2018. Đây là phiên bản non-LTS (không hỗ trợ dài hạn), Oracle chỉ hỗ trợ 6 tháng.
 
-下图是从 JDK 8 到 JDK 25 每个版本的更新带来的新特性数量和更新时间：
+Hình dưới là số lượng tính năng mới và thời gian cập nhật từng phiên bản từ JDK 8 đến JDK 25:
 
-![ JDK 8 到 JDK 25 每个版本的更新带来的新特性数量和更新时间](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
+![Số lượng tính năng mới và thời gian cập nhật mỗi phiên bản từ JDK 8 đến JDK 25](https://oss.javaguide.cn/github/javaguide/java/new-features/jdk8~jdk24.png)
 
-这篇文章会挑选其中较为重要的一些新特性进行详细介绍：
+Bài này sẽ chọn giới thiệu chi tiết một số tính năng quan trọng hơn:
 
-- [JEP 286: Local-Variable Type Inference（局部变量类型推断）](https://openjdk.org/jeps/286)
-- [JEP 304: Garbage-Collector Interface（垃圾回收器接口）](https://openjdk.org/jeps/304)
-- [JEP 307: Parallel Full GC for G1（G1 并行 Full GC）](https://openjdk.org/jeps/307)
-- [JEP 310: Application Class-Data Sharing（应用程序类数据共享）](https://openjdk.org/jeps/310)
-- [JEP 317: Experimental Java-Based JIT Compiler（实验性的基于 Java 的 JIT 编译器）](https://openjdk.org/jeps/317)
+- [JEP 286: Local-Variable Type Inference (Suy luận kiểu biến cục bộ)](https://openjdk.org/jeps/286)
+- [JEP 304: Garbage-Collector Interface (Interface garbage collector)](https://openjdk.org/jeps/304)
+- [JEP 307: Parallel Full GC for G1 (G1 Parallel Full GC)](https://openjdk.org/jeps/307)
+- [JEP 310: Application Class-Data Sharing (Chia sẻ class data ứng dụng)](https://openjdk.org/jeps/310)
+- [JEP 317: Experimental Java-Based JIT Compiler (JIT compiler thực nghiệm dựa trên Java)](https://openjdk.org/jeps/317)
 
 ## JEP 286: Local-Variable Type Inference
 
-由于太多 Java 开发者希望 Java 中引入局部变量类型推断，于是 Java 10 的时候它来了，也算是众望所归了！
+Vì quá nhiều Java developer mong muốn Java đưa vào local variable type inference, Java 10 đã đáp ứng — đúng như kỳ vọng!
 
-Java 10 提供了 `var` 关键字声明局部变量。
+Java 10 cung cấp keyword `var` để khai báo biến cục bộ.
 
 ```java
 var id = 0;
@@ -42,49 +42,49 @@ for (var n : numbers)
     System.out.print(n+ " ");
 ```
 
-`var` 关键字只能用于带有构造器的局部变量和 for 循环中。
+Keyword `var` chỉ có thể dùng cho biến cục bộ có constructor và vòng lặp for.
 
 ```java
-var count = null; //❌编译不通过，不能声明为 null
-var r = () -> Math.random();//❌编译不通过，不能声明为 Lambda表达式
-var array = {1, 2, 3};//❌编译不通过，不能声明数组
+var count = null; //❌ Compile lỗi, không thể khai báo là null
+var r = () -> Math.random();//❌ Compile lỗi, không thể khai báo là Lambda expression
+var array = {1, 2, 3};//❌ Compile lỗi, không thể khai báo array
 ```
 
-`var` 并不会改变 Java 是一门静态类型语言的事实，编译器负责推断出类型。
+`var` không thay đổi thực tế Java là ngôn ngữ statically typed — compiler chịu trách nhiệm suy luận kiểu.
 
-另外，Scala 和 Kotlin 中已经有了 `val` 关键字 ( `final var` 组合关键字)。
+Ngoài ra, Scala và Kotlin đã có keyword `val` (tổ hợp keyword `final var`).
 
 ## JEP 304: Garbage-Collector Interface
 
-在早期的 JDK 结构中，组成垃圾收集器 (GC) 实现的组件分散在代码库的各个部分。 Java 10 通过引入一套纯净的垃圾收集器接口来将不同垃圾收集器的源代码分隔开。
+Trong cấu trúc JDK trước đây, các component tạo nên triển khai garbage collector (GC) phân tán khắp nơi trong codebase. Java 10 giới thiệu một bộ garbage collector interface thuần túy để tách biệt source code của các garbage collector khác nhau.
 
 ## JEP 307: Parallel Full GC for G1
 
-从 Java 9 开始 G1 就成了默认的垃圾回收器，G1 是以一种低延时的垃圾回收器来设计的，旨在避免进行 Full GC，但是 Java 9 的 G1 的 Full GC 依然是使用单线程去完成标记清除算法，这可能会导致垃圾回收器在无法回收内存的时候触发 Full GC。
+Từ Java 9, G1 đã trở thành garbage collector mặc định. G1 được thiết kế như garbage collector độ trễ thấp, nhằm tránh thực hiện Full GC. Nhưng Full GC của G1 trong Java 9 vẫn dùng single thread để hoàn thành mark-sweep algorithm, có thể khiến garbage collector trigger Full GC khi không thể thu hồi memory.
 
-为了最大限度地减少 Full GC 造成的应用停顿的影响，从 Java10 开始，G1 的 FullGC 改为并行的标记清除算法，同时会使用与年轻代回收和混合回收相同的并行工作线程数量，从而减少了 Full GC 的发生，以带来更好的性能提升、更大的吞吐量。
+Để giảm tối đa ảnh hưởng của application pause do Full GC, từ Java 10, Full GC của G1 chuyển sang parallel mark-sweep algorithm, đồng thời dùng cùng số lượng parallel worker thread với young generation và mixed collection, giúp giảm tần suất Full GC để đạt hiệu năng tốt hơn và throughput lớn hơn.
 
-## JEP 310: **应用程序类数据共享(扩展 CDS 功能)**
+## JEP 310: Application Class-Data Sharing (Mở rộng CDS)
 
-在 Java 5 中就已经引入了类数据共享机制 (Class Data Sharing，简称 CDS)，允许将一组类预处理为共享归档文件，以便在运行时能够进行内存映射以减少 Java 程序的启动时间，当多个 Java 虚拟机（JVM）共享相同的归档文件时，还可以减少动态内存的占用量，同时减少多个虚拟机在同一个物理或虚拟的机器上运行时的资源占用。CDS 在当时还是 Oracle JDK 的商业特性。
+Java 5 đã giới thiệu cơ chế Class Data Sharing (CDS), cho phép pre-process một nhóm class thành shared archive file, để memory mapping lúc runtime giúp giảm startup time của Java program. Khi nhiều JVM chia sẻ cùng archive file, có thể giảm dynamic memory usage, đồng thời giảm resource consumption khi nhiều VM chạy trên cùng máy vật lý hay ảo. CDS lúc đó vẫn là commercial feature của Oracle JDK.
 
-Java 10 在现有的 CDS 功能基础上再次拓展，以允许应用类放置在共享存档中。CDS 特性在原来的 bootstrap 类基础之上，扩展加入了应用类的 CDS 为 (Application Class-Data Sharing，AppCDS) 支持，大大加大了 CDS 的适用范围。其原理为：在启动时记录加载类的过程，写入到文本文件中，再次启动时直接读取此启动文本并加载。设想如果应用环境没有大的变化，启动速度就会得到提升。
+Java 10 mở rộng thêm dựa trên chức năng CDS hiện có, cho phép đặt application class vào shared archive. CDS feature mở rộng thêm Application Class-Data Sharing (AppCDS) hỗ trợ cho application class trên nền tảng bootstrap class trước đó, mở rộng đáng kể phạm vi áp dụng của CDS. Nguyên lý: Ghi lại quá trình load class khi khởi động vào text file, lần khởi động tiếp theo đọc trực tiếp text file khởi động này và load. Nếu môi trường ứng dụng không thay đổi nhiều, tốc độ khởi động sẽ được cải thiện.
 
-## JEP 317: **实验性的基于 Java 的 JIT 编译器**
+## JEP 317: Experimental Java-Based JIT Compiler
 
-Graal 是一个基于 Java 语言编写的 JIT 编译器，是 JDK 9 中引入的实验性 Ahead-of-Time (AOT) 编译器的基础。
+Graal là JIT compiler viết bằng Java, là nền tảng của experimental Ahead-of-Time (AOT) compiler được giới thiệu trong JDK 9.
 
-Oracle 的 HotSpot VM 便附带两个用 C++ 实现的 JIT compiler：C1 及 C2。在 Java 10 (Linux/x64, macOS/x64) 中，默认情况下 HotSpot 仍使用 C2，但通过向 java 命令添加 `-XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler` 参数便可将 C2 替换成 Graal。
+HotSpot VM của Oracle đi kèm hai JIT compiler triển khai bằng C++: C1 và C2. Trong Java 10 (Linux/x64, macOS/x64), HotSpot mặc định vẫn dùng C2, nhưng thêm tham số `-XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler` vào lệnh java có thể thay C2 bằng Graal.
 
-## API 增强
+## Cải tiến API
 
-并不是所有的 API 改动都会通过 JEP（Java Enhancement Proposal）来发布。
+Không phải tất cả thay đổi API đều được phát hành qua JEP (Java Enhancement Proposal).
 
-在 JDK 的开发流程中：**JEP** 通常用于重大的改变，例如引入新的语言特性（如 `var`）、新的 JVM 机制（如 ZGC）或者大规模的库重构。像 `List.copyOf()` 这种在现有类中增加几个静态方法的操作，通常被视为常规的库维护。它们由 JDK 开发者直接通过 **JBS (JDK Bug System)** 的工单（Ticket）进行提交和评审，然后随版本直接发布。
+Trong development flow của JDK: **JEP** thường dùng cho các thay đổi lớn như giới thiệu language feature mới (như `var`), JVM mechanism mới (như ZGC), hay tái cấu trúc library quy mô lớn. Các thao tác như thêm vài static method vào class hiện có (như `List.copyOf()`) thường được coi là library maintenance thông thường. Chúng được developer JDK submit và review trực tiếp qua ticket của **JBS (JDK Bug System)**, sau đó phát hành trực tiếp theo version.
 
-### 集合增强
+### Cải tiến Collection
 
-`List`，`Set`，`Map` 提供了静态方法`copyOf()`返回入参集合的一个不可变拷贝。
+`List`, `Set`, `Map` cung cấp static method `copyOf()` trả về immutable copy của collection đầu vào.
 
 ```java
 static <E> List<E> copyOf(Collection<? extends E> coll) {
@@ -92,11 +92,11 @@ static <E> List<E> copyOf(Collection<? extends E> coll) {
 }
 ```
 
-使用 `copyOf()` 创建的集合为不可变集合，不能进行添加、删除、替换、 排序等操作，不然会报 `java.lang.UnsupportedOperationException` 异常。 IDEA 也会有相应的提示。
+Collection tạo bằng `copyOf()` là immutable collection, không thể thêm, xóa, thay thế, sắp xếp, v.v. Ngược lại sẽ throw exception `java.lang.UnsupportedOperationException`. IDEA cũng sẽ có cảnh báo tương ứng.
 
-![使用 `copyOf()` 创建的集合为不可变集合](https://oss.javaguide.cn/java-guide-blog/image-20210816154125579.png)
+![Collection tạo bằng `copyOf()` là immutable](https://oss.javaguide.cn/java-guide-blog/image-20210816154125579.png)
 
-并且，`java.util.stream.Collectors` 中新增了静态方法，用于将流中的元素收集为不可变的集合。
+Ngoài ra, `java.util.stream.Collectors` bổ sung static method để collect các element trong stream thành immutable collection.
 
 ```java
 var list = new ArrayList<>();
@@ -104,27 +104,25 @@ list.stream().collect(Collectors.toUnmodifiableList());
 list.stream().collect(Collectors.toUnmodifiableSet());
 ```
 
-### Optional 增强
+### Cải tiến Optional
 
-`Optional` 新增了一个无参的 `orElseThrow()` 方法，作为带参数的 `orElseThrow(Supplier<? extends X> exceptionSupplier)` 的简化版本，在没有值时默认抛出一个 NoSuchElementException 异常。
+`Optional` bổ sung method `orElseThrow()` không có tham số, là phiên bản đơn giản của `orElseThrow(Supplier<? extends X> exceptionSupplier)` có tham số. Khi không có value, mặc định throw NoSuchElementException.
 
 ```java
 Optional<String> optional = Optional.empty();
 String result = optional.orElseThrow();
 ```
 
-## 其他
+## Khác
 
-- **线程-局部管控**：Java 10 中线程管控引入 JVM 安全点的概念，将允许在不运行全局 JVM 安全点的情况下实现线程回调，由线程本身或者 JVM 线程来执行，同时保持线程处于阻塞状态，这种方式使得停止单个线程变成可能，而不是只能启用或停止所有线程
-- **备用存储装置上的堆分配**：Java 10 中将使得 JVM 能够使用适用于不同类型的存储机制的堆，在可选内存设备上进行堆内存分配
+- **Thread-local handshake**: Java 10 giới thiệu khái niệm JVM safepoint vào thread control, cho phép thực hiện thread callback mà không cần chạy global JVM safepoint. Thực thi bởi thread bản thân hoặc JVM thread, đồng thời giữ thread ở trạng thái block. Cách này giúp dừng một thread riêng lẻ thành khả thi, thay vì chỉ có thể bật/tắt tất cả thread.
+- **Heap allocation on alternative memory devices**: Java 10 sẽ cho phép JVM dùng heap phù hợp với các cơ chế lưu trữ khác nhau, thực hiện heap memory allocation trên các memory device tùy chọn.
 - ……
 
-## 参考
+## Tài liệu tham khảo
 
-- Java 10 Features and Enhancements : <https://howtodoinjava.com/java10/java10-features/>
-
-- Guide to Java10 : <https://www.baeldung.com/java-10-overview>
-
-- 4 Class Data Sharing : <https://docs.oracle.com/javase/10/vm/class-data-sharing.htm#JSJVM-GUID-7EAA3411-8CF0-4D19-BD05-DF5E1780AA91>
+- Java 10 Features and Enhancements: <https://howtodoinjava.com/java10/java10-features/>
+- Guide to Java10: <https://www.baeldung.com/java-10-overview>
+- 4 Class Data Sharing: <https://docs.oracle.com/javase/10/vm/class-data-sharing.htm#JSJVM-GUID-7EAA3411-8CF0-4D19-BD05-DF5E1780AA91>
 
 <!-- @include: @article-footer.snippet.md -->

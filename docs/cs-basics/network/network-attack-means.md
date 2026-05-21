@@ -1,475 +1,473 @@
 ---
-title: 网络攻击常见手段总结（安全）
-description: 总结常见 TCP/IP 攻击与防护思路，覆盖 DDoS、IP/ARP 欺骗、中间人等手段，强调工程防护实践。
-category: 计算机基础
+title: Tóm tắt các phương thức tấn công mạng phổ biến (Bảo mật)
+description: Tóm tắt các phương thức tấn công và chiến lược phòng thủ TCP/IP phổ biến, bao gồm DDoS, giả mạo IP/ARP, tấn công man-in-the-middle, v.v., nhấn mạnh các thực hành phòng thủ kỹ thuật.
+category: Cơ sở máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
       content: 网络攻击,DDoS,IP 欺骗,ARP 欺骗,中间人攻击,扫描,防护
 ---
 
-> 本文整理完善自[TCP/IP 常见攻击手段 - 暖蓝笔记 - 2021](https://mp.weixin.qq.com/s/AZwWrOlLxRSSi-ywBgZ0fA)这篇文章。
+> Bài viết này được tổng hợp và hoàn thiện từ bài [Các phương thức tấn công TCP/IP phổ biến - Notelam Notes - 2021](https://mp.weixin.qq.com/s/AZwWrOlLxRSSi-ywBgZ0fA).
 
-这篇文章的内容主要是介绍 TCP/IP 常见攻击手段，尤其是 DDoS 攻击，也会补充一些其他的常见网络攻击手段。
+Nội dung chính của bài viết này là giới thiệu về các phương thức tấn công TCP/IP phổ biến, đặc biệt là tấn công DDoS, cũng sẽ bổ sung một số phương thức tấn công mạng phổ biến khác.
 
-## IP 欺骗
+## Giả mạo IP
 
-### IP 是什么?
+### IP là gì?
 
-在网络中，所有的设备都会分配一个地址。这个地址就仿佛小蓝的家地址「**多少号多少室**」，这个号就是分配给整个子网的，「**室**」对应的号码即分配给子网中计算机的，这就是网络中的地址。「号」对应的号码为网络号，「**室**」对应的号码为主机号，这个地址的整体就是 **IP 地址**。
+Trong mạng, tất cả các thiết bị đều được phân bổ một địa chỉ. Địa chỉ này giống như địa chỉ nhà của một người - **số nhà và số phòng**, số nhà được phân bổ cho toàn bộ mạng con, **số phòng** tương ứng với số được phân bổ cho máy tính trong mạng con, đây chính là địa chỉ trong mạng. "Số nhà" tương ứng là số mạng (network number), **"số phòng"** tương ứng là số máy chủ (host number), toàn bộ địa chỉ này là **địa chỉ IP**.
 
-### 通过 IP 地址我们能知道什么？
+### Qua địa chỉ IP chúng ta có thể biết điều gì?
 
-通过 IP 地址，我们就可以知道判断访问对象服务器的位置，从而将消息发送到服务器。一般发送者发出的消息首先经过子网的集线器，转发到最近的路由器，然后根据路由位置访问下一个路由器的位置，直到终点
+Qua địa chỉ IP, chúng ta có thể biết vị trí của máy chủ đích cần truy cập, từ đó gửi tin nhắn đến máy chủ. Thông thường tin nhắn do người gửi phát ra trước tiên đi qua hub của mạng con, chuyển tiếp đến bộ định tuyến gần nhất, rồi theo vị trí định tuyến truy cập đến bộ định tuyến tiếp theo, cho đến đích cuối cùng.
 
-**IP 头部格式** :
+**Định dạng tiêu đề IP**:
 
 ![](https://oss.javaguide.cn/p3-juejin/843fd07074874ee0b695eca659411b42~tplv-k3u1fbpfcp-zoom-1.png)
 
-### IP 欺骗技术是什么？
+### Kỹ thuật giả mạo IP là gì?
 
-骗呗，拐骗，诱骗！
+Lừa đảo, dẫn dụ, giả mạo!
 
-IP 欺骗技术就是**伪造**某台主机的 IP 地址的技术。通过 IP 地址的伪装使得某台主机能够**伪装**另外的一台主机，而这台主机往往具有某种特权或者被另外的主机所信任。
+Kỹ thuật giả mạo IP là kỹ thuật **làm giả** địa chỉ IP của một máy chủ. Thông qua việc giả mạo địa chỉ IP, một máy chủ có thể **giả mạo** thành máy chủ khác, trong khi máy chủ bị giả mạo thường có một số đặc quyền hoặc được các máy chủ khác tin tưởng.
 
-假设现在有一个合法用户 **(1.1.1.1)** 已经同服务器建立正常的连接，攻击者构造攻击的 TCP 数据，伪装自己的 IP 为 **1.1.1.1**，并向服务器发送一个带有 RST 位的 TCP 数据段。服务器接收到这样的数据后，认为从 **1.1.1.1** 发送的连接有错误，就会清空缓冲区中建立好的连接。
+Giả sử hiện có một người dùng hợp lệ **(1.1.1.1)** đã thiết lập kết nối bình thường với máy chủ. Kẻ tấn công tạo các dữ liệu TCP tấn công, giả mạo IP của mình thành **1.1.1.1** và gửi đoạn dữ liệu TCP có bit RST đến máy chủ. Sau khi máy chủ nhận được dữ liệu như vậy, nó nghĩ rằng kết nối từ **1.1.1.1** có lỗi, và sẽ xóa kết nối đã được thiết lập trong buffer.
 
-这时，如果合法用户 **1.1.1.1** 再发送合法数据，服务器就已经没有这样的连接了，该用户就必须从新开始建立连接。攻击时，伪造大量的 IP 地址，向目标发送 RST 数据，使服务器不对合法用户服务。虽然 IP 地址欺骗攻击有着相当难度，但我们应该清醒地意识到，这种攻击非常广泛，入侵往往从这种攻击开始。
+Lúc này, nếu người dùng hợp lệ **1.1.1.1** gửi dữ liệu hợp lệ, máy chủ đã không còn kết nối đó nữa, người dùng đó phải bắt đầu thiết lập kết nối mới. Trong cuộc tấn công, kẻ tấn công giả mạo một lượng lớn địa chỉ IP, gửi dữ liệu RST đến mục tiêu, khiến máy chủ không phục vụ người dùng hợp lệ. Mặc dù tấn công giả mạo IP có độ khó đáng kể, nhưng chúng ta nên nhận thức rõ ràng rằng phương thức tấn công này rất phổ biến, và việc xâm nhập thường bắt đầu từ loại tấn công này.
 
-![IP 欺骗 DDoS 攻击](https://oss.javaguide.cn/p3-juejin/7547a145adf9404aa3a05f01f5ca2e32~tplv-k3u1fbpfcp-zoom-1.png)
+![Tấn công DDoS giả mạo IP](https://oss.javaguide.cn/p3-juejin/7547a145adf9404aa3a05f01f5ca2e32~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 如何缓解 IP 欺骗？
+### Làm thế nào để giảm thiểu giả mạo IP?
 
-虽然无法预防 IP 欺骗，但可以采取措施来阻止伪造数据包渗透网络。**入口过滤** 是防范欺骗的一种极为常见的防御措施，如 BCP38（通用最佳实践文档）所示。入口过滤是一种数据包过滤形式，通常在[网络边缘](https://www.cloudflare.com/learning/serverless/glossary/what-is-edge-computing/)设备上实施，用于检查传入的 IP 数据包并确定其源标头。如果这些数据包的源标头与其来源不匹配或者看上去很可疑，则拒绝这些数据包。一些网络还实施出口过滤，检查退出网络的 IP 数据包，确保这些数据包具有合法源标头，以防止网络内部用户使用 IP 欺骗技术发起出站恶意攻击。
+Mặc dù không thể ngăn chặn hoàn toàn giả mạo IP, nhưng có thể thực hiện các biện pháp để ngăn các gói giả mạo xâm nhập vào mạng. **Lọc đầu vào (Ingress filtering)** là biện pháp phòng thủ phổ biến chống giả mạo, như được chỉ rõ trong BCP38 (tài liệu thực hành tốt nhất chung). Lọc đầu vào là một hình thức lọc gói tin, thường được triển khai trên các thiết bị ở [rìa mạng](https://www.cloudflare.com/learning/serverless/glossary/what-is-edge-computing/), dùng để kiểm tra các gói IP đến và xác định tiêu đề nguồn của chúng. Nếu tiêu đề nguồn của các gói không khớp với nguồn gốc hoặc trông đáng ngờ, chúng sẽ bị từ chối. Một số mạng cũng triển khai lọc đầu ra, kiểm tra các gói IP rời khỏi mạng, đảm bảo các gói này có tiêu đề nguồn hợp lệ, nhằm ngăn người dùng bên trong mạng sử dụng kỹ thuật giả mạo IP để khởi động các cuộc tấn công độc hại ra ngoài.
 
-## SYN Flood(洪水)
+## Tấn công lũ SYN (SYN Flood)
 
-### SYN Flood 是什么？
+### SYN Flood là gì?
 
-SYN Flood 是互联网上最原始、最经典的 DDoS（Distributed Denial of Service，分布式拒绝服务）攻击之一，旨在耗尽可用服务器资源，致使服务器无法传输合法流量
+SYN Flood là một trong những cuộc tấn công DDoS (Distributed Denial of Service - Tấn công từ chối dịch vụ phân tán) nguyên thủy và kinh điển nhất trên Internet, nhằm làm cạn kiệt tài nguyên máy chủ có sẵn, khiến máy chủ không thể truyền lưu lượng hợp lệ.
 
-SYN Flood 利用了 TCP 协议的三次握手机制，攻击者通常利用工具或者控制僵尸主机向服务器发送海量的变源 IP 地址或变源端口的 TCP SYN 报文，服务器响应了这些报文后就会生成大量的半连接，当系统资源被耗尽后，服务器将无法提供正常的服务。
-增加服务器性能，提供更多的连接能力对于 SYN Flood 的海量报文来说杯水车薪，防御 SYN Flood 的关键在于判断哪些连接请求来自于真实源，屏蔽非真实源的请求以保障正常的业务请求能得到服务。
+SYN Flood khai thác cơ chế bắt tay ba chiều của giao thức TCP. Kẻ tấn công thường sử dụng công cụ hoặc kiểm soát máy tính zombie để gửi số lượng lớn các bản tin TCP SYN có địa chỉ IP nguồn hoặc cổng nguồn thay đổi đến máy chủ. Sau khi máy chủ phản hồi các bản tin này, một lượng lớn kết nối nửa mở sẽ được tạo ra. Khi tài nguyên hệ thống bị cạn kiệt, máy chủ sẽ không thể cung cấp dịch vụ bình thường.
+Tăng hiệu suất máy chủ và cung cấp nhiều khả năng kết nối hơn là không đủ trước số lượng lớn bản tin của SYN Flood. Chìa khóa để phòng thủ SYN Flood là xác định yêu cầu kết nối nào đến từ nguồn thực, chặn các yêu cầu từ nguồn không thực để đảm bảo các yêu cầu kinh doanh bình thường được phục vụ.
 
 ![](https://oss.javaguide.cn/p3-juejin/2b3d2d4dc8f24890b5957df1c7d6feb8~tplv-k3u1fbpfcp-zoom-1.png)
 
-### TCP SYN Flood 攻击原理是什么？
+### Nguyên lý tấn công TCP SYN Flood là gì?
 
-**TCP SYN Flood** 攻击利用的是 **TCP** 的三次握手（**SYN -> SYN/ACK -> ACK**），假设连接发起方是 A，连接接受方是 B，即 B 在某个端口（**Port**）上监听 A 发出的连接请求，过程如下图所示，左边是 A，右边是 B。
+Tấn công **TCP SYN Flood** khai thác bắt tay ba chiều của **TCP** (**SYN -> SYN/ACK -> ACK**). Giả sử bên khởi tạo kết nối là A, bên nhận kết nối là B, tức là B lắng nghe yêu cầu kết nối từ A trên một cổng (**Port**) nào đó. Quá trình như hình dưới đây, bên trái là A, bên phải là B.
 
 ![](https://oss.javaguide.cn/p3-juejin/a39355a1ea404323a11ca6644e009183~tplv-k3u1fbpfcp-zoom-1.png)
 
-A 首先发送 **SYN**（Synchronization）消息给 B，要求 B 做好接收数据的准备；B 收到后反馈 **SYN-ACK**（Synchronization-Acknowledgement） 消息给 A，这个消息的目的有两个：
+A trước tiên gửi tin nhắn **SYN** (Synchronization) cho B, yêu cầu B chuẩn bị nhận dữ liệu; B sau khi nhận phản hồi tin nhắn **SYN-ACK** (Synchronization-Acknowledgement) cho A, mục đích của tin nhắn này có hai:
 
-- 向 A 确认已做好接收数据的准备，
-- 同时要求 A 也做好接收数据的准备，此时 B 已向 A 确认好接收状态，并等待 A 的确认，连接处于**半开状态（Half-Open）**，顾名思义只开了一半；A 收到后再次发送 **ACK** (Acknowledgement) 消息给 B，向 B 确认也做好了接收数据的准备，至此三次握手完成，「**连接**」就建立了，
+- Xác nhận với A rằng đã sẵn sàng nhận dữ liệu,
+- Đồng thời yêu cầu A cũng chuẩn bị nhận dữ liệu. Lúc này B đã xác nhận trạng thái nhận với A và chờ xác nhận từ A, kết nối ở **trạng thái nửa mở (Half-Open)**, chỉ mở được một nửa; A sau khi nhận lại gửi tin nhắn **ACK** (Acknowledgement) cho B, xác nhận với B rằng cũng đã sẵn sàng nhận dữ liệu. Đến đây bắt tay ba chiều hoàn tất, "**kết nối**" được thiết lập.
 
-大家注意到没有，最关键的一点在于双方是否都按对方的要求进入了**可以接收消息**的状态。而这个状态的确认主要是双方将要使用的**消息序号(**SequenceNum)，**TCP** 为保证消息按发送顺序抵达接收方的上层应用，需要用**消息序号**来标记消息的发送先后顺序的。
+Điều quan trọng nhất là liệu cả hai bên có vào được **trạng thái có thể nhận tin nhắn** theo yêu cầu của đối phương hay không. Việc xác nhận trạng thái này chủ yếu là **số thứ tự tin nhắn (SequenceNum)** mà cả hai bên sẽ sử dụng. **TCP** cần dùng **số thứ tự tin nhắn** để đánh dấu thứ tự gửi tin nhắn nhằm đảm bảo tin nhắn đến tay ứng dụng phía trên của bên nhận theo đúng thứ tự gửi.
 
-**TCP**是「**双工**」(Duplex)连接，同时支持双向通信，也就是双方同时可向对方发送消息，其中 **SYN** 和 **SYN-ACK** 消息开启了 A→B 的单向通信通道（B 获知了 A 的消息序号）；**SYN-ACK** 和 **ACK** 消息开启了 B→A 单向通信通道（A 获知了 B 的消息序号）。
+**TCP** là kết nối **song công (Duplex)**, đồng thời hỗ trợ truyền thông hai chiều, tức là cả hai bên có thể gửi tin nhắn cho nhau đồng thời. Trong đó, **SYN** và **SYN-ACK** mở kênh liên lạc một chiều A→B (B biết số thứ tự tin nhắn của A); **SYN-ACK** và **ACK** mở kênh liên lạc một chiều B→A (A biết số thứ tự tin nhắn của B).
 
-上面讨论的是双方在诚实守信，正常情况下的通信。
+Phần trên thảo luận về truyền thông trong điều kiện bình thường, trung thực.
 
-但实际情况是，网络可能不稳定会丢包，使握手消息不能抵达对方，也可能是对方故意不按规矩来，故意延迟或不发送握手确认消息。
+Nhưng thực tế, mạng có thể không ổn định và mất gói, khiến tin nhắn bắt tay không đến được đối phương, hoặc đối phương cố tình không tuân thủ quy tắc, cố tình trì hoãn hoặc không gửi tin nhắn xác nhận bắt tay.
 
-假设 B 通过某 **TCP** 端口提供服务，B 在收到 A 的 **SYN** 消息时，积极的反馈了 **SYN-ACK** 消息，使连接进入**半开状态**，因为 B 不确定自己发给 A 的 **SYN-ACK** 消息或 A 反馈的 ACK 消息是否会丢在半路，所以会给每个待完成的半开连接都设一个**Timer**，如果超过时间还没有收到 A 的 **ACK** 消息，则重新发送一次 **SYN-ACK** 消息给 A，直到重试超过一定次数时才会放弃。
+Giả sử B cung cấp dịch vụ qua một cổng **TCP**, khi B nhận được tin nhắn **SYN** từ A, nó tích cực phản hồi tin nhắn **SYN-ACK**, khiến kết nối vào **trạng thái nửa mở**. Vì B không chắc chắn tin nhắn **SYN-ACK** gửi cho A hay tin nhắn ACK phản hồi từ A có bị mất dọc đường không, nên sẽ đặt một **Timer** cho mỗi kết nối nửa mở đang chờ hoàn thành. Nếu quá thời gian vẫn không nhận được tin nhắn **ACK** từ A, sẽ gửi lại tin nhắn **SYN-ACK** một lần cho A, cho đến khi số lần thử lại vượt quá một ngưỡng nhất định mới từ bỏ.
 
-![图片](https://oss.javaguide.cn/p3-juejin/7ff1daddcec44d61994f254e664987b4~tplv-k3u1fbpfcp-zoom-1.png)
+![Hình](https://oss.javaguide.cn/p3-juejin/7ff1daddcec44d61994f254e664987b4~tplv-k3u1fbpfcp-zoom-1.png)
 
-B 为帮助 A 能顺利连接，需要**分配内核资源**维护半开连接，那么当 B 面临海量的连接 A 时，如上图所示，**SYN Flood** 攻击就形成了。攻击方 A 可以控制肉鸡向 B 发送大量 SYN 消息但不响应 ACK 消息，或者干脆伪造 SYN 消息中的 **Source IP**，使 B 反馈的 **SYN-ACK** 消息石沉大海，导致 B 被大量注定不能完成的半开连接占据，直到资源耗尽，停止响应正常的连接请求。
+Để giúp A kết nối thành công, B cần **phân bổ tài nguyên kernel** để duy trì kết nối nửa mở. Khi B phải đối mặt với lượng lớn kết nối A như hình trên, **tấn công SYN Flood** được hình thành. Bên tấn công A có thể điều khiển máy tính zombie gửi một lượng lớn tin nhắn SYN cho B nhưng không phản hồi tin nhắn ACK, hoặc đơn giản là giả mạo **IP nguồn** trong tin nhắn SYN, khiến tin nhắn **SYN-ACK** phản hồi của B không thể đến đích, dẫn đến B bị chiếm đóng bởi lượng lớn kết nối nửa mở chắc chắn không thể hoàn thành, cho đến khi tài nguyên cạn kiệt, ngừng phản hồi các yêu cầu kết nối bình thường.
 
-### SYN Flood 的常见形式有哪些？
+### Các hình thức phổ biến của SYN Flood là gì?
 
-**恶意用户可通过三种不同方式发起 SYN Flood 攻击**：
+**Người dùng độc hại có thể khởi động tấn công SYN Flood theo ba cách khác nhau**:
 
-1. **直接攻击：** 不伪造 IP 地址的 SYN 洪水攻击称为直接攻击。在此类攻击中，攻击者完全不屏蔽其 IP 地址。由于攻击者使用具有真实 IP 地址的单一源设备发起攻击，因此很容易发现并清理攻击者。为使目标机器呈现半开状态，黑客将阻止个人机器对服务器的 SYN-ACK 数据包做出响应。为此，通常采用以下两种方式实现：部署防火墙规则，阻止除 SYN 数据包以外的各类传出数据包；或者，对传入的所有 SYN-ACK 数据包进行过滤，防止其到达恶意用户机器。实际上，这种方法很少使用（即便使用过也不多见），因为此类攻击相当容易缓解 – 只需阻止每个恶意系统的 IP 地址。哪怕攻击者使用僵尸网络（如 [Mirai 僵尸网络](https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/)），通常也不会刻意屏蔽受感染设备的 IP。
-2. **欺骗攻击：** 恶意用户还可以伪造其发送的各个 SYN 数据包的 IP 地址，以便阻止缓解措施并加大身份暴露难度。虽然数据包可能经过伪装，但还是可以通过这些数据包追根溯源。此类检测工作很难开展，但并非不可实现；特别是，如果 Internet 服务提供商 (ISP) 愿意提供帮助，则更容易实现。
-3. **分布式攻击（DDoS）：** 如果使用僵尸网络发起攻击，则追溯攻击源头的可能性很低。随着混淆级别的攀升，攻击者可能还会命令每台分布式设备伪造其发送数据包的 IP 地址。哪怕攻击者使用僵尸网络（如 Mirai 僵尸网络），通常也不会刻意屏蔽受感染设备的 IP。
+1. **Tấn công trực tiếp:** Tấn công lũ SYN không giả mạo địa chỉ IP được gọi là tấn công trực tiếp. Trong loại tấn công này, kẻ tấn công hoàn toàn không che giấu địa chỉ IP của mình. Vì kẻ tấn công khởi động tấn công bằng thiết bị nguồn đơn lẻ với địa chỉ IP thực, nên rất dễ phát hiện và giải quyết kẻ tấn công. Để làm cho máy mục tiêu ở trạng thái nửa mở, kẻ tấn công sẽ ngăn máy cá nhân phản hồi gói SYN-ACK từ máy chủ. Điều này thường được thực hiện bằng hai cách: triển khai quy tắc tường lửa để chặn tất cả các gói đi ra ngoài trừ gói SYN; hoặc lọc tất cả gói SYN-ACK đến, ngăn chúng tiếp cận máy người dùng độc hại. Thực tế, phương pháp này ít được sử dụng vì loại tấn công này khá dễ giảm thiểu - chỉ cần chặn địa chỉ IP của mỗi hệ thống độc hại.
+2. **Tấn công giả mạo:** Người dùng độc hại cũng có thể giả mạo địa chỉ IP của từng gói SYN gửi đi nhằm ngăn các biện pháp giảm thiểu và làm khó việc lộ danh tính. Mặc dù các gói có thể đã được giả mạo, nhưng vẫn có thể truy vết nguồn gốc qua các gói này. Công việc phát hiện này khó thực hiện nhưng không phải không thể, đặc biệt nếu Nhà cung cấp Dịch vụ Internet (ISP) sẵn sàng hợp tác.
+3. **Tấn công phân tán (DDoS):** Nếu sử dụng mạng botnet để tấn công, khả năng truy vết nguồn tấn công rất thấp. Khi mức độ che giấu tăng lên, kẻ tấn công còn có thể lệnh cho mỗi thiết bị phân tán giả mạo địa chỉ IP của gói gửi đi. Ngay cả khi sử dụng botnet (như Mirai botnet), thường cũng không cố tình che giấu IP của các thiết bị bị xâm phạm.
 
-### 如何缓解 SYN Flood？
+### Làm thế nào để giảm thiểu SYN Flood?
 
-#### 扩展积压工作队列
+#### Mở rộng hàng đợi tồn đọng
 
-目标设备安装的每个操作系统都允许具有一定数量的半开连接。若要响应大量 SYN 数据包，一种方法是增加操作系统允许的最大半开连接数目。为成功扩展最大积压工作，系统必须额外预留内存资源以处理各类新请求。如果系统没有足够的内存，无法应对增加的积压工作队列规模，将对系统性能产生负面影响，但仍然好过拒绝服务。
+Mỗi hệ điều hành được cài đặt trên thiết bị mục tiêu cho phép một số lượng kết nối nửa mở nhất định. Để phản hồi một lượng lớn gói SYN, một cách là tăng số lượng kết nối nửa mở tối đa mà hệ điều hành cho phép. Để mở rộng thành công mức tồn đọng tối đa, hệ thống phải dự trữ thêm tài nguyên bộ nhớ để xử lý các yêu cầu mới. Nếu hệ thống không có đủ bộ nhớ để đáp ứng kích thước hàng đợi tồn đọng tăng lên, sẽ có tác động tiêu cực đến hiệu suất hệ thống, nhưng vẫn tốt hơn từ chối dịch vụ.
 
-#### 回收最先创建的 TCP 半开连接
+#### Thu hồi các kết nối nửa mở TCP được tạo sớm nhất
 
-另一种缓解策略是在填充积压工作后覆盖最先创建的半开连接。这项策略要求完全建立合法连接的时间低于恶意 SYN 数据包填充积压工作的时间。当攻击量增加或积压工作规模小于实际需求时，这项特定的防御措施将不奏效。
+Chiến lược giảm thiểu khác là ghi đè lên các kết nối nửa mở được tạo sớm nhất sau khi hàng đợi tồn đọng được lấp đầy. Chiến lược này yêu cầu thời gian thiết lập kết nối hợp lệ hoàn chỉnh phải ít hơn thời gian để các gói SYN độc hại lấp đầy hàng đợi tồn đọng. Khi lượng tấn công tăng lên hoặc kích thước hàng đợi tồn đọng nhỏ hơn nhu cầu thực tế, biện pháp phòng thủ cụ thể này sẽ không hiệu quả.
 
 #### SYN Cookie
 
-此策略要求服务器创建 Cookie。为避免在填充积压工作时断开连接，服务器使用 SYN-ACK 数据包响应每一项连接请求，而后从积压工作中删除 SYN 请求，同时从内存中删除请求，保证端口保持打开状态并做好重新建立连接的准备。如果连接是合法请求并且已将最后一个 ACK 数据包从客户端机器发回服务器，服务器将重建（存在一些限制）SYN 积压工作队列条目。虽然这项缓解措施势必会丢失一些 TCP 连接信息，但好过因此导致对合法用户发起拒绝服务攻击。
+Chiến lược này yêu cầu máy chủ tạo Cookie. Để tránh ngắt kết nối khi lấp đầy hàng đợi tồn đọng, máy chủ sử dụng gói SYN-ACK để phản hồi mỗi yêu cầu kết nối, sau đó xóa yêu cầu SYN khỏi hàng đợi tồn đọng, đồng thời xóa yêu cầu khỏi bộ nhớ, đảm bảo cổng vẫn mở và sẵn sàng thiết lập kết nối lại. Nếu kết nối là yêu cầu hợp lệ và gói ACK cuối cùng đã được gửi từ máy khách về máy chủ, máy chủ sẽ tái tạo (có một số hạn chế) mục nhập hàng đợi tồn đọng SYN. Mặc dù biện pháp giảm thiểu này có thể làm mất một số thông tin kết nối TCP, nhưng tốt hơn là dẫn đến tấn công từ chối dịch vụ đối với người dùng hợp lệ.
 
-## UDP Flood(洪水)
+## Tấn công lũ UDP (UDP Flood)
 
-### UDP Flood 是什么？
+### UDP Flood là gì?
 
-**UDP Flood** 也是一种拒绝服务攻击，将大量的用户数据报协议（**UDP**）数据包发送到目标服务器，目的是压倒该设备的处理和响应能力。防火墙保护目标服务器也可能因 **UDP** 泛滥而耗尽，从而导致对合法流量的拒绝服务。
+**UDP Flood** cũng là một loại tấn công từ chối dịch vụ, gửi một lượng lớn gói giao thức dữ liệu người dùng (**UDP**) đến máy chủ mục tiêu, nhằm áp đảo khả năng xử lý và phản hồi của thiết bị. Tường lửa bảo vệ máy chủ mục tiêu cũng có thể bị cạn kiệt do lũ **UDP**, dẫn đến từ chối dịch vụ với lưu lượng hợp lệ.
 
-### UDP Flood 攻击原理是什么？
+### Nguyên lý tấn công UDP Flood là gì?
 
-**UDP Flood** 主要通过利用服务器响应发送到其中一个端口的 **UDP** 数据包所采取的步骤。在正常情况下，当服务器在特定端口接收到 **UDP** 数据包时，会经过两个步骤：
+**UDP Flood** chủ yếu khai thác các bước mà máy chủ thực hiện để phản hồi các gói **UDP** được gửi đến một trong các cổng của nó. Trong điều kiện bình thường, khi máy chủ nhận được gói **UDP** trên một cổng cụ thể, nó thực hiện hai bước:
 
-- 服务器首先检查是否正在运行正在侦听指定端口的请求的程序。
-- 如果没有程序在该端口接收数据包，则服务器使用 **ICMP**（ping）数据包进行响应，以通知发送方目的地不可达。
+- Máy chủ trước tiên kiểm tra xem có chương trình đang chạy lắng nghe yêu cầu trên cổng đã chỉ định hay không.
+- Nếu không có chương trình nào nhận gói tại cổng đó, máy chủ phản hồi bằng gói **ICMP** (ping) để thông báo cho người gửi rằng đích không thể tiếp cận.
 
-举个例子。假设今天要联系酒店的小蓝，酒店客服接到电话后先查看房间的列表来确保小蓝在客房内，随后转接给小蓝。
+Ví dụ. Giả sử hôm nay muốn liên hệ với một người ở khách sạn, nhân viên khách sạn sau khi nhận điện thoại sẽ kiểm tra danh sách phòng để xác nhận người đó có trong phòng không, rồi chuyển máy.
 
-首先，接待员接收到呼叫者要求连接到特定房间的电话。接待员然后需要查看所有房间的清单，以确保客人在房间中可用，并愿意接听电话。碰巧的是，此时如果突然间所有的电话线同时亮起来，那么他们就会很快就变得不堪重负了。
+Đầu tiên, nhân viên lễ tân nhận cuộc gọi yêu cầu kết nối đến một phòng cụ thể. Họ cần kiểm tra danh sách tất cả các phòng để xác nhận khách có trong phòng và sẵn sàng nghe điện thoại. Tình cờ thay, nếu đột nhiên tất cả các đường dây điện thoại sáng lên cùng một lúc, họ sẽ sớm bị choáng ngợp.
 
-当服务器接收到每个新的 **UDP** 数据包时，它将通过步骤来处理请求，并利用该过程中的服务器资源。发送 **UDP** 报文时，每个报文将包含源设备的 **IP** 地址。在这种类型的 **DDoS** 攻击期间，攻击者通常不会使用自己的真实 **IP** 地址，而是会欺骗 **UDP** 数据包的源 **IP** 地址，从而阻止攻击者的真实位置被暴露并潜在地饱和来自目标的响应数据包服务器。
+Khi máy chủ nhận được mỗi gói **UDP** mới, nó sẽ xử lý yêu cầu theo các bước và sử dụng tài nguyên máy chủ trong quá trình đó. Khi gửi bản tin **UDP**, mỗi bản tin sẽ chứa địa chỉ **IP** của thiết bị nguồn. Trong loại tấn công **DDoS** này, kẻ tấn công thường không sử dụng địa chỉ **IP** thực của mình, mà sẽ giả mạo địa chỉ **IP** nguồn của gói **UDP**, từ đó ngăn vị trí thực của kẻ tấn công bị lộ và có thể bão hòa các gói phản hồi từ máy chủ mục tiêu.
 
-由于目标服务器利用资源检查并响应每个接收到的 **UDP** 数据包的结果，当接收到大量 **UDP** 数据包时，目标的资源可能会迅速耗尽，导致对正常流量的拒绝服务。
+Do máy chủ mục tiêu sử dụng tài nguyên để kiểm tra và phản hồi mỗi gói **UDP** nhận được, khi nhận được một lượng lớn gói **UDP**, tài nguyên của mục tiêu có thể nhanh chóng bị cạn kiệt, dẫn đến từ chối dịch vụ với lưu lượng bình thường.
 
 ![](https://oss.javaguide.cn/p3-juejin/23dbbc8243a84ed181e088e38bffb37a~tplv-k3u1fbpfcp-zoom-1.png)
 
-### 如何缓解 UDP Flooding？
+### Làm thế nào để giảm thiểu UDP Flood?
 
-大多数操作系统部分限制了 **ICMP** 报文的响应速率，以中断需要 ICMP 响应的 **DDoS** 攻击。这种缓解的一个缺点是在攻击过程中，合法的数据包也可能被过滤。如果 **UDP Flood** 的容量足够高以使目标服务器的防火墙的状态表饱和，则在服务器级别发生的任何缓解都将不足以应对目标设备上游的瓶颈。
+Hầu hết các hệ điều hành đều giới hạn một phần tốc độ phản hồi bản tin **ICMP**, để gián đoạn các cuộc tấn công **DDoS** cần phản hồi ICMP. Một nhược điểm của biện pháp giảm thiểu này là trong quá trình tấn công, các gói hợp lệ cũng có thể bị lọc. Nếu dung lượng của **UDP Flood** đủ cao để bão hòa bảng trạng thái tường lửa của máy chủ mục tiêu, thì bất kỳ biện pháp giảm thiểu nào xảy ra ở cấp độ máy chủ cũng sẽ không đủ để giải quyết nút thắt cổ chai ở thượng nguồn của thiết bị mục tiêu.
 
-## HTTP Flood(洪水)
+## Tấn công lũ HTTP (HTTP Flood)
 
-### HTTP Flood 是什么？
+### HTTP Flood là gì?
 
-HTTP Flood 是一种大规模的 DDoS（Distributed Denial of Service，分布式拒绝服务）攻击，旨在利用 HTTP 请求使目标服务器不堪重负。目标因请求而达到饱和，且无法响应正常流量后，将出现拒绝服务，拒绝来自实际用户的其他请求。
+HTTP Flood là một loại tấn công DDoS (Distributed Denial of Service - Tấn công từ chối dịch vụ phân tán) quy mô lớn, nhằm làm quá tải máy chủ mục tiêu bằng các yêu cầu HTTP. Khi mục tiêu đạt trạng thái bão hòa do các yêu cầu và không thể phản hồi lưu lượng bình thường, sẽ xảy ra từ chối dịch vụ, từ chối các yêu cầu khác từ người dùng thực.
 
-![HTTP 洪水攻击](https://oss.javaguide.cn/p3-juejin/aa64869551d94c8d89fa80eaf4395bfa~tplv-k3u1fbpfcp-zoom-1.png)
+![Tấn công lũ HTTP](https://oss.javaguide.cn/p3-juejin/aa64869551d94c8d89fa80eaf4395bfa~tplv-k3u1fbpfcp-zoom-1.png)
 
-### HTTP Flood 的攻击原理是什么？
+### Nguyên lý tấn công của HTTP Flood là gì?
 
-HTTP 洪水攻击是“第 7 层”DDoS 攻击的一种。第 7 层是 OSI 模型的应用程序层，指的是 HTTP 等互联网协议。HTTP 是基于浏览器的互联网请求的基础，通常用于加载网页或通过互联网发送表单内容。缓解应用程序层攻击特别复杂，因为恶意流量和正常流量很难区分。
+Tấn công lũ HTTP là một loại tấn công DDoS "tầng 7". Tầng 7 là tầng ứng dụng của mô hình OSI, đề cập đến các giao thức Internet như HTTP. HTTP là nền tảng của các yêu cầu Internet dựa trên trình duyệt, thường được dùng để tải trang web hoặc gửi nội dung biểu mẫu qua Internet. Việc giảm thiểu các cuộc tấn công tầng ứng dụng đặc biệt phức tạp vì rất khó phân biệt lưu lượng độc hại với lưu lượng bình thường.
 
-为了获得最大效率，恶意行为者通常会利用或创建僵尸网络，以最大程度地扩大攻击的影响。通过利用感染了恶意软件的多台设备，攻击者可以发起大量攻击流量来进行攻击。
+Để đạt hiệu quả tối đa, các tác nhân độc hại thường khai thác hoặc tạo mạng botnet để tối đa hóa tác động của cuộc tấn công. Bằng cách khai thác nhiều thiết bị bị nhiễm phần mềm độc hại, kẻ tấn công có thể tung ra một lượng lớn lưu lượng tấn công.
 
-HTTP 洪水攻击有两种：
+Có hai loại tấn công lũ HTTP:
 
-- **HTTP GET 攻击**：在这种攻击形式下，多台计算机或其他设备相互协调，向目标服务器发送对图像、文件或其他资产的多个请求。当目标被传入的请求和响应所淹没时，来自正常流量源的其他请求将被拒绝服务。
-- **HTTP POST 攻击**：一般而言，在网站上提交表单时，服务器必须处理传入的请求并将数据推送到持久层（通常是数据库）。与发送 POST 请求所需的处理能力和带宽相比，处理表单数据和运行必要数据库命令的过程相对密集。这种攻击利用相对资源消耗的差异，直接向目标服务器发送许多 POST 请求，直到目标服务器的容量饱和并拒绝服务为止。
+- **Tấn công HTTP GET**: Trong hình thức tấn công này, nhiều máy tính hoặc thiết bị khác phối hợp với nhau, gửi nhiều yêu cầu hình ảnh, tệp hoặc tài nguyên khác đến máy chủ mục tiêu. Khi mục tiêu bị nhấn chìm bởi các yêu cầu và phản hồi đến, các yêu cầu khác từ nguồn lưu lượng bình thường sẽ bị từ chối.
+- **Tấn công HTTP POST**: Nói chung, khi gửi biểu mẫu trên website, máy chủ phải xử lý yêu cầu đến và đẩy dữ liệu vào lớp lưu trữ lâu dài (thường là cơ sở dữ liệu). So với năng lực xử lý và băng thông cần thiết để gửi yêu cầu POST, quá trình xử lý dữ liệu biểu mẫu và chạy các lệnh cơ sở dữ liệu cần thiết tương đối tốn kém. Loại tấn công này khai thác sự chênh lệch tiêu thụ tài nguyên tương đối, gửi nhiều yêu cầu POST trực tiếp đến máy chủ mục tiêu cho đến khi dung lượng của máy chủ mục tiêu bão hòa và từ chối dịch vụ.
 
-### 如何防护 HTTP Flood？
+### Làm thế nào để phòng thủ HTTP Flood?
 
-如前所述，缓解第 7 层攻击非常复杂，而且通常要从多方面进行。一种方法是对发出请求的设备实施质询，以测试它是否是机器人，这与在线创建帐户时常用的 CAPTCHA 测试非常相似。通过提出 JavaScript 计算挑战之类的要求，可以缓解许多攻击。
+Như đã đề cập, việc giảm thiểu tấn công tầng 7 rất phức tạp và thường cần tiếp cận từ nhiều khía cạnh. Một cách là thách thức các thiết bị gửi yêu cầu để kiểm tra xem có phải bot không, tương tự như bài kiểm tra CAPTCHA thường dùng khi tạo tài khoản trực tuyến. Bằng cách đặt ra các yêu cầu như thách thức tính toán JavaScript, có thể giảm thiểu nhiều cuộc tấn công.
 
-其他阻止 HTTP 洪水攻击的途径包括使用 Web 应用程序防火墙 (WAF)、管理 IP 信誉数据库以跟踪和有选择地阻止恶意流量，以及由工程师进行动态分析。Cloudflare 具有超过 2000 万个互联网设备的规模优势，能够分析来自各种来源的流量并通过快速更新的 WAF 规则和其他防护策略来缓解潜在的攻击，从而消除应用程序层 DDoS 流量。
+Các cách khác để chặn tấn công lũ HTTP bao gồm sử dụng Tường lửa ứng dụng Web (WAF), quản lý cơ sở dữ liệu danh tiếng IP để theo dõi và chọn lọc chặn lưu lượng độc hại, cũng như phân tích động bởi kỹ sư. Cloudflare với ưu thế về quy mô hơn 20 triệu thiết bị Internet có thể phân tích lưu lượng từ nhiều nguồn khác nhau và giảm thiểu các cuộc tấn công tiềm ẩn thông qua quy tắc WAF được cập nhật nhanh và các chiến lược bảo vệ khác, từ đó loại bỏ lưu lượng DDoS tầng ứng dụng.
 
-## DNS Flood(洪水)
+## Tấn công lũ DNS (DNS Flood)
 
-### DNS Flood 是什么？
+### DNS Flood là gì?
 
-域名系统（DNS）服务器是互联网的“电话簿“；互联网设备通过这些服务器来查找特定 Web 服务器以便访问互联网内容。DNS Flood 攻击是一种分布式拒绝服务（DDoS）攻击，攻击者用大量流量淹没某个域的 DNS 服务器，以尝试中断该域的 DNS 解析。如果用户无法找到电话簿，就无法查找到用于调用特定资源的地址。通过中断 DNS 解析，DNS Flood 攻击将破坏网站、API 或 Web 应用程序响应合法流量的能力。很难将 DNS Flood 攻击与正常的大流量区分开来，因为这些大规模流量往往来自多个唯一地址，查询该域的真实记录，模仿合法流量。
+Máy chủ Hệ thống Tên miền (DNS) là "danh bạ điện thoại" của Internet; các thiết bị Internet dùng những máy chủ này để tra cứu máy chủ web cụ thể nhằm truy cập nội dung Internet. Tấn công DNS Flood là một loại tấn công từ chối dịch vụ phân tán (DDoS), kẻ tấn công dùng lượng lớn lưu lượng để nhấn chìm máy chủ DNS của một tên miền, nhằm cố gắng làm gián đoạn việc phân giải DNS của tên miền đó. Nếu người dùng không thể tìm thấy danh bạ điện thoại, họ không thể tra cứu địa chỉ để gọi đến tài nguyên cụ thể. Bằng cách làm gián đoạn phân giải DNS, tấn công DNS Flood sẽ làm suy yếu khả năng phản hồi lưu lượng hợp lệ của website, API hoặc ứng dụng web. Rất khó phân biệt tấn công DNS Flood với lưu lượng lớn bình thường, vì các lưu lượng quy mô lớn này thường đến từ nhiều địa chỉ duy nhất, truy vấn bản ghi thực của tên miền, bắt chước lưu lượng hợp lệ.
 
-### DNS Flood 的攻击原理是什么？
+### Nguyên lý tấn công DNS Flood là gì?
 
 ![](https://oss.javaguide.cn/p3-juejin/97ea11a212924900b10d159226783887~tplv-k3u1fbpfcp-zoom-1.png)
 
-域名系统的功能是将易于记忆的名称（例如 example.com）转换成难以记住的网站服务器地址（例如 192.168.0.1），因此成功攻击 DNS 基础设施将导致大多数人无法使用互联网。DNS Flood 攻击是一种相对较新的基于 DNS 的攻击，这种攻击是在高带宽[物联网（IoT）](https://www.cloudflare.com/learning/ddos/glossary/internet-of-things-iot/)[僵尸网络](https://www.cloudflare.com/learning/ddos/what-is-a-ddos-botnet/)（如 [Mirai](https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/)）兴起后激增的。DNS Flood 攻击使用 IP 摄像头、DVR 盒和其他 IoT 设备的高带宽连接直接淹没主要提供商的 DNS 服务器。来自 IoT 设备的大量请求淹没 DNS 提供商的服务，阻止合法用户访问提供商的 DNS 服务器。
+Chức năng của hệ thống tên miền là chuyển đổi tên dễ nhớ (ví dụ example.com) thành địa chỉ máy chủ website khó nhớ (ví dụ 192.168.0.1), vì vậy một cuộc tấn công thành công vào cơ sở hạ tầng DNS sẽ khiến hầu hết mọi người không thể sử dụng Internet. Tấn công DNS Flood là một loại tấn công dựa trên DNS tương đối mới, loại tấn công này tăng mạnh sau sự nổi lên của [mạng botnet IoT](https://www.cloudflare.com/learning/ddos/glossary/internet-of-things-iot/) băng thông cao như [Mirai](https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/). Tấn công DNS Flood sử dụng kết nối băng thông cao của camera IP, đầu thu DVR và các thiết bị IoT khác để trực tiếp nhấn chìm máy chủ DNS của các nhà cung cấp lớn. Lượng lớn yêu cầu từ thiết bị IoT nhấn chìm dịch vụ của nhà cung cấp DNS, ngăn người dùng hợp lệ truy cập máy chủ DNS của nhà cung cấp.
 
-DNS Flood 攻击不同于 [DNS 放大攻击](https://www.cloudflare.com/zh-cn/learning/ddos/dns-amplification-ddos-attack/)。与 DNS Flood 攻击不同，DNS 放大攻击反射并放大不安全 DNS 服务器的流量，以便隐藏攻击的源头并提高攻击的有效性。DNS 放大攻击使用连接带宽较小的设备向不安全的 DNS 服务器发送无数请求。这些设备对非常大的 DNS 记录发出小型请求，但在发出请求时，攻击者伪造返回地址为目标受害者。这种放大效果让攻击者能借助有限的攻击资源来破坏较大的目标。
+Tấn công DNS Flood khác với [tấn công khuếch đại DNS](https://www.cloudflare.com/zh-cn/learning/ddos/dns-amplification-ddos-attack/). Khác với tấn công DNS Flood, tấn công khuếch đại DNS phản chiếu và khuếch đại lưu lượng từ các máy chủ DNS không bảo mật để ẩn nguồn tấn công và nâng cao hiệu quả tấn công. Tấn công khuếch đại DNS sử dụng các thiết bị có băng thông kết nối nhỏ để gửi vô số yêu cầu đến các máy chủ DNS không bảo mật. Các thiết bị này gửi yêu cầu nhỏ cho bản ghi DNS rất lớn, nhưng khi gửi yêu cầu, kẻ tấn công giả mạo địa chỉ trả về là nạn nhân mục tiêu. Hiệu ứng khuếch đại này cho phép kẻ tấn công phá vỡ mục tiêu lớn hơn bằng nguồn lực tấn công hạn chế.
 
-### 如何防护 DNS Flood?
+### Làm thế nào để phòng thủ DNS Flood?
 
-DNS Flood 对传统上基于放大的攻击方法做出了改变。借助轻易获得的高带宽僵尸网络，攻击者现能针对大型组织发动攻击。除非被破坏的 IoT 设备得以更新或替换，否则抵御这些攻击的唯一方法是使用一个超大型、高度分布式的 DNS 系统，以便实时监测、吸收和阻止攻击流量。
+Tấn công DNS Flood đã thay đổi phương pháp tấn công dựa trên khuếch đại truyền thống. Với mạng botnet băng thông cao dễ dàng có được, kẻ tấn công hiện có thể tấn công các tổ chức lớn. Trừ khi các thiết bị IoT bị xâm phạm được cập nhật hoặc thay thế, cách duy nhất để chống lại các cuộc tấn công này là sử dụng hệ thống DNS cực lớn, phân tán cao để giám sát, hấp thụ và chặn lưu lượng tấn công theo thời gian thực.
 
-## TCP 重置攻击
+## Tấn công đặt lại TCP
 
-在 **TCP** 重置攻击中，攻击者通过向通信的一方或双方发送伪造的消息，告诉它们立即断开连接，从而使通信双方连接中断。正常情况下，如果客户端收发现到达的报文段对于相关连接而言是不正确的，**TCP** 就会发送一个重置报文段，从而导致 **TCP** 连接的快速拆卸。
+Trong tấn công **đặt lại TCP**, kẻ tấn công gửi tin nhắn giả mạo đến một hoặc cả hai bên truyền thông, báo với họ rằng hãy ngắt kết nối ngay lập tức, khiến kết nối giữa cả hai bên truyền thông bị gián đoạn. Trong điều kiện bình thường, nếu máy khách phát hiện đoạn báo đến không chính xác cho kết nối liên quan, **TCP** sẽ gửi một đoạn báo đặt lại, dẫn đến việc kết nối **TCP** bị hủy nhanh chóng.
 
-**TCP** 重置攻击利用这一机制，通过向通信方发送伪造的重置报文段，欺骗通信双方提前关闭 TCP 连接。如果伪造的重置报文段完全逼真，接收者就会认为它有效，并关闭 **TCP** 连接，防止连接被用来进一步交换信息。服务端可以创建一个新的 **TCP** 连接来恢复通信，但仍然可能会被攻击者重置连接。万幸的是，攻击者需要一定的时间来组装和发送伪造的报文，所以一般情况下这种攻击只对长连接有杀伤力，对于短连接而言，你还没攻击呢，人家已经完成了信息交换。
+**Tấn công đặt lại TCP** lợi dụng cơ chế này, bằng cách gửi đoạn đặt lại giả mạo đến các bên truyền thông, lừa cả hai bên đóng kết nối TCP sớm. Nếu đoạn đặt lại giả mạo hoàn toàn thuyết phục, người nhận sẽ coi nó là hợp lệ và đóng kết nối **TCP**, ngăn kết nối được sử dụng để trao đổi thông tin thêm. Phía máy chủ có thể tạo kết nối **TCP** mới để khôi phục liên lạc, nhưng vẫn có thể bị kẻ tấn công đặt lại kết nối. May mắn thay, kẻ tấn công cần một khoảng thời gian để lắp ráp và gửi đoạn giả mạo, vì vậy thông thường loại tấn công này chỉ có sát thương đối với kết nối dài. Đối với kết nối ngắn, kẻ tấn công chưa kịp tấn công thì người ta đã hoàn thành trao đổi thông tin.
 
-从某种意义上来说，伪造 **TCP** 报文段是很容易的，因为 **TCP/IP** 都没有任何内置的方法来验证服务端的身份。有些特殊的 IP 扩展协议（例如 `IPSec`）确实可以验证身份，但并没有被广泛使用。客户端只能接收报文段，并在可能的情况下使用更高级别的协议（如 `TLS`）来验证服务端的身份。但这个方法对 **TCP** 重置包并不适用，因为 **TCP** 重置包是 **TCP** 协议本身的一部分，无法使用更高级别的协议进行验证。
+Theo một nghĩa nào đó, việc giả mạo **đoạn TCP** khá dễ dàng, vì **TCP/IP** không có phương pháp tích hợp nào để xác minh danh tính máy chủ. Một số giao thức mở rộng IP đặc biệt (như `IPSec`) thực sự có thể xác minh danh tính, nhưng không được sử dụng rộng rãi. Máy khách chỉ có thể nhận đoạn báo, và trong trường hợp có thể, sử dụng các giao thức cấp cao hơn (như `TLS`) để xác minh danh tính máy chủ. Nhưng phương pháp này không áp dụng cho gói đặt lại **TCP**, vì gói đặt lại **TCP** là một phần của giao thức **TCP** và không thể xác minh bằng các giao thức cấp cao hơn.
 
-## 模拟攻击
+## Mô phỏng tấn công
 
-> 以下实验是在 `OSX` 系统中完成的，其他系统请自行测试。
+> Các thử nghiệm sau được thực hiện trên hệ thống `OSX`, vui lòng tự kiểm tra trên các hệ thống khác.
 
-现在来总结一下伪造一个 **TCP** 重置报文要做哪些事情：
+Bây giờ hãy tóm tắt những gì cần làm để giả mạo một **đoạn đặt lại TCP**:
 
-- 嗅探通信双方的交换信息。
-- 截获一个 `ACK` 标志位置位 1 的报文段，并读取其 `ACK` 号。
-- 伪造一个 TCP 重置报文段（`RST` 标志位置为 1），其序列号等于上面截获的报文的 `ACK` 号。这只是理想情况下的方案，假设信息交换的速度不是很快。大多数情况下为了增加成功率，可以连续发送序列号不同的重置报文。
-- 将伪造的重置报文发送给通信的一方或双方，时其中断连接。
+- Nghe lén thông tin trao đổi của cả hai bên truyền thông.
+- Chặn một đoạn báo với bit cờ `ACK` được đặt thành 1, và đọc số `ACK` của nó.
+- Giả mạo một đoạn đặt lại TCP (bit cờ `RST` được đặt thành 1), số thứ tự của nó bằng số `ACK` của đoạn vừa chặn được. Đây chỉ là phương án trong trường hợp lý tưởng, giả định tốc độ trao đổi thông tin không quá nhanh. Trong hầu hết các trường hợp, để tăng tỷ lệ thành công, có thể gửi liên tiếp các đoạn đặt lại có số thứ tự khác nhau.
+- Gửi đoạn đặt lại giả mạo cho một hoặc cả hai bên truyền thông, khiến họ ngắt kết nối.
 
-为了实验简单，我们可以使用本地计算机通过 `localhost` 与自己通信，然后对自己进行 TCP 重置攻击。需要以下几个步骤：
+Để thử nghiệm đơn giản, chúng ta có thể sử dụng máy tính cục bộ để liên lạc với chính nó qua `localhost`, sau đó thực hiện tấn công đặt lại TCP với chính mình. Cần thực hiện các bước sau:
 
-- 在两个终端之间建立一个 TCP 连接。
-- 编写一个能嗅探通信双方数据的攻击程序。
-- 修改攻击程序，伪造并发送重置报文。
+- Thiết lập kết nối TCP giữa hai terminal.
+- Viết chương trình tấn công có thể nghe lén dữ liệu của cả hai bên truyền thông.
+- Sửa đổi chương trình tấn công, giả mạo và gửi đoạn đặt lại.
 
-下面正式开始实验。
+Bây giờ bắt đầu thử nghiệm chính thức.
 
-> 建立 TCP 连接
+> Thiết lập kết nối TCP
 
-可以使用 netcat 工具来建立 TCP 连接，这个工具很多操作系统都预装了。打开第一个终端窗口，运行以下命令：
+Có thể dùng công cụ netcat để thiết lập kết nối TCP, công cụ này đã được cài đặt sẵn trên nhiều hệ điều hành. Mở cửa sổ terminal đầu tiên, chạy lệnh sau:
 
 ```bash
 nc -nvl 8000
 ```
 
-这个命令会启动一个 TCP 服务，监听端口为 `8000`。接着再打开第二个终端窗口，运行以下命令：
+Lệnh này sẽ khởi động dịch vụ TCP, lắng nghe trên cổng `8000`. Tiếp theo mở cửa sổ terminal thứ hai, chạy lệnh sau:
 
 ```bash
 nc 127.0.0.1 8000
 ```
 
-该命令会尝试与上面的服务建立连接，在其中一个窗口输入一些字符，就会通过 TCP 连接发送给另一个窗口并打印出来。
+Lệnh này sẽ cố gắng thiết lập kết nối với dịch vụ trên. Nhập một số ký tự trong một cửa sổ, chúng sẽ được gửi qua kết nối TCP đến cửa sổ kia và in ra.
 
 ![](https://oss.javaguide.cn/p3-juejin/df0508cbf26446708cf98f8ad514dbea~tplv-k3u1fbpfcp-zoom-1.gif)
 
-> 嗅探流量
+> Nghe lén lưu lượng
 
-编写一个攻击程序，使用 Python 网络库 `scapy` 来读取两个终端窗口之间交换的数据，并将其打印到终端上。代码比较长，下面为一部份，完整代码后台回复 TCP 攻击，代码的核心是调用 `scapy` 的嗅探方法：
+Viết một chương trình tấn công, sử dụng thư viện mạng Python `scapy` để đọc dữ liệu được trao đổi giữa hai cửa sổ terminal và in ra terminal. Mã khá dài, dưới đây chỉ là một phần, mã hoàn chỉnh được trả lời qua phản hồi backend "TCP Attack". Cốt lõi của mã là gọi phương thức nghe lén của `scapy`:
 
 ![](https://oss.javaguide.cn/p3-juejin/27feb834aa9d4b629fd938611ac9972e~tplv-k3u1fbpfcp-zoom-1.png)
 
-这段代码告诉 `scapy` 在 `lo0` 网络接口上嗅探数据包，并记录所有 TCP 连接的详细信息。
+Đoạn mã này báo cho `scapy` nghe lén gói tin trên giao diện mạng `lo0` và ghi lại thông tin chi tiết về tất cả các kết nối TCP.
 
-- **iface** : 告诉 scapy 在 `lo0`（localhost）网络接口上进行监听。
-- **lfilter** : 这是个过滤器，告诉 scapy 忽略所有不属于指定的 TCP 连接（通信双方皆为 `localhost`，且端口号为 `8000`）的数据包。
-- **prn** : scapy 通过这个函数来操作所有符合 `lfilter` 规则的数据包。上面的例子只是将数据包打印到终端，下文将会修改函数来伪造重置报文。
-- **count** : scapy 函数返回之前需要嗅探的数据包数量。
+- **iface**: Báo cho scapy lắng nghe trên giao diện mạng `lo0` (localhost).
+- **lfilter**: Đây là bộ lọc, báo cho scapy bỏ qua tất cả các gói không thuộc kết nối TCP đã chỉ định (cả hai bên truyền thông đều là `localhost`, cổng `8000`).
+- **prn**: scapy sử dụng hàm này để xử lý tất cả gói tin thỏa mãn quy tắc `lfilter`. Ví dụ trên chỉ in gói tin ra terminal, phần tiếp theo sẽ sửa đổi hàm để giả mạo đoạn đặt lại.
+- **count**: Số lượng gói tin cần nghe lén trước khi hàm scapy trả về.
 
-> 发送伪造的重置报文
+> Gửi đoạn đặt lại giả mạo
 
-下面开始修改程序，发送伪造的 TCP 重置报文来进行 TCP 重置攻击。根据上面的解读，只需要修改 prn 函数就行了，让其检查数据包，提取必要参数，并利用这些参数来伪造 TCP 重置报文并发送。
+Bây giờ bắt đầu sửa đổi chương trình, gửi đoạn đặt lại TCP giả mạo để thực hiện tấn công đặt lại TCP. Dựa trên phân tích ở trên, chỉ cần sửa đổi hàm prn, cho nó kiểm tra gói tin, trích xuất các tham số cần thiết và sử dụng các tham số này để giả mạo đoạn đặt lại TCP và gửi đi.
 
-例如，假设该程序截获了一个从（`src_ip`, `src_port`）发往 （`dst_ip`, `dst_port`）的报文段，该报文段的 ACK 标志位已置为 1，ACK 号为 `100,000`。攻击程序接下来要做的是：
+Ví dụ, giả sử chương trình chặn được một đoạn báo gửi từ (`src_ip`, `src_port`) đến (`dst_ip`, `dst_port`), đoạn báo này có bit cờ ACK được đặt thành 1, số ACK là `100,000`. Chương trình tấn công tiếp theo cần:
 
-- 由于伪造的数据包是对截获的数据包的响应，所以伪造数据包的源 `IP/Port` 应该是截获数据包的目的 `IP/Port`，反之亦然。
-- 将伪造数据包的 `RST` 标志位置为 1，以表示这是一个重置报文。
-- 将伪造数据包的序列号设置为截获数据包的 ACK 号，因为这是发送方期望收到的下一个序列号。
-- 调用 `scapy` 的 `send` 方法，将伪造的数据包发送给截获数据包的发送方。
+- Vì gói tin giả mạo là phản hồi của gói tin bị chặn, nên IP/Port nguồn của gói giả mạo phải là IP/Port đích của gói bị chặn, và ngược lại.
+- Đặt bit cờ `RST` của gói giả mạo thành 1, để biểu thị đây là đoạn đặt lại.
+- Đặt số thứ tự của gói giả mạo bằng số ACK của gói bị chặn, vì đây là số thứ tự tiếp theo mà người gửi mong muốn nhận.
+- Gọi phương thức `send` của `scapy` để gửi gói giả mạo đến người gửi của gói bị chặn.
 
-对于我的程序而言，只需将这一行取消注释，并注释这一行的上面一行，就可以全面攻击了。按照步骤 1 的方法设置 TCP 连接，打开第三个窗口运行攻击程序，然后在 TCP 连接的其中一个终端输入一些字符串，你会发现 TCP 连接被中断了！
+Đối với chương trình của tôi, chỉ cần bỏ chú thích dòng này và chú thích dòng trên nó là có thể tấn công toàn diện. Thiết lập kết nối TCP theo bước 1, mở cửa sổ thứ ba để chạy chương trình tấn công, sau đó nhập một số chuỗi ký tự trong một terminal của kết nối TCP, bạn sẽ thấy kết nối TCP bị gián đoạn!
 
-> 进一步实验
+> Thử nghiệm thêm
 
-1. 可以继续使用攻击程序进行实验，将伪造数据包的序列号加减 1 看看会发生什么，是不是确实需要和截获数据包的 `ACK` 号完全相同。
-2. 打开 `Wireshark`，监听 lo0 网络接口，并使用过滤器 `ip.src == 127.0.0.1 && ip.dst == 127.0.0.1 && tcp.port == 8000` 来过滤无关数据。你可以看到 TCP 连接的所有细节。
-3. 在连接上更快速地发送数据流，使攻击更难执行。
+1. Có thể tiếp tục thử nghiệm với chương trình tấn công, cộng trừ 1 vào số thứ tự của gói giả mạo để xem điều gì xảy ra, liệu có thực sự cần giống hệt số `ACK` của gói bị chặn không.
+2. Mở `Wireshark`, lắng nghe giao diện mạng lo0, sử dụng bộ lọc `ip.src == 127.0.0.1 && ip.dst == 127.0.0.1 && tcp.port == 8000` để lọc dữ liệu không liên quan. Bạn có thể thấy tất cả chi tiết của kết nối TCP.
+3. Gửi luồng dữ liệu nhanh hơn trên kết nối, làm cho việc tấn công khó hơn.
 
-## 中间人攻击
+## Tấn công Man-in-the-Middle
 
-猪八戒要向小蓝表白，于是写了一封信给小蓝，结果第三者小黑拦截到了这封信，把这封信进行了篡改，于是乎在他们之间进行搞破坏行动。这个马文才就是中间人，实施的就是中间人攻击。好我们继续聊聊什么是中间人攻击。
+Pigsy muốn tỏ tình với Xiaolan, nên viết một lá thư cho Xiaolan, nhưng Xiaohei, một người thứ ba, đã chặn lá thư này, sửa đổi nội dung của nó, từ đó gây ra sự hỗn loạn giữa họ. Người thứ ba này chính là kẻ tấn công man-in-the-middle. Tiếp tục nói về tấn công man-in-the-middle là gì.
 
-### 什么是中间人?
+### Tấn công man-in-the-middle là gì?
 
-攻击中间人攻击英文名叫 Man-in-the-MiddleAttack，简称「MITM 攻击」。指攻击者与通讯的两端分别创建独立的联系，并交换其所收到的数据，使通讯的两端认为他们正在通过一个私密的连接与对方 直接对话，但事实上整个会话都被攻击者完全控制。我们画一张图：
+Tấn công man-in-the-middle, tiếng Anh là Man-in-the-Middle Attack, viết tắt là "MITM Attack". Chỉ cuộc tấn công mà kẻ tấn công thiết lập độc lập kết nối với cả hai đầu giao tiếp, trao đổi dữ liệu nhận được, khiến cả hai đầu giao tiếp tin rằng họ đang trực tiếp nói chuyện với nhau qua kết nối riêng tư, nhưng thực tế toàn bộ phiên bị kẻ tấn công kiểm soát hoàn toàn. Hãy vẽ một sơ đồ:
 
-![图片](https://oss.javaguide.cn/p3-juejin/d69b74e63981472b852797f2fa08976f~tplv-k3u1fbpfcp-zoom-1.png)
+![Hình](https://oss.javaguide.cn/p3-juejin/d69b74e63981472b852797f2fa08976f~tplv-k3u1fbpfcp-zoom-1.png)
 
-从这张图可以看到，中间人其实就是攻击者。通过这种原理，有很多实现的用途，比如说，你在手机上浏览不健康网站的时候，手机就会提示你，此网站可能含有病毒，是否继续访问还是做其他的操作等等。
+Từ sơ đồ này có thể thấy, kẻ tấn công man-in-the-middle thực chất là kẻ tấn công. Thông qua nguyên lý này, có nhiều ứng dụng thực tế, ví dụ như khi bạn duyệt các trang web không lành mạnh trên điện thoại, điện thoại sẽ nhắc bạn rằng trang web này có thể chứa virus, có tiếp tục truy cập không, hoặc thực hiện các thao tác khác.
 
-### 中间人攻击的原理是什么？
+### Nguyên lý của tấn công man-in-the-middle là gì?
 
-举个例子，我和公司签了一个一份劳动合同，一人一份合同。不晓得哪个可能改了合同内容，不知道真假了，怎么搞？只好找专业的机构来鉴定，自然就要花钱。
+Ví dụ, tôi và công ty ký một hợp đồng lao động, mỗi người giữ một bản. Không biết ai đó có thể đã sửa nội dung hợp đồng, không biết thật giả, phải làm sao? Chỉ còn cách tìm cơ quan chuyên nghiệp để giám định, tự nhiên phải tốn tiền.
 
-在安全领域有句话：**我们没有办法杜绝网络犯罪，只好想办法提高网络犯罪的成本**。既然没法杜绝这种情况，那我们就想办法提高作案的成本，今天我们就简单了解下基本的网络安全知识，也是面试中的高频面试题了。
+Trong lĩnh vực bảo mật có câu: **Chúng ta không thể loại bỏ hoàn toàn tội phạm mạng, chỉ có cách tăng chi phí của tội phạm mạng**. Vì không thể loại bỏ hoàn toàn tình huống này, chúng ta chỉ còn cách tìm cách tăng chi phí phạm tội. Hôm nay hãy tìm hiểu đơn giản về kiến thức bảo mật mạng cơ bản, đây cũng là câu hỏi phỏng vấn tần suất cao.
 
-为了避免双方说活不算数的情况，双方引入第三家机构，将合同原文给可信任的第三方机构，只要这个机构不监守自盗，合同就相对安全。
+Để tránh tình huống cả hai bên đổ lỗi cho nhau, cả hai bên đưa vào bên thứ ba, giao bản gốc hợp đồng cho cơ quan bên thứ ba đáng tin cậy. Miễn là cơ quan này không tham nhũng, hợp đồng tương đối an toàn.
 
-**如果第三方机构内部不严格或容易出现纰漏？**
+**Nếu cơ quan bên thứ ba không nghiêm ngặt hoặc dễ có sơ hở thì sao?**
 
-虽然我们将合同原文给第三方机构了，为了防止内部人员的更改，需要采取什么措施呢
+Mặc dù đã giao bản gốc hợp đồng cho cơ quan bên thứ ba, để ngăn nhân viên nội bộ sửa đổi, cần thực hiện biện pháp gì?
 
-一种可行的办法是引入 **摘要算法** 。即合同和摘要一起，为了简单的理解摘要。大家可以想象这个摘要为一个函数，这个函数对原文进行了加密，会产生一个唯一的散列值，一旦原文发生一点点变化，那么这个散列值将会变化。
+Một cách khả thi là đưa vào **thuật toán tóm tắt**. Tức là hợp đồng và tóm tắt đi cùng nhau. Để dễ hiểu tóm tắt, hãy hình dung tóm tắt là một hàm, hàm này mã hóa bản gốc, tạo ra một giá trị băm duy nhất. Một khi bản gốc thay đổi dù chỉ một chút, giá trị băm này sẽ thay đổi.
 
-#### 有哪些常用的摘要算法呢？
+#### Các thuật toán tóm tắt phổ biến là gì?
 
-目前比较常用的加密算法有消息摘要算法和安全散列算法(**SHA**)。**MD5** 是将任意长度的文章转化为一个 128 位的散列值，可是在 2004 年，**MD5** 被证实了容易发生碰撞，即两篇原文产生相同的摘要。这样的话相当于直接给黑客一个后门，轻松伪造摘要。
+Hiện tại các thuật toán mã hóa thường dùng bao gồm thuật toán tóm tắt tin nhắn và thuật toán băm an toàn (**SHA**). **MD5** chuyển đổi bài viết có độ dài tùy ý thành giá trị băm 128 bit. Tuy nhiên vào năm 2004, **MD5** đã được chứng minh là dễ xảy ra va chạm, tức là hai bản gốc tạo ra cùng một tóm tắt. Điều này tương đương với việc cung cấp cho hacker một cửa hậu, dễ dàng làm giả tóm tắt.
 
-所以在大部分的情况下都会选择 **SHA 算法** 。
+Vì vậy trong hầu hết các trường hợp sẽ chọn **thuật toán SHA**.
 
-**出现内鬼了怎么办？**
+**Nếu xuất hiện kẻ nội gián thì sao?**
 
-看似很安全的场面了，理论上来说杜绝了篡改合同的做法。主要某个员工同时具有修改合同和摘要的权利，那搞事儿就是时间的问题了，毕竟没哪个系统可以完全的杜绝员工接触敏感信息，除非敏感信息都不存在。所以能不能考虑将合同和摘要分开存储呢
+Có vẻ rất an toàn, về lý thuyết đã loại trừ việc giả mạo hợp đồng. Nhưng nếu một nhân viên nào đó có quyền sửa cả hợp đồng lẫn tóm tắt, thì gây chuyện chỉ là vấn đề thời gian. Xét cho cùng, không có hệ thống nào có thể hoàn toàn ngăn nhân viên tiếp xúc thông tin nhạy cảm, trừ khi thông tin nhạy cảm không tồn tại. Vậy có thể cân nhắc lưu trữ hợp đồng và tóm tắt tách biệt không?
 
-**那如何确保员工不会修改合同呢？**
+**Vậy làm thế nào để đảm bảo nhân viên không sửa hợp đồng?**
 
-这确实蛮难的，不过办法总比困难多。我们将合同放在双方手中，摘要放在第三方机构，篡改难度进一步加大
+Điều này thực sự khó, nhưng lúc nào cũng có cách. Chúng ta đặt hợp đồng ở cả hai bên, tóm tắt ở cơ quan bên thứ ba, khó giả mạo hơn nhiều.
 
-**那么员工万一和某个用户串通好了呢？**
+**Nếu nhân viên thông đồng với một trong hai bên thì sao?**
 
-看来放在第三方的机构还是不好使，同样存在不小风险。所以还需要寻找新的方案，这就出现了 **数字签名和证书**。
+Có vẻ đặt ở cơ quan bên thứ ba vẫn không an toàn, vẫn còn rủi ro không nhỏ. Vì vậy cần tìm giải pháp mới, đây là lúc xuất hiện **chữ ký số và chứng chỉ**.
 
-#### 数字证书和签名有什么用？
+#### Chứng chỉ số và chữ ký có tác dụng gì?
 
-同样的，举个例子。Sum 和 Mike 两个人签合同。Sum 首先用 **SHA** 算法计算合同的摘要，然后用自己私钥将摘要加密，得到数字签名。Sum 将合同原文、签名，以及公钥三者都交给 Mike
+Tương tự, ví dụ. Sum và Mike ký hợp đồng. Sum trước tiên dùng thuật toán **SHA** để tính tóm tắt của hợp đồng, rồi mã hóa tóm tắt bằng khóa riêng của mình, tạo ra chữ ký số. Sum giao bản gốc hợp đồng, chữ ký, và khóa công khai cho Mike.
 
 ![](https://oss.javaguide.cn/p3-juejin/e4b7d6fca78b45c8840c12411b717f2f~tplv-k3u1fbpfcp-zoom-1.png)
 
-如果 Sum 想要证明合同是 Mike 的，那么就要使用 Mike 的公钥，将这个签名解密得到摘要 x，然后 Mike 计算原文的 sha 摘要 Y，随后对比 x 和 y，如果两者相等，就认为数据没有被篡改
+Nếu Sum muốn chứng minh hợp đồng là của Mike, thì phải dùng khóa công khai của Mike, giải mã chữ ký này để lấy tóm tắt x, sau đó Mike tính tóm tắt SHA của bản gốc Y, rồi so sánh x và y. Nếu hai giá trị bằng nhau thì cho rằng dữ liệu không bị giả mạo.
 
-在这样的过程中，Mike 是不能更改 Sum 的合同，因为要修改合同不仅仅要修改原文还要修改摘要，修改摘要需要提供 Mike 的私钥，私钥即 Sum 独有的密码，公钥即 Sum 公布给他人使用的密码
+Trong quá trình này, Mike không thể sửa hợp đồng của Sum, vì sửa hợp đồng không chỉ cần sửa bản gốc mà còn sửa tóm tắt, sửa tóm tắt cần cung cấp khóa riêng của Mike, khóa riêng là mật khẩu riêng của Sum, khóa công khai là mật khẩu Sum công bố cho người khác sử dụng.
 
-总之，公钥加密的数据只能私钥可以解密。私钥加密的数据只有公钥可以解密，这就是 **非对称加密** 。
+Tóm lại, dữ liệu mã hóa bằng khóa công khai chỉ có khóa riêng mới giải mã được. Dữ liệu mã hóa bằng khóa riêng chỉ có khóa công khai mới giải mã được. Đây là **mã hóa bất đối xứng**.
 
-隐私保护？不是吓唬大家，信息是透明的兄 die，不过尽量去维护个人的隐私吧，今天学习对称加密和非对称加密。
+Bảo vệ quyền riêng tư? Không phải dọa mọi người, thông tin là trong suốt với nhau, nhưng hãy cố gắng bảo vệ quyền riêng tư cá nhân. Hôm nay học về mã hóa đối xứng và bất đối xứng.
 
-大家先读读这个字"钥",是读"yao"，我以前也是，其实读"yue"
+#### Mã hóa đối xứng là gì?
 
-#### 什么是对称加密？
+Mã hóa đối xứng, theo đúng tên, bên mã hóa và bên giải mã sử dụng cùng một chìa khóa (khóa bí mật). Cụ thể hơn, bên gửi mã hóa thông tin sắp gửi bằng thuật toán và khóa bí mật tương ứng; đối với bên nhận, sử dụng thuật toán giải mã và khóa bí mật tương tự để mở khóa thông tin, từ đó có thể đọc thông tin.
 
-对称加密，顾名思义，加密方与解密方使用同一钥匙(秘钥)。具体一些就是，发送方通过使用相应的加密算法和秘钥，对将要发送的信息进行加密；对于接收方而言，使用解密算法和相同的秘钥解锁信息，从而有能力阅读信息。
+![Hình](https://oss.javaguide.cn/p3-juejin/ef81cb5e2f0a4d3d9ac5a44ecf97e3cc~tplv-k3u1fbpfcp-zoom-1.png)
 
-![图片](https://oss.javaguide.cn/p3-juejin/ef81cb5e2f0a4d3d9ac5a44ecf97e3cc~tplv-k3u1fbpfcp-zoom-1.png)
-
-#### 常见的对称加密算法有哪些？
+#### Các thuật toán mã hóa đối xứng phổ biến là gì?
 
 **DES**
 
-DES 使用的密钥表面上是 64 位的，然而只有其中的 56 位被实际用于算法，其余 8 位可以被用于奇偶校验，并在算法中被丢弃。因此，**DES** 的有效密钥长度为 56 位，通常称 **DES** 的密钥长度为 56 位。假设秘钥为 56 位，采用暴力破 Jie 的方式，其秘钥个数为 2 的 56 次方，那么每纳秒执行一次解密所需要的时间差不多 1 年的样子。当然，没人这么干。**DES** 现在已经不是一种安全的加密方法，主要因为它使用的 56 位密钥过短。
+DES sử dụng khóa có vẻ là 64 bit, nhưng chỉ có 56 bit trong số đó được thực sự dùng trong thuật toán, 8 bit còn lại có thể dùng để kiểm tra chẵn lẻ và bị loại bỏ trong thuật toán. Do đó, độ dài khóa hiệu quả của **DES** là 56 bit, thường gọi độ dài khóa **DES** là 56 bit. Giả sử khóa là 56 bit, dùng cách phá vỡ brute-force, số khóa là 2 lũy thừa 56, thì thời gian giải mã mỗi nano giây một lần khoảng 1 năm. Tất nhiên, không ai làm vậy. **DES** hiện không còn là phương pháp mã hóa an toàn, chủ yếu vì khóa 56 bit quá ngắn.
 
 ![](https://oss.javaguide.cn/p3-juejin/9eb3a2bf6cf14132a890bc3447480eeb~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 **IDEA**
 
-国际数据加密算法(International Data Encryption Algorithm)。秘钥长度 128 位，优点没有专利的限制。
+Thuật toán Mã hóa Dữ liệu Quốc tế (International Data Encryption Algorithm). Độ dài khóa 128 bit, ưu điểm không có hạn chế bằng sáng chế.
 
 **AES**
 
-当 DES 被破解以后，没过多久推出了 **AES** 算法，提供了三种长度供选择，128 位、192 位和 256，为了保证性能不受太大的影响，选择 128 即可。
+Sau khi DES bị phá vỡ, không lâu sau **AES** được giới thiệu, cung cấp ba độ dài để lựa chọn: 128 bit, 192 bit và 256 bit. Để không ảnh hưởng quá nhiều đến hiệu suất, chọn 128 là đủ.
 
-**SM1 和 SM4**
+**SM1 và SM4**
 
-之前几种都是国外的，我们国内自行研究了国密 **SM1**和 **SM4**。其中 S 都属于国家标准，算法公开。优点就是国家的大力支持和认可
+Các loại trên đều là của nước ngoài, chúng ta trong nước tự nghiên cứu mật mã quốc gia **SM1** và **SM4**. Cả hai đều là tiêu chuẩn quốc gia, thuật toán mở. Ưu điểm là được nhà nước ủng hộ mạnh mẽ và công nhận.
 
-**总结**：
+**Tóm tắt**:
 
 ![](https://oss.javaguide.cn/p3-juejin/578961e3175540e081e1432c409b075a~tplv-k3u1fbpfcp-zoom-1.png)
 
-#### 常见的非对称加密算法有哪些？
+#### Các thuật toán mã hóa bất đối xứng phổ biến là gì?
 
-在对称加密中，发送方与接收方使用相同的秘钥。那么在非对称加密中则是发送方与接收方使用的不同的秘钥。其主要解决的问题是防止在秘钥协商的过程中发生泄漏。比如在对称加密中，小蓝将需要发送的消息加密，然后告诉你密码是 123balala,ok,对于其他人而言，很容易就能劫持到密码是 123balala。那么在非对称的情况下，小蓝告诉所有人密码是 123balala,对于中间人而言，拿到也没用，因为没有私钥。所以，非对称密钥其实主要解决了密钥分发的难题。如下图
+Trong mã hóa đối xứng, bên gửi và bên nhận sử dụng cùng một khóa bí mật. Trong mã hóa bất đối xứng, bên gửi và bên nhận sử dụng các khóa bí mật khác nhau. Vấn đề chính nó giải quyết là ngăn rò rỉ trong quá trình thỏa thuận khóa bí mật. Ví dụ trong mã hóa đối xứng, Xiaolan mã hóa tin nhắn cần gửi, sau đó báo cho bạn mật khẩu là 123balala. OK, với người khác, rất dễ chiếm đoạt mật khẩu 123balala. Trong trường hợp bất đối xứng, Xiaolan báo mật khẩu 123balala cho tất cả mọi người, nhưng với kẻ man-in-the-middle, lấy được cũng vô dụng vì không có khóa riêng. Vì vậy, khóa bất đối xứng thực ra chủ yếu giải quyết bài toán phân phối khóa. Như hình dưới:
 
 ![](https://oss.javaguide.cn/p3-juejin/153cf04a0ecc43c38003f3a1ab198cc0~tplv-k3u1fbpfcp-zoom-1.png)
 
-其实我们经常都在使用非对称加密，比如使用多台服务器搭建大数据平台 hadoop，为了方便多台机器设置免密登录，是不是就会涉及到秘钥分发。再比如搭建 docker 集群也会使用相关非对称加密算法。
+Thực ra chúng ta thường xuyên sử dụng mã hóa bất đối xứng, ví dụ khi thiết lập nền tảng big data hadoop với nhiều máy chủ, để tiện lợi cho việc đặt đăng nhập không mật khẩu giữa nhiều máy, có liên quan đến phân phối khóa bí mật. Ví dụ khác là thiết lập cụm docker cũng sẽ sử dụng các thuật toán mã hóa bất đối xứng liên quan.
 
-常见的非对称加密算法：
+Các thuật toán mã hóa bất đối xứng phổ biến:
 
-- RSA（RSA 加密算法，RSA Algorithm）：安全性基于大整数分解的计算难度，应用广泛，兼容性好。缺点是性能相对较慢，且密钥越长（如 2048/4096 位）安全性越高，但运算开销也随之增大。
+- RSA (Thuật toán mã hóa RSA, RSA Algorithm): Bảo mật dựa trên độ khó tính toán của việc phân tích số nguyên lớn, ứng dụng rộng rãi, tính tương thích tốt. Nhược điểm là hiệu suất tương đối chậm, khóa càng dài (như 2048/4096 bit) bảo mật càng cao, nhưng chi phí tính toán cũng tăng.
 
-- ECC：基于椭圆曲线提出。是目前加密强度最高的非对称加密算法
-- SM2：同样基于椭圆曲线问题设计。最大优势就是国家认可和大力支持。
+- ECC: Dựa trên đường cong elliptic. Là thuật toán mã hóa bất đối xứng có cường độ mã hóa cao nhất hiện nay.
+- SM2: Cũng được thiết kế dựa trên bài toán đường cong elliptic. Ưu điểm lớn nhất là được nhà nước công nhận và ủng hộ mạnh mẽ.
 
-总结：
+Tóm tắt:
 
 ![](https://oss.javaguide.cn/p3-juejin/28b96fb797904d4b818ee237cdc7614c~tplv-k3u1fbpfcp-zoom-1.png)
 
-#### 常见的散列算法有哪些？
+#### Các thuật toán băm phổ biến là gì?
 
-这个大家应该更加熟悉了，比如我们平常使用的 MD5 校验，在很多时候，我并不是拿来进行加密，而是用来获得唯一性 ID。在做系统的过程中，存储用户的各种密码信息，通常都会通过散列算法，最终存储其散列值。
+Phần này nên quen thuộc hơn với mọi người. Ví dụ MD5 kiểm tra mà chúng ta thường dùng, trong nhiều trường hợp, tôi không dùng nó để mã hóa, mà để lấy ID duy nhất. Trong quá trình xây dựng hệ thống, lưu trữ thông tin mật khẩu của người dùng, thường thông qua thuật toán băm, cuối cùng lưu giá trị băm của nó.
 
-**MD5**（不推荐）
+**MD5** (không khuyến nghị)
 
-MD5 可以用来生成一个 128 位的消息摘要，它是目前应用比较普遍的散列算法，具体的应用场景你可以自行  参阅。虽然，因为算法的缺陷，它的唯一性已经被破解了，但是大部分场景下，这并不会构成安全问题。但是，如果不是长度受限（32 个字符），我还是不推荐你继续使用 **MD5** 的。
+MD5 có thể được dùng để tạo tóm tắt tin nhắn 128 bit, đây là thuật toán băm được ứng dụng khá phổ biến hiện nay. Mặc dù do khiếm khuyết của thuật toán, tính duy nhất của nó đã bị phá vỡ, nhưng trong hầu hết các trường hợp điều này không gây ra vấn đề bảo mật. Tuy nhiên, nếu không bị giới hạn độ dài (32 ký tự), tôi vẫn không khuyến nghị tiếp tục sử dụng **MD5**.
 
 **SHA**
 
-安全散列算法。**SHA** 包括**SHA-1**、**SHA-2**和**SHA-3**三个版本。该算法的基本思想是：接收一段明文数据，通过不可逆的方式将其转换为固定长度的密文。简单来说，SHA 将输入数据（即预映射或消息）转化为固定长度、较短的输出值，称为散列值（或信息摘要、信息认证码）。SHA-1 已被证明不够安全，因此逐渐被 SHA-2 取代，而 SHA-3 则作为 SHA 系列的最新版本，采用不同的结构（Keccak 算法）提供更高的安全性和灵活性。
+Thuật toán băm an toàn. **SHA** bao gồm ba phiên bản **SHA-1**, **SHA-2** và **SHA-3**. Ý tưởng cơ bản của thuật toán là: nhận một đoạn dữ liệu văn bản thuần túy, chuyển đổi nó theo cách không thể đảo ngược thành mật văn có độ dài cố định. Nói đơn giản, SHA chuyển đổi dữ liệu đầu vào (tức là preimage hoặc tin nhắn) thành giá trị đầu ra có độ dài cố định ngắn hơn, gọi là giá trị băm (hoặc tóm tắt tin nhắn, mã xác thực tin nhắn). SHA-1 đã được chứng minh là không đủ an toàn, vì vậy dần được SHA-2 thay thế, còn SHA-3 là phiên bản mới nhất của dòng SHA, sử dụng cấu trúc khác (thuật toán Keccak) cung cấp bảo mật và linh hoạt cao hơn.
 
 **SM3**
 
-国密算法**SM3**。加密强度和 SHA-256 算法 相差不多。主要是受到了国家的支持。
+Mật mã quốc gia **SM3**. Cường độ mã hóa tương đương thuật toán SHA-256. Chủ yếu được nhà nước ủng hộ.
 
-**总结**：
+**Tóm tắt**:
 
-![图片](https://oss.javaguide.cn/p3-juejin/79c3c2f72d2f44c7abf2d73a49024495~tplv-k3u1fbpfcp-zoom-1.png)
+![Hình](https://oss.javaguide.cn/p3-juejin/79c3c2f72d2f44c7abf2d73a49024495~tplv-k3u1fbpfcp-zoom-1.png)
 
-**大部分情况下使用对称加密，具有比较不错的安全性。如果需要分布式进行秘钥分发，考虑非对称。如果不需要可逆计算则散列算法。** 因为这段时间有这方面需求，就看了一些这方面的资料，入坑信息安全，就怕以后洗发水都不用买。谢谢大家查看！
+**Trong hầu hết các trường hợp sử dụng mã hóa đối xứng, có bảo mật khá tốt. Nếu cần phân phối khóa bí mật theo kiểu phân tán, hãy cân nhắc bất đối xứng. Nếu không cần tính toán có thể đảo ngược thì dùng thuật toán băm.** Vì khoảng thời gian này có nhu cầu về mặt này, nên tôi đã đọc một số tài liệu liên quan. Cảm ơn mọi người đã xem!
 
-#### 第三方机构和证书机制有什么用？
+#### Cơ quan bên thứ ba và cơ chế chứng chỉ có tác dụng gì?
 
-问题还有，此时如果 Sum 否认给过 Mike 的公钥和合同，不久 gg 了
+Vẫn còn vấn đề, lúc này nếu Sum phủ nhận đã cung cấp khóa công khai và hợp đồng cho Mike, thì xong rồi.
 
-所以需要 Sum 过的话做过的事儿需要足够的信誉，这就引入了 **第三方机构和证书机制** 。
+Vì vậy Sum cần đủ uy tín cho những gì đã làm, điều này đưa vào **cơ quan bên thứ ba và cơ chế chứng chỉ**.
 
-证书之所以会有信用，是因为证书的签发方拥有信用。所以如果 Sum 想让 Mike 承认自己的公钥，Sum 不会直接将公钥给 Mike ，而是提供由第三方机构，含有公钥的证书。如果 Mike 也信任这个机构，法律都认可，那 ik，信任关系成立
+Chứng chỉ có tín dụng vì bên phát hành chứng chỉ có tín dụng. Vì vậy nếu Sum muốn Mike thừa nhận khóa công khai của mình, Sum sẽ không trực tiếp giao khóa công khai cho Mike, mà cung cấp chứng chỉ từ cơ quan bên thứ ba, có chứa khóa công khai. Nếu Mike cũng tin tưởng cơ quan này, được pháp luật công nhận, thì quan hệ tin tưởng được thiết lập.
 
 ![](https://oss.javaguide.cn/p3-juejin/b1a3dbf87e3e41ff894f39512a10f66d~tplv-k3u1fbpfcp-zoom-1.png)
 
-如上图所示，Sum 将自己的申请提交给机构，产生证书的原文。机构用自己的私钥签名 Sum 的申请原文（先根据原文内容计算摘要，再用私钥加密），得到带有签名信息的证书。Mike 拿到带签名信息的证书，通过第三方机构的公钥进行解密，获得 Sum 证书的摘要、证书的原文。有了 Sum 证书的摘要和原文，Mike 就可以进行验签。验签通过，Mike 就可以确认 Sum 的证书的确是第三方机构签发的。
+Như hình trên, Sum nộp đơn xin của mình cho cơ quan, tạo ra bản gốc chứng chỉ. Cơ quan dùng khóa riêng của mình ký vào bản gốc đơn của Sum (trước tiên tính tóm tắt theo nội dung bản gốc, rồi mã hóa bằng khóa riêng), tạo ra chứng chỉ có thông tin chữ ký. Mike nhận được chứng chỉ có thông tin chữ ký, giải mã bằng khóa công khai của cơ quan bên thứ ba, lấy được tóm tắt chứng chỉ của Sum và bản gốc chứng chỉ. Có tóm tắt và bản gốc chứng chỉ của Sum, Mike có thể thực hiện xác minh chữ ký. Nếu xác minh thành công, Mike có thể xác nhận chứng chỉ của Sum thực sự được cơ quan bên thứ ba phát hành.
 
-用上面这样一个机制，合同的双方都无法否认合同。这个解决方案的核心在于需要第三方信用服务机构提供信用背书。这里产生了一个最基础的信任链，如果第三方机构的信任崩溃，比如被黑客攻破，那整条信任链条也就断裂了
+Với cơ chế này, cả hai bên ký hợp đồng đều không thể phủ nhận hợp đồng. Cốt lõi của giải pháp này là cần cơ quan dịch vụ tín dụng bên thứ ba cung cấp bảo đảm tín dụng. Điều này tạo ra một chuỗi tin tưởng cơ bản nhất. Nếu sự tin tưởng vào cơ quan bên thứ ba sụp đổ, ví dụ bị hacker tấn công, thì toàn bộ chuỗi tin tưởng cũng đứt.
 
-为了让这个信任条更加稳固，就需要环环相扣，打造更长的信任链，避免单点信任风险
+Để chuỗi tin tưởng này vững chắc hơn, cần móc nối từng mắt xích, tạo ra chuỗi tin tưởng dài hơn, tránh rủi ro tin tưởng đơn điểm.
 
 ![](https://oss.javaguide.cn/p3-juejin/1481f0409da94ba6bb0fee69bf0996f8~tplv-k3u1fbpfcp-zoom-1.png)
 
-上图中，由信誉最好的根证书机构提供根证书，然后根证书机构去签发二级机构的证书；二级机构去签发三级机构的证书；最后有由三级机构去签发 Sum 证书。
+Trong hình trên, cơ quan chứng chỉ gốc có uy tín tốt nhất cung cấp chứng chỉ gốc, rồi cơ quan chứng chỉ gốc ký chứng chỉ cơ quan cấp hai; cơ quan cấp hai ký chứng chỉ cơ quan cấp ba; cuối cùng cơ quan cấp ba ký chứng chỉ Sum.
 
-如果要验证 Sum 证书的合法性，就需要用三级机构证书中的公钥去解密 Sum 证书的数字签名。
+Để xác minh tính hợp lệ của chứng chỉ Sum, cần dùng khóa công khai trong chứng chỉ cơ quan cấp ba để giải mã chữ ký số trên chứng chỉ Sum.
 
-如果要验证三级机构证书的合法性，就需要用二级机构的证书去解密三级机构证书的数字签名。
+Để xác minh tính hợp lệ của chứng chỉ cơ quan cấp ba, cần dùng chứng chỉ cơ quan cấp hai để giải mã chữ ký số trên chứng chỉ cơ quan cấp ba.
 
-如果要验证二级结构证书的合法性，就需要用根证书去解密。
+Để xác minh tính hợp lệ của chứng chỉ cơ quan cấp hai, cần dùng chứng chỉ gốc để giải mã.
 
-以上，就构成了一个相对长一些的信任链。如果其中一方想要作弊是非常困难的，除非链条中的所有机构同时联合起来，进行欺诈。
+Trên đây tạo thành một chuỗi tin tưởng tương đối dài. Nếu một bên muốn gian lận thì rất khó, trừ khi tất cả các cơ quan trong chuỗi đồng thời liên kết để thực hiện gian lận.
 
-### 中间人攻击如何避免?
+### Làm thế nào để tránh tấn công man-in-the-middle?
 
-既然知道了中间人攻击的原理也知道了他的危险，现在我们看看如何避免。相信我们都遇到过下面这种状况：
+Đã biết nguyên lý tấn công man-in-the-middle và sự nguy hiểm của nó, bây giờ hãy xem cách tránh. Tin rằng chúng ta đều đã gặp tình huống dưới đây:
 
 ![](https://oss.javaguide.cn/p3-juejin/0dde4b76be6240699312d822a3fe1ed3~tplv-k3u1fbpfcp-zoom-1.png)
 
-出现这个界面的很多情况下，都是遇到了中间人攻击的现象，需要对安全证书进行及时地监测。而且大名鼎鼎的 github 网站，也曾遭遇过中间人攻击：
+Xuất hiện giao diện này trong nhiều trường hợp là do gặp phải hiện tượng tấn công man-in-the-middle, cần giám sát kịp thời chứng chỉ bảo mật. Và website nổi tiếng GitHub cũng từng bị tấn công man-in-the-middle:
 
-想要避免中间人攻击的方法目前主要有两个：
+Để tránh tấn công man-in-the-middle, hiện tại chủ yếu có hai phương pháp:
 
-- 客户端不要轻易相信证书：因为这些证书极有可能是中间人。
-- App 可以提前预埋证书在本地：意思是我们本地提前有一些证书，这样其他证书就不能再起作用了。
+- Máy khách không nên tùy tiện tin tưởng chứng chỉ: Vì các chứng chỉ này rất có thể là kẻ man-in-the-middle.
+- App có thể nhúng sẵn chứng chỉ cục bộ: Tức là chúng ta cục bộ đã có sẵn một số chứng chỉ, như vậy các chứng chỉ khác không thể phát huy tác dụng nữa.
 
-## DDOS
+## DDoS
 
-通过上面的描述，总之即好多种攻击都是 **DDOS** 攻击，所以简单总结下这个攻击相关内容。
+Qua mô tả ở trên, tóm lại có nhiều loại tấn công đều là **tấn công DDoS**, nên hãy tóm tắt đơn giản nội dung liên quan đến cuộc tấn công này.
 
-其实，像全球互联网各大公司，均遭受过大量的 **DDoS**。
+Thực ra, các công ty Internet lớn trên toàn cầu đều đã từng hứng chịu một lượng lớn cuộc tấn công **DDoS**.
 
-2018 年，GitHub 在一瞬间遭到高达 1.35Tbps 的带宽攻击。这次 DDoS 攻击几乎可以堪称是互联网有史以来规模最大、威力最大的 DDoS 攻击了。在 GitHub 遭到攻击后，仅仅一周后，DDoS 攻击又开始对 Google、亚马逊甚至 Pornhub 等网站进行了 DDoS 攻击。后续的 DDoS 攻击带宽最高也达到了 1Tbps。
+Năm 2018, GitHub bị tấn công băng thông lên đến 1,35Tbps chỉ trong chớp mắt. Cuộc tấn công DDoS này gần như được coi là cuộc tấn công DDoS quy mô lớn nhất và mạnh nhất trong lịch sử Internet. Sau khi GitHub bị tấn công, chỉ một tuần sau, tấn công DDoS lại tiếp tục nhắm vào Google, Amazon và thậm chí Pornhub. Băng thông tấn công DDoS tiếp theo cũng đạt tối đa 1Tbps.
 
-### DDoS 攻击究竟是什么？
+### Tấn công DDoS thực sự là gì?
 
-DDos 全名 Distributed Denial of Service，翻译成中文就是**分布式拒绝服务**。指的是处于不同位置的多个攻击者同时向一个或数个目标发动攻击，是一种分布的、协同的大规模攻击方式。单一的 DoS 攻击一般是采用一对一方式的，它利用网络协议和操作系统的一些缺陷，采用**欺骗和伪装**的策略来进行网络攻击，使网站服务器充斥大量要求回复的信息，消耗网络带宽或系统资源，导致网络或系统不胜负荷以至于瘫痪而停止提供正常的网络服务。
+DDoS viết tắt của Distributed Denial of Service, dịch sang tiếng Việt là **tấn công từ chối dịch vụ phân tán**. Chỉ các cuộc tấn công đồng thời từ nhiều kẻ tấn công ở các vị trí khác nhau nhắm vào một hoặc một số mục tiêu, là một loại phương thức tấn công quy mô lớn, phân tán, phối hợp. Tấn công DoS đơn lẻ thường theo phương thức một đối một, nó khai thác một số lỗ hổng trong giao thức mạng và hệ điều hành, áp dụng chiến lược **lừa đảo và giả mạo** để tấn công mạng, làm máy chủ website tràn ngập lượng lớn thông tin cần phản hồi, tiêu thụ băng thông mạng hoặc tài nguyên hệ thống, khiến mạng hoặc hệ thống quá tải đến mức tê liệt và ngừng cung cấp dịch vụ mạng bình thường.
 
-> 举个例子
+> Ví dụ
 
-我开了一家有五十个座位的重庆火锅店，由于用料上等，童叟无欺。平时门庭若市，生意特别红火，而对面二狗家的火锅店却无人问津。二狗为了对付我，想了一个办法，叫了五十个人来我的火锅店坐着却不点菜，让别的客人无法吃饭。
+Tôi mở một quán lẩu Trùng Khánh có 50 chỗ ngồi. Do nguyên liệu tốt, phục vụ chu đáo, khách thường đông đúc, kinh doanh rất sôi động. Còn quán lẩu của anh Ergou đối diện thì vắng khách. Để đối phó với tôi, Ergou nghĩ ra một kế, thuê 50 người đến quán lẩu của tôi ngồi nhưng không gọi món, khiến khách thực không thể ăn được.
 
-上面这个例子讲的就是典型的 DDoS 攻击，一般来说是指攻击者利用“肉鸡”对目标网站在较短的时间内发起大量请求，大规模消耗目标网站的主机资源，让它无法正常服务。在线游戏、互联网金融等领域是 DDoS 攻击的高发行业。
+Ví dụ trên chính là điển hình của tấn công DDoS, nói chung là chỉ kẻ tấn công sử dụng "máy tính zombie" gửi một lượng lớn yêu cầu đến website mục tiêu trong thời gian ngắn, tiêu thụ quy mô lớn tài nguyên máy chủ của website mục tiêu, khiến nó không thể phục vụ bình thường. Game trực tuyến, tài chính Internet là các lĩnh vực có tần suất tấn công DDoS cao.
 
-攻击方式很多，比如 **ICMP Flood**、**UDP Flood**、**NTP Flood**、**SYN Flood**、**CC 攻击**、**DNS Query Flood**等等。
+Phương thức tấn công rất nhiều, ví dụ **ICMP Flood**, **UDP Flood**, **NTP Flood**, **SYN Flood**, **CC Attack**, **DNS Query Flood** v.v.
 
-### 如何应对 DDoS 攻击？
+### Làm thế nào để ứng phó với tấn công DDoS?
 
-#### 高防服务器
+#### Máy chủ phòng thủ cao
 
-还是拿开的重庆火锅店举例，高防服务器就是我给重庆火锅店增加了两名保安，这两名保安可以让保护店铺不受流氓骚扰，并且还会定期在店铺周围巡逻防止流氓骚扰。
+Vẫn lấy ví dụ quán lẩu Trùng Khánh đã mở. Máy chủ phòng thủ cao giống như tôi tăng cường hai bảo vệ cho quán lẩu Trùng Khánh. Hai bảo vệ này có thể bảo vệ cửa hàng không bị lưu manh quấy rối, và còn tuần tra định kỳ xung quanh cửa hàng để ngăn lưu manh quấy rối.
 
-高防服务器主要是指能独立硬防御 50Gbps 以上的服务器，能够帮助网站拒绝服务攻击，定期扫描网络主节点等，这东西是不错，就是贵~
+Máy chủ phòng thủ cao chủ yếu là các máy chủ có thể độc lập phòng thủ 50Gbps trở lên, có thể giúp website chống tấn công từ chối dịch vụ, quét định kỳ các nút chính của mạng, v.v. Thứ này tốt nhưng đắt~
 
-#### 黑名单
+#### Danh sách đen
 
-面对火锅店里面的流氓，我一怒之下将他们拍照入档，并禁止他们踏入店铺，但是有的时候遇到长得像的人也会禁止他进入店铺。这个就是设置黑名单，此方法秉承的就是“错杀一千，也不放一百”的原则，会封锁正常流量，影响到正常业务。
+Đối với lưu manh trong quán lẩu, trong cơn tức giận tôi chụp ảnh lưu hồ sơ họ và cấm họ vào cửa hàng, nhưng đôi khi gặp người trông giống cũng bị cấm vào. Đây là thiết lập danh sách đen, phương pháp này tuân theo nguyên tắc "thà giết lầm một nghìn còn hơn bỏ sót một trăm", sẽ chặn lưu lượng bình thường, ảnh hưởng đến hoạt động kinh doanh bình thường.
 
-#### DDoS 清洗
+#### Làm sạch DDoS
 
-**DDos** 清洗，就是我发现客人进店几分钟以后，但是一直不点餐，我就把他踢出店里。
+**Làm sạch DDoS**, tức là tôi phát hiện khách vào quán vài phút nhưng mãi không gọi món, thì tôi đuổi họ ra.
 
-**DDoS** 清洗会对用户请求数据进行实时监控，及时发现 **DOS** 攻击等异常流量，在不影响正常业务开展的情况下清洗掉这些异常流量。
+**Làm sạch DDoS** sẽ giám sát thời gian thực dữ liệu yêu cầu của người dùng, kịp thời phát hiện các lưu lượng bất thường như tấn công **DOS**, trong điều kiện không ảnh hưởng đến hoạt động kinh doanh bình thường, làm sạch các lưu lượng bất thường này.
 
-#### CDN 加速
+#### Tăng tốc CDN
 
-CDN 加速，我们可以这么理解：为了减少流氓骚扰，我干脆将火锅店开到了线上，承接外卖服务，这样流氓找不到店在哪里，也耍不来流氓了。
+Tăng tốc CDN, chúng ta có thể hiểu như sau: Để giảm thiểu lưu manh quấy rối, tôi đơn giản chuyển quán lẩu lên trực tuyến, nhận đặt giao hàng tận nhà, như vậy lưu manh không tìm được quán ở đâu, cũng không gây rối được.
 
-在现实中，CDN 服务将网站访问流量分配到了各个节点中，这样一方面隐藏网站的真实 IP，另一方面即使遭遇 **DDoS** 攻击，也可以将流量分散到各个节点中，防止源站崩溃。
+Trong thực tế, dịch vụ CDN phân phối lưu lượng truy cập website đến các nút khác nhau, như vậy một mặt ẩn địa chỉ IP thực của website, mặt khác ngay cả khi bị tấn công **DDoS**, cũng có thể phân tán lưu lượng đến các nút khác nhau, ngăn nguồn gốc sụp đổ.
 
-## 参考
+## Tham khảo
 
-- HTTP 洪水攻击 - CloudFlare：<https://www.cloudflare.com/zh-cn/learning/ddos/http-flood-ddos-attack/>
-- SYN 洪水攻击：<https://www.cloudflare.com/zh-cn/learning/ddos/syn-flood-ddos-attack/>
-- 什么是 IP 欺骗？：<https://www.cloudflare.com/zh-cn/learning/ddos/glossary/ip-spoofing/>
-- 什么是 DNS 洪水？| DNS 洪水 DDoS 攻击：<https://www.cloudflare.com/zh-cn/learning/ddos/dns-flood-ddos-attack/>
+- Tấn công lũ HTTP - CloudFlare: <https://www.cloudflare.com/zh-cn/learning/ddos/http-flood-ddos-attack/>
+- Tấn công lũ SYN: <https://www.cloudflare.com/zh-cn/learning/ddos/syn-flood-ddos-attack/>
+- Giả mạo IP là gì?: <https://www.cloudflare.com/zh-cn/learning/ddos/glossary/ip-spoofing/>
+- Lũ DNS là gì? | Tấn công DDoS lũ DNS: <https://www.cloudflare.com/zh-cn/learning/ddos/dns-flood-ddos-attack/>
 
 <!-- @include: @article-footer.snippet.md -->

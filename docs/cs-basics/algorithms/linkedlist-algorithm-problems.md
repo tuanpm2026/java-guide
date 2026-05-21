@@ -1,49 +1,48 @@
 ---
-title: 几道常见的链表算法题
-description: 精选链表高频题的思路与实现，覆盖两数相加、反转、环检测等场景，强调边界处理与复杂度分析。
-category: 计算机基础
+title: Một số bài tập thuật toán Linked List phổ biến
+description: Tổng hợp các bài toán linked list tần suất cao với ý tưởng và implementation, bao gồm cộng hai số, đảo ngược, phát hiện vòng... nhấn mạnh xử lý edge case và phân tích độ phức tạp.
+category: CS Basics
 tag:
-  - 算法
+  - Algorithms
 head:
   - - meta
     - name: keywords
-      content: 链表算法,两数相加,反转链表,环检测,合并链表,复杂度分析
+      content: linked list algorithms,add two numbers,reverse linked list,cycle detection,merge linked lists,complexity analysis
 ---
 
 <!-- markdownlint-disable MD024 -->
 
-## 1. 两数相加
+## 1. Cộng hai số
 
-### 题目描述
+### Mô tả bài toán
 
-> Leetcode:给定两个非空链表来表示两个非负整数。位数按照逆序方式存储，它们的每个节点只存储单个数字。将两数相加返回一个新的链表。
+> Leetcode: Cho hai linked lists không rỗng biểu diễn hai số nguyên không âm. Các chữ số được lưu theo thứ tự ngược, mỗi node chỉ chứa một chữ số. Cộng hai số và trả về linked list mới.
 >
-> 你可以假设除了数字 0 之外，这两个数字都不会以零开头。
+> Bạn có thể giả sử trừ số 0, cả hai số đều không bắt đầu bằng số 0.
 
-示例：
+Ví dụ:
 
 ```plain
-输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
-输出：7 -> 0 -> 8
-原因：342 + 465 = 807
+Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 0 -> 8
+Lý do: 342 + 465 = 807
 ```
 
-### 问题分析
+### Phân tích bài toán
 
-Leetcode 官方详细解答地址：
+Leetcode official detailed solution:
 
 <https://leetcode-cn.com/problems/add-two-numbers/solution/>
 
-> 要对头结点进行操作时，考虑创建哑节点 dummy，使用 dummy->next 表示真正的头节点。这样可以避免处理头节点为空的边界问题。
+> Khi cần thao tác với head node, hãy cân nhắc tạo dummy node, dùng dummy->next để biểu diễn head node thực sự. Như vậy tránh được boundary problems khi head node null.
 
-我们使用变量来跟踪进位，并从包含最低有效位的表头开始模拟逐
-位相加的过程。
+Chúng ta dùng một biến để track carry (số nhớ), mô phỏng quá trình cộng từng chữ số bắt đầu từ đầu danh sách (chứa chữ số ít có nghĩa nhất).
 
-![图1，对两数相加方法的可视化: 342 + 465 = 807， 每个结点都包含一个数字，并且数字按位逆序存储。](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/34910956.jpg)
+![Hình 1: Visualization của phương pháp cộng hai số: 342 + 465 = 807, mỗi node chứa một chữ số, và chữ số được lưu theo thứ tự ngược.](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/34910956.jpg)
 
 ### Solution
 
-**我们首先从最低有效位也就是列表 l1 和 l2 的表头开始相加。注意需要考虑到进位的情况！**
+**Đầu tiên bắt đầu cộng từ chữ số có nghĩa nhỏ nhất, tức là từ đầu danh sách l1 và l2. Chú ý phải xử lý carry!**
 
 ```java
 /**
@@ -59,15 +58,15 @@ class Solution {
 public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
     ListNode dummyHead = new ListNode(0);
     ListNode p = l1, q = l2, curr = dummyHead;
-    //carry 表示进位数
+    //carry là số nhớ
     int carry = 0;
     while (p != null || q != null) {
         int x = (p != null) ? p.val : 0;
         int y = (q != null) ? q.val : 0;
         int sum = carry + x + y;
-        //进位数
+        //số nhớ
         carry = sum / 10;
-        //新节点的数值为sum % 10
+        //giá trị node mới là sum % 10
         curr.next = new ListNode(sum % 10);
         curr = curr.next;
         if (p != null) p = p.next;
@@ -81,17 +80,17 @@ public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 }
 ```
 
-## 2. 翻转链表
+## 2. Đảo ngược linked list
 
-### 题目描述
+### Mô tả bài toán
 
-> 剑指 offer:输入一个链表，反转链表后，输出链表的所有元素。
+> Sword Offer: Nhập vào một linked list, sau khi đảo ngược, xuất tất cả elements của linked list.
 
-![翻转链表](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/81431871.jpg)
+![Đảo ngược linked list](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/81431871.jpg)
 
-### 问题分析
+### Phân tích bài toán
 
-这道算法题，说直白点就是：如何让后一个节点指向前一个节点！在下面的代码中定义了一个 next 节点，该节点主要是保存要反转到头的那个节点，防止链表 “断裂”。
+Bài thuật toán này, nói thẳng ra là: làm thế nào để node sau trỏ về node trước! Trong code dưới định nghĩa một node `next`, node này chủ yếu lưu node cần đảo ngược lên đầu, tránh linked list bị "đứt".
 
 ### Solution
 
@@ -121,13 +120,13 @@ public class Solution {
     ListNode pre = null;
 
     while (head != null) {
-      // 保存要反转到头的那个节点
+      // Lưu node cần đảo ngược lên đầu
       next = head.next;
-      // 要反转的那个节点指向已经反转的上一个节点(备注:第一次反转的时候会指向null)
+      // Node cần đảo ngược trỏ về node đã đảo ngược trước đó (lần đầu tiên sẽ trỏ null)
       head.next = pre;
-      // 上一个已经反转到头部的节点
+      // Node trước đó đã đảo ngược lên đầu
       pre = head;
-      // 一直向链表尾走
+      // Đi dần về cuối linked list
       head = next;
     }
     return pre;
@@ -136,7 +135,7 @@ public class Solution {
 }
 ```
 
-测试方法：
+Test method:
 
 ```java
   public static void main(String[] args) {
@@ -158,7 +157,7 @@ public class Solution {
   }
 ```
 
-输出：
+Output:
 
 ```plain
 5
@@ -168,17 +167,17 @@ public class Solution {
 1
 ```
 
-## 3. 链表中倒数第 k 个节点
+## 3. Node thứ k từ cuối trong linked list
 
-### 题目描述
+### Mô tả bài toán
 
-> 剑指 offer: 输入一个链表，输出该链表中倒数第 k 个结点。
+> Sword Offer: Nhập vào một linked list, xuất node thứ k từ cuối.
 
-### 问题分析
+### Phân tích bài toán
 
-> **链表中倒数第 k 个节点也就是正数第(L-K+1)个节点，知道了只一点，这一题基本就没问题！**
+> **Node thứ k từ cuối trong linked list chính là node thứ (L-K+1) từ đầu, biết điều này thì bài toán coi như xong!**
 
-首先两个节点/指针，一个节点 node1 先开始跑，指针 node1 跑到 k-1 个节点后，另一个节点 node2 开始跑，当 node1 跑到最后时，node2 所指的节点就是倒数第 k 个节点也就是正数第(L-K+1)个节点。
+Đầu tiên hai nodes/pointers, node1 chạy trước, khi node1 chạy được k-1 nodes thì node2 bắt đầu chạy, khi node1 chạy đến cuối thì node2 đang trỏ tới chính là node thứ k từ cuối, tức là node thứ (L-K+1) từ đầu.
 
 ### Solution
 
@@ -193,22 +192,22 @@ public class ListNode {
     }
 }*/
 
-// 时间复杂度O(n),一次遍历即可
+// Time complexity O(n), một lần duyệt là đủ
 // https://www.nowcoder.com/practice/529d3ae5a407492994ad2a246518148a?tpId=13&tqId=11167&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking
 public class Solution {
   public ListNode FindKthToTail(ListNode head, int k) {
-    // 如果链表为空或者k小于等于0
+    // Nếu linked list rỗng hoặc k <= 0
     if (head == null || k <= 0) {
       return null;
     }
-    // 声明两个指向头结点的节点
+    // Khai báo hai nodes trỏ vào head node
     ListNode node1 = head, node2 = head;
-    // 记录节点的个数
+    // Đếm số nodes
     int count = 0;
-    // 记录k值，后面要使用
+    // Lưu giá trị k, dùng sau
     int index = k;
-    // p指针先跑，并且记录节点数，当node1节点跑了k-1个节点后，node2节点开始跑，
-    // 当node1节点跑到最后时，node2节点所指的节点就是倒数第k个节点
+    // node1 chạy trước và đếm nodes, khi node1 chạy k-1 nodes thì node2 bắt đầu chạy
+    // Khi node1 chạy đến cuối, node2 đang ở vị trí node thứ k từ cuối
     while (node1 != null) {
       node1 = node1.next;
       count++;
@@ -217,7 +216,7 @@ public class Solution {
       }
       k--;
     }
-    // 如果节点个数小于所求的倒数第k个节点，则返回空
+    // Nếu số nodes nhỏ hơn k thì trả về null
     if (count < index)
       return null;
     return node2;
@@ -226,40 +225,40 @@ public class Solution {
 }
 ```
 
-## 4. 删除链表的倒数第 N 个节点
+## 4. Xóa node thứ N từ cuối trong linked list
 
-> Leetcode:给定一个链表，删除链表的倒数第 n 个节点，并且返回链表的头结点。
+> Leetcode: Cho một linked list, xóa node thứ n từ cuối và trả về head node.
 
-**示例：**
+**Ví dụ:**
 
 ```plain
-给定一个链表: 1->2->3->4->5, 和 n = 2.
+Cho linked list: 1->2->3->4->5, và n = 2.
 
-当删除了倒数第二个节点后，链表变为 1->2->3->5.
+Sau khi xóa node thứ hai từ cuối, linked list thành 1->2->3->5.
 
 ```
 
-**说明：**
+**Ghi chú:**
 
-给定的 n 保证是有效的。
+n cho trước được đảm bảo hợp lệ.
 
-**进阶：**
+**Nâng cao:**
 
-你能尝试使用一趟扫描实现吗？
+Bạn có thể implement bằng một lần duyệt không?
 
-该题在 leetcode 上有详细解答，具体可参考 Leetcode.
+Bài này trên leetcode có giải thích chi tiết, có thể tham khảo Leetcode.
 
-### 问题分析
+### Phân tích bài toán
 
-我们注意到这个问题可以容易地简化成另一个问题：删除从列表开头数起的第 (L - n + 1)个结点，其中 L 是列表的长度。只要我们找到列表的长度 L，这个问题就很容易解决。
+Chú ý bài toán này có thể đơn giản hóa thành: xóa node thứ (L - n + 1) từ đầu, L là chiều dài list. Chỉ cần tìm được L là có thể giải quyết dễ dàng.
 
-![图 1. 删除列表中的第 L - n + 1 个元素](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/94354387.jpg)
+![Hình 1. Xóa element thứ L - n + 1 trong list](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/94354387.jpg)
 
 ### Solution
 
-**两次遍历法**
+**Two-pass method (hai lần duyệt):**
 
-首先我们将添加一个 **哑结点** 作为辅助，该结点位于列表头部。哑结点用来简化某些极端情况，例如列表中只含有一个结点，或需要删除列表的头部。在第一次遍历中，我们找出列表的长度 L。然后设置一个指向哑结点的指针，并移动它遍历列表，直至它到达第 (L - n) 个结点那里。**我们把第 (L - n)个结点的 next 指针重新链接至第 (L - n + 2)个结点，完成这个算法。**
+Đầu tiên thêm một **dummy node** làm hỗ trợ, node này nằm ở đầu list. Dummy node để đơn giản hóa một số edge cases, ví dụ list chỉ có một node, hoặc cần xóa head. Trong lần duyệt đầu, tìm chiều dài L của list. Sau đó đặt pointer trỏ vào dummy node và duyệt list cho đến node thứ (L - n). **Liên kết lại next pointer của node thứ (L - n) sang node thứ (L - n + 2), hoàn thành thuật toán.**
 
 ```java
 /**
@@ -273,11 +272,11 @@ public class Solution {
 // https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/description/
 public class Solution {
   public ListNode removeNthFromEnd(ListNode head, int n) {
-    // 哑结点，哑结点用来简化某些极端情况，例如列表中只含有一个结点，或需要删除列表的头部
+    // Dummy node để đơn giản hóa một số edge cases như list chỉ có một node, hoặc cần xóa head
     ListNode dummy = new ListNode(0);
-    // 哑结点指向头结点
+    // Dummy node trỏ vào head node
     dummy.next = head;
-    // 保存链表长度
+    // Lưu chiều dài linked list
     int length = 0;
     ListNode len = head;
     while (len != null) {
@@ -286,23 +285,23 @@ public class Solution {
     }
     length = length - n;
     ListNode target = dummy;
-    // 找到 L-n 位置的节点
+    // Tìm node ở vị trí L-n
     while (length > 0) {
       target = target.next;
       length--;
     }
-    // 把第 (L - n)个结点的 next 指针重新链接至第 (L - n + 2)个结点
+    // Liên kết lại next pointer của node thứ (L-n) sang node thứ (L-n+2)
     target.next = target.next.next;
     return dummy.next;
   }
 }
 ```
 
-**进阶——一次遍历法：**
+**Nâng cao — One-pass method (một lần duyệt):**
 
-> 链表中倒数第 N 个节点也就是正数第(L - n + 1)个节点。
+> Node thứ N từ cuối trong linked list chính là node thứ (L - n + 1) từ đầu.
 
-其实这种方法就和我们上面第四题找“链表中倒数第 k 个节点”所用的思想是一样的。**基本思路就是：** 定义两个节点 node1、node2;node1 节点先跑，node1 节点 跑到第 n+1 个节点的时候,node2 节点开始跑.当 node1 节点跑到最后一个节点时，node2 节点所在的位置就是第 （L - n ） 个节点（L 代表总链表长度，也就是倒数第 n + 1 个节点）
+Cách này giống ý tưởng bài số 3 "tìm node thứ k từ cuối". **Ý tưởng cơ bản:** Định nghĩa hai nodes node1, node2; node1 chạy trước, khi node1 chạy đến node thứ n+1, node2 bắt đầu chạy. Khi node1 chạy đến node cuối cùng, node2 đang ở vị trí node thứ (L - n) (L là tổng chiều dài, tức là node thứ n+1 từ cuối).
 
 ```java
 /**
@@ -318,11 +317,11 @@ public class Solution {
 
     ListNode dummy = new ListNode(0);
     dummy.next = head;
-    // 声明两个指向头结点的节点
+    // Khai báo hai nodes trỏ vào head node
     ListNode node1 = dummy, node2 = dummy;
 
-    // node1 节点先跑，node1节点 跑到第 n 个节点的时候,node2 节点开始跑
-    // 当node1 节点跑到最后一个节点时，node2 节点所在的位置就是第 （L-n ） 个节点，也就是倒数第 n+1（L代表总链表长度）
+    // node1 chạy trước, khi node1 chạy đến node thứ n thì node2 bắt đầu chạy
+    // Khi node1 chạy đến node cuối cùng, node2 ở vị trí node thứ (L-n), tức là node thứ n+1 từ cuối (L là tổng chiều dài)
     while (node1 != null) {
       node1 = node1.next;
       if (n < 1 && node1 != null) {
@@ -339,27 +338,27 @@ public class Solution {
 }
 ```
 
-## 5. 合并两个排序的链表
+## 5. Gộp hai sorted linked lists
 
-### 题目描述
+### Mô tả bài toán
 
-> 剑指 offer:输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则。
+> Sword Offer: Nhập vào hai linked lists tăng dần đơn điệu, xuất linked list được gộp từ hai list, và list gộp phải thỏa mãn quy tắc không giảm đơn điệu.
 
-### 问题分析
+### Phân tích bài toán
 
-我们可以这样分析:
+Có thể phân tích như sau:
 
-1. 假设我们有两个链表 A,B；
-2. A 的头节点 A1 的值与 B 的头结点 B1 的值比较，假设 A1 小，则 A1 为头节点；
-3. A2 再和 B1 比较，假设 B1 小,则，A1 指向 B1；
-4. A2 再和 B2 比较
-   就这样循环往复就行了，应该还算好理解。
+1. Giả sử có hai linked lists A, B;
+2. So sánh giá trị head node A1 của A với head node B1 của B, giả sử A1 nhỏ hơn thì A1 là head node;
+3. Tiếp theo A2 so sánh với B1, giả sử B1 nhỏ hơn, thì A1 trỏ đến B1;
+4. A2 lại so sánh với B2
+   Cứ lặp đi lặp lại như vậy, cũng khá dễ hiểu.
 
-考虑通过递归的方式实现！
+Hãy thử implement theo cách đệ quy!
 
 ### Solution
 
-**递归版本：**
+**Recursive version:**
 
 ```java
 /*

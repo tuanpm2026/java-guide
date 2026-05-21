@@ -1,42 +1,42 @@
 ---
-title: Redis内存碎片详解
-description: 深入解析Redis内存碎片产生的原因、判断方法和优化方案，包括内存碎片率计算、jemalloc分配器原理、自动内存碎片清理配置等。
-category: 数据库
+title: Giải thích chi tiết Memory Fragmentation trong Redis
+description: Phân tích sâu nguyên nhân phát sinh memory fragmentation trong Redis, cách kiểm tra và phương án tối ưu, bao gồm cách tính memory fragmentation rate, nguyên lý jemalloc allocator, cấu hình tự động dọn dẹp memory fragmentation, v.v.
+category: Cơ sở dữ liệu
 tag:
   - Redis
 head:
   - - meta
     - name: keywords
-      content: Redis内存碎片,内存碎片率,jemalloc,内存分配,activedefrag,内存优化,Redis内存管理
+      content: Redis memory fragmentation,memory fragmentation rate,jemalloc,memory allocation,activedefrag,memory optimization,Redis memory management
 ---
 
-## 什么是内存碎片?
+## Memory Fragmentation là gì?
 
-你可以将内存碎片简单地理解为那些不可用的空闲内存。
+Bạn có thể hiểu đơn giản memory fragmentation là các vùng bộ nhớ trống không thể sử dụng.
 
-举个例子：操作系统为你分配了 32 字节的连续内存空间，而你存储数据实际只需要使用 24 字节内存空间，那这多余出来的 8 字节内存空间如果后续没办法再被分配存储其他数据的话，就可以被称为内存碎片。
+Ví dụ: Hệ điều hành cấp phát cho bạn 32 byte bộ nhớ liên tiếp, nhưng dữ liệu thực tế bạn lưu chỉ cần dùng 24 byte, thì 8 byte thừa ra nếu sau đó không thể cấp phát để lưu dữ liệu khác sẽ được gọi là memory fragmentation.
 
-![内存碎片](https://oss.javaguide.cn/github/javaguide/memory-fragmentation.png)
+![Memory fragmentation](https://oss.javaguide.cn/github/javaguide/memory-fragmentation.png)
 
-Redis 内存碎片虽然不会影响 Redis 性能，但是会增加内存消耗。
+Memory fragmentation trong Redis tuy không ảnh hưởng đến hiệu năng Redis, nhưng sẽ tăng mức tiêu thụ bộ nhớ.
 
-## 为什么会有 Redis 内存碎片?
+## Tại sao có Memory Fragmentation trong Redis?
 
-Redis 内存碎片产生比较常见的 2 个原因：
+Có 2 nguyên nhân phổ biến sinh ra memory fragmentation trong Redis:
 
-**1、Redis 存储数据的时候向操作系统申请的内存空间可能会大于数据实际需要的存储空间。**
+**1. Khi Redis lưu dữ liệu, không gian bộ nhớ xin từ hệ điều hành có thể lớn hơn không gian thực tế cần lưu dữ liệu.**
 
-以下是这段 Redis 官方的原话：
+Đây là lời của Redis chính thức:
 
 > To store user keys, Redis allocates at most as much memory as the `maxmemory` setting enables (however there are small extra allocations possible).
 
-Redis 使用 `zmalloc` 方法(Redis 自己实现的内存分配方法)进行内存分配的时候，除了要分配 `size` 大小的内存之外，还会多分配 `PREFIX_SIZE` 大小的内存。
+Khi Redis dùng phương thức `zmalloc` (phương thức cấp phát bộ nhớ tự triển khai của Redis) để cấp phát bộ nhớ, ngoài việc cấp phát `size` byte bộ nhớ, còn cấp phát thêm `PREFIX_SIZE` byte bộ nhớ.
 
-`zmalloc` 方法源码如下（源码地址：<https://github.com/antirez/redis-tools/blob/master/zmalloc.c）：>
+Source code của phương thức `zmalloc` (địa chỉ source: <https://github.com/antirez/redis-tools/blob/master/zmalloc.c>):
 
 ```java
 void *zmalloc(size_t size) {
-   // 分配指定大小的内存
+   // Cấp phát bộ nhớ theo kích thước chỉ định
    void *ptr = malloc(size+PREFIX_SIZE);
    if (!ptr) zmalloc_oom_handler(size);
 #ifdef HAVE_MALLOC_SIZE
@@ -50,80 +50,80 @@ void *zmalloc(size_t size) {
 }
 ```
 
-另外，Redis 可以使用多种内存分配器来分配内存（ libc、jemalloc、tcmalloc），默认使用 [jemalloc](https://github.com/jemalloc/jemalloc)，而 jemalloc 按照一系列固定的大小（8 字节、16 字节、32 字节……）来分配内存的。jemalloc 划分的内存单元如下图所示：
+Ngoài ra, Redis có thể dùng nhiều memory allocator để cấp phát bộ nhớ (libc, jemalloc, tcmalloc), mặc định dùng [jemalloc](https://github.com/jemalloc/jemalloc). jemalloc cấp phát bộ nhớ theo một loạt kích thước cố định (8 byte, 16 byte, 32 byte...). Các đơn vị bộ nhớ jemalloc chia như hình dưới:
 
-![jemalloc 内存单元示意图](https://oss.javaguide.cn/github/javaguide/database/redis/6803d3929e3e46c1b1c9d0bb9ee8e717.png)
+![Sơ đồ đơn vị bộ nhớ jemalloc](https://oss.javaguide.cn/github/javaguide/database/redis/6803d3929e3e46c1b1c9d0bb9ee8e717.png)
 
-当程序申请的内存最接近某个固定值时，jemalloc 会给它分配相应大小的空间，就比如说程序需要申请 17 字节的内存，jemalloc 会直接给它分配 32 字节的内存，这样会导致有 15 字节内存的浪费。不过，jemalloc 专门针对内存碎片问题做了优化，一般不会存在过度碎片化的问题。
+Khi chương trình xin bộ nhớ gần với một giá trị cố định nào đó, jemalloc sẽ cấp phát không gian tương ứng. Ví dụ chương trình cần xin 17 byte, jemalloc sẽ cấp phát thẳng 32 byte, dẫn đến lãng phí 15 byte bộ nhớ. Tuy nhiên, jemalloc đã đặc biệt tối ưu cho vấn đề memory fragmentation nên thường không có vấn đề phân mảnh quá mức.
 
-**2、频繁修改 Redis 中的数据也会产生内存碎片。**
+**2. Thường xuyên sửa đổi dữ liệu trong Redis cũng sinh ra memory fragmentation.**
 
-当 Redis 中的某个数据删除时，Redis 通常不会轻易释放内存给操作系统。
+Khi một dữ liệu trong Redis bị xóa, Redis thường không vội giải phóng bộ nhớ cho hệ điều hành.
 
-这个在 Redis 官方文档中也有对应的原话:
+Tài liệu chính thức của Redis cũng có mô tả tương ứng:
 
 ![](https://oss.javaguide.cn/github/javaguide/redis-docs-memory-optimization.png)
 
-文档地址：<https://redis.io/topics/memory-optimization> 。
+Địa chỉ tài liệu: <https://redis.io/topics/memory-optimization>.
 
-## 如何查看 Redis 内存碎片的信息？
+## Cách xem thông tin Memory Fragmentation trong Redis?
 
-使用 `info memory` 命令即可查看 Redis 内存相关的信息。下图中每个参数具体的含义，Redis 官方文档有详细的介绍：<https://redis.io/commands/INFO> 。
+Dùng lệnh `info memory` để xem thông tin liên quan đến bộ nhớ Redis. Ý nghĩa cụ thể của từng tham số trong hình dưới, tài liệu chính thức Redis có giới thiệu chi tiết tại: <https://redis.io/commands/INFO>.
 
 ![](https://oss.javaguide.cn/github/javaguide/redis-info-memory.png)
 
-Redis 内存碎片率的计算公式：`mem_fragmentation_ratio` （内存碎片率）= `used_memory_rss` (操作系统实际分配给 Redis 的物理内存空间大小)/ `used_memory`(Redis 内存分配器为了存储数据实际申请使用的内存空间大小)
+Công thức tính memory fragmentation rate của Redis: `mem_fragmentation_ratio` (memory fragmentation rate) = `used_memory_rss` (kích thước không gian bộ nhớ vật lý mà hệ điều hành thực tế cấp phát cho Redis) / `used_memory` (kích thước không gian bộ nhớ mà memory allocator của Redis thực tế xin dùng để lưu dữ liệu)
 
-也就是说，`mem_fragmentation_ratio` （内存碎片率）的值越大代表内存碎片率越严重。
+Tức là, giá trị `mem_fragmentation_ratio` càng lớn thì memory fragmentation rate càng nghiêm trọng.
 
-一定不要误认为`used_memory_rss` 减去 `used_memory`值就是内存碎片的大小！！！这不仅包括内存碎片，还包括其他进程开销，以及共享库、堆栈等的开销。
+Tuyệt đối đừng nhầm tưởng rằng `used_memory_rss` trừ `used_memory` là kích thước memory fragmentation! Điều này không chỉ bao gồm memory fragmentation mà còn bao gồm overhead của các process khác, cũng như overhead của shared library, stack, v.v.
 
-很多小伙伴可能要问了：“多大的内存碎片率才是需要清理呢？”。
+Nhiều bạn có thể thắc mắc: "Memory fragmentation rate bao nhiêu thì cần dọn dẹp?"
 
-通常情况下，我们认为 `mem_fragmentation_ratio > 1.5` 的话才需要清理内存碎片。 `mem_fragmentation_ratio > 1.5` 意味着你使用 Redis 存储实际大小 2G 的数据需要使用大于 3G 的内存。
+Thông thường, chúng ta cho rằng `mem_fragmentation_ratio > 1.5` thì mới cần dọn dẹp memory fragmentation. `mem_fragmentation_ratio > 1.5` có nghĩa là để lưu dữ liệu thực tế 2GB trong Redis bạn cần dùng hơn 3GB bộ nhớ.
 
-如果想要快速查看内存碎片率的话，你还可以通过下面这个命令：
+Nếu muốn xem nhanh memory fragmentation rate, bạn cũng có thể dùng lệnh sau:
 
 ```bash
 > redis-cli -p 6379 info | grep mem_fragmentation_ratio
 ```
 
-另外，内存碎片率可能存在小于 1 的情况。这种情况我在日常使用中还没有遇到过，感兴趣的小伙伴可以看看这篇文章 [故障分析 | Redis 内存碎片率太低该怎么办？- 爱可生开源社区](https://mp.weixin.qq.com/s/drlDvp7bfq5jt2M5pTqJCw) 。
+Ngoài ra, memory fragmentation rate có thể có giá trị nhỏ hơn 1. Tình huống này tôi chưa gặp trong sử dụng hàng ngày, bạn nào quan tâm có thể xem bài [Fault Analysis | Redis Memory Fragmentation Rate Too Low — What to Do? - iCanOSS Community](https://mp.weixin.qq.com/s/drlDvp7bfq5jt2M5pTqJCw).
 
-## 如何清理 Redis 内存碎片？
+## Cách dọn dẹp Memory Fragmentation trong Redis?
 
-Redis4.0-RC3 版本以后自带了内存整理，可以避免内存碎片率过大的问题。
+Từ Redis 4.0-RC3 trở đi đã tích hợp sẵn tính năng memory defragmentation, có thể tránh vấn đề memory fragmentation rate quá cao.
 
-直接通过 `config set` 命令将 `activedefrag` 配置项设置为 `yes` 即可。
+Chỉ cần dùng lệnh `config set` để đặt cấu hình `activedefrag` thành `yes`:
 
 ```bash
 config set activedefrag yes
 ```
 
-具体什么时候清理需要通过下面两个参数控制：
+Khi nào cụ thể để dọn dẹp được kiểm soát bởi hai tham số sau:
 
 ```bash
-# 内存碎片占用空间达到 500mb 的时候开始清理
+# Bắt đầu dọn dẹp khi memory fragmentation chiếm 500mb
 config set active-defrag-ignore-bytes 500mb
-# 内存碎片率大于 1.5 的时候开始清理
+# Bắt đầu dọn dẹp khi memory fragmentation rate > 1.5
 config set active-defrag-threshold-lower 50
 ```
 
-通过 Redis 自动内存碎片清理机制可能会对 Redis 的性能产生影响，我们可以通过下面两个参数来减少对 Redis 性能的影响：
+Cơ chế tự động dọn dẹp memory fragmentation của Redis có thể ảnh hưởng đến hiệu năng. Có thể dùng hai tham số sau để giảm ảnh hưởng đến hiệu năng Redis:
 
 ```bash
-# 内存碎片清理所占用 CPU 时间的比例不低于 20%
+# Tỷ lệ CPU time dành cho dọn dẹp memory fragmentation không thấp hơn 20%
 config set active-defrag-cycle-min 20
-# 内存碎片清理所占用 CPU 时间的比例不高于 50%
+# Tỷ lệ CPU time dành cho dọn dẹp memory fragmentation không cao hơn 50%
 config set active-defrag-cycle-max 50
 ```
 
-另外，重启节点可以做到内存碎片重新整理。如果你采用的是高可用架构的 Redis 集群的话，你可以将碎片率过高的主节点转换为从节点，以便进行安全重启。
+Ngoài ra, khởi động lại node có thể defragment lại bộ nhớ. Nếu bạn đang dùng Redis cluster với high availability architecture, có thể chuyển master node có fragmentation rate cao thành slave node để khởi động lại an toàn.
 
-## 参考
+## Tài liệu tham khảo
 
-- Redis 官方文档：<https://redis.io/topics/memory-optimization>
-- Redis 核心技术与实战 - 极客时间 - 删除数据后，为什么内存占用率还是很高？：<https://time.geekbang.org/column/article/289140>
-- Redis 源码解析——内存分配：<<https://shinerio.cc/2020/05/17/redis/Redis> 源码解析——内存管理>
+- Redis official docs: <https://redis.io/topics/memory-optimization>
+- Redis Core Technology and Practice - GeekTime - Sau khi xóa dữ liệu, tại sao memory usage rate vẫn cao?: <https://time.geekbang.org/column/article/289140>
+- Redis Source Analysis — Memory Allocation: <<https://shinerio.cc/2020/05/17/redis/Redis> Source Analysis — Memory Management>
 
 <!-- @include: @article-footer.snippet.md -->

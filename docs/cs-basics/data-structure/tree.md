@@ -1,140 +1,140 @@
 ---
-title: 树
-description: 系统讲解树与二叉树的核心概念与遍历方法，结合高度/深度等指标，夯实数据结构基础与算法思维。
-category: 计算机基础
+title: Tree (Cây)
+description: Hệ thống giải thích các khái niệm cốt lõi và phương pháp duyệt của tree và binary tree, kết hợp các chỉ số như height/depth, củng cố nền tảng cấu trúc dữ liệu và tư duy thuật toán.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 数据结构
+  - Cấu trúc dữ liệu
 head:
   - - meta
     - name: keywords
-      content: 树,二叉树,二叉搜索树,平衡树,遍历,前序,中序,后序,层序,高度,深度
+      content: tree,binary tree,binary search tree,balanced tree,traversal,preorder,inorder,postorder,level-order,height,depth
 ---
 
-树就是一种类似现实生活中的树的数据结构（倒置的树）。任何一颗非空树只有一个根节点。
+Tree là cấu trúc dữ liệu giống như cây trong cuộc sống thực (cây lật ngược). Bất kỳ cây không rỗng nào cũng chỉ có một root node (nút gốc).
 
-一棵树具有以下特点：
+Một cây có các đặc điểm sau:
 
-1. 一棵树中的任意两个结点有且仅有唯一的一条路径连通。
-2. 一棵树如果有 n 个结点，那么它一定恰好有 n-1 条边。
-3. 一棵树不包含回路。
+1. Bất kỳ hai node nào trong cây đều có đúng một đường đi duy nhất kết nối chúng.
+2. Nếu một cây có n node thì chắc chắn có đúng n-1 cạnh.
+3. Một cây không chứa chu trình.
 
-下图就是一颗树，并且是一颗二叉树。
+Hình dưới là một cây, cụ thể là binary tree.
 
-![二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/%E4%BA%8C%E5%8F%89%E6%A0%91-2.png)
+![Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/%E4%BA%8C%E5%8F%89%E6%A0%91-2.png)
 
-如上图所示，通过上面这张图说明一下树中的常用概念：
+Như hình trên, giải thích một số thuật ngữ phổ biến trong tree:
 
-- **节点**：树中的每个元素都可以统称为节点。
-- **根节点**：顶层节点或者说没有父节点的节点。上图中 A 节点就是根节点。
-- **父节点**：若一个节点含有子节点，则这个节点称为其子节点的父节点。上图中的 B 节点是 D 节点、E 节点的父节点。
-- **子节点**：一个节点含有的子树的根节点称为该节点的子节点。上图中 D 节点、E 节点是 B 节点的子节点。
-- **兄弟节点**：具有相同父节点的节点互称为兄弟节点。上图中 D 节点、E 节点的共同父节点是 B 节点，故 D 和 E 为兄弟节点。
-- **叶子节点**：没有子节点的节点。上图中的 D、F、H、I 都是叶子节点。
-- **节点的高度**：该节点到叶子节点的最长路径所包含的边数。
-- **节点的深度**：根节点到该节点的路径所包含的边数
-- **节点的层数**：节点的深度+1。
-- **树的高度**：根节点的高度。
+- **Node (Nút)**: Mỗi phần tử trong tree đều có thể gọi là node.
+- **Root node (Nút gốc)**: Node ở tầng cao nhất hoặc node không có parent node. Trong hình trên, node A là root node.
+- **Parent node (Nút cha)**: Nếu một node chứa child node thì node đó gọi là parent node của child node đó. Trong hình, node B là parent node của node D và E.
+- **Child node (Nút con)**: Root node của subtree chứa trong một node gọi là child node của node đó. Trong hình, node D và E là child node của node B.
+- **Sibling node (Nút anh em)**: Các node có cùng parent node gọi là sibling node với nhau. Trong hình, parent node chung của node D và E là B, nên D và E là sibling node.
+- **Leaf node (Nút lá)**: Node không có child node. Trong hình, D, F, H, I đều là leaf node.
+- **Chiều cao của node (Node height)**: Số cạnh trong đường đi dài nhất từ node đó đến leaf node.
+- **Độ sâu của node (Node depth)**: Số cạnh trong đường đi từ root node đến node đó.
+- **Tầng của node (Node level)**: Node depth + 1.
+- **Chiều cao của cây (Tree height)**: Chiều cao của root node.
 
-> 关于树的深度和高度的定义可以看 stackoverflow 上的这个问题：[What is the difference between tree depth and height?](https://stackoverflow.com/questions/2603692/what-is-the-difference-between-tree-depth-and-height) 。
+> Về định nghĩa depth và height của tree, có thể xem câu hỏi này trên stackoverflow: [What is the difference between tree depth and height?](https://stackoverflow.com/questions/2603692/what-is-the-difference-between-tree-depth-and-height).
 
-## 二叉树的分类
+## Phân loại Binary Tree
 
-**二叉树**（Binary tree）是每个节点最多只有两个分支（即不存在分支度大于 2 的节点）的树结构。
+**Binary tree** là cấu trúc tree mà mỗi node có tối đa hai nhánh (không tồn tại node có degree > 2).
 
-**二叉树** 的分支通常被称作“**左子树**”或“**右子树**”。并且，**二叉树** 的分支具有左右次序，不能随意颠倒。
+Hai nhánh của **binary tree** thường gọi là "**left subtree**" hoặc "**right subtree**". Và hai nhánh của **binary tree** có thứ tự left/right, không thể đảo ngược tùy ý.
 
-**二叉树** 的第 i 层至多拥有 `2^(i-1)` 个节点，深度为 k 的二叉树至多总共有 `2^(k+1)-1` 个节点（满二叉树的情况），至少有 2^(k) 个节点（关于节点的深度的定义国内争议比较多，我个人比较认可维基百科对[节点深度的定义](<https://zh.wikipedia.org/wiki/%E6%A0%91_(%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84)#/%E6%9C%AF%E8%AF%AD>)）。
+Tầng thứ i của **binary tree** có tối đa `2^(i-1)` node. Binary tree có độ sâu k có tổng tối đa `2^(k+1)-1` node (trường hợp full binary tree), tối thiểu `2^(k)` node (định nghĩa về node depth còn nhiều tranh luận trong nước, tôi cá nhân đồng ý với [định nghĩa node depth của Wikipedia](<https://zh.wikipedia.org/wiki/%E6%A0%91_(%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84)#/%E6%9C%AF%E8%AF%AD>)).
 
-![危机百科对节点深度的定义](https://oss.javaguide.cn/github/javaguide/image-20220119112736158.png)
+![Định nghĩa node depth của Wikipedia](https://oss.javaguide.cn/github/javaguide/image-20220119112736158.png)
 
-### 满二叉树
+### Full Binary Tree (Cây nhị phân đầy đủ / Cây nhị phân hoàn hảo)
 
-一个二叉树，如果每一个层的结点数都达到最大值，则这个二叉树就是 **满二叉树**。也就是说，如果一个二叉树的层数为 K，且结点总数是(2^k) -1 ，则它就是 **满二叉树**。如下图所示：
+Binary tree mà mọi tầng đều có số node tối đa gọi là **full binary tree**. Tức là nếu binary tree có K tầng và tổng số node là (2^k)-1 thì đó là **full binary tree**. Như hình dưới:
 
-![满二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/full-binary-tree.png)
+![Full Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/full-binary-tree.png)
 
-### 完全二叉树
+### Complete Binary Tree (Cây nhị phân hoàn chỉnh)
 
-除最后一层外，若其余层都是满的，并且最后一层是满的或者是在右边缺少连续若干节点，则这个二叉树就是 **完全二叉树** 。
+Nếu tất cả các tầng trừ tầng cuối cùng đều đầy, và tầng cuối cùng hoặc đầy hoặc thiếu một số node liên tiếp ở bên phải — binary tree đó gọi là **complete binary tree**.
 
-大家可以想象为一棵树从根结点开始扩展，扩展完左子节点才能开始扩展右子节点，每扩展完一层，才能继续扩展下一层。如下图所示：
+Hãy tưởng tượng một cây bắt đầu mở rộng từ root node. Phải mở rộng xong left child node mới bắt đầu mở rộng right child node. Mỗi tầng mở rộng xong mới tiếp tục tầng tiếp theo. Như hình dưới:
 
-![完全二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/complete-binary-tree.png)
+![Complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/complete-binary-tree.png)
 
-完全二叉树有一个很好的性质：**父结点和子节点的序号有着对应关系。**
+Complete binary tree có một tính chất rất tốt: **Parent node và child node có quan hệ tương ứng về sequence number**.
 
-细心的小伙伴可能发现了，当根节点的值为 1 的情况下，若父结点的序号是 i，那么左子节点的序号就是 2i，右子节点的序号是 2i+1。这个性质使得完全二叉树利用数组存储时可以极大地节省空间，以及利用序号找到某个节点的父结点和子节点，后续二叉树的存储会详细介绍。
+Bạn tinh mắt có thể nhận ra: Khi root node có giá trị 1, nếu parent node có sequence number là i thì left child node là 2i, right child node là 2i+1. Tính chất này giúp complete binary tree tiết kiệm nhiều không gian khi lưu bằng mảng, cũng như tìm parent node và child node của một node qua index. Sẽ giới thiệu chi tiết khi nói về lưu trữ binary tree.
 
-### 平衡二叉树
+### Balanced Binary Tree (Cây nhị phân cân bằng)
 
-**平衡二叉树** 是一棵二叉排序树，且具有以下性质：
+**Balanced binary tree** là binary sort tree có các tính chất sau:
 
-1. 可以是一棵空树
-2. 如果不是空树，它的左右两个子树的高度差的绝对值不超过 1，并且左右两个子树都是一棵平衡二叉树。
+1. Có thể là cây rỗng.
+2. Nếu không rỗng, giá trị tuyệt đối của hiệu chiều cao của left subtree và right subtree không vượt quá 1, và cả left subtree lẫn right subtree đều là balanced binary tree.
 
-平衡二叉树的常用实现方法有 **红黑树**、**AVL 树**、**替罪羊树**、**加权平衡树**、**伸展树** 等。
+Các cách triển khai phổ biến của balanced binary tree là **Red-Black Tree**, **AVL Tree**, **Scapegoat Tree**, **Weight-Balanced Tree**, **Splay Tree**, v.v.
 
-在给大家展示平衡二叉树之前，先给大家看一棵树：
+Trước khi giới thiệu balanced binary tree, hãy xem cây này trước:
 
-![斜树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/oblique-tree.png)
+![Oblique Tree (Cây lệch)](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/oblique-tree.png)
 
-**你管这玩意儿叫树？？？**
+**Cái này bạn gọi là cây à???**
 
-没错，这玩意儿还真叫树，只不过这棵树已经退化为一个链表了，我们管它叫 **斜树**。
+Đúng vậy, cái này thực sự được gọi là cây. Chỉ là cây này đã degenerate thành linked list. Chúng ta gọi nó là **oblique tree (cây lệch)**.
 
-**如果这样，那我为啥不直接用链表呢?**
+**Nếu vậy tại sao không dùng thẳng linked list đi?**
 
-谁说不是呢？
+Không sai!
 
-二叉树相比于链表，由于父子节点以及兄弟节点之间往往具有某种特殊的关系，这种关系使得我们在树中对数据进行**搜索**和**修改**时，相对于链表更加快捷便利。
+Nhưng binary tree so với linked list, vì parent-child node và sibling node thường có một số quan hệ đặc biệt — quan hệ này khiến việc **tìm kiếm** và **sửa đổi** dữ liệu trong cây nhanh hơn và tiện hơn so với linked list.
 
-但是，如果二叉树退化为一个链表了，那么那么树所具有的优秀性质就难以表现出来，效率也会大打折，为了避免这样的情况，我们希望每个做 “家长”（父结点） 的，都 **一碗水端平**，分给左儿子和分给右儿子的尽可能一样多，相差最多不超过一层，如下图所示：
+Nhưng nếu binary tree degenerate thành linked list thì những tính chất tốt của tree khó thể hiện ra, efficiency cũng giảm đáng kể. Để tránh điều này, chúng ta muốn mỗi parent node đều "công bằng" — phần chia cho left child và right child càng bằng nhau càng tốt, chênh lệch tối đa không quá một tầng. Như hình dưới:
 
-![平衡二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/balanced-binary-tree.png)
+![Balanced Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/balanced-binary-tree.png)
 
-## 二叉树的存储
+## Lưu trữ Binary Tree
 
-二叉树的存储主要分为 **链式存储** 和 **顺序存储** 两种：
+Lưu trữ binary tree chủ yếu chia thành hai loại: **linked storage** và **sequential storage**:
 
-### 链式存储
+### Linked Storage (Lưu trữ liên kết)
 
-和链表类似，二叉树的链式存储依靠指针将各个节点串联起来，不需要连续的存储空间。
+Tương tự linked list, linked storage của binary tree dựa vào con trỏ để kết nối các node với nhau, không cần không gian lưu trữ liên tục.
 
-每个节点包括三个属性：
+Mỗi node bao gồm ba thuộc tính:
 
-- 数据 data。data 不一定是单一的数据，根据不同情况，可以是多个具有不同类型的数据。
-- 左节点指针 left
-- 右节点指针 right。
+- Data. Data không nhất thiết là single data — tùy tình huống có thể là nhiều data với kiểu khác nhau.
+- Left node pointer `left`.
+- Right node pointer `right`.
 
-可是 JAVA 没有指针啊！
+Nhưng JAVA không có con trỏ!
 
-那就直接引用对象呗（别问我对象哪里找）
+Thì dùng object reference vậy!
 
-![链式存储二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/chain-store-binary-tree.png)
+![Linked Storage Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/chain-store-binary-tree.png)
 
-### 顺序存储
+### Sequential Storage (Lưu trữ tuần tự)
 
-顺序存储就是利用数组进行存储，数组中的每一个位置仅存储节点的 data，不存储左右子节点的指针，子节点的索引通过数组下标完成。根结点的序号为 1，对于每个节点 Node，假设它存储在数组中下标为 i 的位置，那么它的左子节点就存储在 2i 的位置，它的右子节点存储在下标为 2i+1 的位置。
+Sequential storage dùng mảng để lưu trữ. Mỗi vị trí trong mảng chỉ lưu data của node, không lưu con trỏ left/right child. Index của child node được xác định qua array index. Root node có sequence number là 1. Với mỗi node được lưu ở vị trí index i trong mảng, left child được lưu ở vị trí 2i, right child ở vị trí 2i+1.
 
-一棵完全二叉树的数组顺序存储如下图所示：
+Sequential storage của complete binary tree như hình dưới:
 
-![完全二叉树的数组顺序存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage.png)
+![Sequential Storage của Complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage.png)
 
-大家可以试着填写一下存储如下二叉树的数组，比较一下和完全二叉树的顺序存储有何区别：
+Hãy thử điền vào mảng để lưu binary tree dưới đây, so sánh xem khác gì so với sequential storage của complete binary tree:
 
-![非完全二叉树的数组顺序存储](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage2.png)
+![Sequential Storage của Non-complete Binary Tree](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/sequential-storage2.png)
 
-可以看到，如果我们要存储的二叉树不是完全二叉树，在数组中就会出现空隙，导致内存利用率降低
+Có thể thấy nếu binary tree cần lưu không phải complete binary tree, sẽ có khoảng trống trong mảng, dẫn đến memory utilization rate giảm.
 
-## 二叉树的遍历
+## Duyệt Binary Tree
 
-### 先序遍历
+### Pre-order Traversal (Duyệt tiền tự)
 
-![先序遍历](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/preorder-traversal.png)
+![Pre-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/preorder-traversal.png)
 
-二叉树的先序遍历，就是先输出根结点，再遍历左子树，最后遍历右子树，遍历左子树和右子树的时候，同样遵循先序遍历的规则，也就是说，我们可以递归实现先序遍历。
+Pre-order traversal của binary tree là trước tiên output root node, rồi duyệt left subtree, cuối cùng duyệt right subtree. Khi duyệt left subtree và right subtree cũng tuân theo quy tắc pre-order traversal. Tức là có thể triển khai pre-order traversal bằng đệ quy.
 
-代码如下：
+Code:
 
 ```java
 public void preOrder(TreeNode root){
@@ -147,15 +147,15 @@ public void preOrder(TreeNode root){
 }
 ```
 
-### 中序遍历
+### In-order Traversal (Duyệt trung tự)
 
-![中序遍历](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal.png)
+![In-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal.png)
 
-二叉树的中序遍历，就是先递归中序遍历左子树，再输出根结点的值，再递归中序遍历右子树，大家可以想象成一巴掌把树压扁，父结点被拍到了左子节点和右子节点的中间，如下图所示：
+In-order traversal của binary tree là trước tiên đệ quy in-order duyệt left subtree, rồi output giá trị root node, rồi đệ quy in-order duyệt right subtree. Hãy tưởng tượng như một bàn tay đập phẳng cây — parent node bị đẩy vào giữa left và right child node. Như hình dưới:
 
-![中序遍历](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal2.png)
+![In-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/inorder-traversal2.png)
 
-代码如下：
+Code:
 
 ```java
 public void inOrder(TreeNode root){
@@ -168,23 +168,21 @@ public void inOrder(TreeNode root){
 }
 ```
 
-### 后序遍历
+### Post-order Traversal (Duyệt hậu tự)
 
-![后序遍历](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/postorder-traversal.png)
+![Post-order Traversal](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/postorder-traversal.png)
 
-二叉树的后序遍历，就是先递归后序遍历左子树，再递归后序遍历右子树，最后输出根结点的值
+Post-order traversal của binary tree là trước tiên đệ quy post-order duyệt left subtree, rồi đệ quy post-order duyệt right subtree, cuối cùng output giá trị root node.
 
-代码如下：
+Code:
 
 ```java
 public void postOrder(TreeNode root){
 	if(root == null){
 		return;
 	}
- postOrder(root.left);
+    postOrder(root.left);
 	postOrder(root.right);
 	system.out.println(root.data);
 }
 ```
-
-<!-- @include: @article-footer.snippet.md -->

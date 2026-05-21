@@ -1,59 +1,59 @@
 ---
-title: Web 实时消息推送详解
-description: 消息推送通常是指网站的运营工作等人员，通过某种工具对用户当前网页或移动设备 APP 进行的主动消息推送。
-category: 系统设计
+title: Giải thích chi tiết Web Real-time Message Push
+description: Message push thường chỉ việc nhân viên vận hành website và các bộ phận khác chủ động push message đến webpage hiện tại hoặc mobile app của user thông qua một số công cụ.
+category: System Design
 icon: "messages"
 head:
   - - meta
     - name: keywords
-      content: Web消息推送,实时消息,WebSocket,SSE,长轮询,短轮询,MQTT,实时通信方案
+      content: Web message push,real-time message,WebSocket,SSE,long polling,short polling,MQTT,real-time communication solutions
 ---
 
-> 原文地址：<https://juejin.cn/post/7122014462181113887，JavaGuide> 对本文进行了完善总结。
+> Original article: <https://juejin.cn/post/7122014462181113887>, JavaGuide đã hoàn thiện và bổ sung nội dung.
 
-我有一个朋友做了一个小破站，现在要实现一个站内信 Web 消息推送的功能，对，就是下图这个小红点，一个很常用的功能。
+Tôi có một người bạn đã làm một website nhỏ, bây giờ muốn triển khai tính năng Web message push trong trang. Đúng vậy, đó là cái chấm đỏ nhỏ trong hình dưới — một tính năng rất phổ biến.
 
-![站内信 Web 消息推送](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192380.png)
+![In-site message Web push](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192380.png)
 
-不过他还没想好用什么方式做，这里我帮他整理了一下几种方案，并简单做了实现。
+Nhưng bạn ấy chưa nghĩ ra dùng cách nào, ở đây tôi giúp bạn ấy tổng hợp một số phương án và triển khai đơn giản.
 
-## 什么是消息推送？
+## Message Push là gì?
 
-推送的场景比较多，比如有人关注我的公众号，这时我就会收到一条推送消息，以此来吸引我点击打开应用。
+Push scenario khá nhiều. Ví dụ có người follow Official Account của tôi, lúc này tôi sẽ nhận được một push message để thu hút tôi click vào mở app.
 
-消息推送通常是指网站的运营工作等人员，通过某种工具对用户当前网页或移动设备 APP 进行的主动消息推送。
+Message push thường chỉ việc nhân viên vận hành website và các bộ phận khác, thông qua một số công cụ để chủ động push message đến webpage hiện tại hoặc mobile device APP của user.
 
-消息推送一般又分为 Web 端消息推送和移动端消息推送。
+Message push thường chia thành Web-end message push và mobile-end message push.
 
-移动端消息推送示例：
+Mobile-end message push example:
 
-![移动端消息推送示例](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/IKleJ9auR1Ojdicyr0bH.png)
+![Mobile-end message push example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/IKleJ9auR1Ojdicyr0bH.png)
 
-Web 端消息推送示例：
+Web-end message push example:
 
-![Web 端消息推送示例](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/image-20220819100512941.png)
+![Web-end message push example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/image-20220819100512941.png)
 
-在具体实现之前，咱们再来分析一下前边的需求，其实功能很简单，只要触发某个事件（主动分享了资源或者后台主动推送消息），Web 页面的通知小红点就会实时的 `+1` 就可以了。
+Trước khi triển khai cụ thể, hãy phân tích lại yêu cầu phía trên. Thực ra tính năng rất đơn giản: chỉ cần trigger một event nào đó (chủ động chia sẻ resource hoặc backend chủ động push message), chấm đỏ notification trên webpage sẽ real-time `+1` là được.
 
-通常在服务端会有若干张消息推送表，用来记录用户触发不同事件所推送不同类型的消息，前端主动查询（拉）或者被动接收（推）用户所有未读的消息数。
+Thông thường phía server sẽ có một số message push table để ghi lại các loại message khác nhau được push khi user trigger các event khác nhau. Frontend chủ động query (pull) hoặc bị động nhận (push) tất cả unread message count của user.
 
-![消息推送表](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192384.png)
+![Message push table](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192384.png)
 
-消息推送无非是推（push）和拉（pull）两种形式，下边我们逐个了解下。
+Message push không ngoài hai hình thức push và pull. Dưới đây chúng ta lần lượt tìm hiểu.
 
-## 消息推送常见方案
+## Các phương án Message Push phổ biến
 
-### 短轮询
+### Short Polling (Polling ngắn)
 
-**轮询(polling)** 应该是实现消息推送方案中最简单的一种，这里我们暂且将轮询分为短轮询和长轮询。
+**Polling** có lẽ là một trong những phương án đơn giản nhất để triển khai message push. Ở đây chúng ta tạm chia polling thành short polling và long polling.
 
-短轮询很好理解，指定的时间间隔，由浏览器向服务器发出 HTTP 请求，服务器实时返回未读消息数据给客户端，浏览器再做渲染显示。
+Short polling dễ hiểu — theo khoảng thời gian được chỉ định, browser gửi HTTP request đến server, server real-time trả về unread message data cho client, browser render và hiển thị.
 
-一个简单的 JS 定时器就可以搞定，每秒钟请求一次未读消息数接口，返回的数据展示即可。
+Một JS timer đơn giản là đủ. Request unread message count interface mỗi giây, hiển thị data trả về là được.
 
 ```typescript
 setInterval(() => {
-  // 方法请求
+  // Method request
   messageCount().then((res) => {
     if (res.code === 200) {
       this.messageCount = res.data;
@@ -62,70 +62,70 @@ setInterval(() => {
 }, 1000);
 ```
 
-效果还是可以的，短轮询实现固然简单，缺点也是显而易见，由于推送数据并不会频繁变更，无论后端此时是否有新的消息产生，客户端都会进行请求，势必会对服务端造成很大压力，浪费带宽和服务器资源。
+Hiệu quả vẫn ổn. Short polling triển khai đơn giản nhưng nhược điểm cũng rõ ràng: Vì push data không thay đổi thường xuyên, dù backend hiện tại có message mới hay không, client đều gửi request — chắc chắn gây áp lực lớn lên server, lãng phí bandwidth và server resource.
 
-### 长轮询
+### Long Polling (Polling dài)
 
-长轮询是对上边短轮询的一种改进版本，在尽可能减少对服务器资源浪费的同时，保证消息的相对实时性。长轮询在中间件中应用的很广泛，比如 Nacos 和 Apollo 配置中心，消息队列 Kafka、RocketMQ 中都有用到长轮询。
+Long polling là phiên bản cải tiến của short polling ở trên, vừa giảm tối đa lãng phí server resource vừa đảm bảo tính tương đối real-time của message. Long polling được ứng dụng rộng rãi trong middleware — như Nacos, Apollo config center, message queue Kafka, RocketMQ đều dùng long polling.
 
-[Nacos 配置中心交互模型是 push 还是 pull？](https://mp.weixin.qq.com/s/94ftESkDoZI9gAGflLiGwg)一文中我详细介绍过 Nacos 长轮询的实现原理，感兴趣的小伙伴可以瞅瞅。
+Bài [Nacos config center interaction model: push hay pull?](https://mp.weixin.qq.com/s/94ftESkDoZI9gAGflLiGwg) tôi đã giới thiệu chi tiết nguyên lý triển khai long polling của Nacos. Bạn quan tâm có thể xem.
 
-长轮询其实原理跟轮询差不多，都是采用轮询的方式。不过，如果服务端的数据没有发生变更，会 一直 hold 住请求，直到服务端的数据发生变化，或者等待一定时间超时才会返回。返回后，客户端又会立即再次发起下一次长轮询。
+Long polling thực ra nguyên lý gần giống polling, đều dùng cách polling. Tuy nhiên, nếu data phía server không thay đổi, sẽ hold request đó mãi cho đến khi data phía server thay đổi, hoặc đợi một khoảng thời gian timeout mới trả về. Sau khi trả về, client ngay lập tức gửi long polling request tiếp theo.
 
-这次我使用 Apollo 配置中心实现长轮询的方式，应用了一个类`DeferredResult`，它是在 Servlet3.0 后经过 Spring 封装提供的一种异步请求机制，直意就是延迟结果。
+Lần này tôi dùng cách Apollo config center triển khai long polling, áp dụng một class `DeferredResult`. Đây là một cơ chế async request được Spring đóng gói và cung cấp sau Servlet 3.0, nghĩa đen là "delayed result".
 
-![长轮询示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192386.png)
+![Long polling diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192386.png)
 
-`DeferredResult`可以允许容器线程快速释放占用的资源，不阻塞请求线程，以此接受更多的请求提升系统的吞吐量，然后启动异步工作线程处理真正的业务逻辑，处理完成调用`DeferredResult.setResult(200)`提交响应结果。
+`DeferredResult` cho phép container thread nhanh chóng release resource chiếm dụng, không block request thread, từ đó nhận nhiều request hơn để cải thiện system throughput. Sau đó khởi động async worker thread để xử lý business logic thực sự. Sau khi xử lý xong gọi `DeferredResult.setResult(200)` để submit response result.
 
-下边我们用长轮询来实现消息推送。
+Dưới đây chúng ta dùng long polling để triển khai message push.
 
-因为一个 ID 可能会被多个长轮询请求监听，所以我采用了 Guava 包提供的`Multimap`结构存放长轮询，一个 key 可以对应多个 value。一旦监听到 key 发生变化，对应的所有长轮询都会响应。前端得到非请求超时的状态码，知晓数据变更，主动查询未读消息数接口，更新页面数据。
+Vì một ID có thể được nhiều long polling request monitor, tôi dùng cấu trúc `Multimap` từ Guava package để lưu long polling — một key có thể tương ứng với nhiều value. Khi monitor thấy key thay đổi, tất cả long polling tương ứng đều sẽ respond. Frontend nhận được status code không phải request timeout thì biết data thay đổi, chủ động query unread message count interface, cập nhật page data.
 
 ```java
 @Controller
 @RequestMapping("/polling")
 public class PollingController {
 
-    // 存放监听某个Id的长轮询集合
-    // 线程同步结构
+    // Lưu long polling collection monitor một ID cụ thể
+    // Thread-safe structure
     public static Multimap<String, DeferredResult<String>> watchRequests = Multimaps.synchronizedMultimap(HashMultimap.create());
 
     /**
-     * 设置监听
+     * Set monitor
      */
     @GetMapping(path = "watch/{id}")
     @ResponseBody
     public DeferredResult<String> watch(@PathVariable String id) {
-        // 延迟对象设置超时时间
+        // Deferred object set timeout
         DeferredResult<String> deferredResult = new DeferredResult<>(TIME_OUT);
-        // 异步请求完成时移除 key，防止内存溢出
+        // Remove key when async request complete, prevent memory overflow
         deferredResult.onCompletion(() -> {
             watchRequests.remove(id, deferredResult);
         });
-        // 注册长轮询请求
+        // Register long polling request
         watchRequests.put(id, deferredResult);
         return deferredResult;
     }
 
     /**
-     * 变更数据
+     * Change data
      */
     @GetMapping(path = "publish/{id}")
     @ResponseBody
     public String publish(@PathVariable String id) {
-        // 数据变更 取出监听ID的所有长轮询请求，并一一响应处理
+        // Data changed - take out all long polling requests monitoring ID and respond one by one
         if (watchRequests.containsKey(id)) {
             Collection<DeferredResult<String>> deferredResults = watchRequests.get(id);
             for (DeferredResult<String> deferredResult : deferredResults) {
-                deferredResult.setResult("我更新了" + new Date());
+                deferredResult.setResult("I updated: " + new Date());
             }
         }
         return "success";
     }
 ```
 
-当请求超过设置的超时时间，会抛出`AsyncRequestTimeoutException`异常，这里直接用`@ControllerAdvice`全局捕获统一返回即可，前端获取约定好的状态码后再次发起长轮询请求，如此往复调用。
+Khi request vượt quá timeout được đặt, sẽ ném ra `AsyncRequestTimeoutException`. Ở đây chỉ cần dùng `@ControllerAdvice` để globally catch và trả về thống nhất. Frontend nhận status code đã thỏa thuận rồi gửi lại long polling request, cứ vậy lặp lại.
 
 ```kotlin
 @ControllerAdvice
@@ -135,31 +135,31 @@ public class AsyncRequestTimeoutHandler {
     @ResponseBody
     @ExceptionHandler(AsyncRequestTimeoutException.class)
     public String asyncRequestTimeoutHandler(AsyncRequestTimeoutException e) {
-        System.out.println("异步请求超时");
+        System.out.println("Async request timeout");
         return "304";
     }
 }
 ```
 
-我们来测试一下，首先页面发起长轮询请求`/polling/watch/10086`监听消息更变，请求被挂起，不变更数据直至超时，再次发起了长轮询请求；紧接着手动变更数据`/polling/publish/10086`，长轮询得到响应，前端处理业务逻辑完成后再次发起请求，如此循环往复。
+Hãy test thử. Đầu tiên page gửi long polling request `/polling/watch/10086` để monitor message change. Request bị hold lại, không thay đổi data cho đến timeout rồi lại gửi long polling request. Sau đó manually thay đổi data `/polling/publish/10086`, long polling nhận được response. Sau khi frontend xử lý business logic xong lại gửi request, cứ vậy tuần hoàn.
 
-长轮询相比于短轮询在性能上提升了很多，但依然会产生较多的请求，这是它的一点不完美的地方。
+Long polling cải thiện performance so với short polling rất nhiều, nhưng vẫn sẽ tạo ra nhiều request — đây là một điểm chưa hoàn hảo.
 
-### iframe 流
+### iframe Stream (Luồng iframe)
 
-iframe 流就是在页面中插入一个隐藏的`<iframe>`标签，通过在`src`中请求消息数量 API 接口，由此在服务端和客户端之间创建一条长连接，服务端持续向`iframe`传输数据。
+iframe stream là chèn một thẻ `<iframe>` ẩn vào page, thông qua request message count API interface trong `src`, tạo ra một long connection giữa server và client. Server liên tục truyền data sang `iframe`.
 
-传输的数据通常是 HTML、或是内嵌的 JavaScript 脚本，来达到实时更新页面的效果。
+Data truyền thường là HTML, hoặc JavaScript script nhúng, để đạt được hiệu quả cập nhật page real-time.
 
-![iframe 流示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192388.png)
+![iframe stream diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192388.png)
 
-这种方式实现简单，前端只要一个`<iframe>`标签搞定了
+Cách triển khai đơn giản. Frontend chỉ cần một thẻ `<iframe>` là xong.
 
 ```html
 <iframe src="/iframe/message" style="display:none"></iframe>
 ```
 
-服务端直接组装 HTML、JS 脚本数据向 response 写入就行了
+Server side chỉ cần assemble HTML, JS script data ghi vào response.
 
 ```java
 @Controller
@@ -181,89 +181,87 @@ public class IframeController {
 }
 ```
 
-iframe 流的服务器开销很大，而且 IE、Chrome 等浏览器一直会处于 loading 状态，图标会不停旋转，简直是强迫症杀手。
+iframe stream có server overhead rất lớn, và IE, Chrome v.v. luôn ở trạng thái loading với biểu tượng xoay không ngừng — giết chết người bị OCD.
 
-![iframe 流效果](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192389.png)
+![iframe stream effect](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192389.png)
 
-iframe 流非常不友好，强烈不推荐。
+iframe stream rất không thân thiện — cực kỳ không khuyến nghị.
 
-### SSE (推荐)
+### SSE (Khuyến nghị)
 
-很多人可能不知道，服务端向客户端推送消息，其实除了可以用`WebSocket`这种耳熟能详的机制外，还有一种服务器发送事件(Server-Sent Events)，简称 SSE。这是一种服务器端到客户端(浏览器)的单向消息推送。
+Nhiều người có thể không biết, ngoài `WebSocket` nổi tiếng, còn có Server-Sent Events (SSE) để server push message đến client. Đây là one-way message push từ server side đến client (browser).
 
-大名鼎鼎的 ChatGPT 就是采用的 SSE。对于需要长时间等待响应的对话场景，ChatGPT 采用了一种巧妙的策略：它会将已经计算出的数据“推送”给用户，并利用 SSE 技术在计算过程中持续返回数据。这样做的好处是可以避免用户因等待时间过长而选择关闭页面。
+ChatGPT nổi tiếng cũng dùng SSE. Với conversation scenario cần đợi response lâu, ChatGPT dùng một chiến lược khéo léo: push data đã tính toán ra cho user, và dùng SSE technology để liên tục trả về data trong quá trình tính toán. Ưu điểm là tránh user đóng page vì chờ quá lâu.
 
-![ChatGPT 使用 SSE 实现对话](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/chatgpt-sse.png)
+![ChatGPT using SSE for conversation](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/chatgpt-sse.png)
 
-SSE 基于 HTTP 协议的，我们知道一般意义上的 HTTP 协议是无法做到服务端主动向客户端推送消息的，但 SSE 是个例外，它变换了一种思路。
+SSE dựa trên HTTP protocol. Chúng ta biết HTTP protocol thông thường không thể để server chủ động push message đến client, nhưng SSE là ngoại lệ — nó thay đổi cách tiếp cận.
 
-![SSE 图解](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192390.png)
+![SSE diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192390.png)
 
-SSE 在服务器和客户端之间打开一个单向通道，服务端响应的不再是一次性的数据包而是`text/event-stream`类型的数据流信息，在有数据变更时从服务器流式传输到客户端。
+SSE mở một one-way channel giữa server và client. Response của server không còn là data packet one-time nữa mà là data stream info kiểu `text/event-stream`, streaming từ server đến client khi có data thay đổi.
 
-整体的实现思路有点类似于在线视频播放，视频流会连续不断的推送到浏览器，你也可以理解成，客户端在完成一次用时很长（网络不畅）的下载。
+Tư duy triển khai tổng thể hơi giống xem video online — video stream liên tục được push đến browser. Bạn cũng có thể hiểu là client đang thực hiện một lần download rất dài (mạng không tốt).
 
-![SSE 示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192391.png)
+![SSE demonstration](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192391.png)
 
-SSE 与 WebSocket 作用相似，都可以建立服务端与浏览器之间的通信，实现服务端向客户端推送消息，但还是有些许不同：
+SSE và WebSocket có tác dụng tương tự, đều có thể thiết lập communication giữa server và browser, triển khai server push message đến client. Nhưng vẫn có một số điểm khác nhau:
 
-- SSE 是基于 HTTP 协议的，它们不需要特殊的协议或服务器实现即可工作；WebSocket 需单独服务器来处理协议。
-- SSE 单向通信，只能由服务端向客户端单向通信；WebSocket 全双工通信，即通信的双方可以同时发送和接受信息。
-- SSE 实现简单开发成本低，无需引入其他组件；WebSocket 传输数据需做二次解析，开发门槛高一些。
-- SSE 默认支持断线重连；WebSocket 则需要自己实现。
-- SSE 只能传送文本消息，二进制数据需要经过编码后传送；WebSocket 默认支持传送二进制数据。
+- SSE dựa trên HTTP protocol, không cần protocol hoặc server implementation đặc biệt để hoạt động; WebSocket cần server riêng để xử lý protocol.
+- SSE là one-way communication, chỉ có thể server push đến client; WebSocket là full-duplex communication — cả hai phía đều có thể gửi và nhận đồng thời.
+- SSE triển khai đơn giản, chi phí phát triển thấp, không cần import component khác; WebSocket truyền data cần parsing thêm một lần, development threshold cao hơn một chút.
+- SSE mặc định hỗ trợ auto reconnect; WebSocket cần tự implement.
+- SSE chỉ có thể truyền text message, binary data cần được encode trước khi truyền; WebSocket mặc định hỗ trợ truyền binary data.
 
-**SSE 与 WebSocket 该如何选择？**
+**SSE hay WebSocket, chọn cái nào?**
 
-> 技术并没有好坏之分，只有哪个更合适。
+> Không có công nghệ tốt hay xấu, chỉ có cái nào phù hợp hơn.
 
-SSE 好像一直不被大家所熟知，一部分原因是出现了 WebSocket，这个提供了更丰富的协议来执行双向、全双工通信。对于游戏、即时通信以及需要双向近乎实时更新的场景，拥有双向通道更具吸引力。
+SSE có vẻ ít được biết đến, một phần vì đã có WebSocket cung cấp protocol phong phú hơn để thực hiện bidirectional, full-duplex communication. Đối với gaming, instant messaging và các scenario cần bidirectional near real-time update, có bidirectional channel hấp dẫn hơn.
 
-但是，在某些情况下，不需要从客户端发送数据。而你只需要一些服务器操作的更新。比如：站内信、未读消息数、状态更新、股票行情、监控数量等场景，SSE 不管是从实现的难易和成本上都更加有优势。此外，SSE 具有 WebSocket 在设计上缺乏的多种功能，例如：自动重新连接、事件 ID 和发送任意事件的能力。
+Nhưng trong một số trường hợp, không cần gửi data từ client. Bạn chỉ cần một số cập nhật về server operations. Ví dụ: in-site message, unread message count, status update, stock quotes, monitoring count v.v. — SSE dù về độ dễ triển khai hay chi phí đều có ưu thế hơn. Ngoài ra, SSE có nhiều tính năng mà WebSocket thiếu trong thiết kế như: auto reconnect, event ID và khả năng gửi arbitrary event.
 
-前端只需进行一次 HTTP 请求，带上唯一 ID，打开事件流，监听服务端推送的事件就可以了
+Frontend chỉ cần một HTTP request, kèm unique ID, mở event stream, monitor event push từ server là được.
 
 ```javascript
 <script>
     let source = null;
     let userId = 7777
     if (window.EventSource) {
-        // 建立连接
+        // Establish connection
         source = new EventSource('http://localhost:7777/sse/sub/'+userId);
-        setMessageInnerHTML("连接用户=" + userId);
+        setMessageInnerHTML("Connected user=" + userId);
         /**
-         * 连接一旦建立，就会触发open事件
-         * 另一种写法：source.onopen = function (event) {}
+         * Once connection established, open event is triggered
          */
         source.addEventListener('open', function (e) {
-            setMessageInnerHTML("建立连接。。。");
+            setMessageInnerHTML("Establishing connection...");
         }, false);
         /**
-         * 客户端收到服务器发来的数据
-         * 另一种写法：source.onmessage = function (event) {}
+         * Client receives data sent from server
          */
         source.addEventListener('message', function (e) {
             setMessageInnerHTML(e.data);
         });
     } else {
-        setMessageInnerHTML("你的浏览器不支持SSE");
+        setMessageInnerHTML("Your browser doesn't support SSE");
     }
 </script>
 ```
 
-服务端的实现更简单，创建一个`SseEmitter`对象放入`sseEmitterMap`进行管理
+Server side implementation đơn giản hơn. Tạo một `SseEmitter` object đặt vào `sseEmitterMap` để quản lý.
 
 ```java
 private static Map<String, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>();
 
 /**
- * 创建连接
+ * Create connection
  */
 public static SseEmitter connect(String userId) {
     try {
-        // 设置超时时间，0表示不过期。默认30秒
+        // Set timeout, 0 means never expire. Default 30 seconds
         SseEmitter sseEmitter = new SseEmitter(0L);
-        // 注册回调
+        // Register callback
         sseEmitter.onCompletion(completionCallBack(userId));
         sseEmitter.onError(errorCallBack(userId));
         sseEmitter.onTimeout(timeoutCallBack(userId));
@@ -271,13 +269,13 @@ public static SseEmitter connect(String userId) {
         count.getAndIncrement();
         return sseEmitter;
     } catch (Exception e) {
-        log.info("创建新的sse连接异常，当前用户：{}", userId);
+        log.info("Failed to create new SSE connection, current user: {}", userId);
     }
     return null;
 }
 
 /**
- * 给指定用户发送消息
+ * Send message to specified user
  */
 public static void sendMessage(String userId, String message) {
 
@@ -285,58 +283,58 @@ public static void sendMessage(String userId, String message) {
         try {
             sseEmitterMap.get(userId).send(message);
         } catch (IOException e) {
-            log.error("用户[{}]推送异常:{}", userId, e.getMessage());
+            log.error("User [{}] push exception: {}", userId, e.getMessage());
             removeUser(userId);
         }
     }
 }
 ```
 
-**注意：** SSE 不支持 IE 浏览器，对其他主流浏览器兼容性做的还不错。
+**Lưu ý:** SSE không hỗ trợ IE browser, nhưng compatibility với các browser mainstream khác khá tốt.
 
-![SSE 兼容性](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192393.png)
+![SSE compatibility](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192393.png)
 
-### Websocket
+### WebSocket
 
-Websocket 应该是大家都比较熟悉的一种实现消息推送的方式，上边我们在讲 SSE 的时候也和 Websocket 进行过比较。
+WebSocket là một cách triển khai message push mà mọi người đều khá quen thuộc. Trước đó khi nói về SSE chúng ta cũng so sánh với WebSocket.
 
-这是一种在 TCP 连接上进行全双工通信的协议，建立客户端和服务器之间的通信渠道。浏览器和服务器仅需一次握手，两者之间就直接可以创建持久性的连接，并进行双向数据传输。
+Đây là một protocol full-duplex communication trên TCP connection, thiết lập communication channel giữa client và server. Browser và server chỉ cần một lần handshake, hai bên có thể tạo persistent connection và tiến hành bidirectional data transmission.
 
-![Websocket 示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
+![WebSocket diagram](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
 
-WebSocket 的工作过程可以分为以下几个步骤：
+Quá trình hoạt động của WebSocket có thể chia thành các bước sau:
 
-1. 客户端向服务器发送一个 HTTP 请求，请求头中包含 `Upgrade: websocket` 和 `Sec-WebSocket-Key` 等字段，表示要求升级协议为 WebSocket；
-2. 服务器收到这个请求后，会进行升级协议的操作，如果支持 WebSocket，它将回复一个 HTTP 101 状态码，响应头中包含 ，`Connection: Upgrade`和 `Sec-WebSocket-Accept: xxx` 等字段、表示成功升级到 WebSocket 协议。
-3. 客户端和服务器之间建立了一个 WebSocket 连接，可以进行双向的数据传输。数据以帧（frames）的形式进行传送，而不是传统的 HTTP 请求和响应。WebSocket 的每条消息可能会被切分成多个数据帧（最小单位）。发送端会将消息切割成多个帧发送给接收端，接收端接收消息帧，并将关联的帧重新组装成完整的消息。
-4. 客户端或服务器可以主动发送一个关闭帧，表示要断开连接。另一方收到后，也会回复一个关闭帧，然后双方关闭 TCP 连接。
+1. Client gửi HTTP request đến server, request header chứa các field như `Upgrade: websocket` và `Sec-WebSocket-Key`, yêu cầu upgrade protocol lên WebSocket.
+2. Sau khi server nhận request này, sẽ thực hiện upgrade protocol. Nếu hỗ trợ WebSocket, sẽ reply HTTP status code 101. Response header chứa các field như `Connection: Upgrade` và `Sec-WebSocket-Accept: xxx`, cho biết đã upgrade thành công lên WebSocket protocol.
+3. Client và server thiết lập WebSocket connection, có thể tiến hành bidirectional data transmission. Data được truyền dưới dạng frames (chứ không phải HTTP request và response truyền thống). Mỗi WebSocket message có thể được chia thành nhiều data frames (minimum unit). Sender sẽ chia message thành nhiều frame gửi đến receiver. Receiver nhận message frames và reassemble các frame liên quan thành complete message.
+4. Client hoặc server có thể chủ động gửi close frame để ngắt kết nối. Sau khi phía còn lại nhận được, cũng reply close frame, rồi cả hai đóng TCP connection.
 
-另外，建立 WebSocket 连接之后，通过心跳机制来保持 WebSocket 连接的稳定性和活跃性。
+Ngoài ra, sau khi thiết lập WebSocket connection, cần dùng heartbeat mechanism để duy trì sự ổn định và hoạt động của WebSocket connection.
 
-SpringBoot 整合 WebSocket，先引入 WebSocket 相关的工具包，和 SSE 相比有额外的开发成本。
+Integrate WebSocket trong SpringBoot, trước tiên import WebSocket related toolkit. So với SSE có development cost thêm.
 
 ```xml
-<!-- 引入websocket -->
+<!-- Import websocket -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-websocket</artifactId>
 </dependency>
 ```
 
-服务端使用`@ServerEndpoint`注解标注当前类为一个 WebSocket 服务器，客户端可以通过`ws://localhost:7777/webSocket/10086`来连接到 WebSocket 服务器端。
+Server side dùng annotation `@ServerEndpoint` để đánh dấu class hiện tại là WebSocket server. Client có thể kết nối đến WebSocket server qua `ws://localhost:7777/webSocket/10086`.
 
 ```java
 @Component
 @Slf4j
 @ServerEndpoint("/websocket/{userId}")
 public class WebSocketServer {
-    //与某个客户端的连接会话，需要通过它来给客户端发送数据
+    // Connection session với một client cụ thể, cần dùng nó để gửi data cho client
     private Session session;
     private static final CopyOnWriteArraySet<WebSocketServer> webSockets = new CopyOnWriteArraySet<>();
-    // 用来存在线连接数
+    // Lưu online connection count
     private static final Map<String, Session> sessionPool = new HashMap<String, Session>();
     /**
-     * 链接成功调用的方法
+     * Method được gọi khi link thành công
      */
     @OnOpen
     public void onOpen(Session session, @PathParam(value = "userId") String userId) {
@@ -344,25 +342,25 @@ public class WebSocketServer {
             this.session = session;
             webSockets.add(this);
             sessionPool.put(userId, session);
-            log.info("websocket消息: 有新的连接，总数为:" + webSockets.size());
+            log.info("websocket message: New connection, total: " + webSockets.size());
         } catch (Exception e) {
         }
     }
     /**
-     * 收到客户端消息后调用的方法
+     * Method được gọi khi nhận được message từ client
      */
     @OnMessage
     public void onMessage(String message) {
-        log.info("websocket消息: 收到客户端消息:" + message);
+        log.info("websocket message: Received client message: " + message);
     }
     /**
-     * 此为单点消息
+     * Single-point message
      */
     public void sendOneMessage(String userId, String message) {
         Session session = sessionPool.get(userId);
         if (session != null && session.isOpen()) {
             try {
-                log.info("websocket消: 单点消息:" + message);
+                log.info("websocket message: Single-point message: " + message);
                 session.getAsyncRemote().sendText(message);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -372,14 +370,14 @@ public class WebSocketServer {
 }
 ```
 
-服务端还需要注入`ServerEndpointerExporter`，这个 Bean 就会自动注册使用了`@ServerEndpoint`注解的 WebSocket 服务器。
+Server side cũng cần inject `ServerEndpointExporter` — Bean này sẽ tự động register WebSocket server dùng annotation `@ServerEndpoint`.
 
 ```java
 @Configuration
 public class WebSocketConfiguration {
 
     /**
-     * 用于注册使用了 @ServerEndpoint 注解的 WebSocket 服务器
+     * Dùng để register WebSocket server đã dùng @ServerEndpoint annotation
      */
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
@@ -388,32 +386,32 @@ public class WebSocketConfiguration {
 }
 ```
 
-前端初始化打开 WebSocket 连接，并监听连接状态，接收服务端数据或向服务端发送数据。
+Frontend khởi tạo mở WebSocket connection và monitor connection status, nhận data từ server hoặc gửi data đến server.
 
 ```javascript
 <script>
     var ws = new WebSocket('ws://localhost:7777/webSocket/10086');
-    // 获取连接状态
-    console.log('ws连接状态：' + ws.readyState);
-    //监听是否连接成功
+    // Get connection status
+    console.log('WebSocket connection status: ' + ws.readyState);
+    // Monitor whether connection successful
     ws.onopen = function () {
-        console.log('ws连接状态：' + ws.readyState);
-        //连接成功则发送一个数据
+        console.log('WebSocket connection status: ' + ws.readyState);
+        // After successful connection, send some data
         ws.send('test1');
     }
-    // 接听服务器发回的信息并处理展示
+    // Receive and display info sent back from server
     ws.onmessage = function (data) {
-        console.log('接收到来自服务器的消息：');
+        console.log('Received message from server:');
         console.log(data);
-        //完成通信后关闭WebSocket连接
+        // Close WebSocket connection after communication complete
         ws.close();
     }
-    // 监听连接关闭事件
+    // Monitor connection close event
     ws.onclose = function () {
-        // 监听整个过程中websocket的状态
-        console.log('ws连接状态：' + ws.readyState);
+        // Monitor WebSocket status throughout the process
+        console.log('WebSocket connection status: ' + ws.readyState);
     }
-    // 监听并处理error事件
+    // Monitor and handle error event
     ws.onerror = function (error) {
         console.log(error);
     }
@@ -431,46 +429,46 @@ public class WebSocketConfiguration {
 </script>
 ```
 
-页面初始化建立 WebSocket 连接，之后就可以进行双向通信了，效果还不错。
+Page khởi tạo thiết lập WebSocket connection, sau đó có thể bidirectional communicate — hiệu quả khá tốt.
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192395.png)
 
 ### MQTT
 
-**什么是 MQTT 协议？**
+**MQTT protocol là gì?**
 
-MQTT (Message Queue Telemetry Transport)是一种基于发布/订阅（publish/subscribe）模式的轻量级通讯协议，通过订阅相应的主题来获取消息，是物联网（Internet of Thing）中的一个标准传输协议。
+MQTT (Message Queue Telemetry Transport) là lightweight communication protocol dựa trên publish/subscribe mode, lấy message thông qua subscribing các topic tương ứng. Đây là standard transmission protocol trong IoT (Internet of Things).
 
-该协议将消息的发布者（publisher）与订阅者（subscriber）进行分离，因此可以在不可靠的网络环境中，为远程连接的设备提供可靠的消息服务，使用方式与传统的 MQ 有点类似。
+Protocol này tách biệt publisher và subscriber, do đó có thể cung cấp reliable message service cho remote connected devices trong unreliable network environment. Cách dùng hơi giống MQ truyền thống.
 
-![MQTT 协议示例](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000022986325.png)
+![MQTT protocol example](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000022986325.png)
 
-TCP 协议位于传输层，MQTT 协议位于应用层，MQTT 协议构建于 TCP/IP 协议上，也就是说只要支持 TCP/IP 协议栈的地方，都可以使用 MQTT 协议。
+TCP protocol nằm ở transport layer, MQTT protocol nằm ở application layer. MQTT protocol được xây dựng trên TCP/IP protocol — tức là bất cứ nơi nào hỗ trợ TCP/IP protocol stack đều có thể dùng MQTT protocol.
 
-**为什么要用 MQTT 协议？**
+**Tại sao dùng MQTT protocol?**
 
-MQTT 协议为什么在物联网（IOT）中如此受偏爱？而不是其它协议，比如我们更为熟悉的 HTTP 协议呢？
+Tại sao MQTT protocol lại được ưa chuộng đến vậy trong IoT mà không phải protocol khác, ví dụ HTTP protocol quen thuộc hơn?
 
-- 首先 HTTP 协议它是一种同步协议，客户端请求后需要等待服务器的响应。而在物联网（IOT）环境中，设备会很受制于环境的影响，比如带宽低、网络延迟高、网络通信不稳定等，显然异步消息协议更为适合 IOT 应用程序。
-- HTTP 是单向的，如果要获取消息客户端必须发起连接，而在物联网（IOT）应用程序中，设备或传感器往往都是客户端，这意味着它们无法被动地接收来自网络的命令。
-- 通常需要将一条命令或者消息，发送到网络上的所有设备上。HTTP 要实现这样的功能不但很困难，而且成本极高。
+- Đầu tiên HTTP protocol là synchronous protocol — client request xong phải chờ response của server. Trong môi trường IoT, device bị ảnh hưởng nhiều bởi môi trường như bandwidth thấp, network latency cao, network communication không ổn định. Rõ ràng async message protocol phù hợp hơn cho IoT application.
+- HTTP là one-way. Nếu muốn lấy message, client phải tự initiate connection. Trong IoT application, device hoặc sensor thường là client, có nghĩa là chúng không thể bị động nhận command từ network.
+- Thường cần gửi một command hoặc message đến tất cả device trên network. HTTP triển khai tính năng như vậy không chỉ rất khó mà chi phí cũng rất cao.
 
-具体的 MQTT 协议介绍和实践，这里我就不再赘述了，大家可以参考我之前的两篇文章，里边写的也都很详细了。
+Chi tiết về MQTT protocol introduction và practice, ở đây tôi không lặp lại nữa. Mọi người có thể tham khảo hai bài tôi viết trước, bên trong cũng viết khá chi tiết.
 
-- MQTT 协议的介绍：[我也没想到 SpringBoot + RabbitMQ 做智能家居，会这么简单](https://mp.weixin.qq.com/s/udFE6k9pPetIWsa6KeErrA)
-- MQTT 实现消息推送：[未读消息（小红点），前端 与 RabbitMQ 实时消息推送实践，贼简单~](https://mp.weixin.qq.com/s/U-fUGr9i1MVa4PoVyiDFCg)
+- MQTT protocol introduction: [SpringBoot + RabbitMQ cho smart home, thật ra đơn giản vậy](https://mp.weixin.qq.com/s/udFE6k9pPetIWsa6KeErrA)
+- MQTT triển khai message push: [Unread messages (red dot), frontend và RabbitMQ real-time message push practice — cực đơn giản](https://mp.weixin.qq.com/s/U-fUGr9i1MVa4PoVyiDFCg)
 
-## 总结
+## Tổng kết
 
-> 以下内容为 JavaGuide 补充
+> Nội dung dưới đây do JavaGuide bổ sung
 
-|           | 介绍                                                                                                          | 优点                   | 缺点                                                 |
-| --------- | ------------------------------------------------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------- |
-| 短轮询    | 客户端定时向服务端发送请求，服务端直接返回响应数据（即使没有数据更新）                                        | 简单、易理解、易实现   | 实时性太差，无效请求太多，频繁建立连接太耗费资源     |
-| 长轮询    | 与短轮询不同是，长轮询接收到客户端请求之后等到有数据更新才返回请求                                            | 减少了无效请求         | 挂起请求会导致资源浪费                               |
-| iframe 流 | 服务端和客户端之间创建一条长连接，服务端持续向`iframe`传输数据。                                              | 简单、易理解、易实现   | 维护一个长连接会增加开销，效果太差（图标会不停旋转） |
-| SSE       | 一种服务器端到客户端(浏览器)的单向消息推送。                                                                  | 简单、易实现，功能丰富 | 不支持双向通信                                       |
-| WebSocket | 除了最初建立连接时用 HTTP 协议，其他时候都是直接基于 TCP 协议进行通信的，可以实现客户端和服务端的全双工通信。 | 性能高、开销小         | 对开发人员要求更高，实现相对复杂一些                 |
-| MQTT      | 基于发布/订阅（publish/subscribe）模式的轻量级通讯协议，通过订阅相应的主题来获取消息。                        | 成熟稳定，轻量级       | 对开发人员要求更高，实现相对复杂一些                 |
+|               | Giới thiệu                                                                                                                                                                            | Ưu điểm                                      | Nhược điểm                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------- |
+| Short Polling | Client định kỳ gửi request đến server, server trả về response data ngay (dù không có data update)                                                                                     | Đơn giản, dễ hiểu, dễ triển khai             | Real-time kém, quá nhiều invalid request, kết nối liên tục tốn nhiều resource     |
+| Long Polling  | Khác với short polling, long polling sau khi nhận request từ client đợi đến khi có data update mới trả về                                                                             | Giảm invalid request                         | Treo request gây lãng phí resource                                                |
+| iframe Stream | Server và client tạo long connection, server liên tục truyền data đến `iframe`                                                                                                        | Đơn giản, dễ hiểu, dễ triển khai             | Duy trì long connection tăng overhead, hiệu quả kém (biểu tượng xoay không ngừng) |
+| SSE           | One-way message push từ server side đến client (browser)                                                                                                                              | Đơn giản, dễ triển khai, tính năng phong phú | Không hỗ trợ bidirectional communication                                          |
+| WebSocket     | Ngoài lần đầu thiết lập connection dùng HTTP protocol, các lần khác đều trực tiếp dùng TCP protocol để communicate. Có thể triển khai full-duplex communication giữa client và server | Hiệu năng cao, overhead nhỏ                  | Yêu cầu developer cao hơn, triển khai tương đối phức tạp hơn                      |
+| MQTT          | Lightweight communication protocol dựa trên publish/subscribe mode, lấy message thông qua subscribing topic tương ứng                                                                 | Mature and stable, lightweight               | Yêu cầu developer cao hơn, triển khai tương đối phức tạp hơn                      |
 
 <!-- @include: @article-footer.snippet.md -->

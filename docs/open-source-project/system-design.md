@@ -1,252 +1,252 @@
 ---
-title: Java 优质开源系统设计项目
-description: Java优质开源系统设计项目推荐，涵盖Web框架、微服务、消息队列、搜索引擎、数据库等基础架构组件精选。
-category: 开源项目
+title: Java open source system design projects chất lượng
+description: Gợi ý các Java open source system design projects chất lượng, tuyển chọn các infrastructure components như Web framework, microservices, message queue, search engine, database.
+category: Open Source Projects
 icon: "xitongsheji"
 ---
 
-## 基础框架
+## Base Frameworks
 
-### Web 框架
+### Web Frameworks
 
-- [Spring Boot](https://github.com/spring-projects/spring-boot "spring-boot")：Spring Boot 可以轻松创建独立的生产级基于 Spring 的应用程序，内置 web 服务器让你可以像运行普通 Java 程序一样运行项 目。另外，大部分 Spring Boot 项目只需要少量的配置即可，这有别于 Spring 的重配置。
-- [SOFABoot](https://github.com/sofastack/sofa-boot)：SOFABoot 基于 Spring Boot ，不过在其基础上增加了 Readiness Check，类隔离，日志空间隔离等等能力。 配套提供的还有：SOFARPC（RPC 框架）、SOFABolt（基于 Netty 的远程通信框架）、SOFARegistry（注册中心）...详情请参考：[SOFAStack](https://github.com/sofastack) 。
-- [Solon](https://gitee.com/opensolon/solon)：国产面向全场景的 Java 企业级应用开发框架。
-- [Javalin](https://github.com/tipsy/javalin)：一个轻量级的 Web 框架，同时支持 Java 和 Kotlin，被微软、红帽、Uber 等公司使用。
-- [Play Framework](https://github.com/playframework/playframework)：面向 Java 和 Scala 的高速 Web 框架。
-- [Blade](https://github.com/lets-blade/blade)：一款追求简约、高效的 Web 框架，基于 Java8 + Netty4。
+- [Spring Boot](https://github.com/spring-projects/spring-boot "spring-boot"): Spring Boot có thể dễ dàng tạo standalone production-grade Spring-based applications với built-in web servers để chạy như Java programs thông thường. Ngoài ra, phần lớn Spring Boot projects chỉ cần ít configuration — khác với Spring's heavy configuration.
+- [SOFABoot](https://github.com/sofastack/sofa-boot): SOFABoot dựa trên Spring Boot, nhưng bổ sung thêm Readiness Check, class isolation, log space isolation và các capabilities khác. Đi kèm: SOFARPC (RPC framework), SOFABolt (Netty-based remote communication framework), SOFARegistry (registry center)... Chi tiết: [SOFAStack](https://github.com/sofastack).
+- [Solon](https://gitee.com/opensolon/solon): Domestic full-scenario Java enterprise application development framework.
+- [Javalin](https://github.com/tipsy/javalin): Lightweight Web framework hỗ trợ cả Java và Kotlin, được Microsoft, Red Hat, Uber sử dụng.
+- [Play Framework](https://github.com/playframework/playframework): High-speed Web framework cho Java và Scala.
+- [Blade](https://github.com/lets-blade/blade): Web framework theo đuổi simplicity và efficiency, based on Java8 + Netty4.
 
-### 微服务/云原生
+### Microservices/Cloud Native
 
-- [Armeria](https://github.com/line/armeria)：适合任何情况的微服务框架。你可以用你喜欢的技术构建任何类型的微服务，包括[gRPC](https://grpc.io/)、 [Thrift](https://thrift.apache.org/)、[Kotlin](https://kotlinlang.org/)、 [Retrofit](https://square.github.io/retrofit/)、[Reactive Streams](https://www.reactive-streams.org/)、 [Spring Boot](https://spring.io/projects/spring-boot)和[Dropwizard](https://www.dropwizard.io/)
-- [Quarkus](https://github.com/quarkusio/quarkus) : 用于编写 Java 应用程序的云原生和容器优先的框架。
-- [Helidon](https://github.com/helidon-io/helidon)：一组用于编写微服务的 Java 库，支持 Helidon MP 和 Helidon SE 两种编程模型。
+- [Armeria](https://github.com/line/armeria): Microservices framework cho mọi trường hợp. Có thể build bất kỳ loại microservice nào với công nghệ bạn thích, bao gồm gRPC, Thrift, Kotlin, Retrofit, Reactive Streams, Spring Boot và Dropwizard.
+- [Quarkus](https://github.com/quarkusio/quarkus): Cloud-native và container-first framework để viết Java applications.
+- [Helidon](https://github.com/helidon-io/helidon): Bộ Java libraries để viết microservices, hỗ trợ Helidon MP và Helidon SE hai programming models.
 
-### API 文档
+### API Documentation
 
-- [Swagger](https://swagger.io/) ：较主流的 RESTful 风格的 API 文档工具，提供了一套工具和规范，让开发人员能够更轻松地创建和维护可读性强、易于使用和交互的 API 文档。
-- [Knife4j](https://doc.xiaominfo.com/)：集 Swagger2 和 OpenAPI3 为一体的增强解决方案。
+- [Swagger](https://swagger.io/): RESTful API documentation tool phổ biến, cung cấp một bộ tools và specs giúp developers dễ dàng create và maintain readable, easy-to-use và interactive API docs.
+- [Knife4j](https://doc.xiaominfo.com/): Enhanced solution tích hợp cả Swagger2 và OpenAPI3.
 
-### Bean 映射
+### Bean Mapping
 
-- [MapStruct](https://github.com/mapstruct/mapstruct)（推荐）：满足 JSR269 规范的一个 Java 注解处理器，用于为 Java Bean 生成类型安全且高性能的映射。它基于编译阶段生成 get/set 代码，此实现过程中没有反射，不会造成额外的性能损失。
-- [MapStruct Plus](https://github.com/linpeilie/mapstruct-plus)：MapStruct 增强版本，支持自动生成 Mapper 接口。
-- [JMapper](https://github.com/jmapper-framework/jmapper-core) : 一个高性能且易于使用的 Bean 映射框架。
+- [MapStruct](https://github.com/mapstruct/mapstruct) (Recommended): Java annotation processor thỏa mãn JSR269 spec để generate type-safe và high-performance mappings cho Java Beans. Based on compile-time get/set code generation, no reflection, no extra performance overhead.
+- [MapStruct Plus](https://github.com/linpeilie/mapstruct-plus): Enhanced version của MapStruct, hỗ trợ auto-generating Mapper interfaces.
+- [JMapper](https://github.com/jmapper-framework/jmapper-core): High-performance và easy-to-use Bean mapping framework.
 
-### 其他
+### Other
 
-- [Guice](https://github.com/google/guice)：Google 开源的一个轻量级依赖注入框架，相当于一个功能极简化的轻量级 Spring Boot。在某些情况下非常实用，就比如说我们的项目只需要使用依赖注入，不需要 AOP 等功能特性。
-- [Spring Batch](https://github.com/spring-projects/spring-batch) : Spring Batch 是一个轻量级但功能又十分全面的批处理框架，主要用于批处理场景比如从数据库、文件或队列中读取大量记录。不过，需要注意的是：Spring Batch 不是调度框架。商业和开源领域都有许多优秀的企业调度框架比如 Quartz、XXL-JOB、Elastic-Job。它旨在与调度程序一起工作，而不是取代调度程序。
+- [Guice](https://github.com/google/guice): Lightweight dependency injection framework mã nguồn mở của Google, tương đương lightweight Spring Boot với minimal features. Rất hữu dụng trong một số trường hợp khi project chỉ cần dependency injection mà không cần AOP.
+- [Spring Batch](https://github.com/spring-projects/spring-batch): Lightweight but comprehensive batch processing framework, primarily for batch processing scenarios like reading large volumes of records from database, file, or queue. Note: Spring Batch is NOT a scheduling framework. Works alongside schedulers like Quartz, XXL-JOB, Elastic-Job.
 
-## 认证授权
+## Authentication & Authorization
 
-### 权限认证
+### Permission Authentication
 
-- [Sa-Token](https://github.com/dromara/sa-token)：轻量级 Java 权限认证框架。支持认证授权、单点登录、踢人下线、自动续签等功能。相比于 Spring Security 和 Shiro 来说，Sa-Token 内置的开箱即用的功能更多，使用也更简单。
-- [Spring Security](https://github.com/spring-projects/spring-security)：Spring 官方安全框架，能够用于身份验证、授权、加密和会话管理，是目前使用最广泛的 Java 安全框架。
-- [Shiro](https://github.com/apache/shiro)：Java 安全框架，功能和 Spring Security 类似，但使用起来更简单。
+- [Sa-Token](https://github.com/dromara/sa-token): Lightweight Java permission authentication framework. Hỗ trợ authentication, authorization, SSO, kick-out, auto-renewal và các features. Compared to Spring Security và Shiro, Sa-Token has more built-in out-of-the-box features và simpler to use.
+- [Spring Security](https://github.com/spring-projects/spring-security): Spring official security framework capable of authentication, authorization, encryption và session management. Most widely used Java security framework currently.
+- [Shiro](https://github.com/apache/shiro): Java security framework with similar functionality to Spring Security but simpler to use.
 
-### 第三方登录
+### Third-party Login
 
-- [WxJava](https://github.com/Wechat-Group/WxJava) : WxJava （微信开发 Java SDK），支持包括微信支付、开放平台、小程序、企业微信/企业号和公众号等的后端开发。
-- [JustAuth](https://github.com/justauth/JustAuth)：小而全而美的第三方登录开源组件。目前已经集成了诸如：GitHub、Gitee、支付宝、新浪微博、微信、Google、Facebook、Twitter、StackOverflow 等国内外数十家第三方平台。
+- [WxJava](https://github.com/Wechat-Group/WxJava): WxJava (WeChat Java SDK), hỗ trợ WeChat Pay, Open Platform, Mini Programs, Enterprise WeChat/WeChat Work và Official Account backend development.
+- [JustAuth](https://github.com/justauth/JustAuth): Small but comprehensive and beautiful third-party login open source component. Currently integrates dozens of third-party platforms domestically and internationally including GitHub, Gitee, Alipay, Sina Weibo, WeChat, Google, Facebook, Twitter, StackOverflow.
 
-### 单点登录（SSO）
+### Single Sign-On (SSO)
 
-- [CAS](https://github.com/apereo/cas)：企业多语言网络单点登录解决方案。
-- [MaxKey](https://gitee.com/dromara/MaxKey)：单点登录认证系统，提供安全、标准和开放的用户身份管理(IDM)、身份认证(AM)、单点登录(SSO)、RBAC 权限管理和资源管理等。
-- [Keycloak](https://github.com/keycloak/keycloak)：免费、开源身份认证和访问管理系统，支持高度可配置的单点登录功能。
+- [CAS](https://github.com/apereo/cas): Enterprise multi-language web SSO solution.
+- [MaxKey](https://gitee.com/dromara/MaxKey): SSO authentication system providing secure, standard and open user identity management (IDM), identity authentication (AM), SSO, RBAC permission management và resource management.
+- [Keycloak](https://github.com/keycloak/keycloak): Free, open source identity authentication và access management system with highly configurable SSO.
 
-## 网络通讯
+## Network Communication
 
-- [Netty](https://github.com/netty/netty) : 一个基于 NIO 的 client-server(客户端服务器)框架，使用它可以快速简单地开发网络应用程序。
-- [Retrofit](https://github.com/square/retrofit)：适用于 Android 和 Java 的类型安全的 HTTP 客户端。Retrofit 的 HTTP 请求使用的是 [OkHttp](https://square.github.io/okhttp/) 库（一款被广泛使用网络框架）。
-- [Forest](https://gitee.com/dromara/forest)：轻量级 HTTP 客户端 API 框架，让 Java 发送 HTTP/HTTPS 请求不再难。它比 OkHttp 和 HttpClient 更高层，是封装调用第三方 restful api client 接口的好帮手，是 retrofit 和 feign 之外另一个选择。
-- [netty-websocket-spring-boot-starter](https://github.com/YeautyYE/netty-websocket-spring-boot-starter) :帮助你在 Spring Boot 中使用 Netty 来开发 WebSocket 服务器，并像 spring-websocket 的注解开发一样简单。
+- [Netty](https://github.com/netty/netty): NIO-based client-server framework for quickly and simply developing network applications.
+- [Retrofit](https://github.com/square/retrofit): Type-safe HTTP client for Android và Java. Uses OkHttp library for HTTP requests.
+- [Forest](https://gitee.com/dromara/forest): Lightweight HTTP client API framework making it easy for Java to send HTTP/HTTPS requests. Higher level than OkHttp và HttpClient, great for calling third-party RESTful API client interfaces.
+- [netty-websocket-spring-boot-starter](https://github.com/YeautyYE/netty-websocket-spring-boot-starter): Helps use Netty to develop WebSocket server in Spring Boot, as simple as spring-websocket annotation development.
 
-## 数据库
+## Database
 
-### 数据库连接池
+### Database Connection Pools
 
-- [Druid](https://github.com/alibaba/druid) : 阿里巴巴数据库事业部出品，为监控而生的数据库连接池。
-- [HikariCP](https://github.com/brettwooldridge/HikariCP) : 一个可靠的高性能 JDBC 连接池。Springboot 2.0 选择 HikariCP 作为默认数据库连接池。
+- [Druid](https://github.com/alibaba/druid): Alibaba Database division product, database connection pool born for monitoring.
+- [HikariCP](https://github.com/brettwooldridge/HikariCP): Reliable high-performance JDBC connection pool. SpringBoot 2.0 chose HikariCP as default DB connection pool.
 
-### 数据库框架
+### Database Frameworks
 
-- [MyBatis-Plus](https://github.com/baomidou/mybatis-plus) : [MyBatis](http://www.mybatis.org/mybatis-3/) 增强工具，在 MyBatis 的基础上只做增强不做改变，为简化开发、提高效率而生。
-- [MyBatis-Flex](https://gitee.com/mybatis-flex/mybatis-flex)：一个优雅的 MyBatis 增强框架，无其他任何第三方依赖，支持 CRUD、分页查询、多表查询、批量操作。
-- [jOOQ](https://github.com/jOOQ/jOOQ)：用 Java 编写 SQL 的最佳方式。
-- [Redisson](https://github.com/redisson/redisson "redisson")：Redisson 是一款架设在 Redis 基础之上的 Java 驻内存数据网格 (In-Memory Data Grid)，它充分利用了 Redis 键值数据库的优势，为 Java 开发者提供了一系列具有分布式特性的常用工具类。例如，分布式 Java 对象（`Set`，`SortedSet`，`Map`，`List`，`Queue`，`Deque` 等）、分布式锁等。详细介绍请看：[Redisson 项目介绍](https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D "Redisson项目介绍")。
+- [MyBatis-Plus](https://github.com/baomidou/mybatis-plus): MyBatis enhancement tool. Only enhances, doesn't change. Simplifies development and improves efficiency.
+- [MyBatis-Flex](https://gitee.com/mybatis-flex/mybatis-flex): Elegant MyBatis enhancement framework with no other third-party dependencies. Supports CRUD, paginated queries, multi-table queries, batch operations.
+- [jOOQ](https://github.com/jOOQ/jOOQ): Best way to write SQL in Java.
+- [Redisson](https://github.com/redisson/redisson "redisson"): Java In-Memory Data Grid built on top of Redis. Fully utilizes Redis key-value DB advantages to provide a series of distributed utility classes for Java developers. For example, distributed Java objects (Set, SortedSet, Map, List, Queue, Deque, etc.), distributed locks, etc.
 
-### 数据同步
+### Data Sync
 
-- [Canal](https://github.com/alibaba/canal "canal") [kə'næl] : Canal 译意为水道/管道/沟渠，主要用途是基于 MySQL 数据库增量日志解析，提供增量数据订阅和消费。
-- [DataX](https://github.com/alibaba/DataX "DataX")：DataX 是阿里巴巴集团内被广泛使用的离线数据同步工具/平台，实现包括 MySQL、Oracle、SqlServer、Postgre、HDFS、Hive、ADS、HBase、TableStore(OTS)、MaxCompute(ODPS)、DRDS 等各种异构数据源之间高效的数据同步功能。相关项目：[DataX-Web](https://github.com/WeiYe-Jing/datax-web) （DataX 集成可视化页面，选择数据源即可一键生成数据同步任务）。
+- [Canal](https://github.com/alibaba/canal "canal"): Canal translates to canal/pipeline/ditch. Primarily based on MySQL incremental log parsing to provide incremental data subscription and consumption.
+- [DataX](https://github.com/alibaba/DataX "DataX"): Alibaba's widely-used offline data sync tool/platform. Enables efficient data sync between various heterogeneous data sources including MySQL, Oracle, SqlServer, PostgreSQL, HDFS, Hive, HBase, etc. Related: [DataX-Web](https://github.com/WeiYe-Jing/datax-web) (integrated visualization page for one-click data sync tasks).
 
-其他：[Flinkx](https://github.com/DTStack/flinkx) （基于 Flink 的分布式数据同步工具）。
+Other: [Flinkx](https://github.com/DTStack/flinkx) (Flink-based distributed data sync tool).
 
-### 时序数据库
+### Time Series Databases
 
-- [IoTDB](https://github.com/apache/iotdb)：一款 Java 语言编写的国产时序数据库，为用户提供数据收集、存储和分析等服务。与 Hadoop、Spark 和可视化工具(如 Grafana)无缝集成，满足了工业 IoT 领域中海量数据存储、高吞吐量数据写入和复杂数据查询分析的需求。
-- [KairosDB](https://github.com/kairosdb/kairosdb)：一个基于 Cassandra 的快速分布式可扩展时间序列数据库。
+- [IoTDB](https://github.com/apache/iotdb): Domestic time series database written in Java providing data collection, storage and analysis services. Seamlessly integrates with Hadoop, Spark and visualization tools (like Grafana).
+- [KairosDB](https://github.com/kairosdb/kairosdb): Fast distributed scalable time series database based on Cassandra.
 
-## 搜索引擎
+## Search Engines
 
-- [Elasticsearch](https://github.com/elastic/elasticsearch "elasticsearch") （推荐）：开源，分布式，RESTful 搜索引擎。
-- [Meilisearch](https://github.com/meilisearch/meilisearch)：一个功能强大、快速、开源、易于使用和部署的搜索引擎，支持中文搜索（不需要添加额外的配置）。
-- [Solr](https://lucene.apache.org/solr/) : Solr（读作“solar”）是 Apache Lucene 项目的开源企业搜索平台。
-- [Easy-ES](https://gitee.com/dromara/easy-es)：傻瓜级 ElasticSearch 搜索引擎 ORM 框架。
+- [Elasticsearch](https://github.com/elastic/elasticsearch "elasticsearch") (Recommended): Open source, distributed, RESTful search engine.
+- [Meilisearch](https://github.com/meilisearch/meilisearch): Powerful, fast, open source, easy-to-use and deploy search engine with Chinese search support.
+- [Solr](https://lucene.apache.org/solr/): Apache Lucene project's open source enterprise search platform.
+- [Easy-ES](https://gitee.com/dromara/easy-es): Fool-proof ElasticSearch ORM framework.
 
-## 测试
+## Testing
 
-### 测试框架
+### Testing Frameworks
 
-- [JUnit](http://junit.org/) : Java 测试框架。
-- [Mockito](https://github.com/mockito/mockito)：Mockito 是一个模拟测试框架，可以让你用优雅，简洁的接口写出漂亮的单元测试。（对那些不容易构建的对象用一个虚拟对象来代替，使其在调试期间用来作为真实对象的替代品）
-- [PowerMock](https://github.com/powermock/powermock)：编写单元测试仅靠 Mockito 是不够。因为 Mockito 无法 mock 私有方法、final 方法及静态方法等。PowerMock 这个 framework，主要是为了扩展其他 mock 框架，如 Mockito、EasyMock。它使用一个自定义的类加载器，纂改字节码，突破 Mockito 无法 mock 静态方法、构造方法、final 类、final 方法以及私有方法的限制。
-- [WireMock](https://github.com/tomakehurst/wiremock)：模拟 HTTP 服务的工具（Mock your APIs）。
-- [Testcontainers](https://github.com/testcontainers/testcontainers-java)：一个支持 JUnit 的测试工具库，提供轻量级的且一次性的常见数据库测试支持、Selenium Web 浏览器或者其他任何可以在 Docker 容器中运行的实例支持。
+- [JUnit](http://junit.org/): Java testing framework.
+- [Mockito](https://github.com/mockito/mockito): Mock testing framework for writing beautiful unit tests with elegant, simple interfaces.
+- [PowerMock](https://github.com/powermock/powermock): Extends Mockito to mock private methods, final methods and static methods that Mockito can't handle.
+- [WireMock](https://github.com/tomakehurst/wiremock): Tool for mocking HTTP services.
+- [Testcontainers](https://github.com/testcontainers/testcontainers-java): JUnit-supporting test library providing lightweight and disposable common database testing support, Selenium Web browser, or anything that can run in a Docker container.
 
-相关阅读：
+Related reading:
 
-- [The Practical Test Pyramid- Martin Fowler](https://martinfowler.com/articles/practical-test-pyramid.html) (很赞的一篇文章，不过是英文的)
-- [浅谈测试之 PowerMock](https://juejin.im/post/6844903982058618894)
+- [The Practical Test Pyramid - Martin Fowler](https://martinfowler.com/articles/practical-test-pyramid.html)
+- [Introduction to testing with PowerMock](https://juejin.im/post/6844903982058618894)
 
-### 测试平台
+### Test Platforms
 
-- [MeterSphere](https://github.com/metersphere/metersphere) : 一站式开源持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，全面兼容 JMeter、Postman、Swagger 等开源、主流标准。
-- [Apifox](https://www.apifox.cn/)：API 文档、API 调试、API Mock、API 自动化测试。
+- [MeterSphere](https://github.com/metersphere/metersphere): One-stop open source continuous testing platform covering test tracking, interface testing, performance testing, team collaboration. Fully compatible with JMeter, Postman, Swagger.
+- [Apifox](https://www.apifox.cn/): API documentation, API debugging, API Mock, API automation testing.
 
-### API 调试
+### API Debugging
 
-- [Reqable](https://reqable.com/zh-CN/)：新一代开源 API 开发工具。Reqable = Fiddler + Charles + Postman, 让 API 调试更快。
-- [Insomnia](https://insomnia.rest/) :像人类而不是机器人一样调试 API。我平时经常用的一款 API 开发工具，界面美观且轻量，总之很喜欢。
-- [RapidAPI](https://paw.cloud/)：一款功能齐全的 HTTP 客户端，但仅支持 Mac。
-- [Postcat](https://github.com/Postcatlab/postcat)：一个可扩展的开源 API 工具平台。
-- [Postman](https://www.getpostman.com/)：开发者最常用的 API 测试工具之一。
-- [Hoppscotch](https://github.com/liyasthomas/postwoman "postwoman")（原 Postwoman）：开源 API 测试工具。官方定位是 Postman、Insomnia 等产品的开源替代品。
-- [Restful Fast Request](https://gitee.com/dromara/fast-request)：IDEA 版 Postman，API 调试工具 + API 管理工具 + API 搜索工具。
+- [Reqable](https://reqable.com/): Next-gen open source API development tool. Reqable = Fiddler + Charles + Postman, makes API debugging faster.
+- [Insomnia](https://insomnia.rest/): Debug APIs like a human, not a machine. Beautiful and lightweight API development tool I use frequently.
+- [RapidAPI](https://paw.cloud/): Full-featured HTTP client, Mac only.
+- [Postcat](https://github.com/Postcatlab/postcat): Extensible open source API tool platform.
+- [Postman](https://www.getpostman.com/): One of the most commonly used API testing tools.
+- [Hoppscotch](https://github.com/liyasthomas/postwoman "postwoman") (formerly Postwoman): Open source API testing tool. Positioned as open source alternative to Postman, Insomnia.
+- [Restful Fast Request](https://gitee.com/dromara/fast-request): IDEA version of Postman — API debug tool + API management + API search.
 
-## 任务调度
+## Task Scheduling
 
-- [Quartz](https://github.com/quartz-scheduler/quartz)：一个很火的开源任务调度框架，Java 定时任务领域的老大哥或者说参考标准， 很多其他任务调度框架都是基于 `quartz` 开发的，比如当当网的`elastic-job`就是基于`quartz`二次开发之后的分布式调度解决方案
-- [XXL-JOB](https://github.com/xuxueli/xxl-job) :XXL-JOB 是一个分布式任务调度平台，其核心设计目标是开发迅速、学习简单、轻量级、易扩展。现已开放源代码并接入多家公司线上产品线，开箱即用。
-- [Elastic-Job](http://elasticjob.io/index_zh.html)：Elastic-Job 是当当网开源的一个基于 Quartz 和 Zookeeper 的分布式调度解决方案，由两个相互独立的子项目 Elastic-Job-Lite 和 Elastic-Job-Cloud 组成，一般我们只要使用 Elastic-Job-Lite 就好。
-- [EasyScheduler](https://github.com/analysys/EasyScheduler "EasyScheduler") （已经更名为 DolphinScheduler，已经成为 Apache 孵化器项目）：分布式易扩展的可视化工作流任务调度平台，主要解决“复杂任务依赖但无法直接监控任务健康状态”的问题。
-- [PowerJob](https://gitee.com/KFCFans/PowerJob)：新一代分布式任务调度与计算框架，支持 CRON、API、固定频率、固定延迟等调度策略，提供工作流来编排任务解决依赖关系，使用简单，功能强大，文档齐全，欢迎各位接入使用！<http://www.powerjob.tech/> 。
+- [Quartz](https://github.com/quartz-scheduler/quartz): Very popular open source task scheduling framework. The "big brother" of Java scheduled tasks, many other frameworks are based on it.
+- [XXL-JOB](https://github.com/xuxueli/xxl-job): Distributed task scheduling platform with core design goal of rapid development, simple learning, lightweight, easy extension.
+- [Elastic-Job](http://elasticjob.io/index_zh.html): Dangdang's open source distributed scheduling solution based on Quartz and ZooKeeper.
+- [EasyScheduler](https://github.com/analysys/EasyScheduler "EasyScheduler") (renamed to DolphinScheduler, now Apache incubator project): Distributed easily-scalable visual workflow task scheduling platform.
+- [PowerJob](https://gitee.com/KFCFans/PowerJob): New generation distributed task scheduling and computing framework, supports CRON, API, fixed frequency, fixed delay scheduling strategies.
 
-## 工作流
+## Workflow
 
-1. [Flowable](https://github.com/flowable/flowable-engine) ：Activiti5 的一个分支发展而来，功能丰富，在 Activiti 的基础上，引入了更多高级功能，如更强大的 CMMN（案例管理模型与符号）、DMN（决策模型与符号）支持，以及更灵活的集成选项。
-2. [Activiti](https://github.com/Activiti/Activiti)：功能扩展相对保守，适合需要稳定 BPMN 2.0 工作流引擎的传统企业应用。
-3. [Warm-Flow](https://gitee.com/dromara/warm-flow)：国产开源工作流引擎，其特点简洁轻量但又不简单，五脏俱全，组件独立，可扩展。
-4. [FlowLong](https://gitee.com/aizuda/flowlong)：国产开源工作流引擎，专门中国特色流程审批打造。
+1. [Flowable](https://github.com/flowable/flowable-engine): Branch of Activiti5, rich features. Introduces more advanced features including stronger CMMN, DMN support and more flexible integration options.
+2. [Activiti](https://github.com/Activiti/Activiti): Conservative function expansion, suitable for traditional enterprise apps needing stable BPMN 2.0 workflow engine.
+3. [Warm-Flow](https://gitee.com/dromara/warm-flow): Domestic open source workflow engine, simple and lightweight but not simple — fully-featured, independent components, extensible.
+4. [FlowLong](https://gitee.com/aizuda/flowlong): Domestic open source workflow engine, designed for Chinese-style process approvals.
 
-## 分布式
+## Distributed
 
-### API 网关
+### API Gateways
 
-- [Kong](https://github.com/Kong/kong "kong")：Kong 是一个云原生、快速的、可伸缩的分布式微服务抽象层(也称为 API 网关、API 中间件或在某些情况下称为服务网格)。2015 年作为开源项目发布，其核心价值是高性能和可扩展性。
-- [ShenYu](https://github.com/Dromara/soul "soul")：适用于所有微服务的可伸缩、高性能、响应性 API 网关解决方案。
-- [Spring Cloud Gateway](https://github.com/spring-cloud/spring-cloud-gateway) : 基于 Spring Framework 5.x 和 Spring Boot 2.x 构建的高性能网关。
-- [Zuul](https://github.com/Netflix/zuul) : Zuul 是一个 L7 应用程序网关，它提供了动态路由，监视，弹性，安全性等功能。
+- [Kong](https://github.com/Kong/kong "kong"): Cloud-native, fast, scalable distributed microservices abstraction layer. Released as open source in 2015, core values are high performance and scalability.
+- [ShenYu](https://github.com/Dromara/soul "soul"): Scalable, high-performance, reactive API gateway solution for all microservices.
+- [Spring Cloud Gateway](https://github.com/spring-cloud/spring-cloud-gateway): High-performance gateway built on Spring Framework 5.x and Spring Boot 2.x.
+- [Zuul](https://github.com/Netflix/zuul): L7 application gateway providing dynamic routing, monitoring, resiliency, security.
 
-### 配置中心
+### Config Centers
 
-- [Apollo](https://github.com/ctripcorp/apollo "apollo")（推荐）：Apollo（阿波罗）是携程框架部门研发的分布式配置中心，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性，适用于微服务配置管理场景。
-- [Nacos](https://github.com/alibaba/nacos)（推荐）：Nacos 是 Spring Cloud Alibaba 提供的服务注册发现组件，类似于 Consul、Eureka。并且，提供了分布式配置管理功能。
-- [Spring Cloud Config](https://github.com/spring-cloud/spring-cloud-config)：Spring Cloud Config 是 Spring Cloud 家族中最早的配置中心，虽然后来又发布了 Consul 可以代替配置中心功能，但是 Config 依然适用于 Spring Cloud 项目，通过简单的配置即可实现功能。
-- [Consul](https://github.com/hashicorp/consul)：Consul 是 HashiCorp 公司推出的开源软件，提供了微服务系统中的服务治理、配置中心、控制总线等功能。这些功能中的每一个都可以根据需要单独使用，也可以一起使用以构建全方位的服务网格，总之 Consul 提供了一种完整的服务网格解决方案。
+- [Apollo](https://github.com/ctripcorp/apollo "apollo") (Recommended): Distributed config center by Ctrip's framework team. Centrally manages configuration for different environments and clusters. Changes pushed to app in real-time.
+- [Nacos](https://github.com/alibaba/nacos) (Recommended): Spring Cloud Alibaba's service registration/discovery component. Also provides distributed config management.
+- [Spring Cloud Config](https://github.com/spring-cloud/spring-cloud-config): Spring Cloud's earliest config center, still suitable for Spring Cloud projects.
+- [Consul](https://github.com/hashicorp/consul): HashiCorp's open source software providing service governance, config center, control plane and other features for microservices systems.
 
-### 链路追踪
+### Distributed Tracing
 
-- [Skywalking](https://github.com/apache/skywalking "skywalking") : 针对分布式系统的应用性能监控，尤其是针对微服务、云原生和面向容器的分布式系统架构。
-- [Zipkin](https://github.com/openzipkin/zipkin "zipkin")：Zipkin 是一个分布式跟踪系统。它有助于收集解决服务体系结构中的延迟问题所需的时序数据。功能包括该数据的收集和查找。
-- [CAT](https://github.com/dianping/cat "cat")：CAT 作为服务端项目基础组件，提供了 Java, C/C++, Node.js, Python, Go 等多语言客户端，已经在美团点评的基础架构中间件框架（MVC 框架，RPC 框架，数据库框架，缓存框架等，消息队列，配置系统等）深度集成，为美团点评各业务线提供系统丰富的性能指标、健康状况、实时告警等。
+- [Skywalking](https://github.com/apache/skywalking "skywalking"): Application performance monitoring for distributed systems, especially microservices, cloud-native and container-oriented.
+- [Zipkin](https://github.com/openzipkin/zipkin "zipkin"): Distributed tracing system. Helps collect timing data needed to troubleshoot latency issues in service architectures.
+- [CAT](https://github.com/dianping/cat "cat"): Provides Java, C/C++, Node.js, Python, Go multi-language clients. Deeply integrated into Meituan Dianping's infrastructure middleware framework.
 
-相关阅读：[Skywalking 官网对于主流开源链路追踪系统的对比](https://skywalking.apache.org/zh/blog/2019-03-29-introduction-of-skywalking-and-simple-practice.html)
+Related: [Skywalking official comparison of mainstream distributed tracing systems](https://skywalking.apache.org/zh/blog/2019-03-29-introduction-of-skywalking-and-simple-practice.html)
 
-### 分布式锁
+### Distributed Locks
 
-- [Lock4j](https://gitee.com/baomidou/lock4j)：支持 Redisson、ZooKeeper 等不同方案的高性能分布式锁。
-- [Redisson](https://github.com/redisson/redisson "redisson")：Redisson 在分布式锁方面提供全面且强大的支持，超越了简单的 Redis 锁实现。
+- [Lock4j](https://gitee.com/baomidou/lock4j): High-performance distributed lock supporting different schemes like Redisson and ZooKeeper.
+- [Redisson](https://github.com/redisson/redisson "redisson"): Provides comprehensive and powerful distributed lock support beyond simple Redis lock implementations.
 
-## 高性能
+## High Performance
 
-### 多线程
+### Multi-threading
 
-- [Hippo4j](https://github.com/opengoofy/hippo4j)：异步线程池框架，支持线程池动态变更&监控&报警，无需修改代码轻松引入。支持多种使用模式，轻松引入，致力于提高系统运行保障能力。
-- [Dynamic Tp](https://github.com/dromara/dynamic-tp)：轻量级动态线程池，内置监控告警功能，集成三方中间件线程池管理，基于主流配置中心（已支持 Nacos、Apollo，Zookeeper、Consul、Etcd，可通过 SPI 自定义实现）。
-- [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) : 京东的一位大佬开源的多线程工具库，里面大量使用到了 `CompletableFuture` ，可以解决任意的多线程并行、串行、阻塞、依赖、回调的并行框架，可以任意组合各线程的执行顺序，带全链路执行结果回调。
+- [Hippo4j](https://github.com/opengoofy/hippo4j): Async thread pool framework supporting dynamic changes, monitoring, alerting without code modification.
+- [Dynamic Tp](https://github.com/dromara/dynamic-tp): Lightweight dynamic thread pool with built-in monitoring and alerting, integrates third-party middleware thread pool management.
+- [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool): JD multi-thread utility library, heavily uses `CompletableFuture`. Parallel framework for arbitrary multi-thread parallel, serial, blocking, dependency, callback combinations.
 
-### 缓存
+### Caching
 
-#### 本地缓存
+#### Local Cache
 
-- [Caffeine](https://github.com/ben-manes/caffeine) : 一款强大的本地缓存解决方案，性能非常强大。
-- [Guava](https://github.com/google/guava)：Google Java 核心库，内置了比较完善的本地缓存实现。
-- [OHC](https://github.com/snazy/ohc) ：Java 堆外缓存解决方案（项目从 2021 年开始就不再进行维护了）。
+- [Caffeine](https://github.com/ben-manes/caffeine): Powerful local caching solution with excellent performance.
+- [Guava](https://github.com/google/guava): Google Java core library with complete local cache implementation.
+- [OHC](https://github.com/snazy/ohc): Java off-heap cache solution (project no longer maintained since 2021).
 
-#### 分布式缓存
+#### Distributed Cache
 
-- [Redis](https://github.com/redis/redis)：一个使用 C 语言开发的内存数据库，分布式缓存首选。
-- [Dragonfly](https://github.com/dragonflydb/dragonfly)：一种针对现代应用程序负荷需求而构建的内存数据库，完全兼容 Redis 和 Memcached 的 API，迁移时无需修改任何代码，号称全世界最快的内存数据库。
-- [KeyDB](https://github.com/Snapchat/KeyDB)： Redis 的一个高性能分支，专注于多线程、内存效率和高吞吐量。
+- [Redis](https://github.com/redis/redis): In-memory database written in C, first choice for distributed caching.
+- [Dragonfly](https://github.com/dragonflydb/dragonfly): In-memory database built for modern application workloads. Fully compatible with Redis and Memcached APIs. Claims to be world's fastest in-memory database.
+- [KeyDB](https://github.com/Snapchat/KeyDB): High-performance fork of Redis focused on multi-threading, memory efficiency and high throughput.
 
-#### 多级缓存
+#### Multi-level Cache
 
-- [J2Cache](https://gitee.com/ld/J2Cache)：基于本地内存和 Redis 的两级 Java 缓存框架。
-- [JetCache](https://github.com/alibaba/jetcache)：阿里开源的缓存框架，支持多级缓存、分布式缓存自动刷新、 TTL 等功能。
+- [J2Cache](https://gitee.com/ld/J2Cache): Two-level Java caching framework based on local memory and Redis.
+- [JetCache](https://github.com/alibaba/jetcache): Alibaba's open source caching framework supporting multi-level cache, distributed cache auto-refresh, TTL, etc.
 
-### 消息队列
+### Message Queues
 
-**分布式队列**：
+**Distributed queues**:
 
-- [RocketMQ](https://github.com/apache/rocketmq "RocketMQ")：阿里巴巴开源的一款高性能、高吞吐量的分布式消息中间件。
-- [Kafka](https://github.com/apache/kafka "Kafka"): Kafka 是一种分布式的，基于发布 / 订阅的消息系统。
-- [RabbitMQ](https://github.com/rabbitmq "RabbitMQ") :由 erlang 开发的基于 AMQP（Advanced Message Queue 高级消息队列协议）协议实现的消息队列。
+- [RocketMQ](https://github.com/apache/rocketmq "RocketMQ"): Alibaba's high-performance, high-throughput distributed message middleware.
+- [Kafka](https://github.com/apache/kafka "Kafka"): Distributed, publish/subscribe-based messaging system.
+- [RabbitMQ](https://github.com/rabbitmq "RabbitMQ"): Message queue based on AMQP protocol, developed in Erlang.
 
-**内存队列**：
+**In-memory queues**:
 
-- [Disruptor](https://github.com/LMAX-Exchange/disruptor)：Disruptor 是英国外汇交易公司 LMAX 开发的一个高性能队列，研发的初衷是解决内存队列的延迟问题（在性能测试中发现竟然与 I/O 操作处于同样的数量级）。
+- [Disruptor](https://github.com/LMAX-Exchange/disruptor): High-performance queue developed by UK forex company LMAX. Research goal was to solve latency issues in memory queues.
 
-### 读写分离和分库分表
+### Read-Write Separation and Sharding
 
-- [ShardingSphere](https://github.com/apache/shardingsphere)：ShardingSphere 是一套开源的分布式数据库中间件解决方案组成的生态圈，它由 Sharding-JDBC、Sharding-Proxy 和 Sharding-Sidecar（计划中）这 3 款相互独立的产品组成。
-- [MyCat](https://github.com/MyCatApache/MyCat2) : MyCat 是数据库分库分表的中间件，MyCat 使用最多的两个功能是：读写分离和分库分表。MyCat 是一些社区爱好者在阿里 Cobar 的基础上进行二次开发，解决了 Cobar 当时存 在的一些问题，并且加入了许多新的功能在其中。
-- [dynamic-datasource-spring-boot-starter](https://github.com/baomidou/dynamic-datasource-spring-boot-starter)：一个基于 Spring Boot 的快速集成多数据源的启动器，支持多数据源、动态数据源、主从分离、读写分离和分布式事务。
+- [ShardingSphere](https://github.com/apache/shardingsphere): Ecosystem of open source distributed database middleware solutions consisting of Sharding-JDBC, Sharding-Proxy and Sharding-Sidecar (planned).
+- [MyCat](https://github.com/MyCatApache/MyCat2): Database sharding middleware with most used features being read-write separation and sharding.
+- [dynamic-datasource-spring-boot-starter](https://github.com/baomidou/dynamic-datasource-spring-boot-starter): Spring Boot starter for quickly integrating multiple data sources, supporting dynamic datasources, master-slave separation, read-write separation and distributed transactions.
 
-## 高可用
+## High Availability
 
-### 限流
+### Rate Limiting
 
-分布式限流：
+Distributed rate limiting:
 
-- [Sentinel](https://github.com/alibaba/Sentinel)（推荐）：面向分布式服务架构的高可用防护组件，主要以流量为切入点，从流量控制、熔断降级、系统自适应保护等多个维度来帮助用户保障微服务的稳定性。
-- [Hystrix](https://github.com/Netflix/Hystrix)：类似于 Sentinel 。
+- [Sentinel](https://github.com/alibaba/Sentinel) (Recommended): High availability defense component for distributed service architectures, focusing on traffic as the entry point for flow control, circuit breaking, system adaptive protection.
+- [Hystrix](https://github.com/Netflix/Hystrix): Similar to Sentinel.
 
-相关阅读：[Sentinel 与 Hystrix 的对比](https://sentinelguard.io/zh-cn/blog/sentinel-vs-hystrix.html)。
+Related: [Sentinel vs Hystrix comparison](https://sentinelguard.io/zh-cn/blog/sentinel-vs-hystrix.html).
 
-单机限流：
+Single-machine rate limiting:
 
-- [Bucket4j](https://github.com/vladimir-bukhtoyarov/bucket4j)：一个非常不错的基于令牌/漏桶算法的限流库。
-- [Resilience4j](https://github.com/resilience4j/resilience4j)：一个轻量级的容错组件，其灵感来自于 Hystrix。
+- [Bucket4j](https://github.com/vladimir-bukhtoyarov/bucket4j): Excellent rate limiting library based on token/leaky bucket algorithm.
+- [Resilience4j](https://github.com/resilience4j/resilience4j): Lightweight fault tolerance component inspired by Hystrix.
 
-### 监控
+### Monitoring
 
-- [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin)：管理和监控 Spring Boot 应用程序。
-- [Metrics](https://github.com/dropwizard/metrics)：捕获 JVM 和应用程序级别的指标。所以你知道发生了什么事。
+- [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin): Manage and monitor Spring Boot applications.
+- [Metrics](https://github.com/dropwizard/metrics): Capture JVM and application-level metrics.
 
-### 日志
+### Logging
 
-- EKL 老三件套 : 最原始的时候，ELK 是由 3 个开源项目的首字母构成，分别是 Elasticsearch、Logstash、Kibana。
-- 新一代 ELK 架构 : Elasticsearch+Logstash+Kibana+Beats。
-- EFK : EFK 中的 F 代表的是 [Fluentd](https://github.com/fluent/fluentd)。
-- [TLog](https://gitee.com/dromara/TLog)：一个轻量级的分布式日志标记追踪神器，10 分钟即可接入，自动对日志打标签完成微服务的链路追踪。
+- ELK Classic: ELK = Elasticsearch + Logstash + Kibana.
+- New ELK architecture: Elasticsearch + Logstash + Kibana + Beats.
+- EFK: F represents [Fluentd](https://github.com/fluent/fluentd).
+- [TLog](https://gitee.com/dromara/TLog): Lightweight distributed log marking tracing tool, integrable in 10 minutes. Auto-tags logs for microservice chain tracing.
 
-## 字节码操作
+## Bytecode Operations
 
-- [ASM](https://asm.ow2.io/)：通用 Java 字节码操作和分析框架。它可用于直接以二进制形式修改现有类或动态生成类。
-- [Byte Buddy](https://github.com/raphw/byte-buddy)：Java 字节码生成和操作库，用于在 Java 应用程序运行时创建和修改 Java 类，无需使用编译器
-- [Javassist](https://github.com/jboss-javassist/javassist)：动态编辑 Java 字节码的类库。
-- [Recaf](https://github.com/Col-E/Recaf)：现代 Java 字节码编辑器，基于 ASM（Java 字节码操作框架） 来修改字节码，可简化编辑已编译 Java 应用程序的过程。
+- [ASM](https://asm.ow2.io/): Universal Java bytecode manipulation and analysis framework. Can modify existing classes in binary form or dynamically generate classes.
+- [Byte Buddy](https://github.com/raphw/byte-buddy): Java bytecode generation and manipulation library for creating and modifying Java classes at runtime without compiler.
+- [Javassist](https://github.com/jboss-javassist/javassist): Library for dynamic editing of Java bytecode.
+- [Recaf](https://github.com/Col-E/Recaf): Modern Java bytecode editor based on ASM to simplify editing compiled Java applications.

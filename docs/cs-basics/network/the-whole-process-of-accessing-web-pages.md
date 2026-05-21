@@ -1,84 +1,84 @@
 ---
-title: 访问网页的全过程（知识串联）
-description: 串联从输入 URL 到页面渲染的完整链路，涵盖 DNS、TCP、HTTP 与静态资源加载，助力面试与实践理解。
-category: 计算机基础
+title: Toàn bộ quá trình truy cập trang web（Kết nối kiến thức）
+description: Liên kết toàn bộ chuỗi từ nhập URL đến render trang web, bao gồm DNS, TCP, HTTP và tải tài nguyên tĩnh, giúp hiểu sâu cho phỏng vấn và thực tiễn.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
-      content: 访问网页流程,DNS,TCP 建连,HTTP 请求,资源加载,渲染,关闭连接
+      content: quá trình truy cập trang web,DNS,thiết lập TCP,HTTP request,tải tài nguyên,render,đóng kết nối
 ---
 
-开发岗中总是会考很多计算机网络的知识点，但如果让面试官只考一道题，便涵盖最多的计网知识点，那可能就是 **网页浏览的全过程** 了。本篇文章将带大家从头到尾过一遍这道被考烂的面试题，必会！！！
+Trong các buổi phỏng vấn vị trí developer, kiến thức mạng máy tính luôn được hỏi nhiều. Nhưng nếu phỏng vấn viên chỉ hỏi một câu mà bao quát nhiều điểm kiến thức nhất, thì có lẽ đó là **toàn bộ quá trình duyệt web**. Bài này sẽ đưa bạn đi từ đầu đến cuối câu hỏi phỏng vấn "cũ nát" này — phải thuộc!
 
-总的来说，网络通信模型可以用下图来表示，也就是大家只要熟记网络结构五层模型，按照这个体系，很多知识点都能顺出来了。访问网页的过程也是如此。
+Tổng thể, mô hình giao tiếp mạng có thể biểu diễn bằng hình dưới — nghĩa là chỉ cần thuộc mô hình 5 tầng mạng, theo hệ thống này, nhiều điểm kiến thức sẽ tự nhiên kết nối. Quá trình truy cập trang web cũng vậy.
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/five-layers.png)
 
-开始之前，我们先简单过一遍完整流程：
+Trước khi bắt đầu, hãy lướt qua nhanh toàn bộ quy trình:
 
-1. 在浏览器中输入指定网页的 URL。
-2. 浏览器通过 DNS 协议，获取域名对应的 IP 地址。
-3. 浏览器根据 IP 地址和端口号，向目标服务器发起一个 TCP 连接请求。
-4. 浏览器在 TCP 连接上，向服务器发送一个 HTTP 请求报文，请求获取网页的内容。
-5. 服务器收到 HTTP 请求报文后，处理请求，并返回 HTTP 响应报文给浏览器。
-6. 浏览器收到 HTTP 响应报文后，解析响应体中的 HTML 代码，渲染网页的结构和样式，同时根据 HTML 中的其他资源的 URL（如图片、CSS、JS 等），再次发起 HTTP 请求，获取这些资源的内容，直到网页完全加载显示。
-7. 浏览器在不需要和服务器通信时，可以主动关闭 TCP 连接，或者等待服务器的关闭请求。
+1. Nhập URL của trang web muốn truy cập vào trình duyệt.
+2. Trình duyệt dùng giao thức DNS để lấy địa chỉ IP tương ứng với tên miền.
+3. Trình duyệt dựa trên địa chỉ IP và số cổng, gửi request kết nối TCP đến server đích.
+4. Trình duyệt gửi HTTP request message lên server qua kết nối TCP, yêu cầu lấy nội dung trang web.
+5. Server nhận HTTP request message, xử lý và trả HTTP response message về cho trình duyệt.
+6. Trình duyệt nhận HTTP response message, parse HTML code trong response body, render cấu trúc và style trang web; đồng thời dựa trên URL của các tài nguyên khác trong HTML (như ảnh, CSS, JS, v.v.) gửi thêm HTTP request để lấy nội dung các tài nguyên đó, cho đến khi trang web tải xong hoàn toàn.
+7. Khi trình duyệt không cần giao tiếp với server nữa, có thể chủ động đóng kết nối TCP, hoặc chờ server đóng.
 
-## 应用层
+## Tầng ứng dụng
 
-一切的开始——打开浏览器，在地址栏输入 URL，回车确认。那么，什么是 URL？访问 URL 有什么用？
+Mọi thứ bắt đầu — mở trình duyệt, nhập URL vào thanh địa chỉ, nhấn Enter. Vậy URL là gì? Truy cập URL có tác dụng gì?
 
 ### URL
 
-URL（Uniform Resource Locators），即统一资源定位器。网络上的所有资源都靠 URL 来定位，每一个文件就对应着一个 URL，就像是路径地址。理论上，文件资源和 URL 一一对应。实际上也有例外，比如某些 URL 指向的文件已经被重定位到另一个位置，这样就有多个 URL 指向同一个文件。
+URL (Uniform Resource Locators — Định vị tài nguyên thống nhất) là công cụ định vị mọi tài nguyên trên mạng. Mỗi file tương ứng với một URL, giống như đường dẫn địa chỉ. Về lý thuyết, tài nguyên file và URL là quan hệ một-một. Thực tế cũng có ngoại lệ, ví dụ một số URL trỏ đến file đã được chuyển hướng sang vị trí khác, dẫn đến nhiều URL trỏ đến cùng một file.
 
-### URL 的组成结构
+### Cấu trúc URL
 
-![URL的组成结构](https://oss.javaguide.cn/github/javaguide/cs-basics/network/URL-parts.png)
+![Cấu trúc URL](https://oss.javaguide.cn/github/javaguide/cs-basics/network/URL-parts.png)
 
-1. 协议。URL 的前缀通常表示了该网址采用了何种应用层协议，通常有两种——HTTP 和 HTTPS。当然也有一些不太常见的前缀头，比如文件传输时用到的`ftp:`。
-2. 域名。域名便是访问网址的通用名，这里也有可能是网址的 IP 地址，域名可以理解为 IP 地址的可读版本，毕竟绝大部分人都不会选择记住一个网址的 IP 地址。
-3. 端口。如果指明了访问网址的端口的话，端口会紧跟在域名后面，并用一个冒号隔开。
-4. 资源路径。域名（端口）后紧跟的就是资源路径，从第一个`/`开始，表示从服务器上根目录开始进行索引到的文件路径，上图中要访问的文件就是服务器根目录下`/path/to/myfile.html`。早先的设计是该文件通常物理存储于服务器主机上，但现在随着网络技术的进步，该文件不一定会物理存储在服务器主机上，有可能存放在云上，而文件路径也有可能是虚拟的（遵循某种规则）。
-5. 参数。参数是浏览器在向服务器提交请求时，在 URL 中附带的参数。服务器解析请求时，会提取这些参数。参数采用键值对的形式`key=value`，每一个键值对使用`&`隔开。参数的具体含义和请求操作的具体方法有关。
-6. 锚点。锚点顾名思义，是在要访问的页面上的一个锚。要访问的页面大部分都多于一页，如果指定了锚点，那么在客户端显示该网页是就会定位到锚点处，相当于一个小书签。值得一提的是，在 URL 中，锚点以`#`开头，并且**不会**作为请求的一部分发送给服务端。
+1. **Giao thức**: Tiền tố URL thường cho biết địa chỉ web đó dùng giao thức tầng ứng dụng nào, thường có hai loại — HTTP và HTTPS. Tất nhiên cũng có một số tiền tố ít phổ biến hơn, ví dụ `ftp:` dùng khi truyền file.
+2. **Tên miền**: Tên miền là tên thông dụng để truy cập địa chỉ web. Ở đây cũng có thể là địa chỉ IP của trang web. Tên miền có thể hiểu là phiên bản dễ đọc của địa chỉ IP, vì hầu hết mọi người không muốn nhớ địa chỉ IP của một trang web.
+3. **Cổng**: Nếu chỉ định cổng truy cập, cổng sẽ đứng ngay sau tên miền, phân tách bằng dấu hai chấm.
+4. **Đường dẫn tài nguyên**: Ngay sau tên miền (cổng) là đường dẫn tài nguyên, bắt đầu từ `/` đầu tiên, biểu thị đường dẫn file từ thư mục root của server. Trong hình trên, file cần truy cập là `/path/to/myfile.html` dưới thư mục root server. Thiết kế ban đầu là file thường được lưu vật lý trên server host, nhưng giờ đây với sự tiến bộ của công nghệ mạng, file không nhất thiết phải lưu vật lý trên server host, có thể lưu trên cloud, và đường dẫn file cũng có thể là ảo (tuân theo một quy tắc nhất định).
+5. **Tham số**: Tham số là các thông tin kèm theo trong URL khi trình duyệt gửi request đến server. Server sẽ trích xuất các tham số này khi parse request. Tham số có dạng key-value `key=value`, các cặp key-value phân tách bằng `&`. Ý nghĩa cụ thể của tham số liên quan đến phương thức thao tác request cụ thể.
+6. **Anchor (Điểm neo)**: Anchor đúng như tên gọi, là một điểm neo trên trang được truy cập. Hầu hết các trang cần truy cập đều dài hơn một trang; nếu chỉ định anchor, khi hiển thị trang web phía client sẽ định vị đến vị trí anchor, tương đương một bookmark nhỏ. Đáng chú ý là trong URL, anchor bắt đầu bằng `#` và **không** được gửi như một phần của request đến server.
 
 ### DNS
 
-键入了 URL 之后，第一个重头戏登场——DNS 服务器解析。DNS（Domain Name System）域名系统，要解决的是 **域名和 IP 地址的映射问题** 。毕竟，域名只是一个网址便于记住的名字，而网址真正存在的地址其实是 IP 地址。
+Sau khi nhập URL, nhân vật chính đầu tiên xuất hiện — DNS server phân giải tên miền. DNS (Domain Name System — Hệ thống tên miền) giải quyết vấn đề **ánh xạ tên miền và địa chỉ IP**. Vì tên miền chỉ là cái tên dễ nhớ của địa chỉ web, còn địa chỉ thực sự tồn tại của web là địa chỉ IP.
 
-传送门：[DNS 域名系统详解（应用层）](https://javaguide.cn/cs-basics/network/dns.html)
+Xem thêm: [Giải thích chi tiết DNS — Hệ thống tên miền](https://javaguide.cn/cs-basics/network/dns.html)
 
 ### HTTP/HTTPS
 
-利用 DNS 拿到了目标主机的 IP 地址之后，浏览器便可以向目标 IP 地址发送 HTTP 报文，请求需要的资源了。在这里，根据目标网站的不同，请求报文可能是 HTTP 协议或安全性增强的 HTTPS 协议。
+Sau khi dùng DNS lấy được địa chỉ IP của host đích, trình duyệt có thể gửi HTTP message đến địa chỉ IP đích để request tài nguyên cần thiết. Ở đây, tùy thuộc vào trang web đích, request message có thể dùng giao thức HTTP hoặc HTTPS có tính bảo mật cao hơn.
 
-传送门：
+Xem thêm:
 
-- [HTTP vs HTTPS（应用层）](https://javaguide.cn/cs-basics/network/http-vs-https.html)
-- [HTTP 1.0 vs HTTP 1.1（应用层）](https://javaguide.cn/cs-basics/network/http1.0-vs-http1.1.html)
-- [HTTP 常见状态码总结（应用层）](https://javaguide.cn/cs-basics/network/http-status-codes.html)
+- [HTTP vs HTTPS（Tầng ứng dụng）](https://javaguide.cn/cs-basics/network/http-vs-https.html)
+- [HTTP 1.0 vs HTTP 1.1（Tầng ứng dụng）](https://javaguide.cn/cs-basics/network/http1.0-vs-http1.1.html)
+- [Tổng hợp các HTTP Status Code phổ biến](https://javaguide.cn/cs-basics/network/http-status-codes.html)
 
-## 传输层
+## Tầng vận chuyển
 
-由于 HTTP 协议是基于 TCP 协议的，在应用层的数据封装好以后，要交给传输层，经 TCP 协议继续封装。
+Vì giao thức HTTP dựa trên TCP, sau khi dữ liệu tầng ứng dụng được đóng gói xong, sẽ được chuyển cho tầng vận chuyển để tiếp tục đóng gói qua TCP.
 
-TCP 协议保证了数据传输的可靠性，是数据包传输的主力协议。
+Giao thức TCP đảm bảo độ tin cậy của truyền dữ liệu, là giao thức chủ đạo cho truyền tải gói tin.
 
-传送门：
+Xem thêm:
 
-- [TCP 三次握手和四次挥手（传输层）](https://javaguide.cn/cs-basics/network/tcp-connection-and-disconnection.html)
-- [TCP 传输可靠性保障（传输层）](https://javaguide.cn/cs-basics/network/tcp-reliability-guarantee.html)
+- [TCP bắt tay 3 lần và vẫy tay 4 lần（Tầng vận chuyển）](https://javaguide.cn/cs-basics/network/tcp-connection-and-disconnection.html)
+- [Đảm bảo độ tin cậy truyền tải TCP（Tầng vận chuyển）](https://javaguide.cn/cs-basics/network/tcp-reliability-guarantee.html)
 
-## 网络层
+## Tầng mạng
 
-终于，来到网络层，此时我们的主机不再是和另一台主机进行交互了，而是在和中间系统进行交互。也就是说，应用层和传输层都是端到端的协议，而网络层及以下都是中间件的协议了。
+Cuối cùng đến tầng mạng. Lúc này host của chúng ta không còn tương tác với host khác nữa, mà tương tác với các hệ thống trung gian. Tức là tầng ứng dụng và tầng vận chuyển đều là giao thức end-to-end, còn tầng mạng trở xuống là giao thức của các middleware.
 
-**网络层的核心功能——转发与路由**，必会！！！如果面试官问到了网络层，而你恰好又什么都不会的话，最最起码要说出这五个字——**转发与路由**。
+**Chức năng cốt lõi của tầng mạng — chuyển tiếp (forwarding) và định tuyến (routing)** — phải thuộc! Nếu phỏng vấn viên hỏi về tầng mạng mà bạn không biết gì, ít nhất cũng phải nói được năm chữ này — **chuyển tiếp và định tuyến**.
 
-- 转发：将分组从路由器的输入端口转移到合适的输出端口。
-- 路由：确定分组从源到目的经过的路径。
+- **Forwarding (Chuyển tiếp)**: Chuyển packet từ cổng input của router sang cổng output phù hợp.
+- **Routing (Định tuyến)**: Xác định đường đi của packet từ nguồn đến đích.
 
-所以到目前为止，我们的数据包经过了应用层、传输层的封装，来到了网络层，终于开始准备在物理层面传输了，第一个要解决的问题就是——**往哪里传输？或者说，要把数据包发到哪个路由器上？** 这便是 BGP 协议要解决的问题。
+Vậy đến đây, gói tin của chúng ta đã được đóng gói qua tầng ứng dụng và tầng vận chuyển, đến tầng mạng, cuối cùng chuẩn bị truyền ở tầng vật lý. Vấn đề đầu tiên cần giải quyết là — **gửi đến đâu? Hay nói cách khác, cần gửi gói tin đến router nào?** Đây chính là vấn đề giao thức BGP giải quyết.

@@ -1,6 +1,6 @@
 ---
-title: Java内存区域详解（重点）
-description: JVM内存区域详解：深入剖析Java运行时数据区（堆、方法区、虚拟机栈、本地方法栈、程序计数器）、对象创建过程、内存分配策略、对象访问定位方式。
+title: Giải thích chi tiết vùng bộ nhớ Java (Quan trọng)
+description: Giải thích chi tiết vùng bộ nhớ JVM: phân tích sâu các khu vực dữ liệu runtime của Java (Heap, Method Area, JVM Stack, Native Method Stack, Program Counter), quá trình tạo đối tượng, chiến lược phân bổ bộ nhớ, cách truy cập đối tượng.
 category: Java
 tag:
   - JVM
@@ -12,49 +12,49 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-> 如果没有特殊说明，都是针对的是 HotSpot 虚拟机。
+> Nếu không có ghi chú đặc biệt, tất cả đều đề cập đến máy ảo HotSpot.
 >
-> 本文基于《深入理解 Java 虚拟机：JVM 高级特性与最佳实践》进行总结补充。
+> Bài viết này được tổng hợp và bổ sung dựa trên cuốn sách "Hiểu sâu về Java Virtual Machine: Các tính năng nâng cao và thực hành tốt nhất của JVM".
 >
-> 常见面试题：
+> Câu hỏi phỏng vấn thường gặp:
 >
-> - 介绍下 Java 内存区域（运行时数据区）
-> - Java 对象的创建过程（五步，建议能默写出来并且要知道每一步虚拟机做了什么）
-> - 对象的访问定位的两种方式（句柄和直接指针两种方式）
+> - Giới thiệu về vùng bộ nhớ Java (Runtime Data Areas)
+> - Quá trình tạo đối tượng Java (5 bước, nên có thể viết lại từ trí nhớ và biết mỗi bước máy ảo làm gì)
+> - Hai cách truy cập định vị đối tượng (handle và direct pointer)
 
-## 前言
+## Lời mở đầu
 
-对于 Java 程序员来说，在虚拟机自动内存管理机制下，不再需要像 C/C++程序开发程序员这样为每一个 new 操作去写对应的 delete/free 操作，不容易出现内存泄漏和内存溢出问题。正是因为 Java 程序员把内存控制权利交给 Java 虚拟机，一旦出现内存泄漏和溢出方面的问题，如果不了解虚拟机是怎样使用内存的，那么排查错误将会是一个非常艰巨的任务。
+Đối với lập trình viên Java, dưới cơ chế quản lý bộ nhớ tự động của máy ảo, họ không còn cần phải viết các thao tác delete/free tương ứng cho mỗi thao tác new như lập trình viên C/C++, nên ít gặp các vấn đề memory leak và memory overflow. Chính vì lập trình viên Java trao quyền kiểm soát bộ nhớ cho Java Virtual Machine, nếu có vấn đề về memory leak hoặc overflow xảy ra, nếu không hiểu cách máy ảo sử dụng bộ nhớ thì việc gỡ lỗi sẽ là một nhiệm vụ rất khó khăn.
 
-## 运行时数据区域
+## Vùng dữ liệu Runtime
 
-Java 虚拟机在执行 Java 程序的过程中会把它管理的内存划分成若干个不同的数据区域。
+Java Virtual Machine chia bộ nhớ mà nó quản lý thành nhiều vùng dữ liệu khác nhau khi thực thi chương trình Java.
 
-JDK 1.8 和之前的版本略有不同，我们这里以 JDK 1.7 和 JDK 1.8 这两个版本为例介绍。
+JDK 1.8 và các phiên bản trước có một số khác biệt nhỏ, ở đây chúng ta lấy JDK 1.7 và JDK 1.8 làm ví dụ.
 
-**JDK 1.7**：
+**JDK 1.7**:
 
 ![Java 运行时数据区域（JDK1.7）](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.7.png)
 
-**JDK 1.8**：
+**JDK 1.8**:
 
 ![Java 运行时数据区域（JDK1.8 ）](https://oss.javaguide.cn/github/javaguide/java/jvm/java-runtime-data-areas-jdk1.8.png)
 
-**线程私有的：**
+**Riêng theo thread:**
 
-- 程序计数器
-- 虚拟机栈
-- 本地方法栈
+- Program Counter (Bộ đếm chương trình)
+- JVM Stack (Ngăn xếp máy ảo)
+- Native Method Stack (Ngăn xếp phương thức native)
 
-**线程共享的：**
+**Dùng chung giữa các thread:**
 
-- 堆
-- 方法区
-- 直接内存 (非运行时数据区的一部分)
+- Heap (Vùng nhớ heap)
+- Method Area (Vùng phương thức)
+- Direct Memory (Bộ nhớ trực tiếp - không phải là một phần của vùng dữ liệu runtime)
 
-Java 虚拟机规范对于运行时数据区域的规定是相当宽松的。以堆为例：堆可以是连续空间，也可以不连续。堆的大小可以固定，也可以在运行时按需扩展 。虚拟机实现者可以使用任何垃圾回收算法管理堆，甚至完全不进行垃圾收集也是可以的。
+Đặc tả Java Virtual Machine quy định khá linh hoạt về vùng dữ liệu runtime. Lấy heap làm ví dụ: heap có thể là không gian liên tục hoặc không liên tục. Kích thước heap có thể cố định hoặc mở rộng theo yêu cầu trong quá trình chạy. Người triển khai máy ảo có thể sử dụng bất kỳ thuật toán thu gom rác nào để quản lý heap, thậm chí hoàn toàn không thu gom rác cũng được.
 
-### 程序计数器
+### Program Counter (Bộ đếm chương trình)
 
 ```mermaid
 graph LR
@@ -93,25 +93,25 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-程序计数器是一块较小的内存空间，可以看作是当前线程所执行的字节码的行号指示器。字节码解释器工作时通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等功能都需要依赖这个计数器来完成。
+Program Counter là một vùng nhớ nhỏ, có thể xem như chỉ số dòng của bytecode đang được thực thi bởi thread hiện tại. Bộ giải thích bytecode chọn bytecode tiếp theo cần thực thi bằng cách thay đổi giá trị của bộ đếm này, các chức năng như phân nhánh, vòng lặp, nhảy, xử lý ngoại lệ, khôi phục thread đều dựa vào bộ đếm này.
 
-另外，为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各线程之间计数器互不影响，独立存储，我们称这类内存区域为“线程私有”的内存。
+Ngoài ra, để có thể khôi phục về vị trí thực thi chính xác sau khi chuyển đổi thread, mỗi thread cần có một program counter độc lập, các bộ đếm giữa các thread không ảnh hưởng lẫn nhau, lưu trữ độc lập, chúng ta gọi loại vùng nhớ này là vùng nhớ "private theo thread".
 
-从上面的介绍中我们知道了程序计数器主要有两个作用：
+Từ phần giới thiệu trên, chúng ta biết program counter chủ yếu có hai tác dụng:
 
-- 字节码解释器通过改变程序计数器来依次读取指令，从而实现代码的流程控制，如：顺序执行、选择、循环、异常处理。
-- 在多线程的情况下，程序计数器用于记录当前线程执行的位置，从而当线程被切换回来的时候能够知道该线程上次运行到哪儿了。
+- Bộ giải thích bytecode đọc lần lượt các lệnh bằng cách thay đổi program counter, từ đó thực hiện điều khiển luồng code như: thực thi tuần tự, lựa chọn, vòng lặp, xử lý ngoại lệ.
+- Trong trường hợp đa luồng, program counter được dùng để ghi lại vị trí thực thi của thread hiện tại, để khi thread được chuyển trở lại thì biết thread đó đã chạy đến đâu.
 
-程序计数器的生命周期与线程完全同步：
+Vòng đời của program counter hoàn toàn đồng bộ với thread:
 
-- **创建**：随着线程的创建而创建。
-- **销毁**：随着线程的结束而销毁。
+- **Tạo**: được tạo cùng với sự tạo ra của thread.
+- **Hủy**: được hủy cùng với sự kết thúc của thread.
 
-在执行 **Java 方法**（非 native）时，程序计数器记录的是 **当前正在执行的 JVM 字节码指令的地址**。当线程执行的是一个 **native 方法**（本地方法）时，程序计数器的值为 **Undefined（未定义）**。这是因为 native 方法不执行 JVM 字节码，而是通过 JNI 调用本地平台的底层代码，JVM 无需再跟踪字节码地址。
+Khi thực thi **phương thức Java** (không phải native), program counter ghi lại **địa chỉ của lệnh bytecode JVM đang thực thi hiện tại**. Khi thread thực thi một **phương thức native** (phương thức cục bộ), giá trị của program counter là **Undefined (chưa xác định)**. Điều này là vì phương thức native không thực thi bytecode JVM, mà gọi code nền tảng cục bộ thông qua JNI, JVM không cần theo dõi địa chỉ bytecode nữa.
 
-⚠️ 注意：程序计数器是 JVM 规范中唯一没有规定任何 `OutOfMemoryError` 情况的内存区域。这是因为它的内存占用极小且固定，不会出现内存溢出的情况。
+⚠️ Lưu ý: Program counter là vùng nhớ duy nhất trong đặc tả JVM không quy định bất kỳ trường hợp `OutOfMemoryError` nào. Điều này là vì dung lượng bộ nhớ của nó rất nhỏ và cố định, không xảy ra tình trạng tràn bộ nhớ.
 
-### Java 虚拟机栈
+### Java Virtual Machine Stack (Ngăn xếp máy ảo Java)
 
 ```mermaid
 graph LR
@@ -143,45 +143,45 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-与程序计数器一样，Java 虚拟机栈（后文简称栈）也是线程私有的，它的生命周期和线程相同，随着线程的创建而创建，随着线程的死亡而死亡。
+Giống như program counter, Java Virtual Machine Stack (gọi tắt là Stack) cũng là private theo thread, vòng đời của nó giống với thread, được tạo khi thread được tạo và bị hủy khi thread kết thúc.
 
-栈绝对算的上是 JVM 运行时数据区域的一个核心，除了一些 Native 方法调用是通过本地方法栈实现的(后面会提到)，其他所有的 Java 方法调用都是通过栈来实现的（也需要和其他运行时数据区域比如程序计数器配合）。
+Stack thực sự là một phần cốt lõi của vùng dữ liệu runtime JVM. Ngoại trừ một số lời gọi Native method được thực hiện thông qua Native Method Stack (sẽ đề cập sau), tất cả các lời gọi phương thức Java khác đều được thực hiện thông qua Stack (cũng cần phối hợp với các vùng dữ liệu runtime khác như program counter).
 
-方法调用的数据需要通过栈进行传递，每一次方法调用都会有一个对应的栈帧被压入栈中，每一个方法调用结束后，都会有一个栈帧被弹出。
+Dữ liệu của lời gọi phương thức cần được truyền qua stack, mỗi lời gọi phương thức sẽ có một stack frame tương ứng được đẩy vào stack, sau khi mỗi lời gọi phương thức kết thúc, một stack frame sẽ được lấy ra.
 
-栈由一个个栈帧组成，而每个栈帧中都拥有：局部变量表、操作数栈、动态链接、方法返回地址。和数据结构上的栈类似，两者都是先进后出的数据结构，只支持出栈和入栈两种操作。
+Stack được cấu tạo bởi các stack frame, mỗi stack frame có: bảng biến cục bộ (local variable table), ngăn xếp toán hạng (operand stack), dynamic linking, địa chỉ trả về phương thức. Tương tự với cấu trúc dữ liệu stack, cả hai đều là cấu trúc dữ liệu vào sau ra trước (LIFO), chỉ hỗ trợ hai thao tác pop và push.
 
 ![Java 虚拟机栈](https://oss.javaguide.cn/github/javaguide/java/jvm/stack-area.png)
 
-**局部变量表** 主要存放了编译期可知的各种数据类型（boolean、byte、char、short、int、float、long、double）、对象引用（reference 类型，它不同于对象本身，可能是一个指向对象起始地址的引用指针，也可能是指向一个代表对象的句柄或其他与此对象相关的位置）。
+**Bảng biến cục bộ** chủ yếu lưu trữ các kiểu dữ liệu đã biết tại thời điểm biên dịch (boolean, byte, char, short, int, float, long, double), tham chiếu đối tượng (kiểu reference, khác với bản thân đối tượng, có thể là một con trỏ tham chiếu trỏ đến địa chỉ đầu của đối tượng, hoặc là một handle đại diện cho đối tượng hoặc vị trí liên quan đến đối tượng này).
 
 ![局部变量表](https://oss.javaguide.cn/github/javaguide/java/jvm/local-variables-table.png)
 
-**操作数栈** 主要作为方法调用的中转站使用，用于存放方法执行过程中产生的中间计算结果。另外，计算过程中产生的临时变量也会放在操作数栈中。
+**Operand stack** chủ yếu được dùng như trạm trung chuyển của lời gọi phương thức, dùng để lưu trữ kết quả tính toán trung gian được tạo ra trong quá trình thực thi phương thức. Ngoài ra, các biến tạm thời được tạo ra trong quá trình tính toán cũng được đặt trong operand stack.
 
-**动态链接**是 Java 虚拟机实现方法调用的关键机制之一。在 Class 文件中，方法调用以**符号引用**的形式存在于常量池。为了执行调用，这些符号引用必须被转换为内存中的**直接引用**。这个转换过程分为两种情况：对于静态方法、私有方法等在编译期就能确定版本的方法，这个转换在**类加载的解析阶段**就完成了，这称为**静态解析**。而对于需要根据对象实际类型才能确定具体实现的**虚方法**（这是实现多态的基础），这个转换过程则被推迟到**程序运行期间**，由**动态链接**来完成。因此，**动态链接**的核心作用是**在运行时解析虚方法的调用点，将其链接到正确的方法版本上**。
+**Dynamic linking** là một trong những cơ chế quan trọng của Java Virtual Machine để thực hiện lời gọi phương thức. Trong file Class, lời gọi phương thức tồn tại dưới dạng **symbolic reference** trong constant pool. Để thực thi lời gọi, các symbolic reference này phải được chuyển đổi thành **direct reference** trong bộ nhớ. Quá trình chuyển đổi này chia thành hai trường hợp: đối với các phương thức tĩnh, phương thức private, v.v. mà phiên bản có thể xác định tại thời điểm biên dịch, việc chuyển đổi này được hoàn thành trong **giai đoạn giải quyết khi tải class**, gọi là **static resolution**. Còn đối với **virtual method** (là cơ sở để thực hiện tính đa hình) mà việc xác định triển khai cụ thể phụ thuộc vào kiểu thực tế của đối tượng, quá trình chuyển đổi này được trì hoãn đến **thời điểm chạy chương trình**, được thực hiện bởi **dynamic linking**. Do đó, tác dụng cốt lõi của **dynamic linking** là **giải quyết điểm gọi virtual method tại runtime, liên kết nó đến phiên bản phương thức đúng**.
 
 ![](https://oss.javaguide.cn/github/javaguide/jvmimage-20220331175738692.png)
 
-栈空间虽然不是无限的，但一般正常调用的情况下是不会出现问题的。不过，如果函数调用陷入无限循环的话，就会导致栈中被压入太多栈帧而占用太多空间，导致栈空间过深。那么当线程请求栈的深度超过当前 Java 虚拟机栈的最大深度的时候，就抛出 `StackOverFlowError` 错误。
+Mặc dù không gian stack không phải là vô hạn, nhưng trong các lời gọi bình thường, thường không có vấn đề gì. Tuy nhiên, nếu lời gọi hàm rơi vào vòng lặp vô hạn, sẽ dẫn đến quá nhiều stack frame được đẩy vào stack và chiếm quá nhiều không gian, gây ra độ sâu stack quá lớn. Khi thread yêu cầu độ sâu stack vượt quá độ sâu tối đa của Java Virtual Machine Stack hiện tại, lỗi `StackOverFlowError` sẽ được ném ra.
 
-**Java 方法有两种返回方式**：
+**Phương thức Java có hai cách trả về**:
 
-- **正常返回**：执行return语句，返回值传递给调用者。
-- **异常返回**：方法执行过程中抛出异常且未被捕获。
+- **Trả về bình thường**: thực thi lệnh return, giá trị trả về được truyền cho người gọi.
+- **Trả về bằng ngoại lệ**: trong quá trình thực thi phương thức, ngoại lệ được ném ra và không được bắt.
 
-不管哪种返回方式，都会导致栈帧被弹出。也就是说， **栈帧随着方法调用而创建，随着方法结束而销毁。无论方法正常完成还是异常完成都算作方法结束。**
+Dù cách trả về nào cũng sẽ dẫn đến việc stack frame bị lấy ra. Nghĩa là, **stack frame được tạo ra khi phương thức được gọi và bị hủy khi phương thức kết thúc. Dù phương thức hoàn thành bình thường hay bằng ngoại lệ đều được tính là kết thúc phương thức.**
 
-除了 `StackOverFlowError` 错误之外，栈还可能会出现`OutOfMemoryError`错误，这是因为如果栈的内存大小可以动态扩展， 那么当虚拟机在动态扩展栈时无法申请到足够的内存空间，则抛出`OutOfMemoryError`异常。
+Ngoài lỗi `StackOverFlowError`, stack cũng có thể xuất hiện lỗi `OutOfMemoryError`, điều này là vì nếu kích thước bộ nhớ stack có thể mở rộng động, khi máy ảo không thể xin được đủ không gian bộ nhớ khi mở rộng stack động, ngoại lệ `OutOfMemoryError` sẽ được ném ra.
 
-简单总结一下程序运行中栈可能会出现两种错误：
+Tóm tắt ngắn gọn hai lỗi có thể xảy ra trong stack khi chạy chương trình:
 
-- **`StackOverFlowError`：** 如果栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前 Java 虚拟机栈的最大深度的时候，就抛出 `StackOverFlowError` 错误。
-- **`OutOfMemoryError`：** 如果栈的内存大小可以动态扩展， 那么当虚拟机在动态扩展栈时无法申请到足够的内存空间，则抛出`OutOfMemoryError`异常。
+- **`StackOverFlowError`:** Nếu kích thước bộ nhớ stack không cho phép mở rộng động, khi thread yêu cầu độ sâu stack vượt quá độ sâu tối đa của Java Virtual Machine Stack hiện tại, lỗi `StackOverFlowError` sẽ được ném ra.
+- **`OutOfMemoryError`:** Nếu kích thước bộ nhớ stack có thể mở rộng động, khi máy ảo không thể xin được đủ không gian bộ nhớ khi mở rộng stack động, ngoại lệ `OutOfMemoryError` sẽ được ném ra.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/jvm/%E3%80%8A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%8B%E7%AC%AC%E4%B8%89%E7%89%88%E7%9A%84%E7%AC%AC2%E7%AB%A0-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88.png)
 
-### 本地方法栈
+### Native Method Stack (Ngăn xếp phương thức native)
 
 ```mermaid
 graph LR
@@ -217,13 +217,13 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-和虚拟机栈所发挥的作用非常相似，区别是：**虚拟机栈为虚拟机执行 Java 方法 （也就是字节码）服务，而本地方法栈则为虚拟机使用到的 Native 方法服务。** 在 HotSpot 虚拟机中和 Java 虚拟机栈合二为一。
+Tác dụng rất tương tự với virtual machine stack, sự khác biệt là: **Virtual machine stack phục vụ cho việc thực thi phương thức Java (tức là bytecode) của máy ảo, còn native method stack phục vụ cho Native method mà máy ảo sử dụng.** Trong máy ảo HotSpot, hai cái này được hợp nhất làm một.
 
-本地方法被执行的时候，在本地方法栈也会创建一个栈帧，用于存放该本地方法的局部变量表、操作数栈、动态链接、出口信息。
+Khi native method được thực thi, một stack frame cũng được tạo trong native method stack, dùng để lưu trữ bảng biến cục bộ, operand stack, dynamic linking, thông tin exit của native method đó.
 
-方法执行完毕后相应的栈帧也会出栈并释放内存空间，也会出现 `StackOverFlowError` 和 `OutOfMemoryError` 两种错误。
+Sau khi phương thức thực thi xong, stack frame tương ứng cũng được lấy ra và giải phóng không gian bộ nhớ, cũng có thể xảy ra hai lỗi `StackOverFlowError` và `OutOfMemoryError`.
 
-### 堆
+### Heap (Vùng nhớ heap)
 
 ```mermaid
 graph LR
@@ -259,47 +259,47 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-Java 虚拟机所管理的内存中最大的一块，Java 堆是所有线程共享的一块内存区域，在虚拟机启动时创建。**此内存区域的唯一目的就是存放对象实例，几乎所有的对象实例以及数组都在这里分配内存。**
+Vùng nhớ lớn nhất trong bộ nhớ được quản lý bởi Java Virtual Machine, Java Heap là vùng nhớ được chia sẻ bởi tất cả các thread, được tạo khi máy ảo khởi động. **Mục đích duy nhất của vùng nhớ này là lưu trữ các instance đối tượng, hầu hết tất cả các instance đối tượng và mảng đều được phân bổ bộ nhớ ở đây.**
 
-Java 世界中“几乎”所有的对象都在堆中分配，但是，随着 JIT 编译器的发展与逃逸分析技术逐渐成熟，栈上分配、标量替换优化技术将会导致一些微妙的变化，所有的对象都分配到堆上也渐渐变得不那么“绝对”了。从 JDK 1.7 开始已经默认开启逃逸分析，如果某些方法中的对象引用没有被返回或者未被外面使用（也就是未逃逸出去），那么对象可以直接在栈上分配内存。
+"Hầu hết" tất cả các đối tượng trong thế giới Java đều được phân bổ trong heap, nhưng với sự phát triển của JIT compiler và kỹ thuật escape analysis ngày càng trưởng thành, kỹ thuật tối ưu hóa stack allocation và scalar replacement sẽ dẫn đến một số thay đổi tinh tế, không còn "tuyệt đối" rằng tất cả đối tượng đều được phân bổ trong heap nữa. Bắt đầu từ JDK 1.7, escape analysis đã được bật theo mặc định, nếu tham chiếu đối tượng trong một số phương thức không được trả về hoặc không được sử dụng bên ngoài (tức là không thoát ra ngoài), thì đối tượng có thể được phân bổ bộ nhớ trực tiếp trên stack.
 
-Java 堆是垃圾收集器管理的主要区域，因此也被称作 **GC 堆（Garbage Collected Heap）**。从垃圾回收的角度，由于现在收集器基本都采用分代垃圾收集算法，所以 Java 堆还可以细分为：新生代和老年代；再细致一点有：Eden、Survivor、Old 等空间。进一步划分的目的是更好地回收内存，或者更快地分配内存。
+Java Heap là vùng chính mà garbage collector quản lý, do đó còn được gọi là **GC Heap (Garbage Collected Heap)**. Từ góc độ thu gom rác, vì các collector hiện nay cơ bản đều sử dụng thuật toán thu gom rác phân thế hệ, nên Java Heap có thể được chia nhỏ hơn thành: Young Generation và Old Generation; chi tiết hơn có: Eden, Survivor, Old, v.v. Mục đích của việc phân chia thêm là để thu hồi bộ nhớ tốt hơn hoặc phân bổ bộ nhớ nhanh hơn.
 
-在 JDK 7 版本及 JDK 7 版本之前，堆内存被通常分为下面三部分：
+Trong JDK 7 và các phiên bản trước JDK 7, heap thường được chia thành ba phần:
 
-1. 新生代内存(Young Generation)
-2. 老生代(Old Generation)
-3. 永久代(Permanent Generation)
+1. Young Generation (Thế hệ trẻ)
+2. Old Generation (Thế hệ già)
+3. Permanent Generation (Thế hệ vĩnh cửu)
 
-下图所示的 Eden 区、两个 Survivor 区 S0 和 S1 都属于新生代，中间一层属于老年代，最下面一层属于永久代。
+Vùng Eden, hai vùng Survivor S0 và S1 trong hình dưới đây đều thuộc Young Generation, lớp giữa thuộc Old Generation, lớp dưới cùng thuộc Permanent Generation.
 
 ![堆内存结构](https://oss.javaguide.cn/github/javaguide/java/jvm/hotspot-heap-structure.png)
 
-**JDK 8 版本之后 PermGen(永久代) 已被 Metaspace(元空间) 取代，元空间使用的是本地内存。** （我会在方法区这部分内容详细介绍到）。
+**Sau JDK 8, PermGen (Permanent Generation) đã được thay thế bằng Metaspace (không gian meta), Metaspace sử dụng bộ nhớ local.** (Tôi sẽ giới thiệu chi tiết trong phần Method Area).
 
-大部分情况，对象都会首先在 Eden 区域分配，在一次新生代垃圾回收后，如果对象还存活，则会进入 S0 或者 S1，并且对象的年龄还会加 1(Eden 区->Survivor 区后对象的初始年龄变为 1)，当它的年龄增加到一定程度（默认为 15 岁），就会被晋升到老年代中。对象晋升到老年代的年龄阈值，可以通过参数 `-XX:MaxTenuringThreshold` 来设置。不过，设置的值应该在 0-15，否则会爆出以下错误：
+Trong hầu hết các trường hợp, đối tượng sẽ được phân bổ trước trong vùng Eden, sau một lần thu gom rác Young Generation, nếu đối tượng vẫn còn sống, nó sẽ vào S0 hoặc S1, và tuổi của đối tượng cũng tăng thêm 1 (tuổi ban đầu của đối tượng sau Eden -> Survivor là 1), khi tuổi của nó tăng đến một mức nhất định (mặc định là 15 tuổi), nó sẽ được thăng cấp lên Old Generation. Ngưỡng tuổi để đối tượng thăng cấp lên Old Generation có thể được đặt thông qua tham số `-XX:MaxTenuringThreshold`. Tuy nhiên, giá trị được đặt phải trong khoảng 0-15, nếu không sẽ xuất hiện lỗi sau:
 
 ```bash
 MaxTenuringThreshold of 20 is invalid; must be between 0 and 15
 ```
 
-**为什么年龄只能是 0-15?**
+**Tại sao tuổi chỉ có thể là 0-15?**
 
-因为记录年龄的区域在对象头中，这个区域的大小通常是 4 位。这 4 位可以表示的最大二进制数字是 1111，即十进制的 15。因此，对象的年龄被限制为 0 到 15。
+Vì vùng ghi lại tuổi nằm trong object header, kích thước của vùng này thường là 4 bit. 4 bit này có thể biểu diễn số nhị phân tối đa là 1111, tức là 15 trong thập phân. Do đó, tuổi của đối tượng bị giới hạn từ 0 đến 15.
 
-这里我们简单结合对象布局来详细介绍一下。
+Ở đây chúng ta kết hợp với bố cục đối tượng để giới thiệu chi tiết hơn.
 
-在 HotSpot 虚拟机中，对象在内存中存储的布局可以分为 3 块区域：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）。其中，对象头包括两部分：标记字段（Mark Word）和类型指针（Klass Word）。关于对象内存布局的详细介绍，后文会介绍到，这里就不重复提了。
+Trong máy ảo HotSpot, bố cục lưu trữ đối tượng trong bộ nhớ có thể được chia thành 3 vùng: Object Header (tiêu đề đối tượng), Instance Data (dữ liệu instance) và Padding (đệm căn chỉnh). Trong đó, object header gồm hai phần: Mark Word (trường đánh dấu) và Klass Word (con trỏ kiểu). Phần giới thiệu chi tiết về bố cục bộ nhớ đối tượng sẽ được đề cập ở phần sau, ở đây không nhắc lại.
 
-这个年龄信息就是在标记字段中存放的（标记字段还存放了对象自身的其他信息比如哈希码、锁状态信息等等）。`markOop.hpp`定义了标记字（mark word）的结构：
+Thông tin tuổi này được lưu trong trường đánh dấu (trường đánh dấu cũng lưu các thông tin khác của bản thân đối tượng như hash code, thông tin trạng thái khóa, v.v.). `markOop.hpp` định nghĩa cấu trúc của mark word:
 
 ![标记字段结构](https://oss.javaguide.cn/github/javaguide/java/jvm/hotspot-markOop.hpp..png)
 
-可以看到对象年龄占用的大小确实是 4 位。
+Có thể thấy kích thước tuổi đối tượng chiếm thực sự là 4 bit.
 
-> **🐛 修正（参见：[issue552](https://github.com/Snailclimb/JavaGuide/issues/552)）**：“Hotspot 遍历所有对象时，按照年龄从小到大对其所占用的大小进行累加，当累加到某个年龄时，所累加的大小超过了 Survivor 区的一半，则取这个年龄和 `MaxTenuringThreshold` 中更小的一个值，作为新的晋升年龄阈值”。
+> **🐛 Hiệu chỉnh (xem: [issue552](https://github.com/Snailclimb/JavaGuide/issues/552))**: "Khi Hotspot duyệt qua tất cả các đối tượng, nó cộng dồn kích thước chiếm dụng của chúng theo tuổi từ nhỏ đến lớn, khi cộng dồn đến một tuổi nào đó, kích thước cộng dồn vượt quá một nửa vùng Survivor, thì lấy giá trị nhỏ hơn giữa tuổi đó và `MaxTenuringThreshold` làm ngưỡng tuổi thăng cấp mới".
 >
-> **动态年龄计算的代码如下**
+> **Code tính tuổi động như sau**
 >
 > ```c++
 > uint ageTable::compute_tenuring_threshold(size_t survivor_capacity) {
@@ -317,13 +317,13 @@ MaxTenuringThreshold of 20 is invalid; must be between 0 and 15
 > }
 > ```
 
-堆这里最容易出现的就是 `OutOfMemoryError` 错误，并且出现这种错误之后的表现形式还会有几种，比如：
+Lỗi dễ xảy ra nhất ở heap là `OutOfMemoryError`, và sau khi xảy ra lỗi này, biểu hiện còn có một số dạng, ví dụ:
 
-1. **`java.lang.OutOfMemoryError: GC Overhead Limit Exceeded`**：当 JVM 花太多时间执行垃圾回收并且只能回收很少的堆空间时，就会发生此错误。
-2. **`java.lang.OutOfMemoryError: Java heap space`** :假如在创建新的对象时, 堆内存中的空间不足以存放新创建的对象, 就会引发此错误。(和配置的最大堆内存有关，且受制于物理内存大小。最大堆内存可通过`-Xmx`参数配置，若没有特别配置，将会使用默认值，详见：[Default Java 8 max heap size](https://stackoverflow.com/questions/28272923/default-xmxsize-in-java-8-max-heap-size))
+1. **`java.lang.OutOfMemoryError: GC Overhead Limit Exceeded`**: Lỗi này xảy ra khi JVM mất quá nhiều thời gian thực thi thu gom rác và chỉ có thể thu hồi được rất ít không gian heap.
+2. **`java.lang.OutOfMemoryError: Java heap space`**: Nếu khi tạo đối tượng mới, không gian trong heap không đủ để chứa đối tượng mới tạo, lỗi này sẽ xảy ra. (Liên quan đến kích thước heap tối đa được cấu hình, và bị giới hạn bởi kích thước bộ nhớ vật lý. Heap tối đa có thể được cấu hình thông qua tham số `-Xmx`, nếu không cấu hình đặc biệt, giá trị mặc định sẽ được sử dụng, xem chi tiết: [Default Java 8 max heap size](https://stackoverflow.com/questions/28272923/default-xmxsize-in-java-8-max-heap-size))
 3. ……
 
-### 方法区
+### Method Area (Vùng phương thức)
 
 ```mermaid
 graph LR
@@ -359,67 +359,67 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-方法区属于是 JVM 运行时数据区域的一块逻辑区域，是各个线程共享的内存区域。
+Method Area là một vùng logic của vùng dữ liệu runtime JVM, là vùng nhớ được chia sẻ bởi các thread.
 
-《Java 虚拟机规范》只是规定了有方法区这么个概念和它的作用，方法区到底要如何实现那就是虚拟机自己要考虑的事情了。也就是说，在不同的虚拟机实现上，方法区的实现是不同的。
+"Đặc tả Java Virtual Machine" chỉ quy định rằng có khái niệm method area và tác dụng của nó, còn method area được triển khai như thế nào thì là vấn đề của máy ảo. Nghĩa là, trên các triển khai máy ảo khác nhau, triển khai của method area là khác nhau.
 
-当虚拟机加载一个类时，它会从 Class 文件中解析出相应的信息，并将这些**元数据**存入方法区。具体来说，方法区主要存储以下核心数据：
+Khi máy ảo tải một class, nó sẽ phân tích thông tin tương ứng từ file Class và lưu **metadata** này vào method area. Cụ thể, method area chủ yếu lưu trữ các dữ liệu cốt lõi sau:
 
-1. **类的元数据**：包括类的完整结构，如类名、父类、实现的接口、访问修饰符，以及字段和方法的详细信息（名称、类型、修饰符等）。
-2. **方法的字节码**：每个方法的原始指令序列。
-3. **运行时常量池**：每个类独有的，由 Class 文件中的常量池转换而来，用于存放编译期生成的各种字面量和对类型、字段、方法的符号引用。
+1. **Metadata của class**: Bao gồm cấu trúc đầy đủ của class, như tên class, class cha, các interface được triển khai, access modifier, cũng như thông tin chi tiết về các field và method (tên, kiểu, modifier, v.v.).
+2. **Bytecode của phương thức**: Chuỗi lệnh gốc của mỗi phương thức.
+3. **Runtime Constant Pool**: Duy nhất cho mỗi class, được chuyển đổi từ constant pool table trong file Class, dùng để lưu trữ các literal và symbolic reference cho các kiểu, field, phương thức được tạo ra tại thời điểm biên dịch.
 
-需要特别注意的是，以下几类数据虽然在逻辑上与类相关，但在 HotSpot 虚拟机中，它们并不存储在方法区内：
+Cần đặc biệt lưu ý rằng, mặc dù về mặt logic các dữ liệu sau liên quan đến class, nhưng trong máy ảo HotSpot, chúng không được lưu trong method area:
 
-- **静态变量（Static Variables）**：自 JDK 7 起，静态变量已从方法区（永久代）**移至 Java 堆（Heap）中**，与该类的 `java.lang.Class` 对象一起存放。
-- **字符串常量池（String Pool）**：同样自 JDK 7 起，字符串常量池也**移至 Java 堆中**。
-- **即时编译器编译后的代码缓存（JIT Code Cache）**：JIT 编译器将热点方法的字节码编译成的本地机器码，存放在一个**独立的、名为“Code Cache”的内存区域**，而不是方法区本身。这样做是为了实现更高效的执行和内存管理。
+- **Static Variables (Biến tĩnh)**: Kể từ JDK 7, biến tĩnh đã được **chuyển từ method area (permanent generation) sang Java Heap**, được lưu cùng với đối tượng `java.lang.Class` của class đó.
+- **String Pool (Bộ pool chuỗi)**: Cũng từ JDK 7, string pool cũng đã được **chuyển sang Java Heap**.
+- **JIT Code Cache (Bộ nhớ cache code JIT)**: Code máy cục bộ được JIT compiler biên dịch từ bytecode của các hot method, được lưu trong một **vùng nhớ độc lập gọi là "Code Cache"**, không phải trong method area. Điều này nhằm thực hiện quản lý bộ nhớ và thực thi hiệu quả hơn.
 
 ![method-area-jdk1.7](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.7.png)
 
-**方法区和永久代以及元空间是什么关系呢？** 方法区和永久代以及元空间的关系很像 Java 中接口和类的关系，类实现了接口，这里的类就可以看作是永久代和元空间，接口可以看作是方法区，也就是说永久代以及元空间是 HotSpot 虚拟机对虚拟机规范中方法区的两种实现方式。并且，永久代是 JDK 1.8 之前的方法区实现，JDK 1.8 及以后方法区的实现变成了元空间。
+**Method Area, Permanent Generation và Metaspace có mối quan hệ như thế nào?** Mối quan hệ giữa Method Area, Permanent Generation và Metaspace giống như mối quan hệ giữa interface và class trong Java, class triển khai interface, ở đây class có thể được coi là Permanent Generation và Metaspace, interface có thể được coi là Method Area. Nghĩa là Permanent Generation và Metaspace là hai cách triển khai Method Area trong đặc tả máy ảo của HotSpot. Và, Permanent Generation là triển khai method area trước JDK 1.8, từ JDK 1.8 trở đi, triển khai method area đã chuyển sang Metaspace.
 
 ![HotSpot 虚拟机方法区的两种实现](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-implementation.png)
 
-**为什么要将永久代 (PermGen) 替换为元空间 (MetaSpace) 呢?**
+**Tại sao lại thay thế Permanent Generation (PermGen) bằng Metaspace?**
 
-下图来自《深入理解 Java 虚拟机》第 3 版 2.2.5
+Hình dưới đây từ "Hiểu sâu về Java Virtual Machine" phiên bản 3, mục 2.2.5
 
 ![](https://oss.javaguide.cn/github/javaguide/java/jvm/20210425134508117.png)
 
-1、整个永久代有一个 JVM 本身设置的固定大小上限，无法进行调整（也就是受到 JVM 内存的限制），而元空间使用的是本地内存，受本机可用内存的限制，虽然元空间仍旧可能溢出，但是比原来出现的几率会更小。
+1. Toàn bộ Permanent Generation có một giới hạn kích thước cố định được đặt bởi JVM, không thể điều chỉnh (tức là bị giới hạn bởi bộ nhớ JVM), trong khi Metaspace sử dụng bộ nhớ local, bị giới hạn bởi bộ nhớ khả dụng của máy cục bộ, mặc dù Metaspace vẫn có thể tràn, nhưng xác suất xảy ra sẽ nhỏ hơn trước đây.
 
-> 当元空间溢出时会得到如下错误：`java.lang.OutOfMemoryError: MetaSpace`
+> Khi Metaspace tràn sẽ nhận được lỗi sau: `java.lang.OutOfMemoryError: MetaSpace`
 
-你可以使用 `-XX：MaxMetaspaceSize` 标志设置最大元空间大小，默认值为 unlimited，这意味着它只受系统内存的限制。`-XX：MetaspaceSize` 调整标志定义元空间的初始大小如果未指定此标志，则 Metaspace 将根据运行时的应用程序需求动态地重新调整大小。
+Bạn có thể sử dụng cờ `-XX:MaxMetaspaceSize` để đặt kích thước Metaspace tối đa, giá trị mặc định là unlimited, có nghĩa là chỉ bị giới hạn bởi bộ nhớ hệ thống. Cờ điều chỉnh `-XX:MetaspaceSize` định nghĩa kích thước ban đầu của Metaspace, nếu cờ này không được chỉ định, Metaspace sẽ tự động điều chỉnh kích thước động theo yêu cầu ứng dụng khi runtime.
 
-2、元空间里面存放的是类的元数据，这样加载多少类的元数据就不由 `MaxPermSize` 控制了, 而由系统的实际可用空间来控制，这样能加载的类就更多了。
+2. Trong Metaspace lưu trữ metadata của class, như vậy số lượng metadata class được tải không còn bị kiểm soát bởi `MaxPermSize` nữa, mà bởi không gian thực tế khả dụng của hệ thống, điều này cho phép tải được nhiều class hơn.
 
-3、在 JDK8，合并 HotSpot 和 JRockit 的代码时, JRockit 从来没有一个叫永久代的东西, 合并之后就没有必要额外的设置这么一个永久代的地方了。
+3. Trong JDK8, khi hợp nhất code của HotSpot và JRockit, JRockit chưa bao giờ có thứ gọi là Permanent Generation, sau khi hợp nhất không cần thiết phải đặt thêm một Permanent Generation nữa.
 
-4、永久代会为 GC 带来不必要的复杂度，并且回收效率偏低。
+4. Permanent Generation mang lại sự phức tạp không cần thiết cho GC và hiệu quả thu hồi thấp.
 
-**方法区常用参数有哪些？**
+**Các tham số thường dùng cho Method Area là gì?**
 
-JDK 1.8 之前永久代还没被彻底移除的时候通常通过下面这些参数来调节方法区大小。
+Trước khi Permanent Generation bị loại bỏ hoàn toàn trong JDK 1.8, thường dùng các tham số sau để điều chỉnh kích thước Method Area.
 
 ```java
 -XX:PermSize=N //方法区 (永久代) 初始大小
 -XX:MaxPermSize=N //方法区 (永久代) 最大大小,超过这个值将会抛出 OutOfMemoryError 异常:java.lang.OutOfMemoryError: PermGen
 ```
 
-相对而言，垃圾收集行为在这个区域是比较少出现的，但并非数据进入方法区后就“永久存在”了。
+Tương đối mà nói, hành vi thu gom rác xuất hiện khá ít trong vùng này, nhưng không phải dữ liệu vào method area là "tồn tại vĩnh cửu".
 
-JDK 1.8 的时候，方法区（HotSpot 的永久代）被彻底移除了（JDK1.7 就已经开始了），取而代之是元空间，元空间使用的是本地内存。下面是一些常用参数：
+Trong JDK 1.8, Method Area (Permanent Generation của HotSpot) đã bị loại bỏ hoàn toàn (JDK1.7 đã bắt đầu), được thay thế bằng Metaspace, Metaspace sử dụng bộ nhớ local. Dưới đây là một số tham số thường dùng:
 
 ```java
 -XX:MetaspaceSize=N //设置 Metaspace 的初始（和最小大小）
 -XX:MaxMetaspaceSize=N //设置 Metaspace 的最大大小
 ```
 
-与永久代很大的不同就是，如果不指定大小的话，随着更多类的创建，虚拟机会耗尽所有可用的系统内存。
+Điểm khác biệt lớn so với Permanent Generation là, nếu không chỉ định kích thước, khi nhiều class được tạo hơn, máy ảo sẽ tiêu hết tất cả bộ nhớ hệ thống khả dụng.
 
-### 运行时常量池
+### Runtime Constant Pool (Bộ pool hằng số runtime)
 
 ```mermaid
 graph LR
@@ -452,21 +452,21 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-Class 文件中除了有类的版本、字段、方法、接口等描述信息外，还有用于存放编译期生成的各种字面量（Literal）和符号引用（Symbolic Reference）的 **常量池表(Constant Pool Table)** 。
+Ngoài thông tin về version, field, method, interface trong file Class, còn có **Constant Pool Table (Bảng pool hằng số)** dùng để lưu trữ các literal (Literal) và symbolic reference (Symbolic Reference) được tạo ra tại thời điểm biên dịch.
 
-字面量是源代码中的固定值的表示法，即通过字面我们就能知道其值的含义。字面量包括整数、浮点数和字符串字面量。常见的符号引用包括类符号引用、字段符号引用、方法符号引用、接口方法符号。
+Literal là cách biểu diễn giá trị cố định trong source code, tức là qua literal chúng ta có thể biết được ý nghĩa của giá trị. Literal bao gồm integer, float và string literal. Symbolic reference thường gặp bao gồm class symbolic reference, field symbolic reference, method symbolic reference, interface method symbol.
 
-《深入理解 Java 虚拟机》7.34 节第三版对符号引用和直接引用的解释如下：
+Giải thích về symbolic reference và direct reference trong "Hiểu sâu về Java Virtual Machine" mục 7.34, phiên bản thứ ba như sau:
 
 ![符号引用和直接引用](https://oss.javaguide.cn/github/javaguide/java/jvm/symbol-reference-and-direct-reference.png)
 
-常量池表会在类加载后存放到方法区的运行时常量池中。
+Constant pool table sẽ được lưu vào runtime constant pool của method area sau khi class được tải.
 
-运行时常量池的功能类似于传统编程语言的符号表，尽管它包含了比典型符号表更广泛的数据。
+Chức năng của runtime constant pool tương tự như symbol table của ngôn ngữ lập trình truyền thống, mặc dù nó chứa dữ liệu rộng hơn so với symbol table thông thường.
 
-既然运行时常量池是方法区的一部分，自然受到方法区内存的限制，当常量池无法再申请到内存时会抛出 `OutOfMemoryError` 错误。
+Vì runtime constant pool là một phần của method area, nên tự nhiên bị giới hạn bởi bộ nhớ của method area, khi constant pool không thể xin thêm bộ nhớ sẽ ném lỗi `OutOfMemoryError`.
 
-### 字符串常量池
+### String Pool (Bộ pool chuỗi)
 
 ```mermaid
 graph LR
@@ -502,7 +502,7 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-**字符串常量池** 是 JVM 为了提升性能和减少内存消耗针对字符串（String 类）专门开辟的一块区域，主要目的是为了避免字符串的重复创建。
+**String Pool** là một vùng đặc biệt mà JVM mở ra dành riêng cho chuỗi (class String) nhằm nâng cao hiệu năng và giảm tiêu thụ bộ nhớ, mục đích chính là tránh tạo ra chuỗi trùng lặp.
 
 ```java
 // 1.在字符串常量池中查询字符串对象 "ab"，如果没有则创建"ab"并放入字符串常量池
@@ -513,25 +513,25 @@ String bb = "ab";
 System.out.println(aa==bb); // true
 ```
 
-HotSpot 虚拟机中字符串常量池的实现是 `src/hotspot/share/classfile/stringTable.cpp` ,`StringTable` 可以简单理解为一个固定大小的`HashTable` ，容量为 `StringTableSize`（可以通过 `-XX:StringTableSize` 参数来设置），保存的是字符串（key）和 字符串对象的引用（value）的映射关系，字符串对象的引用指向堆中的字符串对象。
+Trong máy ảo HotSpot, triển khai của string pool là `src/hotspot/share/classfile/stringTable.cpp`, `StringTable` có thể hiểu đơn giản là một `HashTable` có kích thước cố định với dung lượng `StringTableSize` (có thể đặt thông qua tham số `-XX:StringTableSize`), lưu trữ quan hệ ánh xạ giữa chuỗi (key) và tham chiếu đối tượng chuỗi (value), tham chiếu đối tượng chuỗi trỏ đến đối tượng chuỗi trong heap.
 
-JDK1.7 之前，字符串常量池存放在永久代。JDK1.7 字符串常量池和静态变量从永久代移动到了 Java 堆中。
+Trước JDK1.7, string pool được đặt trong permanent generation. Trong JDK1.7, string pool và biến tĩnh đã được chuyển từ permanent generation sang Java Heap.
 
 ![method-area-jdk1.6](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.6.png)
 
 ![method-area-jdk1.7](https://oss.javaguide.cn/github/javaguide/java/jvm/method-area-jdk1.7.png)
 
-**JDK 1.7 为什么要将字符串常量池移动到堆中？**
+**Tại sao JDK 1.7 lại chuyển string pool sang heap?**
 
-主要是因为永久代（方法区实现）的 GC 回收效率太低，只有在整堆收集 (Full GC)的时候才会被执行 GC。Java 程序中通常会有大量的被创建的字符串等待回收，将字符串常量池放到堆中，能够更高效及时地回收字符串内存。
+Chủ yếu là vì hiệu quả GC recovery của permanent generation (triển khai method area) quá thấp, chỉ được thực hiện GC khi Full GC. Trong chương trình Java thường có một lượng lớn chuỗi chờ thu hồi, đặt string pool trong heap có thể thu hồi bộ nhớ chuỗi hiệu quả và kịp thời hơn.
 
-相关问题：[JVM 常量池中存储的是对象还是引用呢？ - RednaxelaFX - 知乎](https://www.zhihu.com/question/57109429/answer/151717241)
+Câu hỏi liên quan: [JVM constant pool lưu trữ đối tượng hay tham chiếu? - RednaxelaFX - Zhihu](https://www.zhihu.com/question/57109429/answer/151717241)
 
-最后再来分享一段周志明老师在[《深入理解 Java 虚拟机（第 3 版）》样例代码&勘误](https://github.com/fenixsoft/jvm_book) GitHub 仓库的 [issue#112](https://github.com/fenixsoft/jvm_book/issues/112) 中说过的话：
+Cuối cùng chia sẻ một đoạn lời của thầy Zhou Zhiming trong [issue#112](https://github.com/fenixsoft/jvm_book/issues/112) của kho GitHub [Mã mẫu & Đính chính "Hiểu sâu về Java Virtual Machine (Phiên bản 3)"](https://github.com/fenixsoft/jvm_book):
 
-> **运行时常量池、方法区、字符串常量池这些都是不随虚拟机实现而改变的逻辑概念，是公共且抽象的，Metaspace、Heap 是与具体某种虚拟机实现相关的物理概念，是私有且具体的。**
+> **Runtime constant pool, method area, string pool đây đều là những khái niệm logic không thay đổi theo triển khai máy ảo, là công khai và trừu tượng. Metaspace, Heap là các khái niệm vật lý liên quan đến một triển khai máy ảo cụ thể, là riêng tư và cụ thể.**
 
-### 直接内存
+### Direct Memory (Bộ nhớ trực tiếp)
 
 ```mermaid
 graph LR
@@ -567,25 +567,25 @@ graph LR
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-直接内存是一种特殊的内存缓冲区，并不在 Java 堆或方法区中分配的，而是通过 JNI 的方式在本地内存上分配的。
+Direct Memory là một loại bộ nhớ đệm đặc biệt, không được phân bổ trong Java Heap hay Method Area, mà được phân bổ trên bộ nhớ local thông qua JNI.
 
-直接内存并不是虚拟机运行时数据区的一部分，也不是虚拟机规范中定义的内存区域，但是这部分内存也被频繁地使用。而且也可能导致 `OutOfMemoryError` 错误出现。
+Direct Memory không phải là một phần của vùng dữ liệu runtime máy ảo, cũng không phải là vùng nhớ được định nghĩa trong đặc tả máy ảo, nhưng phần bộ nhớ này cũng được sử dụng thường xuyên. Và cũng có thể dẫn đến lỗi `OutOfMemoryError`.
 
-JDK1.4 中新加入的 **NIO（Non-Blocking I/O，也被称为 New I/O）**，引入了一种基于**通道（Channel）**与**缓存区（Buffer）**的 I/O 方式，它可以直接使用 Native 函数库直接分配堆外内存，然后通过一个存储在 Java 堆中的 DirectByteBuffer 对象作为这块内存的引用进行操作。这样就能在一些场景中显著提高性能，因为**避免了在 Java 堆和 Native 堆之间来回复制数据**。
+**NIO (Non-Blocking I/O, còn được gọi là New I/O)** được thêm vào trong JDK1.4, giới thiệu một phương thức I/O dựa trên **Channel** và **Buffer**, có thể sử dụng trực tiếp thư viện hàm Native để phân bổ bộ nhớ ngoài heap, sau đó thao tác trên vùng nhớ đó thông qua đối tượng DirectByteBuffer được lưu trong Java Heap làm tham chiếu đến vùng nhớ này. Như vậy có thể nâng cao hiệu năng đáng kể trong một số tình huống, vì **tránh được việc sao chép dữ liệu qua lại giữa Java Heap và Native Heap**.
 
-直接内存的分配不会受到 Java 堆的限制，但是，既然是内存就会受到本机总内存大小以及处理器寻址空间的限制。
+Việc phân bổ Direct Memory không bị giới hạn bởi Java Heap, nhưng vì đây là bộ nhớ nên sẽ bị giới hạn bởi tổng kích thước bộ nhớ của máy cục bộ và không gian địa chỉ của bộ xử lý.
 
-类似的概念还有 **堆外内存** 。在一些文章中将直接内存等价于堆外内存，个人觉得不是特别准确。
+Còn có một khái niệm tương tự là **Off-Heap Memory (bộ nhớ ngoài heap)**. Một số bài viết coi Direct Memory tương đương với Off-Heap Memory, cá nhân tôi cho rằng không hoàn toàn chính xác.
 
-堆外内存就是把内存对象分配在堆外的内存，这些内存直接受操作系统管理（而不是虚拟机），这样做的结果就是能够在一定程度上减少垃圾回收对应用程序造成的影响。
+Off-Heap Memory là phân bổ đối tượng bộ nhớ ngoài heap, những bộ nhớ này được quản lý trực tiếp bởi hệ điều hành (chứ không phải máy ảo), kết quả là có thể giảm thiểu tác động của việc thu gom rác đối với ứng dụng ở một mức độ nhất định.
 
-## HotSpot 虚拟机对象探秘
+## Khám phá đối tượng của HotSpot Virtual Machine
 
-通过上面的介绍我们大概知道了虚拟机的内存情况，下面我们来详细的了解一下 HotSpot 虚拟机在 Java 堆中对象分配、布局和访问的全过程。
+Qua phần giới thiệu ở trên, chúng ta đã hiểu sơ qua về tình trạng bộ nhớ của máy ảo, tiếp theo chúng ta sẽ tìm hiểu chi tiết toàn bộ quá trình phân bổ, bố cục và truy cập đối tượng trong Java Heap của máy ảo HotSpot.
 
-### 对象的创建
+### Tạo đối tượng
 
-Java 对象的创建过程我建议最好是能默写出来，并且要掌握每一步在做什么。
+Tôi khuyến nghị nên có thể viết lại quá trình tạo đối tượng Java từ trí nhớ, và phải nắm được mỗi bước đang làm gì.
 
 ```mermaid
 graph TD
@@ -626,87 +626,87 @@ graph TD
     linkStyle default stroke:#005D7B,stroke-width:1.5px,opacity:0.8
 ```
 
-#### Step1:类加载检查
+#### Bước 1: Kiểm tra class loading
 
-虚拟机遇到一条 new 指令时，首先将去检查这个指令的参数是否能在常量池中定位到这个类的符号引用，并且检查这个符号引用代表的类是否已被加载过、解析和初始化过。如果没有，那必须先执行相应的类加载过程。
+Khi máy ảo gặp lệnh new, trước tiên sẽ kiểm tra xem tham số của lệnh này có thể định vị symbolic reference của class này trong constant pool hay không, và kiểm tra xem class được đại diện bởi symbolic reference này đã được tải, giải quyết và khởi tạo chưa. Nếu chưa, phải thực thi quá trình class loading tương ứng trước.
 
-#### Step2:分配内存
+#### Bước 2: Phân bổ bộ nhớ
 
-在**类加载检查**通过后，接下来虚拟机将为新生对象**分配内存**。对象所需的内存大小在类加载完成后便可确定，为对象分配空间的任务等同于把一块确定大小的内存从 Java 堆中划分出来。**分配方式**有 **“指针碰撞”** 和 **“空闲列表”** 两种，**选择哪种分配方式由 Java 堆是否规整决定，而 Java 堆是否规整又由所采用的垃圾收集器是否带有压缩整理功能决定**。
+Sau khi **kiểm tra class loading** thành công, máy ảo sẽ **phân bổ bộ nhớ** cho đối tượng mới. Kích thước bộ nhớ cần thiết cho đối tượng có thể được xác định sau khi class loading hoàn tất, nhiệm vụ phân bổ không gian cho đối tượng tương đương với việc tách một vùng nhớ có kích thước xác định ra từ Java Heap. **Phương thức phân bổ** có hai loại: **"Pointer Bumping"** và **"Free List"**, **việc chọn phương thức nào được quyết định bởi Java Heap có quy tắc hay không, còn Java Heap có quy tắc hay không lại được quyết định bởi garbage collector được sử dụng có tính năng nén sắp xếp hay không**.
 
-**内存分配的两种方式** （补充内容，需要掌握）：
+**Hai phương thức phân bổ bộ nhớ** (nội dung bổ sung, cần nắm):
 
-- 指针碰撞：
-  - 适用场合：堆内存规整（即没有内存碎片）的情况下。
-  - 原理：用过的内存全部整合到一边，没有用过的内存放在另一边，中间有一个分界指针，只需要向着没用过的内存方向将该指针移动对象内存大小位置即可。
-  - 使用该分配方式的 GC 收集器：Serial, ParNew
-- 空闲列表：
-  - 适用场合：堆内存不规整的情况下。
-  - 原理：虚拟机会维护一个列表，该列表中会记录哪些内存块是可用的，在分配的时候，找一块儿足够大的内存块儿来划分给对象实例，最后更新列表记录。
-  - 使用该分配方式的 GC 收集器：CMS
+- Pointer Bumping (Chạm con trỏ):
+  - Phạm vi áp dụng: Khi heap có tổ chức (không có memory fragmentation).
+  - Nguyên lý: Tất cả bộ nhớ đã dùng được tập hợp vào một bên, bộ nhớ chưa dùng ở bên kia, ở giữa có một con trỏ ranh giới, chỉ cần di chuyển con trỏ đó về phía bộ nhớ chưa dùng theo kích thước bộ nhớ đối tượng là xong.
+  - GC collector sử dụng phương thức phân bổ này: Serial, ParNew
+- Free List (Danh sách tự do):
+  - Phạm vi áp dụng: Khi heap không có tổ chức.
+  - Nguyên lý: Máy ảo duy trì một danh sách, trong đó ghi lại các khối bộ nhớ nào có thể sử dụng, khi phân bổ, tìm một khối bộ nhớ đủ lớn để phân bổ cho instance đối tượng, sau đó cập nhật ghi chú trong danh sách.
+  - GC collector sử dụng phương thức phân bổ này: CMS
 
-选择以上两种方式中的哪一种，取决于 Java 堆内存是否规整。而 Java 堆内存是否规整，取决于 GC 收集器的算法是"标记-清除"，还是"标记-整理"（也称作"标记-压缩"），值得注意的是，复制算法内存也是规整的。
+Việc chọn một trong hai cách trên phụ thuộc vào Java Heap có quy tắc hay không. Còn Java Heap có quy tắc hay không phụ thuộc vào thuật toán của GC collector là "mark-sweep" hay "mark-compact" (cũng gọi là "mark-compress"), đáng chú ý là bộ nhớ sau copy algorithm cũng có tổ chức.
 
-**内存分配并发问题（补充内容，需要掌握）**
+**Vấn đề đồng thời trong phân bổ bộ nhớ (nội dung bổ sung, cần nắm)**
 
-在创建对象的时候有一个很重要的问题，就是线程安全，因为在实际开发过程中，创建对象是很频繁的事情，作为虚拟机来说，必须要保证线程是安全的，通常来讲，虚拟机采用两种方式来保证线程安全：
+Khi tạo đối tượng có một vấn đề rất quan trọng, đó là thread safety, vì trong quá trình phát triển thực tế, việc tạo đối tượng là việc diễn ra thường xuyên. Đối với máy ảo, phải đảm bảo thread an toàn, thường thì máy ảo sử dụng hai cách để đảm bảo thread safety:
 
-- **CAS+失败重试：** CAS 是乐观锁的一种实现方式。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。**虚拟机采用 CAS 配上失败重试的方式保证更新操作的原子性。**
-- **TLAB：** 为每一个线程预先在 Eden 区分配一块儿内存，JVM 在给线程中的对象分配内存时，首先在 TLAB 分配，当对象大于 TLAB 中的剩余内存或 TLAB 的内存已用尽时，再采用上述的 CAS 进行内存分配
+- **CAS + retry on failure:** CAS là một cách triển khai của optimistic lock. Optimistic lock là mỗi lần không khóa mà giả định không có xung đột để thực hiện một thao tác nào đó, nếu thất bại vì xung đột thì retry cho đến khi thành công. **Máy ảo sử dụng CAS kết hợp với retry khi thất bại để đảm bảo tính nguyên tử của thao tác cập nhật.**
+- **TLAB:** Phân bổ trước một vùng nhớ trong Eden cho mỗi thread, khi JVM phân bổ bộ nhớ cho đối tượng trong thread, trước tiên phân bổ trong TLAB, khi đối tượng lớn hơn bộ nhớ còn lại trong TLAB hoặc bộ nhớ TLAB đã dùng hết, mới dùng CAS như trên để phân bổ bộ nhớ
 
-#### Step3:初始化零值
+#### Bước 3: Khởi tạo về giá trị zero
 
-内存分配完成后，虚拟机需要将分配到的内存空间都初始化为零值（不包括对象头），这一步操作保证了对象的实例字段在 Java 代码中可以不赋初始值就直接使用，程序能访问到这些字段的数据类型所对应的零值。
+Sau khi phân bổ bộ nhớ xong, máy ảo cần khởi tạo tất cả không gian bộ nhớ được phân bổ về giá trị zero (không bao gồm object header), bước này đảm bảo rằng các instance field của đối tượng có thể được sử dụng trực tiếp trong code Java mà không cần gán giá trị ban đầu, chương trình có thể truy cập vào giá trị zero tương ứng với kiểu dữ liệu của các field này.
 
-#### Step4:设置对象头
+#### Bước 4: Đặt object header
 
-初始化零值完成之后，**虚拟机要对对象进行必要的设置**，例如这个对象是哪个类的实例、如何才能找到类的元数据信息、对象的哈希码、对象的 GC 分代年龄等信息。 **这些信息存放在对象头中。** 另外，根据虚拟机当前运行状态的不同，如是否启用偏向锁等，对象头会有不同的设置方式。
+Sau khi hoàn thành khởi tạo giá trị zero, **máy ảo cần thực hiện các thiết lập cần thiết cho đối tượng**, ví dụ đối tượng này là instance của class nào, cách tìm thông tin metadata của class, hash code của đối tượng, GC generation age của đối tượng, v.v. **Những thông tin này được lưu trong object header.** Ngoài ra, tùy thuộc vào trạng thái chạy hiện tại của máy ảo, như liệu có bật biased lock hay không, object header sẽ có các cách đặt khác nhau.
 
-#### Step5:执行 init 方法
+#### Bước 5: Thực thi phương thức init
 
-在上面工作都完成之后，从虚拟机的视角来看，一个新的对象已经产生了，但从 Java 程序的视角来看，对象创建才刚开始，`<init>` 方法还没有执行，所有的字段都还为零。所以一般来说，执行 new 指令之后会接着执行 `<init>` 方法，把对象按照程序员的意愿进行初始化，这样一个真正可用的对象才算完全产生出来。
+Sau khi tất cả các công việc trên hoàn tất, từ góc độ của máy ảo, một đối tượng mới đã được tạo ra, nhưng từ góc độ chương trình Java, việc tạo đối tượng mới chỉ mới bắt đầu, phương thức `<init>` chưa được thực thi, tất cả các field vẫn là zero. Vì vậy, thông thường sau khi thực thi lệnh new sẽ tiếp tục thực thi phương thức `<init>`, khởi tạo đối tượng theo ý muốn của lập trình viên, như vậy mới tạo ra được một đối tượng thực sự có thể sử dụng.
 
-### 对象的内存布局
+### Bố cục bộ nhớ đối tượng
 
-在 Hotspot 虚拟机中，对象在内存中的布局可以分为 3 块区域：**对象头（Header）**、**实例数据（Instance Data）**和**对齐填充（Padding）**。
+Trong máy ảo HotSpot, bố cục của đối tượng trong bộ nhớ có thể được chia thành 3 vùng: **Object Header (Tiêu đề đối tượng)**, **Instance Data (Dữ liệu instance)** và **Padding (Đệm căn chỉnh)**.
 
-对象头包括两部分信息：
+Object header gồm hai phần thông tin:
 
-1. 标记字段（Mark Word）：用于存储对象自身的运行时数据， 如哈希码（HashCode）、GC 分代年龄、锁状态标志、线程持有的锁、偏向线程 ID、偏向时间戳等等。
-2. 类型指针（Klass pointer）：对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。
+1. Mark Word (Trường đánh dấu): dùng để lưu trữ dữ liệu runtime của bản thân đối tượng, như hash code (HashCode), GC generation age, lock status flag, lock held by thread, biased thread ID, biased timestamp, v.v.
+2. Klass pointer (Con trỏ kiểu): con trỏ của đối tượng trỏ đến metadata của class của nó, máy ảo xác định đối tượng này là instance của class nào thông qua con trỏ này.
 
-**实例数据部分是对象真正存储的有效信息**，也是在程序中所定义的各种类型的字段内容。
+**Phần Instance Data là thông tin hiệu quả thực sự được lưu trữ trong đối tượng**, cũng là nội dung các field của các kiểu khác nhau được định nghĩa trong chương trình.
 
-**对齐填充部分不是必然存在的，也没有什么特别的含义，仅仅起占位作用。** 因为 Hotspot 虚拟机的自动内存管理系统要求对象起始地址必须是 8 字节的整数倍，换句话说就是对象的大小必须是 8 字节的整数倍。而对象头部分正好是 8 字节的倍数（1 倍或 2 倍），因此，当对象实例数据部分没有对齐时，就需要通过对齐填充来补全。
+**Phần Padding không nhất thiết phải tồn tại, cũng không có ý nghĩa đặc biệt, chỉ đóng vai trò giữ chỗ.** Vì hệ thống quản lý bộ nhớ tự động của HotSpot yêu cầu địa chỉ bắt đầu của đối tượng phải là bội số nguyên của 8 byte, nói cách khác kích thước của đối tượng phải là bội số nguyên của 8 byte. Trong khi phần object header chính xác là bội số của 8 byte (1 lần hoặc 2 lần), do đó, khi phần instance data của đối tượng chưa được căn chỉnh, cần dùng padding để bổ sung.
 
-### 对象的访问定位
+### Truy cập định vị đối tượng
 
-建立对象就是为了使用对象，我们的 Java 程序通过栈上的 reference 数据来操作堆上的具体对象。对象的访问方式由虚拟机实现而定，目前主流的访问方式有：**使用句柄**、**直接指针**。
+Tạo đối tượng là để sử dụng đối tượng, chương trình Java của chúng ta thao tác trên đối tượng cụ thể trong heap thông qua dữ liệu reference trên stack. Phương thức truy cập đối tượng được xác định bởi triển khai máy ảo, hiện nay hai phương thức truy cập chính là: **sử dụng handle** và **direct pointer**.
 
-#### 句柄
+#### Handle (Tay cầm)
 
-如果使用句柄的话，那么 Java 堆中将会划分出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与对象类型数据各自的具体地址信息。
+Nếu sử dụng handle, thì trong Java Heap sẽ được tách ra một vùng nhớ làm handle pool, reference lưu trữ địa chỉ handle của đối tượng, và trong handle chứa thông tin địa chỉ cụ thể của cả dữ liệu instance đối tượng và dữ liệu kiểu đối tượng.
 
 ![对象的访问定位-使用句柄](https://oss.javaguide.cn/github/javaguide/java/jvm/access-location-of-object-handle.png)
 
-#### 直接指针
+#### Direct Pointer (Con trỏ trực tiếp)
 
-如果使用直接指针访问，reference 中存储的直接就是对象的地址。
+Nếu sử dụng direct pointer để truy cập, reference lưu trực tiếp địa chỉ của đối tượng.
 
 ![对象的访问定位-直接指针](https://oss.javaguide.cn/github/javaguide/java/jvm/access-location-of-object-handle-direct-pointer.png)
 
-这两种对象访问方式各有优势。使用句柄来访问的最大好处是 reference 中存储的是稳定的句柄地址，在对象被移动时只会改变句柄中的实例数据指针，而 reference 本身不需要修改。使用直接指针访问方式最大的好处就是速度快，它节省了一次指针定位的时间开销。
+Hai phương thức truy cập đối tượng này đều có ưu điểm riêng. Ưu điểm lớn nhất của việc sử dụng handle để truy cập là reference lưu trữ địa chỉ handle ổn định, khi đối tượng bị di chuyển chỉ cần thay đổi con trỏ dữ liệu instance trong handle, còn reference bản thân không cần sửa đổi. Ưu điểm lớn nhất của phương thức truy cập bằng direct pointer là tốc độ nhanh, tiết kiệm được một lần overhead định vị con trỏ.
 
-HotSpot 虚拟机主要使用的就是这种方式来进行对象访问。
+Máy ảo HotSpot chủ yếu sử dụng phương thức này để truy cập đối tượng.
 
-## 参考
+## Tham khảo
 
-- 《深入理解 Java 虚拟机：JVM 高级特性与最佳实践（第二版》
-- 《自己动手写 Java 虚拟机》
+- "Hiểu sâu về Java Virtual Machine: Các tính năng nâng cao và thực hành tốt nhất của JVM (Phiên bản 2)"
+- "Tự viết Java Virtual Machine"
 - Chapter 2. The Structure of the Java Virtual Machine：<https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html>
-- JVM 栈帧内部结构-动态链接：<https://chenxitag.com/archives/368>
-- Java 中 new String("字面量") 中 "字面量" 是何时进入字符串常量池的? - 木女孩的回答 - 知乎：<https://www.zhihu.com/question/55994121/answer/147296098>
-- JVM 常量池中存储的是对象还是引用呢？ - RednaxelaFX 的回答 - 知乎：<https://www.zhihu.com/question/57109429/answer/151717241>
+- Cấu trúc nội bộ Stack Frame JVM - Dynamic Linking：<https://chenxitag.com/archives/368>
+- Trong Java, `new String("literal")` - "literal" được đưa vào string constant pool khi nào? - Trả lời của 木女孩 - Zhihu：<https://www.zhihu.com/question/55994121/answer/147296098>
+- JVM constant pool lưu trữ đối tượng hay tham chiếu? - Trả lời của RednaxelaFX - Zhihu：<https://www.zhihu.com/question/57109429/answer/151717241>
 - <http://www.pointsoftware.ch/en/under-the-hood-runtime-data-areas-javas-memory-model/>
 - <https://dzone.com/articles/jvm-permgen-%E2%80%93-where-art-thou>
 - <https://stackoverflow.com/questions/9095748/method-area-and-permgen>

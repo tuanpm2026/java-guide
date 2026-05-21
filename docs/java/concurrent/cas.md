@@ -1,134 +1,134 @@
 ---
-title: CAS 详解
-description: CAS比较并交换深度解析：详解CAS原子操作原理、Unsafe类实现、ABA问题及解决方案、自旋锁机制、与悲观锁性能对比。
+title: Giải thích chi tiết CAS
+description: Phân tích sâu CAS Compare-And-Swap: giải thích chi tiết nguyên lý CAS atomic operation, triển khai lớp Unsafe, vấn đề ABA và giải pháp, cơ chế spin lock, so sánh hiệu năng với pessimistic lock.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
-      content: CAS,Compare-And-Swap,原子操作,ABA问题,自旋锁,乐观锁,Unsafe,CAS原理
+      content: CAS,Compare-And-Swap,atomic operation,ABA problem,spin lock,optimistic lock,Unsafe,nguyên lý CAS
 ---
 
-乐观锁和悲观锁的介绍以及乐观锁常见实现方式可以阅读笔者写的这篇文章：[乐观锁和悲观锁详解](https://javaguide.cn/java/concurrent/optimistic-lock-and-pessimistic-lock.html)。
+Để xem giới thiệu về optimistic lock và pessimistic lock cùng các cách triển khai phổ biến của optimistic lock, hãy đọc bài: [Giải thích chi tiết Optimistic Lock và Pessimistic Lock](https://javaguide.cn/java/concurrent/optimistic-lock-and-pessimistic-lock.html).
 
-这篇文章主要介绍 ：Java 中 CAS 的实现以及 CAS 存在的一些问题。
+Bài này chủ yếu giới thiệu: Cách triển khai CAS trong Java và một số vấn đề CAS có thể gặp phải.
 
-## Java 中 CAS 是如何实现的？
+## CAS được triển khai như thế nào trong Java?
 
-在 Java 中，实现 CAS（Compare-And-Swap, 比较并交换）操作的一个关键类是`Unsafe`。
+Trong Java, một lớp quan trọng để triển khai thao tác CAS (Compare-And-Swap — So sánh và Hoán đổi) là `Unsafe`.
 
-`Unsafe`类位于`sun.misc`包下，是一个提供低级别、不安全操作的类。由于其强大的功能和潜在的危险性，它通常用于 JVM 内部或一些需要极高性能和底层访问的库中，而不推荐普通开发者在应用程序中使用。关于 `Unsafe`类的详细介绍，可以阅读这篇文章：📌[Java 魔法类 Unsafe 详解](https://javaguide.cn/java/basis/unsafe.html)。
+Lớp `Unsafe` nằm trong package `sun.misc`, là lớp cung cấp các thao tác low-level, không an toàn. Do tính năng mạnh mẽ và nguy hiểm tiềm ẩn, nó thường được dùng trong JVM nội bộ hoặc một số thư viện cần hiệu năng cực cao và truy cập low-level, không khuyến nghị developer thông thường dùng trong ứng dụng. Xem bài này để biết thêm chi tiết về lớp `Unsafe`: 📌[Giải thích chi tiết Java magic class Unsafe](https://javaguide.cn/java/basis/unsafe.html).
 
-`sun.misc`包下的`Unsafe`类提供了`compareAndSwapObject`、`compareAndSwapInt`、`compareAndSwapLong`方法来实现的对`Object`、`int`、`long`类型的 CAS 操作：
+Lớp `Unsafe` trong package `sun.misc` cung cấp các method `compareAndSwapObject`, `compareAndSwapInt`, `compareAndSwapLong` để triển khai thao tác CAS trên kiểu `Object`, `int`, `long`:
 
 ```java
 /**
- * 以原子方式更新对象字段的值。
+ * Cập nhật nguyên tử giá trị field của object.
  *
- * @param o        要操作的对象
- * @param offset   对象字段的内存偏移量
- * @param expected 期望的旧值
- * @param x        要设置的新值
- * @return 如果值被成功更新，则返回 true；否则返回 false
+ * @param o        Object cần thao tác
+ * @param offset   Memory offset của field trong object
+ * @param expected Giá trị cũ kỳ vọng
+ * @param x        Giá trị mới cần đặt
+ * @return true nếu giá trị được cập nhật thành công; ngược lại false
  */
 boolean compareAndSwapObject(Object o, long offset, Object expected, Object x);
 
 /**
- * 以原子方式更新 int 类型的对象字段的值。
+ * Cập nhật nguyên tử giá trị field kiểu int của object.
  */
 boolean compareAndSwapInt(Object o, long offset, int expected, int x);
 
 /**
- * 以原子方式更新 long 类型的对象字段的值。
+ * Cập nhật nguyên tử giá trị field kiểu long của object.
  */
 boolean compareAndSwapLong(Object o, long offset, long expected, long x);
 ```
 
-`Unsafe`类中的 CAS 方法是`native`方法。`native`关键字表明这些方法是用本地代码（通常是 C 或 C++）实现的，而不是用 Java 实现的。这些方法直接调用底层的硬件指令来实现原子操作。也就是说，Java 语言并没有直接用 Java 实现 CAS。
+Các method CAS trong lớp `Unsafe` là `native` method. Từ khóa `native` cho biết các method này được triển khai bằng native code (thường là C hoặc C++), không phải Java. Các method này gọi trực tiếp hardware instruction ở tầng dưới để thực hiện atomic operation. Tức là Java không trực tiếp triển khai CAS bằng Java.
 
-更准确点来说，Java 中 CAS 是 C++ 内联汇编的形式实现的，通过 JNI（Java Native Interface） 调用。因此，CAS 的具体实现与操作系统以及 CPU 密切相关。
+Nói chính xác hơn, CAS trong Java được triển khai dưới dạng C++ inline assembly, được gọi thông qua JNI (Java Native Interface). Do đó, triển khai cụ thể của CAS gắn chặt với hệ điều hành và CPU.
 
-`java.util.concurrent.atomic` 包提供了一些用于原子操作的类。
+Package `java.util.concurrent.atomic` cung cấp một số lớp dùng cho atomic operation.
 
-![JUC原子类概览](https://oss.javaguide.cn/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
+![Tổng quan JUC atomic classes](https://oss.javaguide.cn/github/javaguide/java/JUC%E5%8E%9F%E5%AD%90%E7%B1%BB%E6%A6%82%E8%A7%88.png)
 
-关于这些 Atomic 原子类的介绍和使用，可以阅读这篇文章：[Atomic 原子类总结](https://javaguide.cn/java/concurrent/atomic-classes.html)。
+Để xem giới thiệu và cách dùng các lớp Atomic, đọc bài: [Tổng hợp Atomic atomic classes](https://javaguide.cn/java/concurrent/atomic-classes.html).
 
-Atomic 类依赖于 CAS 乐观锁来保证其方法的原子性，而不需要使用传统的锁机制（如 `synchronized` 块或 `ReentrantLock`）。
+Các lớp Atomic dựa vào CAS optimistic lock để đảm bảo tính nguyên tử của các method, không cần dùng cơ chế lock truyền thống (như `synchronized` block hay `ReentrantLock`).
 
-`AtomicInteger`是 Java 的原子类之一，主要用于对 `int` 类型的变量进行原子操作，它利用`Unsafe`类提供的低级别原子操作方法实现无锁的线程安全性。
+`AtomicInteger` là một trong các lớp atomic của Java, chủ yếu dùng cho atomic operation trên biến kiểu `int`. Nó dùng các method atomic operation low-level do lớp `Unsafe` cung cấp để đạt thread safety không cần lock.
 
-下面，我们通过解读`AtomicInteger`的核心源码（JDK1.8），来说明 Java 如何使用`Unsafe`类的方法来实现原子操作。
+Dưới đây, chúng ta phân tích source code cốt lõi của `AtomicInteger` (JDK 1.8) để giải thích cách Java dùng các method của lớp `Unsafe` để triển khai atomic operation.
 
-`AtomicInteger`核心源码如下：
+Source code cốt lõi của `AtomicInteger`:
 
 ```java
-// 获取 Unsafe 实例
+// Lấy instance Unsafe
 private static final Unsafe unsafe = Unsafe.getUnsafe();
 private static final long valueOffset;
 
 static {
     try {
-        // 获取“value”字段在AtomicInteger类中的内存偏移量
+        // Lấy memory offset của field "value" trong class AtomicInteger
         valueOffset = unsafe.objectFieldOffset
             (AtomicInteger.class.getDeclaredField("value"));
     } catch (Exception ex) { throw new Error(ex); }
 }
-// 确保“value”字段的可见性
+// Đảm bảo visibility của field "value"
 private volatile int value;
 
-// 如果当前值等于预期值，则原子地将值设置为newValue
-// 使用 Unsafe#compareAndSwapInt 方法进行CAS操作
+// Nguyên tử đặt giá trị thành newValue nếu giá trị hiện tại bằng expected
+// Dùng Unsafe#compareAndSwapInt để thực hiện CAS
 public final boolean compareAndSet(int expect, int update) {
     return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
 }
 
-// 原子地将当前值加 delta 并返回旧值
+// Nguyên tử cộng delta vào giá trị hiện tại và trả về giá trị cũ
 public final int getAndAdd(int delta) {
     return unsafe.getAndAddInt(this, valueOffset, delta);
 }
 
-// 原子地将当前值加 1 并返回加之前的值（旧值）
-// 使用 Unsafe#getAndAddInt 方法进行CAS操作。
+// Nguyên tử cộng 1 vào giá trị hiện tại và trả về giá trị trước khi cộng (giá trị cũ)
+// Dùng Unsafe#getAndAddInt để thực hiện CAS
 public final int getAndIncrement() {
     return unsafe.getAndAddInt(this, valueOffset, 1);
 }
 
-// 原子地将当前值减 1 并返回减之前的值（旧值）
+// Nguyên tử trừ 1 khỏi giá trị hiện tại và trả về giá trị trước khi trừ (giá trị cũ)
 public final int getAndDecrement() {
     return unsafe.getAndAddInt(this, valueOffset, -1);
 }
 ```
 
-`Unsafe#getAndAddInt`源码：
+Source code của `Unsafe#getAndAddInt`:
 
 ```java
-// 原子地获取并增加整数值
+// Nguyên tử lấy và tăng giá trị integer
 public final int getAndAddInt(Object o, long offset, int delta) {
     int v;
     do {
-        // 以 volatile 方式获取对象 o 在内存偏移量 offset 处的整数值
+        // Lấy giá trị integer tại memory offset của object o theo kiểu volatile
         v = getIntVolatile(o, offset);
     } while (!compareAndSwapInt(o, offset, v, v + delta));
-    // 返回旧值
+    // Trả về giá trị cũ
     return v;
 }
 ```
 
-可以看到，`getAndAddInt` 使用了 `do-while` 循环：在`compareAndSwapInt`操作失败时，会不断重试直到成功。也就是说，`getAndAddInt`方法会通过 `compareAndSwapInt` 方法来尝试更新 `value` 的值，如果更新失败（当前值在此期间被其他线程修改），它会重新获取当前值并再次尝试更新，直到操作成功。
+Có thể thấy, `getAndAddInt` dùng vòng lặp `do-while`: khi `compareAndSwapInt` thất bại sẽ liên tục retry cho đến khi thành công. Tức là, method `getAndAddInt` thông qua `compareAndSwapInt` để cố gắng cập nhật giá trị `value`. Nếu cập nhật thất bại (giá trị hiện tại bị thread khác sửa trong khoảng thời gian này), nó sẽ lấy lại giá trị hiện tại và thử cập nhật lại, cho đến khi thao tác thành công.
 
-由于 CAS 操作可能会因为并发冲突而失败，因此通常会与`while`循环搭配使用，在失败后不断重试，直到操作成功。这就是 **自旋锁机制** 。
+Vì thao tác CAS có thể thất bại do xung đột concurrency, thường dùng kết hợp với vòng lặp `while` — retry liên tục sau thất bại cho đến khi thành công. Đây chính là **cơ chế spin lock**.
 
-## CAS 算法存在哪些问题？
+## CAS algorithm có những vấn đề gì?
 
-ABA 问题是 CAS 算法最常见的问题。
+ABA problem là vấn đề phổ biến nhất của CAS algorithm.
 
-### ABA 问题
+### ABA Problem
 
-如果一个变量 V 初次读取的时候是 A 值，并且在准备赋值的时候检查到它仍然是 A 值，那我们就能说明它的值没有被其他线程修改过了吗？很明显是不能的，因为在这段时间它的值可能被改为其他值，然后又改回 A，那 CAS 操作就会误认为它从来没有被修改过。这个问题被称为 CAS 操作的 **"ABA"问题。**
+Nếu một biến V lần đầu đọc có giá trị A, và khi chuẩn bị gán giá trị mới thì kiểm tra vẫn thấy A, liệu chúng ta có thể nói giá trị của nó chưa bị thread khác sửa đổi không? Rõ ràng là không thể, vì trong khoảng thời gian đó giá trị có thể đã bị đổi sang giá trị khác rồi đổi lại A, khi đó thao tác CAS sẽ nhầm tưởng nó chưa bao giờ bị sửa đổi. Vấn đề này gọi là **"ABA" problem của CAS**.
 
-ABA 问题的解决思路是在变量前面追加上**版本号或者时间戳**。JDK 1.5 以后的 `AtomicStampedReference` 类就是用来解决 ABA 问题的，其中的 `compareAndSet()` 方法就是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。
+Cách giải quyết ABA problem là thêm **version number hoặc timestamp** trước biến. Lớp `AtomicStampedReference` từ JDK 1.5 trở đi dùng để giải quyết ABA problem. Method `compareAndSet()` trong đó trước tiên kiểm tra current reference có bằng expected reference không, và current stamp có bằng expected stamp không. Nếu tất cả bằng nhau thì nguyên tử đặt giá trị reference và stamp thành giá trị update được cho.
 
 ```java
 public boolean compareAndSet(V   expectedReference,
@@ -145,23 +145,23 @@ public boolean compareAndSet(V   expectedReference,
 }
 ```
 
-### 循环时间长开销大
+### Vòng lặp dài, overhead lớn
 
-CAS 经常会用到自旋操作来进行重试，也就是不成功就一直循环执行直到成功。如果长时间不成功，会给 CPU 带来非常大的执行开销。
+CAS thường dùng spin operation để retry — không thành công thì tiếp tục loop cho đến thành công. Nếu lâu không thành công, sẽ gây overhead thực thi rất lớn cho CPU.
 
-如果 JVM 能够支持处理器提供的`pause`指令，那么自旋操作的效率将有所提升。`pause`指令有两个重要作用：
+Nếu JVM có thể hỗ trợ lệnh `pause` do processor cung cấp, hiệu quả của spin operation sẽ được cải thiện. Lệnh `pause` có hai tác dụng quan trọng:
 
-1. **延迟流水线执行指令**：`pause`指令可以延迟指令的执行，从而减少 CPU 的资源消耗。具体的延迟时间取决于处理器的实现版本，在某些处理器上，延迟时间可能为零。
-2. **避免内存顺序冲突**：在退出循环时，`pause`指令可以避免由于内存顺序冲突而导致的 CPU 流水线被清空，从而提高 CPU 的执行效率。
+1. **Trì hoãn thực thi pipeline instruction**: Lệnh `pause` có thể trì hoãn thực thi instruction, từ đó giảm tiêu thụ tài nguyên CPU. Thời gian trì hoãn cụ thể phụ thuộc vào phiên bản triển khai của processor, trên một số processor thời gian trì hoãn có thể bằng 0.
+2. **Tránh memory order conflict**: Khi thoát vòng lặp, lệnh `pause` có thể tránh CPU pipeline bị xóa do memory order conflict, từ đó tăng hiệu quả thực thi CPU.
 
-### 只能保证一个共享变量的原子操作
+### Chỉ có thể đảm bảo atomic operation trên một shared variable
 
-CAS 操作仅能对单个共享变量有效。当需要操作多个共享变量时，CAS 就显得无能为力。不过，从 JDK 1.5 开始，Java 提供了`AtomicReference`类，这使得我们能够保证引用对象之间的原子性。通过将多个变量封装在一个对象中，我们可以使用`AtomicReference`来执行 CAS 操作。
+CAS chỉ hiệu quả với single shared variable. Khi cần thao tác nhiều shared variable, CAS không đủ khả năng. Tuy nhiên, từ JDK 1.5, Java cung cấp lớp `AtomicReference`, cho phép đảm bảo tính nguyên tử giữa các reference object. Bằng cách đóng gói nhiều biến trong một object, chúng ta có thể dùng `AtomicReference` để thực hiện thao tác CAS.
 
-除了 `AtomicReference` 这种方式之外，还可以利用加锁来保证。
+Ngoài cách dùng `AtomicReference`, cũng có thể dùng lock để đảm bảo.
 
-## 总结
+## Tổng kết
 
-在 Java 中，CAS 通过 `Unsafe` 类中的 `native` 方法实现，这些方法调用底层的硬件指令来完成原子操作。由于其实现依赖于 C++ 内联汇编和 JNI 调用，因此 CAS 的具体实现与操作系统以及 CPU 密切相关。
+Trong Java, CAS được triển khai thông qua các `native` method trong lớp `Unsafe`. Các method này gọi hardware instruction ở tầng dưới để thực hiện atomic operation. Vì triển khai của nó phụ thuộc vào C++ inline assembly và JNI call, triển khai cụ thể của CAS gắn chặt với hệ điều hành và CPU.
 
-CAS 虽然具有高效的无锁特性，但也需要注意 ABA 、循环时间长开销大等问题。
+CAS tuy có đặc tính lock-free hiệu quả, nhưng cũng cần chú ý đến các vấn đề như ABA, vòng lặp dài overhead lớn, v.v.

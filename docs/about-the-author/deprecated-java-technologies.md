@@ -1,102 +1,102 @@
 ---
-title: 已经淘汰的 Java 技术，不要再学了！
-description: 已淘汰的Java技术盘点，JSP、Struts、EJB、Java Applets、SOAP等过时技术不建议学习，附现代替代方案推荐。
-category: 走近作者
+title: Những công nghệ Java đã lỗi thời, đừng học nữa!
+description: Điểm qua các công nghệ Java đã lỗi thời - JSP, Struts, EJB, Java Applets, SOAP và các công nghệ lỗi thời khác không nên học, kèm gợi ý các giải pháp thay thế hiện đại.
+category: Giới thiệu tác giả
 tag:
-  - 杂谈
+  - Tản mạn
 ---
 
-前几天，我在知乎上随手回答了一个问题：“Java 学到 JSP 就学不下去了，怎么办？”。
+Mấy hôm trước, tôi vô tình trả lời một câu hỏi trên Zhihu: "Học Java đến JSP thì học không vô nữa, làm thế nào?".
 
-出于不想让别人走弯路的心态，我回答说：已经淘汰的技术就不要学了，并顺带列举了一些在 Java 开发领域中已经被淘汰的技术。
+Với tâm lý không muốn người khác đi vòng, tôi trả lời: Công nghệ đã lỗi thời thì đừng học nữa, và tiện thể liệt kê một số công nghệ đã bị thay thế trong lĩnh vực phát triển Java.
 
-## 已经淘汰的 Java 技术
+## Những công nghệ Java đã lỗi thời
 
-我的回答原内容如下，列举了一些在 Java 开发领域中已经被淘汰的技术：
+Nội dung trả lời gốc của tôi như sau, liệt kê một số công nghệ đã bị thay thế trong lĩnh vực phát triển Java:
 
 **JSP**
 
-- **原因**：JSP 已经过时，无法满足现代 Web 开发需求；前后端分离成为主流。
-- **替代方案**：模板引擎（如 Thymeleaf、Freemarker）在传统全栈开发中更流行；而在前后端分离架构中，React、Vue、Angular 等现代前端框架已取代 JSP 的角色。
-- **注意**：一些国企和央企的老项目可能仍然在使用 JSP，但这种情况越来越少见。
+- **Lý do**: JSP đã lỗi thời, không thể đáp ứng nhu cầu phát triển web hiện đại; front-end back-end separation đã trở thành mainstream.
+- **Giải pháp thay thế**: Template engines (như Thymeleaf, Freemarker) phổ biến hơn trong phát triển full-stack truyền thống; còn trong front-back separated architecture, các modern front-end frameworks như React, Vue, Angular đã thay thế vai trò của JSP.
+- **Lưu ý**: Một số dự án cũ của state-owned enterprises và central enterprises có thể vẫn dùng JSP, nhưng trường hợp này ngày càng hiếm.
 
-**Struts（尤其是 1.x）**
+**Struts (đặc biệt là 1.x)**
 
-- **原因**：配置繁琐、开发效率低，且存在严重的安全漏洞（如世界著名的 Apache Struts 2 漏洞）。此外，社区维护不足，生态逐渐萎缩。
-- **替代方案**：Spring MVC 和 Spring WebFlux 提供了更简洁的开发体验、更强大的功能以及完善的社区支持，完全取代了 Struts。
+- **Lý do**: Cấu hình phức tạp, hiệu quả phát triển thấp, và tồn tại lỗ hổng bảo mật nghiêm trọng (như lỗ hổng Apache Struts 2 nổi tiếng thế giới). Ngoài ra, cộng đồng duy trì không đủ, ecosystem dần thu hẹp.
+- **Giải pháp thay thế**: Spring MVC và Spring WebFlux cung cấp trải nghiệm phát triển đơn giản hơn, tính năng mạnh hơn và community support đầy đủ hơn, hoàn toàn thay thế Struts.
 
 **EJB (Enterprise JavaBeans)**
 
-- **原因**：EJB 过于复杂，开发成本高，学习曲线陡峭，在实际项目中逐步被更轻量化的框架取代。
-- **替代方案**：Spring/Spring Boot 提供了更加简洁且功能强大的企业级开发解决方案，几乎已经成为 Java 企业开发的事实标准。此外，国产的 Solon 和云原生友好的 Quarkus 等框架也非常不错。
+- **Lý do**: EJB quá phức tạp, chi phí phát triển cao, learning curve dốc, dần bị thay thế bởi các frameworks nhẹ hơn trong các dự án thực tế.
+- **Giải pháp thay thế**: Spring/Spring Boot cung cấp giải pháp phát triển enterprise-grade đơn giản hơn và chức năng mạnh hơn, hầu như đã trở thành de facto standard của Java enterprise development. Ngoài ra, Solon từ trong nước và Quarkus thân thiện với cloud-native cũng rất tốt.
 
 **Java Applets**
 
-- **原因**：现代浏览器（如 Chrome、Firefox、Edge）早已全面移除对 Java Applets 的支持，同时 Applets 存在严重的安全性问题。
-- **替代方案**：HTML5、WebAssembly 以及现代 JavaScript 框架（如 React、Vue）可以实现更加安全、高效的交互体验，无需插件支持。
+- **Lý do**: Các modern browsers (như Chrome, Firefox, Edge) đã hoàn toàn loại bỏ support cho Java Applets từ lâu. Đồng thời Applets tồn tại vấn đề bảo mật nghiêm trọng.
+- **Giải pháp thay thế**: HTML5, WebAssembly và modern JavaScript frameworks (như React, Vue) có thể thực hiện trải nghiệm tương tác an toàn và hiệu quả hơn, không cần plugin support.
 
 **SOAP / JAX-WS**
 
-- **原因**：SOAP 和 JAX-WS 过于复杂，数据格式冗长（XML），对开发效率和性能不友好。
-- **替代方案**：RESTful API 和 RPC 更轻量、高效，是现代微服务架构的首选。
+- **Lý do**: SOAP và JAX-WS quá phức tạp, định dạng data dài dòng (XML), không thân thiện với hiệu quả phát triển và performance.
+- **Giải pháp thay thế**: RESTful API và RPC nhẹ và hiệu quả hơn, là lựa chọn đầu tiên cho modern microservices architecture.
 
-**RMI（Remote Method Invocation）**
+**RMI (Remote Method Invocation)**
 
-- **原因**：RMI 是一种早期的 Java 远程调用技术，但兼容性差、配置繁琐，且性能较差。
-- **替代方案**：RESTful API 和 PRC 提供了更简单、高效的远程调用解决方案，完全取代了 RMI。
+- **Lý do**: RMI là công nghệ remote call sớm của Java, nhưng compatibility kém, cấu hình phức tạp, và performance tương đối kém.
+- **Giải pháp thay thế**: RESTful API và RPC cung cấp giải pháp remote call đơn giản và hiệu quả hơn, hoàn toàn thay thế RMI.
 
 **Swing / JavaFX**
 
-- **原因**：桌面应用在开发领域的份额大幅减少，Web 和移动端成为主流。Swing 和 JavaFX 的生态不如现代跨平台框架丰富。
-- **替代方案**：跨平台桌面开发框架（如 Flutter Desktop、Electron）更具现代化体验。
-- **注意**：一些国企和央企的老项目可能仍然在使用 Swing / JavaFX，但这种情况越来越少见。
+- **Lý do**: Desktop applications trong lĩnh vực phát triển giảm đáng kể thị phần, Web và mobile đã trở thành mainstream. Ecosystem của Swing và JavaFX không phong phú bằng các modern cross-platform frameworks.
+- **Giải pháp thay thế**: Cross-platform desktop development frameworks (như Flutter Desktop, Electron) có trải nghiệm hiện đại hơn.
+- **Lưu ý**: Một số dự án cũ của state-owned enterprises và central enterprises có thể vẫn dùng Swing/JavaFX, nhưng trường hợp này ngày càng hiếm.
 
 **Ant**
 
-- **原因**：Ant 是一种基于 XML 配置的构建工具，缺乏易用性，配置繁琐。
-- **替代方案**：Maven 和 Gradle 提供了更高效的项目依赖管理和构建功能，成为现代构建工具的首选。
+- **Lý do**: Ant là build tool dựa trên XML configuration, thiếu user-friendliness, cấu hình phức tạp.
+- **Giải pháp thay thế**: Maven và Gradle cung cấp quản lý project dependencies và chức năng build hiệu quả hơn, trở thành lựa chọn đầu tiên cho modern build tools.
 
-## 杠精言论
+## Tranh luận không có cơ sở
 
-没想到，评论区果然出现了一类很常见的杠精：
+Không ngờ, phần bình luận xuất hiện đúng như dự đoán một loại người hay tranh luận vô lý:
 
-> “学的不是技术，是思想。那爬也是人类不需要的技术吗？为啥你一生下来得先学会爬？如果基础思想都不会就去学各种框架，到最后只能是只会 CV 的废物！”
+> "Học không phải là kỹ thuật, là tư tưởng. Vậy bò cũng là kỹ thuật con người không cần hay sao? Tại sao khi sinh ra bạn phải học bò trước? Nếu tư tưởng nền tảng không có rồi đi học đủ loại framework, cuối cùng chỉ là loại phế vật chỉ biết copy-paste!"
 
 <img src="https://oss.javaguide.cn/github/javaguide/about-the-author/prattle/deprecated-java-technologies-zhihu-comments.png" style="zoom:50%;" />
 
-这句话表面上看似有道理，但实际上却暴露了一个人的**无知和偏执**。
+Câu này nhìn bề ngoài có vẻ có lý, nhưng thực ra lộ ra **sự thiếu hiểu biết và cố chấp** của một người.
 
-**知识越贫乏的人，相信的东西就越绝对**，因为他们从未认真了解过与自己观点相对立的角度，也缺乏对技术发展的全局认识。
+**Người càng ít kiến thức thì tin vào những thứ càng tuyệt đối**, vì họ chưa bao giờ thực sự tìm hiểu góc nhìn đối lập với quan điểm của mình, cũng thiếu nhận thức tổng quan về sự phát triển công nghệ.
 
-举个例子，我刚开始学习 Java 后端开发的时候，完全没什么经验，就随便买了一本书开始看。当时看的是 **《Java Web 整合开发王者归来》** 这本书（梦开始的地方）。
+Ví dụ: Khi tôi mới bắt đầu học Java backend development, hoàn toàn không có kinh nghiệm gì, mua đại một cuốn sách và bắt đầu đọc. Lúc đó đọc là cuốn **《Java Web Integration Development King Returns》** (nơi mà giấc mơ bắt đầu).
 
-在我上大学那会儿，这本书的很多内容其实已经过时了，比如它花了大量篇幅介绍 JSP、Struts、Hibernate、EJB 和 SVN 等技术。不过，直到现在，我依然非常感谢这本书，带我走进了 Java 后端开发的大门。
+Khi tôi còn học đại học, nhiều nội dung trong cuốn sách đó thực ra đã lỗi thời rồi. Ví dụ nó dành nhiều trang giới thiệu JSP, Struts, Hibernate, EJB và SVN. Tuy nhiên, cho đến tận bây giờ, tôi vẫn rất biết ơn cuốn sách này đã dẫn tôi bước vào cánh cửa Java backend development.
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/prattle/java-web-integration-development-king-returns.png)
 
-这本书一共 **1010** 页，我当时可以说是废寝忘食地学，花了很长时间才把整本书完全“啃”下来。
+Cuốn sách này có tổng cộng **1010** trang. Lúc đó tôi có thể nói là học quên ăn quên ngủ, mất rất nhiều thời gian mới "cắn" xong toàn bộ cuốn sách.
 
-回头来看，我如果能有意识地避免学习这些已经淘汰的技术，真的可以节省大量时间去学习更加主流和实用的内容。
+Nhìn lại, nếu lúc đó tôi có ý thức tránh học những công nghệ đã lỗi thời này, thực sự có thể tiết kiệm rất nhiều thời gian để học những nội dung mainstream và thực dụng hơn.
 
-那么，这些被淘汰的技术有用吗？说句实话，**屁用没有，纯粹浪费时间**。
+Vậy, những công nghệ lỗi thời đó có ích không? Nói thật, **không ích gì cả, hoàn toàn lãng phí thời gian**.
 
-**既然都要花时间学习，为什么不去学那些更主流、更有实际价值的技术呢？**
+**Vì sao đã phải bỏ thời gian để học, tại sao không học những công nghệ mainstream hơn, có giá trị thực tiễn hơn?**
 
-现在本身就很卷，不管是 Java 方向还是其他技术方向，要学习的技术都很多。
+Bây giờ vốn đã rất cạnh tranh. Dù là hướng Java hay các hướng kỹ thuật khác, đều có rất nhiều công nghệ phải học.
 
-想要理解所谓的“底层思想”，与其浪费时间在 JSP 这种已经不具备实际应用价值的技术上，不如深入学习一下 Servlet，研究 Spring 的 AOP 和 IoC 原理，从源码角度理解 Spring MVC 的工作机制。
+Muốn hiểu cái gọi là "tư tưởng nền tảng", thay vì lãng phí thời gian vào JSP loại công nghệ không còn giá trị ứng dụng thực tế, không bằng học sâu Servlet, nghiên cứu nguyên lý AOP và IoC của Spring, hiểu cơ chế hoạt động của Spring MVC từ góc độ source code.
 
-这些内容，不仅能帮助你掌握核心的思想，还能在实际开发中真正派上用场，这难道不比花大量时间在 JSP 上更有意义吗？
+Những nội dung này không chỉ giúp bạn nắm vững tư tưởng cốt lõi, mà còn thực sự hữu ích trong phát triển thực tế. Điều này chẳng có ý nghĩa hơn nhiều so với việc bỏ nhiều thời gian vào JSP sao?
 
-## 还有公司在用的技术就要学吗？
+## Có cần học công nghệ mà vẫn còn công ty dùng không?
 
-我把这篇文章的相关言论发表在我的[公众号](https://mp.weixin.qq.com/s/lf2dXHcrUSU1pn28Ercj0w)之后，又收到另外一类在我看来非常傻叉的言论：
+Sau khi tôi đăng quan điểm liên quan đến bài viết này lên [Official Account](https://mp.weixin.qq.com/s/lf2dXHcrUSU1pn28Ercj0w), lại nhận được một loại phản hồi mà tôi thấy rất ngốc:
 
-- “虽然 JSP 很老了，但还是得学学，会用就行，因为我们很多老项目还在用。”
-- “很多央企和国企的老项目还在用，肯定得学学啊！”
+- "Mặc dù JSP rất cũ, nhưng vẫn phải học, biết dùng là được, vì nhiều dự án cũ của chúng tôi vẫn dùng."
+- "Nhiều dự án cũ của central enterprises và state-owned enterprises vẫn dùng, chắc chắn phải học!"
 
-这种观点完全是钻牛角尖！如果按这种逻辑，那你还需要去学 Struts2、SVN、JavaFX 等过时技术，因为它们也还有公司在用。我有一位大学同学毕业后去了武汉的一家国企，写了一年 JavaFX 就受不了跑了。他在之前从来没有接触过 JavaFX，招聘时也没被问过相关问题。
+Quan điểm này hoàn toàn là chui đầu vào đá! Nếu theo logic này, bạn còn cần đi học Struts2, SVN, JavaFX và các công nghệ lỗi thời khác vì chúng cũng vẫn có công ty dùng. Tôi có một người bạn đại học sau khi tốt nghiệp vào một state-owned enterprise ở Wuhan, viết JavaFX một năm rồi chịu không nổi bỏ. Trước đây anh ấy chưa bao giờ tiếp xúc JavaFX, và khi tuyển dụng cũng không bị hỏi về nó.
 
-一定不要假设自己要面对的是过时技术栈的项目。你要找工作肯定要用主流技术栈去找，还要尽量找能让自己技术有成长，干着也舒服点。真要是找不到合适的工作，去维护老项目，那都是后话，现学现卖就行了。
+Nhất định đừng giả định mình sẽ đối mặt với dự án có tech stack lỗi thời. Đi tìm việc chắc chắn phải dùng tech stack mainstream để tìm, và cố gắng tìm công việc giúp kỹ thuật của mình phát triển, làm cũng thoải mái hơn. Thực sự không tìm được việc phù hợp, phải đi maintain dự án cũ — đó là chuyện về sau, học đến đâu dùng đến đó là được.
 
-**对于初学者来说别人劝了还非要学习淘汰的技术，多少脑子有点不够用，基本可以告别这一行了！**
+**Với người mới bắt đầu, người ta khuyên mà vẫn cố học công nghệ lỗi thời, thì ít nhiều não không đủ xài, về cơ bản có thể giã biệt ngành này rồi!**

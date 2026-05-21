@@ -1,135 +1,135 @@
 ---
-title: Claude Code 接入第三方模型实战：JVM 智能诊断与慢查询治理
-description: 通过 Claude Code 接入 GLM-5.1 模型，完成 JVM 智能诊断助手从零搭建和百万级数据量慢查询治理两个实战任务，分享 AI 辅助编程的工作方法与踩坑经验。
-category: AI 编程实战
+title: Thực chiến tích hợp mô hình bên thứ ba với Claude Code: Chẩn đoán thông minh JVM và xử lý slow query
+description: Thông qua việc tích hợp mô hình GLM-5.1 với Claude Code, hoàn thành hai nhiệm vụ thực chiến là xây dựng từ đầu trợ lý chẩn đoán JVM thông minh và xử lý slow query với dữ liệu hàng triệu bản ghi, chia sẻ phương pháp làm việc và kinh nghiệm thực tế trong lập trình với sự hỗ trợ của AI.
+category: Thực chiến lập trình AI
 head:
   - - meta
     - name: keywords
       content: Claude Code,AI编程,GLM-5.1,JVM诊断,慢查询优化,AI辅助开发,Arthas,Agent,Spring AI
 ---
 
-大家好，我是 Guide。前面分享过 [IDEA 搭配 Qoder 插件的实战](./idea-qoder-plugin.md)和 [Trae 接入大模型的实战](./trae-m2.7.md)，分别覆盖了 JetBrains 体系和 VS Code 体系下的 AI 辅助编码。这篇换个角度，聊聊 **Claude Code 接入第三方模型** 的实战体验。
+Xin chào mọi người, tôi là Guide. Trước đây đã chia sẻ [thực chiến IDEA kết hợp plugin Qoder](./idea-qoder-plugin.md) và [thực chiến Trae tích hợp mô hình lớn](./trae-m2.7.md), bao phủ lần lượt lập trình với sự hỗ trợ của AI trong hệ sinh thái JetBrains và VS Code. Bài này đổi góc độ, nói về trải nghiệm thực chiến của **Claude Code tích hợp mô hình bên thứ ba**.
 
-Claude Code 本身是 Anthropic 官方的 CLI 编码工具，但它支持通过环境变量切换底层模型。这意味着你不必局限于 Claude 系列，完全可以接入其他模型来使用。本文以 GLM-5.1 作为示例，但接入方式是通用的——换成其他兼容模型，流程基本一致。
+Claude Code bản thân là công cụ CLI lập trình chính thức của Anthropic, nhưng nó hỗ trợ chuyển đổi mô hình cơ bản thông qua biến môi trường. Điều này có nghĩa là bạn không phải giới hạn ở dòng Claude, hoàn toàn có thể tích hợp các mô hình khác để sử dụng. Bài này lấy GLM-5.1 làm ví dụ, nhưng cách tích hợp là chung — đổi sang các mô hình tương thích khác, quy trình về cơ bản giống nhau.
 
-我选了两个比较有代表性的复杂场景来验证：
+Tôi đã chọn hai tình huống phức tạp khá đặc trưng để kiểm chứng:
 
-- **场景一**：从零搭建一个基于 Arthas 的 JVM 智能诊断 Agent，涵盖技术选型、架构设计、编码落地的完整流程
-- **场景二**：在百万级数据量的既有订单系统中定位并治理慢查询，考验 AI 对现有代码库的理解和增量优化能力
+- **Tình huống 1**: Từ đầu xây dựng một JVM intelligent diagnosis Agent dựa trên Arthas, bao gồm toàn bộ quy trình từ lựa chọn công nghệ, thiết kế kiến trúc đến triển khai code
+- **Tình huống 2**: Trong hệ thống đơn hàng đã có với dữ liệu hàng triệu bản ghi, xác định và xử lý slow query, kiểm tra khả năng hiểu code base hiện có và tối ưu hóa tăng dần của AI
 
-一个是从零开始的工程交付，另一个是面对既有系统的性能治理，正好覆盖 AI 辅助编程的两种典型工作模式。
+Một cái là từ đầu bàn giao công trình, một cái là tối ưu hiệu năng đối mặt với hệ thống đã có, vừa hay bao phủ hai chế độ làm việc điển hình của lập trình với sự hỗ trợ của AI.
 
-## 环境准备：Claude Code 接入第三方模型
+## Chuẩn bị môi trường: Claude Code tích hợp mô hình bên thứ ba
 
-在正式开始之前，需要完成 Claude Code 与第三方模型的对接。整个配置过程分三步：
+Trước khi chính thức bắt đầu, cần hoàn thành việc kết nối Claude Code với mô hình bên thứ ba. Toàn bộ quá trình cấu hình chia ba bước:
 
-**第一步**：安装 Claude Code
+**Bước 1**: Cài đặt Claude Code
 
 ```bash
 npm i -g @anthropic-ai/claude-code@latest
 ```
 
-**第二步**：安装 cc-switch 完成模型切换（macOS 用户可通过 homebrew 安装，详情参考 cc-switch 官方文档：<https://github.com/farion1231/cc-switch/blob/main/README_ZH.md>）
+**Bước 2**: Cài đặt cc-switch để hoàn thành chuyển đổi mô hình (người dùng macOS có thể cài đặt qua homebrew, chi tiết tham khảo tài liệu chính thức cc-switch: <https://github.com/farion1231/cc-switch/blob/main/README_ZH.md>)
 
-**第三步**：按照模型提供方的说明，完成 Claude Code 内部模型环境变量与目标模型的对应关系配置。以 GLM-5.1 为例，参考：<https://docs.bigmodel.cn/cn/coding-plan/tool/claude>
+**Bước 3**: Theo hướng dẫn của nhà cung cấp mô hình, hoàn thành cấu hình quan hệ tương ứng giữa biến môi trường mô hình nội bộ Claude Code và mô hình đích. Lấy GLM-5.1 làm ví dụ, tham khảo: <https://docs.bigmodel.cn/cn/coding-plan/tool/claude>
 
-配置过程截图如下：
+Ảnh chụp màn hình quá trình cấu hình như sau:
 
-点击加号添加模型：
+Click dấu cộng để thêm mô hình:
 
 ![点击添加模型](https://oss.javaguide.cn/ai/coding/glm5.1-cc/add-model-entry.png)
 
-选择对应的模型：
+Chọn mô hình tương ứng:
 
 ![选择模型](https://oss.javaguide.cn/ai/coding/glm5.1-cc/select-model.png)
 
-配置参数：
+Cấu hình tham số:
 
 ![配置参数](https://oss.javaguide.cn/ai/coding/glm5.1-cc/config-params.png)
 
-Claude Code 内部模型环境变量与目标模型对应关系的 JSON 配置：
+Cấu hình JSON về quan hệ tương ứng giữa biến môi trường mô hình nội bộ Claude Code và mô hình đích:
 
 ![Claude Code 内部模型环境变量与模型对应关系 JSON 配置](https://oss.javaguide.cn/ai/coding/glm5.1-cc/model-env-json-config.png)
 
-如果你更偏向页面开发，推荐通过 VSCode + Claude Code for VS Code 方式进行交互和编码验收。完成插件安装之后，可以直接在 IDE 中与模型对话和代码审查，相对于 CLI 界面会更直观一些：
+Nếu bạn nghiêng về phát triển giao diện, khuyến nghị tương tác và nghiệm thu code thông qua VSCode + Claude Code for VS Code. Sau khi hoàn thành cài đặt plugin, có thể trực tiếp đối thoại với mô hình và review code trong IDE, so với giao diện CLI sẽ trực quan hơn:
 
 ![VSCode + Claude Code for VS Code](https://oss.javaguide.cn/ai/coding/glm5.1-cc/vscode-claude-code.png)
 
-## 场景一：从零搭建 JVM 智能诊断 Agent
+## Tình huống 1: Từ đầu xây dựng JVM Intelligent Diagnosis Agent
 
-### 为什么需要 JVM 智能诊断助手？
+### Tại sao cần trợ lý chẩn đoán JVM thông minh?
 
-JVM 线上诊断一直以来都是 Java 开发最棘手的问题。在传统开发模式下，面对性能瓶颈或线上故障，研发人员的排查路径基本固定：
+Chẩn đoán JVM trực tuyến từ trước đến nay vẫn là vấn đề khó khăn nhất của lập trình viên Java. Trong mô hình phát triển truyền thống, đối mặt với nút cổ chai hiệu năng hoặc sự cố trực tuyến, con đường kiểm tra của nhân viên R&D về cơ bản đã cố định:
 
-1. 查看 Grafana 监控面板，初步定位异常方向
-2. 登录线上服务器，排查 CPU、内存、GC 等各项指标
-3. 明确 Java 应用层面的问题后，启动 Arthas 执行一系列诊断指令，逐步缩小问题范围
-4. 定位到具体代码段，分析根因并制定修复方案
+1. Xem bảng giám sát Grafana, xác định sơ bộ hướng bất thường
+2. Đăng nhập vào server trực tuyến, kiểm tra các chỉ số CPU, memory, GC và các chỉ số khác
+3. Sau khi xác định rõ vấn đề ở tầng ứng dụng Java, khởi động Arthas thực thi một loạt chỉ lệnh chẩn đoán, từng bước thu hẹp phạm vi vấn đề
+4. Định vị đến đoạn code cụ thể, phân tích nguyên nhân gốc rễ và xây dựng phương án sửa chữa
 
-在 AI 出现以前，这套流程虽然繁琐，但确实是最直接有效的手段。但随着业务越来越复杂，故障响应时效要求也越来越高，传统模式的弊端越来越明显：
+Trước khi AI xuất hiện, quy trình này tuy phức tạp nhưng thực sự là phương tiện trực tiếp và hiệu quả nhất. Nhưng khi nghiệp vụ ngày càng phức tạp, yêu cầu về thời gian phản hồi sự cố cũng ngày càng cao, nhược điểm của mô hình truyền thống ngày càng rõ ràng:
 
-- **监控指标过于主观**：面对 CPU 飙升、内存泄漏、OOM 等千奇百怪的问题，监控面板上的指标繁多，研发人员往往依赖经验做主观推断，缺乏系统化的诊断方法论
-- **诊断链路过于冗长**：从 Grafana 面板到线上服务器再到 Arthas 诊断，整个排查链路涉及多个工具的切换和衔接，不仅耗时，对于紧急的线上故障止血来说显得非常低效
-- **高度依赖工程师经验**：Arthas 确实是一款强大的 JVM 诊断利器，内置各种增强指令可以深入字节码查看运行时细节。但代价是开发人员必须熟悉各种指令参数和推理路径，才能准确完成问题定位
+- **Chỉ số giám sát quá chủ quan**: Đối mặt với đủ loại vấn đề kỳ lạ như CPU tăng vọt, memory leak, OOM, chỉ số trên bảng giám sát rất nhiều, nhân viên R&D thường dựa vào kinh nghiệm để suy đoán chủ quan, thiếu phương pháp luận chẩn đoán có hệ thống
+- **Chuỗi chẩn đoán quá dài**: Từ bảng Grafana đến server trực tuyến rồi đến chẩn đoán Arthas, toàn bộ chuỗi kiểm tra liên quan đến việc chuyển đổi và kết nối nhiều công cụ, không chỉ tốn thời gian, mà đối với việc kiểm soát sự cố trực tuyến khẩn cấp còn có vẻ rất kém hiệu quả
+- **Phụ thuộc cao vào kinh nghiệm kỹ sư**: Arthas thực sự là một công cụ chẩn đoán JVM mạnh mẽ, tích hợp sẵn các chỉ lệnh enhanced khác nhau có thể đi sâu vào bytecode để xem chi tiết runtime. Nhưng cái giá là nhà phát triển phải quen thuộc với các tham số chỉ lệnh và con đường suy luận khác nhau, mới có thể chính xác hoàn thành việc xác định vị trí vấn đề
 
-随着 AI 技术的演进，特别是 Agent 和 Skill 等概念的成熟，笔者就有了一个工程化的构想：能否借助 AI 将诊断经验沉淀复用，让 AI 根据既有经验构建明确的决策路径？同时结合它的决策方案赋予对应的工具，使其基于用户给定的服务名和故障表象，自动化连接线上服务器完成诊断，定位具体代码段，最终输出问题根因和解决方案。
+Với sự tiến bộ của công nghệ AI, đặc biệt là sự trưởng thành của các khái niệm như Agent và Skill, tác giả có một ý tưởng công trình: có thể nhờ AI để kết tủa và tái sử dụng kinh nghiệm chẩn đoán, để AI xây dựng con đường quyết định rõ ràng dựa trên kinh nghiệm đã có không? Đồng thời kết hợp với phương án quyết định của nó, trao cho nó các công cụ tương ứng, dựa trên tên service và biểu hiện lỗi do người dùng cung cấp, tự động kết nối server trực tuyến để hoàn thành chẩn đoán, định vị đoạn code cụ thể, cuối cùng đưa ra nguyên nhân gốc rễ vấn đề và giải pháp.
 
-### 需求交付与架构设计
+### Bàn giao yêu cầu và thiết kế kiến trúc
 
-有了构想之后，接下来就是技术选型和方案落地。笔者将完整的需求描述交给 AI：
+Sau khi có ý tưởng, bước tiếp theo là lựa chọn công nghệ và triển khai phương án. Tác giả giao mô tả yêu cầu đầy đủ cho AI:
 
 ```bash
-研发一款基于Arthas的智能体诊断工具，该工具需实现以下核心功能：
-1. 当用户输入线上故障服务名称及具体故障现象后，系统能够自动定位至目标故障服务器，主动对目标服务进行实时监控与深度分析。
-2. 通过集成Arthas的反编译功能，精准定位到引发故障的具体代码段
-3. 基于分析结果生成包含问题根因、代码修复建议及实施步骤的完整解决思路。
+Nghiên cứu phát triển công cụ chẩn đoán thông minh dựa trên Arthas, công cụ này cần thực hiện các chức năng cốt lõi sau:
+1. Khi người dùng nhập tên service lỗi trực tuyến và hiện tượng lỗi cụ thể, hệ thống có thể tự động định vị đến server lỗi đích, chủ động theo dõi thời gian thực và phân tích sâu service đích.
+2. Thông qua tích hợp chức năng decompile của Arthas, chính xác định vị đến đoạn code cụ thể gây ra lỗi
+3. Dựa trên kết quả phân tích, tạo ra tư duy giải quyết đầy đủ bao gồm nguyên nhân gốc rễ vấn đề, gợi ý sửa chữa code và các bước triển khai.
 
-请提供该工具的技术选型方案，包括但不限于开发语言（优先考虑Java技术栈）、核心框架、数据库表设计、部署架构等，并设计详细的系统实现方案，涵盖功能模块划分、数据流程设计、关键技术难点及解决方案等内容。
+Vui lòng cung cấp phương án lựa chọn công nghệ của công cụ này, bao gồm nhưng không giới hạn ngôn ngữ phát triển (ưu tiên tech stack Java), framework cốt lõi, thiết kế bảng database, kiến trúc triển khai, v.v., và thiết kế phương án triển khai hệ thống chi tiết, bao gồm phân chia module chức năng, thiết kế quy trình dữ liệu, các điểm khó kỹ thuật và giải pháp, v.v.
 ```
 
-AI 收到需求后，没有立刻开始写代码，而是先结合项目上下文（完全空的文件夹）进行推理分析，自主完成了一份包含十几个阶段的完整技术方案。”给一个目标，AI 自己拆出整条路径”——这是 AI 辅助编程的一大优势，你可以把精力放在需求描述和方案评审上，让 AI 负责路径规划。
+Sau khi AI nhận yêu cầu, không lập tức bắt đầu viết code, mà trước tiên kết hợp ngữ cảnh dự án (thư mục file hoàn toàn trống) để suy luận phân tích, tự chủ hoàn thành một phương án kỹ thuật đầy đủ bao gồm hơn chục giai đoạn. "Đưa ra một mục tiêu, AI tự giải ra toàn bộ con đường" — đây là một ưu thế lớn của lập trình với sự hỗ trợ của AI, bạn có thể tập trung sức lực vào mô tả yêu cầu và review phương án, để AI chịu trách nhiệm lập kế hoạch con đường.
 
 ![AI 自主完成技术方案规划](https://oss.javaguide.cn/ai/coding/glm5.1-cc/ai-tech-plan.png)
 
-AI 结合需求，针对 Agent 拆解出技术选型和 Arthas 集成方案的检索。从检索关键字可以看出，它在方案选取上优先考虑成熟稳定的解决方案：
+AI kết hợp yêu cầu, tìm kiếm phương án lựa chọn công nghệ Agent và phương án tích hợp Arthas. Từ từ khóa tìm kiếm có thể thấy, trong việc lựa chọn phương án nó ưu tiên các giải pháp trưởng thành và ổn định:
 
 ![AI 检索 Agent 技术选型和 Arthas 集成方案](https://oss.javaguide.cn/ai/coding/glm5.1-cc/agent-arthas-integration-research.png)
 
-AI 检索了大量资料和 Arthas 官方文档后，输出了下面这份系统架构设计图。从上到下分三层：用户层输入服务名和故障现象，Agent 层由 Skill 引擎、Arthas HTTP Client 和 AI 分析引擎三大核心模块协同工作，最底层通过 Arthas 内置 HTTP API 对接多个目标服务实例。架构的模块划分和职责边界清晰，从故障输入到定位代码再到生成报告的完整链路设计到位：
+Sau khi AI tham khảo nhiều tài liệu và tài liệu chính thức Arthas, đưa ra sơ đồ thiết kế kiến trúc hệ thống dưới đây. Từ trên xuống dưới chia ba lớp: lớp người dùng nhập tên service và hiện tượng lỗi, lớp Agent có ba module cốt lõi là Skill engine, Arthas HTTP Client và AI analysis engine phối hợp hoạt động, lớp dưới cùng kết nối với nhiều instance service đích thông qua Arthas internal HTTP API. Phân chia module và ranh giới trách nhiệm trong kiến trúc rõ ràng, thiết kế chuỗi đầy đủ từ đầu vào lỗi đến định vị code rồi đến tạo report được thực hiện tốt:
 
 ![AI 输出的系统架构设计图](https://oss.javaguide.cn/ai/coding/glm5.1-cc/system-architecture-design.png)
 
-AI 给出了架构图之后，还进一步拆解了 6 个核心组件的职责分工——从 AI Agent Server 的流程编排，到 Arthas HTTP Client 的会话管理，到 Skill 引擎的诊断步骤链定义，再到 AI 分析引擎的报告生成，每个组件的边界和协作关系都交代得比较清楚：
+Sau khi AI đưa ra sơ đồ kiến trúc, còn tiếp tục phân tích phân công trách nhiệm của 6 thành phần cốt lõi — từ điều phối quy trình của AI Agent Server, đến quản lý session của Arthas HTTP Client, đến định nghĩa chuỗi bước chẩn đoán của Skill engine, đến việc tạo report của AI analysis engine, ranh giới và quan hệ cộng tác của từng thành phần được trình bày khá rõ ràng:
 
 ![AI 输出的核心角色分工表](https://oss.javaguide.cn/ai/coding/glm5.1-cc/core-component-roles.png)
 
-最后来看最重要的数据流设计。架构设计明确之后，只要数据流链路完整清晰，基本就可以着手开发了。AI 结合一个常见的 RT 超时场景，给出了完整的诊断链路——从 Skill 匹配、诊断步骤执行、问题追踪、根因定位，到 Arthas 反编译和最终的诊断报告输出。AI 针对 Arthas HTTP API 设计了完整的会话模式交互流程（init_session → async_exec → pull_results → interrupt_job → close_session），连`watch`、`trace`这类持续监听型命令的异步轮询机制都考虑到了。这一点在评审时需要重点关注——如果 AI 对底层工具的通信模型理解有偏差，后续编码阶段就会出现问题：
+Cuối cùng xem thiết kế data flow quan trọng nhất. Sau khi kiến trúc được xác định, miễn là chuỗi data flow đầy đủ và rõ ràng, về cơ bản có thể bắt đầu phát triển. AI kết hợp một tình huống RT timeout thông thường, đưa ra chuỗi chẩn đoán đầy đủ — từ Skill matching, thực thi bước chẩn đoán, theo dõi vấn đề, định vị nguyên nhân gốc rễ, đến decompile Arthas và cuối cùng đầu ra report chẩn đoán. AI thiết kế quy trình tương tác chế độ session đầy đủ cho Arthas HTTP API (init_session → async_exec → pull_results → interrupt_job → close_session), ngay cả cơ chế polling bất đồng bộ cho các lệnh theo dõi liên tục như `watch`, `trace` cũng được cân nhắc. Điểm này cần được chú trọng trong quá trình review — nếu AI hiểu sai mô hình giao tiếp của công cụ cơ bản, sẽ xuất hiện vấn đề trong giai đoạn code sau:
 
 ![AI 输出的数据流设计](https://oss.javaguide.cn/ai/coding/glm5.1-cc/data-flow-design.png)
 
-其他细节就不多做赘述了。整体来说，架构和数据流链路都比较到位。AI 不仅针对既有需求给出了方案，还主动输出了 6 个后续扩展方向——WebSocket 实时推送、诊断知识库向量化存储、已知 Pattern 的自动修复补丁、告警联动自动触发诊断、自定义 Skill 市场、多语言支持。这些扩展方向都紧扣当前架构的技术延伸：知识库基于现有的诊断报告数据，自动修复基于已有的 Skill 引擎，告警联动基于现有的服务实例查询机制。
+Các chi tiết khác không cần nói nhiều. Nhìn chung, kiến trúc và chuỗi data flow đều khá tốt. AI không chỉ đưa ra phương án cho yêu cầu đã có, còn chủ động đưa ra 6 hướng mở rộng tiếp theo — WebSocket real-time push, vector hóa lưu trữ knowledge base chẩn đoán, auto-fix patch cho các Pattern đã biết, liên kết cảnh báo tự động kích hoạt chẩn đoán, thị trường Skill tùy chỉnh, hỗ trợ đa ngôn ngữ. Các hướng mở rộng này đều bám sát vào phần mở rộng kỹ thuật của kiến trúc hiện tại: knowledge base dựa trên dữ liệu report chẩn đoán đã có, auto-fix dựa trên Skill engine đã có, liên kết cảnh báo dựa trên cơ chế truy vấn instance service đã có.
 
 ![AI 给出的后续扩展建议](https://oss.javaguide.cn/ai/coding/glm5.1-cc/extension-suggestions.png)
 
-### 编码交付与工程结构
+### Bàn giao code và cấu trúc công trình
 
-确认方案没有问题后，笔者直接下达开发指令：
+Sau khi xác nhận phương án không có vấn đề, tác giả trực tiếp ra lệnh phát triển:
 
 ```bash
-整体方案没有问题，请完成开发工作吧
+Phương án tổng thể không có vấn đề, vui lòng hoàn thành công việc phát triển
 ```
 
-AI 收到指令后，开始自主编码。按照之前的架构设计，逐模块推进——从父 POM 和 Maven 多模块骨架搭建，到通用工具类、数据模型、数据访问层、Arthas 客户端封装、Skill 引擎、AI 分析引擎、业务逻辑层、Web 控制器，直到启动模块和部署配置，11 个子步骤全部完成：
+Sau khi AI nhận lệnh, bắt đầu tự chủ code. Theo thiết kế kiến trúc trước đó, từng module tiến lên — từ parent POM và dựng bộ khung Maven multi-module, đến lớp tiện ích chung, mô hình dữ liệu, lớp truy cập dữ liệu, đóng gói Arthas client, Skill engine, AI analysis engine, tầng logic nghiệp vụ, Web controller, đến module khởi động và cấu hình triển khai, 11 bước con tất cả đều hoàn thành:
 
 ![AI 自主编码过程](https://oss.javaguide.cn/ai/coding/glm5.1-cc/ai-coding-process.png)
 
-片刻之后，AI 完成了全部编码工作，并输出了一份详细的交付清单。9 个模块、46 个文件全部到位——从通用工具类到 7 个内置诊断 Skill，从 Arthas HTTP API 的 exec+session 双模式封装到 Spring AI Alibaba 诊断分析器，一个不少：
+Sau một lúc, AI hoàn thành tất cả công việc code, và đưa ra một danh sách bàn giao chi tiết. 9 module, 46 file tất cả đều có — từ lớp tiện ích chung đến 7 Skill chẩn đoán tích hợp sẵn, từ đóng gói Arthas HTTP API theo chế độ kép exec+session đến Spring AI Alibaba diagnosis analyzer, không thiếu cái nào:
 
 ![AI 完成编码后输出的交付清单](https://oss.javaguide.cn/ai/coding/glm5.1-cc/delivery-checklist.png)
 
-先看整体模块结构，AI 按照 Java 多模块的标准规范完成了工程划分，从上到下严格遵循 common→model→dal→client→skill→ai→service→web→bootstrap 的依赖层级，命名规范统一。
+Trước tiên xem cấu trúc module tổng thể, AI theo tiêu chuẩn quy chuẩn Java multi-module hoàn thành phân chia công trình, từ trên xuống dưới nghiêm ngặt tuân theo cấp độ phụ thuộc common→model→dal→client→skill→ai→service→web→bootstrap, quy ước đặt tên thống nhất.
 
-agent-skill 模块值得关注，AI 设计了 Skill 引擎的抽象接口，并内置了 7 个覆盖常见 JVM 故障场景的诊断技能（CPU 飙高、OOM、死锁、慢接口、GC 异常、线程泄漏、类找不到），每个 Skill 都定义了完整的诊断步骤链。这种”框架 + 内置实现”的设计思路，扩展性不错：
+Module agent-skill đáng quan tâm, AI thiết kế interface trừu tượng của Skill engine, và tích hợp sẵn 7 kỹ năng chẩn đoán bao phủ các tình huống lỗi JVM thông thường (CPU tăng vọt, OOM, deadlock, interface chậm, GC bất thường, thread leak, class not found), mỗi Skill đều định nghĩa chuỗi bước chẩn đoán đầy đủ. Tư duy thiết kế "framework + built-in implementation" này có khả năng mở rộng tốt:
 
 ```bash
 jvm-ai-agent/
@@ -147,13 +147,13 @@ jvm-ai-agent/
 └── pom.xml                              # 父 POM
 ```
 
-再看诊断核心逻辑，AI 严格按照架构设计中定义的数据流完成了完整的诊断业务链开发。整个 `executeDiagnosis` 方法按照 Skill 匹配、实例定位、诊断链执行、动态命令解析、AI 分析、报告生成的流程推进，异常处理也考虑到了非关键步骤失败时继续执行的容错策略：
+Lại xem logic nghiệp vụ chẩn đoán cốt lõi, AI nghiêm ngặt theo data flow được định nghĩa trong thiết kế kiến trúc hoàn thành phát triển chuỗi nghiệp vụ chẩn đoán đầy đủ. Toàn bộ phương thức `executeDiagnosis` theo quy trình Skill matching, định vị instance, thực thi chuỗi chẩn đoán, phân tích lệnh động, AI analysis, tạo report tiến lên, xử lý ngoại lệ cũng cân nhắc đến chiến lược tiếp tục thực thi khi bước không quan trọng thất bại:
 
-1. **Skill 匹配**：通过`DefaultSkillMatcher`根据故障现象关键词匹配最佳诊断技能
-2. **实例定位**：通过`ServiceInstanceLocator`根据服务名解析目标实例 IP 和 Arthas 端口
-3. **诊断链执行**：遍历 Skill 定义的诊断步骤链，依次执行 Arthas 命令并收集结果
-4. **动态命令解析**：从 Arthas 输出中提取类名、方法名等上下文变量，注入后续步骤的动态命令模板
-5. **AI 分析报告**：将全部诊断数据交给 AI 分析引擎，生成包含根因、修复建议、严重程度的结构化报告
+1. **Skill matching**: Thông qua `DefaultSkillMatcher` khớp kỹ năng chẩn đoán tốt nhất dựa trên từ khóa hiện tượng lỗi
+2. **Định vị instance**: Thông qua `ServiceInstanceLocator` phân giải IP đích và Arthas port dựa trên tên service
+3. **Thực thi chuỗi chẩn đoán**: Duyệt qua chuỗi bước chẩn đoán được định nghĩa bởi Skill, lần lượt thực thi lệnh Arthas và thu thập kết quả
+4. **Phân tích lệnh động**: Trích xuất từ đầu ra Arthas các biến ngữ cảnh như tên class, tên method, inject vào template lệnh động cho các bước tiếp theo
+5. **AI analysis report**: Giao toàn bộ dữ liệu chẩn đoán cho AI analysis engine, tạo report có cấu trúc bao gồm nguyên nhân gốc rễ, gợi ý sửa chữa, mức độ nghiêm trọng
 
 ```java
 private void executeDiagnosis(DiagnosisRecord record, DiagnosisRequest request) {
@@ -219,19 +219,19 @@ private void executeDiagnosis(DiagnosisRecord record, DiagnosisRequest request) 
 }
 ```
 
-### Agent 交互页面集成
+### Tích hợp giao diện tương tác Agent
 
-在 AI 编码期间，笔者查阅了 Spring AI Alibaba 的官方文档，发现它提供了现成的 Agent Chat UI。与其让 AI 从头生成前端页面，不如直接集成这个交互组件，实现 SSE 流式输出的诊断体验。于是笔者给了一条简短的指令：
+Trong quá trình AI code, tác giả đã tham khảo tài liệu chính thức của Spring AI Alibaba, phát hiện nó cung cấp sẵn Agent Chat UI. Thay vì để AI tạo trang frontend từ đầu, không bằng trực tiếp tích hợp component tương tác này, thực hiện trải nghiệm chẩn đoán SSE streaming output. Vì vậy tác giả đưa ra một lệnh ngắn:
 
 ```bash
-根据Spring AI Alibaba官方文档（参考链接https://java2ai.com/docs/frameworks/studio/quick-start：），实现agent智能体交互页面开发工作
+Theo tài liệu chính thức Spring AI Alibaba (tham khảo link https://java2ai.com/docs/frameworks/studio/quick-start：), thực hiện công việc phát triển trang tương tác agent thông minh
 ```
 
-只给了一个文档链接和一句话，AI 就自己去读官方文档、理解集成步骤、完成了页面开发。这也是使用 AI 辅助编程的一个实用技巧：当你只需要集成某个现成组件时，直接给出文档链接往往比详细描述需求更高效。
+Chỉ đưa ra một link tài liệu và một câu nói, AI tự đi đọc tài liệu chính thức, hiểu các bước tích hợp, hoàn thành phát triển trang. Đây cũng là một kỹ thuật thực dụng khi sử dụng AI hỗ trợ lập trình: khi bạn chỉ cần tích hợp một component sẵn có nào đó, trực tiếp đưa ra link tài liệu thường hiệu quả hơn việc mô tả yêu cầu chi tiết.
 
 ![AI 完成 Agent Chat UI 页面集成](https://oss.javaguide.cn/ai/coding/glm5.1-cc/agent-chat-ui-integration.png)
 
-到这里，一个完整的智能诊断 Agent 就构建完成了。为了验收功能，笔者在本地起了一个 CPU 飙升的测试接口：
+Đến đây, một Agent chẩn đoán thông minh hoàn chỉnh đã được xây dựng xong. Để nghiệm thu chức năng, tác giả đã khởi động một interface test CPU tăng vọt ở local:
 
 ```java
 @Slf4j
@@ -245,26 +245,26 @@ public class TestController {
 }
 ```
 
-启动 Agent 服务，访问 `http://localhost:{应用端口}/chatui/index.html`，在聊天框输入：`order-service 程序CPU飙升,请协助排查`。Agent 在收到故障表象后，完成了完整的诊断链路——先通过 Dashboard 获取概览定位到 CPU 占用最高的线程 ID，再基于线程栈帧信息定位到问题代码段，最后通过 Arthas 反编译（jad）输出热点代码并生成包含根因分析和修复建议的完整诊断报告。整个过程 Agent 全程自主完成，SSE 流式输出让每一步诊断进度都清晰可见：
+Khởi động Agent service, truy cập `http://localhost:{应用端口}/chatui/index.html`, trong hộp chat nhập: `order-service 程序CPU飙升,请协助排查`. Agent sau khi nhận được biểu hiện lỗi, hoàn thành chuỗi chẩn đoán đầy đủ — trước tiên thông qua Dashboard lấy tổng quan định vị đến Thread ID có mức sử dụng CPU cao nhất, sau đó dựa trên thông tin stack frame thread định vị đến đoạn code vấn đề, cuối cùng thông qua decompile Arthas (jad) đầu ra code hotspot và tạo report chẩn đoán đầy đủ bao gồm phân tích nguyên nhân gốc rễ và gợi ý sửa chữa. Toàn bộ quá trình Agent hoàn toàn tự chủ hoàn thành, SSE streaming output làm cho mỗi bước tiến độ chẩn đoán đều rõ ràng:
 
 ![Agent 诊断效果演示](https://oss.javaguide.cn/ai/coding/glm5.1-cc/agent-diagnosis-demo.png)
 
-## 场景二：百万级数据量下的慢查询治理
+## Tình huống 2: Xử lý slow query với dữ liệu hàng triệu bản ghi
 
-场景一验证的是 AI”从 0 到 1 的规划与交付能力”，那场景二要验证的就是另一个维度：**在一个已有一定复杂度的代码库中，AI 能否准确理解既有架构、定位问题、并完成增量优化。**
+Tình huống 1 kiểm chứng "khả năng lập kế hoạch và bàn giao từ đầu" của AI, thì tình huống 2 muốn kiểm chứng một chiều khác: **Trong một code base đã có độ phức tạp nhất định, AI có thể chính xác hiểu kiến trúc đã có, xác định vấn đề và hoàn thành tối ưu hóa tăng dần không.**
 
-### 问题定位：搜索接口耗时 18 秒
+### Xác định vấn đề: Interface tìm kiếm mất 18 giây
 
-这是一个基于 Spring Boot + MyBatis 的订单查询服务（glm-testing-service），核心业务围绕订单的查询和分析展开，包含四个接口：
+Đây là một service truy vấn đơn hàng dựa trên Spring Boot + MyBatis (glm-testing-service), nghiệp vụ cốt lõi xoay quanh truy vấn và phân tích đơn hàng, bao gồm bốn interface:
 
-| 接口         | 路径                           | 说明                                 |
-| ------------ | ------------------------------ | ------------------------------------ |
-| 用户订单查询 | POST /api/orders/user          | 按用户 ID 查询订单列表，支持状态筛选 |
-| 订单搜索     | POST /api/orders/search        | 按时间区间+金额+商品关键词搜索订单   |
-| 品类销售统计 | GET /api/orders/category-stats | 按订单状态统计各品类销售汇总         |
-| 组合条件筛选 | POST /api/orders/filter        | 按用户+多状态+多品类组合筛选         |
+| Interface                       | Đường dẫn                      | Mô tả                                                                |
+| ------------------------------- | ------------------------------ | -------------------------------------------------------------------- |
+| Truy vấn đơn hàng người dùng    | POST /api/orders/user          | Truy vấn danh sách đơn hàng theo user ID, hỗ trợ lọc trạng thái      |
+| Tìm kiếm đơn hàng               | POST /api/orders/search        | Tìm kiếm đơn hàng theo khoảng thời gian + số tiền + từ khóa sản phẩm |
+| Thống kê bán hàng theo danh mục | GET /api/orders/category-stats | Thống kê tổng hợp bán hàng các danh mục theo trạng thái đơn hàng     |
+| Lọc điều kiện kết hợp           | POST /api/orders/filter        | Lọc kết hợp theo người dùng + nhiều trạng thái + nhiều danh mục      |
 
-数据库中灌入了百万级测试数据，对应的表结构如下：
+Đã nạp dữ liệu test hàng triệu bản ghi vào database, cấu trúc bảng tương ứng như sau:
 
 ```sql
 CREATE TABLE `orders` (
@@ -285,7 +285,7 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-项目通过 AOP 切面自动记录每个接口的执行耗时，用于快速定位性能瓶颈：
+Dự án thông qua AOP để tự động ghi lại thời gian thực thi của từng interface, dùng để nhanh chóng xác định nút cổ chai hiệu năng:
 
 ```java
 @Around("controllerPointcut()")
@@ -298,7 +298,7 @@ public Object printExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable
 }
 ```
 
-向数据库灌入百万级测试数据后，对搜索订单接口进行压测。该接口涉及关键词模糊匹配+时间区间+金额过滤的组合查询，例如下面这个搜索请求：
+Sau khi nạp dữ liệu test hàng triệu bản ghi vào database, stress test interface tìm kiếm đơn hàng. Interface này liên quan đến truy vấn kết hợp khớp fuzzy từ khóa + khoảng thời gian + lọc số tiền, ví dụ request tìm kiếm sau:
 
 ```bash
 curl -X POST http://localhost:8080/api/orders/search \
@@ -306,47 +306,47 @@ curl -X POST http://localhost:8080/api/orders/search \
   -d '{"startTime": "2025-01-01", "endTime": "2026-12-31", "minAmount": 500, "productName": "蓝牙", "pageNum": 1, "pageSize": 10}'
 ```
 
-系统日志直接输出了刺眼的慢查询告警：
+System log trực tiếp đưa ra cảnh báo slow query đập vào mắt:
 
 ```bash
 [http-nio-8080-exec-1] OrderController.searchOrders 耗时: 18375ms
 ```
 
-`LIKE '%蓝牙%'`的全表扫描导致接口耗时近 18 秒，当前业务接口的实现性能完全无法满足线上要求：
+Full table scan của `LIKE '%蓝牙%'` dẫn đến interface mất gần 18 giây, hiệu năng triển khai interface nghiệp vụ hiện tại hoàn toàn không thể đáp ứng yêu cầu trực tuyến:
 
-![搜索接口耗时 18 秒的调测结果](https://oss.javaguide.cn/ai/coding/glm5.1-cc/search-api-18s-result.png)
+![接口耗时 18 秒的调测结果](https://oss.javaguide.cn/ai/coding/glm5.1-cc/search-api-18s-result.png)
 
-### 分析与优化方案设计
+### Phân tích và thiết kế phương án tối ưu
 
-笔者直接将系统日志中的慢查询告警丢给 AI，让其结合项目既有代码完成推理分析和优化方案设计：
+Tác giả trực tiếp đưa cảnh báo slow query trong system log cho AI, để nó kết hợp code đã có của dự án để hoàn thành phân tích suy luận và thiết kế phương án tối ưu:
 
 ```bash
-针对系统日志中记录的"[http-nio-8080-exec-1] OrderController.searchOrders 耗时: 18375ms"这一慢查询接口问题，对订单业务进行全面梳理分析并提供优化建议。
+Đối với vấn đề slow query interface "[http-nio-8080-exec-1] OrderController.searchOrders 耗时: 18375ms" được ghi lại trong system log, thực hiện phân tích toàn diện và cung cấp gợi ý tối ưu cho nghiệp vụ đơn hàng.
 ```
 
-AI 定位到目标业务代码，结合 SQL 和表结构，从索引设计维度给出了系统性的解决方案：
+AI định vị đến code nghiệp vụ đích, kết hợp SQL và cấu trúc bảng, đưa ra giải pháp có hệ thống từ chiều thiết kế chỉ mục:
 
 ![AI 给出的慢查询解决方案](https://oss.javaguide.cn/ai/coding/glm5.1-cc/slow-query-solution.png)
 
-同时给出了分阶段优化建议和预期效果：
+Đồng thời đưa ra gợi ý tối ưu hóa theo giai đoạn và hiệu quả kỳ vọng:
 
 ![AI 给出的分阶段优化建议](https://oss.javaguide.cn/ai/coding/glm5.1-cc/phased-optimization-suggestions.png)
 
-确认方向没问题后，笔者给出最终优化指令：
+Sau khi xác nhận hướng đúng, tác giả đưa ra lệnh tối ưu cuối cùng:
 
 ```bash
-请结合项目现有技术栈，对慢查询模块进行系统性优化
+Kết hợp tech stack hiện có của dự án, thực hiện tối ưu hóa có hệ thống module slow query
 ```
 
-AI 逐个梳理了每个接口的业务逻辑和查询细节。优化步骤自底向上，从数据库层面推进到应用层面，方案涵盖以下几个关键点：
+AI lần lượt phân tích logic nghiệp vụ và chi tiết truy vấn của từng interface. Các bước tối ưu từ dưới lên, từ tầng database tiến đến tầng ứng dụng, phương án bao gồm một vài điểm chính sau:
 
-**数据库层面**——新增 5 个精准索引：
+**Tầng database** — thêm 5 chỉ mục chính xác:
 
-- 全文索引`ft_product_name`（ngram 解析器，支持中文分词）替代`LIKE '%xxx%'`全表扫描
-- 复合索引`idx_create_time_amount`覆盖时间+金额的 WHERE 和 ORDER BY，避免 filesort
-- 覆盖索引`idx_search_covering`让 COUNT 查询不回表
-- 组合索引`idx_user_status_category`优化多条件筛选
-- 覆盖索引`idx_status_category_amount`优化品类聚合统计
+- Full-text index `ft_product_name` (ngram parser, hỗ trợ phân từ tiếng Trung) thay thế full table scan `LIKE '%xxx%'`
+- Composite index `idx_create_time_amount` bao phủ WHERE và ORDER BY của thời gian + số tiền, tránh filesort
+- Covering index `idx_search_covering` giúp truy vấn COUNT không cần quay lại bảng
+- Composite index `idx_user_status_category` tối ưu lọc đa điều kiện
+- Covering index `idx_status_category_amount` tối ưu thống kê tổng hợp danh mục
 
 ```sql
 ALTER TABLE `orders` ADD FULLTEXT INDEX `ft_product_name` (`product_name`) WITH PARSER ngram;
@@ -356,21 +356,21 @@ ALTER TABLE `orders` ADD INDEX `idx_user_status_category` (`user_id`, `status`, 
 ALTER TABLE `orders` ADD INDEX `idx_status_category_amount` (`status`, `category`, `total_amount`);
 ```
 
-**应用层面**——SQL 和 Service 层同步优化：
+**Tầng ứng dụng** — SQL và tầng Service đồng bộ tối ưu:
 
-- `LIKE '%xxx%'`替换为`MATCH ... AGAINST`全文检索
-- 深分页场景自动切换延迟关联（Deferred Join），通过覆盖索引子查询先定位主键再回表
-- 按需 COUNT：默认不查总数，仅前端显式传`needTotal=true`时才执行
+- `LIKE '%xxx%'` thay thế bằng `MATCH ... AGAINST` full-text search
+- Tình huống deep pagination tự động chuyển sang Deferred Join, thông qua subquery covering index định vị primary key trước rồi mới quay lại bảng
+- COUNT theo nhu cầu: mặc định không query tổng số, chỉ khi frontend rõ ràng truyền `needTotal=true` mới thực thi
 
-下面是 AI 输出的索引优化方案，5 条 DDL 语句全部给出，且每个索引的设计都有明确的优化目标：
+Dưới đây là phương án tối ưu chỉ mục do AI đưa ra, 5 câu DDL đều được cung cấp, và mỗi chỉ mục đều có mục tiêu tối ưu rõ ràng:
 
 ![AI 输出的索引优化 SQL 脚本](https://oss.javaguide.cn/ai/coding/glm5.1-cc/index-optimization-sql.png)
 
-从代码 diff 可以直观地看到，AI 在既有代码中进行增量迭代，将`LIKE`模糊查询替换为全文检索，同时保留原有业务逻辑不变：
+Từ code diff có thể trực quan thấy, AI trong code đã có thực hiện tối ưu tăng dần, thay thế truy vấn fuzzy `LIKE` bằng full-text search, đồng thời giữ nguyên logic nghiệp vụ gốc không thay đổi:
 
 ![AI 在既有代码中完成增量优化](https://oss.javaguide.cn/ai/coding/glm5.1-cc/incremental-code-optimization.png)
 
-对于深分页的问题，AI 结合当前百万级数据量给出了具体的分页阈值——当 offset 超过 1000 时自动切换为延迟关联查询（Deferred Join），浅分页走普通查询，深分页走覆盖索引子查询先定位主键再回表：
+Đối với vấn đề deep pagination, AI kết hợp với dữ liệu hàng triệu bản ghi hiện tại đưa ra ngưỡng phân trang cụ thể — khi offset vượt quá 1000 tự động chuyển sang Deferred Join query, phân trang nông dùng truy vấn thông thường, phân trang sâu dùng subquery covering index định vị primary key trước rồi mới quay lại bảng:
 
 ```java
 /** 深分页阈值：offset 超过此值时自动切换为延迟关联查询 */
@@ -386,71 +386,71 @@ if (isDeepPage) {
 }
 ```
 
-AI 在这个方案中结合具体数据量给出了阈值策略。在评审这类方案时，建议关注阈值的合理性——1000 这个值在百万级数据量下是合理的，但如果你的数据量是千万级或十万级，可能需要调整。
+AI trong phương án này kết hợp dữ liệu cụ thể đưa ra chiến lược ngưỡng. Khi review loại phương án này, khuyến nghị chú ý đến tính hợp lý của ngưỡng — giá trị 1000 này hợp lý với dữ liệu hàng triệu bản ghi, nhưng nếu dữ liệu của bạn là hàng chục triệu hoặc hàng trăm nghìn, có thể cần điều chỉnh.
 
 ![AI 针对深分页场景基于阈值自动切换查询策略的代码实现](https://oss.javaguide.cn/ai/coding/glm5.1-cc/deep-pagination-threshold-code.png)
 
-全部优化完成后，AI 输出了最终的优化效果总结，涵盖各接口的优化前后对比：
+Sau khi hoàn thành tất cả tối ưu, AI đưa ra tổng kết hiệu quả tối ưu cuối cùng, bao gồm so sánh trước và sau tối ưu của các interface:
 
 ![AI 输出的最终优化效果总结](https://oss.javaguide.cn/ai/coding/glm5.1-cc/optimization-summary.png)
 
-### 优化效果验证
+### Kiểm chứng hiệu quả tối ưu
 
-完成改造后再次对接口进行压测，效果如下。接口经过预热后耗时稳定控制在 300ms 以内，**从 18375ms 降至 300ms 以内，性能提升超过 60 倍。** 整个过程中，笔者做的事情就三件：给出问题、评审方案、验收结果。
+Sau khi hoàn thành cải tiến, stress test lại interface, kết quả như sau. Interface sau khi khởi động ổn định thời gian duy trì trong vòng 300ms, **từ 18375ms xuống dưới 300ms, hiệu năng cải thiện hơn 60 lần.** Trong toàn bộ quá trình, việc tác giả làm chỉ có ba thứ: đưa ra vấn đề, review phương án, nghiệm thu kết quả.
 
 ![优化后接口耗时降至 300ms 以内](https://oss.javaguide.cn/ai/coding/glm5.1-cc/optimized-api-300ms.png)
 
-## 实战总结
+## Tổng kết thực chiến
 
-通过两个场景的实战，总结一下 Claude Code + 第三方模型辅助编程的经验和思考。
+Thông qua thực chiến trong hai tình huống, tóm tắt kinh nghiệm và suy nghĩ về lập trình với sự hỗ trợ của Claude Code + mô hình bên thứ ba.
 
-### AI 辅助编程能做什么
+### Lập trình với sự hỗ trợ của AI có thể làm gì
 
-| 能力维度         | 场景表现                                            | 说明                                     |
-| ---------------- | --------------------------------------------------- | ---------------------------------------- |
-| 需求到架构的规划 | 场景一：给出需求描述，AI 自主完成技术选型和架构设计 | 适合快速验证构想，但方案仍需人工评审     |
-| 端到端编码交付   | 场景一：9 个模块 46 个文件自主交付                  | 从骨架搭建到业务逻辑，减少重复编码工作量 |
-| 既有代码增量优化 | 场景二：在百万级数据量的项目中定位慢查询并优化      | 能结合表结构和 SQL 给出分阶段优化方案    |
-| 数据量感知决策   | 场景二：结合具体数据量给出分页阈值策略              | 基于业务体量做判断，而非通用方案         |
+| Chiều năng lực                        | Biểu hiện tình huống                                                                              | Giải thích                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Lập kế hoạch từ yêu cầu đến kiến trúc | Tình huống 1: Đưa ra mô tả yêu cầu, AI tự chủ hoàn thành lựa chọn công nghệ và thiết kế kiến trúc | Phù hợp để nhanh chóng kiểm chứng ý tưởng, nhưng phương án vẫn cần review thủ công |
+| Bàn giao code end-to-end              | Tình huống 1: 9 module 46 file tự chủ bàn giao                                                    | Từ dựng bộ khung đến logic nghiệp vụ, giảm khối lượng code lặp lại                 |
+| Tối ưu tăng dần code đã có            | Tình huống 2: Xác định slow query và tối ưu trong dự án dữ liệu hàng triệu bản ghi                | Có thể kết hợp cấu trúc bảng và SQL đưa ra phương án tối ưu theo giai đoạn         |
+| Quyết định nhận biết dữ liệu          | Tình huống 2: Kết hợp dữ liệu cụ thể đưa ra chiến lược ngưỡng phân trang                          | Phán đoán dựa trên quy mô nghiệp vụ, thay vì phương án chung                       |
 
-### 实战中需要注意的地方
+### Những điều cần chú ý trong thực chiến
 
-**做得好的地方**：
+**Những điểm làm tốt**:
 
-- **快速验证架构构想**：场景一中，从需求描述到完整的技术方案和架构设计，整个过程不到 10 分钟，对快速验证技术可行性很有帮助
-- **多层级方案输出**：慢查询场景中，数据库层面的索引优化和应用层面的 SQL 重构同步推进，覆盖比较全面
-- **结合数据量做决策**：场景二中针对百万级数据量给出了深分页阈值，而不是简单套用通用方案
+- **Nhanh chóng kiểm chứng ý tưởng kiến trúc**: Trong tình huống 1, từ mô tả yêu cầu đến phương án kỹ thuật và thiết kế kiến trúc hoàn chỉnh, toàn bộ quá trình dưới 10 phút, rất hữu ích cho việc nhanh chóng kiểm chứng tính khả thi kỹ thuật
+- **Đầu ra phương án đa lớp**: Trong tình huống slow query, tối ưu chỉ mục tầng database và refactor SQL tầng ứng dụng đồng bộ tiến lên, bao phủ tương đối toàn diện
+- **Quyết định kết hợp dữ liệu**: Tình huống 2 đưa ra ngưỡng deep pagination cho dữ liệu hàng triệu bản ghi, thay vì đơn giản áp dụng phương án chung
 
-**需要注意的地方**：
+**Những điều cần chú ý**:
 
-- **架构方案需要人工评审**：AI 给出的架构设计和数据流看似完整，但细节上可能存在问题。比如场景一中 Arthas HTTP API 的会话模式设计，需要你理解 Arthas 的通信模型才能判断其合理性
-- **长链路执行中偶尔断链**：在复杂的持续编码任务中，AI 有时会在后半程遗忘前面的设计约束。建议将复杂任务拆分成明确的阶段，每个阶段独立确认
-- **代码风格与工程规范**：生成的代码结构合理，但与个人/团队既有规范的契合度需要磨合。场景一中有部分命名和文件组织就需要手动调整
-- **方案选择的权衡**：AI 会给出多个方案，但不会替你做权衡。比如场景二中全文索引 vs ES 的选择、延迟关联 vs 游标分页的取舍，这些需要根据业务场景判断
+- **Phương án kiến trúc cần review thủ công**: Thiết kế kiến trúc và data flow do AI đưa ra trông có vẻ đầy đủ, nhưng trong chi tiết có thể tồn tại vấn đề. Ví dụ thiết kế chế độ session của Arthas HTTP API trong tình huống 1, cần bạn hiểu mô hình giao tiếp của Arthas mới có thể phán đoán tính hợp lý của nó
+- **Thỉnh thoảng đứt gãy trong thực thi chuỗi dài**: Trong tác vụ code liên tục phức tạp, AI đôi khi sẽ quên mất các ràng buộc thiết kế trước đó ở nửa sau. Khuyến nghị chia nhỏ tác vụ phức tạp thành các giai đoạn rõ ràng, mỗi giai đoạn xác nhận độc lập
+- **Phong cách code và quy chuẩn công trình**: Cấu trúc code được tạo ra hợp lý, nhưng mức độ phù hợp với quy chuẩn cá nhân/nhóm cần sự mài giũa. Trong tình huống 1 có một phần đặt tên và tổ chức file cần chỉnh tay
+- **Sự đánh đổi trong lựa chọn phương án**: AI sẽ đưa ra nhiều phương án, nhưng không thể thay bạn đánh đổi. Ví dụ trong tình huống 2, lựa chọn full-text index vs ES, sự đánh đổi giữa Deferred Join vs cursor pagination, những điều này cần phán đoán dựa trên tình huống nghiệp vụ
 
-### 使用 Claude Code + 第三方模型的一些建议
+### Một số gợi ý khi sử dụng Claude Code + mô hình bên thứ ba
 
-1. **需求描述要具体**：场景一中完整的需求 prompt 直接决定了架构方案的质量，模糊的需求只会得到模糊的方案
-2. **分阶段确认**：复杂项目不要一次性让 AI 从头到尾生成，技术选型 → 架构设计 → 编码实现，每个阶段独立评审
-3. **关键决策人工把控**：架构层面的选择（如缓存策略、分页方案）需要根据业务场景判断，AI 无法替你做
-4. **善用文档链接**：当需要集成某个现成组件时（如场景一的 Spring AI Alibaba），直接给出文档链接比详细描述需求更高效
+1. **Mô tả yêu cầu cần cụ thể**: Trong tình huống 1, prompt yêu cầu đầy đủ trực tiếp quyết định chất lượng phương án kiến trúc, yêu cầu mơ hồ chỉ có thể nhận được phương án mơ hồ
+2. **Xác nhận từng giai đoạn**: Dự án phức tạp không nên để AI tạo từ đầu đến cuối một lần, lựa chọn công nghệ → thiết kế kiến trúc → triển khai code, mỗi giai đoạn review độc lập
+3. **Kiểm soát thủ công các quyết định quan trọng**: Các lựa chọn ở tầng kiến trúc (như chiến lược cache, phương án phân trang) cần phán đoán dựa trên tình huống nghiệp vụ, AI không thể thay bạn làm
+4. **Tận dụng link tài liệu**: Khi cần tích hợp một component sẵn có nào đó (như Spring AI Alibaba trong tình huống 1), trực tiếp đưa ra link tài liệu hiệu quả hơn mô tả yêu cầu chi tiết
 
-## 写在最后
+## Lời kết
 
-Claude Code 接入第三方模型后，在 Agent 模式下的上下文理解、任务拆解、代码生成形成了比较完整的工作流。两个场景跑下来，AI 辅助编程确实能缩短”从想法到代码”的时间。
+Sau khi Claude Code tích hợp mô hình bên thứ ba, hiểu ngữ cảnh, phân chia task, tạo code trong chế độ Agent tạo thành quy trình làm việc tương đối hoàn chỉnh. Hai tình huống chạy xong, lập trình với sự hỗ trợ của AI quả thực có thể rút ngắn thời gian "từ ý tưởng đến code".
 
-但工具终究只是工具。回顾本文的两个场景：
+Nhưng công cụ cuối cùng chỉ là công cụ. Nhìn lại hai tình huống trong bài viết này:
 
-- **场景一中的 JVM 智能诊断 Agent**，需要对 Arthas 的通信模型、JVM 诊断方法论有清晰认知，才能评审 AI 给出的架构方案是否合理——Arthas HTTP API 的会话生命周期管理、Skill 引擎的诊断步骤链设计，这些都需要你来把关。
+- **JVM Intelligent Diagnosis Agent trong tình huống 1**, cần có nhận thức rõ ràng về mô hình giao tiếp của Arthas, phương pháp luận chẩn đoán JVM, mới có thể review phương án kiến trúc do AI đưa ra có hợp lý không — quản lý vòng đời session của Arthas HTTP API, thiết kế chuỗi bước chẩn đoán của Skill engine, những điều này đều cần bạn kiểm soát.
 
-- **场景二中的慢查询治理**，需要对 MySQL 索引原理、全文检索机制、深分页优化策略有深入理解，才能判断 AI 给出的优化方案是否适用于你的业务场景——比如全文索引在写入频繁的场景下可能带来性能损耗，延迟关联的阈值需要根据实际数据量调整。
+- **Xử lý slow query trong tình huống 2**, cần hiểu sâu về nguyên lý chỉ mục MySQL, cơ chế full-text search, chiến lược tối ưu deep pagination, mới có thể phán đoán phương án tối ưu do AI đưa ra có phù hợp với tình huống nghiệp vụ của bạn không — ví dụ full-text index trong tình huống ghi dày đặc có thể gây ra tổn thất hiệu năng, ngưỡng của Deferred Join cần điều chỉnh dựa trên dữ liệu thực tế.
 
-AI 编程工具正在改变开发者的工作方式——从”写代码的人”变成”评审代码的人”。用好 AI 的前提，是比 AI 更懂你在做什么。
+Công cụ lập trình AI đang thay đổi phương thức làm việc của developer — từ "người viết code" trở thành "người review code". Tiền đề để dùng tốt AI, là bạn phải hiểu rõ hơn AI về những gì bạn đang làm.
 
-## 参考
+## Tham khảo
 
-- GLM-5.1 Coding Plan 上线公告：<https://docs.bigmodel.cn/cn/coding-plan/>
-- Claude Code 安装指南：<https://docs.anthropic.com/en/docs/claude-code>
-- cc-switch 模型切换工具：<https://github.com/farion1231/cc-switch>
-- Spring AI Alibaba 官方文档：<https://java2ai.com/docs/>
-- Arthas 官方文档：<https://arthas.aliyun.com/doc/>
+- Thông báo ra mắt GLM-5.1 Coding Plan: <https://docs.bigmodel.cn/cn/coding-plan/>
+- Hướng dẫn cài đặt Claude Code: <https://docs.anthropic.com/en/docs/claude-code>
+- Công cụ chuyển đổi mô hình cc-switch: <https://github.com/farion1231/cc-switch>
+- Tài liệu chính thức Spring AI Alibaba: <https://java2ai.com/docs/>
+- Tài liệu chính thức Arthas: <https://arthas.aliyun.com/doc/>

@@ -1,32 +1,32 @@
 ---
-title: LinkedHashMap 源码分析
-description: LinkedHashMap源码深度剖析：详解LinkedHashMap维护双向链表实现插入/访问有序、LRU缓存实现、与HashMap区别及遍历效率优化。
+title: Phân tích mã nguồn LinkedHashMap
+description: Phân tích chuyên sâu mã nguồn LinkedHashMap：Giải thích chi tiết cách LinkedHashMap duy trì danh sách liên kết đôi để thực hiện sắp xếp theo thứ tự chèn/truy cập, cài đặt bộ nhớ cache LRU, sự khác biệt với HashMap và tối ưu hóa hiệu suất duyệt.
 category: Java
 tag:
-  - Java集合
+  - Java Collection
 head:
   - - meta
     - name: keywords
       content: LinkedHashMap源码,插入顺序,访问顺序,LRU缓存,双向链表,有序Map,LinkedHashMap实现原理
 ---
 
-## LinkedHashMap 简介
+## Giới thiệu LinkedHashMap
 
-`LinkedHashMap` 是 Java 提供的一个集合类，它继承自 `HashMap`，并在 `HashMap` 基础上维护一条双向链表，使得具备如下特性:
+`LinkedHashMap` là một lớp collection do Java cung cấp, nó kế thừa từ `HashMap` và duy trì thêm một danh sách liên kết đôi trên nền `HashMap`, mang lại những đặc điểm sau:
 
-1. 支持遍历时会按照插入顺序有序进行迭代。
-2. 支持按照元素访问顺序排序,适用于封装 LRU 缓存工具。
-3. 因为内部使用双向链表维护各个节点，所以遍历时的效率和元素个数成正比，相较于和容量成正比的 HashMap 来说，迭代效率会高很多。
+1. Hỗ trợ duyệt theo thứ tự chèn khi lặp.
+2. Hỗ trợ sắp xếp theo thứ tự truy cập các phần tử, phù hợp để đóng gói công cụ bộ nhớ cache LRU.
+3. Vì nội bộ sử dụng danh sách liên kết đôi để duy trì các nút, hiệu suất duyệt tỷ lệ thuận với số lượng phần tử, so với `HashMap` tỷ lệ thuận với dung lượng, hiệu quả lặp sẽ cao hơn nhiều.
 
-`LinkedHashMap` 逻辑结构如下图所示，它是在 `HashMap` 基础上在各个节点之间维护一条双向链表，使得原本散列在不同 bucket 上的节点、链表、红黑树有序关联起来。
+Cấu trúc logic của `LinkedHashMap` được thể hiện trong hình dưới đây, nó duy trì một danh sách liên kết đôi giữa các nút trên nền `HashMap`, giúp các nút, danh sách liên kết, và cây đỏ đen phân tán trên các bucket khác nhau được liên kết theo thứ tự.
 
-![LinkedHashMap 逻辑结构](https://oss.javaguide.cn/github/javaguide/java/collection/linkhashmap-structure-overview.png)
+![Cấu trúc logic LinkedHashMap](https://oss.javaguide.cn/github/javaguide/java/collection/linkhashmap-structure-overview.png)
 
-## LinkedHashMap 使用示例
+## Ví dụ sử dụng LinkedHashMap
 
-### 插入顺序遍历
+### Duyệt theo thứ tự chèn
 
-如下所示，我们按照顺序往 `LinkedHashMap` 添加元素然后进行遍历。
+Như dưới đây, chúng ta thêm các phần tử vào `LinkedHashMap` theo thứ tự rồi duyệt.
 
 ```java
 HashMap < String, String > map = new LinkedHashMap < > ();
@@ -40,7 +40,7 @@ for (Map.Entry < String, String > entry: map.entrySet()) {
 }
 ```
 
-输出：
+Kết quả:
 
 ```java
 a:2
@@ -49,13 +49,13 @@ r:1
 e:23
 ```
 
-可以看出，`LinkedHashMap` 的迭代顺序是和插入顺序一致的,这一点是 `HashMap` 所不具备的。
+Có thể thấy, thứ tự lặp của `LinkedHashMap` nhất quán với thứ tự chèn, đây là điều mà `HashMap` không có.
 
-### 访问顺序遍历
+### Duyệt theo thứ tự truy cập
 
-`LinkedHashMap` 定义了排序模式 `accessOrder`(boolean 类型，默认为 false)，访问顺序则为 true，插入顺序则为 false。
+`LinkedHashMap` định nghĩa chế độ sắp xếp `accessOrder` (kiểu boolean, mặc định là false), true là thứ tự truy cập, false là thứ tự chèn.
 
-为了实现访问顺序遍历，我们可以使用传入 `accessOrder` 属性的 `LinkedHashMap` 构造方法，并将 `accessOrder` 设置为 true，表示其具备访问有序性。
+Để thực hiện duyệt theo thứ tự truy cập, chúng ta có thể dùng hàm khởi tạo `LinkedHashMap` truyền thuộc tính `accessOrder`, và đặt `accessOrder` thành true, nghĩa là nó có tính sắp xếp theo truy cập.
 
 ```java
 LinkedHashMap<Integer, String> map = new LinkedHashMap<>(16, 0.75f, true);
@@ -73,7 +73,7 @@ for (Map.Entry<Integer, String> entry : map.entrySet()) {
 }
 ```
 
-输出：
+Kết quả:
 
 ```java
 1 : one
@@ -83,19 +83,19 @@ for (Map.Entry<Integer, String> entry : map.entrySet()) {
 3 : three
 ```
 
-可以看出，`LinkedHashMap` 的迭代顺序是和访问顺序一致的。
+Có thể thấy, thứ tự lặp của `LinkedHashMap` nhất quán với thứ tự truy cập.
 
-### LRU 缓存
+### Bộ nhớ cache LRU
 
-从上一个我们可以了解到通过 `LinkedHashMap` 我们可以封装一个简易版的 LRU（**L**east **R**ecently **U**sed，最近最少使用） 缓存，确保当存放的元素超过容器容量时，将最近最少访问的元素移除。
+Từ ví dụ trên, chúng ta có thể thấy rằng thông qua `LinkedHashMap` chúng ta có thể đóng gói một bộ nhớ cache LRU (**L**east **R**ecently **U**sed, ít được sử dụng gần đây nhất) đơn giản, đảm bảo khi số phần tử lưu trữ vượt quá dung lượng container, phần tử ít được truy cập gần đây nhất sẽ bị xóa.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/collection/lru-cache.png)
 
-具体实现思路如下：
+Ý tưởng cài đặt cụ thể như sau:
 
-- 继承 `LinkedHashMap`;
-- 构造方法中指定 `accessOrder` 为 true ，这样在访问元素时就会把该元素移动到链表尾部，链表首元素就是最近最少被访问的元素；
-- 重写`removeEldestEntry` 方法，该方法会返回一个 boolean 值，告知 `LinkedHashMap` 是否需要移除链表首元素（缓存容量有限）。
+- Kế thừa `LinkedHashMap`;
+- Trong hàm khởi tạo đặt `accessOrder` thành true, như vậy khi truy cập một phần tử, phần tử đó sẽ được di chuyển đến cuối danh sách liên kết, phần tử đầu danh sách liên kết là phần tử ít được truy cập gần đây nhất;
+- Ghi đè phương thức `removeEldestEntry`, phương thức này trả về một giá trị boolean, thông báo cho `LinkedHashMap` có cần xóa phần tử đầu danh sách không (dung lượng cache có hạn).
 
 ```java
 public class LRUCache<K, V> extends LinkedHashMap<K, V> {
@@ -116,7 +116,7 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> {
 }
 ```
 
-测试代码如下，笔者初始化缓存容量为 3，然后按照次序先后添加 4 个元素。
+Mã kiểm tra như sau, người viết khởi tạo dung lượng cache là 3, sau đó lần lượt thêm 4 phần tử.
 
 ```java
 LRUCache<Integer, String> cache = new LRUCache<>(3);
@@ -130,7 +130,7 @@ for (int i = 1; i <= 5; i++) {
 }
 ```
 
-输出：
+Kết quả:
 
 ```java
 null
@@ -140,39 +140,39 @@ four
 five
 ```
 
-从输出结果来看，由于缓存容量为 3 ，因此，添加第 4 个元素时，第 1 个元素会被删除。添加第 5 个元素时，第 2 个元素会被删除。
+Từ kết quả đầu ra, do dung lượng cache là 3, khi thêm phần tử thứ 4, phần tử thứ 1 sẽ bị xóa. Khi thêm phần tử thứ 5, phần tử thứ 2 sẽ bị xóa.
 
-## LinkedHashMap 源码解析
+## Phân tích mã nguồn LinkedHashMap
 
-### Node 的设计
+### Thiết kế Node
 
-在正式讨论 `LinkedHashMap` 前，我们先来聊聊 `LinkedHashMap` 节点 `Entry` 的设计,我们都知道 `HashMap` 的 bucket 上的因为冲突转为链表的节点会在符合以下两个条件时会将链表转为红黑树:
+Trước khi thảo luận chính thức về `LinkedHashMap`, hãy nói về thiết kế nút `Entry` của `LinkedHashMap`. Chúng ta đều biết rằng các nút trong bucket của `HashMap` bị chuyển thành danh sách liên kết do xung đột sẽ được chuyển thành cây đỏ đen khi thỏa mãn hai điều kiện sau:
 
-1. ~~链表上的节点个数达到树化的阈值 7，即`TREEIFY_THRESHOLD - 1`。~~
-2. bucket 的容量达到最小的树化容量即`MIN_TREEIFY_CAPACITY`。
+1. ~~Số nút trên danh sách liên kết đạt ngưỡng cây hóa 7, tức là `TREEIFY_THRESHOLD - 1`.~~
+2. Dung lượng bucket đạt dung lượng cây hóa tối thiểu `MIN_TREEIFY_CAPACITY`.
 
-> **🐛 修正（参见：[issue#2147](https://github.com/Snailclimb/JavaGuide/issues/2147)）**：
+> **🐛 Sửa chữa (xem: [issue#2147](https://github.com/Snailclimb/JavaGuide/issues/2147))**：
 >
-> 链表上的节点个数达到树化的阈值是 8 而非 7。因为源码的判断是从链表初始元素开始遍历，下标是从 0 开始的，所以判断条件设置为 8-1=7，其实是迭代到尾部元素时再判断整个链表长度大于等于 8 才进行树化操作。
+> Số nút trên danh sách liên kết đạt ngưỡng cây hóa là 8 chứ không phải 7. Vì cách kiểm tra trong mã nguồn là duyệt từ phần tử đầu tiên của danh sách liên kết, chỉ số bắt đầu từ 0, nên điều kiện kiểm tra được đặt là 8-1=7, thực chất là khi lặp đến phần tử cuối thì mới kiểm tra toàn bộ danh sách liên kết có độ dài lớn hơn hoặc bằng 8 thì mới thực hiện cây hóa.
 >
 > ![](https://oss.javaguide.cn/github/javaguide/java/jvm/LinkedHashMap-putval-TREEIFY.png)
 
-而 `LinkedHashMap` 是在 `HashMap` 的基础上为 bucket 上的每一个节点建立一条双向链表，这就使得转为红黑树的树节点也需要具备双向链表节点的特性，即每一个树节点都需要拥有两个引用存储前驱节点和后继节点的地址,所以对于树节点类 `TreeNode` 的设计就是一个比较棘手的问题。
+`LinkedHashMap` xây dựng một danh sách liên kết đôi cho mỗi nút trên bucket trên nền `HashMap`, điều này khiến các nút cây được chuyển thành cây đỏ đen cũng cần có đặc tính của nút danh sách liên kết đôi, tức là mỗi nút cây cần có hai tham chiếu để lưu địa chỉ của nút trước và nút sau. Do đó, thiết kế lớp nút cây `TreeNode` là một vấn đề khá phức tạp.
 
-对此我们不妨来看看两者之间节点类的类图，可以看到:
+Hãy xem sơ đồ lớp giữa hai loại nút này:
 
-1. `LinkedHashMap` 的节点内部类 `Entry` 基于 `HashMap` 的基础上，增加 `before` 和 `after` 指针使节点具备双向链表的特性。
-2. `HashMap` 的树节点 `TreeNode` 继承了具备双向链表特性的 `LinkedHashMap` 的 `Entry`。
+1. Lớp nút bên trong `Entry` của `LinkedHashMap` dựa trên `HashMap`, thêm con trỏ `before` và `after` để cho nút có đặc tính danh sách liên kết đôi.
+2. Nút cây `TreeNode` của `HashMap` kế thừa `Entry` của `LinkedHashMap` vốn đã có đặc tính danh sách liên kết đôi.
 
-![LinkedHashMap 和 HashMap 之间的关系](https://oss.javaguide.cn/github/javaguide/java/collection/map-hashmap-linkedhashmap.png)
+![Mối quan hệ giữa LinkedHashMap và HashMap](https://oss.javaguide.cn/github/javaguide/java/collection/map-hashmap-linkedhashmap.png)
 
-很多读者此时就会有这样一个疑问，为什么 `HashMap` 的树节点 `TreeNode` 要通过 `LinkedHashMap` 获取双向链表的特性呢?为什么不直接在 `Node` 上实现前驱和后继指针呢?
+Nhiều bạn đọc sẽ thắc mắc: tại sao `TreeNode` của `HashMap` phải lấy đặc tính danh sách liên kết đôi thông qua `LinkedHashMap`? Tại sao không trực tiếp cài đặt con trỏ trước và sau trên `Node`?
 
-先来回答第一个问题，我们都知道 `LinkedHashMap` 是在 `HashMap` 基础上对节点增加双向指针实现双向链表的特性,所以 `LinkedHashMap` 内部链表转红黑树时，对应的节点会转为树节点 `TreeNode`,为了保证使用 `LinkedHashMap` 时树节点具备双向链表的特性，所以树节点 `TreeNode` 需要继承 `LinkedHashMap` 的 `Entry`。
+Trả lời câu hỏi đầu tiên: chúng ta đều biết `LinkedHashMap` thêm con trỏ đôi vào các nút trên nền `HashMap` để thực hiện đặc tính danh sách liên kết đôi. Vì vậy khi danh sách liên kết bên trong `LinkedHashMap` chuyển thành cây đỏ đen, các nút tương ứng sẽ chuyển thành nút cây `TreeNode`. Để đảm bảo khi sử dụng `LinkedHashMap`, các nút cây vẫn có đặc tính danh sách liên kết đôi, `TreeNode` cần kế thừa `Entry` của `LinkedHashMap`.
 
-再来说说第二个问题，我们直接在 `HashMap` 的节点 `Node` 上直接实现前驱和后继指针,然后 `TreeNode` 直接继承 `Node` 获取双向链表的特性为什么不行呢？其实这样做也是可以的。只不过这种做法会使得使用 `HashMap` 时存储键值对的节点类 `Node` 多了两个没有必要的引用，占用没必要的内存空间。
+Về câu hỏi thứ hai: nếu trực tiếp cài đặt con trỏ trước và sau trên `Node` của `HashMap`, rồi `TreeNode` kế thừa `Node` để lấy đặc tính danh sách liên kết đôi thì sao? Thực ra cách đó cũng được. Chỉ là cách đó sẽ làm cho lớp `Node` lưu cặp key-value khi dùng `HashMap` có thêm hai tham chiếu không cần thiết, lãng phí bộ nhớ không cần thiết.
 
-所以，为了保证 `HashMap` 底层的节点类 `Node` 没有多余的引用，又要保证 `LinkedHashMap` 的节点类 `Entry` 拥有存储链表的引用，设计者就让 `LinkedHashMap` 的节点 `Entry` 去继承 Node 并增加存储前驱后继节点的引用 `before`、`after`，让需要用到链表特性的节点去实现需要的逻辑。然后树节点 `TreeNode` 再通过继承 `Entry` 获取 `before`、`after` 两个指针。
+Vì vậy, để đảm bảo lớp `Node` bên dưới `HashMap` không có tham chiếu dư thừa, đồng thời đảm bảo lớp `Entry` của `LinkedHashMap` có tham chiếu lưu danh sách liên kết, người thiết kế đã cho `Entry` của `LinkedHashMap` kế thừa Node và thêm tham chiếu `before`, `after` để lưu nút trước và sau, để các nút cần đặc tính danh sách liên kết thực hiện logic cần thiết. Sau đó `TreeNode` kế thừa `Entry` để lấy hai con trỏ `before`, `after`.
 
 ```java
 static class Entry<K,V> extends HashMap.Node<K,V> {
@@ -183,7 +183,7 @@ static class Entry<K,V> extends HashMap.Node<K,V> {
     }
 ```
 
-但是这样做，不也使得使用 `HashMap` 时的 `TreeNode` 多了两个没有必要的引用吗?这不也是一种空间的浪费吗？
+Nhưng như vậy, khi dùng `HashMap`, `TreeNode` cũng có thêm hai tham chiếu không cần thiết, không phải là lãng phí bộ nhớ sao?
 
 ```java
 static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
@@ -192,7 +192,7 @@ static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
 }
 ```
 
-对于这个问题,引用作者的一段注释，作者们认为在良好的 `hashCode` 算法时，`HashMap` 转红黑树的概率不大。就算转为红黑树变为树节点，也可能会因为移除或者扩容将 `TreeNode` 变为 `Node`，所以 `TreeNode` 的使用概率不算很大，对于这一点资源空间的浪费是可以接受的。
+Về vấn đề này, trích dẫn nhận xét của tác giả: các tác giả cho rằng với thuật toán `hashCode` tốt, xác suất `HashMap` chuyển thành cây đỏ đen là không lớn. Dù có chuyển thành cây đỏ đen, cũng có thể do xóa hoặc mở rộng mà `TreeNode` lại được chuyển về `Node`, nên xác suất sử dụng `TreeNode` không cao, sự lãng phí tài nguyên bộ nhớ này là có thể chấp nhận được.
 
 ```bash
 Because TreeNodes are about twice the size of regular nodes, we
@@ -204,9 +204,9 @@ rarely used.  Ideally, under random hashCodes, the frequency of
 nodes in bins follows a Poisson distribution
 ```
 
-### 构造方法
+### Hàm khởi tạo
 
-`LinkedHashMap` 构造方法有 4 个实现也比较简单，直接调用父类即 `HashMap` 的构造方法完成初始化。
+`LinkedHashMap` có 4 hàm khởi tạo, cài đặt khá đơn giản, gọi trực tiếp hàm khởi tạo của lớp cha `HashMap` để hoàn thành khởi tạo.
 
 ```java
 public LinkedHashMap() {
@@ -232,11 +232,11 @@ public LinkedHashMap(int initialCapacity,
 }
 ```
 
-我们上面也提到了，默认情况下 `accessOrder` 为 false，如果我们要让 `LinkedHashMap` 实现键值对按照访问顺序排序(即将最近未访问的元素排在链表首部、最近访问的元素移动到链表尾部)，需要调用第 4 个构造方法将 `accessOrder` 设置为 true。
+Như đã đề cập ở trên, mặc định `accessOrder` là false. Nếu muốn `LinkedHashMap` sắp xếp cặp key-value theo thứ tự truy cập (tức là đặt phần tử ít truy cập gần đây ở đầu danh sách liên kết, phần tử truy cập gần đây nhất di chuyển đến cuối danh sách), cần gọi hàm khởi tạo thứ 4 và đặt `accessOrder` thành true.
 
-### get 方法
+### Phương thức get
 
-`get` 方法是 `LinkedHashMap` 增删改查操作中唯一一个重写的方法， `accessOrder` 为 true 的情况下， 它会在元素查询完成之后，将当前访问的元素移到链表的末尾。
+Phương thức `get` là phương thức duy nhất được ghi đè trong các thao tác thêm/xóa/sửa/tìm của `LinkedHashMap`. Khi `accessOrder` là true, sau khi hoàn thành truy vấn phần tử, nó sẽ di chuyển phần tử hiện tại được truy cập đến cuối danh sách liên kết.
 
 ```java
 public V get(Object key) {
@@ -252,13 +252,13 @@ public V get(Object key) {
  }
 ```
 
-从源码可以看出，`get` 的执行步骤非常简单:
+Từ mã nguồn có thể thấy, các bước thực hiện của `get` rất đơn giản:
 
-1. 调用父类即 `HashMap` 的 `getNode` 获取键值对，若为空则直接返回。
-2. 判断 `accessOrder` 是否为 true，若为 true 则说明需要保证 `LinkedHashMap` 的链表访问有序性，执行步骤 3。
-3. 调用 `LinkedHashMap` 重写的 `afterNodeAccess` 将当前元素添加到链表末尾。
+1. Gọi `getNode` của lớp cha `HashMap` để lấy cặp key-value, nếu null thì trả về trực tiếp.
+2. Kiểm tra `accessOrder` có phải true không, nếu true thì cần đảm bảo tính sắp xếp truy cập danh sách liên kết của `LinkedHashMap`, thực hiện bước 3.
+3. Gọi `afterNodeAccess` được ghi đè trong `LinkedHashMap` để thêm phần tử hiện tại vào cuối danh sách liên kết.
 
-关键点在于 `afterNodeAccess` 方法的实现，这个方法负责将元素移动到链表末尾。
+Điểm mấu chốt nằm ở cài đặt phương thức `afterNodeAccess`, phương thức này chịu trách nhiệm di chuyển phần tử đến cuối danh sách liên kết.
 
 ```java
 void afterNodeAccess(Node < K, V > e) { // move node to last
@@ -303,27 +303,27 @@ void afterNodeAccess(Node < K, V > e) { // move node to last
 }
 ```
 
-从源码可以看出， `afterNodeAccess` 方法完成了下面这些操作:
+Từ mã nguồn có thể thấy, phương thức `afterNodeAccess` thực hiện các bước sau:
 
-1. 如果 `accessOrder` 为 true 且链表尾部不为当前节点 p，我们则需要将当前节点移到链表尾部。
-2. 获取当前节点 p、以及它的前驱节点 b 和后继节点 a。
-3. 将当前节点 p 的后继指针设置为 null，使其和后继节点 p 断开联系。
-4. 尝试将前驱节点指向后继节点，若前驱节点为空，则说明当前节点 p 就是链表首节点，故直接将后继节点 a 设置为首节点，随后我们再将 p 追加到 a 的末尾。
-5. 再尝试让后继节点 a 指向前驱节点 b。
-6. 上述操作让前驱节点和后继节点完成关联，并将当前节点 p 独立出来，这一步则是将当前节点 p 追加到链表末端，如果链表末端为空，则说明当前链表只有一个节点 p，所以直接让 head 指向 p 即可。
-7. 上述操作已经将 p 成功到达链表末端，最后我们将 tail 指针即指向链表末端的指针指向 p 即可。
+1. Nếu `accessOrder` là true và đuôi danh sách liên kết không phải nút hiện tại p, thì cần di chuyển nút hiện tại đến cuối danh sách liên kết.
+2. Lấy nút hiện tại p, nút trước b và nút sau a của nó.
+3. Đặt con trỏ sau của nút hiện tại p thành null, ngắt kết nối với nút sau.
+4. Cố gắng cho nút trước trỏ đến nút sau; nếu nút trước là null, nghĩa là nút hiện tại p là nút đầu danh sách liên kết, nên đặt trực tiếp nút sau a làm nút đầu, sau đó thêm p vào cuối a.
+5. Cố gắng cho nút sau a trỏ đến nút trước b.
+6. Các thao tác trên giúp nút trước và nút sau liên kết với nhau, tách nút hiện tại p ra độc lập. Bước này thêm nút hiện tại p vào cuối danh sách liên kết; nếu cuối danh sách liên kết là null, nghĩa là danh sách liên kết chỉ có một nút p, nên cho head trỏ đến p.
+7. Các thao tác trên đã đưa p thành công đến cuối danh sách liên kết, cuối cùng cho con trỏ tail tức con trỏ trỏ đến cuối danh sách liên kết trỏ đến p.
 
-可以结合这张图理解，展示了 key 为 13 的元素被移动到了链表尾部。
+Có thể kết hợp hình ảnh này để hiểu, thể hiện phần tử có key là 13 được di chuyển đến cuối danh sách liên kết.
 
-![LinkedHashMap 移动元素 13 到链表尾部](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-get.png)
+![LinkedHashMap di chuyển phần tử 13 đến cuối danh sách liên kết](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-get.png)
 
-看不太懂也没关系，知道这个方法的作用就够了，后续有时间再慢慢消化。
+Không hiểu cũng không sao, biết chức năng của phương thức này là đủ, sau này có thời gian sẽ tiêu hóa dần.
 
-### newNode——新节点尾插链表
+### newNode — Chèn nút mới vào cuối danh sách liên kết
 
-上文介绍了 `afterNodeAccess` 如何将**已存在的节点**移动到链表尾部，那么**新插入的节点**是如何被添加到链表中的呢？
+Phần trên đã giới thiệu `afterNodeAccess` di chuyển **nút đã tồn tại** đến cuối danh sách liên kết như thế nào. Vậy **nút mới chèn vào** được thêm vào danh sách liên kết như thế nào?
 
-答案在于 `LinkedHashMap` 重写了 `HashMap` 的 `newNode` 方法。当 `HashMap` 插入新键值对时，会调用 `newNode` 创建节点对象，`LinkedHashMap` 在重写的方法中不仅创建了 `Entry` 节点，还额外调用了 `linkNodeLast` 将其链接到双向链表的尾部：
+Câu trả lời nằm ở chỗ `LinkedHashMap` ghi đè phương thức `newNode` của `HashMap`. Khi `HashMap` chèn cặp key-value mới, nó sẽ gọi `newNode` để tạo đối tượng nút. `LinkedHashMap` trong phương thức được ghi đè không chỉ tạo nút `Entry`, mà còn gọi thêm `linkNodeLast` để liên kết nó vào cuối danh sách liên kết đôi:
 
 ```java
 // HashMap 的 newNode 是普通实现
@@ -340,7 +340,7 @@ Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
 }
 ```
 
-`linkNodeLast` 方法的实现如下：
+Cài đặt phương thức `linkNodeLast` như sau:
 
 ```java
 // 将节点链接到双向链表尾部
@@ -356,9 +356,9 @@ private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
 }
 ```
 
-**这就是 LinkedHashMap 实现插入有序的核心机制**：每次插入新节点时，通过重写 `newNode` 并调用 `linkNodeLast`，将新节点追加到双向链表尾部。这样遍历时从头节点 `head` 开始沿着 `after` 指针遍历，就能按插入顺序获取所有元素。
+**Đây là cơ chế cốt lõi của LinkedHashMap để thực hiện sắp xếp theo thứ tự chèn**: mỗi lần chèn nút mới, thông qua việc ghi đè `newNode` và gọi `linkNodeLast`, nút mới được thêm vào cuối danh sách liên kết đôi. Như vậy khi duyệt từ nút đầu `head` theo con trỏ `after`, ta có thể lấy tất cả các phần tử theo thứ tự chèn.
 
-同理，`LinkedHashMap` 也重写了 `newTreeNode` 方法，确保树节点插入时同样会被链接到链表尾部：
+Tương tự, `LinkedHashMap` cũng ghi đè phương thức `newTreeNode`, đảm bảo khi nút cây được chèn cũng được liên kết vào cuối danh sách liên kết:
 
 ```java
 TreeNode<K,V> newTreeNode(int hash, K key, V value, Node<K,V> next) {
@@ -368,9 +368,9 @@ TreeNode<K,V> newTreeNode(int hash, K key, V value, Node<K,V> next) {
 }
 ```
 
-### remove 方法后置操作——afterNodeRemoval
+### Thao tác hậu xử lý sau phương thức remove — afterNodeRemoval
 
-`LinkedHashMap` 并没有对 `remove` 方法进行重写，而是直接继承 `HashMap` 的 `remove` 方法，为了保证键值对移除后双向链表中的节点也会同步被移除，`LinkedHashMap` 重写了 `HashMap` 的空实现方法 `afterNodeRemoval`。
+`LinkedHashMap` không ghi đè phương thức `remove`, mà trực tiếp kế thừa phương thức `remove` của `HashMap`. Để đảm bảo sau khi xóa cặp key-value, nút trong danh sách liên kết đôi cũng được xóa đồng bộ, `LinkedHashMap` ghi đè phương thức `afterNodeRemoval` vốn là cài đặt trống của `HashMap`.
 
 ```java
 final Node<K,V> removeNode(int hash, Object key, Object value,
@@ -397,7 +397,7 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
 void afterNodeRemoval(Node<K,V> p) { }
 ```
 
-我们可以看到从 `HashMap` 继承来的 `remove` 方法内部调用的 `removeNode` 方法将节点从 bucket 删除后，调用了 `afterNodeRemoval`。
+Chúng ta có thể thấy phương thức `removeNode` bên trong phương thức `remove` kế thừa từ `HashMap` sau khi xóa nút khỏi bucket, gọi `afterNodeRemoval`.
 
 ```java
 void afterNodeRemoval(Node<K,V> e) { // unlink
@@ -424,27 +424,27 @@ void afterNodeRemoval(Node<K,V> e) { // unlink
     }
 ```
 
-从源码可以看出， `afterNodeRemoval` 方法的整体操作就是让当前节点 p 和前驱节点、后继节点断开联系，等待 gc 回收，整体步骤为:
+Từ mã nguồn có thể thấy, thao tác tổng thể của phương thức `afterNodeRemoval` là ngắt kết nối nút hiện tại p với nút trước và nút sau, chờ GC thu hồi. Các bước cụ thể:
 
-1. 获取当前节点 p、以及 p 的前驱节点 b 和后继节点 a。
-2. 让当前节点 p 和其前驱、后继节点断开联系。
-3. 尝试让前驱节点 b 指向后继节点 a，若 b 为空则说明当前节点 p 在链表首部，我们直接将 head 指向后继节点 a 即可。
-4. 尝试让后继节点 a 指向前驱节点 b，若 a 为空则说明当前节点 p 在链表末端，所以直接让 tail 指针指向前驱节点 b 即可。
+1. Lấy nút hiện tại p, nút trước b và nút sau a của p.
+2. Ngắt kết nối nút hiện tại p với nút trước và nút sau.
+3. Cố gắng cho nút trước b trỏ đến nút sau a; nếu b là null, nghĩa là nút hiện tại p ở đầu danh sách liên kết, trực tiếp cho head trỏ đến nút sau a.
+4. Cố gắng cho nút sau a trỏ đến nút trước b; nếu a là null, nghĩa là nút hiện tại p ở cuối danh sách liên kết, nên trực tiếp cho con trỏ tail trỏ đến nút trước b.
 
-可以结合这张图理解，展示了 key 为 13 的元素被删除，也就是从链表中移除了这个元素。
+Có thể kết hợp hình ảnh này để hiểu, thể hiện phần tử có key là 13 bị xóa, tức là phần tử này đã được xóa khỏi danh sách liên kết.
 
-![LinkedHashMap 删除元素 13](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-remove.png)
+![LinkedHashMap xóa phần tử 13](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-remove.png)
 
-看不太懂也没关系，知道这个方法的作用就够了，后续有时间再慢慢消化。
+Không hiểu cũng không sao, biết chức năng của phương thức này là đủ, sau này có thời gian sẽ tiêu hóa dần.
 
-### put 方法后置操作——afterNodeInsertion
+### Thao tác hậu xử lý sau phương thức put — afterNodeInsertion
 
-同样的 `LinkedHashMap` 并没有实现插入方法，而是直接继承 `HashMap` 的所有插入方法交由用户使用，但为了维护双向链表访问的有序性，它做了这样两件事:
+Tương tự, `LinkedHashMap` cũng không cài đặt phương thức chèn mà trực tiếp kế thừa tất cả phương thức chèn của `HashMap` để người dùng sử dụng. Nhưng để duy trì tính sắp xếp truy cập danh sách liên kết đôi, nó làm hai việc:
 
-1. 重写 `afterNodeAccess`(上文提到过),如果当前被插入的 key 已存在与 `map` 中，因为 `LinkedHashMap` 的插入操作会将新节点追加至链表末尾，所以对于存在的 key 则调用 `afterNodeAccess` 将其放到链表末端。
-2. 重写了 `HashMap` 的 `afterNodeInsertion` 方法，当 `removeEldestEntry` 返回 true 时，会将链表首节点移除。
+1. Ghi đè `afterNodeAccess` (đã đề cập ở trên): nếu key hiện tại được chèn đã tồn tại trong `map`, vì thao tác chèn của `LinkedHashMap` thêm nút mới vào cuối danh sách liên kết, nên đối với key đã tồn tại thì gọi `afterNodeAccess` để đưa nó về cuối danh sách.
+2. Ghi đè phương thức `afterNodeInsertion` của `HashMap`, khi `removeEldestEntry` trả về true, sẽ xóa nút đầu danh sách liên kết.
 
-这一点我们可以在 `HashMap` 的插入操作核心方法 `putVal` 中看到。
+Điều này có thể thấy trong phương thức cốt lõi `putVal` của thao tác chèn `HashMap`.
 
 ```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
@@ -468,7 +468,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
     }
 ```
 
-上述步骤的源码上文已经解释过了，所以这里我们着重了解一下 `afterNodeInsertion` 的工作流程，假设我们的重写了 `removeEldestEntry`，当链表 `size` 超过 `capacity` 时，就返回 true。
+Mã nguồn của các bước trên đã được giải thích ở trên, nên ở đây chúng ta tập trung tìm hiểu quy trình làm việc của `afterNodeInsertion`. Giả sử chúng ta đã ghi đè `removeEldestEntry`, khi `size` của danh sách liên kết vượt quá `capacity`, thì trả về true.
 
 ```java
 /**
@@ -479,13 +479,13 @@ protected boolean removeEldestEntry(Map.Entry < K, V > eldest) {
 }
 ```
 
-以下图为例，假设笔者最后新插入了一个不存在的节点 19,假设 `capacity` 为 4，所以 `removeEldestEntry` 返回 true，我们要将链表首节点移除。
+Lấy hình dưới đây làm ví dụ, giả sử người viết vừa chèn một nút mới 19 chưa tồn tại, giả sử `capacity` là 4, nên `removeEldestEntry` trả về true, chúng ta cần xóa nút đầu danh sách liên kết.
 
-![LinkedHashMap 中插入新元素 19](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-after-insert-1.png)
+![LinkedHashMap chèn phần tử mới 19](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-after-insert-1.png)
 
-移除的步骤很简单，查看链表首节点是否存在，若存在则断开首节点和后继节点的关系，并让首节点指针指向下一节点，所以 head 指针指向了 12，节点 10 成为没有任何引用指向的空对象，等待 GC。
+Các bước xóa rất đơn giản: kiểm tra nút đầu danh sách liên kết có tồn tại không, nếu có thì ngắt kết nối giữa nút đầu và nút sau, cho con trỏ nút đầu trỏ đến nút tiếp theo, nên con trỏ head trỏ đến 12, nút 10 trở thành đối tượng rỗng không có tham chiếu nào trỏ đến, chờ GC.
 
-![LinkedHashMap 中插入新元素 19](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-after-insert-2.png)
+![LinkedHashMap chèn phần tử mới 19](https://oss.javaguide.cn/github/javaguide/java/collection/linkedhashmap-after-insert-2.png)
 
 ```java
 void afterNodeInsertion(boolean evict) { // possibly remove eldest
@@ -500,17 +500,17 @@ void afterNodeInsertion(boolean evict) { // possibly remove eldest
     }
 ```
 
-从源码可以看出， `afterNodeInsertion` 方法完成了下面这些操作:
+Từ mã nguồn có thể thấy, phương thức `afterNodeInsertion` thực hiện các bước sau:
 
-1. 判断 `eldest` 是否为 true，只有为 true 才能说明可能需要将最年长的键值对(即链表首部的元素)进行移除，具体是否具体要进行移除，还得确定链表是否为空`((first = head) != null)`，以及 `removeEldestEntry` 方法是否返回 true，只有这两个方法返回 true 才能确定当前链表不为空，且链表需要进行移除操作了。
-2. 获取链表第一个元素的 key。
-3. 调用 `HashMap` 的 `removeNode` 方法，该方法我们上文提到过，它会将节点从 `HashMap` 的 bucket 中移除，并且 `LinkedHashMap` 还重写了 `removeNode` 中的 `afterNodeRemoval` 方法，所以这一步将通过调用 `removeNode` 将元素从 `HashMap` 的 bucket 中移除，并和 `LinkedHashMap` 的双向链表断开，等待 gc 回收。
+1. Kiểm tra `eldest` có phải true không, chỉ khi true mới có thể nói rằng có thể cần xóa cặp key-value lâu nhất (tức phần tử ở đầu danh sách liên kết). Có cần xóa cụ thể hay không, còn phải xác định xem danh sách liên kết có rỗng không `((first = head) != null)`, và phương thức `removeEldestEntry` có trả về true không. Chỉ khi cả hai trả về true mới có thể xác định danh sách liên kết hiện tại không rỗng và cần thực hiện xóa.
+2. Lấy key của phần tử đầu tiên trong danh sách liên kết.
+3. Gọi phương thức `removeNode` của `HashMap`, phương thức này đã đề cập ở trên, nó xóa nút khỏi bucket của `HashMap`, và `LinkedHashMap` cũng ghi đè phương thức `afterNodeRemoval` bên trong `removeNode`, nên bước này thông qua `removeNode` sẽ xóa phần tử khỏi bucket của `HashMap` và ngắt kết nối với danh sách liên kết đôi của `LinkedHashMap`, chờ GC thu hồi.
 
-## LinkedHashMap 和 HashMap 遍历性能比较
+## So sánh hiệu suất duyệt giữa LinkedHashMap và HashMap
 
-`LinkedHashMap` 维护了一个双向链表来记录数据插入的顺序，因此在迭代遍历生成的迭代器的时候，是按照双向链表的路径进行遍历的。这一点相比于 `HashMap` 那种遍历整个 bucket 的方式来说，高效许多。
+`LinkedHashMap` duy trì một danh sách liên kết đôi để ghi lại thứ tự chèn dữ liệu, do đó khi lặp tạo iterator, nó duyệt theo đường đi của danh sách liên kết đôi. Điều này so với cách duyệt toàn bộ bucket của `HashMap` hiệu quả hơn nhiều.
 
-这一点我们可以从两者的迭代器中得以印证，先来看看 `HashMap` 的迭代器，可以看到 `HashMap` 迭代键值对时会用到一个 `nextNode` 方法，该方法会返回 next 指向的下一个元素，并会从 next 开始遍历 bucket 找到下一个 bucket 中不为空的元素 Node。
+Điều này có thể được xác nhận từ iterator của hai cái, hãy xem iterator của `HashMap` trước. Có thể thấy khi `HashMap` lặp cặp key-value, nó sử dụng phương thức `nextNode` trả về phần tử tiếp theo mà next trỏ đến, và duyệt bucket từ next để tìm Node không rỗng tiếp theo trong bucket.
 
 ```java
  final class EntryIterator extends HashIterator
@@ -538,7 +538,7 @@ void afterNodeInsertion(boolean evict) { // possibly remove eldest
  }
 ```
 
-相比之下 `LinkedHashMap` 的迭代器则是直接使用通过 `after` 指针快速定位到当前节点的后继节点，简洁高效许多。
+Ngược lại, iterator của `LinkedHashMap` trực tiếp sử dụng con trỏ `after` để định vị nhanh đến nút sau của nút hiện tại, đơn giản và hiệu quả hơn nhiều.
 
 ```java
  final class LinkedEntryIterator extends LinkedHashIterator
@@ -564,7 +564,7 @@ void afterNodeInsertion(boolean evict) { // possibly remove eldest
  }
 ```
 
-为了验证笔者所说的观点，笔者对这两个容器进行了压测，测试插入 1000w 和迭代 1000w 条数据的耗时，代码如下:
+Để xác minh quan điểm trên, người viết đã kiểm tra áp lực hai container này, kiểm tra thời gian chèn 10 triệu và duyệt 10 triệu mục dữ liệu:
 
 ```java
 int count = 1000_0000;
@@ -604,7 +604,7 @@ System.out.println("linkedHashMap get time: " + (end - start));
 System.out.println(num);
 ```
 
-从输出结果来看，因为 `LinkedHashMap` 需要维护双向链表的缘故，插入元素相较于 `HashMap` 会更耗时，但是有了双向链表明确的前后节点关系，迭代效率相对于前者高效了许多。不过，总体来说却别不大，毕竟数据量这么庞大。
+Từ kết quả đầu ra, do `LinkedHashMap` cần duy trì danh sách liên kết đôi, việc chèn phần tử tốn thời gian hơn so với `HashMap`, nhưng với danh sách liên kết đôi xác định rõ quan hệ trước sau, hiệu quả lặp so với cái trước cao hơn nhiều. Tuy nhiên, nhìn chung sự khác biệt không lớn, xét cho cùng lượng dữ liệu rất lớn.
 
 ```bash
 map time putVal: 5880
@@ -614,29 +614,29 @@ linkedHashMap get time: 67
 63208969074998
 ```
 
-## LinkedHashMap 常见面试题
+## Các câu hỏi phỏng vấn thường gặp về LinkedHashMap
 
-### 什么是 LinkedHashMap？
+### LinkedHashMap là gì?
 
-`LinkedHashMap` 是 Java 集合框架中 `HashMap` 的一个子类，它继承了 `HashMap` 的所有属性和方法，并且在 `HashMap` 的基础重写了 `afterNodeRemoval`、`afterNodeInsertion`、`afterNodeAccess` 方法。使之拥有顺序插入和访问有序的特性。
+`LinkedHashMap` là một lớp con của `HashMap` trong framework collection Java, nó kế thừa tất cả thuộc tính và phương thức của `HashMap`, và trên nền `HashMap` ghi đè các phương thức `afterNodeRemoval`, `afterNodeInsertion`, `afterNodeAccess`. Điều này giúp nó có đặc tính chèn có thứ tự và truy cập có thứ tự.
 
-### LinkedHashMap 如何按照插入顺序迭代元素？
+### LinkedHashMap lặp các phần tử theo thứ tự chèn như thế nào?
 
-`LinkedHashMap` 按照插入顺序迭代元素是它的默认行为。`LinkedHashMap` 内部维护了一个双向链表，用于记录元素的插入顺序。因此，当使用迭代器迭代元素时，元素的顺序与它们最初插入的顺序相同。
+`LinkedHashMap` lặp các phần tử theo thứ tự chèn là hành vi mặc định của nó. `LinkedHashMap` nội bộ duy trì một danh sách liên kết đôi để ghi lại thứ tự chèn của các phần tử. Do đó, khi dùng iterator để lặp các phần tử, thứ tự của chúng giống với thứ tự chèn ban đầu.
 
-### LinkedHashMap 如何按照访问顺序迭代元素？
+### LinkedHashMap lặp các phần tử theo thứ tự truy cập như thế nào?
 
-`LinkedHashMap` 可以通过构造函数中的 `accessOrder` 参数指定按照访问顺序迭代元素。当 `accessOrder` 为 true 时，每次访问一个元素时，该元素会被移动到链表的末尾，因此下次访问该元素时，它就会成为链表中的最后一个元素，从而实现按照访问顺序迭代元素。
+`LinkedHashMap` có thể chỉ định lặp theo thứ tự truy cập thông qua tham số `accessOrder` trong hàm khởi tạo. Khi `accessOrder` là true, mỗi lần truy cập một phần tử, phần tử đó sẽ được di chuyển đến cuối danh sách liên kết, do đó lần sau truy cập phần tử đó, nó sẽ là phần tử cuối cùng trong danh sách, thực hiện lặp theo thứ tự truy cập.
 
-### LinkedHashMap 如何实现 LRU 缓存？
+### LinkedHashMap cài đặt bộ nhớ cache LRU như thế nào?
 
-将 `accessOrder` 设置为 true 并重写 `removeEldestEntry` 方法当链表大小超过容量时返回 true，使得每次访问一个元素时，该元素会被移动到链表的末尾。一旦插入操作让 `removeEldestEntry` 返回 true 时，视为缓存已满，`LinkedHashMap` 就会将链表首元素移除，由此我们就能实现一个 LRU 缓存。
+Đặt `accessOrder` thành true và ghi đè phương thức `removeEldestEntry` trả về true khi kích thước danh sách liên kết vượt quá dung lượng, mỗi lần truy cập một phần tử, phần tử đó sẽ được di chuyển đến cuối danh sách. Một khi thao tác chèn khiến `removeEldestEntry` trả về true, coi như cache đầy, `LinkedHashMap` sẽ xóa phần tử đầu danh sách, từ đó chúng ta có thể cài đặt một bộ nhớ cache LRU.
 
-### LinkedHashMap 和 HashMap 有什么区别？
+### LinkedHashMap và HashMap có gì khác nhau?
 
-`LinkedHashMap` 和 `HashMap` 都是 Java 集合框架中的 Map 接口的实现类。它们的最大区别在于迭代元素的顺序。`HashMap` 迭代元素的顺序是不确定的，而 `LinkedHashMap` 提供了按照插入顺序或访问顺序迭代元素的功能。此外，`LinkedHashMap` 内部维护了一个双向链表，用于记录元素的插入顺序或访问顺序，而 `HashMap` 则没有这个链表。因此，`LinkedHashMap` 的插入性能可能会比 `HashMap` 略低，但它提供了更多的功能并且迭代效率相较于 `HashMap` 更加高效。
+`LinkedHashMap` và `HashMap` đều là các lớp cài đặt giao diện Map trong framework collection Java. Sự khác biệt lớn nhất của chúng nằm ở thứ tự lặp các phần tử. `HashMap` lặp các phần tử theo thứ tự không xác định, trong khi `LinkedHashMap` cung cấp chức năng lặp theo thứ tự chèn hoặc thứ tự truy cập. Ngoài ra, `LinkedHashMap` nội bộ duy trì một danh sách liên kết đôi để ghi lại thứ tự chèn hoặc truy cập của các phần tử, còn `HashMap` thì không có danh sách này. Do đó, hiệu suất chèn của `LinkedHashMap` có thể thấp hơn `HashMap` một chút, nhưng nó cung cấp thêm nhiều chức năng và hiệu quả lặp so với `HashMap` hiệu quả hơn.
 
-## 参考文献
+## Tài liệu tham khảo
 
 - LinkedHashMap 源码详细分析（JDK1.8）:<https://www.imooc.com/article/22931>
 - HashMap 与 LinkedHashMap:<https://www.cnblogs.com/Spground/p/8536148.html>

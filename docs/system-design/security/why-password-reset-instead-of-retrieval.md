@@ -1,132 +1,132 @@
 ---
-title: 为什么忘记密码时只能重置，不能告诉你原密码？
-description: 详细解答为什么忘记密码时网站只能让你重置密码，而不能告诉你原密码。核心原因是服务端使用哈希算法存储密码，哈希算法不可逆，无法从哈希值还原出原始密码。本文还介绍了密码存储安全、加盐机制、Bcrypt 加密、密码传输安全等知识。
+title: Tại sao khi quên password chỉ có thể reset, không thể lấy lại password cũ?
+description: Giải thích chi tiết tại sao website khi quên password chỉ có thể cho bạn reset password chứ không thể nói password cũ. Lý do cốt lõi là server dùng hash algorithm để lưu password — hash algorithm không thể đảo ngược, không thể khôi phục password gốc từ hash value. Bài này còn giới thiệu kiến thức về password storage security, salt mechanism, Bcrypt encryption, password transmission security.
 category:
-  - 系统设计
+  - System Design
 tag:
-  - 数据安全
-  - 密码安全
-  - 哈希算法
-  - 面试题
+  - Data Security
+  - Password Security
+  - Hash Algorithm
+  - Interview Questions
 head:
   - - meta
     - name: keywords
-      content: 密码重置,密码找回,哈希算法,密码存储,Bcrypt,加盐,密码安全,面试题
+      content: password reset,password recovery,hash algorithm,password storage,Bcrypt,salting,password security,interview questions
 ---
 
-这是一个挺有意思的问题，很多公司也在面试中问过。挺简单的，不知道大家平时在重置密码的时候有没有想过这个问题。
+Đây là câu hỏi khá thú vị — nhiều công ty cũng đã hỏi trong phỏng vấn. Khá đơn giản, không biết mọi người khi reset password có bao giờ nghĩ đến câu hỏi này không.
 
-![重置帐号密码](https://oss.javaguide.cn/github/javaguide/system-design/security/reset-password-page.png)
+![Reset account password](https://oss.javaguide.cn/github/javaguide/system-design/security/reset-password-page.png)
 
-回答这个问题其实就一句话：**因为服务端也不知道你的原密码是什么**。存原密码的程序员已经被开了 🤣。
+Trả lời câu hỏi này thực ra chỉ một câu: **Vì server cũng không biết password gốc của bạn là gì**. Developer lưu password gốc đã bị đuổi rồi 🤣.
 
-如果服务端知道你的原密码，那就是严重的安全风险问题了。
+Nếu server biết password gốc của bạn, đó là vấn đề rủi ro bảo mật nghiêm trọng.
 
-我们这里来简单分析一下。
+Hãy phân tích đơn giản ở đây.
 
-这篇文章不会谈论太多加密算法相关的内容，感兴趣的朋友可以看这篇文章：[常见加密算法总结](https://javaguide.cn/system-design/security/encryption-algorithms.html)。
+Bài này không bàn nhiều về encryption algorithm. Bạn quan tâm có thể đọc: [Tổng hợp các thuật toán mã hóa phổ biến](https://javaguide.cn/system-design/security/encryption-algorithms.html).
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/javaguide-security-encryption-algorithms.png)
 
-## 为什么服务端不知道你的原密码？
+## Tại sao server không biết password gốc của bạn?
 
-做过开发的应该都知道，服务端在保存密码到数据库的时候，**绝对不能直接明文存储**。
+Ai từng làm development đều biết rằng khi server lưu password vào database, **tuyệt đối không thể lưu dạng plain text**.
 
-如果明文存储的话，风险太大：
+Nếu lưu plain text, rủi ro quá lớn:
 
-1. 数据库数据有被盗的风险
-2. 有数据库权限的内部人员可能恶意利用
-3. 黑客入侵后可以直接获取所有用户密码
+1. Data trong database có nguy cơ bị đánh cắp.
+2. Nhân viên nội bộ có quyền database có thể lợi dụng ác ý.
+3. Sau khi hacker xâm nhập có thể lấy trực tiếp password của tất cả user.
 
-因此，密码必须经过处理后才能存储。这个处理方式就是使用**哈希算法**。
+Do đó password phải qua xử lý mới được lưu. Cách xử lý này chính là dùng **hash algorithm**.
 
-## 哈希算法简介
+## Giới thiệu Hash Algorithm
 
-哈希算法也叫散列函数或摘要算法，它的作用是对任意长度的数据生成一个固定长度的唯一标识，也叫哈希值、散列值或消息摘要（后文统称为哈希值）。
+Hash algorithm còn gọi là hash function hay digest algorithm. Tác dụng của nó là tạo ra một unique identifier có độ dài cố định từ data có độ dài tùy ý — còn gọi là hash value, digest (sau đây gọi thống nhất là hash value).
 
-![哈希算法效果演示](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
+![Hash algorithm effect demonstration](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/hash-function-effect-demonstration.png)
 
-哈希算法有两个关键特点：
+Hash algorithm có hai đặc điểm quan trọng:
 
-1. **不可逆性**：你无法通过哈希之后的值再得到原值。这是核心！
-2. **确定性**：相同的输入永远产生相同的输出。
+1. **Irreversibility (Không thể đảo ngược)**: Bạn không thể lấy lại giá trị gốc từ giá trị sau khi hash. **Đây là cốt lõi!**
+2. **Determinism (Tính xác định)**: Cùng input luôn tạo ra cùng output.
 
-有个很形象的比喻：**你存的密码就像切过的土豆丝，不能被复原成土豆。但网站判断密码是否正确的方式，就是把你输入的新密码当成土豆再切一次，看看这两盘土豆丝是不是一样的。**
+Có một ví dụ rất sinh động: **Password bạn lưu giống như khoai tây đã thái sợi, không thể phục hồi lại thành khoai tây. Nhưng cách website kiểm tra password có đúng không là lấy password mới bạn nhập như cái khoai tây và thái lại một lần nữa, rồi xem hai đĩa khoai tây sợi có giống nhau không.**
 
-这两个特点决定了哈希算法非常适合用于密码存储：服务端只存储密码的哈希值，验证时只需比较哈希值是否一致。
+Hai đặc điểm này quyết định hash algorithm rất phù hợp để lưu password: Server chỉ lưu hash value của password, khi verify chỉ cần so sánh xem hash value có nhất quán không.
 
-### 哈希算法的分类
+### Phân loại Hash Algorithm
 
-哈希算法可以简单分为两类：
+Hash algorithm có thể chia đơn giản thành hai loại:
 
-1. **加密哈希算法**：安全性较高的哈希算法，它可以提供一定的数据完整性保护和数据防篡改能力，能够抵御一定的攻击手段，安全性相对较高，但性能较差，适用于对安全性要求较高的场景。例如 SHA2、SHA3、SM3、RIPEMD-160、BLAKE2等等。
-2. **非加密哈希算法**：安全性相对较低的哈希算法，易受到暴力破解、冲突攻击等攻击手段的影响，但性能较高，适用于对安全性没有要求的业务场景。例如 CRC32、MurMurHash3等等。
+1. **Cryptographic hash algorithm**: Hash algorithm có tính bảo mật cao. Có thể cung cấp một mức độ bảo vệ tính toàn vẹn dữ liệu và chống tamper, chống lại một số phương pháp tấn công nhất định. Bảo mật tương đối cao nhưng hiệu năng kém hơn. Phù hợp với tình huống yêu cầu bảo mật cao. Ví dụ SHA2, SHA3, SM3, RIPEMD-160, BLAKE2, v.v.
+2. **Non-cryptographic hash algorithm**: Hash algorithm có tính bảo mật tương đối thấp, dễ bị ảnh hưởng bởi brute force, collision attack và các tấn công khác. Nhưng hiệu năng cao, phù hợp với tình huống không yêu cầu bảo mật. Ví dụ CRC32, MurMurHash3, v.v.
 
-除了这两种之外，还有一些特殊的哈希算法，例如安全性更高的**慢哈希算法**。
+Ngoài hai loại này còn có một số hash algorithm đặc biệt như **slow hash algorithm** có bảo mật cao hơn.
 
-### 为什么不推荐 MD5？
+### Tại sao không khuyến nghị MD5?
 
-早期常用 MD5 来加密密码，但现在已经**不被推荐**，原因如下：
+Trước đây thường dùng MD5 để encrypt password, nhưng hiện nay **không còn được khuyến nghị** với các lý do sau:
 
-1. **抗碰撞性差**：存在弱碰撞问题，即多个不同的输入可能产生相同的 MD5 值。
-2. **哈希值较短**：128 位的哈希值容易被彩虹表攻击。
-3. **计算速度太快**：反而容易被暴力破解。
+1. **Collision resistance kém**: Có vấn đề weak collision — nhiều input khác nhau có thể tạo ra cùng MD5 value.
+2. **Hash value quá ngắn**: Hash value 128-bit dễ bị rainbow table attack.
+3. **Tốc độ tính toán quá nhanh**: Ngược lại dễ bị brute force.
 
-详细介绍可以阅读这篇文章：[简历别再写 MD5 加密密码了！](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247542780&idx=1&sn=fb2fe3fb53fe596cc5b22e30766e0098&scene=21#wechat_redirect)
+Chi tiết đọc: [Đừng viết MD5 encrypt password trong CV nữa!](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247542780&idx=1&sn=fb2fe3fb53fe596cc5b22e30766e0098&scene=21#wechat_redirect)
 
-### 为什么需要加盐？
+### Tại sao cần thêm Salt?
 
-单纯使用哈希算法存储密码，仍然存在被**彩虹表攻击**的风险。彩虹表是一种预先计算好的哈希值对照表，攻击者可以通过查表的方式快速破解密码。
+Chỉ dùng hash algorithm để lưu password vẫn có nguy cơ bị **rainbow table attack**. Rainbow table là bảng tra cứu hash value được tính toán trước. Attacker có thể nhanh chóng crack password bằng cách tra bảng.
 
-盐（Salt）在密码学中，是指通过在密码任意固定位置插入特定的字符串，让哈希后的结果和使用原始密码的哈希结果不相符，这种过程称之为"加盐"。
+Salt (Muối) trong mật mã học là kỹ thuật chèn một string cụ thể vào bất kỳ vị trí cố định nào trong password, làm cho kết quả hash khác với kết quả hash dùng password gốc — quá trình này gọi là "salting".
 
-**加盐的作用**：
+**Tác dụng của Salt**:
 
-1. 增加密码的复杂度和唯一性。
-2. 使得彩虹表攻击失效（每个用户的盐都不同）。
-3. 即使两个用户使用相同密码，哈希值也不同。
+1. Tăng complexity và uniqueness của password.
+2. Làm rainbow table attack vô hiệu (salt của mỗi user khác nhau).
+3. Dù hai user dùng cùng password, hash value cũng khác nhau.
 
-## 密码存储方案推荐
+## Phương án lưu trữ Password được khuyến nghị
 
-目前推荐的密码存储方案有两种：
+Hiện có hai phương án lưu password được khuyến nghị:
 
-### 方案一：加密哈希算法 + Salt
+### Phương án 1: Cryptographic Hash Algorithm + Salt
 
-使用安全性较高的加密哈希算法（如 SHA-256、SHA-3）加上盐值。
+Dùng cryptographic hash algorithm có bảo mật cao (như SHA-256, SHA-3) cộng với salt value.
 
-SHA-256 + Salt 示例代码：
+Ví dụ code SHA-256 + Salt:
 
 ```java
 String password = "123456";
 String salt = "1abd1c";
-// 创建SHA-256摘要对象
+// Tạo SHA-256 digest object
 MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 messageDigest.update((password + salt).getBytes());
-// 计算哈希值
+// Tính hash value
 byte[] result = messageDigest.digest();
-// 将哈希值转换为十六进制字符串
+// Convert hash value sang hex string
 String hexString = new HexBinaryAdapter().marshal(result);
 System.out.println("Original String: " + password);
 System.out.println("SHA-256 Hash: " + hexString.toLowerCase());
 ```
 
-输出：
+Output:
 
 ```bash
 Original String: 123456
 SHA-256 Hash: 424026bb6e21ba5cda976caed81d15a3be7b1b2accabb79878758289df98cbec
 ```
 
-### 方案二：慢哈希算法（更推荐）
+### Phương án 2: Slow Hash Algorithm (khuyến nghị hơn)
 
-**Bcrypt** 是专门为密码加密而设计的哈希算法，属于慢哈希算法。它内置了 salt 机制和 cost（成本）参数：
+**Bcrypt** là hash algorithm được thiết kế chuyên cho password encryption — thuộc loại slow hash algorithm. Nó tích hợp sẵn cơ chế salt và tham số cost:
 
-- **salt**：随机生成的字符串，用于和密码混合，增加密码的唯一性
-- **cost**：控制迭代次数，增加计算时间和资源消耗
+- **salt**: String được tạo ngẫu nhiên, dùng để trộn với password, tăng uniqueness của password.
+- **cost**: Kiểm soát số lần iteration, tăng thời gian tính toán và tiêu thụ tài nguyên.
 
-Bcrypt 可以有效防止彩虹表攻击和暴力破解攻击。
+Bcrypt có thể phòng chống hiệu quả rainbow table attack và brute force attack.
 
-Java 应用程序的安全框架 Spring Security 官方推荐使用 `BCryptPasswordEncoder`：
+Spring Security — security framework của Java application — officially khuyến nghị dùng `BCryptPasswordEncoder`:
 
 ```java
 @Bean
@@ -135,99 +135,97 @@ public PasswordEncoder passwordEncoder(){
 }
 ```
 
-## 登录验证流程
+## Login Verification Flow
 
-当你输入密码登录时，验证流程如下：
+Khi bạn nhập password để login, verification flow như sau:
 
-1. 服务端根据用户名从数据库取出该用户的盐值和存储的哈希值。
-2. 服务端将用户输入的密码与盐值拼接，计算哈希值。
-3. 比较计算出的哈希值与数据库中存储的哈希值是否一致。
-4. 如果一致，说明密码正确；否则密码错误。
+1. Server lấy salt value và stored hash value của user đó từ database theo username.
+2. Server ghép password do user nhập với salt value, tính hash value.
+3. So sánh hash value được tính với hash value lưu trong database xem có nhất quán không.
+4. Nếu nhất quán, password đúng; ngược lại password sai.
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/sha256-salt-password.png)
 
-## 重置密码时如何判断新密码与旧密码相同？
+## Khi reset password làm thế nào biết password mới giống password cũ?
 
-细心的同学可能发现，有些网站在重置密码时会提示"新密码不可与旧密码相同"。那网站是怎么知道新密码和旧密码相同的呢？
+Bạn tinh tế có thể nhận thấy một số website khi reset password sẽ nhắc "password mới không được giống password cũ". Website làm thế nào biết password mới và password cũ giống nhau?
 
-其实原理和验证密码正确性一样：
+Nguyên lý thực ra giống với verify tính đúng đắn của password:
 
-1. 用户输入新密码。
-2. 服务端用该用户的盐值，计算新密码的哈希值。
-3. 将新密码的哈希值与数据库中存储的旧密码哈希值比较。
-4. 如果相同，说明新密码和旧密码一样，拒绝修改。
+1. User nhập password mới.
+2. Server dùng salt value của user đó để tính hash value của password mới.
+3. So sánh hash value của password mới với hash value password cũ lưu trong database.
+4. Nếu giống nhau, nghĩa là password mới và cũ như nhau, từ chối sửa đổi.
 
-所以网站并不知道你的旧密码是什么，只是比较了两盘"土豆丝"是否一样。
+Vậy website không biết password cũ của bạn là gì — chỉ so sánh hai đĩa "khoai tây sợi" có giống nhau không.
 
-## 密码传输安全
+## Password Transmission Security
 
-前面讲的都是密码在服务端的存储安全，那密码在传输过程中安全吗？
+Phần trước toàn nói về storage security của password ở server side. Vậy password có an toàn trong quá trình transmission không?
 
-有个常见的面试问题：**如果某个员工知道加密方式，那岂不是他可以在私下或者离职后拦截包然后模拟加密从而获取密码？**
+Có câu hỏi phỏng vấn phổ biến: **Nếu một nhân viên biết cách mã hóa, liệu họ có thể chặn packet và mô phỏng mã hóa để lấy password không?**
 
-答案是：**存储与传输本身就是分开处理的**。
+Câu trả lời: **Storage và transmission bản thân đã được xử lý riêng biệt**.
 
-完整的密码安全方案需要同时保障存储安全和传输安全。
+Phương án password security hoàn chỉnh cần đảm bảo cả storage security lẫn transmission security.
 
-### 使用 HTTPS
+### Dùng HTTPS
 
-HTTPS 协议是保障传输安全的基础。HTTP 协议运行在 TCP 之上，所有传输的内容都是明文，客户端和服务器端都无法验证对方的身份。HTTPS 则是运行在 SSL/TLS 之上的 HTTP 协议，所有传输的内容都经过加密。
+HTTPS protocol là nền tảng để bảo vệ transmission security. HTTP protocol chạy trên TCP, tất cả nội dung truyền đều là plain text, client và server đều không thể verify danh tính của đối phương. HTTPS là HTTP protocol chạy trên SSL/TLS, tất cả nội dung truyền đều được mã hóa.
 
-关于 HTTP 和 HTTPS 的详细对比可以看这篇文章：[HTTP vs HTTPS（应用层）](https://javaguide.cn/cs-basics/network/http-vs-https.html)。
+Chi tiết so sánh HTTP và HTTPS xem bài: [HTTP vs HTTPS (Application Layer)](https://javaguide.cn/cs-basics/network/http-vs-https.html).
 
-**但是，仅仅依赖 HTTPS 还不够安全**：
+**Tuy nhiên, chỉ dựa vào HTTPS vẫn chưa đủ an toàn**:
 
-1. HTTPS 存在降级攻击、中间人攻击等风险
-2. HTTPS 只能保证传输过程中第三方抓包看到的是密文，无法防范客户端本身的恶意行为
+1. HTTPS có rủi ro downgrade attack, man-in-the-middle attack.
+2. HTTPS chỉ đảm bảo third-party packet capturing thấy ciphertext trong transmission, không thể ngăn malicious behavior của client bản thân.
 
-因此，我们还需要对密码进行**加密后再传输**。
+Do đó còn cần **encrypt password trước khi truyền**.
 
-### 密码加密传输
+### Encrypted Password Transmission
 
-加密算法分为**对称加密**和**非对称加密**两大类。
+Encryption algorithm chia thành **symmetric encryption** và **asymmetric encryption**.
 
-**对称加密**是指加密和解密使用同一个密钥的算法，也叫共享密钥加密算法。
+**Symmetric encryption** là thuật toán mã hóa và giải mã dùng cùng key — còn gọi là shared key encryption algorithm.
 
-![对称加密](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
+![Symmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/symmetric-encryption.png)
 
-**非对称加密**是指加密和解密使用不同密钥的算法，也叫公开密钥加密算法。这两个密钥一个称为公钥（可公开），另一个称为私钥（需保密）。用公钥加密的数据只能用对应的私钥解密，反之亦然。
+**Asymmetric encryption** là thuật toán mã hóa và giải mã dùng key khác nhau — còn gọi là public key encryption algorithm. Hai key này: một là public key (có thể công khai), một là private key (cần bảo mật). Data mã hóa bằng public key chỉ có thể giải mã bằng private key tương ứng, và ngược lại.
 
-![非对称加密](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
+![Asymmetric Encryption](https://oss.javaguide.cn/github/javaguide/system-design/security/encryption-algorithms/asymmetric-encryption.png)
 
-常见的非对称加密算法有 RSA、DSA、ECC 等。
+Các asymmetric encryption algorithm phổ biến là RSA, DSA, ECC, v.v.
 
-对于密码传输这一场景，**推荐使用非对称加密**。完整流程如下：
+Với tình huống password transmission, **khuyến nghị dùng asymmetric encryption**. Full flow như sau:
 
-1. 服务端生成公私钥对，私钥严格保密存储在服务端，公钥下发到客户端
-2. 客户端传输密码前，使用公钥加密密码
-3. 服务端收到加密数据后，用私钥解密获取原始密码
-4. 服务端对原始密码进行哈希处理、加盐后存储
+1. Server tạo cặp public/private key. Private key được bảo mật nghiêm ngặt trên server, public key được gửi xuống client.
+2. Trước khi client gửi password, encrypt password bằng public key.
+3. Server sau khi nhận encrypted data, dùng private key để decrypt lấy password gốc.
+4. Server hash password gốc, thêm salt rồi lưu.
 
-### 完整的安全方案
+### Phương án bảo mật hoàn chỉnh
 
-综合存储和传输，一个完整的密码安全方案包含三层：
+Kết hợp storage và transmission, một phương án password security hoàn chỉnh gồm ba tầng:
 
 ```javascript
-// 第一层：客户端加密（非对称加密传输）
+// Tầng 1: Client encryption (asymmetric encrypted transmission)
 const encryptedPassword = rsaEncrypt(password, publicKey);
 
-// 第二层：HTTPS 安全传输
-// 第三层：服务端存储（哈希 + 盐值）
+// Tầng 2: HTTPS secure transmission
+// Tầng 3: Server-side storage (hash + salt value)
 ```
 
-所以，即使内部员工知道加密算法，他也只能拿到：
+Do đó, dù nhân viên nội bộ biết encryption algorithm, họ chỉ có thể lấy được:
 
-- 传输层：非对称加密后的密文（无私钥无法解密）
-- 存储层：哈希后的摘要（哈希不可逆，无法还原）
+- Tầng transmission: Ciphertext sau asymmetric encryption (không có private key không thể decrypt)
+- Tầng storage: Digest sau hash (hash không thể đảo ngược, không thể khôi phục)
 
-这两层保护确保了密码在全链路的安全性。
+Hai tầng bảo vệ này đảm bảo security của password trên toàn link.
 
-## 总结
+## Tổng kết
 
-回到最初的问题：为什么忘记密码时只能重置，不能告诉你原密码？
+Quay lại câu hỏi ban đầu: Tại sao khi quên password chỉ có thể reset, không thể nói lại password cũ?
 
-因为服务端存储的是密码经过哈希算法处理后的值，**哈希算法是不可逆的**，无法从哈希值还原出原始密码。这是密码安全的基本原则。
+Vì server lưu giá trị sau khi password được xử lý bằng hash algorithm. **Hash algorithm không thể đảo ngược** — không thể khôi phục password gốc từ hash value. Đây là nguyên tắc cơ bản của password security.
 
-如果一个网站能够告诉你原密码，那说明它**明文存储了密码**，这是严重的安全隐患，建议立即修改密码并远离该网站。
-
-**更重要的是**：如果你在所有网站都用了相同的密码，一个不靠谱的网站泄漏了你的密码，就相当于你所有的账户都面临风险。所以，**不要在所有网站使用相同密码**！
+Nếu một website có thể nói lại password gốc của bạn, nghĩa là nó **lưu password dạng plain text** — đây là ẩn họa bảo mật nghiêm trọng. Khuyến nghị ngay lập tức đổi password và tránh xa website đó.

@@ -1,137 +1,136 @@
 ---
-title: 聊聊大厂的绩效考核
-description: "聊聊大厂的绩效考核：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: Nói về đánh giá hiệu suất tại big company
+description: "Nói về đánh giá hiệu suất tại big company - Tổng hợp các khái niệm chính, câu hỏi phổ biến và điểm thực hành."
+category: Technical Articles Selection
 tag:
-  - 工作
+  - Work
 head:
   - - meta
     - name: keywords
-      content: 大厂绩效,绩效考核,KPI,OKR,271制度,年终奖,职级晋升,向上管理
+      content: big company performance,performance evaluation,KPI,OKR,271 system,year-end bonus,promotion,upward management
 ---
 
-> **内容概览**：
+> **Content overview**:
 >
-> - 在大部分公司，绩效跟你的年终奖、职级晋升、薪水涨幅等等福利是直接相关的。
-> - 你的上级、上上级对你的绩效拥有绝对的话语权，这是潜规则，放到任何公司都是。成年人的世界，没有绝对的公平，绩效考核尤为明显。
-> - 提升绩效的打法：
->   - 短期打法：找出 1-2 件事，体现出你的独特价值（抓关键事件）。
->   - 长期打法：通过一步步信任的建立，成为团队的核心人员或者是老板的心腹，具备不可替代性。
+> - Ở hầu hết công ty, performance review liên quan trực tiếp đến year-end bonus, promotion, salary increase và các welfare khác.
+> - Cấp trên trực tiếp và gián tiếp của bạn có quyền quyết định tuyệt đối về performance của bạn — đây là unwritten rule, ở công ty nào cũng vậy. Thế giới người lớn không có công bằng tuyệt đối, performance evaluation đặc biệt rõ ràng.
+> - Chiến thuật cải thiện performance:
+>   - Short-term: Tìm 1-2 việc để thể hiện unique value của mình (nắm bắt key events).
+>   - Long-term: Thông qua xây dựng niềm tin từng bước, trở thành core member của team hoặc confidant của boss — có tính không thể thay thế.
 >
-> **原文地址**：<https://mp.weixin.qq.com/s/D1s8p7z8Sp60c-ndGyh2yQ>
+> **Original article**: <https://mp.weixin.qq.com/s/D1s8p7z8Sp60c-ndGyh2yQ>
 
-在新公司度过了一个完整的 Q3 季度，被打了绩效，也给下属打了绩效，感慨颇深。
+Đã trải qua một Q3 hoàn chỉnh tại công ty mới, bị đánh performance, cũng đánh performance cho cấp dưới — cảm nhận rất sâu.
 
-今天就好好聊聊**大厂打工人最最关心的「绩效考核」**，谈谈它背后的逻辑以及潜规则，摸清楚了它，你在大厂这片丛林里才能更好的生存下去。
+Hôm nay nói kỹ về **"performance evaluation" — điều mà những người làm ở big company quan tâm nhất**, bàn về logic và unwritten rules đằng sau. Hiểu rõ nó, bạn mới có thể sinh tồn tốt hơn trong khu rừng big company.
 
-## 大厂的绩效到底有多重要？
+## Performance ở big company quan trọng đến mức nào?
 
-先从公司角度，谈谈为什么需要绩效考核？
+Trước tiên từ góc độ công ty — tại sao cần performance evaluation?
 
-有一个著名的管理者言论，即：企业战略的上三路和下三路。
+Có một câu nói nổi tiếng của managers, đó là "three upper paths và three lower paths của corporate strategy":
 
-> 上三路是使命、愿景、价值观，下三路是组织、人才、KPI。下三路需要确保上三路能执行下去，否则便是空谈。那怎么才能达成呢？
+> Upper three paths là mission, vision, values. Lower three paths là organization, talent, KPI. Lower three paths cần đảm bảo upper three paths có thể được thực thi, nếu không chỉ là nói suông. Vậy làm thế nào để đạt được?
 
-马老板在湖畔大学的课堂上，对底下众多 CEO 学员说，“只能靠 KPI。没有 KPI，一切都是空话，组织和公司是不会进步的”。
+Tại lớp học Lakeside University, Boss Ma nói với nhiều CEO học viên bên dưới: "Chỉ có thể dựa vào KPI. Không có KPI, mọi thứ đều là lời nói trống rỗng, tổ chức và công ty sẽ không tiến bộ".
 
-所以，KPI 一般是用来承接企业战略的。身处大厂的打工者们，也能深深感受到：每个季度的 KPI 是如何从大 Boss、到 Boss、再到基层，一层层拆解下来的，最终让所有人朝着一个方向行动，这便是 KPI 对于公司的意义。
+Vì vậy, KPI thường được dùng để align với corporate strategy. Những người làm việc tại big companies cũng cảm nhận sâu sắc: KPI mỗi quý được chia nhỏ từ Big Boss đến Boss rồi đến frontline như thế nào, cuối cùng khiến tất cả mọi người hành động theo một hướng — đây là ý nghĩa của KPI với công ty.
 
-然鹅，并非每个员工都会站在 CEO 的高度去理解 KPI 的价值，大家更关注的是 KPI 对于我个人来说到底有什么意义？
+Nhưng không phải mọi nhân viên đều hiểu giá trị của KPI ở độ cao CEO. Mọi người quan tâm hơn: KPI có ý nghĩa gì với tôi cá nhân?
 
-在互联网大厂，每家公司都会设定一套绩效考核体系，字节用的是 OKR，阿里用的是 KPI，通常都是「271」 制度，即：
+Ở big internet companies, mỗi công ty đều có hệ thống performance evaluation riêng. ByteDance dùng OKR, Alibaba dùng KPI, thường là hệ thống "271":
 
-> 20% 的比例是 A+ 和 A，对应明星员工。
+> 20% là A+ và A — star employees.
 >
-> 70% 的比例是 B，对应普通员工。
+> 70% là B — ordinary employees.
 >
-> 10% 的比例是 C 和 C-，对应需要绩效改进或者淘汰的员工。
+> 10% là C và C- — employees cần performance improvement hoặc được loại bỏ.
 
-有了三六九等，然后才有了利益分配。
+Có phân loại rồi mới có phân phối lợi ích.
 
-**在大厂，绩效结果跟奖金、晋升、薪水涨幅、股票授予是直接相关的。在内卷的今天，甚至可以直接划上等号。**
+**Ở big companies, performance kết nối trực tiếp với bonus, promotion, salary increase, stock grants. Trong thời đại "involuted" ngày nay, thậm chí có thể xem như là đồng nghĩa.**
 
-绩效好的员工，奖金必然多，一年可能调薪两次，晋升答辩时能 PK 掉绩效一般的人，职级低的人甚至可以晋升免试。
+Employee có performance tốt, bonus chắc chắn nhiều hơn, có thể được điều chỉnh lương hai lần một năm, khi tham gia promotion defense có thể vượt qua người performance bình thường. Người ở cấp thấp hơn thậm chí có thể miễn test để promotion.
 
-而绩效差的人，有可能一年白干，甚至走人（大厂的末尾淘汰是不成文的规定）。
+Còn người performance kém có thể làm một năm không công, thậm chí phải ra đi (bottom-out elimination ở big companies là unwritten rule).
 
-总之，你能想到的直接利益都和「绩效」息息相关。所以，在大厂这片高手众多的丛林里，多琢磨下绩效背后的逻辑，既是生存之道，更是一技之长。
+Tóm lại, tất cả direct benefits bạn có thể nghĩ đến đều liên quan mật thiết đến "performance". Vì vậy, trong khu rừng big company đầy người giỏi, suy nghĩ nhiều về logic đằng sau performance — vừa là survival strategy vừa là một skill quan trọng.
 
-## 你是怎么看待绩效的？
+## Bạn nhìn nhận performance như thế nào?
 
-凡是用来考核人的规则，大部分人在潜意识里都想去突破它，而不是被束缚。
+Bất kỳ quy tắc nào dùng để đánh giá người, phần lớn trong tiềm thức mọi người đều muốn phá vỡ nó, không muốn bị ràng buộc.
 
-至少在我刚工作的前几年，看着身边有些同事因为背个 C 黯然离开的时候，觉得绩效考核就是一个冷血的管理工具。
+Ít nhất trong những năm đầu mới đi làm, khi nhìn thấy một số đồng nghiệp vì bị đánh C mà buồn bã rời đi, tôi cảm thấy performance evaluation chỉ là một công cụ quản lý vô tâm.
 
-尤其遇到自己看不上的领导时，对于他给我打的绩效，其实也是很不屑的。
+Đặc biệt khi gặp leader mà mình không coi trọng, với performance họ đánh cho mình thực ra cũng rất khinh thường.
 
-到今天，实在见过太多的反面案例了，自己也踩过一些坑，逐渐认识到：当初的想法除了让自己心里爽一点，好像起不到任何作用，甚至会让我的工作方式变形。
+Đến hôm nay, đã thấy quá nhiều case phản diện, bản thân cũng vấp vài cái hố, dần nhận ra: Suy nghĩ lúc đó ngoài khiến mình thoải mái hơn một chút, hình như không có tác dụng gì khác, thậm chí còn làm cách làm việc của mình bị méo mó.
 
-当思维方式变了，也就改变了我对绩效的态度，至少有两点我认为是打工人需要看清的。
+Khi mindset thay đổi, attitude của tôi với performance cũng thay đổi. Ít nhất có hai điểm tôi nghĩ những người đi làm cần nhìn rõ.
 
-**第一，你的上级、上上级对你的绩效拥有绝对的话语权，这是潜规则，放到任何公司都是。**
+**Thứ nhất, cấp trên trực tiếp và gián tiếp của bạn có quyền quyết định tuyệt đối về performance của bạn — đây là unwritten rule, ở công ty nào cũng vậy.**
 
-大家可以去看看身边发展特别好的人，除了有很强的个人能力以外，几乎都是善于利用规则，而不是去挑战规则的人。
+Mọi người có thể quan sát người phát triển rất tốt xung quanh mình. Ngoài năng lực cá nhân rất mạnh, hầu hết đều là người giỏi tận dụng quy tắc, chứ không phải thách thức quy tắc.
 
-当然，我并不是说你要一味地去跪舔你的领导，而是表达：工作中不要站在领导的对立面去做对抗，如果领导做法很过分，要么直接沟通去影响他，要么选择离开。
+Tất nhiên tôi không nói bạn phải một mực nịnh hót lãnh đạo, mà muốn nói: Trong công việc đừng đứng ở vị trí đối lập với lãnh đạo để đối kháng. Nếu cách làm của lãnh đạo quá đáng, hãy trực tiếp giao tiếp để ảnh hưởng, hoặc chọn rời đi.
 
-**第二，成年人的世界，没有绝对的公平，绩效考核尤为明显。**
+**Thứ hai, thế giới người lớn không có công bằng tuyệt đối, performance evaluation đặc biệt rõ ràng.**
 
-我所待过的团队，绩效考核还是相对公平的，虽然也存在受照顾的情况，但都是个例。
+Các teams tôi từng ở, performance evaluation tương đối công bằng, dù cũng có trường hợp được ưu tiên, nhưng đều là ngoại lệ.
 
-另外就是，技术岗的绩效考核不同于销售或者运营岗，很容易指标化。
+Ngoài ra, performance evaluation của vị trí kỹ thuật khác với sales hoặc operations — không dễ indicator hóa.
 
-需求吞吐量、BUG 数、线上事故... 的确有一大堆研发效能指标，但这些指标在绩效考核时是否会被参考？具体又该如何分配比重？本身就是一个扯不清楚的难题。
+Requirements throughput, BUG count, online incidents... đúng là có rất nhiều R&D effectiveness indicators, nhưng những indicators này có được tham khảo khi performance evaluation không? Cụ thể nên phân bổ tỷ trọng thế nào? Bản thân là vấn đề khó xử rõ ràng.
 
-最终决定你绩效结果的还是你领导的主观判断。你所见到的 360 环评，以及弄一些指标排序，这些都只是将绩效结果合理化的一种方式，并非关键所在。
+Điều cuối cùng quyết định kết quả performance của bạn vẫn là judgment chủ quan của lãnh đạo. 360 review và một số indicator rankings bạn thấy — những thứ đó chỉ là cách để rationalize kết quả performance, không phải then chốt.
 
-因此，多琢磨如何去影响你的领导？站在他的视角去审视他在绩效考核时到底关注哪些核心点？这才是至关重要的。
+Vì vậy, nghĩ nhiều hơn về cách ảnh hưởng đến lãnh đạo của bạn. Nhìn từ góc nhìn của họ xem trong performance evaluation họ thực sự quan tâm những điểm cốt lõi nào — đó mới là điều quan trọng nhất.
 
-上面讲了一堆潜规则，是不是意味着绩效考核是可以投机取巧，完全不看工作业绩呢，当然不是。
+Nói nhiều unwritten rules như vậy, có phải có nghĩa là performance evaluation có thể mạo hiểm, hoàn toàn không nhìn vào work performance không? Tất nhiên là không.
 
-“你的努力不一定会被看见”、“你的努力应该有的放矢”，大家先记住这两条。
+"Nỗ lực của bạn không nhất thiết sẽ được nhìn thấy", "Nỗ lực của bạn nên có mục tiêu" — hãy nhớ hai câu này trước.
 
-下面我再展开聊聊，大家最最关心的 A 和 C，它们背后的逻辑。
+Tiếp theo tôi nói thêm về A và C — điều mọi người quan tâm nhất — và logic đằng sau chúng.
 
-## 绩效被打 A 和 C 的逻辑是什么？
+## Logic của performance A và C là gì?
 
-“铆足了劲拿不到 A，一不留神居然拿了个 C”，这是绝大多数打工人最真实的职场现状。
+"Dốc sức mà không lấy được A, sơ hở lại bị C" — đây là thực trạng nghề nghiệp thực sự nhất của phần lớn người đi làm.
 
-A 和 C 属于绩效的两个极端，背后的逻辑类似，反着理解即可，下面我详细分析下 C。
+A và C thuộc hai thái cực của performance, logic đằng sau tương tự nhau. Hiểu ngược lại là được. Dưới đây tôi phân tích chi tiết C.
 
-先从我身边人的情况说起，我所看到的案例绝大多数都属于：绩效被打了 C，完全没有任何预感，主管跟他沟通结果时，还是一脸懵逼，“为什么会给我打 C？一定是黑我呀！”。
+Bắt đầu từ case những người xung quanh, phần lớn case tôi thấy đều thuộc loại: bị đánh C hoàn toàn không có dự cảm nào. Khi supervisor giao tiếp kết quả, vẫn còn ngơ ngác "Tại sao lại đánh C cho tôi? Chắc chắn là họ đang hại mình!".
 
-前阵子听公司一位大佬分享，用他的话说，这种人就是没有「角色认知」，他不知道他所处的角色和职级该做好哪些事？做成什么样才算「做好了」？被打 C 后自然觉得是在背锅。
+Gần đây nghe một đại ca trong công ty chia sẻ. Theo lời ông, kiểu người này là không có "role awareness" — họ không biết role và level họ đang ở cần làm tốt những gì? Làm đến mức nào thì được coi là "làm tốt rồi"? Tự nhiên sau khi bị đánh C sẽ thấy mình đang bị đổ lỗi.
 
-所以，务必确保你对于当前角色是认知到位的，这样才称得上进入了「工作状态」，否则你的一次松懈，一段不太好的表现，很可能导致 C 落在你的头上，岗位越高，摔得越重。
+Vì vậy, nhất định phải đảm bảo bạn có đủ awareness về current role — như vậy mới xứng đáng được coi là "vào guồng làm việc". Nếu không, một lần lơi lỏng, một giai đoạn thể hiện không tốt, rất có thể C rơi lên đầu bạn. Level càng cao, ngã càng đau.
 
-有了角色认知，再说下对绩效的认知。
+Có role awareness rồi, nói tiếp về nhận thức performance.
 
-第一，团队很优秀，是不是不用背 C？不是！大厂的 C 都是强制分配的，再优秀的团队也会有 C。所以团队越厉害，竞争越惨烈。
+Thứ nhất, team rất xuất sắc, có phải không phải chịu C không? Không! C ở big companies được phân bổ bắt buộc — dù team xuất sắc đến đâu cũng có C. Vì vậy team càng mạnh, cạnh tranh càng khốc liệt.
 
-第二，完成了 KPI，没有工作失误，是不是就万事大吉，不用背 C？不是，绩效是相对的，你必须清楚你在团队所处的位置，你在老板眼中的排序，慢慢练出这种嗅觉。
+Thứ hai, hoàn thành KPI, không có sai sót trong công việc, có phải vạn sự suôn sẻ, không phải chịu C không? Không. Performance là tương đối — bạn phải biết rõ vị trí của mình trong team, ranking của bạn trong mắt boss. Dần dần luyện được cảm giác đó.
 
-懂了上面这些道理，很自然就能知道打 C 的逻辑，C 会集中在两类人上：
+Hiểu những đạo lý trên rồi, tự nhiên sẽ biết logic của việc bị đánh C. C sẽ tập trung ở hai loại người:
 
-> 1、工作表现称不上角色要求的人。
->
-> 2、在老板眼里排序靠后，就算离开，对团队影响也很小的人。
+> 1. Người có biểu hiện công việc không xứng với yêu cầu role.
+> 2. Người ranking thấp trong mắt boss — dù họ rời đi, ảnh hưởng đến team cũng rất nhỏ.
 
-要规避 C，有两种打法。
+Để tránh C, có hai chiến thuật.
 
-第 1 种是短期打法：抓关键事件，能不能找出 1-2 件事，体现出你的独特价值（比如本身影响力很大的项目，或者是领导最重视的事），相当于让你的排序有了最基本的保障。
+**Chiến thuật ngắn hạn**: Nắm bắt key events — có thể tìm ra 1-2 việc để thể hiện unique value của mình (ví dụ project có influence rất lớn, hoặc việc lãnh đạo coi trọng nhất) — tương đương có được bảo đảm cơ bản cho ranking của mình.
 
-这种打法，你不能等到评价时再去改变，一定是在前期就抓住机会，承担起最有挑战的任务，然后全力以赴，做好了拿 A，不弄砸也不至于背 C，就怕静水潜流，躺平了去工作。
+Chiến thuật này bạn không thể đợi đến lúc đánh giá mới thay đổi. Nhất định là từ sớm đã nắm cơ hội, đảm nhiệm task thách thức nhất, rồi toàn lực dồn vào. Làm tốt thì lấy A, không làm hỏng cũng không bị C. Sợ nhất là làm việc kiểu "nước chảy đá mòn", nằm xuống làm việc.
 
-第 2 种是长期打法：通过一步步信任的建立，成为团队的核心人员或者是老板的心腹，具备不可替代性。
+**Chiến thuật dài hạn**: Thông qua xây dựng niềm tin từng bước, trở thành core member của team hoặc confidant của boss — có tính không thể thay thế.
 
-上面两种打法都是大的思路，还有很多锦上添花的技巧，比如：加强主动汇报（抹平领导的信息差）、让关键干系人给你点赞（能影响到你领导做出绩效决策的人）。
+Hai chiến thuật trên đều là big picture thinking. Còn có nhiều kỹ thuật icing on the cake như: tăng cường chủ động reporting (flatten information gap của lãnh đạo), để key stakeholders give you recognition (những người có thể ảnh hưởng đến quyết định performance của lãnh đạo bạn).
 
-## 写在最后
+## Viết ở cuối
 
-有人的地方就有江湖，有江湖就一定有规则，大厂平面看似平静，其实在绩效考核、晋升等利益点面前，都是一场厮杀。
+Nơi nào có người là có tranh đấu. Nơi nào có tranh đấu là có quy tắc. Big company trông có vẻ bình lặng, thực ra đối mặt với các interest points như performance evaluation và promotion, tất cả đều là cuộc chiến.
 
-当大家攻山头的能力都很强时，**到底做成什么样才算做好了？**当你弄清楚了这个玄机，职场也就看透了。
+Khi mọi người đều có năng lực rất mạnh, **thực ra làm đến mức nào mới được coi là làm tốt?** Khi bạn hiểu rõ bí quyết này, con đường sự nghiệp sẽ được nhìn thấu.
 
-如果这篇文章让你有一点启发，来个点赞和在看呀！我是武哥，我们下期见！
+Nếu bài viết này cho bạn một chút cảm hứng, hãy like và share nhé! Tôi là Wuge, gặp lại ở số sau!
 
 <!-- @include: @article-footer.snippet.md -->

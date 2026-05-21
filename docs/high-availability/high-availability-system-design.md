@@ -1,202 +1,179 @@
 ---
-title: 高可用系统设计指南
-description: 本文系统讲解高可用系统设计的核心知识，涵盖可用性衡量标准（SLA/多少个9）、常见故障原因（硬件故障/代码缺陷/流量激增/网络攻击）、以及10+种提升系统可用性的方法（集群/限流/熔断/降级/缓存/异步/灰度发布等），助力高可用架构设计与面试。
-category: 高可用
+title: Hướng dẫn thiết kế hệ thống High Availability
+description: Bài này hệ thống giải thích kiến thức cốt lõi về thiết kế hệ thống high availability, bao gồm tiêu chuẩn đo lường availability (SLA/bao nhiêu nines), các nguyên nhân lỗi phổ biến (hardware failure/code defect/traffic surge/network attack), cùng 10+ phương pháp cải thiện system availability (cluster/rate limiting/circuit breaking/degradation/cache/async/gray release, v.v.), hỗ trợ thiết kế HA architecture và phỏng vấn.
+category: High Availability
 icon: design
 head:
   - - meta
     - name: keywords
-      content: 高可用,系统可用性,SLA,可用性指标,限流,熔断,降级,集群,灰度发布,高可用架构,系统稳定性
+      content: high availability,system availability,SLA,availability metric,rate limiting,circuit breaking,degradation,cluster,gray release,HA architecture,system stability
 ---
 
-## 什么是高可用？可用性的判断标准是啥？
+## High Availability là gì? Tiêu chuẩn đánh giá availability là gì?
 
-**高可用（High Availability，简称 HA）** 描述的是一个系统在大部分时间都是可用的，可以为我们提供服务的。高可用代表系统即使在发生硬件故障或者系统升级的时候，服务仍然是可用的。
+**High Availability (HA)** mô tả một hệ thống có thể khả dụng và cung cấp service cho chúng ta trong hầu hết thời gian. High availability có nghĩa là ngay cả khi xảy ra hardware failure hoặc system upgrade, service vẫn khả dụng.
 
-一般情况下，我们使用 **多少个 9** 来评判一个系统的可用性，比如 99.9999% 就是代表该系统在所有的运行时间中只有 0.0001% 的时间是不可用的，这样的系统就是非常非常高可用的了！当然，也会有系统如果可用性不太好的话，可能连 9 都上不了。
+Thông thường chúng ta dùng **bao nhiêu nines** để đánh giá availability của hệ thống. Ví dụ 99.9999% nghĩa là trong tổng thời gian vận hành hệ thống chỉ có 0.0001% thời gian là unavailable — đây là hệ thống có availability cực kỳ cao! Tất nhiên cũng có hệ thống nếu availability không tốt có thể không đạt được ngay cả một 9.
 
-| 可用性等级 | 可用性百分比 | 年度停机时间 | 典型场景     |
-| ---------- | ------------ | ------------ | ------------ |
-| 1 个 9     | 90%          | 36.5 天      | 个人博客     |
-| 2 个 9     | 99%          | 3.65 天      | 普通企业系统 |
-| 3 个 9     | 99.9%        | 8.76 小时    | 在线服务     |
-| 4 个 9     | 99.99%       | 52.6 分钟    | 金融交易系统 |
-| 5 个 9     | 99.999%      | 5.26 分钟    | 电信级系统   |
+| Cấp availability | Phần trăm availability | Thời gian ngừng hoạt động/năm | Tình huống điển hình               |
+| ---------------- | ---------------------- | ----------------------------- | ---------------------------------- |
+| 1 nine           | 90%                    | 36.5 ngày                     | Blog cá nhân                       |
+| 2 nines          | 99%                    | 3.65 ngày                     | Hệ thống doanh nghiệp thông thường |
+| 3 nines          | 99.9%                  | 8.76 giờ                      | Online service                     |
+| 4 nines          | 99.99%                 | 52.6 phút                     | Hệ thống giao dịch tài chính       |
+| 5 nines          | 99.999%                | 5.26 phút                     | Hệ thống cấp viễn thông            |
 
-除此之外，系统的可用性还可以用 **某功能的失败次数与总的请求次数之比** 来衡量，比如对网站请求 1000 次，其中有 10 次请求失败，那么可用性就是 99%。
+Ngoài ra, system availability còn có thể đo bằng **tỷ lệ số lần thất bại của chức năng nào đó trên tổng số request**. Ví dụ request website 1000 lần, trong đó có 10 request thất bại thì availability là 99%.
 
-**SLA（Service Level Agreement，服务级别协议）** 是服务提供商与客户之间的正式承诺，通常会明确规定可用性目标。例如，云服务商承诺 99.95% 的 SLA，意味着每月最多允许约 22 分钟的停机时间。
+**SLA (Service Level Agreement)** là cam kết chính thức giữa service provider và khách hàng, thường quy định rõ mục tiêu availability. Ví dụ cloud provider cam kết SLA 99.95% nghĩa là mỗi tháng cho phép tối đa khoảng 22 phút downtime.
 
-## 哪些情况会导致系统不可用？
+## Tình huống nào gây hệ thống unavailable?
 
-导致系统不可用的原因可以从 **内部因素** 和 **外部因素** 两个维度来分析：
+Nguyên nhân gây hệ thống unavailable có thể phân tích từ hai chiều **nội bộ** và **bên ngoài**:
 
-**内部因素：**
+**Nội bộ:**
 
-1. **代码缺陷**：比如内存泄漏、死锁、循环依赖、空指针异常等代码质量问题，是导致线上故障的最常见原因之一。
-2. **架构设计缺陷**：单点故障、缺少限流保护、服务间强耦合等架构问题，会在流量高峰时暴露出来。
-3. **资源耗尽**：CPU、内存、磁盘、连接池等资源耗尽会直接导致服务不可用。
-4. **配置错误**：错误的配置变更（如数据库连接串、超时时间配置不当）可能导致服务异常。
+1. **Code defect**: Như memory leak, deadlock, circular dependency, null pointer exception, v.v. — là một trong những nguyên nhân phổ biến nhất gây online incident.
+2. **Architecture design defect**: Single point of failure, thiếu rate limiting protection, strong coupling giữa các service, v.v. — sẽ lộ ra khi traffic surge.
+3. **Resource exhaustion**: CPU, memory, disk, connection pool, v.v. cạn kiệt sẽ trực tiếp gây service unavailable.
+4. **Config error**: Thay đổi config sai (như database connection string, timeout config không phù hợp) có thể gây service anomaly.
 
-**外部因素：**
+**Bên ngoài:**
 
-1. **硬件故障**：服务器宕机、磁盘损坏、网络设备故障等。
-2. **流量激增**：突发的用户请求量（如秒杀活动）超过系统承载能力。
-3. **网络攻击**：DDoS 攻击、CC 攻击等恶意攻击会耗尽系统资源。
-4. **依赖服务故障**：数据库、缓存、消息队列、第三方 API 等依赖服务不可用。
-5. **自然灾害**：机房停电、火灾、地震等不可抗力因素。
+1. **Hardware failure**: Server down, disk corruption, network device failure, v.v.
+2. **Traffic surge**: Lượng request user đột biến (như flash sale event) vượt quá capacity chịu đựng của hệ thống.
+3. **Network attack**: Tấn công DDoS, CC attack, v.v. làm cạn kiệt tài nguyên hệ thống.
+4. **Dependency service failure**: Database, cache, message queue, third-party API, v.v. unavailable.
+5. **Thiên tai**: Mất điện data center, hỏa hoạn, động đất và các yếu tố bất khả kháng khác.
 
-## 有哪些提高系统可用性的方法？
+## Có những phương pháp nào để tăng system availability?
 
-提高系统可用性的方法可以从 **预防**、**容错**、**恢复** 三个阶段来考虑：
+Phương pháp tăng system availability có thể xem xét từ ba giai đoạn **Phòng ngừa**, **Fault tolerance**, **Phục hồi**:
 
 ```mermaid
 flowchart TB
-  subgraph Resilience["<big>🛡️ 系统韧性三阶段<big><br/>"]
+  subgraph Resilience["🛡️ Ba giai đoạn System Resilience"]
     direction TB
 
-    %% ================= 预防 =================
-    subgraph Prevention["🧯 预防：把风险前置<br/>"]
+    subgraph Prevention["🧯 Phòng ngừa: Đưa rủi ro về trước"]
       direction TB
-      A["🧹 质量与测试<br/><small>Review / 静态扫描 / 单元测试</small>"]
-      B["🧩 高可用架构<br/><small>多副本 / 多 AZ / 负载均衡</small>"]
-      C["🧊 缓存与本地化<br/><small>降延迟 / 减下游压力</small>"]
-      D["🧪 灰度发布<br/><small>Canary / 分批 / 快速回滚</small>"]
+      A["🧹 Chất lượng & Test<br/>Review / Static scan / Unit test"]
+      B["🧩 HA Architecture<br/>Multi-replica / Multi-AZ / Load balancing"]
+      C["🧊 Cache & Localization<br/>Giảm latency / Giảm tải downstream"]
+      D["🧪 Gray Release<br/>Canary / Batch / Quick rollback"]
     end
 
-    P2T["⬇️ 从“少出错”到“扛得住”<br/><small>进入故障控制面</small>"]
+    P2T["⬇️ Từ 'ít lỗi' đến 'chịu được'<br/>Vào fault control plane"]
 
-    %% ================= 容错 =================
-    subgraph Tolerance["🧱 容错：隔离止血，保核心链路<br/>"]
+    subgraph Tolerance["🧱 Fault Tolerance: Isolate, stop bleeding, bảo vệ core path"]
       direction TB
-      E["🚦 限流<br/><small>令牌桶 / 并发控制</small>"]
-      F["⏱️ 超时与重试<br/><small>超时预算 / 指数退避 / 幂等</small>"]
-      G["🧨 熔断<br/><small>错误率阈值 / 半开探测</small>"]
-      H["🪂 降级<br/><small>兜底返回 / 关非核心</small>"]
-      I["🧵 异步与队列<br/><small>削峰填谷 / 解耦 / 最终一致</small>"]
+      E["🚦 Rate Limiting<br/>Token bucket / Concurrency control"]
+      F["⏱️ Timeout & Retry<br/>Timeout budget / Exponential backoff / Idempotency"]
+      G["🧨 Circuit Breaking<br/>Error rate threshold / Half-open probe"]
+      H["🪂 Degradation<br/>Fallback return / Disable non-core"]
+      I["🧵 Async & Queue<br/>Peak shaving / Decoupling / Eventual consistency"]
     end
 
-    T2R["⬇️ 从“止血”到“恢复”<br/><small>进入定位与处置</small>"]
+    T2R["⬇️ Từ 'stop bleeding' đến 'phục hồi'<br/>Vào localization & xử lý"]
 
-    %% ================= 恢复 =================
-    subgraph Recovery["🔧 恢复：定位修复，回到 SLO<br/>"]
+    subgraph Recovery["🔧 Phục hồi: Localize, sửa, quay về SLO"]
       direction TB
-      J["📡 可观测与告警<br/><small>指标 / 日志 / Trace（SLI/SLO）</small>"]
-      K["⏪ 回滚与灾备<br/><small>版本回退 / 数据回放 / 切换</small>"]
+      J["📡 Observability & Alert<br/>Metrics / Logs / Trace (SLI/SLO)"]
+      K["⏪ Rollback & DR<br/>Version rollback / Data replay / Switchover"]
     end
 
-    %% 主链路
     Prevention --> P2T --> Tolerance --> T2R --> Recovery
   end
-
-  %% =============== 样式（统一、少而清） ===============
-  classDef prevent fill:#52B788,stroke:#2E8B57,color:#fff;
-  classDef tolerate fill:#3498DB,stroke:#2980B9,color:#fff;
-  classDef recover fill:#F4D03F,stroke:#D35400,color:#333;
-  classDef pivot fill:#2C3E50,stroke:#1A252F,color:#fff;
-
-  class A,B,C,D prevent;
-  class E,F,G,H,I tolerate;
-  class J,K recover;
-  class P2T,T2R pivot;
-
-  style Prevention fill:#FFF3E0,stroke:#FFCC80,stroke-dasharray: 5 5;
-  style Tolerance  fill:#E3F2FD,stroke:#90CAF9,stroke-dasharray: 5 5;
-  style Recovery   fill:#E8F5E9,stroke:#A5D6A7,stroke-dasharray: 5 5;
-
-  style Resilience fill:#F5F5F5,stroke:#BDBDBD,rx:20,ry:20;
 ```
 
-### 注重代码质量，测试严格把关
+### Chú trọng chất lượng code, kiểm tra nghiêm ngặt
 
-**代码质量是系统可用性的根基**。代码质量有问题比如比较常见的内存泄漏、循环依赖都是对系统可用性极大的损害。大家都喜欢谈限流、降级、熔断，但是从代码质量这个源头把关是首先要做好的一件很重要的事情。
+**Chất lượng code là nền tảng của system availability**. Vấn đề chất lượng code như memory leak, circular dependency rất phổ biến — đây là tổn hại cực lớn với system availability. Mọi người đều thích nói đến rate limiting, degradation, circuit breaking, nhưng kiểm soát từ nguồn gốc là chất lượng code mới là điều quan trọng cần làm đầu tiên.
 
-如何提高代码质量？比较实际可用的就是 **Code Review**，不要在乎每天多花的那 1 个小时左右的时间，作用可大着呢！
+Cách cải thiện chất lượng code? Thực dụng nhất là **Code Review** — đừng tiếc 1 tiếng mỗi ngày, tác dụng rất lớn!
 
-另外，安利几个对提高代码质量有实际效果的工具：
+Ngoài ra, một số công cụ thực sự có hiệu quả cải thiện chất lượng code:
 
-- [Sonarqube](https://www.sonarqube.org/)：静态代码分析平台，可检测代码坏味道、安全漏洞和 Bug。
-- Alibaba 开源的 Java 诊断工具 [Arthas](https://arthas.aliyun.com/doc/)：可在线排查 JVM 问题，支持热更新代码。
-- [阿里巴巴 Java 代码规范](https://github.com/alibaba/p3c)（Alibaba Java Code Guidelines）：配套 IDEA 插件，实时检查代码规范。
-- IDEA 自带的代码分析等工具。
+- [Sonarqube](https://www.sonarqube.org/): Platform phân tích code tĩnh, có thể phát hiện code smell, security vulnerability và bug.
+- [Arthas](https://arthas.aliyun.com/doc/) - công cụ chẩn đoán Java open source của Alibaba: Có thể troubleshoot JVM online, hỗ trợ hot update code.
+- [Alibaba Java Code Guidelines](https://github.com/alibaba/p3c): Plugin IDEA đi kèm, kiểm tra code spec real-time.
+- Các công cụ code analysis có sẵn của IDEA.
 
-### 使用集群，减少单点故障
+### Dùng Cluster, giảm single point of failure
 
-**单点故障（Single Point of Failure，SPOF）** 是高可用的大敌。先拿常用的 Redis 举个例子！我们如何保证我们的 Redis 缓存高可用呢？答案就是使用集群，避免单点故障。
+**Single Point of Failure (SPOF)** là kẻ thù lớn của high availability. Lấy Redis thường dùng làm ví dụ! Làm thế nào đảm bảo Redis cache high availability? Câu trả lời là dùng cluster, tránh single point of failure.
 
-当我们使用一个 Redis 实例作为缓存的时候，这个 Redis 实例挂了之后，整个缓存服务可能就挂了。使用了集群之后，即使一台 Redis 实例挂了，不到一秒就会有另外一台 Redis 实例顶上。
+Khi dùng một Redis instance làm cache, nếu Redis instance này down thì toàn bộ cache service có thể down theo. Sau khi dùng cluster, dù một Redis instance down, chưa đến một giây đã có Redis instance khác thay thế.
 
-常见的集群模式：
+Các cluster mode phổ biến:
 
-- **主从复制（Master-Slave）**：一主多从，主节点负责写，从节点负责读，主节点故障时需要手动或借助哨兵进行故障转移。
-- **哨兵模式（Sentinel）**：在主从复制基础上增加哨兵节点，实现自动故障检测和转移。
-- **分布式集群（Cluster）**：数据分片存储在多个节点，每个分片有主从副本，兼顾高可用和水平扩展。
+- **Master-Slave Replication**: Một master nhiều slave. Master chịu trách nhiệm write, slave chịu trách nhiệm read. Khi master fail cần failover thủ công hoặc nhờ sentinel.
+- **Sentinel Mode**: Thêm sentinel node trên cơ sở master-slave replication, triển khai automatic fault detection và failover.
+- **Distributed Cluster**: Data sharding lưu trên nhiều node, mỗi shard có master-slave replica — vừa high availability vừa horizontal scaling.
 
-### 限流
+### Rate Limiting
 
-**限流（Rate Limiting）** 是保护系统的第一道防线。其原理是监控应用流量的 QPS 或并发线程数等指标，当达到指定的阈值时对流量进行控制，以避免被瞬时的流量高峰冲垮，从而保障应用的高可用性。——来自 [alibaba-Sentinel](https://github.com/alibaba/Sentinel "Sentinel") 的 wiki。
+**Rate Limiting** là tuyến phòng thủ đầu tiên bảo vệ hệ thống. Nguyên lý là monitor các chỉ số như QPS hay concurrent thread count của application traffic. Khi đạt ngưỡng được chỉ định thì kiểm soát traffic, tránh bị traffic spike tức thời đánh sập, từ đó đảm bảo high availability của application. — Từ wiki của [alibaba-Sentinel](https://github.com/alibaba/Sentinel).
 
-常见的限流算法包括：
+Các rate limiting algorithm phổ biến:
 
-- **固定窗口计数器**：实现简单，但存在临界点突刺问题。
-- **滑动窗口计数器**：解决了固定窗口的临界问题，更加平滑。
-- **漏桶算法**：以固定速率处理请求，适合流量整形。
-- **令牌桶算法**：允许一定程度的突发流量，更加灵活。
+- **Fixed Window Counter**: Triển khai đơn giản nhưng có vấn đề spike tại boundary.
+- **Sliding Window Counter**: Giải quyết vấn đề boundary của fixed window, mượt mà hơn.
+- **Leaky Bucket**: Xử lý request với tốc độ cố định, phù hợp với traffic shaping.
+- **Token Bucket**: Cho phép một mức độ burst traffic nhất định, linh hoạt hơn.
 
-### 超时和重试机制设置
+### Cài đặt Timeout và Retry mechanism
 
-一旦用户请求超过某个时间的得不到响应，就抛出异常。这个是非常重要的，很多线上系统故障都是因为 **没有进行超时设置或者超时设置的方式不对** 导致的。
+Khi user request không nhận được response trong một khoảng thời gian, throw exception. Điều này rất quan trọng — nhiều online incident là do **không cài đặt timeout hoặc cài đặt timeout sai cách**.
 
-我们在读取第三方服务的时候，尤其适合设置超时和重试机制。一般我们使用一些 RPC 框架的时候，这些框架都自带的超时重试的配置。如果不进行超时设置可能会导致请求响应速度慢，甚至导致请求堆积进而让系统无法再处理请求。
+Đặc biệt thích hợp cài đặt timeout và retry mechanism khi đọc third-party service. Thường khi dùng các RPC framework, các framework này đều có sẵn cấu hình timeout retry. Nếu không cài đặt timeout có thể gây response chậm, thậm chí dẫn đến request backlog khiến hệ thống không thể xử lý thêm request.
 
-**重试的次数一般设为 3 次**，再多次的重试没有好处，反而会加重服务器压力（部分场景使用失败重试机制会不太适合）。同时，重试需要配合 **指数退避** 策略，避免重试风暴。
+**Số lần retry thường đặt là 3 lần** — nhiều hơn không có lợi mà còn tăng tải server (một số tình huống dùng failure retry mechanism không phù hợp). Đồng thời retry cần kết hợp chiến lược **exponential backoff** để tránh retry storm.
 
-### 熔断机制
+### Circuit Breaking Mechanism
 
-超时和重试机制设置之外，**熔断机制** 也是很重要的。熔断机制说的是系统自动收集所依赖服务的资源使用情况和性能指标，当所依赖的服务恶化或者调用失败次数达到某个阈值的时候就迅速失败，让当前系统立即切换依赖其他备用服务。
+Ngoài timeout và retry mechanism, **circuit breaking mechanism** cũng rất quan trọng. Circuit breaking là hệ thống tự động thu thập thông tin sử dụng tài nguyên và performance metric của service phụ thuộc. Khi service phụ thuộc xấu đi hoặc số lần call fail đạt ngưỡng nhất định thì fail nhanh, để hệ thống hiện tại ngay lập tức switch sang service backup khác.
 
-熔断器有三种状态：
+Circuit breaker có ba trạng thái:
 
-- **关闭（Closed）**：正常状态，请求正常通过。
-- **打开（Open）**：熔断状态，请求直接失败，不调用下游服务。
-- **半开（Half-Open）**：尝试恢复状态，放行少量请求探测下游服务是否恢复。
+- **Closed (Đóng)**: Trạng thái bình thường, request đi qua bình thường.
+- **Open (Mở)**: Trạng thái circuit broken, request fail thẳng, không call downstream service.
+- **Half-Open (Nửa mở)**: Trạng thái thử phục hồi, cho qua một lượng nhỏ request để probe xem downstream service có phục hồi không.
 
-比较常用的流量控制和熔断降级框架是 Netflix 的 Hystrix 和 alibaba 的 Sentinel。
+Các traffic control và circuit breaking/degradation framework phổ biến là Hystrix của Netflix và Sentinel của Alibaba.
 
-### 降级
+### Degradation (Giảm chức năng)
 
-**降级（Degradation）** 是在系统压力过大或部分服务不可用时，暂时关闭一些非核心功能，保证核心功能的可用性。
+**Degradation** là khi áp lực hệ thống quá lớn hoặc một phần service unavailable, tạm thời tắt một số non-core feature để đảm bảo availability của core feature.
 
-降级策略包括：
+Các chiến lược degradation:
 
-- **功能降级**：关闭推荐、评论等非核心功能。
-- **数据降级**：返回缓存数据或默认数据，而非实时查询。
-- **页面降级**：返回静态页面或简化版页面。
+- **Feature degradation**: Tắt các non-core feature như recommendation, comment, v.v.
+- **Data degradation**: Trả về cached data hoặc default data thay vì query real-time.
+- **Page degradation**: Trả về static page hoặc simplified page.
 
-### 异步调用
+### Async Call
 
-异步调用的话我们不需要关心最后的结果，这样我们就可以用户请求完成之后就立即返回结果，具体处理我们可以后续再做，秒杀场景用这个还是蛮多的。
+Với async call chúng ta không cần quan tâm đến kết quả cuối cùng, như vậy có thể trả về kết quả ngay lập tức sau khi hoàn thành user request. Xử lý cụ thể có thể làm sau. Tình huống flash sale dùng cách này khá nhiều.
 
-但是，使用异步之后我们可能需要 **适当修改业务流程进行配合**，比如 **用户在提交订单之后，不能立即返回用户订单提交成功，需要在消息队列的订单消费者进程真正处理完该订单之后，甚至出库后，再通过电子邮件或短信通知用户订单成功**。
+Nhưng sau khi dùng async có thể cần **điều chỉnh business flow phù hợp**. Ví dụ **sau khi user submit order, không thể ngay lập tức trả về thành công — cần sau khi order consumer process trong message queue thực sự xử lý xong order đó, thậm chí sau khi xuất kho, mới thông báo qua email hoặc SMS cho user rằng order thành công**.
 
-除了可以在程序中实现异步之外，我们常常还使用 **消息队列**，消息队列可以通过异步处理提高系统性能（削峰、减少响应所需时间）并且可以降低系统耦合性。
+Ngoài triển khai async trong chương trình, chúng ta thường còn dùng **message queue**. Message queue có thể tăng system performance qua async processing (peak shaving, giảm response time) và giảm system coupling.
 
-### 使用缓存
+### Dùng Cache
 
-如果我们的系统属于并发量比较高的话，如果我们单纯使用数据库的话，当大量请求直接落到数据库可能数据库就会直接挂掉。使用缓存缓存热点数据，因为缓存存储在内存中，所以速度相当地快！
+Nếu hệ thống có concurrency cao, nếu chỉ dùng database thì khi lượng lớn request trực tiếp đến database — database có thể down ngay. Dùng cache để cache hot data vì cache lưu trong memory nên tốc độ cực nhanh!
 
-缓存的典型应用场景：
+Tình huống ứng dụng điển hình của cache:
 
-- **热点数据缓存**：将访问频繁的数据放入 Redis 等缓存中。
-- **页面缓存**：将渲染后的页面缓存起来，减少服务器压力。
-- **本地缓存**：使用 Caffeine、Guava Cache 等本地缓存，减少网络开销。
+- **Hot data cache**: Đưa data truy cập thường xuyên vào Redis hay cache khác.
+- **Page cache**: Cache trang đã render để giảm tải server.
+- **Local cache**: Dùng Caffeine, Guava Cache, v.v. local cache để giảm network overhead.
 
-### 其他
+### Khác
 
-- **核心应用和服务优先使用更好的硬件**：核心服务使用更高配置的服务器、SSD 硬盘等。
-- **监控系统资源使用情况增加报警设置**：使用 Prometheus + Grafana 等监控方案，设置合理的告警阈值。
-- **注意备份，必要时候回滚**：数据库定期备份，代码版本可追溯，支持快速回滚。
-- **灰度发布**：将服务器集群分成若干部分，每天只发布一部分机器，观察运行稳定没有故障，第二天继续发布一部分机器，持续几天才把整个集群全部发布完毕，期间如果发现问题，只需要回滚已发布的一部分服务器即可。
-- **定期检查/更换硬件**：如果不是购买的云服务的话，定期还是需要对硬件进行一波检查的，对于一些需要更换或者升级的硬件，要及时更换或者升级。
-
-<!-- @include: @article-footer.snippet.md -->
+- **Core application và service ưu tiên dùng hardware tốt hơn**: Core service dùng server cấu hình cao hơn, SSD, v.v.
+- **Monitor resource usage của hệ thống, thêm cảnh báo**: Dùng Prometheus + Grafana hay monitoring solution khác, đặt ngưỡng cảnh báo hợp lý.
+- **Chú ý backup, rollback khi cần thiết**: Database backup định kỳ, code version có thể trace, hỗ trợ rollback nhanh.
+- **Gray Release**: Chia server cluster thành nhiều phần. Mỗi ngày chỉ release một phần server, quan sát chạy ổn định không có incident, ngày hôm sau tiếp tục release một phần. Kéo dài vài ngày cho đến khi release hết toàn bộ cluster. Trong thời gian đó nếu phát hiện vấn đề, chỉ cần rollback phần server đã release.
+- **Định kỳ kiểm tra/thay thế hardware**: Nếu không dùng cloud service, cần định kỳ kiểm tra hardware. Với hardware cần thay thế hoặc upgrade thì cần xử lý kịp thời.

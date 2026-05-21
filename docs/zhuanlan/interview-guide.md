@@ -1,269 +1,269 @@
 ---
-title: 《SpringAI 智能面试平台+RAG 知识库》
-description: Spring AI 智能面试平台实战项目，基于 Spring Boot 4.0 和 Spring AI 2.0 开发，集成 RAG 知识库和简历分析功能。
-category: 知识星球
+title: 《Nền tảng phỏng vấn thông minh SpringAI + Kho tri thức RAG》
+description: Dự án thực chiến nền tảng phỏng vấn thông minh Spring AI, phát triển dựa trên Spring Boot 4.0 và Spring AI 2.0, tích hợp kho tri thức RAG và chức năng phân tích CV.
+category: Kiến thức sao
 star: 5
 ---
 
-很多小伙伴跟我反馈：“我的简历上全是增删改查（CRUD），面试官看都不看，怎么办？”
+Nhiều bạn đã phản hồi với tôi: "CV của mình toàn là CRUD, nhà tuyển dụng nhìn không thèm nhìn, phải làm sao?"
 
-既然 AI 浪潮已至，我们就直接把大模型能力、向量数据库、RAG 架构装进你的项目里。
+Khi làn sóng AI đã đến, chúng ta hãy trực tiếp nhét khả năng của mô hình lớn, cơ sở dữ liệu vector, kiến trúc RAG vào dự án của bạn.
 
-## 项目介绍
+## Giới thiệu dự án
 
-这是一个基于 Spring Boot 4.0 + Java 21 + Spring AI 2.0 的 AI 智能面试辅助平台。系统提供三大核心功能：
+Đây là nền tảng hỗ trợ phỏng vấn AI thông minh dựa trên Spring Boot 4.0 + Java 21 + Spring AI 2.0. Hệ thống cung cấp ba chức năng cốt lõi:
 
-1. **智能简历分析**：上传简历后，AI 自动进行多维度评分并给出改进建议
-2. **模拟面试系统**：基于简历内容生成个性化面试题，支持实时问答和答案评估
-3. **RAG 知识库问答**：上传技术文档构建私有知识库，支持向量检索增强的智能问答
+1. **Phân tích CV thông minh**: Sau khi tải CV lên, AI tự động đánh giá đa chiều và đưa ra gợi ý cải thiện
+2. **Hệ thống phỏng vấn mô phỏng**: Tạo câu hỏi phỏng vấn cá nhân hóa dựa trên nội dung CV, hỗ trợ hỏi đáp thời gian thực và đánh giá câu trả lời
+3. **Hỏi đáp kho tri thức RAG**: Tải tài liệu kỹ thuật lên để xây dựng kho tri thức riêng, hỗ trợ hỏi đáp thông minh được tăng cường bởi tìm kiếm vector
 
-![效果展示](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-history.png)
+![Hiệu ứng demo](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-history.png)
 
-**项目地址** （欢迎 star 鼓励）：
+**Địa chỉ dự án** (Hoan nghênh star ủng hộ):
 
 - Github：<https://github.com/Snailclimb/interview-guide>
 - Gitee：<https://gitee.com/SnailClimb/interview-guide>
 
-完整代码完全免费开源，没有 Pro 版本或者付费版！
+Code đầy đủ hoàn toàn mã nguồn mở và miễn phí, không có phiên bản Pro hay phiên bản trả phí!
 
-## 简历写法
+## Cách viết CV
 
-**如何将《SpringAI 智能面试平台+RAG知识库》实战项目写进简历？**我一共提供了五大方向版本任选，精准匹配岗位需求：
+**Làm thế nào để đưa dự án thực chiến 《Nền tảng phỏng vấn thông minh SpringAI + Kho tri thức RAG》vào CV?** Tôi cung cấp năm hướng để bạn tùy chọn, phù hợp chính xác với nhu cầu vị trí:
 
-1. **后端方向**：提供“架构与分布式能力侧重”、“AI 应用与响应式编程侧重”、“工程化与基础设施侧重”三个版本，无论你面试的是后端、大模型应用还是架构岗位，都能找到最合适的切入点。
-2. **测试/测开方向**：专门设计了“单元测试与 TDD”以及“功能/异常场景覆盖”两个版本，突出测试工程师在 AI 质量保障中的核心竞争力。
+1. **Hướng backend**: Cung cấp ba phiên bản "Tập trung vào kiến trúc & năng lực phân tán", "Tập trung vào ứng dụng AI & lập trình reactive", "Tập trung vào kỹ thuật công nghệ & cơ sở hạ tầng", dù bạn phỏng vấn vị trí backend, ứng dụng mô hình lớn hay kiến trúc, đều có thể tìm được điểm đột phá phù hợp nhất.
+2. **Hướng kiểm thử/phát triển kiểm thử**: Thiết kế riêng hai phiên bản "Unit test & TDD" và "Bao phủ các kịch bản chức năng/ngoại lệ", nổi bật năng lực cạnh tranh cốt lõi của kỹ sư kiểm thử trong đảm bảo chất lượng AI.
 
-![《SpringAI 智能面试平台+RAG知识库》简历写法](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/project-on-resume.png)
+![Cách viết CV 《Nền tảng phỏng vấn thông minh SpringAI + Kho tri thức RAG》](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/project-on-resume.png)
 
-每一条描述都紧扣项目真实逻辑，严格遵守项目介绍规范。不仅教你怎么写，更教你怎么补，例如针对本项目未涉及的“用户认证与鉴权”给出补充建议，教你如何基于 SpringSecurity/Sa-Token 包装主流的认证授权方案。
+Mỗi mô tả đều bám sát logic thực tế của dự án, tuân thủ nghiêm ngặt quy chuẩn giới thiệu dự án. Không chỉ dạy bạn cách viết, mà còn dạy bạn cách bổ sung, ví dụ đối với "Xác thực và phân quyền người dùng" chưa được đề cập trong dự án này, đưa ra gợi ý bổ sung, dạy bạn cách triển khai phương án xác thực và phân quyền chính thống dựa trên SpringSecurity/Sa-Token.
 
-并且，我还补充了面试官可深挖的技术难点（如 Redis Stream vs 传统消息队列、分布式限流的实现细节）以及项目难点与解决方案模板。
+Ngoài ra, tôi còn bổ sung các điểm kỹ thuật khó mà nhà tuyển dụng có thể đào sâu (như Redis Stream vs hàng đợi tin nhắn truyền thống, chi tiết triển khai giới hạn tốc độ phân tán) cùng template điểm khó dự án và giải pháp.
 
-## 教程概览
+## Tổng quan hướng dẫn
 
-带大家看看我写的配套教程，用心程度一切都在文字中！整个项目教程，我手绘了几十张技术配图帮助理解。
+Hãy cùng xem qua hướng dẫn đi kèm mà tôi đã viết, mức độ tâm huyết thể hiện qua từng chữ! Trong toàn bộ hướng dẫn dự án, tôi đã tự tay vẽ hàng chục sơ đồ kỹ thuật để hỗ trợ hiểu.
 
-例如，RAG 面试题总结这篇，耗时一周终于完成了第一版，一共 **3.4 万字**，包含 **35 道高频 RAG 面试题**，光校对都进行了三次。而且，这还只是第一版，后续还会继续完善优化！
+Ví dụ, bài tổng kết câu hỏi phỏng vấn RAG này, mất một tuần mới hoàn thành phiên bản đầu tiên, tổng cộng **3.4 vạn chữ**, bao gồm **35 câu hỏi phỏng vấn RAG tần số cao**, chỉ riêng việc hiệu đính đã thực hiện ba lần. Và đây chỉ là phiên bản đầu, sau này sẽ tiếp tục hoàn thiện và tối ưu!
 
-![RAG 面试题](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/rag-interview-questions.png)
+![Câu hỏi phỏng vấn RAG](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/rag-interview-questions.png)
 
-这篇是对应的 RAG 知识库详细开发思路的介绍。
+Đây là bài giới thiệu chi tiết về ý tưởng phát triển kho tri thức RAG tương ứng.
 
-![RAG 知识库详细开发思路](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/rag-knowledge-base-coding.png)
+![Ý tưởng phát triển chi tiết kho tri thức RAG](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/rag-knowledge-base-coding.png)
 
-不仅教你“如何写出代码”，更教你“为什么这么设计”以及“在企业真实场景中如何应对复杂挑战”。
+Không chỉ dạy bạn "cách viết code", mà còn dạy bạn "tại sao thiết kế như vậy" và "cách đối phó với những thách thức phức tạp trong các tình huống thực tế của doanh nghiệp".
 
-## 配套教程内容安排
+## Bố cục nội dung hướng dẫn đi kèm
 
-这个项目当前实现的功能比较简单，学习门槛极低，但涉及到的知识点比较丰富。通过保姆级教程，我们将从零构建一个融合了 **LLM 集成、RAG（检索增强生成）、向量数据库、分布式限流及异步处理**的完整后端架构。
+Dự án này hiện tại triển khai các chức năng khá đơn giản, ngưỡng học tập rất thấp, nhưng kiến thức liên quan khá phong phú. Thông qua hướng dẫn từng bước chi tiết, chúng ta sẽ xây dựng từ đầu một kiến trúc backend hoàn chỉnh tích hợp **tích hợp LLM, RAG (Retrieval-Augmented Generation), cơ sở dữ liệu vector, giới hạn tốc độ phân tán và xử lý bất đồng bộ**.
 
-无论你是想学习 **Spring AI** 的前沿应用，还是需要一个**高含金量的简历项目**，本项目都将为你提供从基建搭建、业务攻坚到面试话术复盘的全方位指导。
+Dù bạn muốn học ứng dụng tiên tiến của **Spring AI**, hay cần một **dự án CV giá trị cao**, dự án này sẽ cung cấp cho bạn hướng dẫn toàn diện từ xây dựng cơ sở hạ tầng, giải quyết bài toán nghiệp vụ đến ôn tập kỹ năng phỏng vấn.
 
-配套项目教程需要付费（**后文/文末**有加入方法），但请大家理解，主要是想覆盖一些时间成本。而且，收费和提供的服务相比绝对是超级良心了。这辈子不可能干割韭菜的事！
+Hướng dẫn dự án đi kèm cần trả phí (**cuối bài/cuối bài** có cách tham gia), nhưng mong mọi người thông cảm, chủ yếu để bù đắp chi phí thời gian. Và thu phí so với dịch vụ cung cấp chắc chắn là cực kỳ xứng đáng. Đời này không bao giờ làm chuyện trục lợi!
 
-**内容安排如下（已经更完，一共 13w+ 字）**：
+**Bố cục nội dung như sau (đã hoàn thành, tổng cộng hơn 13 vạn chữ)**:
 
-![配套教程内容概览](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/tutorial-overview.png)
+![Tổng quan nội dung hướng dẫn đi kèm](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/tutorial-overview.png)
 
-### 环境搭建
+### Thiết lập môi trường
 
-- 本地搭建 PostgreSQL + PGvector 向量数据库
-- Spring Boot + RustFS 构建高性能 S3 兼容的对象存储服务
-- ⭐大模型 API 申请和 Ollama 部署本地模型
-- 环境搭建终章与项目启动
+- Thiết lập PostgreSQL + PGvector cơ sở dữ liệu vector trên local
+- Spring Boot + RustFS xây dựng dịch vụ object storage tương thích S3 hiệu năng cao
+- ⭐Đăng ký API mô hình lớn và triển khai mô hình local bằng Ollama
+- Chương cuối thiết lập môi trường và khởi động dự án
 
-### 核心功能开发
+### Phát triển chức năng cốt lõi
 
-- 基于 Tika 实现多格式内容提取与解析
-- ⭐Spring AI 与大模型集成
-- ⭐Spring AI + pgvector 实现 RAG 知识库问答
-- 基于 SSE 实现打字机效果输出
-- 手把手教你写出生产级结构化 Prompt
-- AI 模拟面试功能
-- 基于 iText 8 实现 PDF 报告导出
+- Trích xuất và phân tích nội dung đa định dạng dựa trên Tika
+- ⭐Tích hợp Spring AI với mô hình lớn
+- ⭐Spring AI + pgvector thực hiện hỏi đáp kho tri thức RAG
+- Thực hiện hiệu ứng đánh máy dựa trên SSE
+- Hướng dẫn từng bước viết Prompt có cấu trúc cấp sản xuất
+- Chức năng phỏng vấn mô phỏng AI
+- Xuất báo cáo PDF dựa trên iText 8
 
-### 进阶优化
+### Tối ưu nâng cao
 
-- MapStruct 实体映射最佳实践
-- ⭐基于 Redis Stream 的异步任务处理实现
-- 封装 Redis + Lua 多维度分布式限流组件
-- ⭐Skill 架构设计
-- Spring Boot 4.0 升级指南
-- Docker Compose 一键部署
+- Thực hành tốt nhất ánh xạ thực thể MapStruct
+- ⭐Thực hiện xử lý tác vụ bất đồng bộ dựa trên Redis Stream
+- Đóng gói thành phần giới hạn tốc độ phân tán đa chiều Redis + Lua
+- ⭐Thiết kế kiến trúc Skill
+- Hướng dẫn nâng cấp Spring Boot 4.0
+- Triển khai một lệnh bằng Docker Compose
 
-### 面试
+### Phỏng vấn
 
-- ⭐简历编写与项目经历深度包装指南
-- 面试官问“这个项目哪里来的”时，如何回答？
-- ⭐Spring AI 面试问题挖掘
-- ⭐知识库 RAG 面试问题挖掘
-- Redis 面试问题挖掘
-- 文件上传解析与 PDF 导出面试问题挖掘
+- ⭐Hướng dẫn viết CV và đóng gói kinh nghiệm dự án chuyên sâu
+- Khi nhà tuyển dụng hỏi "dự án này ở đâu ra", trả lời thế nào?
+- ⭐Khai thác câu hỏi phỏng vấn Spring AI
+- ⭐Khai thác câu hỏi phỏng vấn kho tri thức RAG
+- Khai thác câu hỏi phỏng vấn Redis
+- Khai thác câu hỏi phỏng vấn tải lên file, phân tích và xuất PDF
 
-## 加入学习
+## Tham gia học tập
 
-**本项目为 [JavaGuide 知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) 内部专属实战项目，通过语雀文档在线阅读学习，不单独对外开放。**
+**Dự án này là dự án thực chiến độc quyền nội bộ của [JavaGuide Kiến thức sao](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html), đọc học trực tuyến qua tài liệu Yuque, không mở riêng ra ngoài.**
 
-之所以选择在星球内部发布，是为了确保每一位学习者都能获得**深度的技术答疑**和**完整的求职配套服务**。
+Lý do chọn phát hành trong nội bộ sao, là để đảm bảo mỗi người học đều nhận được **hỗ trợ kỹ thuật chuyên sâu** và **dịch vụ hỗ trợ xin việc hoàn chỉnh**.
 
-整个项目教程预计在 **1-2** 个月内更完。每一篇文章（不提供视频，浪费时间且不利于学习能力提高）都经过反复推敲，确保**高质量、零门槛**，即便是基础薄弱的同学也能跟着文档从零跑通。
+Toàn bộ hướng dẫn dự án dự kiến hoàn thành trong **1-2** tháng. Mỗi bài viết (không cung cấp video, lãng phí thời gian và không có lợi cho việc nâng cao khả năng học tập) đều được cân nhắc kỹ lưỡng, đảm bảo **chất lượng cao, không rào cản**, dù bạn có nền tảng yếu cũng có thể theo tài liệu chạy từ đầu.
 
-这只是开始。后续星球还会持续推出更多贴合企业真实业务场景的 **Java 实战项目**，带你始终站在技术前沿（预告一下，下一个项目是**企业级智能客服系统**，会带大家实践更多AI能力）。
+Đây chỉ là bắt đầu. Sau này sao sẽ tiếp tục ra mắt nhiều **dự án thực chiến Java** phù hợp với tình huống nghiệp vụ thực tế của doanh nghiệp hơn, giúp bạn luôn đứng ở đầu công nghệ (hé lộ trước, dự án tiếp theo là **hệ thống dịch vụ khách hàng thông minh cấp doanh nghiệp**, sẽ dẫn mọi người thực hành nhiều khả năng AI hơn).
 
-并且，我的星球还有很多其他服务，比如**一对一提问、简历修改、后端系统面试资料（包含高频系统设计&场景题）、学习打卡**等，其中任何一项服务单独拎出来的价值都已远超星球门票。欢迎详细了解我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)！
+Ngoài ra, sao của tôi còn có nhiều dịch vụ khác, ví dụ **hỏi đáp 1-1, chỉnh sửa CV, tài liệu phỏng vấn hệ thống backend (bao gồm thiết kế hệ thống tần số cao & câu hỏi tình huống), học tập chấm điểm**, v.v., bất kỳ dịch vụ nào trong số đó khi lấy ra riêng lẻ cũng đã vượt xa giá vé sao. Hoan nghênh tìm hiểu chi tiết [Kiến thức sao](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)!
 
-已经坚持维护**六年**，内容持续更新，虽白菜价（**0.4 元/天**）但质量很高，主打一个良心！
+Đã duy trì kiên trì **sáu năm**, nội dung liên tục cập nhật, dù giá rất rẻ (**0.4 tệ/ngày**) nhưng chất lượng rất cao, chủ trương là chân thành!
 
-目前星球正在做活动，两本书的价格，就能让你拥有上万培训班的服务！这里再提供一张 **30 元** 的优惠券（价格马上上调，老用户扫码续费半价）：
+Hiện sao đang khuyến mãi, giá hai cuốn sách, bạn có thể sở hữu dịch vụ của trung tâm đào tạo hàng chục nghìn! Đây cung cấp thêm một phiếu giảm giá **30 tệ** (giá sắp tăng, người dùng cũ quét mã gia hạn giảm nửa giá):
 
-![知识星球 30 元优惠券](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
+![Phiếu giảm giá Kiến thức sao 30 tệ](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
 
-用心做内容，坚持本心，不割韭菜，其他交给时间！共勉！
+Tận tâm làm nội dung, giữ vững bản tâm, không trục lợi, còn lại giao cho thời gian! Cùng cố gắng!
 
-## 系统架构
+## Kiến trúc hệ thống
 
-**提示**：架构图采用 draw.io 绘制，导出为 svg 格式，在 Dark 模式下的显示效果会有问题。
+**Lưu ý**: Sơ đồ kiến trúc được vẽ bằng draw.io, xuất dạng svg, hiệu ứng hiển thị trong chế độ Dark có thể có vấn đề.
 
-系统采用前后端分离架构，整体分为三层：前端展示层、后端服务层、数据存储层。
+Hệ thống sử dụng kiến trúc tách biệt frontend và backend, tổng thể chia thành ba tầng: tầng hiển thị frontend, tầng dịch vụ backend, tầng lưu trữ dữ liệu.
 
-![系统架构图](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
+![Sơ đồ kiến trúc hệ thống](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/interview-guide-architecture-diagram.png)
 
-**后端层**：
+**Tầng backend**:
 
-- REST Controllers：统一的 API 入口，处理 HTTP 请求
-- 业务服务层：
-  - Resume Service：简历上传、解析、AI 分析
-    - Interview Service：面试会话管理、问题生成、答案评估
-    - Knowledge Service：知识库上传、文本分块、向量化
-    - RAG Chat Service：检索增强生成，流式问答
-- 异步处理层：基于 Redis Stream 的消费者，异步处理耗时的 AI 任务（如简历分析、向量化、面试评估）
-- AI 集成层：Spring AI + DashScope（通义千问）。统一的 LLM 调用接口，支持对话生成和文本向量化。
+- REST Controllers: Điểm vào API thống nhất, xử lý yêu cầu HTTP
+- Tầng dịch vụ nghiệp vụ:
+  - Resume Service: Tải lên CV, phân tích, phân tích AI
+    - Interview Service: Quản lý phiên phỏng vấn, tạo câu hỏi, đánh giá câu trả lời
+    - Knowledge Service: Tải lên kho tri thức, phân khối văn bản, vector hóa
+    - RAG Chat Service: Tạo sinh tăng cường bởi tìm kiếm, hỏi đáp streaming
+- Tầng xử lý bất đồng bộ: Consumer dựa trên Redis Stream, xử lý bất đồng bộ các tác vụ AI tốn thời gian (như phân tích CV, vector hóa, đánh giá phỏng vấn)
+- Tầng tích hợp AI: Spring AI + DashScope (Tongyi Qianwen). Giao diện gọi LLM thống nhất, hỗ trợ tạo đối thoại và vector hóa văn bản.
 
-**数据存储层**：
+**Tầng lưu trữ dữ liệu**:
 
-- PostgreSQL + pgvector：
-  - 关系数据：简历、面试记录、知识库元数据
-  - 向量检索：存储文档向量，支持相似度搜索
-- Redis：
+- PostgreSQL + pgvector:
+  - Dữ liệu quan hệ: CV, hồ sơ phỏng vấn, metadata kho tri thức
+  - Tìm kiếm vector: Lưu trữ vector tài liệu, hỗ trợ tìm kiếm độ tương đồng
+- Redis:
 
-  - 会话缓存：面试会话状态
-  - 消息队列：Redis Stream 实现异步任务队列
+  - Cache phiên: Trạng thái phiên phỏng vấn
+  - Hàng đợi tin nhắn: Redis Stream thực hiện hàng đợi tác vụ bất đồng bộ
 
-- RustFS/MinIO (S3)：原始文件（简历 PDF、知识库文档）
+- RustFS/MinIO (S3): File gốc (CV PDF, tài liệu kho tri thức)
 
-**异步处理流程**：
+**Luồng xử lý bất đồng bộ**:
 
-简历分析、知识库向量化和面试报告生成采用 Redis Stream 异步处理，这里以简历分析和知识库向量化为例介绍一下整体流程：
-
-```
-上传请求 → 保存文件 → 发送消息到 Stream → 立即返回
-                              ↓
-                      Consumer 消费消息
-                              ↓
-                    执行分析/向量化任务
-                              ↓
-                      更新数据库状态
-                              ↓
-                   前端轮询获取最新状态
-```
-
-状态流转： `PENDING` → `PROCESSING` → `COMPLETED` / `FAILED`
-
-**知识库问答处理流程**：
+Phân tích CV, vector hóa kho tri thức và tạo báo cáo phỏng vấn sử dụng xử lý bất đồng bộ Redis Stream, ở đây lấy phân tích CV và vector hóa kho tri thức làm ví dụ giới thiệu tổng thể luồng:
 
 ```
-知识库问答 → 问题向量化 → pgvector 相似度搜索 → 检索相关文档
+Yêu cầu tải lên → Lưu file → Gửi tin nhắn vào Stream → Trả về ngay
+                              ↓
+                      Consumer tiêu thụ tin nhắn
+                              ↓
+                    Thực thi tác vụ phân tích/vector hóa
+                              ↓
+                      Cập nhật trạng thái cơ sở dữ liệu
+                              ↓
+                   Frontend polling lấy trạng thái mới nhất
+```
+
+Chuyển đổi trạng thái: `PENDING` → `PROCESSING` → `COMPLETED` / `FAILED`
+
+**Luồng xử lý hỏi đáp kho tri thức**:
+
+```
+Hỏi đáp kho tri thức → Vector hóa câu hỏi → pgvector tìm kiếm độ tương đồng → Truy xuất tài liệu liên quan
                                                       ↓
-                                构建 Prompt → LLM 生成回答 → SSE 流式返回
+                                Xây dựng Prompt → LLM tạo câu trả lời → SSE streaming trả về
 ```
 
-## 技术栈
+## Công nghệ sử dụng
 
-### 后端技术
+### Công nghệ backend
 
-| 技术                  | 版本       | 说明                           |
-| --------------------- | ---------- | ------------------------------ |
-| Spring Boot           | 4.0.1      | 应用框架                       |
-| Java                  | 21         | 开发语言（虚拟线程）           |
-| Spring AI             | 2.0.0-M4   | AI 集成框架                    |
-| PostgreSQL + pgvector | 14+        | 关系数据库 + 向量存储          |
-| Redis + Redisson      | 6+ / 4.0.0 | 缓存 + 消息队列（Stream）      |
-| Apache Tika           | 2.9.2      | 文档解析                       |
-| iText 8               | 8.0.5      | PDF 导出                       |
-| MapStruct             | 1.6.3      | 对象映射                       |
-| SpringDoc OpenAPI     | 3.0.2      | API 接口文档                   |
-| DashScope SDK         | 2.22.7     | 语音识别/合成（Qwen3 ASR/TTS） |
-| spring-ai-agent-utils | 0.7.0      | Spring AI Agent Skills 工具库  |
-| WebSocket             | -          | 语音面试实时双向通信           |
-| Gradle                | 8.14       | 构建工具                       |
+| Công nghệ             | Phiên bản  | Mô tả                                                     |
+| --------------------- | ---------- | --------------------------------------------------------- |
+| Spring Boot           | 4.0.1      | Framework ứng dụng                                        |
+| Java                  | 21         | Ngôn ngữ phát triển (Virtual Threads)                     |
+| Spring AI             | 2.0.0-M4   | Framework tích hợp AI                                     |
+| PostgreSQL + pgvector | 14+        | Cơ sở dữ liệu quan hệ + lưu trữ vector                    |
+| Redis + Redisson      | 6+ / 4.0.0 | Cache + hàng đợi tin nhắn (Stream)                        |
+| Apache Tika           | 2.9.2      | Phân tích tài liệu                                        |
+| iText 8               | 8.0.5      | Xuất PDF                                                  |
+| MapStruct             | 1.6.3      | Ánh xạ đối tượng                                          |
+| SpringDoc OpenAPI     | 3.0.2      | Tài liệu giao diện API                                    |
+| DashScope SDK         | 2.22.7     | Nhận dạng/tổng hợp giọng nói (Qwen3 ASR/TTS)              |
+| spring-ai-agent-utils | 0.7.0      | Thư viện Spring AI Agent Skills                           |
+| WebSocket             | -          | Truyền thông hai chiều thời gian thực phỏng vấn giọng nói |
+| Gradle                | 8.14       | Công cụ build                                             |
 
-技术选型常见问题解答：
+Giải đáp câu hỏi thường gặp về lựa chọn công nghệ:
 
-1. 数据存储为什么选择 PostgreSQL + pgvector？PG 的向量数据存储功能够用了，精简架构，不想引入太多组件。
-2. 为什么引入 Redis？
-   - Redis 替代 `ConcurrentHashMap` 实现面试会话的缓存。
-   - 基于 Redis Stream 实现简历分析、知识库向量化等场景的异步（还能解耦，分析和向量化可以使用其他编程语言来做）。不使用 [Kafka](https://javaguide.cn/high-performance/message-queue/kafka-questions-01.html) 这类成熟的消息队列，也是不想引入太多组件。
-3. 构建工具为什么选择 Gradle？个人更喜欢用 Gradle，也写过相关的文章：[Gradle核心概念总结](https://javaguide.cn/tools/gradle/gradle-core-concepts.html)。
+1. Tại sao chọn PostgreSQL + pgvector để lưu trữ? PG lưu trữ dữ liệu vector đủ dùng, đơn giản hóa kiến trúc, không muốn đưa vào quá nhiều thành phần.
+2. Tại sao đưa vào Redis?
+   - Redis thay thế `ConcurrentHashMap` để thực hiện cache phiên phỏng vấn.
+   - Dựa trên Redis Stream thực hiện bất đồng bộ cho các tình huống như phân tích CV, vector hóa kho tri thức (cũng có thể tách rời, phân tích và vector hóa có thể sử dụng ngôn ngữ lập trình khác). Không sử dụng [Kafka](https://javaguide.cn/high-performance/message-queue/kafka-questions-01.html) hay hàng đợi tin nhắn chín muồi hơn, cũng là để không đưa vào quá nhiều thành phần.
+3. Tại sao chọn Gradle làm công cụ build? Cá nhân thích dùng Gradle hơn, cũng đã viết bài liên quan: [Tổng kết khái niệm cốt lõi Gradle](https://javaguide.cn/tools/gradle/gradle-core-concepts.html).
 
-### 前端技术
+### Công nghệ frontend
 
-| 技术               | 版本  | 说明          |
-| ------------------ | ----- | ------------- |
-| React              | 18.3  | UI 框架       |
-| TypeScript         | 5.6   | 开发语言      |
-| Vite               | 5.4   | 构建工具      |
-| Tailwind CSS       | 4.1   | 样式框架      |
-| React Router       | 7.11  | 路由管理      |
-| Framer Motion      | 12.23 | 动画库        |
-| Recharts           | 3.6   | 图表库        |
-| Lucide React       | 0.468 | 图标库        |
-| React Big Calendar | 1.19  | 面试日历组件  |
-| React Markdown     | 9.0   | Markdown 渲染 |
-| React Virtuoso     | 4.18  | 虚拟滚动列表  |
+| Công nghệ          | Phiên bản | Mô tả                    |
+| ------------------ | --------- | ------------------------ |
+| React              | 18.3      | Framework UI             |
+| TypeScript         | 5.6       | Ngôn ngữ phát triển      |
+| Vite               | 5.4       | Công cụ build            |
+| Tailwind CSS       | 4.1       | Framework CSS            |
+| React Router       | 7.11      | Quản lý routing          |
+| Framer Motion      | 12.23     | Thư viện animation       |
+| Recharts           | 3.6       | Thư viện biểu đồ         |
+| Lucide React       | 0.468     | Thư viện icon            |
+| React Big Calendar | 1.19      | Component lịch phỏng vấn |
+| React Markdown     | 9.0       | Render Markdown          |
+| React Virtuoso     | 4.18      | Danh sách cuộn ảo        |
 
-## 技术选型常见问题解答
+## Giải đáp câu hỏi thường gặp về lựa chọn công nghệ
 
-这里只是简单介绍，后续我会分享文章详细拷打技术选型。
+Đây chỉ là giới thiệu ngắn gọn, sau này tôi sẽ chia sẻ bài viết chi tiết về lựa chọn công nghệ.
 
-### 为什么选择 Spring AI？
+### Tại sao chọn Spring AI?
 
-Spring AI 是 Spring 官方推出的 AI 集成框架，提供了统一的 LLM 调用抽象。选择它的原因：
+Spring AI là framework tích hợp AI chính thức của Spring, cung cấp trừu tượng hóa thống nhất cho việc gọi LLM. Lý do chọn nó:
 
-1. 统一抽象：一套代码支持多种 LLM 提供商（OpenAI、阿里云 DashScope、Ollama 等），切换模型只需修改配置
-2. Spring 生态集成：与 Spring Boot 无缝集成，支持自动配置、依赖注入、声明式调用
-3. 内置向量存储支持：原生支持 pgvector、Milvus、Pinecone 等向量数据库，简化 RAG 开发
-4. 结构化输出：通过 `BeanOutputConverter` 将 LLM 输出直接映射为 Java 对象，无需手动解析 JSON
+1. Trừu tượng hóa thống nhất: Một bộ code hỗ trợ nhiều nhà cung cấp LLM (OpenAI, Alibaba Cloud DashScope, Ollama, v.v.), chuyển đổi model chỉ cần sửa cấu hình
+2. Tích hợp hệ sinh thái Spring: Tích hợp liền mạch với Spring Boot, hỗ trợ auto-configuration, dependency injection, declarative calling
+3. Hỗ trợ lưu trữ vector tích hợp: Hỗ trợ native pgvector, Milvus, Pinecone và các cơ sở dữ liệu vector khác, đơn giản hóa phát triển RAG
+4. Đầu ra có cấu trúc: Thông qua `BeanOutputConverter` ánh xạ trực tiếp đầu ra LLM thành đối tượng Java, không cần phân tích JSON thủ công
 
 ```java
-// 示例：Spring AI 结构化输出
+// Ví dụ: Spring AI đầu ra có cấu trúc
 var converter = new BeanOutputConverter<>(ResumeAnalysisDTO.class);
 String result = chatClient.prompt()
     .system(systemPrompt)
     .user(userPrompt + converter.getFormat())
     .call()
     .content();
-return converter.convert(result);  // 直接得到 Java 对象
+return converter.convert(result);  // Trực tiếp nhận đối tượng Java
 ```
 
-### 数据存储为什么选择 PostgreSQL + pgvector？
+### Tại sao chọn PostgreSQL + pgvector để lưu trữ dữ liệu?
 
-本项目需要同时存储结构化数据（简历、面试记录）和向量数据（文档 Embedding）。方案对比：
+Dự án này cần lưu trữ đồng thời dữ liệu có cấu trúc (CV, hồ sơ phỏng vấn) và dữ liệu vector (Embedding tài liệu). So sánh phương án:
 
-| 方案                  | 优点                     | 缺点                       |
-| --------------------- | ------------------------ | -------------------------- |
-| PostgreSQL + pgvector | 一套数据库搞定，运维简单 | 向量检索性能不如专业向量库 |
-| PostgreSQL + Milvus   | 向量检索性能更好         | 多一个组件，运维复杂度增加 |
-| PostgreSQL + Pinecone | 云托管，无需运维         | 成本高，数据在第三方       |
+| Phương án             | Ưu điểm                                           | Nhược điểm                                                       |
+| --------------------- | ------------------------------------------------- | ---------------------------------------------------------------- |
+| PostgreSQL + pgvector | Một cơ sở dữ liệu xử lý tất cả, vận hành đơn giản | Hiệu năng tìm kiếm vector không bằng thư viện vector chuyên dụng |
+| PostgreSQL + Milvus   | Hiệu năng tìm kiếm vector tốt hơn                 | Thêm một thành phần, phức tạp vận hành hơn                       |
+| PostgreSQL + Pinecone | Cloud-hosted, không cần vận hành                  | Chi phí cao, dữ liệu ở bên thứ ba                                |
 
-**选择 pgvector 的理由**：
+**Lý do chọn pgvector**:
 
-- 架构简单：不引入额外组件，降低部署和运维复杂度
-- 性能够用：HNSW 索引支持毫秒级检索，万级文档场景完全够用
-- 事务一致性：向量数据和业务数据在同一数据库，天然支持事务
-- SQL 查询：可以结合 WHERE 条件过滤，比如“只在某个分类的知识库中检索”
+- Kiến trúc đơn giản: Không đưa vào thành phần bổ sung, giảm độ phức tạp triển khai và vận hành
+- Hiệu năng đủ dùng: Index HNSW hỗ trợ truy vấn mili giây, hoàn toàn đủ dùng cho tình huống hàng chục nghìn tài liệu
+- Tính nhất quán giao dịch: Dữ liệu vector và dữ liệu nghiệp vụ trong cùng một cơ sở dữ liệu, hỗ trợ giao dịch tự nhiên
+- Truy vấn SQL: Có thể kết hợp điều kiện WHERE để lọc, ví dụ "chỉ tìm kiếm trong kho tri thức của một danh mục cụ thể"
 
 ```sql
--- pgvector 相似度搜索示例
+-- Ví dụ tìm kiếm độ tương đồng pgvector
 SELECT content, 1 - (embedding <=> \$1) as similarity
 FROM vector_store
 WHERE metadata->>'category' = 'Java'
@@ -271,294 +271,294 @@ ORDER BY embedding <=> \$1
 LIMIT 5;
 ```
 
-**为什么不选择 MySQL 搭配向量数据库呢？**
+**Tại sao không chọn MySQL kết hợp cơ sở dữ liệu vector?**
 
-PostgreSQL 最大的优势，也是它在 AI 时代甩开对手的“王牌”，就是其强大的可扩展性。开发者可以在不修改内核的情况下，像“即插即用”一样为数据库安装各种功能强大的插件，这让 PostgreSQL 变成了一个无所不能的“数据瑞士军刀”。
+Ưu thế lớn nhất của PostgreSQL, cũng là "切牌" giúp nó vượt đối thủ trong kỷ nguyên AI, là tính mở rộng mạnh mẽ. Nhà phát triển có thể cài đặt các plugin chức năng mạnh mẽ cho cơ sở dữ liệu mà không cần sửa đổi kernel, làm cho PostgreSQL trở thành "dao quân đội Thụy Sĩ dữ liệu" đa năng.
 
-- **AI 向量检索？** 有官方推荐的 **pgvector** 扩展，性能强大，生态成熟，足以媲美专业的向量数据库。
-- **全文搜索？** 内置支持（能满足基础需求），或使用 **pg_bm25** 等扩展。
-- **时序数据？** 有顶级的 **TimescaleDB** 扩展。
-- **地理信息？** 有行业标准的 **PostGIS** 扩展。
+- **Tìm kiếm vector AI?** Có extension **pgvector** được khuyến nghị chính thức, hiệu năng mạnh mẽ, hệ sinh thái trưởng thành, có thể sánh với cơ sở dữ liệu vector chuyên dụng.
+- **Tìm kiếm toàn văn?** Hỗ trợ tích hợp (đáp ứng nhu cầu cơ bản), hoặc sử dụng extension như **pg_bm25**.
+- **Dữ liệu chuỗi thời gian?** Có extension **TimescaleDB** hàng đầu.
+- **Thông tin địa lý?** Có extension **PostGIS** tiêu chuẩn ngành.
 
-这种“一站式”解决能力，正是其魅力所在。它意味着许多项目不再需要依赖 Elasticsearch、Milvus 等大量外部中间件，仅凭一个增强版的 PostgreSQL 即可满足多样化需求，从而极大地简化了技术栈，降低了开发和运维的复杂度与成本。
+Khả năng "một cửa" này chính là sức hấp dẫn. Nó có nghĩa là nhiều dự án không cần phụ thuộc vào nhiều middleware bên ngoài như Elasticsearch, Milvus, chỉ cần một PostgreSQL tăng cường có thể đáp ứng các nhu cầu đa dạng, từ đó đơn giản hóa đáng kể tech stack, giảm độ phức tạp và chi phí phát triển và vận hành.
 
-关于 MySQL 和 PostgreSQL 的详细对比，可以参考我写的这篇文章：[MySQL vs PostgreSQL，如何选择？](https://mp.weixin.qq.com/s/APWD-PzTcTqGUuibAw7GGw)。
+Về so sánh chi tiết MySQL và PostgreSQL, có thể tham khảo bài viết tôi đã viết: [MySQL vs PostgreSQL, Chọn gì?](https://mp.weixin.qq.com/s/APWD-PzTcTqGUuibAw7GGw).
 
-### 为什么引入 Redis？
+### Tại sao đưa vào Redis?
 
-本项目主要有两个场景用到了 Redis：
+Dự án này chủ yếu có hai tình huống sử dụng Redis:
 
-1. Redis 替代 `ConcurrentHashMap` 实现会话的缓存。
-2. 基于 Redis Stream 实现简历分析、知识库向量化等场景的异步（还能解耦，分析和向量化可以使用其他编程语言来做）。
+1. Redis thay thế `ConcurrentHashMap` để thực hiện cache phiên.
+2. Dựa trên Redis Stream thực hiện bất đồng bộ cho các tình huống như phân tích CV, vector hóa kho tri thức (cũng có thể tách rời, phân tích và vector hóa có thể sử dụng ngôn ngữ lập trình khác).
 
-**为什么引入 Redis Stream？为何不选择 Kafka、RabbitMQ 等更成熟的消息队列？**
+**Tại sao đưa vào Redis Stream? Tại sao không chọn Kafka, RabbitMQ hay hàng đợi tin nhắn trưởng thành hơn?**
 
-简历分析、知识库向量化等 AI 任务耗时较长（10-60 秒），不适合同步处理。需要消息队列实现异步解耦。
+Các tác vụ AI như phân tích CV, vector hóa kho tri thức mất thời gian khá lâu (10-60 giây), không phù hợp xử lý đồng bộ. Cần hàng đợi tin nhắn để thực hiện tách rời bất đồng bộ.
 
-| 维度             | Redis Stream                      | RabbitMQ                       | Kafka                        | 内存队列                           |
-| :--------------- | :-------------------------------- | :----------------------------- | :--------------------------- | :--------------------------------- |
-| **吞吐量**       | 高（十万级 QPS）                  | 中（万级 QPS）                 | 极高（百万级，水平扩展）     | 极高（千万级/秒，受限于 CPU/内存） |
-| **延迟**         | 极低（亚毫秒级）                  | 低（毫秒级）                   | 中（毫秒到十毫秒级）         | 极低（纳秒/微秒级）                |
-| **持久化**       | 支持（RDB/AOF）                   | 支持（Mnesia/磁盘）            | 强支持（原生分段日志）       | 无（进程终止即失）                 |
-| **消息堆积能力** | 一般（受限于内存）                | 中（磁盘堆积，性能下降明显）   | 极强（TB 级磁盘存储）        | 差（受限于堆内存）                 |
-| **消费模式**     | 发布订阅 / 消费者组               | 灵活路由 / 多种交换机模式      | 发布订阅 / 消费者组          | 点对点 / 多消费者（取决于实现）    |
-| **消息回溯**     | 支持（按 ID / 时间范围）          | 不支持                         | 强支持（按 Offset / 时间戳） | 不支持                             |
-| **消息顺序性**   | 单 Stream 有序                    | 单队列有序                     | 单 Partition 有序            | 有序（单队列）                     |
-| **可靠性**       | 中（异步复制可能丢失）            | 高（Publisher Confirm / 事务） | 极高（多副本 ISR + acks）    | 低（无持久化、无确认）             |
-| **运维复杂度**   | 低                                | 中                             | 高（KRaft 模式已简化）       | 极低                               |
-| **适用场景**     | 轻量级流处理、已有 Redis 基础设施 | 复杂路由、企业级集成           | 大数据流、事件溯源、日志聚合 | 进程内解耦、极致性能场景           |
+| Chiều                      | Redis Stream                                    | RabbitMQ                                    | Kafka                                        | Hàng đợi bộ nhớ                                         |
+| :------------------------- | :---------------------------------------------- | :------------------------------------------ | :------------------------------------------- | :------------------------------------------------------ |
+| **Thông lượng**            | Cao (trăm nghìn QPS)                            | Trung bình (vạn QPS)                        | Cực cao (triệu, mở rộng ngang)               | Cực cao (hàng chục triệu/giây, giới hạn bởi CPU/bộ nhớ) |
+| **Độ trễ**                 | Cực thấp (dưới mili giây)                       | Thấp (mili giây)                            | Trung bình (mili đến chục mili giây)         | Cực thấp (nano/micro giây)                              |
+| **Lưu trữ bền vững**       | Hỗ trợ (RDB/AOF)                                | Hỗ trợ (Mnesia/đĩa)                         | Hỗ trợ mạnh (log phân đoạn native)           | Không (tiến trình kết thúc là mất)                      |
+| **Khả năng chứa tin nhắn** | Trung bình (giới hạn bởi bộ nhớ)                | Trung bình (chứa đĩa, hiệu năng giảm rõ)    | Cực mạnh (lưu trữ đĩa TB)                    | Kém (giới hạn bởi heap bộ nhớ)                          |
+| **Chế độ tiêu thụ**        | Pub/sub / Consumer group                        | Routing linh hoạt / nhiều chế độ exchange   | Pub/sub / Consumer group                     | Point-to-point / multi-consumer (tùy triển khai)        |
+| **Phát lại tin nhắn**      | Hỗ trợ (theo ID / khoảng thời gian)             | Không hỗ trợ                                | Hỗ trợ mạnh (theo Offset / timestamp)        | Không hỗ trợ                                            |
+| **Thứ tự tin nhắn**        | Stream đơn có thứ tự                            | Hàng đợi đơn có thứ tự                      | Partition đơn có thứ tự                      | Có thứ tự (hàng đợi đơn)                                |
+| **Độ tin cậy**             | Trung bình (replication bất đồng bộ có thể mất) | Cao (Publisher Confirm / transaction)       | Cực cao (multi-replica ISR + acks)           | Thấp (không lưu trữ, không xác nhận)                    |
+| **Độ phức tạp vận hành**   | Thấp                                            | Trung bình                                  | Cao (chế độ KRaft đã đơn giản hóa)           | Cực thấp                                                |
+| **Tình huống phù hợp**     | Xử lý luồng nhẹ nhàng, đã có Redis              | Routing phức tạp, tích hợp cấp doanh nghiệp | Luồng big data, event sourcing, tổng hợp log | Tách rời trong tiến trình, tình huống hiệu năng tối đa  |
 
-选择 Redis Stream 的理由：
+Lý do chọn Redis Stream:
 
-- 复用现有组件：Redis 已用于会话缓存，无需引入新中间件。
-- 功能满足需求：支持消费者组、消息确认（ACK）、持久化。
-- 运维简单：对于中小型项目，Redis Stream 完全够用。
+- Tái sử dụng thành phần hiện có: Redis đã được dùng cho cache phiên, không cần đưa vào middleware mới.
+- Chức năng đáp ứng nhu cầu: Hỗ trợ consumer group, xác nhận tin nhắn (ACK), lưu trữ bền vững.
+- Vận hành đơn giản: Đối với dự án vừa và nhỏ, Redis Stream hoàn toàn đủ dùng.
 
-### 构建工具为什么选择 Gradle？
+### Tại sao chọn Gradle làm công cụ build?
 
-Spring Boot 官方现在用的就是 Gradle，加上国内现在都是 Maven 更多，换个 Gradle 还更新颖一些。
+Spring Boot official bây giờ cũng dùng Gradle, thêm vào việc trong nước hiện tại Maven phổ biến hơn, đổi sang Gradle còn mới hơn.
 
-个人也更喜欢用 Gradle，也写过相关的文章：[Gradle 核心概念总结](https://javaguide.cn/tools/gradle/gradle-core-concepts.html)。
+Cá nhân cũng thích dùng Gradle hơn, cũng đã viết bài liên quan: [Tổng kết khái niệm cốt lõi Gradle](https://javaguide.cn/tools/gradle/gradle-core-concepts.html).
 
-### 为什么使用 MapStruct？
+### Tại sao sử dụng MapStruct?
 
-项目中有大量 Entity ↔ DTO 转换需求，MapStruct 是编译时代码生成的对象映射框架：
+Dự án có nhiều nhu cầu chuyển đổi Entity ↔ DTO, MapStruct là framework ánh xạ đối tượng tạo code tại thời điểm biên dịch:
 
-| 方案        | 性能         | 类型安全   | 使用复杂度   |
-| ----------- | ------------ | ---------- | ------------ |
-| MapStruct   | 零反射，最快 | 编译时检查 | 定义接口即可 |
-| BeanUtils   | 反射，慢     | 运行时报错 | 一行代码     |
-| ModelMapper | 反射，较慢   | 运行时报错 | 配置复杂     |
-| 手写转换    | 最快         | 编译时检查 | 重复代码多   |
+| Phương án   | Hiệu năng                    | Type safety               | Độ phức tạp sử dụng          |
+| ----------- | ---------------------------- | ------------------------- | ---------------------------- |
+| MapStruct   | Không reflection, nhanh nhất | Kiểm tra tại compile time | Định nghĩa interface là được |
+| BeanUtils   | Reflection, chậm             | Báo lỗi tại runtime       | Một dòng code                |
+| ModelMapper | Reflection, tương đối chậm   | Báo lỗi tại runtime       | Cấu hình phức tạp            |
+| Viết tay    | Nhanh nhất                   | Kiểm tra tại compile time | Code lặp nhiều               |
 
-### 为什么使用 Apache Tika？
+### Tại sao sử dụng Apache Tika?
 
-系统需要解析多种格式的文档（PDF、Word、TXT），Apache Tika 是 Apache 基金会的文档解析库：
+Hệ thống cần phân tích tài liệu nhiều định dạng (PDF, Word, TXT), Apache Tika là thư viện phân tích tài liệu của Apache Foundation:
 
-- 格式支持全：PDF、DOCX、DOC、TXT、HTML、Markdown 等上百种格式
-- 自动识别：根据文件内容自动检测格式，无需依赖文件扩展名
-- 文本提取：统一的 API 提取纯文本，屏蔽格式差异
+- Hỗ trợ định dạng đầy đủ: PDF, DOCX, DOC, TXT, HTML, Markdown và hàng trăm định dạng khác
+- Tự động nhận dạng: Tự động phát hiện định dạng theo nội dung file, không cần phụ thuộc vào phần mở rộng file
+- Trích xuất văn bản: API thống nhất trích xuất văn bản thuần, che khuất sự khác biệt định dạng
 
 ```java
-// Tika 解析示例
+// Ví dụ phân tích Tika
 Tika tika = new Tika();
-String content = tika.parseToString(inputStream);  // 自动识别格式并提取文本
+String content = tika.parseToString(inputStream);  // Tự động nhận dạng định dạng và trích xuất văn bản
 ```
 
-### 为什么使用 SSE 而不是 WebSocket？
+### Tại sao sử dụng SSE thay vì WebSocket?
 
-知识库问答需要流式输出（像 ChatGPT 那样逐字显示），有两种技术选择：
+Hỏi đáp kho tri thức cần đầu ra streaming (hiển thị từng chữ như ChatGPT), có hai lựa chọn kỹ thuật:
 
-| 方案      | 优点                      | 缺点                       |
-| --------- | ------------------------- | -------------------------- |
-| SSE       | 简单，基于 HTTP，单向推送 | 仅支持服务端 → 客户端      |
-| WebSocket | 双向通信，功能强大        | 协议复杂，需要维护连接状态 |
+| Phương án | Ưu điểm                                 | Nhược điểm                                         |
+| --------- | --------------------------------------- | -------------------------------------------------- |
+| SSE       | Đơn giản, dựa trên HTTP, push một chiều | Chỉ hỗ trợ server → client                         |
+| WebSocket | Truyền thông hai chiều, chức năng mạnh  | Giao thức phức tạp, cần duy trì trạng thái kết nối |
 
-选择 SSE 的理由：
+Lý do chọn SSE:
 
-- 场景匹配：LLM 流式输出是单向的（服务端 → 客户端），不需要双向通信
-- 实现简单：基于 HTTP，天然支持重连、跨域
-- Spring 支持好：`Flux<ServerSentEvent<String>>` 一行代码搞定
+- Phù hợp tình huống: Đầu ra streaming LLM là một chiều (server → client), không cần truyền thông hai chiều
+- Triển khai đơn giản: Dựa trên HTTP, hỗ trợ tự nhiên reconnect, cross-origin
+- Spring hỗ trợ tốt: `Flux<ServerSentEvent<String>>` một dòng code xong
 
-### 前端为什么选择 React + TypeScript + Tailwind CSS？
+### Tại sao frontend chọn React + TypeScript + Tailwind CSS?
 
-| 技术         | 选择理由                                   |
-| ------------ | ------------------------------------------ |
-| React        | 生态最成熟，组件化开发，社区资源丰富       |
-| TypeScript   | 类型安全，IDE 智能提示，减少运行时错误     |
-| Vite         | 开发服务器启动快（秒级），HMR 热更新体验好 |
-| Tailwind CSS | 原子化 CSS，快速开发，无需写 CSS 文件      |
+| Công nghệ    | Lý do chọn                                                                               |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| React        | Hệ sinh thái trưởng thành nhất, phát triển component hóa, tài nguyên cộng đồng phong phú |
+| TypeScript   | Type safety, IDE gợi ý thông minh, giảm lỗi runtime                                      |
+| Vite         | Dev server khởi động nhanh (giây), trải nghiệm HMR hot update tốt                        |
+| Tailwind CSS | Atomic CSS, phát triển nhanh, không cần viết file CSS                                    |
 
-## 功能特性
+## Tính năng chức năng
 
-### 简历管理模块
+### Module quản lý CV
 
-- **多格式解析**：支持 PDF、DOCX、DOC、TXT 等多种简历格式。
-- **异步处理流**：基于 Redis Stream 实现异步简历分析，支持实时查看处理进度（待分析/分析中/已完成/失败）。
-- **稳定性保障**：内置分析失败自动重试机制（最多 3 次）与基于内容哈希的重复检测。
-- **分析报告导出**：支持将 AI 分析结果一键导出为结构化的 PDF 简历分析报告。
+- **Phân tích đa định dạng**: Hỗ trợ nhiều định dạng CV như PDF, DOCX, DOC, TXT.
+- **Luồng xử lý bất đồng bộ**: Dựa trên Redis Stream thực hiện phân tích CV bất đồng bộ, hỗ trợ xem tiến độ xử lý thời gian thực (Chờ phân tích/Đang phân tích/Đã hoàn thành/Thất bại).
+- **Đảm bảo ổn định**: Cơ chế retry tự động khi phân tích thất bại (tối đa 3 lần) và phát hiện trùng lặp dựa trên hash nội dung.
+- **Xuất báo cáo phân tích**: Hỗ trợ xuất kết quả phân tích AI thành báo cáo phân tích CV PDF có cấu trúc bằng một cú nhấp.
 
-### 模拟面试模块
+### Module phỏng vấn mô phỏng
 
-- **Skill 驱动出题**：内置 10+ 面试方向（Java 后端、阿里/字节/腾讯专项、前端、Python、算法、系统设计、测开、AI Agent 等），每个方向由 `SKILL.md` 定义考察范围、难度分布和参考知识库。基于 `spring-ai-agent-utils` 的 Progressive Disclosure 机制实现按需加载。
-- **并行双路出题**：有简历时，60% 简历项目深挖题（独立 Prompt）+ 40% 方向基础题（Skill 驱动），使用 Java 21 虚拟线程并行生成后合并，物理隔离避免 Prompt 冲突。
-- **自定义 JD 解析**：粘贴职位描述（JD），LLM 动态提取面试分类并匹配共享题库，无需预设方向即可开始面试。
-- **简历推荐方向**：上传简历后，LLM 通过 Semantic Matching 自动推荐最匹配的面试方向，降低用户选择成本。
-- **历史题目去重**：出题时自动排除已有会话中问过的题目，避免重复考察。
-- **面试阶段时长联动**：总时长滑块拖动后，各阶段（自我介绍、技术考察、项目深挖、反问环节）按时比自动分配。
-- **智能追问流**：支持配置多轮智能追问（默认 1 条），模拟多轮问答场景。
-- **统一评估架构**：文字面试和语音面试共用同一套评估引擎（分批评估 + 结构化输出 + 二次汇总 + 降级兜底），评估结果可对比。
-- **报告一键导出**：支持异步生成并导出详细的 PDF 模拟面试评估报告。
-- **面试中心入口**：面试中心页整合文字面试和语音面试入口，支持继续面试和重新面试。
+- **Ra câu hỏi dựa trên Skill**: Tích hợp sẵn 10+ hướng phỏng vấn (Java backend, chuyên đề Alibaba/ByteDance/Tencent, frontend, Python, thuật toán, thiết kế hệ thống, phát triển kiểm thử, AI Agent, v.v.), mỗi hướng được định nghĩa bởi `SKILL.md` với phạm vi kiểm tra, phân bổ độ khó và kho kiến thức tham khảo. Thực hiện tải theo nhu cầu dựa trên cơ chế Progressive Disclosure của `spring-ai-agent-utils`.
+- **Ra câu hỏi song song hai hướng**: Khi có CV, 60% câu hỏi đào sâu dự án CV (Prompt độc lập) + 40% câu hỏi cơ bản theo hướng (dựa trên Skill), sử dụng virtual thread Java 21 tạo song song rồi hợp nhất, phân tách vật lý tránh xung đột Prompt.
+- **Phân tích JD tùy chỉnh**: Dán mô tả vị trí (JD), LLM động trích xuất phân loại phỏng vấn và khớp kho câu hỏi chia sẻ, không cần đặt hướng sẵn là có thể bắt đầu phỏng vấn.
+- **Hướng đề xuất từ CV**: Sau khi tải CV, LLM tự động đề xuất hướng phỏng vấn phù hợp nhất qua Semantic Matching, giảm chi phí lựa chọn của người dùng.
+- **Loại trùng câu hỏi lịch sử**: Khi ra câu hỏi tự động loại trừ các câu đã hỏi trong các phiên hiện có, tránh kiểm tra lặp.
+- **Liên kết thời lượng giai đoạn phỏng vấn**: Sau khi kéo thanh tổng thời lượng, các giai đoạn (giới thiệu bản thân, kiểm tra kỹ thuật, đào sâu dự án, hỏi ngược) tự động phân bổ theo tỷ lệ thời gian.
+- **Luồng hỏi thêm thông minh**: Hỗ trợ cấu hình nhiều vòng hỏi thêm thông minh (mặc định 1 câu), mô phỏng tình huống hỏi đáp nhiều vòng.
+- **Kiến trúc đánh giá thống nhất**: Phỏng vấn văn bản và phỏng vấn giọng nói dùng chung một bộ engine đánh giá (đánh giá theo lô + đầu ra có cấu trúc + tổng hợp lần hai + fallback dự phòng), kết quả đánh giá có thể so sánh.
+- **Xuất báo cáo một lần**: Hỗ trợ tạo bất đồng bộ và xuất báo cáo đánh giá phỏng vấn mô phỏng PDF chi tiết.
+- **Điểm vào trung tâm phỏng vấn**: Trang trung tâm phỏng vấn tích hợp điểm vào phỏng vấn văn bản và phỏng vấn giọng nói, hỗ trợ tiếp tục phỏng vấn và phỏng vấn lại.
 
-### 面试安排模块
+### Module sắp xếp phỏng vấn
 
-- **邀请解析**：规则 + AI 双引擎，支持飞书/腾讯会议/Zoom 格式，自动提取公司、岗位、时间、会议链接
-- **日历管理**：日/周/月视图 + 拖拽调整 + 列表视图
-- **状态流转**：定时任务自动过期，手动标记待面试/已完成/已取消
-- **面试提醒**：可配置提醒，避免错过面试
+- **Phân tích lời mời**: Hai engine quy tắc + AI, hỗ trợ định dạng Feishu/Tencent Meeting/Zoom, tự động trích xuất công ty, vị trí, thời gian, link cuộc họp
+- **Quản lý lịch**: Chế độ xem ngày/tuần/tháng + kéo thả điều chỉnh + chế độ xem danh sách
+- **Chuyển đổi trạng thái**: Tác vụ định kỳ tự động hết hạn, đánh dấu thủ công chờ phỏng vấn/đã hoàn thành/đã hủy
+- **Nhắc nhở phỏng vấn**: Có thể cấu hình nhắc nhở, tránh bỏ lỡ phỏng vấn
 
-### 语音面试模块
+### Module phỏng vấn giọng nói
 
-实时语音对话面试，WebSocket + 千问3 语音模型（ASR/TTS/LLM 统一 API Key）：
+Phỏng vấn đối thoại giọng nói thời gian thực, WebSocket + mô hình giọng nói Qianwen3 (API Key thống nhất cho ASR/TTS/LLM):
 
-- **实时流式对话**：句子级并发 TTS，边生成边合成边播放，首包延迟 200ms
-- **服务端 VAD**：自动断句，实时字幕（含中间结果）
-- **回声防护 + 手动提交**：避免 AI 语音被误录入
-- **多轮上下文记忆 + 暂停/恢复**：超时自动暂停
-- **Micrometer 埋点**：TTS/ASR 延迟、会话时长等指标
+- **Đối thoại streaming thời gian thực**: TTS song song cấp câu, vừa tạo vừa tổng hợp vừa phát, độ trễ gói đầu tiên 200ms
+- **VAD phía server**: Tự động ngắt câu, phụ đề thời gian thực (bao gồm kết quả trung gian)
+- **Bảo vệ echo + gửi thủ công**: Tránh âm thanh AI bị thu nhầm
+- **Bộ nhớ ngữ cảnh nhiều vòng + tạm dừng/tiếp tục**: Tự động tạm dừng khi timeout
+- **Đo lường Micrometer**: Các chỉ số như độ trễ TTS/ASR, thời lượng phiên
 
-> **已知问题**：端到端延迟偏高（服务端音频中转）、无耳机时回声泄漏、TTS 音色单一、弱网音频断续。后续计划探索 WebRTC、客户端 VAD 降噪、端到端语音模型等方案。
+> **Vấn đề đã biết**: Độ trễ end-to-end cao (server chuyển tiếp âm thanh), echo rò rỉ khi không có tai nghe, màu sắc âm thanh TTS đơn điệu, âm thanh gián đoạn khi mạng yếu. Sau này dự kiến khám phá WebRTC, client-side VAD khử nhiễu, mô hình giọng nói end-to-end, v.v.
 
-### 知识库管理模块
+### Module quản lý kho tri thức
 
-- **文档智能处理**：支持 PDF、DOCX、Markdown 等多种格式文档的自动上传、分块与异步向量化。
-- **RAG 检索增强**：集成向量数据库，通过检索增强生成（RAG）提升 AI 问答的准确性与专业度。
-- **流式响应交互**：基于 SSE（Server-Sent Events）技术实现打字机式流式响应。
-- **智能问答对话**：支持基于知识库内容的智能问答，并提供直观的知识库统计信息。
+- **Xử lý tài liệu thông minh**: Hỗ trợ tải lên, phân khối và vector hóa bất đồng bộ tự động cho nhiều định dạng tài liệu như PDF, DOCX, Markdown.
+- **Tăng cường tìm kiếm RAG**: Tích hợp cơ sở dữ liệu vector, nâng cao độ chính xác và chuyên sâu của hỏi đáp AI thông qua Retrieval-Augmented Generation (RAG).
+- **Tương tác phản hồi streaming**: Thực hiện phản hồi streaming kiểu đánh máy dựa trên công nghệ SSE (Server-Sent Events).
+- **Hỏi đáp thông minh**: Hỗ trợ hỏi đáp thông minh dựa trên nội dung kho tri thức, cung cấp thông tin thống kê kho tri thức trực quan.
 
-## 效果展示
+## Hiệu ứng demo
 
-### 简历与面试
+### CV và phỏng vấn
 
-面试中心：
+Trung tâm phỏng vấn:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-interview-hub.png)
 
-Skill 出题 + JD 解析：
+Ra câu hỏi Skill + phân tích JD:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-skill-jd-parse.png)
 
-简历库：
+Thư viện CV:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-history.png)
 
-简历上传分析：
+Tải lên và phân tích CV:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-upload-analysis.png)
 
-简历分析详情：
+Chi tiết phân tích CV:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-resume-analysis-detail.png)
 
-面试记录：
+Lịch sử phỏng vấn:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-interview-history.png)
 
-面试详情：
+Chi tiết phỏng vấn:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-interview-detail.png)
 
-模拟面试：
+Phỏng vấn mô phỏng:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-mock-interview.png)
 
-面试安排
+Sắp xếp phỏng vấn
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-interview-schedule-list.png)
 
-### 知识库
+### Kho tri thức
 
-知识库管理：
+Quản lý kho tri thức:
 
 ![](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-knowledge-base-management.png)
 
-问答助手：
+Trợ lý hỏi đáp:
 
 ![page-qa-assistant](https://oss.javaguide.cn/xingqiu/pratical-project/interview-guide/page-qa-assistant.png)
 
-## 学习本项目你将获得什么？
+## Học dự án này bạn sẽ đạt được gì?
 
-本项目采用行业最前沿的 Java 21 + Spring Boot 4.0 技术栈，是市面上首个深度集成 Spring AI 2.0 的全栈实战项目。我们不仅提供高质量的代码，更配套了详尽的架构解析教程。
+Dự án này sử dụng tech stack Java 21 + Spring Boot 4.0 tiên tiến nhất ngành, là dự án thực chiến full-stack đầu tiên trên thị trường tích hợp sâu Spring AI 2.0. Chúng tôi không chỉ cung cấp code chất lượng cao, mà còn đi kèm hướng dẫn phân tích kiến trúc chi tiết.
 
-项目整体设计遵循“由浅入深”原则。即使你的编程基础尚浅，只需跟随我们的保姆级教程，也能顺利从零搭建出一套生产级别的 AI 大模型应用。
+Thiết kế tổng thể dự án theo nguyên tắc "từ cơ bản đến nâng cao". Dù nền tảng lập trình của bạn còn yếu, chỉ cần theo hướng dẫn từng bước của chúng tôi, cũng có thể suôn sẻ xây dựng từ đầu một ứng dụng mô hình AI lớn cấp sản xuất.
 
-### 深度掌握 AI 应用开发的核心范式
+### Nắm vững sâu mô hình phát triển ứng dụng AI cốt lõi
 
-本项目是你从传统后端转型 AI 应用开发工程师的最佳敲门砖：
+Dự án này là bàn đạp tốt nhất để bạn chuyển từ backend truyền thống sang kỹ sư phát triển ứng dụng AI:
 
-- **Spring AI 2.0 工业级实战**：深入理解 Spring 官方的 AI 抽象层，掌握如何通过统一的声明式接口对接通义千问、OpenAI 等主流模型。
+- **Thực chiến công nghiệp Spring AI 2.0**: Hiểu sâu tầng trừu tượng AI chính thức của Spring, nắm vững cách kết nối với Tongyi Qianwen, OpenAI và các model chính thống khác qua giao diện declarative thống nhất.
 
-- **Prompt Engineering（提示词工程）深度应用**：告别简单的字符串拼接。学习如何构建结构化的 System/User Prompt，并利用 BeanOutputConverter 实现 LLM 输出向 Java 对象的自动化映射，彻底终结繁琐的 JSON 手动解析。
+- **Ứng dụng sâu Prompt Engineering (kỹ thuật prompt)**: Thoát khỏi ghép chuỗi đơn giản. Học cách xây dựng System/User Prompt có cấu trúc, và sử dụng BeanOutputConverter thực hiện ánh xạ tự động đầu ra LLM sang đối tượng Java, chấm dứt hoàn toàn việc phân tích JSON thủ công phiền phức.
 
-- **Query Rewrite（查询重写）技术**：学习如何利用 LLM 对用户原始查询进行智能改写，补充语义、优化检索词，显著提升 RAG 系统的召回率。掌握“原问题→改写问题→回退原问题”的级联检索策略。
+- **Công nghệ Query Rewrite (viết lại truy vấn)**: Học cách sử dụng LLM viết lại thông minh truy vấn gốc của người dùng, bổ sung ngữ nghĩa, tối ưu từ khóa tìm kiếm, nâng cao đáng kể tỷ lệ recall của hệ thống RAG. Nắm vững chiến lược tìm kiếm cascade "câu hỏi gốc → câu hỏi đã viết lại → quay lại câu hỏi gốc".
 
-- **动态检索参数调优**：深入理解如何根据查询长度、语义密度等特征，动态调整 topK 与相似度阈值，实现短查询、中长查询、长查询的差异化检索策略。
+- **Tinh chỉnh tham số tìm kiếm động**: Hiểu sâu cách điều chỉnh động topK và ngưỡng độ tương đồng dựa trên độ dài truy vấn, mật độ ngữ nghĩa và các đặc điểm khác, thực hiện chiến lược tìm kiếm khác biệt cho truy vấn ngắn, trung bình và dài.
 
-- **RAG（检索增强生成）全链路闭环**：深度拆解“文档解析 → 文本分块 → 向量化 (Embedding) → 向量数据库存储 → 相似度检索 → 上下文增强生成”的完整技术链条。学习“有效命中判定”机制，避免弱相关片段触发生效模型的长篇“信息不足”回复。
+- **Vòng lặp đầy đủ RAG (Retrieval-Augmented Generation)**: Phân tích sâu chuỗi kỹ thuật hoàn chỉnh "phân tích tài liệu → phân khối văn bản → vector hóa (Embedding) → lưu trữ cơ sở dữ liệu vector → tìm kiếm độ tương đồng → tạo sinh tăng cường ngữ cảnh". Học cơ chế "phán định có kết quả hợp lệ", tránh các đoạn văn có liên quan yếu kích hoạt model trả lời dài "thông tin không đủ".
 
-- **结构化输出可靠性与重试策略**：掌握 `StructuredOutputInvoker` 统一封装模式，学习如何通过自动重试、错误注入、严格 JSON 指令等方式，大幅提升 LLM 结构化输出的解析成功率。
+- **Độ tin cậy đầu ra có cấu trúc và chiến lược retry**: Nắm vững mô hình đóng gói thống nhất `StructuredOutputInvoker`, học cách nâng cao đáng kể tỷ lệ phân tích thành công của đầu ra có cấu trúc LLM thông qua retry tự động, tiêm lỗi, chỉ thị JSON nghiêm ngặt và các cách khác.
 
-### 现代化的 Java 后端架构思维
+### Tư duy kiến trúc backend Java hiện đại
 
-你可以学习到优秀的工程实践：
+Bạn có thể học được các thực hành kỹ thuật xuất sắc:
 
-- **拥抱 Java 21 与 Spring Boot 4.0**：抢先布局虚拟线程 (Virtual Threads)、Record 类等高性能特性。针对 Spring Boot 4.0 的模块化设计进行深度适配，让你的技术栈领先市场。
+- **Chào đón Java 21 và Spring Boot 4.0**: Đón đầu Virtual Threads, Record class và các tính năng hiệu năng cao khác. Thích nghi sâu với thiết kế module hóa của Spring Boot 4.0, để tech stack của bạn dẫn đầu thị trường.
 
-- **模块化单体架构**：学习如何通过清晰的层级（Modules + Infrastructure + Common）组织代码。这种设计既具备微服务的解耦优势，又极大降低了单体应用的运维心智负担。
+- **Kiến trúc monolith module hóa**: Học cách tổ chức code qua phân tầng rõ ràng (Modules + Infrastructure + Common). Thiết kế này vừa có ưu điểm tách rời của microservice, lại giảm đáng kể gánh nặng tâm lý vận hành của ứng dụng monolith.
 
-- **极致的对象转换性能**：通过 MapStruct 在编译期生成映射代码。学习如何在追求极致响应速度的场景下，优雅、安全地处理 Entity 与 DTO 之间的复杂映射。
+- **Hiệu năng chuyển đổi đối tượng tối đa**: Thông qua MapStruct tạo code ánh xạ tại compile time. Học cách xử lý thanh lịch, an toàn việc ánh xạ phức tạp giữa Entity và DTO trong các tình huống theo đuổi tốc độ phản hồi tối đa.
 
-### 务实的数据存储与中间件选型
+### Lựa chọn lưu trữ dữ liệu và middleware thực tế
 
-我们拒绝盲目堆砌中间件，而是教你如何基于业务场景做出“最理智”的选择：
+Chúng tôi từ chối tích hợp middleware một cách mù quáng, mà dạy bạn cách đưa ra lựa chọn "lý trí nhất" dựa trên tình huống nghiệp vụ:
 
-- **PostgreSQL + pgvector 的“一站式”存储方案**：掌握如何在同一套数据库中高效处理关系型业务数据与高维向量数据。深入学习 HNSW 索引在万级文档场景下的性能调优实践。
+- **Phương án lưu trữ "một cửa" PostgreSQL + pgvector**: Nắm vững cách xử lý hiệu quả dữ liệu nghiệp vụ quan hệ và dữ liệu vector chiều cao trong cùng một bộ cơ sở dữ liệu. Học sâu thực hành tinh chỉnh hiệu năng index HNSW trong tình huống hàng chục nghìn tài liệu.
 
-- **Redis + Lua 分布式限流体系**：实战封装高性能分布式限流组件。基于 Lua 脚本保证限流逻辑的原子性，支持按用户、IP 或全局维度的精准流量控制，有效防御恶意刷接口行为，保障高价值 AI API 的配额安全。
+- **Hệ thống giới hạn tốc độ phân tán Redis + Lua**: Thực chiến đóng gói thành phần giới hạn tốc độ phân tán hiệu năng cao. Dựa trên Lua script đảm bảo tính nguyên tử của logic giới hạn tốc độ, hỗ trợ kiểm soát lưu lượng chính xác theo người dùng, IP hoặc chiều toàn cục, phòng thủ hiệu quả hành vi nhấn API ác ý, bảo vệ an toàn hạn ngạch API AI giá trị cao.
 
-- **Redis Stream 异步任务处理**：深入探讨在简历分析等耗时场景（10-60s）下，为什么选择轻量级的 Redis Stream 而非 Kafka。实战演示如何通过消息队列实现系统解耦与流量削峰。
+- **Xử lý tác vụ bất đồng bộ Redis Stream**: Khám phá sâu tại sao chọn Redis Stream nhẹ nhàng thay vì Kafka trong các tình huống tốn thời gian như phân tích CV (10-60 giây). Thực chiến trình diễn cách thực hiện tách rời hệ thống và cắt giảm lưu lượng đỉnh thông qua hàng đợi tin nhắn.
 
-- **企业级文件处理与清洗优化**：不仅利用 Apache Tika 构建通用的文档解析引擎，还配套实现了 TextCleaningService。通过正则清洗、空行标准化及文本去噪（如剔除图片链接、非法控制字符），显著提升 RAG 的召回质量；同时集成内容哈希检测，从源头拦截重复上传，节省存储与 Token 成本。
+- **Xử lý và tối ưu hóa làm sạch file cấp doanh nghiệp**: Không chỉ xây dựng engine phân tích tài liệu thông dụng bằng Apache Tika, mà còn triển khai thêm TextCleaningService. Thông qua làm sạch regex, chuẩn hóa dòng trống và khử nhiễu văn bản (như loại bỏ link ảnh, ký tự điều khiển bất hợp lệ), nâng cao đáng kể chất lượng recall RAG; đồng thời tích hợp phát hiện hash nội dung, chặn tải lên trùng lặp từ đầu nguồn, tiết kiệm chi phí lưu trữ và Token.
 
-### 高级 AI 功能设计模式
+### Mô hình thiết kế chức năng AI nâng cao
 
-- **Skill 架构与 Agent Skills**：学习如何将面试方向配置从代码中解耦，基于 `SKILL.md` + `skill.meta.yml` 的双层配置设计。掌握 `spring-ai-agent-utils` 的 Discovery → Semantic Matching → Execution 三层 Progressive Disclosure 机制，以及文字面试（单次调用预加载）与语音面试（多轮 ReAct 按需加载）的差异化资源加载策略。
+- **Kiến trúc Skill và Agent Skills**: Học cách tách rời cấu hình hướng phỏng vấn khỏi code, thiết kế cấu hình hai tầng dựa trên `SKILL.md` + `skill.meta.yml`. Nắm vững cơ chế Progressive Disclosure ba tầng Discovery → Semantic Matching → Execution của `spring-ai-agent-utils`, và chiến lược tải tài nguyên khác biệt của phỏng vấn văn bản (gọi một lần, tải trước) và phỏng vấn giọng nói (nhiều vòng ReAct, tải theo nhu cầu).
 
-- **并行双路出题架构**：深入理解”单次调用无法兼顾简历和方向”的 Prompt 冲突问题，学习如何通过物理隔离（两套独立 Prompt 模板 + 两路并行 AI 调用）实现 60% 简历题 + 40% 方向题的混合出题，以及索引合并和降级策略的设计。
+- **Kiến trúc ra câu hỏi song song hai hướng**: Hiểu sâu vấn đề xung đột Prompt "một lần gọi không thể cân bằng cả CV và hướng", học cách thực hiện ra câu hỏi hỗn hợp 60% câu hỏi CV + 40% câu hỏi hướng thông qua phân tách vật lý (hai bộ template Prompt độc lập + hai hướng gọi AI song song), cùng thiết kế chiến lược hợp nhất index và hạ cấp.
 
-- **多轮追问生成机制**：学习如何在面试问题生成场景中，通过多层 Prompt 设计实现”主问题 + 追问”的树形结构。掌握可配置追问数量、问题类型权重分配、历史去重等实战技巧。
+- **Cơ chế tạo hỏi thêm nhiều vòng**: Học cách thực hiện cấu trúc cây "câu hỏi chính + hỏi thêm" thông qua thiết kế Prompt nhiều tầng trong tình huống tạo câu hỏi phỏng vấn. Nắm vững các kỹ thuật thực chiến như số lượng hỏi thêm có thể cấu hình, phân bổ trọng số loại câu hỏi, loại trùng lịch sử.
 
-- **流式输出智能处理**：掌握 SSE 流式场景下的”探测窗口”技术——在保持首字响应速度的同时，快速识别”无信息”输出并统一为固定模板，避免用户看到长篇拒答文字。
+- **Xử lý thông minh đầu ra streaming**: Nắm vững công nghệ "cửa sổ thăm dò" trong tình huống streaming SSE—trong khi duy trì tốc độ phản hồi chữ đầu tiên, nhanh chóng nhận dạng đầu ra "không có thông tin" và thống nhất thành template cố định, tránh người dùng thấy văn bản từ chối dài.
 
-- **统一无结果策略**：学习如何在 RAG 系统中设计一致的用户无结果体验，包括命中判定、输出归一化、流式截断等全链路优化。
+- **Chiến lược không có kết quả thống nhất**: Học cách thiết kế trải nghiệm không có kết quả nhất quán cho người dùng trong hệ thống RAG, bao gồm tối ưu toàn liên kết như phán định kết quả, chuẩn hóa đầu ra, cắt ngắn streaming.
 
-### 标准化的工程化交付与部署
+### Giao hàng kỹ thuật công nghệ và triển khai tiêu chuẩn hóa
 
-- **Gradle 现代构建体系**：摆脱 Maven 的繁琐配置，掌握 Gradle 8.14 及其版本目录 (Version Catalog) 的灵活性，学习如何优雅地管理大型项目依赖。
+- **Hệ thống build hiện đại Gradle**: Thoát khỏi cấu hình phiền phức của Maven, nắm vững tính linh hoạt của Gradle 8.14 và Version Catalog, học cách quản lý thanh lịch các phụ thuộc dự án lớn.
 
-- **生产级容器化部署**：通过 Docker Compose 一键搭建包含数据库扩展、缓存、对象存储在内的全套运行环境，理解云原生时代下的基础设施配置规范。
+- **Triển khai container hóa cấp sản xuất**: Thông qua Docker Compose một lệnh dựng toàn bộ môi trường chạy bao gồm mở rộng cơ sở dữ liệu, cache, object storage, hiểu quy chuẩn cấu hình cơ sở hạ tầng trong kỷ nguyên cloud native.
 
-### 丝滑的前端工程化与交互体验
+### Kỹ thuật công nghệ frontend mượt mà và trải nghiệm tương tác
 
-对于后端开发者，这更是一次补齐“全栈视野”的绝佳机会：
+Đối với các nhà phát triển backend, đây còn là cơ hội tuyệt vời để bổ sung "tầm nhìn full-stack":
 
-- **SSE (Server-Sent Events) 流式渲染**：掌握像 ChatGPT 一样逐字输出回答的底层技术，理解其在单向推送场景下相比 WebSocket 的架构优势。
+- **Render streaming SSE (Server-Sent Events)**: Nắm vững công nghệ cơ bản cho đầu ra từng chữ như ChatGPT, hiểu ưu thế kiến trúc so với WebSocket trong tình huống push một chiều.
 
-- **响应式 UI 与动效设计**：利用 Tailwind CSS 极简构建美观界面，结合 Framer Motion 实现高级交互动效。
+- **UI responsive và thiết kế hiệu ứng**: Xây dựng giao diện đẹp mắt tối giản bằng Tailwind CSS, kết hợp Framer Motion thực hiện hiệu ứng tương tác nâng cao.
 
-- **AI 数据可视化**：通过 Recharts 将 AI 分析后的简历评分、多维对比以直观的雷达图形式呈现，让数据“会说话”。
+- **Trực quan hóa dữ liệu AI**: Thông qua Recharts biểu diễn điểm số phân tích CV và so sánh đa chiều sau khi AI phân tích dưới dạng radar chart trực quan, để dữ liệu "biết nói".
 
-## 如何加入学习？
+## Cách tham gia học tập?
 
-很多 AI 项目只停留在调用一个 API。而本项目带你解决的是**真实工程问题**：
+Nhiều dự án AI chỉ dừng lại ở việc gọi một API. Còn dự án này đưa bạn giải quyết **các vấn đề kỹ thuật thực tế**:
 
-- 如何处理大模型响应慢的问题？（**异步处理 + Redis Stream**）
-- 如何让大模型输出格式固定的数据？（**结构化 Prompt + MapStruct**）
-- 如何让大模型基于私有文档回答？（**RAG + pgvector**）
+- Làm thế nào xử lý vấn đề mô hình lớn phản hồi chậm? (**Xử lý bất đồng bộ + Redis Stream**)
+- Làm thế nào để mô hình lớn xuất dữ liệu có định dạng cố định? (**Structured Prompt + MapStruct**)
+- Làm thế nào để mô hình lớn trả lời dựa trên tài liệu riêng tư? (**RAG + pgvector**)
 
-**本项目为 [JavaGuide 知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) 内部专属实战项目，通过语雀文档在线阅读学习，不单独对外开放。**
+**Dự án này là dự án thực chiến độc quyền nội bộ của [JavaGuide Kiến thức sao](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html), đọc học trực tuyến qua tài liệu Yuque, không mở riêng ra ngoài.**
 
-之所以选择在星球内部发布，是为了确保每一位学习者都能获得**深度的技术答疑**和**完整的求职配套服务**。
+Lý do chọn phát hành trong nội bộ sao, là để đảm bảo mỗi người học đều nhận được **hỗ trợ kỹ thuật chuyên sâu** và **dịch vụ hỗ trợ xin việc hoàn chỉnh**.
 
-这只是开始。后续星球还会持续推出更多贴合企业真实业务场景的 **Java 实战项目**，带你始终站在技术前沿（预告一下，下一个项目是**企业级智能客服系统**，会带大家实践更多AI能力）。
+Đây chỉ là bắt đầu. Sau này sao sẽ tiếp tục ra mắt nhiều **dự án thực chiến Java** phù hợp với tình huống nghiệp vụ thực tế của doanh nghiệp hơn, giúp bạn luôn đứng ở đầu công nghệ (hé lộ trước, dự án tiếp theo là **hệ thống dịch vụ khách hàng thông minh cấp doanh nghiệp**, sẽ dẫn mọi người thực hành nhiều khả năng AI hơn).
 
-并且，我的星球还有很多其他服务，比如**一对一提问、简历修改、后端系统面试资料（包含高频系统设计&场景题）、学习打卡**等，其中任何一项服务单独拎出来的价值都已远超星球门票。欢迎详细了解我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)！
+Ngoài ra, sao của tôi còn có nhiều dịch vụ khác, ví dụ **hỏi đáp 1-1, chỉnh sửa CV, tài liệu phỏng vấn hệ thống backend (bao gồm thiết kế hệ thống tần số cao & câu hỏi tình huống), học tập chấm điểm**, v.v., bất kỳ dịch vụ nào trong số đó khi lấy ra riêng lẻ cũng đã vượt xa giá vé sao. Hoan nghênh tìm hiểu chi tiết [Kiến thức sao](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)!
 
-已经坚持维护**六年**，内容持续更新，虽白菜价（**0.4 元/天**）但质量很高，主打一个良心！
+Đã duy trì kiên trì **sáu năm**, nội dung liên tục cập nhật, dù giá rất rẻ (**0.4 tệ/ngày**) nhưng chất lượng rất cao, chủ trương là chân thành!
 
-目前星球正在做活动，两本书的价格，就能让你拥有上万培训班的服务！这里再提供一张 **30 元** 的优惠券（价格马上上调，老用户扫码续费半价）：
+Hiện sao đang khuyến mãi, giá hai cuốn sách, bạn có thể sở hữu dịch vụ của trung tâm đào tạo hàng chục nghìn! Đây cung cấp thêm một phiếu giảm giá **30 tệ** (giá sắp tăng, người dùng cũ quét mã gia hạn giảm nửa giá):
 
-![知识星球 30 元优惠券](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
+![Phiếu giảm giá Kiến thức sao 30 tệ](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)
 
-用心做内容，坚持本心，不割韭菜，其他交给时间！共勉！
+Tận tâm làm nội dung, giữ vững bản tâm, không trục lợi, còn lại giao cho thời gian! Cùng cố gắng!

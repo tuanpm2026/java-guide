@@ -1,33 +1,33 @@
 ---
-title: Java 开源项目精选
-description: GitHub和Gitee上优质Java开源项目精选汇总，涵盖实战项目、工具库、系统设计等多种类型的开源资源推荐。
-category: 开源项目
+title: Tuyển chọn Java open source projects
+description: Tổng hợp tuyển chọn Java open source projects chất lượng trên GitHub và Gitee, bao gồm practical projects, tool libraries, system design và nhiều loại tài nguyên open source khác.
+category: Open Source Projects
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-精选 GitHub 和 Gitee 上优质的 Java 开源项目。
+Tuyển chọn Java open source projects chất lượng trên GitHub và Gitee.
 
-灵感来源于[awesome-java](https://github.com/akullpp/awesome-java) 这个项目，可以看作是这个项目的中文本土版本，项目类型更全面且加入了更多中文开源项目。
+Lấy cảm hứng từ project [awesome-java](https://github.com/akullpp/awesome-java), có thể coi là phiên bản tiếng Trung bản địa của project đó, loại project đầy đủ hơn và bổ sung nhiều open source project tiếng Trung hơn.
 
-欢迎大家在项目 [issues 区](https://github.com/CodingDocs/awesome-java/issues)推荐自己认可的 Java 开源项目，让我们共同维护一个优质的 Java 开源项目精选集！
+Hoan nghênh mọi người giới thiệu Java open source project mà bạn công nhận trong [issues area](https://github.com/CodingDocs/awesome-java/issues), cùng nhau duy trì một bộ sưu tập Java open source project chất lượng!
 
-- GitHub 地址：[https://github.com/CodingDocs/awesome-java](https://github.com/CodingDocs/awesome-java)
-- Gitee 地址：[https://gitee.com/SnailClimb/awesome-java](https://gitee.com/SnailClimb/awesome-java)
+- GitHub: [https://github.com/CodingDocs/awesome-java](https://github.com/CodingDocs/awesome-java)
+- Gitee: [https://gitee.com/SnailClimb/awesome-java](https://gitee.com/SnailClimb/awesome-java)
 
-内容概览：
+Tổng quan nội dung:
 
-- [Java AI 相关优质开源项目](./machine-learning.md)：Java AI 开发框架和实战项目推荐。
-- [Java 优质开源技术教程](./tutorial.md)：优质面试资料/技术教程/学习路线整理，适合面试准备、系统学习与查缺补漏。
-- [Java 优质开源实战项目](./practical-project.md)：简历友好、可落地的实战项目精选（后台管理、电商、权限、网盘、社区等）。
-- [Java 优质开源系统设计项目](./system-design.md)：涵盖 Web 框架、微服务、消息队列、搜索引擎、数据库等基础架构组件精选。
-- [Java 优质开源工具类库](./tool-library.md)：涵盖 Lombok、Guava、Hutool、Arthas 等提升开发效率和代码质量的常用工具。
-- [程序员必备开发工具](./tools.md)：提升效率的开发工具与在线工具合集（IDE、调试、文档、效率等）。
+- [Java AI open source projects chất lượng](./machine-learning.md): Gợi ý về Java AI development framework và practical projects.
+- [Java open source technical tutorials chất lượng](./tutorial.md): Tổng hợp tài liệu phỏng vấn/technical tutorial/learning path chất lượng, phù hợp để chuẩn bị phỏng vấn, học có hệ thống và bù đắp điểm thiếu.
+- [Java open source practical projects chất lượng](./practical-project.md): Tuyển chọn practical projects resume-friendly và khả thi để thực hiện (admin systems, e-commerce, permissions, cloud storage, communities v.v.).
+- [Java open source system design projects chất lượng](./system-design.md): Tuyển chọn các infrastructure component như web framework, microservices, message queue, search engine, database.
+- [Java open source tool libraries chất lượng](./tool-library.md): Bao gồm các công cụ phổ biến như Lombok, Guava, Hutool, Arthas để nâng cao hiệu quả phát triển và chất lượng code.
+- [Developer tools bắt buộc cho programmer](./tools.md): Bộ sưu tập dev tools và online tools để nâng cao hiệu quả (IDE, debugging, docs, productivity v.v.).
 
-如果你想要快速挑项目做练手/写简历，优先看「[Java 优质开源实战项目](./practical-project.md)」；如果你在准备后端面试，优先看「[Java 优质开源技术教程](./tutorial.md)」。
+Nếu bạn muốn nhanh chóng tìm project để luyện tay/viết resume, hãy xem ưu tiên「[Java open source practical projects chất lượng](./practical-project.md)」; nếu bạn đang chuẩn bị phỏng vấn backend, hãy xem ưu tiên「[Java open source technical tutorials chất lượng](./tutorial.md)」.
 
-## 公众号
+## Official Account
 
-最新更新会第一时间同步在公众号，推荐关注！另外，公众号上有很多干货不会同步在线阅读网站。
+Cập nhật mới nhất sẽ được đồng bộ đầu tiên trên Official Account, khuyến nghị follow! Ngoài ra, Official Account có nhiều nội dung chất lượng sẽ không được đồng bộ lên website đọc online.
 
-<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide 公众号"  style="zoom: 43%; display: block; margin: 0 auto;" />
+<img src="https://oss.javaguide.cn/github/javaguide/gongzhonghao-javaguide.png" alt="JavaGuide Official Account"  style="zoom: 43%; display: block; margin: 0 auto;" />

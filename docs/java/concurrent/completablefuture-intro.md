@@ -1,50 +1,50 @@
 ---
-title: CompletableFuture 详解
-description: CompletableFuture异步编程详解：全面讲解CompletableFuture核心API、异步任务编排、thenCompose/thenCombine组合、allOf/anyOf聚合、线程池配置与最佳实践。
+title: Giới thiệu chi tiết về CompletableFuture
+description: Giải thích chi tiết về lập trình bất đồng bộ với CompletableFuture：Trình bày đầy đủ các API cốt lõi của CompletableFuture, sắp xếp tác vụ bất đồng bộ, kết hợp thenCompose/thenCombine, tổng hợp allOf/anyOf, cấu hình thread pool và các thực hành tốt nhất.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
       content: CompletableFuture,异步编程,异步编排,Future,thenCompose,thenCombine,allOf,并行任务
 ---
 
-实际项目中，一个接口可能需要同时获取多种不同的数据，然后再汇总返回，这种场景还是挺常见的。举个例子：用户请求获取订单信息，可能需要同时获取用户信息、商品详情、物流信息、商品推荐等数据。
+Trong các dự án thực tế, một API có thể cần lấy nhiều loại dữ liệu khác nhau cùng lúc rồi tổng hợp trả về, tình huống này khá phổ biến. Ví dụ: khi người dùng yêu cầu lấy thông tin đơn hàng, có thể cần đồng thời lấy thông tin người dùng, chi tiết sản phẩm, thông tin vận chuyển, gợi ý sản phẩm, v.v.
 
-如果是串行（按顺序依次执行每个任务）执行的话，接口的响应速度会非常慢。考虑到这些任务之间有大部分都是 **无前后顺序关联** 的，可以 **并行执行** ，就比如说调用获取商品详情的时候，可以同时调用获取物流信息。通过并行执行多个任务的方式，接口的响应速度会得到大幅优化。
+Nếu thực hiện tuần tự (từng tác vụ theo thứ tự), tốc độ phản hồi của API sẽ rất chậm. Xét đến việc phần lớn các tác vụ này **không có mối quan hệ thứ tự trước sau**, chúng có thể được **thực hiện song song**, chẳng hạn khi gọi lấy chi tiết sản phẩm thì có thể đồng thời gọi lấy thông tin vận chuyển. Bằng cách thực hiện nhiều tác vụ song song, tốc độ phản hồi của API sẽ được cải thiện đáng kể.
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/serial-to-parallel.png)
 
-对于存在前后调用顺序关系的任务，可以进行任务编排。
+Đối với các tác vụ có mối quan hệ thứ tự gọi trước sau, có thể thực hiện sắp xếp tác vụ.
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/serial-to-parallel2.png)
 
-1. 获取用户信息之后，才能调用商品详情和物流信息接口。
-2. 成功获取商品详情和物流信息之后，才能调用商品推荐接口。
+1. Chỉ sau khi lấy được thông tin người dùng mới có thể gọi API chi tiết sản phẩm và thông tin vận chuyển.
+2. Chỉ sau khi lấy thành công chi tiết sản phẩm và thông tin vận chuyển mới có thể gọi API gợi ý sản phẩm.
 
-可能会用到多线程异步任务编排的场景（这里只是举例，数据不一定是一次返回，可能会对接口进行拆分）：
+Các tình huống có thể cần sắp xếp tác vụ bất đồng bộ đa luồng (đây chỉ là ví dụ, dữ liệu không nhất thiết phải trả về một lần, có thể chia API):
 
-1. 首页：例如技术社区的首页可能需要同时获取文章推荐列表、广告栏、文章排行榜、热门话题等信息。
-2. 详情页：例如技术社区的文章详情页可能需要同时获取作者信息、文章详情、文章评论等信息。
-3. 统计模块：例如技术社区的后台统计模块可能需要同时获取粉丝数汇总、文章数据（阅读量、评论量、收藏量）汇总等信息。
+1. Trang chủ: Ví dụ trang chủ của cộng đồng kỹ thuật có thể cần đồng thời lấy danh sách bài viết gợi ý, thanh quảng cáo, bảng xếp hạng bài viết, chủ đề hot, v.v.
+2. Trang chi tiết: Ví dụ trang chi tiết bài viết của cộng đồng kỹ thuật có thể cần đồng thời lấy thông tin tác giả, nội dung bài viết, bình luận bài viết, v.v.
+3. Module thống kê: Ví dụ module thống kê backend của cộng đồng kỹ thuật có thể cần đồng thời lấy tổng số người theo dõi, dữ liệu bài viết (lượt xem, bình luận, lưu) tổng hợp, v.v.
 
-对于 Java 程序来说，Java 8 才被引入的 `CompletableFuture` 可以帮助我们来做多个任务的编排，功能非常强大。
+Đối với các chương trình Java, `CompletableFuture` được giới thiệu trong Java 8 có thể giúp chúng ta sắp xếp nhiều tác vụ, tính năng rất mạnh mẽ.
 
-这篇文章是 `CompletableFuture` 的简单入门，带大家看看 `CompletableFuture` 常用的 API。
+Bài viết này là phần nhập môn đơn giản về `CompletableFuture`, hướng dẫn mọi người các API phổ biến của `CompletableFuture`.
 
-## Future 介绍
+## Giới thiệu về Future
 
-`Future` 类是异步思想的典型运用，主要用在一些需要执行耗时任务的场景，避免程序一直原地等待耗时任务执行完成，执行效率太低。具体来说是这样的：当我们执行某一耗时的任务时，可以将这个耗时任务交给一个子线程去异步执行，同时我们可以干点其他事情，不用傻傻等待耗时任务执行完成。等我们的事情干完后，我们再通过 `Future` 类获取到耗时任务的执行结果。这样一来，程序的执行效率就明显提高了。
+Lớp `Future` là ứng dụng điển hình của tư tưởng bất đồng bộ, chủ yếu được dùng trong các tình huống cần thực hiện các tác vụ tốn thời gian, để tránh chương trình phải chờ đợi tại chỗ cho đến khi tác vụ tốn thời gian hoàn thành, hiệu quả thực thi quá thấp. Cụ thể là: khi chúng ta thực hiện một tác vụ tốn thời gian, chúng ta có thể giao tác vụ này cho một luồng con thực hiện bất đồng bộ, trong khi đó chúng ta có thể làm việc khác, không cần chờ đợi cho đến khi tác vụ hoàn thành. Khi chúng ta hoàn thành việc của mình, chúng ta có thể lấy kết quả thực thi của tác vụ tốn thời gian qua lớp `Future`. Như vậy, hiệu quả thực thi của chương trình được cải thiện rõ rệt.
 
-这其实就是多线程中经典的 **Future 模式**，你可以将其看作是一种设计模式，核心思想是异步调用，主要用在多线程领域，并非 Java 语言独有。
+Đây thực chất là **mẫu Future** cổ điển trong lập trình đa luồng, bạn có thể xem nó như một mẫu thiết kế, ý tưởng cốt lõi là gọi bất đồng bộ, chủ yếu dùng trong lĩnh vực đa luồng, không phải đặc trưng riêng của ngôn ngữ Java.
 
-在 Java 中，`Future` 类只是一个泛型接口，位于 `java.util.concurrent` 包下，其中定义了 5 个方法，主要包括下面这 4 个功能：
+Trong Java, lớp `Future` chỉ là một interface generic, nằm trong package `java.util.concurrent`, định nghĩa 5 phương thức, chủ yếu bao gồm 4 chức năng sau:
 
-- 取消任务；
-- 判断任务是否被取消;
-- 判断任务是否已经执行完成;
-- 获取任务执行结果。
+- Hủy tác vụ;
+- Kiểm tra tác vụ có bị hủy không;
+- Kiểm tra tác vụ đã thực hiện xong chưa;
+- Lấy kết quả thực thi tác vụ.
 
 ```java
 // V 代表了Future执行的任务返回值的类型
@@ -66,76 +66,76 @@ public interface Future<V> {
 }
 ```
 
-简单理解就是：我有一个任务，提交给了 `Future` 来处理。任务执行期间我自己可以去做任何想做的事情。并且，在这期间我还可以取消任务以及获取任务的执行状态。一段时间之后，我就可以 `Future` 那里直接取出任务执行结果。
+Hiểu đơn giản là: Tôi có một tác vụ, giao cho `Future` xử lý. Trong thời gian tác vụ thực hiện tôi có thể làm bất cứ điều gì muốn. Và trong thời gian đó tôi còn có thể hủy tác vụ cũng như lấy trạng thái thực thi của tác vụ. Sau một thời gian, tôi có thể lấy kết quả thực thi tác vụ trực tiếp từ `Future`.
 
-## CompletableFuture 介绍
+## Giới thiệu về CompletableFuture
 
-`Future` 在实际使用过程中存在一些局限性，比如不支持异步任务的编排组合、获取计算结果的 `get()` 方法为阻塞调用。
+`Future` trong quá trình sử dụng thực tế có một số hạn chế, chẳng hạn không hỗ trợ sắp xếp kết hợp tác vụ bất đồng bộ, phương thức `get()` để lấy kết quả tính toán là lời gọi chặn.
 
-Java 8 才被引入`CompletableFuture` 类可以解决`Future` 的这些缺陷。`CompletableFuture` 除了提供了更为好用和强大的 `Future` 特性之外，还提供了函数式编程、异步任务编排组合（可以将多个异步任务串联起来，组成一个完整的链式调用）等能力。
+Lớp `CompletableFuture` được giới thiệu trong Java 8 có thể giải quyết những hạn chế này của `Future`. Ngoài cung cấp các tính năng `Future` hữu dụng và mạnh mẽ hơn, `CompletableFuture` còn cung cấp khả năng lập trình hàm, sắp xếp kết hợp tác vụ bất đồng bộ (có thể nối nhiều tác vụ bất đồng bộ thành một chuỗi hoàn chỉnh), v.v.
 
-下面我们来简单看看 `CompletableFuture` 类的定义。
+Hãy cùng xem qua định nghĩa của lớp `CompletableFuture`.
 
 ```java
 public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
 }
 ```
 
-可以看到，`CompletableFuture` 同时实现了 `Future` 和 `CompletionStage` 接口。
+Có thể thấy, `CompletableFuture` đồng thời triển khai cả hai interface `Future` và `CompletionStage`.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/completablefuture-class-diagram.jpg)
 
-`CompletableFuture` 除了提供了更为好用和强大的 `Future` 特性之外，还提供了函数式编程的能力。
+Ngoài cung cấp các tính năng `Future` hữu dụng và mạnh mẽ hơn, `CompletableFuture` còn cung cấp khả năng lập trình hàm.
 
 ![](https://oss.javaguide.cn/javaguide/image-20210902092441434.png)
 
-`Future` 接口有 5 个方法：
+Interface `Future` có 5 phương thức:
 
-- `boolean cancel(boolean mayInterruptIfRunning)`：尝试取消执行任务。
-- `boolean isCancelled()`：判断任务是否被取消。
-- `boolean isDone()`：判断任务是否已经被执行完成。
-- `get()`：等待任务执行完成并获取运算结果。
-- `get(long timeout, TimeUnit unit)`：多了一个超时时间。
+- `boolean cancel(boolean mayInterruptIfRunning)`: Cố gắng hủy thực thi tác vụ.
+- `boolean isCancelled()`: Kiểm tra tác vụ có bị hủy không.
+- `boolean isDone()`: Kiểm tra tác vụ đã thực hiện xong chưa.
+- `get()`: Chờ tác vụ hoàn thành và lấy kết quả tính toán.
+- `get(long timeout, TimeUnit unit)`: Thêm một thời gian timeout.
 
-`CompletionStage` 接口描述了一个异步计算的阶段。很多计算可以分成多个阶段或步骤，此时可以通过它将所有步骤组合起来，形成异步计算的流水线。
+Interface `CompletionStage` mô tả một giai đoạn của tính toán bất đồng bộ. Nhiều tính toán có thể được chia thành nhiều giai đoạn hoặc bước, lúc này có thể dùng nó để tổng hợp tất cả các bước lại, tạo thành pipeline của tính toán bất đồng bộ.
 
-`CompletionStage` 接口中的方法比较多，`CompletableFuture` 的函数式能力就是这个接口赋予的。从这个接口的方法参数你就可以发现其大量使用了 Java8 引入的函数式编程。
+Interface `CompletionStage` có nhiều phương thức, khả năng lập trình hàm của `CompletableFuture` được cung cấp bởi interface này. Nhìn vào tham số các phương thức của interface này bạn sẽ thấy nó sử dụng nhiều lập trình hàm được giới thiệu trong Java 8.
 
 ![](https://oss.javaguide.cn/javaguide/image-20210902093026059.png)
 
-由于方法众多，所以这里不能一一讲解，下文中我会介绍大部分常见方法的使用。
+Do có nhiều phương thức, nên không thể giải thích từng cái một ở đây, phần dưới tôi sẽ giới thiệu cách sử dụng hầu hết các phương thức phổ biến.
 
-## CompletableFuture 常见操作
+## Các thao tác phổ biến với CompletableFuture
 
-### 创建 CompletableFuture
+### Tạo CompletableFuture
 
-常见的创建 `CompletableFuture` 对象的方法如下：
+Các phương thức phổ biến để tạo đối tượng `CompletableFuture` như sau:
 
-1. 通过 new 关键字。
-2. 基于 `CompletableFuture` 自带的静态工厂方法：`runAsync()`、`supplyAsync()` 。
+1. Thông qua từ khóa new.
+2. Dựa trên các phương thức factory static có sẵn của `CompletableFuture`: `runAsync()`, `supplyAsync()`.
 
-#### new 关键字
+#### Từ khóa new
 
-通过 new 关键字创建 `CompletableFuture` 对象这种使用方式可以看作是将 `CompletableFuture` 当做 `Future` 来使用。
+Tạo đối tượng `CompletableFuture` bằng từ khóa new có thể được xem như sử dụng `CompletableFuture` như một `Future`.
 
-我在我的开源项目 [guide-rpc-framework](https://github.com/Snailclimb/guide-rpc-framework) 中就是这种方式创建的 `CompletableFuture` 对象。
+Trong dự án open source của tôi [guide-rpc-framework](https://github.com/Snailclimb/guide-rpc-framework), tôi đã tạo đối tượng `CompletableFuture` theo cách này.
 
-下面咱们来看一个简单的案例。
+Hãy xem một ví dụ đơn giản.
 
-我们通过创建了一个结果值类型为 `RpcResponse<Object>` 的 `CompletableFuture`，你可以把 `resultFuture` 看作是异步运算结果的载体。
+Chúng ta tạo một `CompletableFuture` với kiểu kết quả là `RpcResponse<Object>`, bạn có thể coi `resultFuture` như là nơi chứa kết quả tính toán bất đồng bộ.
 
 ```java
 CompletableFuture<RpcResponse<Object>> resultFuture = new CompletableFuture<>();
 ```
 
-假设在未来的某个时刻，我们得到了最终的结果。这时，我们可以调用 `complete()` 方法为其传入结果，这表示 `resultFuture` 已经被完成了。
+Giả sử ở một thời điểm nào đó trong tương lai, chúng ta nhận được kết quả cuối cùng. Lúc này, chúng ta có thể gọi phương thức `complete()` để truyền kết quả vào, điều này có nghĩa là `resultFuture` đã hoàn thành.
 
 ```java
 // complete() 方法只能调用一次，后续调用将被忽略。
 resultFuture.complete(rpcResponse);
 ```
 
-你可以通过 `isDone()` 方法来检查是否已经完成。
+Bạn có thể dùng phương thức `isDone()` để kiểm tra đã hoàn thành chưa.
 
 ```java
 public boolean isDone() {
@@ -143,20 +143,20 @@ public boolean isDone() {
 }
 ```
 
-获取异步计算的结果也非常简单，直接调用 `get()` 方法即可。调用 `get()` 方法的线程会阻塞直到 `CompletableFuture` 完成运算。
+Lấy kết quả tính toán bất đồng bộ cũng rất đơn giản, chỉ cần gọi phương thức `get()`. Luồng gọi `get()` sẽ bị chặn cho đến khi `CompletableFuture` hoàn thành tính toán.
 
 ```java
 rpcResponse = completableFuture.get();
 ```
 
-如果你已经知道计算的结果的话，可以使用静态方法 `completedFuture()` 来创建 `CompletableFuture` 。
+Nếu bạn đã biết kết quả tính toán, có thể dùng phương thức static `completedFuture()` để tạo `CompletableFuture`.
 
 ```java
 CompletableFuture<String> future = CompletableFuture.completedFuture("hello!");
 assertEquals("hello!", future.get());
 ```
 
-`completedFuture()` 方法底层调用的是带参数的 new 方法，只不过，这个方法不对外暴露。
+Phương thức `completedFuture()` bên dưới gọi phương thức new có tham số, chỉ là phương thức này không được expose ra ngoài.
 
 ```java
 public static <U> CompletableFuture<U> completedFuture(U value) {
@@ -164,9 +164,9 @@ public static <U> CompletableFuture<U> completedFuture(U value) {
 }
 ```
 
-#### 静态工厂方法
+#### Phương thức factory static
 
-这两个方法可以帮助我们封装计算逻辑。
+Hai phương thức này có thể giúp chúng ta đóng gói logic tính toán.
 
 ```java
 static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier);
@@ -177,7 +177,7 @@ static CompletableFuture<Void> runAsync(Runnable runnable);
 static CompletableFuture<Void> runAsync(Runnable runnable, Executor executor);
 ```
 
-`runAsync()` 方法接受的参数是 `Runnable` ，这是一个函数式接口，不允许返回值。当你需要异步操作且不关心返回结果的时候可以使用 `runAsync()` 方法。
+Phương thức `runAsync()` nhận tham số là `Runnable`, đây là một interface hàm, không cho phép trả về giá trị. Khi bạn cần thao tác bất đồng bộ và không quan tâm đến kết quả trả về, có thể dùng phương thức `runAsync()`.
 
 ```java
 @FunctionalInterface
@@ -186,7 +186,7 @@ public interface Runnable {
 }
 ```
 
-`supplyAsync()` 方法接受的参数是 `Supplier<U>` ，这也是一个函数式接口，`U` 是返回结果值的类型。
+Phương thức `supplyAsync()` nhận tham số là `Supplier<U>`, đây cũng là một interface hàm, `U` là kiểu của kết quả trả về.
 
 ```java
 @FunctionalInterface
@@ -201,7 +201,7 @@ public interface Supplier<T> {
 }
 ```
 
-当你需要异步操作且关心返回结果的时候,可以使用 `supplyAsync()` 方法。
+Khi bạn cần thao tác bất đồng bộ và quan tâm đến kết quả trả về, có thể dùng phương thức `supplyAsync()`.
 
 ```java
 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> System.out.println("hello!"));
@@ -210,16 +210,16 @@ CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "hello!"
 assertEquals("hello!", future2.get());
 ```
 
-### 处理异步结算的结果
+### Xử lý kết quả tính toán bất đồng bộ
 
-当我们获取到异步计算的结果之后，还可以对其进行进一步的处理，比较常用的方法有下面几个：
+Sau khi nhận được kết quả tính toán bất đồng bộ, chúng ta còn có thể xử lý thêm, các phương thức thường dùng bao gồm:
 
 - `thenApply()`
 - `thenAccept()`
 - `thenRun()`
 - `whenComplete()`
 
-`thenApply()` 方法接受一个 `Function` 实例，用它来处理结果。
+Phương thức `thenApply()` nhận một instance `Function` để xử lý kết quả.
 
 ```java
 // 沿用上一个任务的线程池
@@ -240,7 +240,7 @@ public <U> CompletableFuture<U> thenApplyAsync(
 }
 ```
 
-`thenApply()` 方法使用示例如下：
+Ví dụ sử dụng phương thức `thenApply()`:
 
 ```java
 CompletableFuture<String> future = CompletableFuture.completedFuture("hello!")
@@ -251,7 +251,7 @@ future.thenApply(s -> s + "nice!");
 assertEquals("hello!world!", future.get());
 ```
 
-你还可以进行 **流式调用**：
+Bạn còn có thể thực hiện **gọi chuỗi**:
 
 ```java
 CompletableFuture<String> future = CompletableFuture.completedFuture("hello!")
@@ -259,9 +259,9 @@ CompletableFuture<String> future = CompletableFuture.completedFuture("hello!")
 assertEquals("hello!world!nice!", future.get());
 ```
 
-**如果你不需要从回调函数中获取返回结果，可以使用 `thenAccept()` 或者 `thenRun()`。这两个方法的区别在于 `thenRun()` 不能访问异步计算的结果。**
+**Nếu bạn không cần lấy kết quả trả về từ callback, có thể dùng `thenAccept()` hoặc `thenRun()`. Điểm khác biệt giữa hai phương thức này là `thenRun()` không thể truy cập kết quả tính toán bất đồng bộ.**
 
-`thenAccept()` 方法的参数是 `Consumer<? super T>` 。
+Tham số của phương thức `thenAccept()` là `Consumer<? super T>`.
 
 ```java
 public CompletableFuture<Void> thenAccept(Consumer<? super T> action) {
@@ -278,7 +278,7 @@ public CompletableFuture<Void> thenAcceptAsync(Consumer<? super T> action,
 }
 ```
 
-顾名思义，`Consumer` 属于消费型接口，它可以接收 1 个输入对象然后进行“消费”。
+Như tên gọi, `Consumer` là interface tiêu thụ (consume), nó có thể nhận 1 đối tượng đầu vào và thực hiện "tiêu thụ".
 
 ```java
 @FunctionalInterface
@@ -293,7 +293,7 @@ public interface Consumer<T> {
 }
 ```
 
-`thenRun()` 的方法是的参数是 `Runnable` 。
+Tham số của phương thức `thenRun()` là `Runnable`.
 
 ```java
 public CompletableFuture<Void> thenRun(Runnable action) {
@@ -310,7 +310,7 @@ public CompletableFuture<Void> thenRunAsync(Runnable action,
 }
 ```
 
-`thenAccept()` 和 `thenRun()` 使用示例如下：
+Ví dụ sử dụng `thenAccept()` và `thenRun()`:
 
 ```java
 CompletableFuture.completedFuture("hello!")
@@ -320,7 +320,7 @@ CompletableFuture.completedFuture("hello!")
         .thenApply(s -> s + "world!").thenApply(s -> s + "nice!").thenRun(() -> System.out.println("hello!"));//hello!
 ```
 
-`whenComplete()` 的方法的参数是 `BiConsumer<? super T, ? super Throwable>` 。
+Tham số của phương thức `whenComplete()` là `BiConsumer<? super T, ? super Throwable>`.
 
 ```java
 public CompletableFuture<T> whenComplete(
@@ -340,7 +340,7 @@ public CompletableFuture<T> whenCompleteAsync(
 }
 ```
 
-相对于 `Consumer` ， `BiConsumer` 可以接收 2 个输入对象然后进行“消费”。
+So với `Consumer`, `BiConsumer` có thể nhận 2 đối tượng đầu vào và thực hiện "tiêu thụ".
 
 ```java
 @FunctionalInterface
@@ -358,7 +358,7 @@ public interface BiConsumer<T, U> {
 }
 ```
 
-`whenComplete()` 使用示例如下：
+Ví dụ sử dụng `whenComplete()`:
 
 ```java
 CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "hello!")
@@ -372,9 +372,9 @@ CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "hello!")
 assertEquals("hello!", future.get());
 ```
 
-### 异常处理
+### Xử lý ngoại lệ
 
-你可以通过 `handle()` 方法来处理任务执行过程中可能出现的抛出异常的情况。
+Bạn có thể dùng phương thức `handle()` để xử lý các ngoại lệ có thể xảy ra trong quá trình thực thi tác vụ.
 
 ```java
 public <U> CompletableFuture<U> handle(
@@ -393,7 +393,7 @@ public <U> CompletableFuture<U> handleAsync(
 }
 ```
 
-示例代码如下：
+Code ví dụ như sau:
 
 ```java
 CompletableFuture<String> future
@@ -410,7 +410,7 @@ CompletableFuture<String> future
 assertEquals("world!", future.get());
 ```
 
-你还可以通过 `exceptionally()` 方法来处理异常情况。
+Bạn còn có thể dùng phương thức `exceptionally()` để xử lý ngoại lệ.
 
 ```java
 CompletableFuture<String> future
@@ -426,7 +426,7 @@ CompletableFuture<String> future
 assertEquals("world!", future.get());
 ```
 
-如果你想让 `CompletableFuture` 的结果就是异常的话，可以使用 `completeExceptionally()` 方法为其赋值。
+Nếu bạn muốn kết quả của `CompletableFuture` là ngoại lệ, có thể dùng phương thức `completeExceptionally()` để gán giá trị cho nó.
 
 ```java
 CompletableFuture<String> completableFuture = new CompletableFuture<>();
@@ -437,9 +437,9 @@ completableFuture.completeExceptionally(
 completableFuture.get(); // ExecutionException
 ```
 
-### 组合 CompletableFuture
+### Kết hợp CompletableFuture
 
-你可以使用 `thenCompose()` 按顺序链接两个 `CompletableFuture` 对象，实现异步的任务链。它的作用是将前一个任务的返回结果作为下一个任务的输入参数，从而形成一个依赖关系。
+Bạn có thể dùng `thenCompose()` để nối hai đối tượng `CompletableFuture` theo thứ tự, thực hiện chuỗi tác vụ bất đồng bộ. Tác dụng của nó là lấy kết quả trả về của tác vụ trước làm tham số đầu vào cho tác vụ tiếp theo, từ đó tạo thành mối quan hệ phụ thuộc.
 
 ```java
 public <U> CompletableFuture<U> thenCompose(
@@ -459,7 +459,7 @@ public <U> CompletableFuture<U> thenComposeAsync(
 }
 ```
 
-`thenCompose()` 方法会使用示例如下：
+Ví dụ sử dụng phương thức `thenCompose()`:
 
 ```java
 CompletableFuture<String> future
@@ -468,9 +468,9 @@ CompletableFuture<String> future
 assertEquals("hello!world!", future.get());
 ```
 
-在实际开发中，这个方法还是非常有用的。比如说，task1 和 task2 都是异步执行的，但 task1 必须执行完成后才能开始执行 task2（task2 依赖 task1 的执行结果）。
+Trong phát triển thực tế, phương thức này rất hữu ích. Ví dụ, task1 và task2 đều thực hiện bất đồng bộ, nhưng task1 phải hoàn thành trước khi task2 bắt đầu (task2 phụ thuộc vào kết quả của task1).
 
-和 `thenCompose()` 方法类似的还有 `thenCombine()` 方法， 它同样可以组合两个 `CompletableFuture` 对象。
+Tương tự với phương thức `thenCompose()` còn có phương thức `thenCombine()`, nó cũng có thể kết hợp hai đối tượng `CompletableFuture`.
 
 ```java
 CompletableFuture<String> completableFuture
@@ -481,14 +481,14 @@ CompletableFuture<String> completableFuture
 assertEquals("hello!world!nice!", completableFuture.get());
 ```
 
-**那 `thenCompose()` 和 `thenCombine()` 有什么区别呢？**
+**Vậy `thenCompose()` và `thenCombine()` khác nhau ở điểm nào?**
 
-- `thenCompose()` 可以链接两个 `CompletableFuture` 对象，并将前一个任务的返回结果作为下一个任务的参数，它们之间存在着先后顺序。
-- `thenCombine()` 会在两个任务都执行完成后，把两个任务的结果合并。两个任务是并行执行的，它们之间并没有先后依赖顺序。
+- `thenCompose()` có thể nối hai đối tượng `CompletableFuture`, lấy kết quả trả về của tác vụ trước làm tham số của tác vụ tiếp theo, giữa chúng có mối quan hệ thứ tự.
+- `thenCombine()` sẽ tổng hợp kết quả của hai tác vụ sau khi cả hai đều hoàn thành. Hai tác vụ thực hiện song song, giữa chúng không có mối quan hệ phụ thuộc thứ tự.
 
-除了 `thenCompose()` 和 `thenCombine()` 之外， 还有一些其他的组合 `CompletableFuture` 的方法用于实现不同的效果，满足不同的业务需求。
+Ngoài `thenCompose()` và `thenCombine()`, còn có một số phương thức kết hợp `CompletableFuture` khác để thực hiện các hiệu ứng khác nhau, đáp ứng các nhu cầu nghiệp vụ khác nhau.
 
-例如，如果我们想要实现 task1 和 task2 中的任意一个任务执行完后就执行 task3 的话，可以使用 `acceptEither()`。
+Ví dụ, nếu chúng ta muốn thực hiện task3 khi bất kỳ task1 hoặc task2 hoàn thành, có thể dùng `acceptEither()`.
 
 ```java
 public CompletableFuture<Void> acceptEither(
@@ -502,7 +502,7 @@ public CompletableFuture<Void> acceptEitherAsync(
 }
 ```
 
-简单举一个例子：
+Một ví dụ đơn giản:
 
 ```java
 CompletableFuture<String> task = CompletableFuture.supplyAsync(() -> {
@@ -540,7 +540,7 @@ try {
 }
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```plain
 任务1开始执行，当前时间：1695088058520
@@ -551,17 +551,17 @@ try {
 任务2执行完毕，当前时间：1695088059523
 ```
 
-任务组合操作`acceptEitherAsync()`会在异步任务 1 和异步任务 2 中的任意一个完成时触发执行任务 3，但是需要注意，这个触发时机是不确定的。如果任务 1 和任务 2 都还未完成，那么任务 3 就不能被执行。
+Thao tác kết hợp tác vụ `acceptEitherAsync()` sẽ kích hoạt thực thi task3 khi bất kỳ tác vụ bất đồng bộ 1 hoặc 2 hoàn thành, nhưng cần lưu ý thời điểm kích hoạt này là không chắc chắn. Nếu cả task1 và task2 đều chưa hoàn thành thì task3 không thể được thực thi.
 
-### 并行运行多个 CompletableFuture
+### Chạy song song nhiều CompletableFuture
 
-你可以通过 `CompletableFuture` 的 `allOf()`这个静态方法来并行运行多个 `CompletableFuture` 。
+Bạn có thể dùng phương thức static `allOf()` của `CompletableFuture` để chạy song song nhiều `CompletableFuture`.
 
-实际项目中，我们经常需要并行运行多个互不相关的任务，这些任务之间没有依赖关系，可以互相独立地运行。
+Trong các dự án thực tế, chúng ta thường cần chạy song song nhiều tác vụ không liên quan đến nhau, các tác vụ này không có mối quan hệ phụ thuộc, có thể thực hiện độc lập với nhau.
 
-比说我们要读取处理 6 个文件，这 6 个任务都是没有执行顺序依赖的任务，但是我们需要返回给用户的时候将这几个文件的处理的结果进行统计整理。像这种情况我们就可以使用并行运行多个 `CompletableFuture` 来处理。
+Ví dụ chúng ta cần đọc và xử lý 6 file, 6 tác vụ này không có thứ tự phụ thuộc khi thực hiện, nhưng chúng ta cần thống kê và tổng hợp kết quả xử lý của các file này khi trả về cho người dùng. Trong trường hợp như thế này chúng ta có thể dùng chạy song song nhiều `CompletableFuture` để xử lý.
 
-示例代码如下：
+Code ví dụ như sau:
 
 ```java
 CompletableFuture<Void> task1 =
@@ -584,9 +584,9 @@ CompletableFuture<Void> task6 =
 System.out.println("all done. ");
 ```
 
-经常和 `allOf()` 方法拿来对比的是 `anyOf()` 方法。
+Phương thức thường được đem so sánh với `allOf()` là phương thức `anyOf()`.
 
-**`allOf()` 方法会等到所有的 `CompletableFuture` 都运行完成之后再返回**
+**Phương thức `allOf()` sẽ chờ đến khi tất cả `CompletableFuture` đều chạy xong mới trả về**
 
 ```java
 Random rand = new Random();
@@ -612,7 +612,7 @@ CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
 });
 ```
 
-调用 `join()` 可以让程序等`future1` 和 `future2` 都运行完了之后再继续执行。
+Gọi `join()` để chương trình chờ `future1` và `future2` đều chạy xong mới tiếp tục thực hiện.
 
 ```java
 CompletableFuture<Void> completableFuture = CompletableFuture.allOf(future1, future2);
@@ -621,7 +621,7 @@ assertTrue(completableFuture.isDone());
 System.out.println("all futures done...");
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```plain
 future1 done...
@@ -629,42 +629,42 @@ future2 done...
 all futures done...
 ```
 
-**`anyOf()` 方法不会等待所有的 `CompletableFuture` 都运行完成之后再返回，只要有一个执行完成即可！**
+**Phương thức `anyOf()` không chờ tất cả `CompletableFuture` đều chạy xong mới trả về, chỉ cần một cái hoàn thành là được!**
 
 ```java
 CompletableFuture<Object> f = CompletableFuture.anyOf(future1, future2);
 System.out.println(f.get());
 ```
 
-输出结果可能是：
+Kết quả đầu ra có thể là:
 
 ```plain
 future2 done...
 efg
 ```
 
-也可能是：
+Hoặc có thể là:
 
 ```plain
 future1 done...
 abc
 ```
 
-## CompletableFuture 使用建议
+## Khuyến nghị sử dụng CompletableFuture
 
-### 使用自定义线程池
+### Sử dụng thread pool tùy chỉnh
 
-我们上面的代码示例中，为了方便，都没有选择自定义线程池。实际项目中，这是不可取的。
+Trong các ví dụ code ở trên, để tiện lợi, chúng ta không chọn thread pool tùy chỉnh. Trong dự án thực tế, điều này là không thể chấp nhận.
 
-`CompletableFuture` 默认使用全局共享的 `ForkJoinPool.commonPool()` 作为执行器，所有未指定执行器的异步任务都会使用该线程池。这意味着应用程序、多个库或框架（如 Spring、第三方库）若都依赖 `CompletableFuture`，默认情况下它们都会共享同一个线程池。
+`CompletableFuture` mặc định sử dụng `ForkJoinPool.commonPool()` được chia sẻ toàn cục làm executor, tất cả các tác vụ bất đồng bộ không chỉ định executor đều sử dụng thread pool này. Điều này có nghĩa là nếu ứng dụng, nhiều thư viện hoặc framework (như Spring, thư viện bên thứ ba) đều phụ thuộc vào `CompletableFuture`, theo mặc định chúng đều chia sẻ cùng một thread pool.
 
-虽然 `ForkJoinPool` 效率很高，但当同时提交大量任务时，可能会导致资源竞争和线程饥饿，进而影响系统性能。
+Mặc dù `ForkJoinPool` rất hiệu quả, nhưng khi đồng thời gửi nhiều tác vụ, có thể dẫn đến tranh giành tài nguyên và thread starvation, ảnh hưởng đến hiệu năng hệ thống.
 
-为避免这些问题，建议为 `CompletableFuture` 提供自定义线程池，带来以下优势：
+Để tránh những vấn đề này, khuyến nghị cung cấp thread pool tùy chỉnh cho `CompletableFuture`, mang lại những lợi ích sau:
 
-- **隔离性**：为不同任务分配独立的线程池，避免全局线程池资源争夺。
-- **资源控制**：根据任务特性调整线程池大小和队列类型，优化性能表现。
-- **异常处理**：通过自定义 `ThreadFactory` 更好地处理线程中的异常情况。
+- **Cô lập**: Phân bổ thread pool độc lập cho các tác vụ khác nhau, tránh tranh giành tài nguyên thread pool toàn cục.
+- **Kiểm soát tài nguyên**: Điều chỉnh kích thước thread pool và kiểu hàng đợi theo đặc điểm tác vụ, tối ưu hóa hiệu năng.
+- **Xử lý ngoại lệ**: Xử lý tốt hơn các ngoại lệ trong luồng thông qua `ThreadFactory` tùy chỉnh.
 
 ```java
 private ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10,
@@ -676,9 +676,9 @@ CompletableFuture.runAsync(() -> {
 }, executor);
 ```
 
-### 尽量避免使用 get()
+### Cố gắng tránh dùng get()
 
-`CompletableFuture`的`get()`方法是阻塞的，尽量避免使用。如果必须要使用的话，需要添加超时时间，否则可能会导致主线程一直等待，无法执行其他任务。
+Phương thức `get()` của `CompletableFuture` là chặn, nên cố gắng tránh sử dụng. Nếu bắt buộc phải dùng, cần thêm thời gian timeout, nếu không có thể dẫn đến luồng chính chờ mãi, không thể thực hiện các tác vụ khác.
 
 ```java
     CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
@@ -701,35 +701,35 @@ CompletableFuture.runAsync(() -> {
 }
 ```
 
-上面这段代码在调用 `get()` 时抛出了 `TimeoutException` 异常。这样我们就可以在异常处理中进行相应的操作，比如取消任务、重试任务、记录日志等。
+Đoạn code trên khi gọi `get()` đã ném ra ngoại lệ `TimeoutException`. Như vậy chúng ta có thể thực hiện các thao tác tương ứng trong xử lý ngoại lệ, chẳng hạn hủy tác vụ, thử lại tác vụ, ghi log, v.v.
 
-### 正确进行异常处理
+### Xử lý ngoại lệ đúng cách
 
-使用 `CompletableFuture`的时候一定要以正确的方式进行异常处理，避免异常丢失或者出现不可控问题。
+Khi sử dụng `CompletableFuture` nhất định phải xử lý ngoại lệ đúng cách, tránh mất ngoại lệ hoặc xuất hiện các vấn đề không kiểm soát được.
 
-下面是一些建议：
+Dưới đây là một số khuyến nghị:
 
-- 使用 `whenComplete` 方法可以在任务完成时触发回调函数，并正确地处理异常，而不是让异常被吞噬或丢失。
-- 使用 `exceptionally` 方法可以处理异常并重新抛出，以便异常能够传播到后续阶段，而不是让异常被忽略或终止。
-- 使用 `handle` 方法可以处理正常的返回结果和异常，并返回一个新的结果，而不是让异常影响正常的业务逻辑。
-- 使用 `CompletableFuture.allOf` 方法可以组合多个 `CompletableFuture`，并统一处理所有任务的异常，而不是让异常处理过于冗长或重复。
+- Dùng phương thức `whenComplete` có thể kích hoạt callback khi tác vụ hoàn thành và xử lý ngoại lệ đúng cách, thay vì để ngoại lệ bị nuốt mất hoặc mất đi.
+- Dùng phương thức `exceptionally` có thể xử lý ngoại lệ và ném lại, để ngoại lệ có thể lan truyền đến các giai đoạn tiếp theo, thay vì để ngoại lệ bị bỏ qua hoặc kết thúc.
+- Dùng phương thức `handle` có thể xử lý kết quả trả về bình thường và ngoại lệ, và trả về kết quả mới, thay vì để ngoại lệ ảnh hưởng đến logic nghiệp vụ bình thường.
+- Dùng phương thức `CompletableFuture.allOf` có thể kết hợp nhiều `CompletableFuture` và xử lý thống nhất ngoại lệ của tất cả tác vụ, thay vì để xử lý ngoại lệ quá dài dòng hoặc lặp lại.
 - ……
 
-### 合理组合多个异步任务
+### Kết hợp nhiều tác vụ bất đồng bộ hợp lý
 
-正确使用 `thenCompose()` 、 `thenCombine()` 、`acceptEither()`、`allOf()`、`anyOf()`等方法来组合多个异步任务，以满足实际业务的需求，提高程序执行效率。
+Sử dụng đúng cách các phương thức `thenCompose()`, `thenCombine()`, `acceptEither()`, `allOf()`, `anyOf()`, v.v. để kết hợp nhiều tác vụ bất đồng bộ, đáp ứng nhu cầu nghiệp vụ thực tế, nâng cao hiệu quả thực thi của chương trình.
 
-实际使用中，我们还可以利用或者参考现成的异步任务编排框架，比如京东的 [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) 。
+Trong thực tế sử dụng, chúng ta còn có thể tận dụng hoặc tham khảo các framework sắp xếp tác vụ bất đồng bộ có sẵn, chẳng hạn [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) của JD.
 
 ![asyncTool README 文档](https://oss.javaguide.cn/github/javaguide/java/concurrent/asyncTool-readme.png)
 
-## 后记
+## Lời kết
 
-这篇文章只是简单介绍了 `CompletableFuture` 的核心概念和比较常用的一些 API 。如果想要深入学习的话，还可以多找一些书籍和博客看，比如下面几篇文章就挺不错：
+Bài viết này chỉ giới thiệu đơn giản các khái niệm cốt lõi và một số API phổ biến của `CompletableFuture`. Nếu muốn tìm hiểu sâu hơn, có thể tìm thêm sách và blog, chẳng hạn một số bài viết sau khá tốt:
 
-- [CompletableFuture 原理与实践-外卖商家端 API 的异步化 - 美团技术团队](https://tech.meituan.com/2022/05/12/principles-and-practices-of-completablefuture.html)：这篇文章详细介绍了 `CompletableFuture` 在实际项目中的运用。参考这篇文章，可以对项目中类似的场景进行优化，也算是一个小亮点了。这种性能优化方式比较简单且效果还不错！
-- [读 RocketMQ 源码，学习并发编程三大神器 - 勇哥 java 实战分享](https://mp.weixin.qq.com/s/32Ak-WFLynQfpn0Cg0N-0A)：这篇文章介绍了 RocketMQ 对`CompletableFuture`的应用。具体来说，从 RocketMQ 4.7 开始，RocketMQ 引入了 `CompletableFuture`来实现异步消息处理 。
+- [CompletableFuture 原理与实践-外卖商家端 API 的异步化 - 美团技术团队](https://tech.meituan.com/2022/05/12/principles-and-practices-of-completablefuture.html): Bài viết này giới thiệu chi tiết về ứng dụng của `CompletableFuture` trong các dự án thực tế. Tham khảo bài viết này có thể tối ưu hóa các tình huống tương tự trong dự án, cũng là một điểm sáng nhỏ. Cách tối ưu hiệu năng này khá đơn giản và hiệu quả tốt!
+- [读 RocketMQ 源码，学习并发编程三大神器 - 勇哥 java 实战分享](https://mp.weixin.qq.com/s/32Ak-WFLynQfpn0Cg0N-0A): Bài viết này giới thiệu ứng dụng của `CompletableFuture` trong RocketMQ. Cụ thể, từ RocketMQ 4.7, RocketMQ đã giới thiệu `CompletableFuture` để thực hiện xử lý tin nhắn bất đồng bộ.
 
-另外，建议 G 友们可以看看京东的 [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) 这个并发框架，里面大量使用到了 `CompletableFuture` 。
+Ngoài ra, khuyến nghị mọi người có thể xem framework concurrent [asyncTool](https://gitee.com/jd-platform-opensource/asyncTool) của JD, trong đó có nhiều ứng dụng `CompletableFuture`.
 
 <!-- @include: @article-footer.snippet.md -->

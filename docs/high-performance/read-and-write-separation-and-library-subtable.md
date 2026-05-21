@@ -1,308 +1,306 @@
 ---
-title: 读写分离和分库分表详解
-description: 本文深入讲解数据库读写分离与分库分表的核心原理，涵盖主从复制机制、读写分离实现方案（代理/组件）、垂直分库分表与水平分库分表的区别，以及分库分表后的分布式事务、分布式ID、跨库JOIN等常见问题的解决方案。
-category: 高性能
+title: Giải thích chi tiết Read-Write Separation và Database Sharding
+description: Bài viết giải thích sâu về nguyên lý cốt lõi của database read-write separation và sharding, bao gồm cơ chế master-slave replication, phương án triển khai read-write separation (proxy/component), sự khác biệt giữa vertical và horizontal sharding, cùng các giải pháp cho vấn đề distributed transaction, distributed ID, cross-database JOIN sau khi sharding.
+category: High Performance
 head:
   - - meta
     - name: keywords
-      content: 读写分离,分库分表,主从复制,水平分表,垂直分库,ShardingSphere,MyCat,分布式ID,跨库查询
+      content: read-write separation,database sharding,master-slave replication,horizontal sharding,vertical database split,ShardingSphere,MyCat,distributed ID,cross-database query
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-## 读写分离
+## Read-Write Separation
 
-### 什么是读写分离？
+### Read-Write Separation là gì?
 
-顾名思义，根据读写分离的名字，我们就可以知道：**读写分离主要是为了将对数据库的读写操作分散到不同的数据库节点上。** 这样的话，就能够小幅提升写性能，大幅提升读性能。
+Như tên gọi, chúng ta có thể biết: **Read-write separation chủ yếu là để phân tán các thao tác đọc/ghi trên database ra các database node khác nhau.** Như vậy, có thể cải thiện một chút write performance và cải thiện đáng kể read performance.
 
-我简单画了一张图来帮助不太清楚读写分离的小伙伴理解。
+Tôi vẽ một sơ đồ đơn giản để giúp những bạn chưa hiểu rõ về read-write separation.
 
-![读写分离示意图](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation.png)
+![Read-write separation diagram](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation.png)
 
-一般情况下，我们都会选择一主多从，也就是一台主数据库负责写，其他的从数据库负责读。主库和从库之间会进行数据同步，以保证从库中数据的准确性。这样的架构实现起来比较简单，并且也符合系统的写少读多的特点。
+Thông thường, chúng ta sẽ chọn one master multi slave — một master database chịu trách nhiệm ghi, các slave database còn lại chịu trách nhiệm đọc. Giữa master và slave sẽ đồng bộ dữ liệu để đảm bảo tính chính xác của dữ liệu trong slave. Architecture này triển khai tương đối đơn giản và cũng phù hợp với đặc điểm đọc nhiều ghi ít của hệ thống.
 
-### 如何实现读写分离？
+### Làm thế nào để triển khai Read-Write Separation?
 
-不论是使用哪一种读写分离具体的实现方案，想要实现读写分离一般包含如下几步：
+Dù dùng phương án triển khai cụ thể nào, muốn triển khai read-write separation thường bao gồm các bước sau:
 
-1. 部署多台数据库，选择其中的一台作为主数据库，其他的一台或者多台作为从数据库。
-2. 保证主数据库和从数据库之间的数据是实时同步的，这个过程也就是我们常说的**主从复制**。
-3. 系统将写请求交给主数据库处理，读请求交给从数据库处理。
+1. Deploy nhiều database, chọn một trong số đó làm master database, các database còn lại là slave database.
+2. Đảm bảo dữ liệu giữa master database và slave database được đồng bộ real-time, quá trình này là **master-slave replication**.
+3. Hệ thống giao write request cho master database xử lý, read request cho slave database xử lý.
 
-落实到项目本身的话，常用的方式有两种：
+Trong project thực tế, có hai cách phổ biến:
 
-**1. 代理方式**
+**1. Proxy method**
 
-![代理方式实现读写分离](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation-proxy.png)
+![Read-write separation via proxy](https://oss.javaguide.cn/github/javaguide/high-performance/read-and-write-separation-and-library-subtable/read-and-write-separation-proxy.png)
 
-我们可以在应用和数据中间加了一个代理层。应用程序所有的数据请求都交给代理层处理，代理层负责分离读写请求，将它们路由到对应的数据库中。
+Chúng ta có thể thêm một proxy layer giữa application và database. Tất cả request dữ liệu của application đều giao cho proxy layer xử lý, proxy layer chịu trách nhiệm tách read/write request và route chúng đến database tương ứng.
 
-提供类似功能的中间件有 **MySQL Router**（官方， MySQL Proxy 的替代方案）、**Atlas**（基于 MySQL Proxy）、**MaxScale**、**MyCat**。
+Middleware cung cấp chức năng tương tự: **MySQL Router** (official, thay thế cho MySQL Proxy), **Atlas** (dựa trên MySQL Proxy), **MaxScale**, **MyCat**.
 
-关于 MySQL Router 多提一点：在 MySQL 8.2 的版本中，MySQL Router 能自动分辨对数据库读写/操作并把这些操作路由到正确的实例上。这是一项有价值的功能，可以优化数据库性能和可扩展性，而无需在应用程序中进行任何更改。具体介绍可以参考官方博客：[MySQL 8.2 – transparent read/write splitting](https://blogs.oracle.com/mysql/post/mysql-82-transparent-readwrite-splitting)。
+Thêm một điểm về MySQL Router: Trong phiên bản MySQL 8.2, MySQL Router có thể tự động nhận biết các thao tác đọc/ghi trên database và route chúng đến instance đúng. Đây là tính năng có giá trị, có thể tối ưu hiệu năng và scalability của database mà không cần thay đổi gì trong application. Chi tiết có thể tham khảo blog chính thức: [MySQL 8.2 – transparent read/write splitting](https://blogs.oracle.com/mysql/post/mysql-82-transparent-readwrite-splitting).
 
-**2. 组件方式**
+**2. Component method**
 
-在这种方式中，我们可以通过引入第三方组件来实现读写请求的路由。
+Trong cách này, chúng ta có thể triển khai routing read/write request bằng cách import third-party component.
 
-这也是我比较推荐的一种方式。这种方式目前在各种互联网公司中用的最多的，相关的实际的案例也非常多。如果你要采用这种方式的话，推荐使用 **ShardingSphere-JDBC** ，直接引入 jar 包即可使用，非常方便。同时，也节省了很多运维的成本。
+Đây cũng là cách tôi khuyến nghị hơn. Cách này hiện đang được dùng nhiều nhất trong các công ty internet, có rất nhiều case study thực tế. Nếu bạn muốn dùng cách này, khuyến nghị dùng **ShardingSphere-JDBC**, import jar package trực tiếp là có thể dùng, rất tiện lợi. Đồng thời cũng tiết kiệm nhiều chi phí vận hành.
 
-你可以在 ShardingSphere 官方找到 [ShardingSphere-JDBC 读写分离配置](https://shardingsphere.apache.org/document/current/cn/features/readwrite-splitting/)。
+Bạn có thể tìm thấy [ShardingSphere-JDBC read-write separation configuration](https://shardingsphere.apache.org/document/current/cn/features/readwrite-splitting/) trên ShardingSphere official website.
 
-### 主从复制原理是什么？
+### Nguyên lý Master-Slave Replication là gì?
 
-MySQL binlog(binary log 即二进制日志文件) 主要记录了 MySQL 数据库中数据的所有变化(数据库执行的所有 DDL 和 DML 语句)。因此，我们根据主库的 MySQL binlog 日志就能够将主库的数据同步到从库中。
+MySQL binlog (binary log — file log nhị phân) chủ yếu ghi lại tất cả thay đổi dữ liệu trong MySQL database (tất cả câu lệnh DDL và DML mà database thực thi). Vì vậy, dựa trên MySQL binlog của master, chúng ta có thể đồng bộ dữ liệu từ master sang slave.
 
-更具体和详细的过程是这个样子的（图片来自于：[《MySQL Master-Slave Replication on the Same Machine》](https://www.toptal.com/mysql/mysql-master-slave-replication-tutorial)）：
+Quá trình cụ thể và chi tiết hơn như sau (hình ảnh từ [《MySQL Master-Slave Replication on the Same Machine》](https://www.toptal.com/mysql/mysql-master-slave-replication-tutorial)):
 
-![MySQL主从复制](https://oss.javaguide.cn/java-guide-blog/78816271d3ab52424bfd5ad3086c1a0f.png)
+![MySQL master-slave replication](https://oss.javaguide.cn/java-guide-blog/78816271d3ab52424bfd5ad3086c1a0f.png)
 
-1. 主库将数据库中数据的变化写入到 binlog
-2. 从库连接主库
-3. 从库会创建一个 I/O 线程向主库请求更新的 binlog
-4. 主库会创建一个 binlog dump 线程来发送 binlog ，从库中的 I/O 线程负责接收
-5. 从库的 I/O 线程将接收的 binlog 写入到 relay log 中。
-6. 从库的 SQL 线程读取 relay log 同步数据到本地（也就是再执行一遍 SQL ）。
+1. Master ghi các thay đổi dữ liệu trong database vào binlog
+2. Slave kết nối với master
+3. Slave tạo một I/O thread để request binlog cập nhật từ master
+4. Master tạo một binlog dump thread để gửi binlog, I/O thread của slave chịu trách nhiệm nhận
+5. I/O thread của slave ghi binlog nhận được vào relay log.
+6. SQL thread của slave đọc relay log để đồng bộ dữ liệu về local (tức là thực thi SQL một lần nữa).
 
-怎么样？看了我对主从复制这个过程的讲解，你应该搞明白了吧!
+Thế nào? Sau khi đọc giải thích của tôi về quá trình master-slave replication này, bạn đã hiểu rõ chưa!
 
-你一般看到 binlog 就要想到主从复制。当然，除了主从复制之外，binlog 还能帮助我们实现数据恢复。
+Thông thường khi bạn thấy binlog là phải nghĩ đến master-slave replication. Tất nhiên, ngoài master-slave replication, binlog còn có thể giúp chúng ta thực hiện data recovery.
 
-🌈 拓展一下：
+🌈 Mở rộng thêm:
 
-不知道大家有没有使用过阿里开源的一个叫做 canal 的工具。这个工具可以帮助我们实现 MySQL 和其他数据源比如 Elasticsearch 或者另外一台 MySQL 数据库之间的数据同步。很显然，这个工具的底层原理肯定也是依赖 binlog。canal 的原理就是模拟 MySQL 主从复制的过程，解析 binlog 将数据同步到其他的数据源。
+Không biết mọi người có dùng qua tool của Alibaba mã nguồn mở tên canal không. Tool này có thể giúp chúng ta đồng bộ dữ liệu giữa MySQL và các data source khác như Elasticsearch hoặc MySQL database khác. Rõ ràng, nguyên lý tầng dưới của tool này cũng phụ thuộc vào binlog. Nguyên lý của canal là mô phỏng quá trình MySQL master-slave replication, parse binlog để đồng bộ dữ liệu sang các data source khác.
 
-另外，像咱们常用的分布式缓存组件 Redis 也是通过主从复制实现的读写分离。
+Ngoài ra, component Redis caching phân tán mà chúng ta thường dùng cũng triển khai read-write separation thông qua master-slave replication.
 
-🌕 简单总结一下：
+🌕 Tổng kết ngắn gọn:
 
-**MySQL 主从复制是依赖于 binlog 。另外，常见的一些同步 MySQL 数据到其他数据源的工具（比如 canal）的底层一般也是依赖 binlog 。**
+**MySQL master-slave replication phụ thuộc vào binlog. Ngoài ra, một số tool đồng bộ dữ liệu MySQL sang các data source khác (như canal) thường cũng phụ thuộc vào binlog ở tầng dưới.**
 
-### 如何避免主从延迟？
+### Làm thế nào để tránh master-slave lag?
 
-读写分离对于提升数据库的并发非常有效，但是，同时也会引来一个问题：主库和从库的数据存在延迟，比如你写完主库之后，主库的数据同步到从库是需要时间的，这个时间差就导致了主库和从库的数据不一致性问题。这也就是我们经常说的 **主从同步延迟** 。
+Read-write separation rất hiệu quả trong việc cải thiện concurrency của database, nhưng đồng thời cũng gây ra một vấn đề: có độ trễ giữa dữ liệu master và slave. Ví dụ sau khi bạn ghi vào master, mất thời gian để đồng bộ dữ liệu từ master sang slave, khoảng thời gian chênh lệch này gây ra vấn đề data inconsistency giữa master và slave. Đây chính là **master-slave sync lag** mà chúng ta thường nói.
 
-如果我们的业务场景无法容忍主从同步延迟的话，应该如何避免呢（注意：我这里说的是避免而不是减少延迟）？
+Nếu business scenario của chúng ta không thể chấp nhận master-slave sync lag, nên làm thế nào để tránh (chú ý: tôi nói ở đây là tránh chứ không phải giảm lag)?
 
-这里提供两种我知道的方案（能力有限，欢迎补充），你可以根据自己的业务场景参考一下。
+Đây có hai phương án tôi biết (khả năng có hạn, hoan nghênh bổ sung), bạn có thể tham khảo theo business scenario của mình.
 
-#### 强制将读请求路由到主库处理
+#### Buộc route read request về master
 
-对于极少数必须强一致的业务（如支付后立刻查询余额），可以通过 Hint 强制查主库。
-
-```java
-// ShardingSphere-JDBC 强制读主库
-HintManager hintManager = HintManager.getInstance();
-hintManager.setMasterRouteOnly();
-// 继续JDBC操作
-```
-
-> ⚠️ **注意**：严禁大范围使用此方案！读写分离的初衷就是为了分担主库的读压力，若大量读请求因延迟而回退到主库，在促销、秒杀等高并发场景下极易压垮主库导致全站宕机。**正确的 Trade-off**：仅核心强一致链路读主库，非核心链路必须在业务层容忍最终一致性（如页面提示"数据同步中"）。
+Đối với một số ít nghiệp vụ bắt buộc phải strong consistency (như query balance ngay sau khi thanh toán), có thể buộc query master qua Hint.
 
 ```java
+// ShardingSphere-JDBC buộc đọc master
 HintManager hintManager = HintManager.getInstance();
 hintManager.setMasterRouteOnly();
-// 继续JDBC操作
+// Tiếp tục JDBC operation
 ```
 
-对于这种方案，你可以将那些必须获取最新数据的读请求都交给主库处理。
+> ⚠️ **Chú ý**: Tuyệt đối không được dùng phương án này trên diện rộng! Mục đích ban đầu của read-write separation là để phân tải read pressure cho master. Nếu lượng lớn read request do lag mà quay về master, trong các tình huống high concurrency như khuyến mãi, flash sale, rất dễ làm sập master dẫn đến toàn bộ trang web sập. **Trade-off đúng đắn**: Chỉ read master cho core strong consistency chain, non-core chain nhất thiết phải chấp nhận eventual consistency ở business layer (như hiển thị "Data đang đồng bộ").
 
-#### 延迟读取
+```java
+HintManager hintManager = HintManager.getInstance();
+hintManager.setMasterRouteOnly();
+// Tiếp tục JDBC operation
+```
 
-还有一些朋友肯定会想既然主从同步存在延迟，那我就在延迟之后读取啊，比如主从同步延迟 0.5s,那我就 1s 之后再读取数据。这样多方便啊！方便是方便，但是也很扯淡。
+Đối với phương án này, bạn có thể giao tất cả read request bắt buộc phải lấy dữ liệu mới nhất cho master xử lý.
 
-不过，如果你是这样设计业务流程就会好很多：对于一些对数据比较敏感的场景，你可以在完成写请求之后，避免立即进行请求操作。比如你支付成功之后，跳转到一个支付成功的页面，当你点击返回之后才返回自己的账户。
+#### Delayed read (Đọc trễ)
 
-#### 总结
+Một số bạn chắc chắn sẽ nghĩ: vì master-slave sync có lag, thì tôi đọc sau khi đã lag xong, ví dụ master-slave sync lag 0.5s, thì tôi đọc dữ liệu sau 1 giây. Tiện vậy! Tiện thật đấy, nhưng cũng khá vô lý.
 
-关于如何避免主从延迟，我们这里介绍了两种方案。实际上，延迟读取这种方案没办法完全避免主从延迟，只能说可以减少出现延迟的概率而已，实际项目中一般不会使用。
+Tuy nhiên, nếu bạn thiết kế business flow như này sẽ tốt hơn: Đối với một số tình huống nhạy cảm với dữ liệu, bạn có thể tránh request ngay sau khi hoàn thành write request. Ví dụ sau khi thanh toán thành công, chuyển đến trang thanh toán thành công, khi bạn click quay về mới trở về tài khoản của mình.
 
-总的来说，要想不出现延迟问题，一般还是要强制将那些必须获取最新数据的读请求都交给主库处理。如果你的项目的大部分业务场景对数据准确性要求不是那么高的话，这种方案还是可以选择的。
+#### Tổng kết
 
-### 什么情况下会出现主从延迟？如何尽量减少延迟？
+Về cách tránh master-slave lag, chúng ta giới thiệu hai phương án. Thực ra, delayed read không thể tránh hoàn toàn master-slave lag, chỉ có thể nói giảm xác suất xảy ra lag thôi, project thực tế thường không dùng.
 
-我们在上面的内容中也提到了主从延迟以及避免主从延迟的方法，这里我们再来详细分析一下主从延迟出现的原因以及应该如何尽量减少主从延迟。
+Tổng thể mà nói, muốn không có vấn đề delay, thông thường vẫn phải buộc giao tất cả read request bắt buộc lấy dữ liệu mới nhất cho master xử lý. Nếu phần lớn business scenario của project không yêu cầu tính chính xác dữ liệu cao thì phương án này có thể chọn.
 
-要搞懂什么情况下会出现主从延迟，我们需要先搞懂什么是主从延迟。
+### Khi nào sẽ xảy ra master-slave lag? Làm thế nào để giảm lag?
 
-MySQL 主从同步延时是指从库的数据落后于主库的数据，这种情况可能由以下两个原因造成：
+Ở phần trên chúng ta cũng đề cập đến master-slave lag và cách tránh, ở đây chúng ta phân tích kỹ hơn về nguyên nhân xảy ra master-slave lag và làm thế nào để giảm master-slave lag.
 
-1. 从库 I/O 线程接收 binlog 的速度跟不上主库写入 binlog 的速度，导致从库 relay log 的数据滞后于主库 binlog 的数据；
-2. 从库 SQL 线程执行 relay log 的速度跟不上从库 I/O 线程接收 binlog 的速度，导致从库的数据滞后于从库 relay log 的数据。
+Để hiểu khi nào sẽ xảy ra master-slave lag, chúng ta cần hiểu master-slave lag là gì.
 
-与主从同步有关的时间点主要有 3 个：
+MySQL master-slave sync lag là tình trạng dữ liệu của slave bị chậm hơn dữ liệu của master, tình trạng này có thể do hai nguyên nhân:
 
-1. 主库执行完一个事务，写入 binlog，将这个时刻记为 T1；
-2. 从库 I/O 线程接收到 binlog 并写入 relay log 的时刻记为 T2；
-3. 从库 SQL 线程读取 relay log 同步数据本地的时刻记为 T3。
+1. Tốc độ I/O thread của slave nhận binlog không theo kịp tốc độ ghi binlog của master, dẫn đến dữ liệu relay log của slave chậm hơn dữ liệu binlog của master;
+2. Tốc độ SQL thread của slave thực thi relay log không theo kịp tốc độ I/O thread của slave nhận binlog, dẫn đến dữ liệu của slave chậm hơn dữ liệu relay log của slave.
 
-> **注意**：上述描述基于 MySQL 默认的**异步复制**模式。如果在 MySQL 5.7+ 开启了增强半同步复制（`rpl_semi_sync_master_wait_point=AFTER_SYNC`），主库在写入 binlog 后会等待至少一个从库接收并写入 relay log 才向客户端返回提交成功，这在一定程度上将 T2-T1 的网络传输时间算入了主库事务的响应时间中，从而牺牲写性能换取更高的数据安全性。
+Có 3 thời điểm chính liên quan đến master-slave sync:
 
-结合我们上面讲到的主从复制原理，可以得出：
+1. Master thực thi xong một transaction, ghi vào binlog, thời điểm này gọi là T1;
+2. I/O thread của slave nhận binlog và ghi vào relay log gọi là T2;
+3. SQL thread của slave đọc relay log đồng bộ dữ liệu về local gọi là T3.
 
-- T2 和 T1 的差值反映了从库 I/O 线程的性能和网络传输的效率，这个差值越小说明从库 I/O 线程的性能和网络传输效率越高。
-- T3 和 T2 的差值反映了从库 SQL 线程执行的速度，这个差值越小，说明从库 SQL 线程执行速度越快。
+> **Chú ý**: Mô tả trên dựa trên chế độ **async replication** mặc định của MySQL. Nếu bật enhanced semi-sync replication trong MySQL 5.7+ (`rpl_semi_sync_master_wait_point=AFTER_SYNC`), master sau khi ghi binlog sẽ chờ ít nhất một slave nhận và ghi vào relay log mới trả về commit success cho client — điều này ở một mức độ nào đó tính thời gian network transmission T2-T1 vào response time của transaction trên master, đánh đổi write performance để có data safety cao hơn.
 
-那什么情况下会出现出从延迟呢？这里列举几种常见的情况：
+Kết hợp với nguyên lý master-slave replication đã nói ở trên, có thể rút ra:
 
-1. **从库机器性能比主库差**：从库接收 binlog 并写入 relay log 以及执行 SQL 语句的速度会比较慢（也就是 T2-T1 和 T3-T2 的值会较大），进而导致延迟。解决方法是选择与主库一样规格或更高规格的机器作为从库，或者对从库进行性能优化，比如调整参数、增加缓存、使用 SSD 等。
-2. **从库处理的读请求过多**：从库需要执行主库的所有写操作，同时还要响应读请求，如果读请求过多，会占用从库的 CPU、内存、网络等资源，影响从库的复制效率（也就是 T2-T1 和 T3-T2 的值会较大，和前一种情况类似）。解决方法是引入缓存（推荐）、使用一主多从的架构，将读请求分散到不同的从库，或者使用其他系统来提供查询的能力，比如将 binlog 接入到 Hadoop、Elasticsearch 等系统中。
-3. **大事务**：运行时间比较长，长时间未提交的事务就可以称为大事务。由于大事务执行时间长，并且从库上的大事务会比主库上的大事务花费更多的时间和资源，因此非常容易造成主从延迟。解决办法是避免大批量修改数据，尽量分批进行。类似的情况还有执行时间较长的慢 SQL ，实际项目遇到慢 SQL 应该进行优化。
-4. **从库太多**：主库需要将 binlog 同步到所有的从库，如果从库数量太多，会增加同步的时间和开销（也就是 T2-T1 的值会比较大，但这里是因为主库同步压力大导致的）。解决方案是减少从库的数量，或者将从库分为不同的层级，让上层的从库再同步给下层的从库，减少主库的压力。
-5. **网络延迟**：如果主从之间的网络传输速度慢，或者出现丢包、抖动等问题，那么就会影响 binlog 的传输效率，导致从库延迟。解决方法是优化网络环境，比如提升带宽、降低延迟、增加稳定性等。
-6. **单线程复制**：MySQL 5.5 及之前，只支持单线程复制。为了优化复制性能，MySQL 5.6 引入了 **多线程复制**，但仅支持按库并行（`slave_parallel_type=DATABASE`）。MySQL 5.7 进一步完善，支持按组提交并行（`slave_parallel_type=LOGICAL_CLOCK`），大幅提升并行效率。建议在从库配置 `slave_parallel_workers > 0` 启用并行复制。
-7. **复制模式**：MySQL 默认的复制是异步的，必然会存在延迟问题。全同步复制不存在延迟问题，但性能太差了。半同步复制是一种折中方案，相对于异步复制，半同步复制提高了数据的安全性，减少了主从延迟（还是有一定程度的延迟）。MySQL 5.5 开始，MySQL 以插件的形式支持 **semi-sync 半同步复制**。并且，MySQL 5.7 引入了 **增强半同步复制** 。
+- Hiệu số T2 và T1 phản ánh hiệu năng của I/O thread trong slave và hiệu quả network transmission, hiệu số này càng nhỏ thì hiệu năng I/O thread và network transmission càng cao.
+- Hiệu số T3 và T2 phản ánh tốc độ thực thi của SQL thread trong slave, hiệu số này càng nhỏ thì tốc độ thực thi SQL thread càng nhanh.
+
+Vậy khi nào sẽ xảy ra master-slave lag? Đây là một số tình huống phổ biến:
+
+1. **Slave machine specs kém hơn master**: Tốc độ slave nhận binlog, ghi relay log và thực thi SQL sẽ chậm hơn (T2-T1 và T3-T2 sẽ lớn hơn), dẫn đến lag. Giải pháp là chọn machine có spec bằng hoặc cao hơn master làm slave, hoặc tối ưu hiệu năng slave, ví dụ điều chỉnh parameter, thêm cache, dùng SSD.
+2. **Slave xử lý quá nhiều read request**: Slave cần thực thi tất cả write operation của master, đồng thời còn phải phản hồi read request. Nếu read request quá nhiều, chiếm CPU, memory, network và các resource khác của slave, ảnh hưởng đến replication efficiency của slave. Giải pháp là giới thiệu cache (recommended), dùng one-master-multi-slave architecture, phân tán read request đến các slave khác nhau, hoặc dùng hệ thống khác để cung cấp query capability, ví dụ đưa binlog vào Hadoop, Elasticsearch.
+3. **Large transaction**: Transaction chạy lâu, chưa commit trong thời gian dài gọi là large transaction. Do large transaction thực thi lâu và large transaction trên slave tốn nhiều thời gian và resource hơn trên master, nên rất dễ gây ra master-slave lag. Giải pháp là tránh modify dữ liệu hàng loạt, cố gắng thực hiện theo batch. Tình huống tương tự là slow SQL có thời gian thực thi dài, project thực tế gặp slow SQL nên tối ưu.
+4. **Quá nhiều slave**: Master cần sync binlog đến tất cả slave, nếu có quá nhiều slave, sẽ tăng thời gian và chi phí sync (T2-T1 sẽ khá lớn, nhưng ở đây là do áp lực sync của master lớn gây ra). Giải pháp là giảm số lượng slave, hoặc phân slave thành các tầng khác nhau, để slave tầng trên sync cho slave tầng dưới, giảm áp lực cho master.
+5. **Network lag**: Nếu tốc độ network transmission giữa master và slave chậm, hoặc xảy ra packet loss, jitter, sẽ ảnh hưởng đến transmission efficiency của binlog, dẫn đến slave lag. Giải pháp là tối ưu môi trường mạng, ví dụ tăng bandwidth, giảm latency, tăng stability.
+6. **Single-threaded replication**: MySQL 5.5 trở về trước chỉ hỗ trợ single-threaded replication. Để tối ưu replication performance, MySQL 5.6 giới thiệu **multi-threaded replication** nhưng chỉ hỗ trợ parallel theo database (`slave_parallel_type=DATABASE`). MySQL 5.7 cải tiến thêm, hỗ trợ parallel theo group commit (`slave_parallel_type=LOGICAL_CLOCK`), cải thiện đáng kể hiệu quả parallel. Khuyến nghị cấu hình `slave_parallel_workers > 0` trong slave để bật parallel replication.
+7. **Replication mode**: MySQL mặc định là async replication, chắc chắn sẽ có vấn đề lag. Full sync replication không có vấn đề lag nhưng hiệu năng quá kém. Semi-sync replication là giải pháp trung gian, so với async replication, semi-sync replication cải thiện data safety, giảm master-slave lag (vẫn có một mức độ lag nhất định). Từ MySQL 5.5, MySQL hỗ trợ **semi-sync replication** dưới dạng plugin. Và MySQL 5.7 giới thiệu **enhanced semi-sync replication**.
 8. ……
 
-## 分库分表
+## Database Sharding (Phân mảnh cơ sở dữ liệu)
 
-读写分离主要应对的是数据库读并发，没有解决数据库存储问题。试想一下：**如果 MySQL 一张表的数据量过大怎么办?**
+Read-write separation chủ yếu đối phó với read concurrency của database, không giải quyết vấn đề storage. Hãy thử nghĩ: **Nếu data volume của một table trong MySQL quá lớn thì làm thế nào?**
 
-换言之，**我们该如何解决 MySQL 的存储压力呢？**
+Nói cách khác, **chúng ta nên giải quyết storage pressure của MySQL như thế nào?**
 
-答案之一就是 **分库分表**。
+Một trong những câu trả lời là **database/table sharding**.
 
-### 什么是分库？
+### Database Split là gì?
 
-**分库** 就是将数据库中的数据分散到不同的数据库上，可以垂直分库，也可以水平分库。
+**Database split** là phân tán dữ liệu trong database ra các database khác nhau, có thể là vertical database split hoặc horizontal database split.
 
-**垂直分库** 就是把单一数据库按照业务进行划分，不同的业务使用不同的数据库，进而将一个数据库的压力分担到多个数据库。
+**Vertical database split** là chia single database theo nghiệp vụ, các nghiệp vụ khác nhau dùng database khác nhau, từ đó phân tán áp lực của một database ra nhiều database.
 
-举个例子：说你将数据库中的用户表、订单表和商品表分别单独拆分为用户数据库、订单数据库和商品数据库。
+Ví dụ: Bạn tách riêng user table, order table và product table trong database thành user database, order database và product database.
 
-![垂直分库](./images/read-and-write-separation-and-library-subtable/vertical-slicing-database.png)
+![Vertical database split](./images/read-and-write-separation-and-library-subtable/vertical-slicing-database.png)
 
-**水平分库** 是把同一个表按一定规则拆分到不同的数据库中，每个库可以位于不同的服务器上，这样就实现了水平扩展，解决了单表的存储和性能瓶颈的问题。
+**Horizontal database split** là tách cùng một table theo quy tắc nhất định ra các database khác nhau, mỗi database có thể ở trên các server khác nhau, như vậy thực hiện horizontal scaling, giải quyết vấn đề storage và performance bottleneck của single table.
 
-举个例子：订单表数据量太大，你对订单表进行了水平切分（水平分表），然后将切分后的 2 张订单表分别放在两个不同的数据库。
+Ví dụ: Order table data quá lớn, bạn horizontal split (horizontal table split) order table, rồi đặt 2 order table sau khi split vào hai database khác nhau.
 
-![水平分库](./images/read-and-write-separation-and-library-subtable/horizontal-slicing-database.png)
+![Horizontal database split](./images/read-and-write-separation-and-library-subtable/horizontal-slicing-database.png)
 
-### 什么是分表？
+### Table Split là gì?
 
-**分表** 就是对单表的数据进行拆分，可以是垂直拆分，也可以是水平拆分。
+**Table split** là split data của single table, có thể là vertical split hoặc horizontal split.
 
-**垂直分表** 是对数据表列的拆分，把一张列比较多的表拆分为多张表。
+**Vertical table split** là split column của table, tách một table có nhiều column thành nhiều table.
 
-举个例子：我们可以将用户信息表中的一些列单独抽出来作为一个表。
+Ví dụ: Chúng ta có thể tách riêng một số column trong user info table ra làm một table.
 
-**水平分表** 是对数据表行的拆分，把一张行比较多的表拆分为多张表，可以解决单一表数据量过大的问题。
+**Horizontal table split** là split row của table, tách một table có nhiều row thành nhiều table, có thể giải quyết vấn đề data volume quá lớn của single table.
 
-举个例子：我们可以将用户信息表拆分成多个用户信息表，这样就可以避免单一表数据量过大对性能造成影响。
+Ví dụ: Chúng ta có thể split user info table thành nhiều user info table, như vậy tránh được việc data volume quá lớn ảnh hưởng đến hiệu năng.
 
-水平拆分只能解决单表数据量大的问题，为了提升性能，我们通常会选择将拆分后的多张表放在不同的数据库中。也就是说，水平分表通常和水平分库同时出现。
+Horizontal split chỉ có thể giải quyết vấn đề data volume lớn của single table. Để cải thiện hiệu năng, chúng ta thường chọn đặt nhiều table sau khi split vào các database khác nhau. Tức là, horizontal table split thường xuất hiện cùng với horizontal database split.
 
-![分表](./images/read-and-write-separation-and-library-subtable/two-forms-of-sub-table.png)
+![Table split](./images/read-and-write-separation-and-library-subtable/two-forms-of-sub-table.png)
 
-### 什么情况下需要分库分表？
+### Khi nào cần database/table sharding?
 
-遇到下面几种场景可以考虑分库分表：
+Có thể cân nhắc database/table sharding khi gặp các tình huống sau:
 
-- 单表的数据量达到千万级别以上（具体阈值取决于表结构复杂度、索引数量、硬件配置等），数据库读写速度明显下降。
-- 数据库中的数据占用的空间越来越大，备份时间越来越长。
-- 应用的并发量太大（应该优先考虑其他性能优化方法，而非分库分表）。
+- Data volume của single table đạt hàng chục triệu bản ghi trở lên (ngưỡng cụ thể phụ thuộc vào độ phức tạp của table structure, số lượng index, cấu hình phần cứng v.v.), tốc độ đọc/ghi database giảm rõ rệt.
+- Không gian dữ liệu trong database ngày càng lớn, thời gian backup ngày càng dài.
+- Concurrency của application quá cao (nên ưu tiên xem xét các phương pháp tối ưu hiệu năng khác trước, không phải sharding).
 
-不过，分库分表的成本太高，如非必要尽量不要采用。而且，并不一定是单表千万级数据量就要分表，毕竟每张表包含的字段不同，它们在不错的性能下能够存放的数据量也不同，还是要具体情况具体分析。
+Tuy nhiên, chi phí của database/table sharding rất cao, nếu không bắt buộc thì không nên dùng. Và cũng không nhất thiết phải sharding khi single table đạt hàng chục triệu rows, xét cho cùng mỗi table có các field khác nhau, data volume chúng có thể chứa ở hiệu năng tốt cũng không giống nhau, vẫn phải phân tích từng tình huống cụ thể.
 
-之前看过一篇文章分析 “[InnoDB 中高度为 3 的 B+ 树最多可以存多少数据](https://juejin.cn/post/7165689453124517896)”，写的挺不错，感兴趣的可以看看。
+### Các sharding algorithm phổ biến là gì?
 
-### 常见的分片算法有哪些？
+Sharding algorithm chủ yếu giải quyết vấn đề sau khi dữ liệu được horizontal sharding, dữ liệu nên được lưu trong table nào.
 
-分片算法主要解决了数据被水平分片之后，数据究竟该存放在哪个表的问题。
+Các sharding algorithm phổ biến:
 
-常见的分片算法有：
+- **Hash Sharding**: Tính hash của sharding key được chỉ định, rồi dựa vào hash value để xác định data nên được đặt vào table nào. Hash sharding phù hợp với scenario random read/write, không phù hợp với scenario cần range query thường xuyên. Hash sharding có thể phân phối dữ liệu tương đối đều vào các table, nhưng không thân thiện với dynamic scaling (ví dụ thêm table hoặc database).
+- **Range Sharding**: Phân phối dữ liệu theo khoảng cụ thể (ví dụ khoảng thời gian, khoảng ID). Ví dụ phân record có `id` từ `1~299999` vào table đầu tiên, `300000~599999` vào table thứ hai. Range sharding phù hợp với scenario cần range query thường xuyên và phân phối dữ liệu đều, không phù hợp với scenario random read/write (dữ liệu không được phân tán, dễ xảy ra hot spot data).
+- **Consistent Hashing Sharding**: Tổ chức hash space thành một vòng tròn, map cả sharding key và node (database hoặc table) lên vòng này, rồi dựa theo quy tắc clockwise để xác định data hoặc request nên được phân bổ vào node nào. Giải quyết được vấn đề hash truyền thống không thân thiện với dynamic scaling.
 
-- **哈希分片**：求指定分片键的哈希，然后根据哈希值确定数据应被放置在哪个表中。哈希分片比较适合随机读写的场景，不太适合经常需要范围查询的场景。哈希分片可以使每个表的数据分布相对均匀，但对动态伸缩（例如新增一个表或者库）不友好。
-- **范围分片**：按照特定的范围区间（比如时间区间、ID 区间）来分配数据，比如 将 `id` 为 `1~299999` 的记录分到第一个表， `300000~599999` 的分到第二个表。范围分片适合需要经常进行范围查找且数据分布均匀的场景，不太适合随机读写的场景（数据未被分散，容易出现热点数据的问题）。
-- **一致性哈希分片**：将哈希空间组织成一个环形结构，将分片键和节点（数据库或表）都映射到这个环上，然后根据顺时针的规则确定数据或请求应该分配到哪个节点上，解决了传统哈希对动态伸缩不友好的问题。
+Dựa trên các thuật toán cơ bản trên, còn có thể kết hợp với nghiệp vụ để tạo ra routing strategy phức tạp hơn:
 
-在上述基础算法之上，还可以结合业务衍生出更复杂的路由策略：
+- **Mapping Table Routing**: Duy trì một routing table độc lập để ghi lại mapping giữa sharding key và data node, cực kỳ linh hoạt nhưng có single point performance bottleneck.
+- **Geographic Routing**: Dùng địa lý làm sharding key, kết hợp cơ chế range hoặc mapping table, lưu trữ dữ liệu gần với data center cụ thể (thường dùng trong kiến trúc NewSQL multi-active).
 
-- **映射表路由**：维护一张独立的路由表来记录分片键与数据节点的映射关系，极其灵活但存在单点性能瓶颈。
-- **地域路由**：以地理位置作为分片键，结合范围或映射表机制，将数据就近存放在特定机房（常用于 NewSQL 多活架构）。
+### Sharding Key nên chọn như thế nào?
 
-### 分片键如何选择？
+Sharding Key là field quan trọng để data sharding. Việc chọn sharding key rất quan trọng, nó liên quan đến phân phối dữ liệu và query efficiency. Thông thường, sharding key nên có các đặc điểm sau:
 
-分片键（Sharding Key）是数据分片的关键字段。分片键的选择非常重要，它关系着数据的分布和查询效率。一般来说，分片键应该具备以下特点：
+- Có commonality — có thể bao phủ phần lớn query scenario, giảm tối đa số sharding liên quan đến một lần query, giảm database pressure;
+- Có discreteness — có thể phân tán dữ liệu đều vào các shard, tránh data skew và hot spot problem;
+- Có stability — giá trị của sharding key không thay đổi, tránh data migration và consistency problem;
+- Có scalability — có thể hỗ trợ dynamic add/remove shard, tránh chi phí re-sharding.
 
-- 具有共性，即能够覆盖绝大多数的查询场景，尽量减少单次查询所涉及的分片数量，降低数据库压力；
-- 具有离散性，即能够将数据均匀地分散到各个分片上，避免数据倾斜和热点问题；
-- 具有稳定性，即分片键的值不会发生变化，避免数据迁移和一致性问题；
-- 具有扩展性，即能够支持分片的动态增加和减少，避免数据重新分片的开销。
+Trong project thực tế, sharding key rất khó đáp ứng tất cả đặc điểm trên, cần cân nhắc. Ngoài ra, sharding key có thể là tổ hợp của nhiều field trong table, ví dụ lấy 4 chữ số cuối của user ID làm suffix của order ID.
 
-实际项目中，分片键很难满足上面提到的所有特点，需要权衡一下。并且，分片键可以是表中多个字段的组合，例如取用户 ID 后四位作为订单 ID 后缀。
+### Database/Table Sharding sẽ gây ra những vấn đề gì?
 
-### 分库分表会带来什么问题呢？
+Nhớ rằng, bất kỳ quyết định kỹ thuật nào bạn làm trong công ty, không chỉ cần cân nhắc liệu công nghệ này có thể đáp ứng yêu cầu không, có phù hợp với business scenario hiện tại không, mà còn phải cân nhắc kỹ chi phí nó mang lại.
 
-记住，你在公司做的任何技术决策，不光是要考虑这个技术能不能满足我们的要求，是否适合当前业务场景，还要重点考虑其带来的成本。
+Sau khi giới thiệu database/table sharding, sẽ mang lại những thách thức gì cho hệ thống?
 
-引入分库分表之后，会给系统带来什么挑战呢？
-
-- **join 操作**：同一个数据库中的表分布在了不同的数据库中，导致无法使用 join 操作。这样就导致我们需要手动进行数据的封装，比如你在一个数据库中查询到一个数据之后，再根据这个数据去另外一个数据库中找对应的数据。不过，很多大厂的资深 DBA 都是建议尽量不要使用 join 操作。因为 join 的效率低，并且会对分库分表造成影响。对于需要用到 join 操作的地方，可以采用多次查询业务层进行数据组装的方法。不过，这种方法需要考虑业务上多次查询的事务性的容忍度。
-- **事务问题**：同一个数据库中的表分布在了不同的数据库中，如果单个操作涉及到多个数据库，那么数据库自带的事务就无法满足我们的要求了。这个时候，我们就需要引入分布式事务了。关于分布式事务常见解决方案总结，网站上也有对应的总结：<https://javaguide.cn/distributed-system/distributed-transaction.html> 。
-- **分布式 ID**：分库之后， 数据遍布在不同服务器上的数据库，数据库的自增主键已经没办法满足生成的主键唯一了。我们如何为不同的数据节点生成全局唯一主键呢？这个时候，我们就需要为我们的系统引入分布式 ID 了。关于分布式 ID 的详细介绍&实现方案总结，可以看我写的这篇文章：[分布式 ID 介绍&实现方案总结](https://javaguide.cn/distributed-system/distributed-id.html)。
-- **跨库聚合查询问题**：分库分表会导致常规聚合查询操作，如 group by，order by 等变得异常复杂。这是因为这些操作需要在多个分片上进行数据汇总和排序，而不是在单个数据库上进行。为了实现这些操作，需要编写复杂的业务代码，或者使用中间件来协调分片间的通信和数据传输。这样会增加开发和维护的成本，以及影响查询的性能和可扩展性。
-- **动态扩缩容困难（Resharding）**：尤其是采用传统 Hash 取模算法时，一旦现有分片容量打满需要增加新节点，会导致绝大多数数据的 Hash 映射失效，引发极其痛苦的全量数据洗牌与迁移。解决方案包括：预分足够的分片（如 1024 个逻辑分表）、采用一致性哈希、或使用支持自动 Rebalance 的分布式数据库（如 TiDB）。
+- **JOIN operation**: Các table trong cùng một database được phân tán ra các database khác nhau, dẫn đến không thể dùng JOIN operation. Điều này dẫn đến chúng ta cần manually đóng gói dữ liệu, ví dụ query dữ liệu từ một database, rồi dựa trên dữ liệu đó đi tìm dữ liệu tương ứng ở database khác. Tuy nhiên, nhiều senior DBA ở các công ty lớn đều khuyến nghị cố gắng không dùng JOIN operation. Vì JOIN có efficiency thấp và sẽ ảnh hưởng đến database/table sharding. Với những nơi cần dùng JOIN, có thể dùng phương pháp query nhiều lần và assemble data ở business layer. Tuy nhiên, phương pháp này cần cân nhắc tolerance của business cho transaction của nhiều query.
+- **Transaction problem**: Các table trong cùng database được phân tán ra các database khác nhau, nếu một operation đơn lẻ liên quan đến nhiều database, thì transaction tích hợp của database không thể đáp ứng yêu cầu nữa. Lúc này, cần giới thiệu distributed transaction. Về tổng hợp các giải pháp distributed transaction phổ biến, trang web cũng có tổng hợp tương ứng: <https://javaguide.cn/distributed-system/distributed-transaction.html>.
+- **Distributed ID**: Sau khi sharding database, dữ liệu nằm rải rác trên các database của các server khác nhau, auto-increment primary key của database không còn có thể đảm bảo tính duy nhất của primary key được tạo ra. Làm thế nào để tạo global unique primary key cho các data node khác nhau? Lúc này, cần giới thiệu distributed ID vào hệ thống. Về giới thiệu chi tiết distributed ID và tổng hợp các giải pháp triển khai, có thể xem bài tôi viết: [Giới thiệu Distributed ID & Tổng hợp giải pháp triển khai](https://javaguide.cn/distributed-system/distributed-id.html).
+- **Cross-database aggregation query problem**: Database/table sharding sẽ làm cho các aggregate query thông thường như group by, order by trở nên vô cùng phức tạp. Vì các operation này cần data aggregation và sorting trên nhiều shard, chứ không phải trên single database. Để triển khai các operation này, cần viết business code phức tạp, hoặc dùng middleware để coordinate communication và data transmission giữa các shard. Điều này làm tăng chi phí phát triển và bảo trì, cũng như ảnh hưởng đến query performance và scalability.
+- **Dynamic scaling difficulty (Resharding)**: Đặc biệt khi dùng traditional Hash modulo algorithm, một khi capacity của shard hiện tại đầy và cần thêm node mới, sẽ khiến hash mapping của phần lớn dữ liệu bị fail, gây ra việc shuffle và migration dữ liệu toàn bộ cực kỳ đau đớn. Các giải pháp gồm: pre-split đủ shard (như 1024 logical table), dùng consistent hashing, hoặc dùng distributed database hỗ trợ automatic Rebalance (như TiDB).
 - ……
 
-另外，引入分库分表之后，一般需要 DBA 的参与，同时还需要更多的数据库服务器，这些都属于成本。
+Ngoài ra, sau khi giới thiệu database/table sharding, thường cần sự tham gia của DBA, đồng thời cần nhiều database server hơn, đây đều là chi phí.
 
-### 分库分表有没有什么比较推荐的方案？
+### Có phương án nào được khuyến nghị cho database/table sharding không?
 
-Apache ShardingSphere 是一款分布式的数据库生态系统， 可以将任意数据库转换为分布式数据库，并通过数据分片、弹性伸缩、加密等能力对原有数据库进行增强。
+Apache ShardingSphere là một hệ sinh thái distributed database, có thể chuyển đổi bất kỳ database nào thành distributed database, và tăng cường database gốc thông qua các khả năng như data sharding, elastic scaling, encryption.
 
-ShardingSphere 项目（包括 Sharding-JDBC、Sharding-Proxy 和 Sharding-Sidecar）是当当捐入 Apache 的，目前主要由京东数科的一些巨佬维护。
+Project ShardingSphere (bao gồm Sharding-JDBC, Sharding-Proxy và Sharding-Sidecar) được Dangdang donate cho Apache, hiện được duy trì chủ yếu bởi một số senior engineers từ JD Finance.
 
-ShardingSphere 绝对可以说是当前分库分表的首选！ShardingSphere 的功能完善，除了支持读写分离和分库分表，还提供分布式事务、数据库治理、影子库、数据加密和脱敏等功能。
+ShardingSphere tuyệt đối có thể nói là lựa chọn đầu tiên cho database/table sharding hiện tại! Chức năng của ShardingSphere đầy đủ, ngoài hỗ trợ read-write separation và sharding, còn cung cấp distributed transaction, database governance, shadow database, data encryption và desensitization.
 
-ShardingSphere 提供的功能如下：
+Các chức năng ShardingSphere cung cấp:
 
-![ShardingSphere 提供的功能](https://oss.javaguide.cn/github/javaguide/high-performance/shardingsphere-features.png)
+![Features provided by ShardingSphere](https://oss.javaguide.cn/github/javaguide/high-performance/shardingsphere-features.png)
 
-ShardingSphere 的优势如下（摘自 ShardingSphere 官方文档：<https://shardingsphere.apache.org/document/current/cn/overview/>）：
+Ưu điểm của ShardingSphere (trích từ ShardingSphere official documentation: <https://shardingsphere.apache.org/document/current/cn/overview/>):
 
-- 极致性能：驱动程序端历经长年打磨，效率接近原生 JDBC，性能极致。
-- 生态兼容：代理端支持任何通过 MySQL/PostgreSQL 协议的应用访问，驱动程序端可对接任意实现 JDBC 规范的数据库。
-- 业务零侵入：面对数据库替换场景，ShardingSphere 可满足业务无需改造，实现平滑业务迁移。
-- 运维低成本：在保留原技术栈不变前提下，对 DBA 学习、管理成本低，交互友好。
-- 安全稳定：基于成熟数据库底座之上提供增量能力，兼顾安全性及稳定性。
-- 弹性扩展：具备计算、存储平滑在线扩展能力，可满足业务多变的需求。
-- 开放生态：通过多层次（内核、功能、生态）插件化能力，为用户提供可定制满足自身特殊需求的独有系统。
+- Hiệu năng tột đỉnh: Driver end trải qua nhiều năm mài giũa, hiệu quả gần với native JDBC, hiệu năng cực đỉnh.
+- Tương thích ecosystem: Proxy end hỗ trợ bất kỳ ứng dụng nào truy cập qua MySQL/PostgreSQL protocol, driver end có thể kết nối với bất kỳ database nào triển khai JDBC specification.
+- Business zero invasion: Khi đối mặt với database replacement scenario, ShardingSphere có thể đáp ứng business migration mượt mà mà không cần thay đổi.
+- Low ops cost: Tiền đề giữ nguyên technology stack gốc, DBA learning và management cost thấp, interaction thân thiện.
+- Secure và stable: Cung cấp incremental capability trên nền database mature, cân bằng security và stability.
+- Elastic scaling: Có khả năng compute, storage smooth online scaling, có thể đáp ứng nhu cầu đa dạng của business.
+- Open ecosystem: Thông qua multi-level (kernel, function, ecosystem) pluggable capability, cung cấp cho user hệ thống độc đáo có thể customize để đáp ứng nhu cầu đặc biệt của mình.
 
-另外，ShardingSphere 的生态体系完善，社区活跃，文档完善，更新和发布比较频繁。
+Ngoài ra, ecosystem của ShardingSphere hoàn thiện, cộng đồng active, tài liệu đầy đủ, update và release tương đối thường xuyên.
 
-不过，还是要多提一句：**现在很多公司都是用的类似于 TiDB 这种分布式关系型数据库，不需要我们手动进行分库分表（数据库层面已经帮我们做了），也不需要解决手动分库分表引入的各种问题，直接一步到位，内置很多实用的功能（如无感扩容和缩容、冷热存储分离）！如果公司条件允许的话，个人也是比较推荐这种方式！**
+Tuy nhiên, cần nói thêm một điều: **Hiện nay nhiều công ty dùng distributed relational database kiểu TiDB, không cần chúng ta manually sharding (database layer đã làm cho chúng ta), cũng không cần giải quyết các vấn đề do manual sharding gây ra, một bước đến vị trí, tích hợp nhiều tính năng thực dụng (như transparent scale-in/out, cold/hot storage separation)! Nếu điều kiện công ty cho phép, cá nhân cũng khuyến nghị phương án này!**
 
-### 分库分表后，数据怎么迁移呢？
+### Sau khi database/table sharding, làm thế nào để migrate dữ liệu?
 
-分库分表之后，我们如何将老库（单库单表）的数据迁移到新库（分库分表后的数据库系统）呢？
+Sau khi database/table sharding, làm thế nào để migrate dữ liệu từ old database (single database single table) sang new database (database system sau khi sharding)?
 
-比较简单同时也是非常常用的方案就是**停机迁移**，写个脚本老库的数据写到新库中。比如你在凌晨 2 点，系统使用的人数非常少的时候，挂一个公告说系统要维护升级预计 1 小时。然后，你写一个脚本将老库的数据都同步到新库中。
+Phương án đơn giản và cũng rất phổ biến là **downtime migration** — viết script để ghi dữ liệu từ old database vào new database. Ví dụ vào lúc 2 giờ sáng khi rất ít người dùng hệ thống, đăng một thông báo nói hệ thống cần maintenance upgrade dự kiến 1 tiếng. Sau đó, viết script để sync toàn bộ dữ liệu từ old database vào new database.
 
-如果你不想停机迁移数据的话，也可以考虑**双写方案**。双写方案是针对那种不能停机迁移的场景，实现起来要稍微麻烦一些。具体原理是这样的：
+Nếu không muốn downtime migration data, cũng có thể cân nhắc **double-write scheme**. Double-write scheme nhắm đến tình huống không thể downtime migration, triển khai phức tạp hơn một chút. Nguyên lý cụ thể như sau:
 
-- 我们对老库的更新操作（增删改），同时也要写入新库（双写）。如果操作的数据在新库中不存在，则执行插入；若已存在，则执行更新。这样就能保证新库捕获到最新的变更。
-- 在迁移过程，双写只会让被更新操作过的老库中的数据同步到新库，我们还需要自己写脚本将老库中的数据和新库的数据做比对。如果新库中没有，那咱们就把数据插入到新库。如果新库有，旧库没有，就把新库对应的数据删除（冗余数据清理）。
-- 重复上一步的操作，直到老库和新库的数据一致为止。
+- Update operation trên old database (insert/delete/update), đồng thời cũng ghi vào new database (double write). Nếu data trong new database không tồn tại, thực thi insert; nếu đã tồn tại, thực thi update. Như vậy đảm bảo new database capture được các thay đổi mới nhất.
+- Trong quá trình migration, double write chỉ đồng bộ data trong old database đã được update operation sang new database. Chúng ta còn cần tự viết script để so sánh data trong old database và new database. Nếu new database không có, insert data vào new database. Nếu new database có, old database không có, xóa data tương ứng trong new database (redundant data cleanup).
+- Lặp lại operation ở bước trên cho đến khi data trong old database và new database nhất quán.
 
-> **⚠️注意**：
+> **⚠️ Chú ý**:
 >
-> - 双写应尽量保证原子性：可以先写老库成功后再异步写新库，若新库写入失败则记录日志待重试；
-> - 数据比对应在业务低峰期进行，避免比对期间新写入导致的数据不一致；
-> - 建议借助 Canal 等工具监听 binlog 实现增量同步，降低双写的开发和维护成本。
+> - Double write nên đảm bảo atomicity tối đa: Có thể write old database thành công rồi mới async write new database, nếu new database write fail thì log lại chờ retry;
+> - Data comparison nên thực hiện trong business off-peak period, tránh data inconsistency do new write trong quá trình comparison;
+> - Khuyến nghị dùng tool như Canal để monitor binlog để triển khai incremental sync, giảm chi phí phát triển và bảo trì của double write.
 >
-> **双写并发问题如何解决？** 在存量数据迁移和增量双写并行的阶段，极易发生旧数据覆盖新数据的并发问题。必须在新库表中引入 `update_time` 或 `version` 字段，无论是双写还是脚本补齐，写入新库前必须带上条件 `WHERE new_version < old_version`（乐观锁校验），确保只有较新的数据才能写入。
+> **Làm thế nào để giải quyết double write concurrency problem?** Trong giai đoạn migration dữ liệu cũ và double write incremental song song, rất dễ xảy ra concurrent problem của old data overwriting new data. Phải giới thiệu field `update_time` hoặc `version` trong new database table. Dù là double write hay script fill-in, trước khi ghi vào new database phải kèm condition `WHERE new_version < old_version` (optimistic lock check), đảm bảo chỉ có data mới hơn mới có thể ghi vào.
 
-想要在项目中实施双写还是比较麻烦的，很容易会出现问题。我们可以借助上面提到的数据库同步工具 Canal 做增量数据迁移（还是依赖 binlog，开发和维护成本较低）。
+Muốn triển khai double write trong project vẫn khá phức tạp, dễ xảy ra vấn đề. Chúng ta có thể dùng database sync tool Canal đã đề cập ở trên để làm incremental data migration (vẫn phụ thuộc binlog, chi phí phát triển và bảo trì thấp hơn).
 
-## 总结
+## Tổng kết
 
-- 读写分离主要是为了将对数据库的读写操作分散到不同的数据库节点上。 这样的话，就能够小幅提升写性能，大幅提升读性能。
-- 读写分离基于主从复制，MySQL 主从复制是依赖于 binlog 。
-- **分库** 就是将数据库中的数据分散到不同的数据库上。**分表** 就是对单表的数据进行拆分，可以是垂直拆分，也可以是水平拆分。
-- 引入分库分表之后，需要系统解决事务、分布式 id、无法 join 操作问题。
-- 现在很多公司都是用的类似于 TiDB 这种分布式关系型数据库，不需要我们手动进行分库分表（数据库层面已经帮我们做了），也不需要解决手动分库分表引入的各种问题，直接一步到位，内置很多实用的功能（如无感扩容和缩容、冷热存储分离）！如果公司条件允许的话，个人也是比较推荐这种方式！
-- 如果必须要手动分库分表的话，ShardingSphere 是首选！ShardingSphere 的功能完善，除了支持读写分离和分库分表，还提供分布式事务、数据库治理等功能。另外，ShardingSphere 的生态体系完善，社区活跃，文档完善，更新和发布比较频繁。
+- Read-write separation chủ yếu là để phân tán các thao tác đọc/ghi trên database ra các database node khác nhau. Như vậy, có thể cải thiện một chút write performance và cải thiện đáng kể read performance.
+- Read-write separation dựa trên master-slave replication, MySQL master-slave replication phụ thuộc vào binlog.
+- **Database split** là phân tán dữ liệu trong database ra các database khác nhau. **Table split** là split data của single table, có thể là vertical split hoặc horizontal split.
+- Sau khi giới thiệu database/table sharding, hệ thống cần giải quyết vấn đề transaction, distributed ID, không thể dùng JOIN.
+- Hiện nay nhiều công ty dùng distributed relational database kiểu TiDB, không cần manually sharding (database layer đã làm), cũng không cần giải quyết các vấn đề do manual sharding gây ra, một bước đến vị trí, tích hợp nhiều tính năng thực dụng! Nếu điều kiện công ty cho phép, cá nhân cũng khuyến nghị phương án này!
+- Nếu bắt buộc phải manual sharding, ShardingSphere là lựa chọn đầu tiên! Chức năng của ShardingSphere đầy đủ, ngoài hỗ trợ read-write separation và sharding, còn cung cấp distributed transaction, database governance và các chức năng khác. Ngoài ra, ecosystem của ShardingSphere hoàn thiện, cộng đồng active, tài liệu đầy đủ, update và release thường xuyên.
 
 <!-- @include: @article-footer.snippet.md -->

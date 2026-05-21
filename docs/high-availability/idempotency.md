@@ -1,11 +1,11 @@
 ---
-title: 接口幂等方案总结(付费)
-description: 接口幂等性设计详解，涵盖幂等性概念、常见实现方案及在支付、订单等场景中的应用实践。
-category: 高可用
+title: Tổng hợp các phương án Interface Idempotency (Trả phí)
+description: Giải thích chi tiết thiết kế idempotency cho interface, bao gồm khái niệm idempotency, các phương án triển khai phổ biến và thực hành trong các tình huống như thanh toán, đơn hàng.
+category: High Availability
 icon: security-fill
 ---
 
-**接口幂等** 相关的面试题为我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)（点击链接即可查看详细介绍以及加入方法）专属内容，已经整理到了[《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)中。
+Các câu hỏi phỏng vấn liên quan đến **Interface Idempotency** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Java Interview Guide》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html).
 
 ![](https://oss.javaguide.cn/xingqiu/mianshizhibei-gaobingfa.png)
 

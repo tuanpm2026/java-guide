@@ -1,57 +1,57 @@
 ---
-title: Java NIO 核心知识总结
-description: Java NIO核心知识全面总结：详解Channel通道、Buffer缓冲区、Selector选择器三大核心组件、非阻塞IO实现、零拷贝技术、与传统IO性能对比。
+title: Tổng Hợp Kiến Thức Cốt Lõi về Java NIO
+description: Tổng hợp toàn diện kiến thức cốt lõi về Java NIO: giải thích chi tiết ba thành phần cốt lõi Channel, Buffer, Selector, triển khai non-blocking IO, kỹ thuật zero-copy, so sánh hiệu suất với IO truyền thống.
 category: Java
 tag:
   - Java IO
-  - Java基础
+  - Java Cơ Bản
 head:
   - - meta
     - name: keywords
       content: Java NIO,Channel,Buffer,Selector,非阻塞IO,多路复用,零拷贝,NIO核心组件
 ---
 
-在学习 NIO 之前，需要先了解一下计算机 I/O 模型的基础理论知识。还不了解的话，可以参考我写的这篇文章：[Java IO 模型详解](https://javaguide.cn/java/io/io-model.html)。
+Trước khi học NIO, bạn cần hiểu trước kiến thức lý thuyết cơ bản về mô hình I/O của máy tính. Nếu chưa biết, bạn có thể tham khảo bài viết tôi đã viết: [Giải Thích Chi Tiết Mô Hình Java IO](https://javaguide.cn/java/io/io-model.html).
 
-## NIO 简介
+## Giới thiệu NIO
 
-在传统的 Java I/O 模型（BIO）中，I/O 操作是以阻塞的方式进行的。也就是说，当一个线程执行一个 I/O 操作时，它会被阻塞直到操作完成。这种阻塞模型在处理多个并发连接时可能会导致性能瓶颈，因为需要为每个连接创建一个线程，而线程的创建和切换都是有开销的。
+Trong mô hình Java I/O truyền thống (BIO), các thao tác I/O được thực hiện theo cách blocking. Tức là khi một thread thực hiện một thao tác I/O, nó sẽ bị block cho đến khi hoàn thành. Mô hình blocking này có thể gây ra bottleneck hiệu suất khi xử lý nhiều kết nối đồng thời, vì cần tạo một thread cho mỗi kết nối, trong khi việc tạo và chuyển đổi thread đều tốn chi phí.
 
-为了解决这个问题，在 Java1.4 版本引入了一种新的 I/O 模型 — **NIO** （New IO，也称为 Non-blocking IO） 。NIO 弥补了同步阻塞 I/O 的不足，它在标准 Java 代码中提供了非阻塞、面向缓冲、基于通道的 I/O，可以使用少量的线程来处理多个连接，大大提高了 I/O 效率和并发。
+Để giải quyết vấn đề này, trong phiên bản Java 1.4 đã giới thiệu một mô hình I/O mới — **NIO** (New IO, còn gọi là Non-blocking IO). NIO bù đắp cho những thiếu sót của synchronous blocking I/O, nó cung cấp I/O non-blocking, hướng buffer, dựa trên channel trong code Java tiêu chuẩn, có thể dùng ít thread để xử lý nhiều kết nối, nâng cao đáng kể hiệu suất I/O và khả năng xử lý đồng thời.
 
-下图是 BIO、NIO 和 AIO 处理客户端请求的简单对比图（关于 AIO 的介绍，可以看我写的这篇文章：[Java IO 模型详解](https://javaguide.cn/java/io/io-model.html)，不是重点，了解即可）。
+Hình dưới đây là biểu đồ so sánh đơn giản về cách BIO, NIO và AIO xử lý request của client (về phần giới thiệu AIO, có thể xem bài viết của tôi: [Giải Thích Chi Tiết Mô Hình Java IO](https://javaguide.cn/java/io/io-model.html), không phải trọng tâm, chỉ cần biết qua).
 
 ![BIO、NIO 和 AIO 对比](https://oss.javaguide.cn/github/javaguide/java/nio/bio-aio-nio.png)
 
-⚠️需要注意：使用 NIO 并不一定意味着高性能，它的性能优势主要体现在高并发和高延迟的网络环境下。当连接数较少、并发程度较低或者网络传输速度较快时，NIO 的性能并不一定优于传统的 BIO 。
+⚠️ Lưu ý: Sử dụng NIO không nhất thiết có nghĩa là hiệu suất cao, ưu thế hiệu suất của nó chủ yếu thể hiện trong môi trường mạng có độ đồng thời cao và độ trễ cao. Khi số lượng kết nối ít, mức độ đồng thời thấp hoặc tốc độ truyền mạng nhanh, hiệu suất của NIO không nhất thiết vượt trội hơn BIO truyền thống.
 
-## NIO 核心组件
+## Các thành phần cốt lõi của NIO
 
-NIO 主要包括以下三个核心组件：
+NIO chủ yếu bao gồm ba thành phần cốt lõi sau:
 
-- **Buffer（缓冲区）**：NIO 读写数据都是通过缓冲区进行操作的。读操作的时候将 Channel 中的数据填充到 Buffer 中，而写操作时将 Buffer 中的数据写入到 Channel 中。
-- **Channel（通道）**：Channel 是一个双向的、可读可写的数据传输通道，NIO 通过 Channel 来实现数据的输入输出。通道是一个抽象的概念，它可以代表文件、套接字或者其他数据源之间的连接。
-- **Selector（选择器）**：允许一个线程处理多个 Channel，基于事件驱动的 I/O 多路复用模型。所有的 Channel 都可以注册到 Selector 上，由 Selector 来分配线程来处理事件。
+- **Buffer (vùng đệm)**: NIO đọc và ghi dữ liệu đều thực hiện thông qua buffer. Khi đọc thì điền dữ liệu từ Channel vào Buffer, còn khi ghi thì ghi dữ liệu từ Buffer vào Channel.
+- **Channel (kênh)**: Channel là một kênh truyền dữ liệu hai chiều, có thể đọc và ghi. NIO thực hiện nhập xuất dữ liệu thông qua Channel. Channel là một khái niệm trừu tượng, nó có thể đại diện cho kết nối giữa file, socket hoặc các nguồn dữ liệu khác.
+- **Selector (bộ chọn)**: Cho phép một thread xử lý nhiều Channel, là mô hình I/O multiplexing dựa trên event-driven. Tất cả Channel đều có thể đăng ký lên Selector, để Selector phân bổ thread xử lý các sự kiện.
 
-三者的关系如下图所示（暂时不理解没关系，后文会详细介绍）：
+Mối quan hệ giữa ba thứ như hình dưới đây (tạm thời chưa hiểu không sao, phần sau sẽ giới thiệu chi tiết):
 
 ![Buffer、Channel和Selector三者之间的关系](https://oss.javaguide.cn/github/javaguide/java/nio/channel-buffer-selector.png)
 
-下面详细介绍一下这三个组件。
+Dưới đây sẽ giới thiệu chi tiết về ba thành phần này.
 
-### Buffer（缓冲区）
+### Buffer (Vùng đệm)
 
-在传统的 BIO 中，数据的读写是面向流的， 分为字节流和字符流。
+Trong BIO truyền thống, việc đọc ghi dữ liệu là hướng stream, chia thành byte stream và character stream.
 
-在 Java 1.4 的 NIO 库中，所有数据都是用缓冲区处理的，这是新库和之前的 BIO 的一个重要区别，有点类似于 BIO 中的缓冲流。NIO 在读取数据时，它是直接读到缓冲区中的。在写入数据时，写入到缓冲区中。 使用 NIO 在读写数据时，都是通过缓冲区进行操作。
+Trong thư viện NIO của Java 1.4, tất cả dữ liệu đều được xử lý bằng buffer, đây là một sự khác biệt quan trọng so với BIO trước đó, hơi giống với buffered stream trong BIO. Khi NIO đọc dữ liệu, nó đọc trực tiếp vào buffer. Khi ghi dữ liệu, ghi vào buffer. Khi đọc ghi dữ liệu với NIO, đều thực hiện thông qua buffer.
 
-`Buffer` 的子类如下图所示。其中，最常用的是 `ByteBuffer`，它可以用来存储和操作字节数据。
+Các lớp con của `Buffer` như hình dưới đây. Trong đó, thường dùng nhất là `ByteBuffer`, nó có thể dùng để lưu trữ và thao tác dữ liệu byte.
 
 ![Buffer 的子类](https://oss.javaguide.cn/github/javaguide/java/nio/buffer-subclasses.png)
 
-你可以将 Buffer 理解为一个数组，`IntBuffer`、`FloatBuffer`、`CharBuffer` 等分别对应 `int[]`、`float[]`、`char[]` 等。
+Bạn có thể hiểu Buffer như một mảng, `IntBuffer`, `FloatBuffer`, `CharBuffer` lần lượt tương ứng với `int[]`, `float[]`, `char[]`, v.v.
 
-为了更清晰地认识缓冲区，我们来简单看看`Buffer` 类中定义的四个成员变量：
+Để hiểu rõ hơn về buffer, hãy xem qua bốn biến thành viên được định nghĩa trong lớp `Buffer`:
 
 ```java
 public abstract class Buffer {
@@ -63,24 +63,24 @@ public abstract class Buffer {
 }
 ```
 
-这四个成员变量的具体含义如下：
+Ý nghĩa cụ thể của bốn biến thành viên này như sau:
 
-1. 容量（`capacity`）：`Buffer`可以存储的最大数据量，`Buffer`创建时设置且不可改变；
-2. 界限（`limit`）：`Buffer` 中可以读/写数据的边界。写模式下，`limit` 代表最多能写入的数据，一般等于 `capacity`（可以通过`limit(int newLimit)`方法设置）；读模式下，`limit` 等于 Buffer 中实际写入的数据大小。
-3. 位置（`position`）：下一个可以被读写的数据的位置（索引）。从写操作模式到读操作模式切换的时候（flip），`position` 都会归零，这样就可以从头开始读写了。
-4. 标记（`mark`）：`Buffer`允许将位置直接定位到该标记处，这是一个可选属性；
+1. Dung lượng (`capacity`): Lượng dữ liệu tối đa mà `Buffer` có thể lưu trữ, được thiết lập khi tạo `Buffer` và không thể thay đổi;
+2. Giới hạn (`limit`): Ranh giới dữ liệu có thể đọc/ghi trong `Buffer`. Ở chế độ ghi, `limit` đại diện cho lượng dữ liệu tối đa có thể ghi, thường bằng `capacity` (có thể thiết lập qua phương thức `limit(int newLimit)`); ở chế độ đọc, `limit` bằng kích thước thực tế của dữ liệu đã ghi vào Buffer.
+3. Vị trí (`position`): Vị trí (index) của dữ liệu tiếp theo có thể được đọc hoặc ghi. Khi chuyển từ chế độ ghi sang chế độ đọc (flip), `position` sẽ được đặt về 0, để có thể đọc ghi từ đầu.
+4. Dấu (`mark`): `Buffer` cho phép định vị trực tiếp đến vị trí đánh dấu này, đây là thuộc tính tùy chọn;
 
-并且，上述变量满足如下的关系：**0 <= mark <= position <= limit <= capacity** 。
+Ngoài ra, các biến trên thỏa mãn quan hệ sau: **0 <= mark <= position <= limit <= capacity**.
 
-另外，Buffer 有读模式和写模式这两种模式，分别用于从 Buffer 中读取数据或者向 Buffer 中写入数据。Buffer 被创建之后默认是写模式，调用 `flip()` 可以切换到读模式。如果要再次切换回写模式，可以调用 `clear()` 或者 `compact()` 方法。
+Buffer có hai chế độ là chế độ đọc và chế độ ghi, lần lượt dùng để đọc dữ liệu từ Buffer hoặc ghi dữ liệu vào Buffer. Buffer sau khi được tạo mặc định ở chế độ ghi, gọi `flip()` có thể chuyển sang chế độ đọc. Nếu muốn chuyển lại sang chế độ ghi, có thể gọi phương thức `clear()` hoặc `compact()`.
 
 ![position 、limit 和 capacity 之前的关系](https://oss.javaguide.cn/github/javaguide/java/nio/JavaNIOBuffer.png)
 
 ![position 、limit 和 capacity 之前的关系](https://oss.javaguide.cn/github/javaguide/java/nio/NIOBufferClassAttributes.png)
 
-`Buffer` 对象不能通过 `new` 调用构造方法创建对象 ，只能通过静态方法实例化 `Buffer`。
+Đối tượng `Buffer` không thể được tạo bằng cách gọi constructor thông qua `new`, chỉ có thể khởi tạo `Buffer` thông qua các static method.
 
-这里以 `ByteBuffer`为例进行介绍：
+Ở đây lấy `ByteBuffer` làm ví dụ để giới thiệu:
 
 ```java
 // 分配堆内存
@@ -89,18 +89,18 @@ public static ByteBuffer allocate(int capacity);
 public static ByteBuffer allocateDirect(int capacity);
 ```
 
-Buffer 最核心的两个方法：
+Hai phương thức cốt lõi nhất của Buffer:
 
-1. `get` : 读取缓冲区的数据
-2. `put` ：向缓冲区写入数据
+1. `get`: Đọc dữ liệu từ buffer
+2. `put`: Ghi dữ liệu vào buffer
 
-除上述两个方法之外，其他的重要方法：
+Ngoài hai phương thức trên, các phương thức quan trọng khác:
 
-- `flip` ：将缓冲区从写模式切换到读模式，它会将 `limit` 的值设置为当前 `position` 的值，将 `position` 的值设置为 0。
-- `clear`: 清空缓冲区，将缓冲区从读模式切换到写模式，并将 `position` 的值设置为 0，将 `limit` 的值设置为 `capacity` 的值。
+- `flip`: Chuyển buffer từ chế độ ghi sang chế độ đọc, nó sẽ đặt giá trị của `limit` bằng giá trị `position` hiện tại, và đặt giá trị của `position` về 0.
+- `clear`: Xóa buffer, chuyển buffer từ chế độ đọc sang chế độ ghi, và đặt giá trị của `position` về 0, đặt giá trị của `limit` bằng giá trị của `capacity`.
 - ……
 
-Buffer 中数据变化的过程：
+Quá trình thay đổi dữ liệu trong Buffer:
 
 ```java
 import java.nio.*;
@@ -145,7 +145,7 @@ public class CharBufferDemo {
 }
 ```
 
-输出:
+Kết quả đầu ra:
 
 ```bash
 初始状态：
@@ -165,40 +165,40 @@ capacity: 8, limit: 3, position: 0
 capacity: 8, limit: 8, position: 0
 ```
 
-为了帮助理解，我绘制了一张图片展示 `capacity`、`limit`和`position`每一阶段的变化。
+Để giúp hiểu, tôi đã vẽ một hình ảnh thể hiện sự thay đổi của `capacity`, `limit` và `position` ở từng giai đoạn.
 
 ![capacity、limit和position每一阶段的变化](https://oss.javaguide.cn/github/javaguide/java/nio/NIOBufferClassAttributesDataChanges.png)
 
-### Channel（通道）
+### Channel (Kênh)
 
-Channel 是一个通道，它建立了与数据源（如文件、网络套接字等）之间的连接。我们可以利用它来读取和写入数据，就像打开了一条自来水管，让数据在 Channel 中自由流动。
+Channel là một kênh, nó thiết lập kết nối với nguồn dữ liệu (như file, network socket, v.v.). Chúng ta có thể dùng nó để đọc và ghi dữ liệu, giống như mở một ống dẫn nước, để dữ liệu chảy tự do trong Channel.
 
-BIO 中的流是单向的，分为各种 `InputStream`（输入流）和 `OutputStream`（输出流），数据只是在一个方向上传输。通道与流的不同之处在于通道是双向的，它可以用于读、写或者同时用于读写。
+Stream trong BIO là một chiều, chia thành các `InputStream` (luồng đầu vào) và `OutputStream` (luồng đầu ra) khác nhau, dữ liệu chỉ truyền theo một hướng. Điểm khác biệt giữa channel và stream là channel là hai chiều, nó có thể dùng để đọc, ghi hoặc đồng thời đọc ghi.
 
-Channel 与前面介绍的 Buffer 打交道，读操作的时候将 Channel 中的数据填充到 Buffer 中，而写操作时将 Buffer 中的数据写入到 Channel 中。
+Channel tương tác với Buffer đã giới thiệu ở trên, khi đọc thì điền dữ liệu từ Channel vào Buffer, còn khi ghi thì ghi dữ liệu từ Buffer vào Channel.
 
 ![Channel 和 Buffer之间的关系](https://oss.javaguide.cn/github/javaguide/java/nio/channel-buffer.png)
 
-另外，因为 Channel 是全双工的，所以它可以比流更好地映射底层操作系统的 API。特别是在 UNIX 网络编程模型中，底层操作系统的通道都是全双工的，同时支持读写操作。
+Ngoài ra, vì Channel là full-duplex nên nó có thể ánh xạ tốt hơn các API của hệ điều hành nền. Đặc biệt trong mô hình lập trình mạng UNIX, các channel của hệ điều hành nền đều là full-duplex, hỗ trợ đồng thời cả đọc và ghi.
 
-`Channel` 的子类如下图所示。
+Các lớp con của `Channel` như hình dưới đây.
 
 ![Channel 的子类](https://oss.javaguide.cn/github/javaguide/java/nio/channel-subclasses.png)
 
-其中，最常用的是以下几种类型的通道：
+Trong đó, các loại channel thường dùng nhất là:
 
-- `FileChannel`：文件访问通道；
-- `SocketChannel`、`ServerSocketChannel`：TCP 通信通道；
-- `DatagramChannel`：UDP 通信通道；
+- `FileChannel`: Channel truy cập file;
+- `SocketChannel`, `ServerSocketChannel`: Channel giao tiếp TCP;
+- `DatagramChannel`: Channel giao tiếp UDP;
 
 ![Channel继承关系图](https://oss.javaguide.cn/github/javaguide/java/nio/channel-inheritance-relationship.png)
 
-Channel 最核心的两个方法：
+Hai phương thức cốt lõi nhất của Channel:
 
-1. `read` ：读取数据并写入到 Buffer 中。
-2. `write` ：将 Buffer 中的数据写入到 Channel 中。
+1. `read`: Đọc dữ liệu và ghi vào Buffer.
+2. `write`: Ghi dữ liệu từ Buffer vào Channel.
 
-这里我们以 `FileChannel` 为例演示一下是读取文件数据的。
+Ở đây chúng ta dùng `FileChannel` làm ví dụ để demo cách đọc dữ liệu file.
 
 ```java
 RandomAccessFile reader = new RandomAccessFile("/Users/guide/Documents/test_read.in", "r");
@@ -207,30 +207,30 @@ ByteBuffer buffer = ByteBuffer.allocate(1024);
 channel.read(buffer);
 ```
 
-### Selector（选择器）
+### Selector (Bộ chọn)
 
-Selector（选择器） 是 NIO 中的一个关键组件，它允许一个线程处理多个 Channel。Selector 是基于事件驱动的 I/O 多路复用模型，主要运作原理是：通过 Selector 注册通道的事件，Selector 会不断地轮询注册在其上的 Channel。当事件发生时，比如：某个 Channel 上面有新的 TCP 连接接入、读和写事件，这个 Channel 就处于就绪状态，会被 Selector 轮询出来。Selector 会将相关的 Channel 加入到就绪集合中。通过 SelectionKey 可以获取就绪 Channel 的集合，然后对这些就绪的 Channel 进行相应的 I/O 操作。
+Selector (bộ chọn) là một thành phần quan trọng trong NIO, nó cho phép một thread xử lý nhiều Channel. Selector dựa trên mô hình I/O multiplexing event-driven, nguyên lý hoạt động chính là: thông qua Selector đăng ký sự kiện của channel, Selector sẽ liên tục poll các Channel đã đăng ký trên nó. Khi sự kiện xảy ra, ví dụ như: có kết nối TCP mới đến trên một Channel, sự kiện đọc và ghi, Channel đó sẽ ở trạng thái sẵn sàng và được Selector poll ra. Selector sẽ thêm các Channel liên quan vào tập hợp sẵn sàng. Thông qua SelectionKey có thể lấy tập hợp Channel sẵn sàng, sau đó thực hiện các thao tác I/O tương ứng trên các Channel sẵn sàng đó.
 
 ![Selector 选择器工作示意图](https://oss.javaguide.cn/github/javaguide/java/nio/selector-channel-selectionkey.png)
 
-一个多路复用器 Selector 可以同时轮询多个 Channel，由于 JDK 使用了 `epoll()` 代替传统的 `select` 实现，所以它并没有最大连接句柄 `1024/2048` 的限制。这也就意味着只需要一个线程负责 Selector 的轮询，就可以接入成千上万的客户端。
+Một Selector multiplexer có thể đồng thời poll nhiều Channel, vì JDK dùng `epoll()` thay thế cho triển khai `select` truyền thống, nên nó không có giới hạn connection handle tối đa `1024/2048`. Điều này có nghĩa là chỉ cần một thread phụ trách việc poll của Selector, có thể tiếp nhận hàng ngàn client.
 
-Selector 可以监听以下四种事件类型：
+Selector có thể lắng nghe bốn loại sự kiện sau:
 
-1. `SelectionKey.OP_ACCEPT`：表示通道接受连接的事件，这通常用于 `ServerSocketChannel`。
-2. `SelectionKey.OP_CONNECT`：表示通道完成连接的事件，这通常用于 `SocketChannel`。
-3. `SelectionKey.OP_READ`：表示通道准备好进行读取的事件，即有数据可读。
-4. `SelectionKey.OP_WRITE`：表示通道准备好进行写入的事件，即可以写入数据。
+1. `SelectionKey.OP_ACCEPT`: Biểu thị sự kiện channel chấp nhận kết nối, thường dùng cho `ServerSocketChannel`.
+2. `SelectionKey.OP_CONNECT`: Biểu thị sự kiện channel hoàn thành kết nối, thường dùng cho `SocketChannel`.
+3. `SelectionKey.OP_READ`: Biểu thị sự kiện channel sẵn sàng để đọc, tức là có dữ liệu có thể đọc.
+4. `SelectionKey.OP_WRITE`: Biểu thị sự kiện channel sẵn sàng để ghi, tức là có thể ghi dữ liệu.
 
-`Selector`是抽象类，可以通过调用此类的 `open()` 静态方法来创建 Selector 实例。Selector 可以同时监控多个 `SelectableChannel` 的 `IO` 状况，是非阻塞 `IO` 的核心。
+`Selector` là lớp abstract, có thể tạo instance Selector bằng cách gọi static method `open()` của lớp này. Selector có thể đồng thời giám sát trạng thái `IO` của nhiều `SelectableChannel`, là cốt lõi của non-blocking `IO`.
 
-一个 Selector 实例有三个 `SelectionKey` 集合：
+Một instance Selector có ba tập hợp `SelectionKey`:
 
-1. 所有的 `SelectionKey` 集合：代表了注册在该 Selector 上的 `Channel`，这个集合可以通过 `keys()` 方法返回。
-2. 被选择的 `SelectionKey` 集合：代表了所有可通过 `select()` 方法获取的、需要进行 `IO` 处理的 Channel，这个集合可以通过 `selectedKeys()` 返回。
-3. 被取消的 `SelectionKey` 集合：代表了所有被取消注册关系的 `Channel`，在下一次执行 `select()` 方法时，这些 `Channel` 对应的 `SelectionKey` 会被彻底删除，程序通常无须直接访问该集合，也没有暴露访问的方法。
+1. Tập hợp tất cả `SelectionKey`: Đại diện cho tất cả `Channel` đã đăng ký trên Selector đó, tập hợp này có thể được trả về thông qua phương thức `keys()`.
+2. Tập hợp `SelectionKey` được chọn: Đại diện cho tất cả Channel cần xử lý `IO` có thể lấy được thông qua phương thức `select()`, tập hợp này có thể được trả về thông qua `selectedKeys()`.
+3. Tập hợp `SelectionKey` đã bị hủy: Đại diện cho tất cả `Channel` đã hủy đăng ký, trong lần thực thi phương thức `select()` tiếp theo, `SelectionKey` tương ứng với các `Channel` này sẽ bị xóa hoàn toàn, chương trình thường không cần truy cập trực tiếp tập hợp này và cũng không có phương thức để truy cập.
 
-简单演示一下如何遍历被选择的 `SelectionKey` 集合并进行处理：
+Demo đơn giản cách duyệt qua tập hợp `SelectionKey` được chọn và xử lý:
 
 ```java
 Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -252,15 +252,15 @@ while (keyIterator.hasNext()) {
 }
 ```
 
-Selector 还提供了一系列和 `select()` 相关的方法：
+Selector cũng cung cấp một loạt phương thức liên quan đến `select()`:
 
-- `int select()`：监控所有注册的 `Channel`，当它们中间有需要处理的 `IO` 操作时，该方法返回，并将对应的 `SelectionKey` 加入被选择的 `SelectionKey` 集合中，该方法返回这些 `Channel` 的数量。
-- `int select(long timeout)`：可以设置超时时长的 `select()` 操作。
-- `int selectNow()`：执行一个立即返回的 `select()` 操作，相对于无参数的 `select()` 方法而言，该方法不会阻塞线程。
-- `Selector wakeup()`：使一个还未返回的 `select()` 方法立刻返回。
+- `int select()`: Giám sát tất cả `Channel` đã đăng ký, khi có thao tác `IO` cần xử lý trong số đó, phương thức này sẽ trả về và thêm `SelectionKey` tương ứng vào tập hợp `SelectionKey` được chọn, phương thức này trả về số lượng `Channel` đó.
+- `int select(long timeout)`: Thao tác `select()` có thể thiết lập thời gian timeout.
+- `int selectNow()`: Thực hiện thao tác `select()` trả về ngay lập tức, so với phương thức `select()` không có tham số, phương thức này sẽ không block thread.
+- `Selector wakeup()`: Khiến một phương thức `select()` chưa trả về lập tức trả về.
 - ……
 
-使用 Selector 实现网络读写的简单示例：
+Ví dụ đơn giản sử dụng Selector để đọc ghi qua mạng:
 
 ```java
 import java.io.IOException;
@@ -341,31 +341,31 @@ public class NioSelectorExample {
 }
 ```
 
-在示例中，我们创建了一个简单的服务器，监听 8080 端口，使用 Selector 处理连接、读取和写入事件。当接收到客户端的数据时，服务器将读取数据并将其打印到控制台，然后向客户端回复 "Hello, Client!"。
+Trong ví dụ, chúng ta đã tạo một server đơn giản, lắng nghe cổng 8080, sử dụng Selector để xử lý các sự kiện kết nối, đọc và ghi. Khi nhận được dữ liệu từ client, server sẽ đọc dữ liệu và in ra console, sau đó phản hồi client với "Hello, Client!".
 
-## NIO 零拷贝
+## Zero-Copy trong NIO
 
-零拷贝是提升 IO 操作性能的一个常用手段，像 ActiveMQ、Kafka 、RocketMQ、QMQ、Netty 等顶级开源项目都用到了零拷贝。
+Zero-copy là một biện pháp phổ biến để nâng cao hiệu suất thao tác IO, các dự án open source hàng đầu như ActiveMQ, Kafka, RocketMQ, QMQ, Netty đều sử dụng zero-copy.
 
-零拷贝是指计算机执行 IO 操作时，CPU 不需要将数据从一个存储区域复制到另一个存储区域，从而可以减少上下文切换以及 CPU 的拷贝时间。也就是说，零拷贝主要解决操作系统在处理 I/O 操作时频繁复制数据的问题。零拷贝的常见实现技术有： `mmap+write`、`sendfile`和 `sendfile + DMA gather copy` 。
+Zero-copy có nghĩa là khi máy tính thực hiện thao tác IO, CPU không cần sao chép dữ liệu từ vùng lưu trữ này sang vùng lưu trữ khác, nhờ đó có thể giảm context switch và thời gian copy của CPU. Tức là zero-copy chủ yếu giải quyết vấn đề sao chép dữ liệu liên tục khi hệ điều hành xử lý thao tác I/O. Các kỹ thuật triển khai zero-copy phổ biến là: `mmap+write`, `sendfile` và `sendfile + DMA gather copy`.
 
-下图展示了各种零拷贝技术的对比图：
+Hình dưới đây thể hiện biểu đồ so sánh các kỹ thuật zero-copy khác nhau:
 
-|                            | CPU 拷贝 | DMA 拷贝 | 系统调用   | 上下文切换 |
-| -------------------------- | -------- | -------- | ---------- | ---------- |
-| 传统方法                   | 2        | 2        | read+write | 4          |
-| mmap+write                 | 1        | 2        | mmap+write | 4          |
-| sendfile                   | 1        | 2        | sendfile   | 2          |
-| sendfile + DMA gather copy | 0        | 2        | sendfile   | 2          |
+|                            | CPU copy | DMA copy | System call | Context switch |
+| -------------------------- | -------- | -------- | ----------- | -------------- |
+| Phương pháp truyền thống   | 2        | 2        | read+write  | 4              |
+| mmap+write                 | 1        | 2        | mmap+write  | 4              |
+| sendfile                   | 1        | 2        | sendfile    | 2              |
+| sendfile + DMA gather copy | 0        | 2        | sendfile    | 2              |
 
-可以看出，无论是传统的 I/O 方式，还是引入了零拷贝之后，2 次 DMA(Direct Memory Access) 拷贝是都少不了的。因为两次 DMA 都是依赖硬件完成的。零拷贝主要是减少了 CPU 拷贝及上下文的切换。
+Có thể thấy rằng, dù là phương pháp I/O truyền thống hay sau khi áp dụng zero-copy, 2 lần DMA (Direct Memory Access) copy đều không thể tránh khỏi. Vì hai lần DMA đều phụ thuộc vào phần cứng để thực hiện. Zero-copy chủ yếu là giảm bớt CPU copy và context switch.
 
-Java 对零拷贝的支持：
+Hỗ trợ zero-copy của Java:
 
-- `MappedByteBuffer` 是 NIO 基于内存映射（`mmap`）这种零拷⻉⽅式的提供的⼀种实现，底层实际是调用了 Linux 内核的 `mmap` 系统调用。它可以将一个文件或者文件的一部分映射到内存中，形成一个虚拟内存文件，这样就可以直接操作内存中的数据，而不需要通过系统调用来读写文件。
-- `FileChannel` 的`transferTo()/transferFrom()`是 NIO 基于发送文件（`sendfile`）这种零拷贝方式的提供的一种实现，底层实际是调用了 Linux 内核的 `sendfile`系统调用。它可以直接将文件数据从磁盘发送到网络，而不需要经过用户空间的缓冲区。关于`FileChannel`的用法可以看看这篇文章：[Java NIO 文件通道 FileChannel 用法](https://www.cnblogs.com/robothy/p/14235598.html)。
+- `MappedByteBuffer` là một triển khai mà NIO cung cấp dựa trên kỹ thuật zero-copy memory mapping (`mmap`), bên dưới thực tế là gọi system call `mmap` của Linux kernel. Nó có thể ánh xạ một file hoặc một phần file vào bộ nhớ, tạo thành một file bộ nhớ ảo, nhờ đó có thể thao tác trực tiếp dữ liệu trong bộ nhớ mà không cần system call để đọc ghi file.
+- `transferTo()/transferFrom()` của `FileChannel` là một triển khai mà NIO cung cấp dựa trên kỹ thuật zero-copy send file (`sendfile`), bên dưới thực tế là gọi system call `sendfile` của Linux kernel. Nó có thể truyền dữ liệu file trực tiếp từ disk đến network mà không cần qua buffer của user space. Về cách dùng `FileChannel` có thể xem bài viết: [Java NIO 文件通道 FileChannel 用法](https://www.cnblogs.com/robothy/p/14235598.html).
 
-代码示例：
+Ví dụ code:
 
 ```java
 private void loadFileIntoMemory(File xmlFile) throws IOException {
@@ -380,13 +380,13 @@ private void loadFileIntoMemory(File xmlFile) throws IOException {
 }
 ```
 
-## 总结
+## Tổng kết
 
-这篇文章我们主要介绍了 NIO 的核心知识点，包括 NIO 的核心组件和零拷贝。
+Bài viết này chủ yếu giới thiệu các điểm kiến thức cốt lõi của NIO, bao gồm các thành phần cốt lõi của NIO và zero-copy.
 
-如果我们需要使用 NIO 构建网络程序的话，不建议直接使用原生 NIO，编程复杂且功能性太弱，推荐使用一些成熟的基于 NIO 的网络编程框架比如 Netty。Netty 在 NIO 的基础上进行了一些优化和扩展比如支持多种协议、支持 SSL/TLS 等等。
+Nếu chúng ta cần dùng NIO để xây dựng chương trình mạng, không nên dùng trực tiếp NIO thuần, vì lập trình phức tạp và chức năng quá yếu. Khuyến nghị sử dụng một số framework lập trình mạng dựa trên NIO đã chín muồi như Netty. Netty đã thực hiện một số tối ưu hóa và mở rộng trên nền NIO như hỗ trợ nhiều giao thức, hỗ trợ SSL/TLS, v.v.
 
-## 参考
+## Tham khảo
 
 - Java NIO 浅析：<https://tech.meituan.com/2016/11/04/nio.html>
 

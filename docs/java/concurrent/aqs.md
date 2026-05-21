@@ -1,9 +1,9 @@
 ---
-title: AQS 详解
-description: AQS抽象队列同步器深度解析：详解AQS核心原理、CLH队列结构、独占锁与共享锁实现、ReentrantLock/Semaphore等同步器应用、线程阻塞唤醒机制。
+title: Giải thích chi tiết AQS
+description: Phân tích chuyên sâu về AbstractQueuedSynchronizer (AQS): nguyên lý cốt lõi, cấu trúc hàng đợi CLH, triển khai khóa độc quyền và khóa chia sẻ, ứng dụng các bộ đồng bộ như ReentrantLock/Semaphore, cơ chế chặn và đánh thức thread.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
@@ -12,222 +12,222 @@ head:
 
 <!-- markdownlint-disable MD024 -->
 
-## AQS 介绍
+## Giới thiệu AQS
 
-AQS 的全称为 `AbstractQueuedSynchronizer` ，翻译过来的意思就是抽象队列同步器。这个类在 `java.util.concurrent.locks` 包下面。
+AQS là viết tắt của `AbstractQueuedSynchronizer`, có nghĩa là bộ đồng bộ hóa hàng đợi trừu tượng. Class này nằm trong package `java.util.concurrent.locks`.
 
 ![](https://oss.javaguide.cn/github/javaguide/AQS.png)
 
-AQS 就是一个抽象类，主要用来构建锁和同步器。
+AQS là một abstract class, chủ yếu dùng để xây dựng các lock và bộ đồng bộ.
 
 ```java
 public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchronizer implements java.io.Serializable {
 }
 ```
 
-AQS 为构建锁和同步器提供了一些通用功能的实现。因此，使用 AQS 能简单且高效地构造出应用广泛的大量的同步器，比如我们提到的 `ReentrantLock`，`Semaphore`，其他的诸如 `ReentrantReadWriteLock`，`SynchronousQueue`等等皆是基于 AQS 的。
+AQS cung cấp các triển khai chức năng chung để xây dựng lock và bộ đồng bộ. Do đó, sử dụng AQS có thể xây dựng một cách đơn giản và hiệu quả nhiều bộ đồng bộ được ứng dụng rộng rãi, chẳng hạn như `ReentrantLock`, `Semaphore`, cũng như `ReentrantReadWriteLock`, `SynchronousQueue` và nhiều bộ đồng bộ khác đều dựa trên AQS.
 
-## AQS 原理
+## Nguyên lý AQS
 
-在面试中被问到并发知识的时候，大多都会被问到“请你说一下自己对于 AQS 原理的理解”。下面给大家一个示例供大家参考，面试不是背题，大家一定要加入自己的思想，即使加入不了自己的思想也要保证自己能够通俗的讲出来而不是背出来。
+Khi được hỏi về kiến thức đồng bộ trong phỏng vấn, hầu hết đều sẽ được hỏi "Hãy trình bày hiểu biết của bạn về nguyên lý AQS". Dưới đây là một ví dụ để tham khảo. Phỏng vấn không phải là học thuộc, bạn nhất định phải đưa vào suy nghĩ của mình, dù không thêm được suy nghĩ riêng thì cũng phải đảm bảo có thể giải thích một cách dễ hiểu chứ không phải đọc thuộc.
 
-### AQS 快速了解
+### Tìm hiểu nhanh về AQS
 
-在真正讲解 AQS 源码之前，需要对 AQS 有一个整体层面的认识。这里会先通过几个问题，从整体层面上认识 AQS，了解 AQS 在整个 Java 并发中所位于的层面，之后在学习 AQS 源码的过程中，才能更加了解同步器和 AQS 之间的关系。
+Trước khi thực sự giải thích source code AQS, cần có nhận thức tổng thể về AQS. Ở đây sẽ thông qua một vài câu hỏi để hiểu AQS ở mức tổng quan, biết được AQS nằm ở tầng nào trong toàn bộ Java concurrency, sau đó khi học source code AQS mới có thể hiểu sâu hơn về mối quan hệ giữa bộ đồng bộ và AQS.
 
-#### AQS 的作用是什么？
+#### Vai trò của AQS là gì?
 
-AQS 解决了开发者在实现同步器时的复杂性问题。它提供了一个通用框架，用于实现各种同步器，例如 **可重入锁**（`ReentrantLock`）、**信号量**（`Semaphore`）和 **倒计时器**（`CountDownLatch`）。通过封装底层的线程同步机制，AQS 将复杂的线程管理逻辑隐藏起来，使开发者只需专注于具体的同步逻辑。
+AQS giải quyết vấn đề phức tạp khi các nhà phát triển triển khai bộ đồng bộ. Nó cung cấp một framework chung để triển khai các bộ đồng bộ khác nhau, chẳng hạn như **reentrant lock** (`ReentrantLock`), **semaphore** (`Semaphore`) và **countdown timer** (`CountDownLatch`). Bằng cách đóng gói cơ chế đồng bộ thread ở tầng dưới, AQS ẩn đi logic quản lý thread phức tạp, giúp nhà phát triển chỉ cần tập trung vào logic đồng bộ cụ thể.
 
-简单来说，AQS 是一个抽象类，为同步器提供了通用的 **执行框架**。它定义了 **资源获取和释放的通用流程**，而具体的资源获取逻辑则由具体同步器通过重写模板方法来实现。 因此，可以将 AQS 看作是同步器的 **基础“底座”**，而同步器则是基于 AQS 实现的 **具体“应用”**。
+Nói đơn giản, AQS là một abstract class, cung cấp **execution framework** chung cho bộ đồng bộ. Nó định nghĩa **quy trình chung cho việc lấy và giải phóng tài nguyên**, còn logic lấy tài nguyên cụ thể được triển khai bởi bộ đồng bộ cụ thể thông qua việc override các template method. Do đó, có thể coi AQS là **"nền tảng" cơ sở** của bộ đồng bộ, còn bộ đồng bộ là **"ứng dụng" cụ thể** được xây dựng dựa trên AQS.
 
-#### AQS 为什么使用 CLH 锁队列的变体？
+#### Tại sao AQS sử dụng biến thể của CLH lock queue?
 
-CLH 锁是一种基于 **自旋锁** 的优化实现。
+CLH lock là một triển khai tối ưu dựa trên **spin lock**.
 
-先说一下自旋锁存在的问题：自旋锁通过线程不断对一个原子变量执行 `compareAndSet`（简称 `CAS`）操作来尝试获取锁。在高并发场景下，多个线程会同时竞争同一个原子变量，容易造成某个线程的 `CAS` 操作长时间失败，从而导致 **“饥饿”问题**（某些线程可能永远无法获取锁）。
+Trước tiên hãy nói về vấn đề của spin lock: spin lock sử dụng cách thread liên tục thực hiện thao tác `compareAndSet` (viết tắt là `CAS`) trên một biến nguyên tử để cố gắng lấy lock. Trong tình huống high concurrency, nhiều thread sẽ cùng lúc cạnh tranh cùng một biến nguyên tử, dễ dẫn đến việc thao tác `CAS` của một thread bị thất bại trong thời gian dài, gây ra **vấn đề "starvation"** (một số thread có thể không bao giờ lấy được lock).
 
-CLH 锁通过引入一个队列来组织并发竞争的线程，对自旋锁进行了改进：
+CLH lock cải thiện spin lock bằng cách đưa vào một hàng đợi để tổ chức các thread cạnh tranh đồng thời:
 
-- 每个线程会作为一个节点加入到队列中，并通过自旋监控前一个线程节点的状态，而不是直接竞争共享变量。
-- 线程按顺序排队，确保公平性，从而避免了 “饥饿” 问题。
+- Mỗi thread sẽ được thêm vào hàng đợi như một node, và theo dõi trạng thái của node thread trước đó thông qua spin, thay vì cạnh tranh trực tiếp biến dùng chung.
+- Các thread xếp hàng theo thứ tự, đảm bảo tính công bằng, qua đó tránh được vấn đề "starvation".
 
-AQS（AbstractQueuedSynchronizer）在 CLH 锁的基础上进一步优化，形成了其内部的 **CLH 队列变体**。主要改进点有以下两方面：
+AQS (AbstractQueuedSynchronizer) tiếp tục tối ưu hóa dựa trên CLH lock, tạo ra **biến thể CLH queue** bên trong. Có hai cải tiến chính:
 
-1. **自旋 + 阻塞**： CLH 锁使用纯自旋方式等待锁的释放，但大量的自旋操作会占用过多的 CPU 资源。AQS 引入了 **自旋 + 阻塞** 的混合机制：
-   - 如果线程获取锁失败，会先短暂自旋尝试获取锁；
-   - 如果仍然失败，则线程会进入阻塞状态，等待被唤醒，从而减少 CPU 的浪费。
-2. **单向队列改为双向队列**：CLH 锁使用单向队列，节点只知道前驱节点的状态，而当某个节点释放锁时，需要通过队列唤醒后续节点。AQS 将队列改为 **双向队列**，新增了 `next` 指针，使得节点不仅知道前驱节点，也可以直接唤醒后继节点，从而简化了队列操作，提高了唤醒效率。
+1. **Spin + Blocking**: CLH lock sử dụng phương thức spin thuần túy để chờ lock được giải phóng, nhưng lượng lớn thao tác spin chiếm dụng quá nhiều tài nguyên CPU. AQS đưa vào cơ chế kết hợp **spin + blocking**:
+   - Nếu thread lấy lock thất bại, sẽ spin ngắn để thử lấy lock;
+   - Nếu vẫn thất bại, thread sẽ vào trạng thái blocking, chờ được đánh thức, từ đó giảm lãng phí CPU.
+2. **Chuyển từ hàng đợi một chiều sang hàng đợi hai chiều**: CLH lock sử dụng hàng đợi một chiều, node chỉ biết trạng thái của node trước, khi một node giải phóng lock cần thông qua hàng đợi để đánh thức node tiếp theo. AQS chuyển hàng đợi thành **hàng đợi hai chiều**, thêm con trỏ `next`, giúp node không chỉ biết node trước mà còn có thể trực tiếp đánh thức node sau, đơn giản hóa thao tác hàng đợi và tăng hiệu quả đánh thức.
 
-#### AQS 的性能比较好，原因是什么？
+#### Tại sao AQS có hiệu năng tốt?
 
-因为 AQS 内部大量使用了 `CAS` 操作。
+Vì AQS sử dụng nhiều thao tác `CAS` ở bên trong.
 
-AQS 内部通过队列来存储等待的线程节点。由于队列是共享资源，在多线程场景下，需要保证队列的同步访问。
+AQS lưu trữ các node thread đang chờ thông qua hàng đợi bên trong. Vì hàng đợi là tài nguyên dùng chung, trong tình huống multi-thread cần đảm bảo truy cập đồng bộ vào hàng đợi.
 
-AQS 内部通过 `CAS` 操作来控制队列的同步访问，`CAS` 操作主要用于控制 `队列初始化` 、 `线程节点入队` 两个操作的并发安全。虽然利用 `CAS` 控制并发安全可以保证比较好的性能，但同时会带来比较高的 **编码复杂度** 。
+AQS kiểm soát truy cập đồng bộ vào hàng đợi thông qua các thao tác `CAS`, chủ yếu được dùng để kiểm soát concurrency safety cho hai thao tác `khởi tạo hàng đợi` và `thread node vào hàng đợi`. Mặc dù sử dụng `CAS` để kiểm soát concurrency safety có thể đảm bảo hiệu năng tốt, nhưng đồng thời cũng tăng **độ phức tạp lập trình** đáng kể.
 
-#### AQS 中为什么 Node 节点需要不同的状态？
+#### Tại sao trong AQS, Node cần các trạng thái khác nhau?
 
-AQS 中的 `waitStatus` 状态类似于 **状态机** ，通过不同状态来表明 Node 节点的不同含义，并且根据不同操作，来控制状态之间的流转。
+`waitStatus` trong AQS tương tự như **state machine**, thể hiện ý nghĩa khác nhau của Node qua các trạng thái khác nhau, và kiểm soát sự chuyển đổi giữa các trạng thái dựa trên các thao tác khác nhau.
 
-- 状态 `0` ：新节点加入队列之后，初始状态为 `0` 。
+- Trạng thái `0`: Sau khi node mới được thêm vào hàng đợi, trạng thái ban đầu là `0`.
 
-- 状态 `SIGNAL` ：当有新的节点加入队列，此时新节点的前继节点状态就会由 `0` 更新为 `SIGNAL` ，表示前继节点释放锁之后，需要对新节点进行唤醒操作。如果唤醒 `SIGNAL` 状态节点的后续节点，就会将 `SIGNAL` 状态更新为 `0` 。即通过清除 `SIGNAL` 状态，表示已经执行了唤醒操作。
+- Trạng thái `SIGNAL`: Khi có node mới vào hàng đợi, trạng thái của node predecessor sẽ được cập nhật từ `0` thành `SIGNAL`, nghĩa là sau khi node predecessor giải phóng lock cần thực hiện thao tác đánh thức node mới. Nếu đánh thức node successor của node trạng thái `SIGNAL`, trạng thái `SIGNAL` sẽ được cập nhật thành `0`. Tức là thông qua việc xóa trạng thái `SIGNAL` để chỉ ra đã thực hiện thao tác đánh thức.
 
-- 状态 `CANCELLED` ：如果一个节点在队列中等待获取锁锁时，因为某种原因失败了，该节点的状态就会变为 `CANCELLED` ，表明取消获取锁，这种状态的节点是异常的，无法被唤醒，也无法唤醒后继节点。
+- Trạng thái `CANCELLED`: Nếu một node đang chờ trong hàng đợi để lấy lock mà thất bại vì lý do nào đó, trạng thái của node đó sẽ chuyển thành `CANCELLED`, chỉ ra rằng đã hủy việc lấy lock. Node ở trạng thái này là bất thường, không thể bị đánh thức, cũng không thể đánh thức node successor.
 
-### AQS 核心思想
+### Tư tưởng cốt lõi của AQS
 
-AQS 核心思想是，如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并且将共享资源设置为锁定状态。如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及被唤醒时锁分配的机制，这个机制 AQS 是基于 **CLH 锁** （Craig, Landin, and Hagersten locks） 进一步优化实现的。
+Tư tưởng cốt lõi của AQS là: nếu tài nguyên dùng chung được yêu cầu đang rảnh, thì đặt thread đang yêu cầu tài nguyên hiện tại làm thread làm việc hợp lệ, và đặt tài nguyên dùng chung vào trạng thái bị khóa. Nếu tài nguyên dùng chung đang bị chiếm dụng, thì cần một cơ chế để thread chặn chờ và phân bổ lock khi được đánh thức. Cơ chế này trong AQS được triển khai dựa trên tối ưu hóa tiếp theo từ **CLH lock** (Craig, Landin, and Hagersten locks).
 
-**CLH 锁** 对自旋锁进行了改进，是基于单链表的自旋锁。在多线程场景下，会将请求获取锁的线程组织成一个单向队列，每个等待的线程会通过自旋访问前一个线程节点的状态，前一个节点释放锁之后，当前节点才可以获取锁。**CLH 锁** 的队列结构如下图所示。
+**CLH lock** cải thiện spin lock, là spin lock dựa trên linked list đơn. Trong tình huống multi-thread, các thread yêu cầu lấy lock được tổ chức thành hàng đợi một chiều, mỗi thread đang chờ sẽ truy cập trạng thái của node thread trước thông qua spin, chỉ sau khi node trước giải phóng lock, node hiện tại mới có thể lấy lock. Cấu trúc hàng đợi của **CLH lock** được thể hiện như hình dưới.
 
-![CLH 锁的队列结构](https://oss.javaguide.cn/github/javaguide/open-source-project/clh-lock-queue-structure.png)
+![Cấu trúc hàng đợi CLH lock](https://oss.javaguide.cn/github/javaguide/open-source-project/clh-lock-queue-structure.png)
 
-AQS 中使用的 **等待队列** 是 CLH 锁队列的变体（接下来简称为 CLH 变体队列）。
+**Hàng đợi chờ** được sử dụng trong AQS là biến thể của CLH lock queue (sau đây gọi tắt là CLH variant queue).
 
-AQS 的 CLH 变体队列是一个双向队列，会暂时获取不到锁的线程将被加入到该队列中，CLH 变体队列和原本的 CLH 锁队列的区别主要有两点：
+CLH variant queue trong AQS là hàng đợi hai chiều, các thread tạm thời không lấy được lock sẽ được thêm vào hàng đợi này. Sự khác biệt chính giữa CLH variant queue và CLH lock queue gốc có hai điểm:
 
-- 由 **自旋** 优化为 **自旋 + 阻塞** ：自旋操作的性能很高，但大量的自旋操作比较占用 CPU 资源，因此在 CLH 变体队列中会先通过自旋尝试获取锁，如果失败再进行阻塞等待。
-- 由 **单向队列** 优化为 **双向队列** ：在 CLH 变体队列中，会对等待的线程进行阻塞操作，当队列前边的线程释放锁之后，需要对后边的线程进行唤醒，因此增加了 `next` 指针，成为了双向队列。
+- Từ **spin** tối ưu thành **spin + blocking**: Hiệu năng của spin rất cao, nhưng lượng lớn spin chiếm dụng nhiều tài nguyên CPU, vì vậy trong CLH variant queue sẽ trước tiên thử lấy lock bằng spin, nếu thất bại mới chờ blocking.
+- Từ **hàng đợi một chiều** tối ưu thành **hàng đợi hai chiều**: Trong CLH variant queue, thread đang chờ sẽ bị chặn, khi thread ở đầu hàng đợi giải phóng lock cần đánh thức thread phía sau, do đó thêm con trỏ `next`, trở thành hàng đợi hai chiều.
 
-AQS 将每条请求共享资源的线程封装成一个 CLH 变体队列的一个结点（Node）来实现锁的分配。在 CLH 变体队列中，一个节点表示一个线程，它保存着线程的引用（thread）、 当前节点在队列中的状态（waitStatus）、前驱节点（prev）、后继节点（next）。
+AQS đóng gói mỗi thread yêu cầu tài nguyên dùng chung thành một node (Node) trong CLH variant queue để thực hiện phân bổ lock. Trong CLH variant queue, một node đại diện cho một thread, nó lưu trữ tham chiếu thread (thread), trạng thái hiện tại của node trong hàng đợi (waitStatus), node predecessor (prev), node successor (next).
 
-AQS 中的 CLH 变体队列结构如下图所示：
+Cấu trúc CLH variant queue trong AQS được thể hiện như hình dưới:
 
-![CLH 变体队列结构](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-structure-bianti.png)
+![Cấu trúc CLH variant queue](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-structure-bianti.png)
 
-关于 AQS 核心数据结构-CLH 锁的详细解读，强烈推荐阅读 [Java AQS 核心数据结构-CLH 锁 - Qunar 技术沙龙](https://mp.weixin.qq.com/s/jEx-4XhNGOFdCo4Nou5tqg) 这篇文章。
+Về giải thích chi tiết cấu trúc dữ liệu cốt lõi của AQS - CLH lock, rất khuyến nghị đọc bài viết [Java AQS 核心数据结构-CLH 锁 - Qunar 技术沙龙](https://mp.weixin.qq.com/s/jEx-4XhNGOFdCo4Nou5tqg).
 
-AQS(`AbstractQueuedSynchronizer`)的核心原理图：
+Sơ đồ nguyên lý cốt lõi của AQS (`AbstractQueuedSynchronizer`):
 
-![CLH 变体队列](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-state.png)
+![CLH variant queue](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-state.png)
 
-AQS 使用 **int 成员变量 `state` 表示同步状态**，通过内置的 **FIFO 线程等待/等待队列** 来完成获取资源线程的排队工作。
+AQS sử dụng **biến thành viên int `state` để biểu thị trạng thái đồng bộ**, hoàn thành việc xếp hàng của thread lấy tài nguyên thông qua **hàng đợi chờ/đợi FIFO** được tích hợp sẵn.
 
-`state` 变量由 `volatile` 修饰，用于展示当前临界资源的获取情况。这里 `volatile` 的作用不仅仅是保证可见性，更重要的是通过 happens-before 规则（volatile 变量的写操作先行发生于后续的读操作）防止编译器和处理器对指令进行重排序，从而保证锁语义的正确性。
+Biến `state` được sửa đổi bởi `volatile`, dùng để thể hiện tình trạng lấy tài nguyên tới hạn hiện tại. Ở đây vai trò của `volatile` không chỉ đảm bảo visibility, quan trọng hơn là thông qua quy tắc happens-before (thao tác ghi vào biến volatile xảy ra trước thao tác đọc sau đó) để ngăn compiler và processor sắp xếp lại lệnh, từ đó đảm bảo tính đúng đắn của ngữ nghĩa lock.
 
 ```java
-// 共享变量，使用volatile修饰，保证线程可见性并防止指令重排序
+// Biến dùng chung, được sửa đổi bởi volatile, đảm bảo thread visibility và ngăn instruction reordering
 private volatile int state;
 ```
 
-另外，状态信息 `state` 可以通过 `protected` 类型的`getState()`、`setState()`和`compareAndSetState()` 进行操作。并且，这几个方法都是 `final` 修饰的，在子类中无法被重写。
+Ngoài ra, thông tin trạng thái `state` có thể được thao tác thông qua `getState()`, `setState()` và `compareAndSetState()` kiểu `protected`. Và, các phương thức này đều được sửa đổi bởi `final`, không thể được override trong subclass.
 
 ```java
-//返回同步状态的当前值
+//Trả về giá trị hiện tại của trạng thái đồng bộ
 protected final int getState() {
      return state;
 }
- // 设置同步状态的值
+ // Đặt giá trị trạng thái đồng bộ
 protected final void setState(int newState) {
      state = newState;
 }
-//原子地（CAS操作）将同步状态值设置为给定值update如果当前同步状态的值等于expect（期望值）
+//Đặt nguyên tử (thao tác CAS) giá trị trạng thái đồng bộ thành giá trị update nếu giá trị trạng thái đồng bộ hiện tại bằng expect (giá trị mong đợi)
 protected final boolean compareAndSetState(int expect, int update) {
       return unsafe.compareAndSwapInt(this, stateOffset, expect, update);
 }
 ```
 
-以可重入的互斥锁 `ReentrantLock` 为例，它的内部维护了一个 `state` 变量，用来表示锁的占用状态。`state` 的初始值为 0，表示锁处于未锁定状态。当线程 A 调用 `lock()` 方法时，会尝试通过 `tryAcquire()` 方法独占该锁，并让 `state` 的值加 1。如果成功了，那么线程 A 就获取到了锁。如果失败了，那么线程 A 就会被加入到一个等待队列（CLH 变体队列）中，直到其他线程释放该锁。假设线程 A 获取锁成功了，释放锁之前，A 线程自己是可以重复获取此锁的（`state` 会累加）。这就是可重入性的体现：一个线程可以多次获取同一个锁而不会被阻塞。但是，这也意味着，一个线程必须释放与获取的次数相同的锁，才能让 `state` 的值回到 0，也就是让锁恢复到未锁定状态。只有这样，其他等待的线程才能有机会获取该锁。
+Lấy reentrant mutex lock `ReentrantLock` làm ví dụ, bên trong nó duy trì một biến `state` để biểu thị trạng thái chiếm dụng của lock. Giá trị ban đầu của `state` là 0, cho biết lock đang ở trạng thái không bị khóa. Khi thread A gọi phương thức `lock()`, nó sẽ cố gắng chiếm lock độc quyền thông qua phương thức `tryAcquire()` và tăng giá trị `state` lên 1. Nếu thành công, thread A lấy được lock. Nếu thất bại, thread A sẽ được thêm vào hàng đợi chờ (CLH variant queue), cho đến khi thread khác giải phóng lock đó. Giả sử thread A lấy lock thành công, trước khi giải phóng lock, thread A có thể tự mình lấy lock này nhiều lần (`state` sẽ tích lũy). Đây chính là biểu hiện của tính reentrant: một thread có thể lấy cùng một lock nhiều lần mà không bị chặn. Nhưng điều này cũng có nghĩa là, một thread phải giải phóng lock cùng số lần với số lần lấy, để `state` trở về 0, tức là đưa lock trở về trạng thái không bị khóa. Chỉ như vậy, các thread khác đang chờ mới có cơ hội lấy lock đó.
 
-线程 A 尝试获取锁的过程如下图所示（图源[从 ReentrantLock 的实现看 AQS 的原理及应用 - 美团技术团队](./reentrantlock.md)）：
+Quá trình thread A cố gắng lấy lock được thể hiện trong hình dưới (nguồn hình [从 ReentrantLock 的实现看 AQS 的原理及应用 - 美团技术团队](./reentrantlock.md)):
 
-![AQS 独占模式获取锁](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-exclusive-mode-acquire-lock.png)
+![AQS exclusive mode acquire lock](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-exclusive-mode-acquire-lock.png)
 
-再以倒计时器 `CountDownLatch` 以例，任务分为 N 个子线程去执行，`state` 也初始化为 N（注意 N 要与线程个数一致）。这 N 个子线程开始执行任务，每执行完一个子线程，就调用一次 `countDown()` 方法。该方法会尝试使用 CAS(Compare and Swap) 操作，让 `state` 的值减少 1。当所有的子线程都执行完毕后（即 `state` 的值变为 0），`CountDownLatch` 会调用 `unpark()` 方法，唤醒主线程。这时，主线程就可以从 `await()` 方法（`CountDownLatch` 中的`await()` 方法而非 AQS 中的）返回，继续执行后续的操作。
+Lấy countdown timer `CountDownLatch` làm ví dụ, tác vụ được chia thành N subthread để thực thi, `state` cũng được khởi tạo thành N (lưu ý N phải khớp với số lượng thread). N subthread này bắt đầu thực thi tác vụ, mỗi khi một subthread thực thi xong, sẽ gọi một lần phương thức `countDown()`. Phương thức này sẽ cố gắng sử dụng thao tác CAS (Compare and Swap) để giảm giá trị `state` đi 1. Khi tất cả subthread thực thi xong (tức là giá trị `state` thành 0), `CountDownLatch` sẽ gọi phương thức `unpark()` để đánh thức main thread. Lúc này, main thread có thể trả về từ phương thức `await()` (phương thức `await()` trong `CountDownLatch` chứ không phải trong AQS), tiếp tục thực thi các thao tác tiếp theo.
 
-### Node 节点 waitStatus 状态含义
+### Ý nghĩa trạng thái waitStatus của Node
 
-AQS 中的 `waitStatus` 状态类似于 **状态机** ，通过不同状态来表明 Node 节点的不同含义，并且根据不同操作，来控制状态之间的流转。
+`waitStatus` trong AQS tương tự như **state machine**, thể hiện ý nghĩa khác nhau của Node qua các trạng thái khác nhau, và kiểm soát sự chuyển đổi giữa các trạng thái dựa trên các thao tác khác nhau.
 
-| Node 节点状态 | 值  | 含义                                                                                                                      |
-| ------------- | --- | ------------------------------------------------------------------------------------------------------------------------- |
-| `CANCELLED`   | 1   | 表示线程已经取消获取锁。线程在等待获取资源时被中断、等待资源超时会更新为该状态。                                          |
-| `SIGNAL`      | -1  | 表示后继节点需要当前节点唤醒。在当前线程节点释放锁之后，需要对后继节点进行唤醒。                                          |
-| `CONDITION`   | -2  | 表示节点在等待 Condition。当其他线程调用了 Condition 的 `signal()` 方法后，节点会从等待队列转移到同步队列中等待获取资源。 |
-| `PROPAGATE`   | -3  | 用于共享模式。在共享模式下，可能会出现线程在队列中无法被唤醒的情况，因此引入了 `PROPAGATE` 状态来解决这个问题。           |
-|               | 0   | 加入队列的新节点的初始状态。                                                                                              |
+| Trạng thái Node | Giá trị | Ý nghĩa                                                                                                                                                                           |
+| --------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CANCELLED`     | 1       | Chỉ ra thread đã hủy lấy lock. Thread bị ngắt khi đang chờ lấy tài nguyên, hoặc chờ tài nguyên quá thời gian sẽ cập nhật sang trạng thái này.                                     |
+| `SIGNAL`        | -1      | Chỉ ra node successor cần được node hiện tại đánh thức. Sau khi thread node hiện tại giải phóng lock, cần đánh thức node successor.                                               |
+| `CONDITION`     | -2      | Chỉ ra node đang chờ Condition. Khi thread khác gọi phương thức `signal()` của Condition, node sẽ được chuyển từ hàng đợi chờ sang hàng đợi đồng bộ để chờ lấy tài nguyên.        |
+| `PROPAGATE`     | -3      | Dùng cho shared mode. Trong shared mode, có thể xảy ra tình huống thread không thể bị đánh thức trong hàng đợi, do đó đã đưa vào trạng thái `PROPAGATE` để giải quyết vấn đề này. |
+|                 | 0       | Trạng thái ban đầu của node mới thêm vào hàng đợi.                                                                                                                                |
 
-在 AQS 的源码中，经常使用 `> 0` 、 `< 0` 来对 `waitStatus` 进行判断。
+Trong source code AQS, thường sử dụng `> 0`, `< 0` để kiểm tra `waitStatus`.
 
-如果 `waitStatus > 0` ，表明节点的状态已经取消等待获取资源。
+Nếu `waitStatus > 0`, chỉ ra trạng thái của node đã hủy chờ lấy tài nguyên.
 
-如果 `waitStatus < 0` ，表明节点的状态处于正常的状态，即没有取消等待。
+Nếu `waitStatus < 0`, chỉ ra trạng thái của node đang ở trạng thái bình thường, tức là chưa hủy chờ.
 
-其中 `SIGNAL` 状态是最重要的，节点状态流转以及对应操作如下：
+Trong đó trạng thái `SIGNAL` là quan trọng nhất, chuyển đổi trạng thái node và thao tác tương ứng như sau:
 
-| 状态流转         | 对应操作                                                                                                                                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `0`              | 新节点入队时，初始状态为 `0` 。                                                                                                                           |
-| `0 -> SIGNAL`    | 新节点入队时，它的前继节点状态会由 `0` 更新为 `SIGNAL` 。`SIGNAL` 状态表明该节点的后续节点需要被唤醒。                                                    |
-| `SIGNAL -> 0`    | 在唤醒后继节点时，需要清除当前节点的状态。通常发生在 `head` 节点，比如 `head` 节点的状态由 `SIGNAL` 更新为 `0` ，表示已经对 `head` 节点的后继节点唤醒了。 |
-| `0 -> PROPAGATE` | AQS 内部引入了 `PROPAGATE` 状态，为了解决并发场景下，可能造成的线程节点无法唤醒的情况。（在 AQS 共享模式获取资源的源码分析会讲到）                        |
+| Chuyển đổi trạng thái | Thao tác tương ứng                                                                                                                                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`                   | Khi node mới vào hàng đợi, trạng thái ban đầu là `0`.                                                                                                                                                                  |
+| `0 -> SIGNAL`         | Khi node mới vào hàng đợi, trạng thái của node predecessor sẽ được cập nhật từ `0` thành `SIGNAL`. Trạng thái `SIGNAL` chỉ ra rằng node successor của node này cần được đánh thức.                                     |
+| `SIGNAL -> 0`         | Khi đánh thức node successor, cần xóa trạng thái của node hiện tại. Thường xảy ra ở node `head`, ví dụ trạng thái node `head` được cập nhật từ `SIGNAL` thành `0`, chỉ ra đã đánh thức node successor của node `head`. |
+| `0 -> PROPAGATE`      | AQS đưa vào trạng thái `PROPAGATE` để giải quyết tình huống node thread không thể được đánh thức trong tình huống concurrency. (Sẽ được đề cập trong phần phân tích source code lấy tài nguyên shared mode của AQS)    |
 
-### 自定义同步器
+### Bộ đồng bộ tùy chỉnh
 
-基于 AQS 可以实现自定义的同步器， AQS 提供了 5 个模板方法（模板方法模式）。如果需要自定义同步器一般的方式是这样（模板方法模式很经典的一个应用）：
+Dựa trên AQS có thể triển khai bộ đồng bộ tùy chỉnh. AQS cung cấp 5 template method (template method pattern). Nếu cần tùy chỉnh bộ đồng bộ, phương thức thông thường là (một ứng dụng điển hình của template method pattern):
 
-1. 自定义的同步器继承 `AbstractQueuedSynchronizer` 。
-2. 重写 AQS 暴露的模板方法。
+1. Bộ đồng bộ tùy chỉnh kế thừa `AbstractQueuedSynchronizer`.
+2. Override các template method mà AQS expose ra.
 
-**AQS 使用了模板方法模式，自定义同步器时需要重写下面几个 AQS 提供的钩子方法：**
+**AQS sử dụng template method pattern, khi tùy chỉnh bộ đồng bộ cần override các hook method mà AQS cung cấp dưới đây:**
 
 ```java
-//独占方式。尝试获取资源，成功则返回true，失败则返回false。
+//Exclusive mode. Thử lấy tài nguyên, thành công trả về true, thất bại trả về false.
 protected boolean tryAcquire(int)
-//独占方式。尝试释放资源，成功则返回true，失败则返回false。
+//Exclusive mode. Thử giải phóng tài nguyên, thành công trả về true, thất bại trả về false.
 protected boolean tryRelease(int)
-//共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+//Shared mode. Thử lấy tài nguyên. Số âm chỉ ra thất bại; 0 chỉ ra thành công nhưng không còn tài nguyên khả dụng; số dương chỉ ra thành công và còn tài nguyên.
 protected int tryAcquireShared(int)
-//共享方式。尝试释放资源，成功则返回true，失败则返回false。
+//Shared mode. Thử giải phóng tài nguyên, thành công trả về true, thất bại trả về false.
 protected boolean tryReleaseShared(int)
-//该线程是否正在独占资源。只有用到condition才需要去实现它。
+//Thread này có đang độc quyền tài nguyên không. Chỉ cần triển khai khi dùng condition.
 protected boolean isHeldExclusively()
 ```
 
-**什么是钩子方法呢？** 钩子方法是一种被声明在抽象类中的方法，一般使用 `protected` 关键字修饰，它可以是空方法（由子类实现），也可以是默认实现的方法。模板设计模式通过钩子方法控制固定步骤的实现。
+**Hook method là gì?** Hook method là phương thức được khai báo trong abstract class, thường được sửa đổi bởi từ khóa `protected`, có thể là phương thức rỗng (do subclass triển khai), cũng có thể là phương thức đã có triển khai mặc định. Template design pattern kiểm soát triển khai các bước cố định thông qua hook method.
 
-篇幅问题，这里就不详细介绍模板方法模式了，不太了解的小伙伴可以看看这篇文章：[用 Java8 改造后的模板方法模式真的是 yyds!](https://mp.weixin.qq.com/s/zpScSCktFpnSWHWIQem2jg)。
+Do giới hạn bài viết, ở đây sẽ không giới thiệu chi tiết về template method pattern, các bạn chưa rõ có thể xem bài viết: [用 Java8 改造后的模板方法模式真的是 yyds!](https://mp.weixin.qq.com/s/zpScSCktFpnSWHWIQem2jg).
 
-除了上面提到的钩子方法之外，AQS 类中的其他方法都是 `final` ，所以无法被其他类重写。
+Ngoài các hook method được đề cập ở trên, tất cả các phương thức khác trong class AQS đều là `final`, do đó không thể được override bởi các class khác.
 
-### AQS 资源共享方式
+### Phương thức chia sẻ tài nguyên của AQS
 
-AQS 定义两种资源共享方式：`Exclusive`（独占，只有一个线程能执行，如`ReentrantLock`）和`Share`（共享，多个线程可同时执行，如`Semaphore`/`CountDownLatch`）。
+AQS định nghĩa hai phương thức chia sẻ tài nguyên: `Exclusive` (độc quyền, chỉ một thread có thể thực thi, như `ReentrantLock`) và `Share` (chia sẻ, nhiều thread có thể thực thi đồng thời, như `Semaphore`/`CountDownLatch`).
 
-一般来说，自定义同步器的共享方式要么是独占，要么是共享，他们也只需实现`tryAcquire-tryRelease`、`tryAcquireShared-tryReleaseShared`中的一种即可。但 AQS 也支持自定义同步器同时实现独占和共享两种方式，如`ReentrantReadWriteLock`。
+Nhìn chung, phương thức chia sẻ của bộ đồng bộ tùy chỉnh là độc quyền hoặc chia sẻ, họ cũng chỉ cần triển khai một trong hai cặp `tryAcquire-tryRelease`, `tryAcquireShared-tryReleaseShared`. Nhưng AQS cũng hỗ trợ bộ đồng bộ tùy chỉnh triển khai đồng thời cả hai phương thức độc quyền và chia sẻ, như `ReentrantReadWriteLock`.
 
-### 独占模式与共享模式的深入对比
+### So sánh chuyên sâu giữa Exclusive mode và Shared mode
 
-上面简要介绍了 AQS 的两种资源共享方式，下面从多个维度对独占模式和共享模式进行系统对比，帮助更深入地理解二者的差异。
+Ở trên đã giới thiệu sơ lược về hai phương thức chia sẻ tài nguyên của AQS. Dưới đây sẽ so sánh hệ thống giữa exclusive mode và shared mode từ nhiều chiều để hiểu sâu hơn sự khác biệt giữa hai phương thức.
 
-#### 特性对比
+#### So sánh đặc tính
 
-| 对比维度 | 独占模式（Exclusive） | 共享模式（Share） |
-| --- | --- | --- |
-| **并发度** | 同一时刻只有一个线程能获取到资源 | 同一时刻可以有多个线程同时获取到资源 |
-| **获取资源入口** | `acquire(int arg)` | `acquireShared(int arg)` |
-| **释放资源入口** | `release(int arg)` | `releaseShared(int arg)` |
-| **需要重写的模板方法** | `tryAcquire(int)` / `tryRelease(int)` | `tryAcquireShared(int)` / `tryReleaseShared(int)` |
-| **tryXxx 返回值** | `boolean`，`true` 表示获取/释放成功 | `int`（获取时），负数表示失败，0 表示成功但无剩余资源，正数表示成功且有剩余资源；`boolean`（释放时） |
-| **唤醒后继节点** | 释放资源时唤醒一个后继节点 | 获取资源成功后，如果还有剩余资源，会继续唤醒后续节点（传播唤醒） |
-| **Node 类型标识** | `Node.EXCLUSIVE`（`null`） | `Node.SHARED`（一个静态的 `Node` 实例） |
-| **典型实现** | `ReentrantLock`、`ReentrantReadWriteLock` 的写锁 | `Semaphore`、`CountDownLatch`、`ReentrantReadWriteLock` 的读锁 |
+| Chiều so sánh                      | Exclusive mode                                                 | Shared mode                                                                                                                                                      |
+| ---------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mức độ đồng thời**               | Tại cùng một thời điểm chỉ có một thread có thể lấy tài nguyên | Tại cùng một thời điểm có thể có nhiều thread cùng lấy tài nguyên                                                                                                |
+| **Điểm vào lấy tài nguyên**        | `acquire(int arg)`                                             | `acquireShared(int arg)`                                                                                                                                         |
+| **Điểm vào giải phóng tài nguyên** | `release(int arg)`                                             | `releaseShared(int arg)`                                                                                                                                         |
+| **Template method cần override**   | `tryAcquire(int)` / `tryRelease(int)`                          | `tryAcquireShared(int)` / `tryReleaseShared(int)`                                                                                                                |
+| **Giá trị trả về của tryXxx**      | `boolean`, `true` chỉ ra lấy/giải phóng thành công             | `int` (khi lấy), số âm chỉ ra thất bại, 0 chỉ ra thành công nhưng không còn tài nguyên, số dương chỉ ra thành công và còn tài nguyên; `boolean` (khi giải phóng) |
+| **Đánh thức node successor**       | Khi giải phóng tài nguyên đánh thức một node successor         | Sau khi lấy tài nguyên thành công, nếu còn tài nguyên dư, sẽ tiếp tục đánh thức các node tiếp theo (lan truyền đánh thức)                                        |
+| **Định danh kiểu Node**            | `Node.EXCLUSIVE` (`null`)                                      | `Node.SHARED` (một instance `Node` tĩnh)                                                                                                                         |
+| **Triển khai điển hình**           | `ReentrantLock`, write lock của `ReentrantReadWriteLock`       | `Semaphore`, `CountDownLatch`, read lock của `ReentrantReadWriteLock`                                                                                            |
 
-#### `state` 在不同同步器中的语义
+#### Ngữ nghĩa của `state` trong các bộ đồng bộ khác nhau
 
-AQS 中的 `state` 是一个通用的同步状态变量，不同的同步器赋予它不同的含义：
+`state` trong AQS là biến trạng thái đồng bộ chung, các bộ đồng bộ khác nhau gán cho nó ý nghĩa khác nhau:
 
-| 同步器 | 模式 | `state` 的语义 |
-| --- | --- | --- |
-| `ReentrantLock` | 独占 | 表示锁的重入次数。`state == 0` 表示锁空闲；`state > 0` 表示锁被持有，值为重入次数 |
-| `ReentrantReadWriteLock` | 独占 + 共享 | 高 16 位表示读锁的持有数量（共享），低 16 位表示写锁的重入次数（独占） |
-| `Semaphore` | 共享 | 表示可用许可证的数量。每次 `acquire()` 减少，`release()` 增加 |
-| `CountDownLatch` | 共享 | 表示需要等待的计数。每次 `countDown()` 减 1，到 0 时唤醒所有等待线程 |
+| Bộ đồng bộ               | Mode               | Ngữ nghĩa của `state`                                                                                                           |
+| ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `ReentrantLock`          | Exclusive          | Biểu thị số lần reenter của lock. `state == 0` chỉ ra lock rảnh; `state > 0` chỉ ra lock đang bị giữ, giá trị là số lần reenter |
+| `ReentrantReadWriteLock` | Exclusive + Shared | 16 bit cao biểu thị số lần giữ read lock (shared), 16 bit thấp biểu thị số lần reenter write lock (exclusive)                   |
+| `Semaphore`              | Shared             | Biểu thị số lượng permit khả dụng. Mỗi lần `acquire()` giảm, `release()` tăng                                                   |
+| `CountDownLatch`         | Shared             | Biểu thị count cần chờ. Mỗi lần `countDown()` giảm 1, đến 0 đánh thức tất cả thread đang chờ                                    |
 
-下面通过一个代码示例来直观感受独占模式和共享模式在使用上的区别：
+Dưới đây thông qua một ví dụ code để trực quan cảm nhận sự khác biệt trong cách sử dụng giữa exclusive mode và shared mode:
 
 ```java
 import java.util.concurrent.Semaphore;
@@ -235,13 +235,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ExclusiveVsSharedDemo {
     public static void main(String[] args) {
-        // 独占模式：同一时刻只有 1 个线程能进入临界区
+        // Exclusive mode: chỉ 1 thread có thể vào critical section tại cùng một thời điểm
         ReentrantLock lock = new ReentrantLock();
 
-        // 共享模式：同一时刻最多 3 个线程能进入临界区
+        // Shared mode: tối đa 3 thread có thể vào critical section tại cùng một thời điểm
         Semaphore semaphore = new Semaphore(3);
 
-        // 独占模式示例
+        // Ví dụ exclusive mode
         Runnable exclusiveTask = () -> {
             lock.lock();
             try {
@@ -255,7 +255,7 @@ public class ExclusiveVsSharedDemo {
             }
         };
 
-        // 共享模式示例
+        // Ví dụ shared mode
         Runnable sharedTask = () -> {
             try {
                 semaphore.acquire();
@@ -284,11 +284,11 @@ public class ExclusiveVsSharedDemo {
 }
 ```
 
-运行上面的代码可以观察到：独占模式下 5 个线程严格按顺序一个一个执行，而共享模式下最多有 3 个线程同时执行。
+Chạy code trên có thể quan sát: trong exclusive mode, 5 thread thực thi nghiêm ngặt lần lượt từng cái một, còn trong shared mode tối đa 3 thread thực thi đồng thời.
 
-### AQS 资源获取源码分析（独占模式）
+### Phân tích source code lấy tài nguyên AQS (Exclusive mode)
 
-AQS 中以独占模式获取资源的入口方法是 `acquire()` ，如下：
+Phương thức entry trong AQS để lấy tài nguyên ở exclusive mode là `acquire()`, như sau:
 
 ```JAVA
 // AQS
@@ -299,15 +299,15 @@ public final void acquire(int arg) {
 }
 ```
 
-在 `acquire()` 中，线程会先尝试获取共享资源；如果获取失败，会将线程封装为 Node 节点加入到 AQS 的等待队列中；加入队列之后，会让等待队列中的线程尝试获取资源，并且会对线程进行阻塞操作。分别对应以下三个方法：
+Trong `acquire()`, thread trước tiên sẽ thử lấy tài nguyên dùng chung; nếu lấy thất bại, sẽ đóng gói thread thành Node node thêm vào hàng đợi chờ của AQS; sau khi vào hàng đợi, sẽ cho các thread trong hàng đợi thử lấy tài nguyên và thực hiện thao tác chặn thread. Tương ứng với ba phương thức sau:
 
-- `tryAcquire()` ：尝试获取锁（模板方法），`AQS` 不提供具体实现，由子类实现。
-- `addWaiter()` ：如果获取锁失败，会将当前线程封装为 Node 节点加入到 AQS 的 CLH 变体队列中等待获取锁。
-- `acquireQueued()` ：对线程进行阻塞，并调用 `tryAcquire()` 方法让队列中的线程尝试获取锁。
+- `tryAcquire()`: Thử lấy lock (template method), `AQS` không cung cấp triển khai cụ thể, do subclass triển khai.
+- `addWaiter()`: Nếu lấy lock thất bại, sẽ đóng gói thread hiện tại thành Node node thêm vào CLH variant queue của AQS để chờ lấy lock.
+- `acquireQueued()`: Chặn thread và gọi phương thức `tryAcquire()` để thread trong hàng đợi thử lấy lock.
 
-#### `tryAcquire()` 分析
+#### Phân tích `tryAcquire()`
 
-AQS 中对应的 `tryAcquire()` 模板方法如下：
+Template method `tryAcquire()` tương ứng trong AQS như sau:
 
 ```JAVA
 // AQS
@@ -316,80 +316,80 @@ protected boolean tryAcquire(int arg) {
 }
 ```
 
-`tryAcquire()` 方法是 AQS 提供的模板方法，不提供默认实现。
+Phương thức `tryAcquire()` là template method mà AQS cung cấp, không cung cấp triển khai mặc định.
 
-因此，这里分析 `tryAcquire()` 方法时，以 `ReentrantLock` 的非公平锁（独占锁）为例进行分析，`ReentrantLock` 内部实现的 `tryAcquire()` 会调用到下边的 `nonfairTryAcquire()` ：
+Do đó, khi phân tích phương thức `tryAcquire()` ở đây, lấy non-fair lock (exclusive lock) của `ReentrantLock` làm ví dụ để phân tích. `tryAcquire()` được triển khai bên trong `ReentrantLock` sẽ gọi đến `nonfairTryAcquire()` bên dưới:
 
 ```JAVA
 // ReentrantLock
 final boolean nonfairTryAcquire(int acquires) {
     final Thread current = Thread.currentThread();
-    // 1、获取 AQS 中的 state 状态
+    // 1、Lấy trạng thái state trong AQS
     int c = getState();
-    // 2、如果 state 为 0，证明锁没有被其他线程占用
+    // 2、Nếu state là 0, chứng tỏ lock chưa bị thread khác chiếm dụng
     if (c == 0) {
-        // 2.1、通过 CAS 对 state 进行更新
+        // 2.1、Cập nhật state qua CAS
         if (compareAndSetState(0, acquires)) {
-            // 2.2、如果 CAS 更新成功，就将锁的持有者设置为当前线程
+            // 2.2、Nếu CAS cập nhật thành công, đặt người giữ lock là thread hiện tại
             setExclusiveOwnerThread(current);
             return true;
         }
     }
-    // 3、如果当前线程和锁的持有线程相同，说明发生了「锁的重入」
+    // 3、Nếu thread hiện tại và thread giữ lock giống nhau, tức là đã xảy ra "lock reentry"
     else if (current == getExclusiveOwnerThread()) {
         int nextc = c + acquires;
         if (nextc < 0) // overflow
             throw new Error("Maximum lock count exceeded");
-        // 3.1、将锁的重入次数加 1
+        // 3.1、Tăng số lần reentry của lock lên 1
         setState(nextc);
         return true;
     }
-    // 4、如果锁被其他线程占用，就返回 false，表示获取锁失败
+    // 4、Nếu lock bị thread khác chiếm dụng, trả về false, chỉ ra lấy lock thất bại
     return false;
 }
 ```
 
-在 `nonfairTryAcquire()` 方法内部，主要通过两个核心操作去完成资源的获取：
+Bên trong phương thức `nonfairTryAcquire()`, chủ yếu hoàn thành việc lấy tài nguyên thông qua hai thao tác cốt lõi:
 
-- 通过 `CAS` 更新 `state` 变量。`state == 0` 表示资源没有被占用。`state > 0` 表示资源被占用，此时 `state` 表示重入次数。
-- 通过 `setExclusiveOwnerThread()` 设置持有资源的线程。
+- Cập nhật biến `state` thông qua `CAS`. `state == 0` chỉ ra tài nguyên chưa bị chiếm dụng. `state > 0` chỉ ra tài nguyên đang bị chiếm dụng, lúc này `state` biểu thị số lần reentry.
+- Đặt thread giữ tài nguyên thông qua `setExclusiveOwnerThread()`.
 
-如果线程更新 `state` 变量成功，就表明获取到了资源， 因此将持有资源的线程设置为当前线程即可。
+Nếu thread cập nhật biến `state` thành công, tức là đã lấy được tài nguyên, do đó đặt thread giữ tài nguyên là thread hiện tại.
 
-#### `addWaiter()` 分析
+#### Phân tích `addWaiter()`
 
-在通过 `tryAcquire()` 方法尝试获取资源失败之后，会调用 `addWaiter()` 方法将当前线程封装为 Node 节点加入 `AQS` 内部的队列中。`addWaite()` 代码如下：
+Sau khi thử lấy tài nguyên thất bại thông qua phương thức `tryAcquire()`, sẽ gọi phương thức `addWaiter()` để đóng gói thread hiện tại thành Node node thêm vào hàng đợi bên trong `AQS`. Code của `addWaiter()` như sau:
 
 ```JAVA
 // AQS
 private Node addWaiter(Node mode) {
-    // 1、将当前线程封装为 Node 节点。
+    // 1、Đóng gói thread hiện tại thành Node node.
     Node node = new Node(Thread.currentThread(), mode);
     Node pred = tail;
-    // 2、如果 pred ！= null，则证明 tail 节点已经被初始化，直接将 Node 节点加入队列即可。
+    // 2、Nếu pred != null, chứng tỏ node tail đã được khởi tạo, có thể thêm Node node vào hàng đợi trực tiếp.
     if (pred != null) {
         node.prev = pred;
-        // 2.1、通过 CAS 控制并发安全。
+        // 2.1、Kiểm soát concurrency safety thông qua CAS.
         if (compareAndSetTail(pred, node)) {
             pred.next = node;
             return node;
         }
     }
-    // 3、初始化队列，并将新创建的 Node 节点加入队列。
+    // 3、Khởi tạo hàng đợi và thêm Node node mới tạo vào hàng đợi.
     enq(node);
     return node;
 }
 ```
 
-**节点入队的并发安全：**
+**Concurrency safety khi node vào hàng đợi:**
 
-在 `addWaiter()` 方法中，需要执行 Node 节点 **入队** 的操作。由于是在多线程环境下，因此需要通过 `CAS` 操作保证并发安全。
+Trong phương thức `addWaiter()`, cần thực hiện thao tác **vào hàng đợi** cho Node node. Vì đang ở môi trường multi-thread, cần đảm bảo concurrency safety thông qua thao tác `CAS`.
 
-通过 `CAS` 操作去更新 `tail` 指针指向新入队的 Node 节点，`CAS` 可以保证只有一个线程会成功修改 `tail` 指针，以此来保证 Node 节点入队时的并发安全。
+Cập nhật con trỏ `tail` trỏ đến Node node mới vào hàng đợi thông qua thao tác `CAS`, `CAS` có thể đảm bảo chỉ một thread thành công trong việc sửa đổi con trỏ `tail`, qua đó đảm bảo concurrency safety khi Node node vào hàng đợi.
 
-**AQS 内部队列的初始化：**
+**Khởi tạo hàng đợi nội bộ AQS:**
 
-在执行 `addWaiter()` 时，如果发现 `pred == null` ，即 `tail` 指针为 null，则证明队列没有初始化，需要调用 `enq()` 方法初始化队列，并将 `Node` 节点加入到初始化后的队列中，代码如下：
+Khi thực thi `addWaiter()`, nếu phát hiện `pred == null`, tức là con trỏ `tail` là null, chứng tỏ hàng đợi chưa được khởi tạo, cần gọi phương thức `enq()` để khởi tạo hàng đợi và thêm Node node vào hàng đợi sau khi khởi tạo, code như sau:
 
 ```JAVA
 // AQS
@@ -397,11 +397,11 @@ private Node enq(final Node node) {
     for (;;) {
         Node t = tail;
         if (t == null) {
-            // 1、通过 CAS 操作保证队列初始化的并发安全
+            // 1、Đảm bảo concurrency safety của khởi tạo hàng đợi thông qua thao tác CAS
             if (compareAndSetHead(new Node()))
                 tail = head;
         } else {
-            // 2、与 addWaiter() 方法中节点入队的操作相同
+            // 2、Giống với thao tác node vào hàng đợi trong phương thức addWaiter()
             node.prev = t;
             if (compareAndSetTail(t, node)) {
                 t.next = node;
@@ -412,17 +412,17 @@ private Node enq(final Node node) {
 }
 ```
 
-在 `enq()` 方法中初始化队列，在初始化过程中，也需要通过 `CAS` 来保证并发安全。
+Trong phương thức `enq()`, khởi tạo hàng đợi, trong quá trình khởi tạo cũng cần dùng `CAS` để đảm bảo concurrency safety.
 
-初始化队列总共包含两个步骤：初始化 `head` 节点、`tail` 指向 `head` 节点。
+Khởi tạo hàng đợi gồm hai bước: khởi tạo node `head`, con trỏ `tail` trỏ đến node `head`.
 
-**初始化后的队列如下图所示：**
+**Hàng đợi sau khi khởi tạo được thể hiện trong hình dưới:**
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-structure-init.png)
 
-#### `acquireQueued()` 分析
+#### Phân tích `acquireQueued()`
 
-为了方便阅读，这里再贴一下 `AQS` 中 `acquire()` 获取资源的代码：
+Để tiện đọc, ở đây dán lại code `acquire()` lấy tài nguyên trong `AQS`:
 
 ```JAVA
 // AQS
@@ -433,16 +433,16 @@ public final void acquire(int arg) {
 }
 ```
 
-在 `acquire()` 方法中，通过 `addWaiter()` 方法将 `Node` 节点加入队列之后，就会调用 `acquireQueued()` 方法。代码如下：
+Trong phương thức `acquire()`, sau khi thêm Node node vào hàng đợi thông qua phương thức `addWaiter()`, sẽ gọi phương thức `acquireQueued()`. Code như sau:
 
 ```JAVA
-// AQS：令队列中的节点尝试获取锁，并且对线程进行阻塞。
+// AQS: Cho node trong hàng đợi thử lấy lock và chặn thread.
 final boolean acquireQueued(final Node node, int arg) {
     boolean failed = true;
     try {
         boolean interrupted = false;
         for (;;) {
-            // 1、尝试获取锁。
+            // 1、Thử lấy lock.
             final Node p = node.predecessor();
             if (p == head && tryAcquire(arg)) {
                 setHead(node);
@@ -450,99 +450,99 @@ final boolean acquireQueued(final Node node, int arg) {
                 failed = false;
                 return interrupted;
             }
-            // 2、判断线程是否可以阻塞，如果可以，则阻塞当前线程。
+            // 2、Kiểm tra xem thread có thể bị chặn không, nếu có, chặn thread hiện tại.
             if (shouldParkAfterFailedAcquire(p, node) &&
                 parkAndCheckInterrupt())
                 interrupted = true;
         }
     } finally {
-        // 3、如果获取锁失败，就会取消获取锁，将节点状态更新为 CANCELLED。
+        // 3、Nếu lấy lock thất bại, sẽ hủy lấy lock, cập nhật trạng thái node thành CANCELLED.
         if (failed)
             cancelAcquire(node);
     }
 }
 ```
 
-在 `acquireQueued()` 方法中，主要做两件事情：
+Trong phương thức `acquireQueued()`, chủ yếu làm hai việc:
 
-- **尝试获取资源：** 当前线程加入队列之后，如果发现前继节点是 `head` 节点，说明当前线程是队列中第一个等待的节点，于是调用 `tryAcquire()` 尝试获取资源。
+- **Thử lấy tài nguyên:** Sau khi thread hiện tại vào hàng đợi, nếu phát hiện node predecessor là node `head`, chứng tỏ thread hiện tại là node đang chờ đầu tiên trong hàng đợi, do đó gọi `tryAcquire()` để thử lấy tài nguyên.
 
-- **阻塞当前线程** ：如果尝试获取资源失败，就需要阻塞当前线程，等待被唤醒之后获取资源。
+- **Chặn thread hiện tại**: Nếu thử lấy tài nguyên thất bại, cần chặn thread hiện tại, chờ được đánh thức để lấy tài nguyên.
 
-**1、尝试获取资源**
+**1、Thử lấy tài nguyên**
 
-在 `acquireQueued()` 方法中，尝试获取资源总共有 2 个步骤：
+Trong phương thức `acquireQueued()`, thử lấy tài nguyên gồm 2 bước:
 
-- `p == head` ：表明当前节点的前继节点为 `head` 节点。此时当前节点为 AQS 队列中的第一个等待节点。
-- `tryAcquire(arg) == true` ：表明当前线程尝试获取资源成功。
+- `p == head`: Chỉ ra node predecessor của node hiện tại là node `head`. Lúc này node hiện tại là node đang chờ đầu tiên trong hàng đợi AQS.
+- `tryAcquire(arg) == true`: Chỉ ra thread hiện tại thử lấy tài nguyên thành công.
 
-在成功获取资源之后，就需要将当前线程的节点 **从等待队列中移除** 。移除操作为：将当前等待的线程节点设置为 `head` 节点（`head` 节点是虚拟节点，并不参与排队获取资源）。
+Sau khi lấy tài nguyên thành công, cần **loại bỏ node của thread hiện tại khỏi hàng đợi chờ**. Thao tác loại bỏ là: đặt node thread đang chờ làm node `head` (node `head` là virtual node, không tham gia xếp hàng lấy tài nguyên).
 
-**2、阻塞当前线程**
+**2、Chặn thread hiện tại**
 
-在 `AQS` 中，当前节点的唤醒需要依赖于上一个节点。如果上一个节点取消获取锁，它的状态就会变为 `CANCELLED` ，`CANCELLED` 状态的节点没有获取到锁，也就无法执行解锁操作对当前节点进行唤醒。因此在阻塞当前线程之前，需要跳过 `CANCELLED` 状态的节点。
+Trong `AQS`, việc đánh thức node hiện tại cần phụ thuộc vào node trước đó. Nếu node trước đó hủy lấy lock, trạng thái của nó sẽ trở thành `CANCELLED`, node trạng thái `CANCELLED` không lấy được lock, do đó cũng không thể thực hiện thao tác mở khóa để đánh thức node hiện tại. Do đó trước khi chặn thread hiện tại, cần bỏ qua các node trạng thái `CANCELLED`.
 
-通过 `shouldParkAfterFailedAcquire()` 方法来判断当前线程节点是否可以阻塞，如下：
+Sử dụng phương thức `shouldParkAfterFailedAcquire()` để kiểm tra xem node thread hiện tại có thể bị chặn không, như sau:
 
 ```JAVA
-// AQS：判断当前线程节点是否可以阻塞。
+// AQS: Kiểm tra xem node thread hiện tại có thể bị chặn không.
 private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
     int ws = pred.waitStatus;
-    // 1、前继节点状态正常，直接返回 true 即可。
+    // 1、Trạng thái node predecessor bình thường, trả về true trực tiếp.
     if (ws == Node.SIGNAL)
         return true;
-    // 2、ws > 0 表示前继节点的状态异常，即为 CANCELLED 状态，需要跳过异常状态的节点。
+    // 2、ws > 0 chỉ ra trạng thái node predecessor bất thường, tức là trạng thái CANCELLED, cần bỏ qua node trạng thái bất thường.
     if (ws > 0) {
         do {
             node.prev = pred = pred.prev;
         } while (pred.waitStatus > 0);
         pred.next = node;
     } else {
-        // 3、如果前继节点的状态不是 SIGNAL，也不是 CANCELLED，就将状态设置为 SIGNAL。
+        // 3、Nếu trạng thái node predecessor không phải SIGNAL cũng không phải CANCELLED, đặt trạng thái thành SIGNAL.
         compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
     }
     return false;
 }
 ```
 
-`shouldParkAfterFailedAcquire()` 方法中的判断逻辑：
+Logic kiểm tra trong phương thức `shouldParkAfterFailedAcquire()`:
 
-- 如果发现前继节点的状态是 `SIGNAL` ，则可以阻塞当前线程。
-- 如果发现前继节点的状态是 `CANCELLED` ，则需要跳过 `CANCELLED` 状态的节点。
-- 如果发现前继节点的状态不是 `SIGNAL` 和 `CANCELLED` ，表明前继节点的状态处于正常等待资源的状态，因此将前继节点的状态设置为 `SIGNAL` ，表明该前继节点需要对后续节点进行唤醒。
+- Nếu phát hiện trạng thái node predecessor là `SIGNAL`, có thể chặn thread hiện tại.
+- Nếu phát hiện trạng thái node predecessor là `CANCELLED`, cần bỏ qua các node trạng thái `CANCELLED`.
+- Nếu phát hiện trạng thái node predecessor không phải `SIGNAL` hay `CANCELLED`, chỉ ra node predecessor đang ở trạng thái chờ tài nguyên bình thường, do đó đặt trạng thái node predecessor thành `SIGNAL`, chỉ ra rằng node predecessor cần đánh thức node tiếp theo.
 
-当判断当前线程可以阻塞之后，通过调用 `parkAndCheckInterrupt()` 方法来阻塞当前线程。内部使用了 `LockSupport` 来实现阻塞。`LockSupoprt` 底层是基于 `Unsafe` 类来阻塞线程，代码如下：
-
-```JAVA
-// AQS
-private final boolean parkAndCheckInterrupt() {
-    // 1、线程阻塞到这里
-    LockSupport.park(this);
-    // 2、线程被唤醒之后，返回线程中断状态
-    return Thread.interrupted();
-}
-```
-
-**为什么在线程被唤醒之后，要返回线程的中断状态呢？**
-
-在 `parkAndCheckInterrupt()` 方法中，当执行完 `LockSupport.park(this)` ，线程会被阻塞，代码如下：
+Sau khi xác định thread hiện tại có thể bị chặn, gọi phương thức `parkAndCheckInterrupt()` để chặn thread hiện tại. Bên trong sử dụng `LockSupport` để thực hiện blocking. `LockSupport` ở tầng dưới dựa trên class `Unsafe` để chặn thread, code như sau:
 
 ```JAVA
 // AQS
 private final boolean parkAndCheckInterrupt() {
+    // 1、Thread bị chặn ở đây
     LockSupport.park(this);
-    // 线程被唤醒之后，需要返回线程中断状态
+    // 2、Sau khi thread được đánh thức, trả về trạng thái interrupt của thread
     return Thread.interrupted();
 }
 ```
 
-当线程被唤醒之后，需要执行 `Thread.interrupted()` 来返回线程的中断状态，这是为什么呢？
+**Tại sao sau khi thread được đánh thức cần trả về trạng thái interrupt của thread?**
 
-这个和线程的中断协作机制有关系，线程被唤醒之后，并不确定是被中断唤醒，还是被 `LockSupport.unpark()` 唤醒，因此需要通过线程的中断状态来判断。
+Trong phương thức `parkAndCheckInterrupt()`, khi thực thi xong `LockSupport.park(this)`, thread sẽ bị chặn, code như sau:
 
-**在 `acquire()` 方法中，为什么需要调用 `selfInterrupt()` ？**
+```JAVA
+// AQS
+private final boolean parkAndCheckInterrupt() {
+    LockSupport.park(this);
+    // Sau khi thread được đánh thức, cần trả về trạng thái interrupt của thread
+    return Thread.interrupted();
+}
+```
 
-`acquire()` 方法代码如下：
+Sau khi thread được đánh thức, cần thực thi `Thread.interrupted()` để trả về trạng thái interrupt của thread, tại sao vậy?
+
+Điều này liên quan đến cơ chế hợp tác interrupt của thread. Sau khi thread được đánh thức, không chắc chắn là bị đánh thức bởi interrupt hay bởi `LockSupport.unpark()`, do đó cần thông qua trạng thái interrupt của thread để phán đoán.
+
+**Trong phương thức `acquire()`, tại sao cần gọi `selfInterrupt()`?**
+
+Code phương thức `acquire()` như sau:
 
 ```JAVA
 // AQS
@@ -553,25 +553,25 @@ public final void acquire(int arg) {
 }
 ```
 
-在 `acquire()` 方法中，当 `if` 语句的条件返回 `true` 后，就会调用 `selfInterrupt()` ，该方法会中断当前线程，为什么需要中断当前线程呢？
+Trong phương thức `acquire()`, khi điều kiện câu lệnh `if` trả về `true`, sẽ gọi `selfInterrupt()`, tại sao phương thức này cần interrupt thread hiện tại?
 
-当 `if` 判断为 `true` 时，需要 `tryAcquire()` 返回 `false` ，并且 `acquireQueued()` 返回 `true` 。
+Khi điều kiện `if` là `true`, cần `tryAcquire()` trả về `false` và `acquireQueued()` trả về `true`.
 
-其中 `acquireQueued()` 方法返回的是线程被唤醒之后的 **中断状态** ，通过执行 `Thread.interrupted()` 来返回。该方法在返回中断状态的同时，会清除线程的中断状态。
+Trong đó phương thức `acquireQueued()` trả về **trạng thái interrupt** của thread sau khi được đánh thức, thông qua việc thực thi `Thread.interrupted()` để trả về. Phương thức này trong khi trả về trạng thái interrupt, cũng sẽ xóa trạng thái interrupt của thread.
 
-因此如果 `if` 判断为 `true` ，表明线程的中断状态为 `true` ，但是调用 `Thread.interrupted()` 之后，线程的中断状态被清除为 `false` ，因此需要重新执行 `selfInterrupt()` 来重新设置线程的中断状态。
+Do đó nếu điều kiện `if` là `true`, chỉ ra trạng thái interrupt của thread là `true`, nhưng sau khi gọi `Thread.interrupted()`, trạng thái interrupt của thread được xóa thành `false`, do đó cần thực thi lại `selfInterrupt()` để đặt lại trạng thái interrupt của thread.
 
-### AQS 资源释放源码分析（独占模式）
+### Phân tích source code giải phóng tài nguyên AQS (Exclusive mode)
 
-AQS 中以独占模式释放资源的入口方法是 `release()` ，代码如下：
+Phương thức entry trong AQS để giải phóng tài nguyên ở exclusive mode là `release()`, code như sau:
 
 ```JAVA
 // AQS
 public final boolean release(int arg) {
-    // 1、尝试释放锁
+    // 1、Thử giải phóng lock
     if (tryRelease(arg)) {
         Node h = head;
-        // 2、唤醒后继节点
+        // 2、Đánh thức node successor
         if (h != null && h.waitStatus != 0)
             unparkSuccessor(h);
         return true;
@@ -580,63 +580,63 @@ public final boolean release(int arg) {
 }
 ```
 
-在 `release()` 方法中，主要做两件事：尝试释放锁和唤醒后继节点。对应方法如下：
+Trong phương thức `release()`, chủ yếu làm hai việc: thử giải phóng lock và đánh thức node successor. Phương thức tương ứng như sau:
 
-**1、尝试释放锁**
+**1、Thử giải phóng lock**
 
-通过 `tryRelease()` 方法尝试释放锁，该方法为模板方法，由自定义同步器实现，因此这里仍然以 `ReentrantLock` 为例来讲解。
+Thử giải phóng lock thông qua phương thức `tryRelease()`, phương thức này là template method, được triển khai bởi bộ đồng bộ tùy chỉnh, do đó ở đây vẫn lấy `ReentrantLock` làm ví dụ.
 
-`ReentrantLock` 中实现的 `tryRelease()` 方法如下：
+Phương thức `tryRelease()` được triển khai trong `ReentrantLock` như sau:
 
 ```JAVA
 // ReentrantLock
 protected final boolean tryRelease(int releases) {
     int c = getState() - releases;
-    // 1、判断持有锁的线程是否为当前线程
+    // 1、Kiểm tra xem thread giữ lock có phải thread hiện tại không
     if (Thread.currentThread() != getExclusiveOwnerThread())
         throw new IllegalMonitorStateException();
     boolean free = false;
-    // 2、如果 state 为 0，则表明当前线程已经没有重入次数。因此将 free 更新为 true，表明该线程会释放锁。
+    // 2、Nếu state là 0, chỉ ra thread hiện tại không còn số lần reentry. Do đó cập nhật free thành true, chỉ ra thread này sẽ giải phóng lock.
     if (c == 0) {
         free = true;
-        // 3、更新持有资源的线程为 null
+        // 3、Cập nhật thread giữ tài nguyên thành null
         setExclusiveOwnerThread(null);
     }
-    // 4、更新 state 值
+    // 4、Cập nhật giá trị state
     setState(c);
     return free;
 }
 ```
 
-在 `tryRelease()` 方法中，会先计算释放锁之后的 `state` 值，判断 `state` 值是否为 0。
+Trong phương thức `tryRelease()`, trước tiên tính giá trị `state` sau khi giải phóng lock, kiểm tra xem giá trị `state` có bằng 0 không.
 
-- 如果 `state == 0` ，表明该线程没有重入次数了，更新 `free = true` ，并修改持有资源的线程为 null，表明该线程完全释放这把锁。
-- 如果 `state != 0` ，表明该线程还存在重入次数，因此不更新 `free` 值，`free` 值为 `false` 表明该线程没有完全释放这把锁。
+- Nếu `state == 0`, chỉ ra thread không còn số lần reentry, cập nhật `free = true` và sửa thread giữ tài nguyên thành null, chỉ ra thread hoàn toàn giải phóng lock này.
+- Nếu `state != 0`, chỉ ra thread vẫn còn số lần reentry, do đó không cập nhật giá trị `free`, giá trị `free` là `false` chỉ ra thread chưa hoàn toàn giải phóng lock này.
 
-之后更新 `state` 值，并返回 `free` 值，`free` 值表明线程是否完全释放锁。
+Sau đó cập nhật giá trị `state` và trả về giá trị `free`, giá trị `free` chỉ ra thread có hoàn toàn giải phóng lock không.
 
-**2、唤醒后继节点**
+**2、Đánh thức node successor**
 
-如果 `tryRelease()` 返回 `true` ，表明线程已经没有重入次数了，锁已经被完全释放，因此需要唤醒后继节点。
+Nếu `tryRelease()` trả về `true`, chỉ ra thread không còn số lần reentry, lock đã được hoàn toàn giải phóng, do đó cần đánh thức node successor.
 
-在唤醒后继节点之前，需要判断是否可以唤醒后继节点，判断条件为： `h != null && h.waitStatus != 0` 。这里解释一下为什么要这样判断：
+Trước khi đánh thức node successor, cần kiểm tra xem có thể đánh thức node successor không, điều kiện kiểm tra là: `h != null && h.waitStatus != 0`. Đây là giải thích tại sao cần kiểm tra như vậy:
 
-- `h == null` ：表明 `head` 节点还没有被初始化，也就是 AQS 中的队列没有被初始化，因此无法唤醒队列中的线程节点。
-- `h != null && h.waitStatus == 0` ：表明头节点刚刚初始化完毕（节点的初始化状态为 0），后继节点线程还没有成功入队，因此不需要对后续节点进行唤醒。（当后继节点入队之后，会将前继节点的状态修改为 `SIGNAL` ，表明需要对后继节点进行唤醒）
-- `h != null && h.waitStatus != 0` ：其中 `waitStatus` 有可能大于 0，也有可能小于 0。其中 `> 0` 表明节点已经取消等待获取资源，`< 0` 表明节点处于正常等待状态。
+- `h == null`: Chỉ ra node `head` chưa được khởi tạo, tức là hàng đợi trong AQS chưa được khởi tạo, do đó không thể đánh thức node thread trong hàng đợi.
+- `h != null && h.waitStatus == 0`: Chỉ ra head node vừa mới khởi tạo xong (trạng thái khởi tạo của node là 0), thread node successor chưa vào hàng đợi thành công, do đó không cần đánh thức node tiếp theo. (Khi node successor vào hàng đợi, sẽ sửa trạng thái node predecessor thành `SIGNAL`, chỉ ra cần đánh thức node successor)
+- `h != null && h.waitStatus != 0`: Trong đó `waitStatus` có thể lớn hơn 0 hoặc nhỏ hơn 0. Trong đó `> 0` chỉ ra node đã hủy chờ lấy tài nguyên, `< 0` chỉ ra node đang ở trạng thái chờ bình thường.
 
-接下来进入 `unparkSuccessor()` 方法查看如何唤醒后继节点：
+Tiếp theo vào phương thức `unparkSuccessor()` để xem cách đánh thức node successor:
 
 ```JAVA
-// AQS：这里的入参 node 为队列的头节点（虚拟头节点）
+// AQS: Tham số đầu vào ở đây là head node của hàng đợi (virtual head node)
 private void unparkSuccessor(Node node) {
     int ws = node.waitStatus;
-    // 1、将头节点的状态进行清除，为后续的唤醒做准备。
+    // 1、Xóa trạng thái của head node để chuẩn bị cho việc đánh thức tiếp theo.
     if (ws < 0)
         compareAndSetWaitStatus(node, ws, 0);
 
     Node s = node.next;
-    // 2、如果后继节点异常，则需要从 tail 向前遍历，找到正常状态的节点进行唤醒。
+    // 2、Nếu node successor bất thường, cần duyệt từ tail về trước để tìm node trạng thái bình thường để đánh thức.
     if (s == null || s.waitStatus > 0) {
         s = null;
         for (Node t = tail; t != null && t != node; t = t.prev)
@@ -644,31 +644,31 @@ private void unparkSuccessor(Node node) {
                 s = t;
     }
     if (s != null)
-        // 3、唤醒后继节点
+        // 3、Đánh thức node successor
         LockSupport.unpark(s.thread);
 }
 ```
 
-在 `unparkSuccessor()` 中，如果头节点的状态 `< 0` （在正常情况下，只要有后继节点，头节点的状态应该为 `SIGNAL` ，即 -1），表示需要对后继节点进行唤醒，因此这里提前清除头节点的状态标识，将状态修改为 0，表示已经执行了对后续节点唤醒的操作。
+Trong `unparkSuccessor()`, nếu trạng thái của head node `< 0` (trong điều kiện bình thường, chỉ cần có node successor, trạng thái head node phải là `SIGNAL`, tức là -1), chỉ ra cần đánh thức node successor, do đó ở đây xóa trước nhãn trạng thái head node, cập nhật trạng thái thành 0, chỉ ra đã thực hiện thao tác đánh thức node tiếp theo.
 
-如果 `s == null` 或者 `s.waitStatus > 0` ，表明后继节点异常，此时不能唤醒异常节点，而是要找到正常状态的节点进行唤醒。
+Nếu `s == null` hoặc `s.waitStatus > 0`, chỉ ra node successor bất thường, lúc này không thể đánh thức node bất thường, mà phải tìm node trạng thái bình thường để đánh thức.
 
-因此需要从 `tail` 指针向前遍历，来找到第一个状态正常（`waitStatus <= 0`）的节点进行唤醒。
+Do đó cần duyệt từ con trỏ `tail` về trước, để tìm node đầu tiên có trạng thái bình thường (`waitStatus <= 0`) để đánh thức.
 
-**为什么要从 `tail` 指针向前遍历，而不是从 `head` 指针向后遍历，寻找正常状态的节点呢？**
+**Tại sao cần duyệt từ con trỏ `tail` về trước, thay vì từ con trỏ `head` về sau để tìm node trạng thái bình thường?**
 
-遍历的方向和 **节点的入队操作** 有关。入队方法如下：
+Hướng duyệt liên quan đến **thao tác vào hàng đợi của node**. Phương thức vào hàng đợi như sau:
 
 ```JAVA
-// AQS：节点入队方法
+// AQS: Phương thức node vào hàng đợi
 private Node addWaiter(Node mode) {
     Node node = new Node(Thread.currentThread(), mode);
     Node pred = tail;
     if (pred != null) {
-        // 1、先修改 prev 指针。
+        // 1、Sửa con trỏ prev trước.
         node.prev = pred;
         if (compareAndSetTail(pred, node)) {
-            // 2、再修改 next 指针。
+            // 2、Sau đó mới sửa con trỏ next.
             pred.next = node;
             return node;
         }
@@ -678,47 +678,47 @@ private Node addWaiter(Node mode) {
 }
 ```
 
-在 `addWaiter()` 方法中，`node` 节点入队需要修改 `node.prev` 和 `pred.next` 两个指针，但是这两个操作并不是 **原子操作** ，先修改了 `node.prev` 指针，之后才修改 `pred.next` 指针。
+Trong phương thức `addWaiter()`, node `node` vào hàng đợi cần sửa hai con trỏ `node.prev` và `pred.next`, nhưng hai thao tác này không phải **atomic operation**, sửa con trỏ `node.prev` trước, sau đó mới sửa con trỏ `pred.next`.
 
-在极端情况下，可能会出现 `head` 节点的下一个节点状态为 `CANCELLED` ，此时新入队的节点仅更新了 `node.prev` 指针，还未更新 `pred.next` 指针，如下图：
+Trong trường hợp cực đoan, có thể xảy ra tình huống trạng thái của node tiếp theo sau node `head` là `CANCELLED`, lúc này node mới vào hàng đợi chỉ cập nhật con trỏ `node.prev`, chưa cập nhật con trỏ `pred.next`, như hình:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-addWaiter.png)
 
-这样如果从 `head` 指针向后遍历，无法找到新入队的节点，因此需要从 `tail` 指针向前遍历找到新入队的节点。
+Như vậy nếu duyệt từ con trỏ `head` về sau, không thể tìm thấy node mới vào hàng đợi, do đó cần duyệt từ con trỏ `tail` về trước để tìm node mới vào hàng đợi.
 
-### 图解 AQS 工作原理（独占模式）
+### Minh họa nguyên lý hoạt động AQS (Exclusive mode)
 
-至此，AQS 中以独占模式获取资源、释放资源的源码就讲完了。为了对 AQS 的工作原理、节点状态变化有一个更加清晰的认识，接下来会通过画图的方式来了解整个 AQS 的工作原理。
+Đến đây, source code lấy và giải phóng tài nguyên trong AQS ở exclusive mode đã được giải thích xong. Để có nhận thức rõ ràng hơn về nguyên lý hoạt động AQS và sự thay đổi trạng thái node, tiếp theo sẽ thông qua vẽ hình để hiểu toàn bộ nguyên lý hoạt động AQS.
 
-由于 AQS 是底层同步工具，获取和释放资源的方法并没有提供具体实现，因此这里基于 `ReentrantLock` 来画图进行讲解。
+Vì AQS là công cụ đồng bộ tầng dưới, các phương thức lấy và giải phóng tài nguyên không cung cấp triển khai cụ thể, do đó ở đây dựa trên `ReentrantLock` để vẽ hình giải thích.
 
-假设总共有 3 个线程尝试获取锁，线程分别为 `T1` 、 `T2` 和 `T3` 。
+Giả sử tổng cộng có 3 thread cố gắng lấy lock, các thread lần lượt là `T1`, `T2` và `T3`.
 
-此时，假设线程 `T1` 先获取到锁，线程 `T2` 排队等待获取锁。在线程 `T2` 进入队列之前，需要对 AQS 内部队列进行初始化。`head` 节点在初始化后状态为 `0` 。AQS 内部初始化后的队列如下图：
+Lúc này, giả sử thread `T1` lấy được lock trước, thread `T2` xếp hàng chờ lấy lock. Trước khi thread `T2` vào hàng đợi, cần khởi tạo hàng đợi nội bộ AQS. Node `head` sau khi khởi tạo có trạng thái là `0`. Hàng đợi nội bộ AQS sau khi khởi tạo như hình:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-acquire-and-release-process.png)
 
-此时，线程 `T2` 尝试获取锁。由于线程 `T1` 持有锁，因此线程 `T2` 会进入队列中等待获取锁。同时会将前继节点（ `head` 节点）的状态由 `0` 更新为 `SIGNAL` ，表示需要对 `head` 节点的后继节点进行唤醒。此时，AQS 内部队列如下图所示：
+Lúc này, thread `T2` cố gắng lấy lock. Vì thread `T1` giữ lock, thread `T2` sẽ vào hàng đợi chờ lấy lock. Đồng thời cập nhật trạng thái node predecessor (node `head`) từ `0` thành `SIGNAL`, chỉ ra cần đánh thức node successor của node `head`. Lúc này, hàng đợi nội bộ AQS như hình:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-acquire-and-release-process-2.png)
 
-此时，线程 `T3` 尝试获取锁。由于线程 `T1` 持有锁，因此线程 `T3` 会进入队列中等待获取锁。同时会将前继节点（线程 `T2` 节点）的状态由 `0` 更新为 `SIGNAL` ，表示线程 `T2` 节点需要对后继节点进行唤醒。此时，AQS 内部队列如下图所示：
+Lúc này, thread `T3` cố gắng lấy lock. Vì thread `T1` giữ lock, thread `T3` sẽ vào hàng đợi chờ lấy lock. Đồng thời cập nhật trạng thái node predecessor (node thread `T2`) từ `0` thành `SIGNAL`, chỉ ra node thread `T2` cần đánh thức node successor. Lúc này, hàng đợi nội bộ AQS như hình:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-acquire-and-release-process-3.png)
 
-此时，假设线程 `T1` 释放锁，会唤醒后继节点 `T2` 。线程 `T2` 被唤醒后获取到锁，并且会从等待队列中退出。
+Lúc này, giả sử thread `T1` giải phóng lock, sẽ đánh thức node successor `T2`. Sau khi thread `T2` được đánh thức, lấy được lock và thoát ra khỏi hàng đợi chờ.
 
-这里线程 `T2` 节点退出等待队列并不是直接从队列移除，而是令线程 `T2` 节点成为新的 `head` 节点，以此来退出资源获取的等待。此时 AQS 内部队列如下所示：
+Ở đây node thread `T2` thoát khỏi hàng đợi chờ không phải là xóa trực tiếp khỏi hàng đợi, mà là làm cho node thread `T2` trở thành node `head` mới, qua đó thoát khỏi việc chờ lấy tài nguyên. Lúc này hàng đợi nội bộ AQS như sau:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-acquire-and-release-process-4.png)
 
-此时，假设线程 `T2` 释放锁，会唤醒后继节点 `T3` 。线程 `T3` 获取到锁之后，同样也退出等待队列，即将线程 `T3` 节点变为 `head` 节点来退出资源获取的等待。此时 AQS 内部队列如下所示：
+Lúc này, giả sử thread `T2` giải phóng lock, sẽ đánh thức node successor `T3`. Sau khi thread `T3` lấy được lock, cũng thoát khỏi hàng đợi chờ, tức là làm cho node thread `T3` thành node `head` để thoát khỏi việc chờ lấy tài nguyên. Lúc này hàng đợi nội bộ AQS như sau:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/aqs-acquire-and-release-process-5.png)
 
-### AQS 资源获取源码分析（共享模式）
+### Phân tích source code lấy tài nguyên AQS (Shared mode)
 
-AQS 中以共享模式获取资源的入口方法是 `acquireShared()` ，如下：
+Phương thức entry trong AQS để lấy tài nguyên ở shared mode là `acquireShared()`, như sau:
 
 ```JAVA
 // AQS
@@ -728,18 +728,18 @@ public final void acquireShared(int arg) {
 }
 ```
 
-在 `acquireShared()` 方法中，会先尝试获取共享锁，如果获取失败，则将当前线程加入到队列中阻塞，等待唤醒后尝试获取共享锁，分别对应一下两个方法：`tryAcquireShared()` 和 `doAcquireShared()` 。
+Trong phương thức `acquireShared()`, trước tiên sẽ thử lấy shared lock, nếu lấy thất bại, sẽ thêm thread hiện tại vào hàng đợi để block, chờ đánh thức để thử lấy shared lock, tương ứng với hai phương thức sau: `tryAcquireShared()` và `doAcquireShared()`.
 
-其中 `tryAcquireShared()` 方法是 AQS 提供的模板方法，由同步器来实现具体逻辑。因此这里以 `Semaphore` 为例，来分析共享模式下，如何获取资源。
+Trong đó phương thức `tryAcquireShared()` là template method mà AQS cung cấp, do bộ đồng bộ triển khai logic cụ thể. Do đó ở đây lấy `Semaphore` làm ví dụ để phân tích cách lấy tài nguyên trong shared mode.
 
-#### `tryAcquireShared()` 分析
+#### Phân tích `tryAcquireShared()`
 
-`Semaphore` 中实现了公平锁和非公平锁，接下来以非公平锁为例来分析 `tryAcquireShared()` 源码。
+`Semaphore` triển khai cả fair lock và non-fair lock, tiếp theo lấy non-fair lock làm ví dụ để phân tích source code `tryAcquireShared()`.
 
-`Semaphore` 中重写的 `tryAcquireShared()` 方法会调用下边的 `nonfairTryAcquireShared()` 方法：
+Phương thức `tryAcquireShared()` được override trong `Semaphore` sẽ gọi phương thức `nonfairTryAcquireShared()` dưới đây:
 
 ```JAVA
-// Semaphore 重写 AQS 的模板方法
+// Semaphore override template method của AQS
 protected int tryAcquireShared(int acquires) {
     return nonfairTryAcquireShared(acquires);
 }
@@ -747,11 +747,11 @@ protected int tryAcquireShared(int acquires) {
 // Semaphore
 final int nonfairTryAcquireShared(int acquires) {
     for (;;) {
-        // 1、获取可用资源数量。
+        // 1、Lấy số lượng tài nguyên khả dụng.
         int available = getState();
-        // 2、计算剩余资源数量。
+        // 2、Tính số lượng tài nguyên còn lại.
         int remaining = available - acquires;
-        // 3、如果剩余资源数量 < 0，则说明资源不足，直接返回；如果 CAS 更新 state 成功，则说明当前线程获取到了共享资源，直接返回。
+        // 3、Nếu số lượng tài nguyên còn lại < 0, tức là tài nguyên không đủ, trả về trực tiếp; nếu CAS cập nhật state thành công, tức là thread hiện tại lấy được tài nguyên dùng chung, trả về trực tiếp.
         if (remaining < 0 ||
             compareAndSetState(available, remaining))
             return remaining;
@@ -759,17 +759,17 @@ final int nonfairTryAcquireShared(int acquires) {
 }
 ```
 
-在共享模式下，AQS 中的 `state` 值表示共享资源的数量。
+Trong shared mode, giá trị `state` trong AQS biểu thị số lượng tài nguyên dùng chung.
 
-在 `nonfairTryAcquireShared()` 方法中，会在死循环中不断尝试获取资源，如果 「剩余资源数不足」 或者 「当前线程成功获取资源」 ，就退出死循环。方法返回 **剩余的资源数量** ，根据返回值的不同，分为 3 种情况：
+Trong phương thức `nonfairTryAcquireShared()`, sẽ liên tục thử lấy tài nguyên trong vòng lặp vô hạn, nếu "số tài nguyên còn lại không đủ" hoặc "thread hiện tại lấy được tài nguyên thành công", thoát vòng lặp vô hạn. Phương thức trả về **số lượng tài nguyên còn lại**, dựa trên giá trị trả về khác nhau, có 3 trường hợp:
 
-- **剩余资源数量 > 0** ：表示成功获取资源，并且后续的线程也可以成功获取资源。
-- **剩余资源数量 = 0** ：表示成功获取资源，但是后续的线程无法成功获取资源。
-- **剩余资源数量 < 0** ：表示获取资源失败。
+- **Số lượng tài nguyên còn lại > 0**: Chỉ ra lấy tài nguyên thành công, và thread tiếp theo cũng có thể lấy được tài nguyên.
+- **Số lượng tài nguyên còn lại = 0**: Chỉ ra lấy tài nguyên thành công, nhưng thread tiếp theo không thể lấy được tài nguyên.
+- **Số lượng tài nguyên còn lại < 0**: Chỉ ra lấy tài nguyên thất bại.
 
-#### `doAcquireShared()` 分析
+#### Phân tích `doAcquireShared()`
 
-为了方便阅读，这里再贴一下获取资源的入口方法 `acquireShared()` ：
+Để tiện đọc, ở đây dán lại phương thức entry lấy tài nguyên `acquireShared()`:
 
 ```JAVA
 // AQS
@@ -779,14 +779,14 @@ public final void acquireShared(int arg) {
 }
 ```
 
-在 `acquireShared()` 方法中，会先通过 `tryAcquireShared()` 尝试获取资源。
+Trong phương thức `acquireShared()`, trước tiên sẽ thử lấy tài nguyên thông qua `tryAcquireShared()`.
 
-如果发现方法的返回值 `< 0` ，即剩余的资源数小于 0，则表明当前线程获取资源失败。因此会进入 `doAcquireShared()` 方法，将当前线程加入到 AQS 队列进行等待。如下：
+Nếu phát hiện giá trị trả về của phương thức `< 0`, tức là số tài nguyên còn lại nhỏ hơn 0, chỉ ra thread hiện tại lấy tài nguyên thất bại. Do đó sẽ vào phương thức `doAcquireShared()`, thêm thread hiện tại vào hàng đợi AQS để chờ. Như sau:
 
 ```JAVA
 // AQS
 private void doAcquireShared(int arg) {
-    // 1、将当前线程加入到队列中等待。
+    // 1、Thêm thread hiện tại vào hàng đợi chờ.
     final Node node = addWaiter(Node.SHARED);
     boolean failed = true;
     try {
@@ -794,10 +794,10 @@ private void doAcquireShared(int arg) {
         for (;;) {
             final Node p = node.predecessor();
             if (p == head) {
-                // 2、如果当前线程是等待队列的第一个节点，则尝试获取资源。
+                // 2、Nếu thread hiện tại là node đầu tiên trong hàng đợi chờ, thử lấy tài nguyên.
                 int r = tryAcquireShared(arg);
                 if (r >= 0) {
-					// 3、将当前线程节点移出等待队列，并唤醒后续线程节点。
+					// 3、Loại bỏ node thread hiện tại khỏi hàng đợi chờ, và đánh thức các node thread tiếp theo.
                     setHeadAndPropagate(node, r);
                     p.next = null; // help GC
                     if (interrupted)
@@ -811,26 +811,26 @@ private void doAcquireShared(int arg) {
                 interrupted = true;
         }
     } finally {
-        // 3、如果获取资源失败，就会取消获取资源，将节点状态更新为 CANCELLED。
+        // 3、Nếu lấy tài nguyên thất bại, sẽ hủy lấy tài nguyên, cập nhật trạng thái node thành CANCELLED.
         if (failed)
             cancelAcquire(node);
     }
 }
 ```
 
-由于当前线程已经尝试获取资源失败了，因此在 `doAcquireShared()` 方法中，需要将当前线程封装为 Node 节点，加入到队列中进行等待。
+Vì thread hiện tại đã thử lấy tài nguyên thất bại, do đó trong phương thức `doAcquireShared()`, cần đóng gói thread hiện tại thành Node node, thêm vào hàng đợi để chờ.
 
-以 **共享模式** 获取资源和 **独占模式** 获取资源最大的不同之处在于：共享模式下，资源的数量可能会大于 1，即可以多个线程同时持有资源。
+Sự khác biệt lớn nhất giữa lấy tài nguyên theo **shared mode** và **exclusive mode** là: trong shared mode, số lượng tài nguyên có thể lớn hơn 1, tức là nhiều thread có thể cùng giữ tài nguyên.
 
-因此在共享模式下，当线程线程被唤醒之后，获取到了资源，如果发现还存在剩余资源，就会尝试唤醒后边的线程去尝试获取资源。对应的 `setHeadAndPropagate()` 方法如下：
+Do đó trong shared mode, khi thread được đánh thức và lấy được tài nguyên, nếu phát hiện vẫn còn tài nguyên dư, sẽ thử đánh thức thread phía sau để thử lấy tài nguyên. Phương thức `setHeadAndPropagate()` tương ứng như sau:
 
 ```JAVA
 // AQS
 private void setHeadAndPropagate(Node node, int propagate) {
     Node h = head;
-    // 1、将当前线程节点移出等待队列。
+    // 1、Loại bỏ node thread hiện tại khỏi hàng đợi chờ.
     setHead(node);
-	// 2、唤醒后续等待节点。
+	// 2、Đánh thức node chờ tiếp theo.
     if (propagate > 0 || h == null || h.waitStatus < 0 ||
         (h = head) == null || h.waitStatus < 0) {
         Node s = node.next;
@@ -840,44 +840,44 @@ private void setHeadAndPropagate(Node node, int propagate) {
 }
 ```
 
-在 `setHeadAndPropagate()` 方法中，唤醒后续节点需要满足一定的条件，主要需要满足 2 个条件：
+Trong phương thức `setHeadAndPropagate()`, đánh thức node tiếp theo cần thỏa mãn một số điều kiện nhất định, chủ yếu cần thỏa mãn 2 điều kiện:
 
-- `propagate > 0` ：`propagate` 代表获取资源之后剩余的资源数量，如果 `> 0` ，则可以唤醒后续线程去获取资源。
-- `h.waitStatus < 0` ：这里的 `h` 节点是执行 `setHead()` 之前的 `head` 节点。判断 `head.waitStatus` 时使用 `< 0` ，主要为了确定 `head` 节点的状态为 `SIGNAL` 或 `PROPAGATE` 。如果 `head` 节点为 `SIGNAL` ，则可以唤醒后续节点；如果 `head` 节点状态为 `PROPAGATE` ，也可以唤醒后续节点（这是为了解决并发场景下出现的问题，后续会细讲）。
+- `propagate > 0`: `propagate` đại diện cho số lượng tài nguyên còn lại sau khi lấy tài nguyên, nếu `> 0`, có thể đánh thức thread tiếp theo để lấy tài nguyên.
+- `h.waitStatus < 0`: `h` node ở đây là node `head` trước khi thực thi `setHead()`. Khi kiểm tra `head.waitStatus` sử dụng `< 0`, chủ yếu để xác nhận trạng thái node `head` là `SIGNAL` hay `PROPAGATE`. Nếu node `head` là `SIGNAL`, có thể đánh thức node tiếp theo; nếu trạng thái node `head` là `PROPAGATE`, cũng có thể đánh thức node tiếp theo (đây là để giải quyết vấn đề xuất hiện trong tình huống concurrency, sẽ giải thích chi tiết sau).
 
-代码中关于 **唤醒后续等待节点** 的 `if` 判断稍微复杂一些，这里来讲一下为什么这样写：
+Câu lệnh `if` về **đánh thức node chờ tiếp theo** trong code hơi phức tạp, ở đây sẽ giải thích tại sao viết như vậy:
 
 ```JAVA
 if (propagate > 0 || h == null || h.waitStatus < 0 ||
     (h = head) == null || h.waitStatus < 0)
 ```
 
-- `h == null || h.waitStatus < 0` ： `h == null` 用于防止空指针异常。正常情况下 h 不会为 `null` ，因为执行到这里之前，当前节点已经加入到队列中了，队列不可能还没有初始化。
+- `h == null || h.waitStatus < 0`: `h == null` dùng để ngăn null pointer exception. Trong điều kiện bình thường h sẽ không là `null`, vì trước khi thực thi đến đây, node hiện tại đã vào hàng đợi rồi, hàng đợi không thể chưa được khởi tạo.
 
-  `h.waitStatus < 0` 主要判断 `head` 节点的状态是否为 `SIGNAL` 或者 `PROPAGATE` ，直接使用 `< 0` 来判断比较方便。
+  `h.waitStatus < 0` chủ yếu kiểm tra trạng thái node `head` có phải `SIGNAL` hay `PROPAGATE`, dùng `< 0` để kiểm tra trực tiếp khá tiện.
 
-- `(h = head) == null || h.waitStatus < 0` ：如果到这里说明之前判断的 `h.waitStatus < 0` ，说明存在并发。
+- `(h = head) == null || h.waitStatus < 0`: Nếu đến đây chỉ ra kiểm tra `h.waitStatus < 0` trước đó, tức là có concurrency.
 
-  同时存在其他线程在唤醒后续节点，已经将 `head` 节点的值由 `SIGNAL` 修改为 `0` 了。因此，这里重新获取新的 `head` 节点，这次获取的 `head` 节点为通过 `setHead()` 设置的当前线程节点，之后再次判断 `waitStatus` 状态。
+  Đồng thời có thread khác đang đánh thức node tiếp theo, đã sửa giá trị node `head` từ `SIGNAL` thành `0`. Do đó, ở đây lấy lại node `head` mới, lần này node `head` được lấy là node thread hiện tại được đặt bởi `setHead()`, sau đó kiểm tra lại trạng thái `waitStatus`.
 
-如果 `if` 条件判断通过，就会走到 `doReleaseShared()` 方法唤醒后续等待节点，如下：
+Nếu điều kiện `if` thỏa mãn, sẽ đi vào phương thức `doReleaseShared()` để đánh thức node chờ tiếp theo, như sau:
 
 ```JAVA
 private void doReleaseShared() {
     for (;;) {
         Node h = head;
-        // 1、队列中至少需要一个等待的线程节点。
+        // 1、Hàng đợi cần có ít nhất một node thread đang chờ.
         if (h != null && h != tail) {
             int ws = h.waitStatus;
-            // 2、如果 head 节点的状态为 SIGNAL，则可以唤醒后继节点。
+            // 2、Nếu trạng thái node head là SIGNAL, có thể đánh thức node successor.
             if (ws == Node.SIGNAL) {
-                // 2.1 清除 head 节点的 SIGNAL 状态，更新为 0。表示已经唤醒该节点的后继节点了。
+                // 2.1 Xóa trạng thái SIGNAL của node head, cập nhật thành 0. Chỉ ra đã đánh thức node successor của node này.
                 if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
                     continue;
-                // 2.2 唤醒后继节点
+                // 2.2 Đánh thức node successor
                 unparkSuccessor(h);
             }
-            // 3、如果 head 节点的状态为 0，则更新为 PROPAGATE。这是为了解决并发场景下存在的问题，接下来会细讲。
+            // 3、Nếu trạng thái node head là 0, cập nhật thành PROPAGATE. Đây là để giải quyết vấn đề tồn tại trong tình huống concurrency, sẽ giải thích chi tiết sau.
             else if (ws == 0 &&
                      !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
                 continue;
@@ -888,100 +888,100 @@ private void doReleaseShared() {
 }
 ```
 
-在 `doReleaseShared()` 方法中，会判断 `head` 节点的 `waitStatus` 状态来决定接下来的操作，有两种情况：
+Trong phương thức `doReleaseShared()`, sẽ kiểm tra trạng thái `waitStatus` của node `head` để quyết định thao tác tiếp theo, có hai trường hợp:
 
-- `head` 节点的状态为 `SIGNAL` ：表明 `head` 节点存在后继节点需要唤醒，因此通过 `CAS` 操作将 `head` 节点的 `SIGNAL` 状态更新为 `0` 。通过清除 `SIGNAL` 状态来表示已经对 `head` 节点的后继节点进行唤醒操作了。
-- `head` 节点的状态为 `0` ：表明存在并发情况，需要将 `0` 修改为 `PROPAGATE` 来保证在并发场景下可以正常唤醒线程。
+- Trạng thái node `head` là `SIGNAL`: Chỉ ra node `head` có node successor cần được đánh thức, do đó thông qua thao tác `CAS` cập nhật trạng thái `SIGNAL` của node `head` thành `0`. Thông qua việc xóa trạng thái `SIGNAL` để chỉ ra đã thực hiện thao tác đánh thức node successor của node `head`.
+- Trạng thái node `head` là `0`: Chỉ ra có tình huống concurrency, cần sửa `0` thành `PROPAGATE` để đảm bảo có thể đánh thức thread bình thường trong tình huống concurrency.
 
-#### 为什么需要 `PROPAGATE` 状态？
+#### Tại sao cần trạng thái `PROPAGATE`?
 
-在 `doReleaseShared()` 释放资源时，第 3 步不太容易理解，即如果发现 `head` 节点的状态是 `0` ，就将 `head` 节点的状态由 `0` 更新为 `PROPAGATE` 。
+Khi giải phóng tài nguyên trong `doReleaseShared()`, bước 3 không dễ hiểu, tức là nếu phát hiện trạng thái node `head` là `0`, cập nhật trạng thái node `head` từ `0` thành `PROPAGATE`.
 
-AQS 中，Node 节点的 `PROPAGATE` 就是为了处理并发场景下可能出现的无法唤醒线程节点的问题。`PROPAGATE` 只在 `doReleaseShared()` 方法中用到一次。
+`PROPAGATE` của Node trong AQS được dùng để xử lý vấn đề không thể đánh thức node thread có thể xảy ra trong tình huống concurrency. `PROPAGATE` chỉ được dùng một lần trong phương thức `doReleaseShared()`.
 
-**接下来通过案例分析，为什么需要 `PROPAGATE` 状态？**
+**Tiếp theo thông qua phân tích ví dụ, tại sao cần trạng thái `PROPAGATE`?**
 
-在共享模式下，线程获取和释放资源的方法调用链如下：
+Trong shared mode, chuỗi gọi phương thức lấy và giải phóng tài nguyên của thread như sau:
 
-- 线程获取资源的方法调用链为： `acquireShared() -> tryAcquireShared() -> 线程阻塞等待唤醒 -> tryAcquireShared() -> setHeadAndPropagate() -> if (剩余资源数 > 0) || (head.waitStatus < 0) 则唤醒后续节点` 。
+- Chuỗi gọi phương thức lấy tài nguyên của thread: `acquireShared() -> tryAcquireShared() -> thread block chờ đánh thức -> tryAcquireShared() -> setHeadAndPropagate() -> nếu (số tài nguyên còn lại > 0) || (head.waitStatus < 0) thì đánh thức node tiếp theo`.
 
-- 线程释放资源的方法调用链为： `releaseShared() -> tryReleaseShared() -> doReleaseShared()` 。
+- Chuỗi gọi phương thức giải phóng tài nguyên của thread: `releaseShared() -> tryReleaseShared() -> doReleaseShared()`.
 
-**如果在释放资源时，没有将 `head` 节点的状态由 `0` 改为 `PROPAGATE` ：**
+**Nếu khi giải phóng tài nguyên không đổi trạng thái node `head` từ `0` thành `PROPAGATE`:**
 
-假设总共有 4 个线程尝试以共享模式获取资源，总共有 2 个资源。初始 `T3` 和 `T4` 线程获取到了资源，`T1` 和 `T2` 线程没有获取到，因此在队列中排队等候。
+Giả sử tổng cộng có 4 thread cố gắng lấy tài nguyên theo shared mode, tổng cộng có 2 tài nguyên. Ban đầu thread `T3` và `T4` lấy được tài nguyên, thread `T1` và `T2` không lấy được, do đó xếp hàng chờ trong hàng đợi.
 
-- 在时刻 1 时，线程 `T1` 和 `T2` 在等待队列中，`T3` 和 `T4` 持有资源。此时等待队列内节点以及对应状态为（括号内为节点的 `waitStatus` 状态）：
+- Tại thời điểm 1, thread `T1` và `T2` đang chờ trong hàng đợi, `T3` và `T4` giữ tài nguyên. Lúc này các node trong hàng đợi chờ và trạng thái tương ứng (trong ngoặc đơn là trạng thái `waitStatus` của node):
 
-  `head(-1) -> T1(-1) -> T2(0)` 。
+  `head(-1) -> T1(-1) -> T2(0)`.
 
-- 在时刻 2 时，线程 `T3` 释放资源，通过 `doReleaseShared()` 方法将 `head` 节点的状态由 `SIGNAL` 更新为 `0` ，并唤醒线程 `T1` ，之后线程 `T3` 退出。
+- Tại thời điểm 2, thread `T3` giải phóng tài nguyên, thông qua phương thức `doReleaseShared()` cập nhật trạng thái node `head` từ `SIGNAL` thành `0` và đánh thức thread `T1`, sau đó thread `T3` thoát ra.
 
-  线程 `T1` 被唤醒之后，通过 `tryAcquireShared()` 获取到资源，但是此时还未来得及执行 `setHeadAndPropagate()` 将自己设置为 `head` 节点。此时等待队列内节点状态为：
+  Sau khi thread `T1` được đánh thức, lấy được tài nguyên thông qua `tryAcquireShared()`, nhưng lúc này chưa kịp thực thi `setHeadAndPropagate()` để đặt mình làm node `head`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(0) -> T1(-1) -> T2(0)` 。
+  `head(0) -> T1(-1) -> T2(0)`.
 
-- 在时刻 3 时，线程 `T4` 释放资源， 由于此时 `head` 节点的状态为 `0` ，因此在 `doReleaseShared()` 方法中无法唤醒 `head` 的后继节点， 之后线程 `T4` 退出。
+- Tại thời điểm 3, thread `T4` giải phóng tài nguyên, vì lúc này trạng thái node `head` là `0`, do đó trong phương thức `doReleaseShared()` không thể đánh thức node successor của `head`, sau đó thread `T4` thoát ra.
 
-- 在时刻 4 时，线程 `T1` 继续执行 `setHeadAndPropagate()` 方法将自己设置为 `head` 节点。
+- Tại thời điểm 4, thread `T1` tiếp tục thực thi phương thức `setHeadAndPropagate()` để đặt mình làm node `head`.
 
-  但是此时由于线程 `T1` 执行 `tryAcquireShared()` 方法返回的剩余资源数为 `0` ，并且 `head` 节点的状态为 `0` ，因此线程 `T1` 并不会在 `setHeadAndPropagate()` 方法中唤醒后续节点。此时等待队列内节点状态为：
+  Nhưng lúc này vì phương thức `tryAcquireShared()` được thread `T1` thực thi trả về số tài nguyên còn lại là `0`, và trạng thái node `head` là `0`, do đó thread `T1` sẽ không đánh thức node tiếp theo trong phương thức `setHeadAndPropagate()`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(-1，线程 T1 节点) -> T2(0)` 。
+  `head(-1, node thread T1) -> T2(0)`.
 
-此时，就导致线程 `T2` 节点在等待队列中，无法被唤醒。对应时刻表如下：
+Lúc này dẫn đến node thread `T2` đang chờ trong hàng đợi mà không thể bị đánh thức. Bảng thời điểm tương ứng như sau:
 
-| 时刻   | 线程 T1                                                        | 线程 T2  | 线程 T3          | 线程 T4                                                       | 等待队列                          |
-| ------ | -------------------------------------------------------------- | -------- | ---------------- | ------------------------------------------------------------- | --------------------------------- |
-| 时刻 1 | 等待队列                                                       | 等待队列 | 持有资源         | 持有资源                                                      | `head(-1) -> T1(-1) -> T2(0)`     |
-| 时刻 2 | （执行）被唤醒后，获取资源，但未来得及将自己设置为 `head` 节点 | 等待队列 | （执行）释放资源 | 持有资源                                                      | `head(0) -> T1(-1) -> T2(0)`      |
-| 时刻 3 |                                                                | 等待队列 | 已退出           | （执行）释放资源。但 `head` 节点状态为 `0` ，无法唤醒后继节点 | `head(0) -> T1(-1) -> T2(0)`      |
-| 时刻 4 | （执行）将自己设置为 `head` 节点                               | 等待队列 | 已退出           | 已退出                                                        | `head(-1，线程 T1 节点) -> T2(0)` |
+| Thời điểm   | Thread T1                                                                         | Thread T2    | Thread T3                        | Thread T4                                                                                                 | Hàng đợi chờ                        |
+| ----------- | --------------------------------------------------------------------------------- | ------------ | -------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Thời điểm 1 | Hàng đợi chờ                                                                      | Hàng đợi chờ | Giữ tài nguyên                   | Giữ tài nguyên                                                                                            | `head(-1) -> T1(-1) -> T2(0)`       |
+| Thời điểm 2 | (Thực thi) Được đánh thức, lấy tài nguyên nhưng chưa kịp đặt mình làm node `head` | Hàng đợi chờ | (Thực thi) Giải phóng tài nguyên | Giữ tài nguyên                                                                                            | `head(0) -> T1(-1) -> T2(0)`        |
+| Thời điểm 3 |                                                                                   | Hàng đợi chờ | Đã thoát                         | (Thực thi) Giải phóng tài nguyên. Nhưng trạng thái node `head` là `0`, không thể đánh thức node successor | `head(0) -> T1(-1) -> T2(0)`        |
+| Thời điểm 4 | (Thực thi) Đặt mình làm node `head`                                               | Hàng đợi chờ | Đã thoát                         | Đã thoát                                                                                                  | `head(-1, node thread T1) -> T2(0)` |
 
-**如果在线程释放资源时，将 `head` 节点的状态由 `0` 改为 `PROPAGATE` ，则可以解决上边出现的并发问题，如下：**
+**Nếu khi giải phóng tài nguyên, đổi trạng thái node `head` từ `0` thành `PROPAGATE`, có thể giải quyết vấn đề concurrency xuất hiện ở trên, như sau:**
 
-- 在时刻 1 时，线程 `T1` 和 `T2` 在等待队列中，`T3` 和 `T4` 持有资源。此时等待队列内节点以及对应状态为：
+- Tại thời điểm 1, thread `T1` và `T2` đang chờ trong hàng đợi, `T3` và `T4` giữ tài nguyên. Lúc này các node trong hàng đợi chờ và trạng thái tương ứng là:
 
-  `head(-1) -> T1(-1) -> T2(0)` 。
+  `head(-1) -> T1(-1) -> T2(0)`.
 
-- 在时刻 2 时，线程 `T3` 释放资源，通过 `doReleaseShared()` 方法将 `head` 节点的状态由 `SIGNAL` 更新为 `0` ，并唤醒线程 `T1` ，之后线程 `T3` 退出。
+- Tại thời điểm 2, thread `T3` giải phóng tài nguyên, thông qua phương thức `doReleaseShared()` cập nhật trạng thái node `head` từ `SIGNAL` thành `0` và đánh thức thread `T1`, sau đó thread `T3` thoát ra.
 
-  线程 `T1` 被唤醒之后，通过 `tryAcquireShared()` 获取到资源，但是此时还未来得及执行 `setHeadAndPropagate()` 将自己设置为 `head` 节点。此时等待队列内节点状态为：
+  Sau khi thread `T1` được đánh thức, lấy được tài nguyên thông qua `tryAcquireShared()`, nhưng lúc này chưa kịp thực thi `setHeadAndPropagate()` để đặt mình làm node `head`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(0) -> T1(-1) -> T2(0)` 。
+  `head(0) -> T1(-1) -> T2(0)`.
 
-- 在时刻 3 时，线程 `T4` 释放资源， 由于此时 `head` 节点的状态为 `0` ，因此在 `doReleaseShared()` 方法中会将 `head` 节点的状态由 `0` 更新为 `PROPAGATE` ， 之后线程 `T4` 退出。此时等待队列内节点状态为：
+- Tại thời điểm 3, thread `T4` giải phóng tài nguyên, vì lúc này trạng thái node `head` là `0`, do đó trong phương thức `doReleaseShared()` sẽ cập nhật trạng thái node `head` từ `0` thành `PROPAGATE`, sau đó thread `T4` thoát ra. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(PROPAGATE) -> T1(-1) -> T2(0)` 。
+  `head(PROPAGATE) -> T1(-1) -> T2(0)`.
 
-- 在时刻 4 时，线程 `T1` 继续执行 `setHeadAndPropagate()` 方法将自己设置为 `head` 节点。此时等待队列内节点状态为：
+- Tại thời điểm 4, thread `T1` tiếp tục thực thi phương thức `setHeadAndPropagate()` để đặt mình làm node `head`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(-1，线程 T1 节点) -> T2(0)` 。
+  `head(-1, node thread T1) -> T2(0)`.
 
-- 在时刻 5 时，虽然此时由于线程 `T1` 执行 `tryAcquireShared()` 方法返回的剩余资源数为 `0` ，但是 `head` 节点状态为 `PROPAGATE < 0` （这里的 `head` 节点是老的 `head` 节点，而不是刚成为 `head` 节点的线程 `T1` 节点）。
+- Tại thời điểm 5, mặc dù lúc này phương thức `tryAcquireShared()` được thread `T1` thực thi trả về số tài nguyên còn lại là `0`, nhưng trạng thái node `head` là `PROPAGATE < 0` (node `head` ở đây là node `head` cũ, không phải node thread `T1` vừa trở thành node `head`).
 
-  因此线程 `T1` 会在 `setHeadAndPropagate()` 方法中唤醒后续 `T2` 节点，并将 `head` 节点的状态由 `SIGNAL` 更新为 `0`。此时等待队列内节点状态为：
+  Do đó thread `T1` sẽ đánh thức node `T2` tiếp theo trong phương thức `setHeadAndPropagate()`, và cập nhật trạng thái node `head` từ `SIGNAL` thành `0`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(0，线程 T1 节点) -> T2(0)` 。
+  `head(0, node thread T1) -> T2(0)`.
 
-- 在时刻 6 时，线程 `T2` 被唤醒后，获取到资源，并将自己设置为 `head` 节点。此时等待队列内节点状态为：
+- Tại thời điểm 6, sau khi thread `T2` được đánh thức, lấy được tài nguyên và đặt mình làm node `head`. Lúc này trạng thái node trong hàng đợi chờ là:
 
-  `head(0，线程 T2 节点)` 。
+  `head(0, node thread T2)`.
 
-有了 `PROPAGATE` 状态，就可以避免线程 `T2` 无法被唤醒的情况。对应时刻表如下：
+Với trạng thái `PROPAGATE`, có thể tránh tình huống thread `T2` không thể bị đánh thức. Bảng thời điểm tương ứng như sau:
 
-| 时刻   | 线程 T1                                                                                                                                                                    | 线程 T2                                                            | 线程 T3          | 线程 T4                                                             | 等待队列                             |
-| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| 时刻 1 | 等待队列                                                                                                                                                                   | 等待队列                                                           | 持有资源         | 持有资源                                                            | `head(-1) -> T1(-1) -> T2(0)`        |
-| 时刻 2 | （执行）被唤醒后，获取资源，但未来得及将自己设置为 `head` 节点                                                                                                             | 等待队列                                                           | （执行）释放资源 | 持有资源                                                            | `head(0) -> T1(-1) -> T2(0)`         |
-| 时刻 3 | 未继续向下执行                                                                                                                                                             | 等待队列                                                           | 已退出           | （执行）释放资源。此时会将 `head` 节点状态由 `0` 更新为 `PROPAGATE` | `head(PROPAGATE) -> T1(-1) -> T2(0)` |
-| 时刻 4 | （执行）将自己设置为 `head` 节点                                                                                                                                           | 等待队列                                                           | 已退出           | 已退出                                                              | `head(-1，线程 T1 节点) -> T2(0)`    |
-| 时刻 5 | （执行）由于 `head` 节点状态为 `PROPAGATE < 0` ，因此会在 `setHeadAndPropagate()` 方法中唤醒后续节点，此时将新的 `head` 节点的状态由 `SIGNAL` 更新为 `0` ，并唤醒线程 `T2` | 等待队列                                                           | 已退出           | 已退出                                                              | `head(0，线程 T1 节点) -> T2(0)`     |
-| 时刻 6 | 已退出                                                                                                                                                                     | （执行）线程 `T2` 被唤醒后，获取到资源，并将自己设置为 `head` 节点 | 已退出           | 已退出                                                              | `head(0，线程 T2 节点)`              |
+| Thời điểm   | Thread T1                                                                                                                                                                                                                        | Thread T2                                                                              | Thread T3                        | Thread T4                                                                                             | Hàng đợi chờ                         |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Thời điểm 1 | Hàng đợi chờ                                                                                                                                                                                                                     | Hàng đợi chờ                                                                           | Giữ tài nguyên                   | Giữ tài nguyên                                                                                        | `head(-1) -> T1(-1) -> T2(0)`        |
+| Thời điểm 2 | (Thực thi) Được đánh thức, lấy tài nguyên nhưng chưa kịp đặt mình làm node `head`                                                                                                                                                | Hàng đợi chờ                                                                           | (Thực thi) Giải phóng tài nguyên | Giữ tài nguyên                                                                                        | `head(0) -> T1(-1) -> T2(0)`         |
+| Thời điểm 3 | Chưa tiếp tục thực thi                                                                                                                                                                                                           | Hàng đợi chờ                                                                           | Đã thoát                         | (Thực thi) Giải phóng tài nguyên. Lúc này sẽ cập nhật trạng thái node `head` từ `0` thành `PROPAGATE` | `head(PROPAGATE) -> T1(-1) -> T2(0)` |
+| Thời điểm 4 | (Thực thi) Đặt mình làm node `head`                                                                                                                                                                                              | Hàng đợi chờ                                                                           | Đã thoát                         | Đã thoát                                                                                              | `head(-1, node thread T1) -> T2(0)`  |
+| Thời điểm 5 | (Thực thi) Vì trạng thái node `head` là `PROPAGATE < 0`, do đó sẽ đánh thức node tiếp theo trong phương thức `setHeadAndPropagate()`, lúc này cập nhật trạng thái node `head` mới từ `SIGNAL` thành `0` và đánh thức thread `T2` | Hàng đợi chờ                                                                           | Đã thoát                         | Đã thoát                                                                                              | `head(0, node thread T1) -> T2(0)`   |
+| Thời điểm 6 | Đã thoát                                                                                                                                                                                                                         | (Thực thi) Thread `T2` được đánh thức, lấy được tài nguyên và đặt mình làm node `head` | Đã thoát                         | Đã thoát                                                                                              | `head(0, node thread T2)`            |
 
-### AQS 资源释放源码分析（共享模式）
+### Phân tích source code giải phóng tài nguyên AQS (Shared mode)
 
-AQS 中以共享模式释放资源的入口方法是 `releaseShared()` ，代码如下：
+Phương thức entry trong AQS để giải phóng tài nguyên ở shared mode là `releaseShared()`, code như sau:
 
 ```JAVA
 // AQS
@@ -994,7 +994,7 @@ public final boolean releaseShared(int arg) {
 }
 ```
 
-其中 `tryReleaseShared()` 方法是 AQS 提供的模板方法，这里同样以 `Semaphore` 来讲解，如下：
+Trong đó phương thức `tryReleaseShared()` là template method mà AQS cung cấp, ở đây vẫn lấy `Semaphore` để giải thích, như sau:
 
 ```JAVA
 // Semaphore
@@ -1010,56 +1010,56 @@ protected final boolean tryReleaseShared(int releases) {
 }
 ```
 
-在 `Semaphore` 实现的 `tryReleaseShared()` 方法中，会在死循环内不断尝试释放资源，即通过 `CAS` 操作来更新 `state` 值。
+Trong phương thức `tryReleaseShared()` được `Semaphore` triển khai, sẽ liên tục thử giải phóng tài nguyên trong vòng lặp vô hạn, tức là thông qua thao tác `CAS` để cập nhật giá trị `state`.
 
-如果更新成功，则证明资源释放成功，会进入到 `doReleaseShared()` 方法。
+Nếu cập nhật thành công, chứng tỏ giải phóng tài nguyên thành công, sẽ vào phương thức `doReleaseShared()`.
 
-`doReleaseShared()` 方法在前文获取资源（共享模式）的部分已进行了详细的源码分析，此处不再重复。
+Phương thức `doReleaseShared()` đã được phân tích chi tiết source code trong phần lấy tài nguyên (shared mode) phía trên, không lặp lại ở đây.
 
-### Condition 条件队列的工作机制
+### Cơ chế hoạt động của Condition condition queue
 
-前面在 `waitStatus` 状态表格中提到过 `CONDITION`（值为 -2）状态，表示节点在 Condition 条件队列中等待。这里系统讲解 Condition 条件队列的工作机制。
+Ở trên trong bảng trạng thái `waitStatus` đã đề cập đến trạng thái `CONDITION` (giá trị -2), chỉ ra node đang chờ trong Condition condition queue. Ở đây sẽ giải thích có hệ thống cơ chế hoạt động của Condition condition queue.
 
-#### 什么是 Condition？
+#### Condition là gì?
 
-`Condition` 是 `java.util.concurrent.locks` 包中定义的接口，它提供了类似于 `Object.wait()` / `Object.notify()` 的线程等待/通知机制，但功能更加强大和灵活。`Condition` 必须与 `Lock` 配合使用，就像 `wait/notify` 必须与 `synchronized` 配合使用一样。
+`Condition` là interface được định nghĩa trong package `java.util.concurrent.locks`, nó cung cấp cơ chế thread wait/notify tương tự như `Object.wait()` / `Object.notify()`, nhưng mạnh mẽ và linh hoạt hơn. `Condition` phải được sử dụng kết hợp với `Lock`, giống như `wait/notify` phải được sử dụng kết hợp với `synchronized`.
 
-与 `Object` 的 `wait/notify` 相比，`Condition` 的主要优势在于：
+So với `wait/notify` của `Object`, ưu điểm chính của `Condition` là:
 
-- **支持多个等待队列**：一个 `Lock` 可以创建多个 `Condition` 实例，不同的线程可以在不同的条件上等待，实现更精细的线程协作。而 `synchronized` 只有一个等待队列。
-- **支持不响应中断的等待**：`Condition` 提供了 `awaitUninterruptibly()` 方法。
-- **支持超时等待**：`Condition` 提供了 `awaitNanos(long)` 和 `await(long, TimeUnit)` 方法，可以设定等待的截止时间。
+- **Hỗ trợ nhiều hàng đợi chờ**: Một `Lock` có thể tạo nhiều instance `Condition`, các thread khác nhau có thể chờ trên các điều kiện khác nhau, thực hiện cộng tác thread tinh tế hơn. Trong khi `synchronized` chỉ có một hàng đợi chờ.
+- **Hỗ trợ chờ không phản hồi interrupt**: `Condition` cung cấp phương thức `awaitUninterruptibly()`.
+- **Hỗ trợ chờ có timeout**: `Condition` cung cấp phương thức `awaitNanos(long)` và `await(long, TimeUnit)`, có thể đặt deadline chờ.
 
-#### AQS 中的两种队列
+#### Hai loại hàng đợi trong AQS
 
-在 AQS 内部实际上维护了 **两种队列**：
+Thực tế AQS bên trong duy trì **hai loại hàng đợi**:
 
-1. **同步队列（CLH 变体队列）**：就是前面详细分析过的双向队列，用于存放获取资源失败而等待的线程节点。
-2. **条件队列（Condition Queue）**：是一个单向链表，用于存放调用了 `Condition.await()` 方法而等待的线程节点。每个 `Condition` 实例维护一个独立的条件队列。
+1. **Sync queue (CLH variant queue)**: Chính là hàng đợi hai chiều đã phân tích chi tiết ở trên, dùng để lưu trữ các node thread đang chờ vì lấy tài nguyên thất bại.
+2. **Condition queue**: Là linked list một chiều, dùng để lưu trữ các node thread đang chờ vì đã gọi phương thức `Condition.await()`. Mỗi instance `Condition` duy trì một condition queue độc lập.
 
-条件队列中的节点使用 `Node` 的 `nextWaiter` 指针来链接下一个节点，形成单向链表。条件队列的头节点为 `firstWaiter`，尾节点为 `lastWaiter`。
+Các node trong condition queue sử dụng con trỏ `nextWaiter` của `Node` để liên kết node tiếp theo, tạo thành linked list một chiều. Head node của condition queue là `firstWaiter`, tail node là `lastWaiter`.
 
-#### Condition 的核心工作流程
+#### Quy trình hoạt động cốt lõi của Condition
 
-AQS 的内部类 `ConditionObject` 实现了 `Condition` 接口，其核心方法为 `await()` 和 `signal()`。
+Inner class `ConditionObject` của AQS triển khai interface `Condition`, các phương thức cốt lõi là `await()` và `signal()`.
 
-**`await()` 方法的工作流程：**
+**Quy trình hoạt động của phương thức `await()`:**
 
-1. 将当前线程封装为 `Node` 节点（`waitStatus` 设置为 `CONDITION`），加入到条件队列的尾部。
-2. 完全释放当前线程持有的锁（即将 `state` 值置为 0），并保存释放前的 `state` 值。
-3. 阻塞当前线程，等待被 `signal()` 唤醒或被中断。
-4. 被唤醒后，重新通过 `acquireQueued()` 进入同步队列竞争锁，并恢复之前保存的 `state` 值（重入次数）。
+1. Đóng gói thread hiện tại thành node `Node` (`waitStatus` đặt thành `CONDITION`), thêm vào tail của condition queue.
+2. Hoàn toàn giải phóng lock mà thread hiện tại giữ (tức là đặt giá trị `state` thành 0) và lưu giá trị `state` trước khi giải phóng.
+3. Block thread hiện tại, chờ được `signal()` đánh thức hoặc bị interrupt.
+4. Sau khi được đánh thức, vào lại sync queue để cạnh tranh lock thông qua `acquireQueued()`, và khôi phục giá trị `state` (số lần reentry) đã lưu trước đó.
 
-**`signal()` 方法的工作流程：**
+**Quy trình hoạt động của phương thức `signal()`:**
 
-1. 检查调用 `signal()` 的线程是否持有锁（不持有则抛出 `IllegalMonitorStateException`）。
-2. 将条件队列中第一个等待的节点从条件队列移除。
-3. 将该节点的 `waitStatus` 从 `CONDITION` 修改为 `0`，并通过 `enq()` 方法将其加入到同步队列的尾部。
-4. 如果同步队列中前驱节点的状态异常（`CANCELLED`）或者 CAS 设置前驱节点状态为 `SIGNAL` 失败，则直接唤醒该线程。
+1. Kiểm tra xem thread gọi `signal()` có giữ lock không (không giữ thì ném `IllegalMonitorStateException`).
+2. Loại bỏ node đầu tiên đang chờ trong condition queue khỏi condition queue.
+3. Sửa `waitStatus` của node từ `CONDITION` thành `0`, và thêm vào tail của sync queue thông qua phương thức `enq()`.
+4. Nếu trạng thái node predecessor trong sync queue bất thường (`CANCELLED`) hoặc CAS đặt trạng thái node predecessor thành `SIGNAL` thất bại, thì đánh thức trực tiếp thread đó.
 
-`signalAll()` 方法与 `signal()` 类似，区别在于它会将条件队列中的 **所有** 节点都转移到同步队列中。
+Phương thức `signalAll()` tương tự như `signal()`, sự khác biệt là nó sẽ chuyển **tất cả** node trong condition queue vào sync queue.
 
-下面的代码示例展示了 `Condition` 的典型用法——实现一个简单的有界阻塞队列：
+Code ví dụ dưới đây thể hiện cách sử dụng điển hình của `Condition` — triển khai một bounded blocking queue đơn giản:
 
 ```java
 import java.util.LinkedList;
@@ -1071,7 +1071,7 @@ public class SimpleBlockingQueue<T> {
     private final Queue<T> queue = new LinkedList<>();
     private final int capacity;
     private final ReentrantLock lock = new ReentrantLock();
-    // 两个不同的条件队列：分别用于"队列不满"和"队列不空"
+    // Hai condition queue khác nhau: lần lượt dùng cho "hàng đợi không đầy" và "hàng đợi không rỗng"
     private final Condition notFull = lock.newCondition();
     private final Condition notEmpty = lock.newCondition();
 
@@ -1080,17 +1080,17 @@ public class SimpleBlockingQueue<T> {
     }
 
     /**
-     * 向队列中添加元素，如果队列已满则等待。
+     * Thêm phần tử vào hàng đợi, nếu hàng đợi đầy thì chờ.
      */
     public void put(T item) throws InterruptedException {
         lock.lock();
         try {
-            // 队列满时，在 notFull 条件上等待
+            // Khi hàng đợi đầy, chờ trên điều kiện notFull
             while (queue.size() == capacity) {
                 notFull.await();
             }
             queue.offer(item);
-            // 添加元素后，通知在 notEmpty 条件上等待的消费者线程
+            // Sau khi thêm phần tử, thông báo cho consumer thread đang chờ trên điều kiện notEmpty
             notEmpty.signal();
         } finally {
             lock.unlock();
@@ -1098,17 +1098,17 @@ public class SimpleBlockingQueue<T> {
     }
 
     /**
-     * 从队列中取出元素，如果队列为空则等待。
+     * Lấy phần tử từ hàng đợi, nếu hàng đợi rỗng thì chờ.
      */
     public T take() throws InterruptedException {
         lock.lock();
         try {
-            // 队列空时，在 notEmpty 条件上等待
+            // Khi hàng đợi rỗng, chờ trên điều kiện notEmpty
             while (queue.isEmpty()) {
                 notEmpty.await();
             }
             T item = queue.poll();
-            // 取出元素后，通知在 notFull 条件上等待的生产者线程
+            // Sau khi lấy phần tử, thông báo cho producer thread đang chờ trên điều kiện notFull
             notFull.signal();
             return item;
         } finally {
@@ -1119,7 +1119,7 @@ public class SimpleBlockingQueue<T> {
     public static void main(String[] args) {
         SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>(5);
 
-        // 生产者线程
+        // Producer thread
         Thread producer = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
@@ -1131,7 +1131,7 @@ public class SimpleBlockingQueue<T> {
             }
         }, "Producer");
 
-        // 消费者线程
+        // Consumer thread
         Thread consumer = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
@@ -1149,27 +1149,27 @@ public class SimpleBlockingQueue<T> {
 }
 ```
 
-在上面的例子中，`notFull` 和 `notEmpty` 是两个独立的 `Condition` 实例，分别维护各自的条件队列。生产者在队列满时在 `notFull` 上等待，消费者在队列空时在 `notEmpty` 上等待。这种分离等待条件的设计，避免了不必要的线程唤醒，比 `synchronized` + `wait/notifyAll` 更加高效。
+Trong ví dụ trên, `notFull` và `notEmpty` là hai instance `Condition` độc lập, mỗi instance duy trì condition queue riêng. Producer chờ trên `notFull` khi hàng đợi đầy, consumer chờ trên `notEmpty` khi hàng đợi rỗng. Thiết kế tách biệt điều kiện chờ này tránh được việc đánh thức thread không cần thiết, hiệu quả hơn `synchronized` + `wait/notifyAll`.
 
-#### `await()` 核心源码分析
+#### Phân tích source code cốt lõi của `await()`
 
 ```java
-// AQS 内部类 ConditionObject
+// AQS inner class ConditionObject
 public final void await() throws InterruptedException {
     if (Thread.interrupted())
         throw new InterruptedException();
-    // 1、将当前线程封装为 Node 节点，加入条件队列
+    // 1、Đóng gói thread hiện tại thành Node node, thêm vào condition queue
     Node node = addConditionWaiter();
-    // 2、完全释放锁，并保存释放前的 state 值
+    // 2、Hoàn toàn giải phóng lock, và lưu giá trị state trước khi giải phóng
     int savedState = fullyRelease(node);
     int interruptMode = 0;
-    // 3、如果节点不在同步队列中，则阻塞当前线程
+    // 3、Nếu node không trong sync queue, block thread hiện tại
     while (!isOnSyncQueue(node)) {
         LockSupport.park(this);
         if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
             break;
     }
-    // 4、被唤醒后，重新进入同步队列竞争锁
+    // 4、Sau khi được đánh thức, vào lại sync queue để cạnh tranh lock
     if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
         interruptMode = REINTERRUPT;
     if (node.nextWaiter != null)
@@ -1179,27 +1179,27 @@ public final void await() throws InterruptedException {
 }
 ```
 
-`await()` 方法中有两个关键操作：
+Phương thức `await()` có hai thao tác then chốt:
 
-- `fullyRelease(node)`：完全释放锁（而不是只释放一次），这样即使线程重入了多次锁，也能在等待期间让其他线程获取到锁。被唤醒后会通过 `acquireQueued(node, savedState)` 恢复之前的重入次数。
-- `isOnSyncQueue(node)`：判断节点是否已经被转移到同步队列。当其他线程调用 `signal()` 时，节点会从条件队列转移到同步队列，此时 `isOnSyncQueue()` 返回 `true`，线程退出 `while` 循环，开始竞争锁。
+- `fullyRelease(node)`: Hoàn toàn giải phóng lock (chứ không chỉ giải phóng một lần), như vậy dù thread đã reenter lock nhiều lần, trong thời gian chờ vẫn có thể cho thread khác lấy lock. Sau khi được đánh thức sẽ khôi phục số lần reentry trước đó thông qua `acquireQueued(node, savedState)`.
+- `isOnSyncQueue(node)`: Kiểm tra xem node có đã được chuyển vào sync queue chưa. Khi thread khác gọi `signal()`, node sẽ được chuyển từ condition queue vào sync queue, lúc này `isOnSyncQueue()` trả về `true`, thread thoát vòng lặp `while`, bắt đầu cạnh tranh lock.
 
-### 公平锁与非公平锁的性能差异分析
+### Phân tích sự khác biệt hiệu năng giữa fair lock và non-fair lock
 
-前面的源码分析中，以 `ReentrantLock` 的非公平锁为例讲解了 `tryAcquire()` 的实现。实际上 `ReentrantLock` 同时支持公平锁和非公平锁两种模式。这里深入分析二者的实现差异及其对性能的影响。
+Trong phần phân tích source code phía trên, lấy non-fair lock của `ReentrantLock` làm ví dụ để giải thích triển khai `tryAcquire()`. Thực tế `ReentrantLock` hỗ trợ cả hai chế độ fair lock và non-fair lock. Ở đây phân tích sâu sự khác biệt triển khai của hai loại và ảnh hưởng của chúng đến hiệu năng.
 
-#### 源码层面的差异
+#### Sự khác biệt ở tầng source code
 
-`ReentrantLock` 默认使用非公平锁，通过构造参数可以切换为公平锁：
+`ReentrantLock` mặc định sử dụng non-fair lock, thông qua tham số constructor có thể chuyển sang fair lock:
 
 ```java
-// 非公平锁（默认）
+// Non-fair lock (mặc định)
 ReentrantLock unfairLock = new ReentrantLock();
-// 公平锁
+// Fair lock
 ReentrantLock fairLock = new ReentrantLock(true);
 ```
 
-二者的核心差异在于 `tryAcquire()` 方法的实现。非公平锁的 `nonfairTryAcquire()` 前面已经分析过，下面看公平锁的实现：
+Sự khác biệt cốt lõi của hai loại nằm ở triển khai phương thức `tryAcquire()`. `nonfairTryAcquire()` của non-fair lock đã được phân tích ở trên, dưới đây xem triển khai fair lock:
 
 ```java
 // ReentrantLock.FairSync
@@ -1207,7 +1207,7 @@ protected final boolean tryAcquire(int acquires) {
     final Thread current = Thread.currentThread();
     int c = getState();
     if (c == 0) {
-        // 关键差异：先调用 hasQueuedPredecessors() 判断同步队列中是否有等待更久的线程
+        // Sự khác biệt then chốt: trước tiên gọi hasQueuedPredecessors() để kiểm tra xem trong sync queue có thread chờ lâu hơn không
         if (!hasQueuedPredecessors() &&
             compareAndSetState(0, acquires)) {
             setExclusiveOwnerThread(current);
@@ -1225,7 +1225,7 @@ protected final boolean tryAcquire(int acquires) {
 }
 ```
 
-**唯一的区别** 就是公平锁在 CAS 修改 `state` 之前多了一个 `hasQueuedPredecessors()` 判断：
+**Sự khác biệt duy nhất** là fair lock có thêm một kiểm tra `hasQueuedPredecessors()` trước khi CAS sửa `state`:
 
 ```java
 // AQS
@@ -1238,35 +1238,35 @@ public final boolean hasQueuedPredecessors() {
 }
 ```
 
-这个方法用于判断当前线程之前是否有其他线程在排队。如果有，则当前线程不能直接获取锁，必须排队等待，从而保证了 **FIFO** 的公平性。
+Phương thức này dùng để kiểm tra xem trước thread hiện tại có thread khác đang xếp hàng không. Nếu có, thread hiện tại không thể lấy lock trực tiếp mà phải xếp hàng chờ, qua đó đảm bảo tính công bằng **FIFO**.
 
-而非公平锁没有这个判断，当锁刚好释放时，新来的线程可以直接通过 CAS 抢到锁，即使同步队列中已经有其他线程在等待。
+Còn non-fair lock không có kiểm tra này, khi lock vừa được giải phóng, thread mới đến có thể lấy lock trực tiếp thông qua CAS, dù trong sync queue đã có thread khác đang chờ.
 
-#### 性能差异对比
+#### So sánh sự khác biệt hiệu năng
 
-| 对比维度 | 非公平锁（默认） | 公平锁 |
-| --- | --- | --- |
-| **吞吐量** | 更高。新线程有机会直接获取锁，减少了线程上下文切换 | 较低。所有线程都必须排队，增加了上下文切换的开销 |
-| **线程饥饿** | 可能发生。极端情况下某些线程长时间无法获取锁 | 不会发生。严格按照请求顺序分配锁 |
-| **上下文切换** | 较少。持有锁的线程释放锁后，新到达的线程可能直接获取锁，不需要唤醒队列中的线程 | 较多。每次释放锁都需要唤醒队列中的下一个线程 |
-| **适用场景** | 大多数场景（对响应时间和吞吐量要求较高） | 对公平性有严格要求的场景（如资源分配、任务调度） |
+| Chiều so sánh          | Non-fair lock (mặc định)                                                                                                             | Fair lock                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **Throughput**         | Cao hơn. Thread mới có cơ hội lấy lock trực tiếp, giảm context switch của thread                                                     | Thấp hơn. Tất cả thread phải xếp hàng, tăng chi phí context switch                            |
+| **Thread starvation**  | Có thể xảy ra. Trong trường hợp cực đoan, một số thread có thể không thể lấy lock trong thời gian dài                                | Không xảy ra. Phân bổ lock nghiêm ngặt theo thứ tự yêu cầu                                    |
+| **Context switch**     | Ít hơn. Sau khi thread giữ lock giải phóng lock, thread mới đến có thể lấy lock trực tiếp, không cần đánh thức thread trong hàng đợi | Nhiều hơn. Mỗi lần giải phóng lock đều cần đánh thức thread tiếp theo trong hàng đợi          |
+| **Tình huống phù hợp** | Hầu hết tình huống (yêu cầu cao về response time và throughput)                                                                      | Tình huống có yêu cầu nghiêm ngặt về tính công bằng (như phân bổ tài nguyên, lập lịch tác vụ) |
 
-**为什么非公平锁性能通常更好？**
+**Tại sao non-fair lock thường có hiệu năng tốt hơn?**
 
-关键原因在于 **减少了线程上下文切换的次数**。当持有锁的线程 A 释放锁后：
+Lý do then chốt là **giảm số lần context switch của thread**. Khi thread A giữ lock giải phóng lock:
 
-- **非公平锁**：此时如果恰好有线程 B 正在尝试获取锁（还没有进入同步队列），线程 B 可以直接通过 CAS 获取到锁并立即执行，省去了唤醒队列中线程的开销。而队列中等待的线程被唤醒后发现锁被占用，会重新阻塞，虽然看起来"浪费"了一次唤醒，但总体上减少了线程切换次数。
-- **公平锁**：线程 B 必须排到队列尾部，然后唤醒队列头部的线程。从线程被唤醒到真正开始执行之间，存在一段 **调度延迟**（线程状态从阻塞切换到运行），在这段延迟期间锁处于空闲状态，降低了锁的利用率。
+- **Non-fair lock**: Lúc này nếu vừa hay có thread B đang cố gắng lấy lock (chưa vào sync queue), thread B có thể lấy lock trực tiếp thông qua CAS và thực thi ngay lập tức, tránh chi phí đánh thức thread trong hàng đợi. Còn thread đang chờ trong hàng đợi sau khi được đánh thức phát hiện lock bị chiếm, sẽ chặn lại, tuy nhìn có vẻ "lãng phí" một lần đánh thức, nhưng nhìn tổng thể giảm số lần chuyển đổi thread.
+- **Fair lock**: Thread B phải xếp vào tail hàng đợi, sau đó đánh thức thread ở head hàng đợi. Từ lúc thread được đánh thức đến lúc thực sự bắt đầu thực thi, có một khoảng **scheduling delay** (trạng thái thread chuyển từ blocking sang running), trong khoảng thời gian chờ này lock đang idle, làm giảm mức độ sử dụng lock.
 
-Doug Lea 在 `ReentrantLock` 的文档中指出：使用公平锁的程序在多线程环境下的总体吞吐量通常低于使用非公平锁的程序（即更慢），因此 `ReentrantLock` 默认使用非公平模式。但在需要保证请求处理顺序或避免线程饥饿的场景中（如连接池分配），公平锁是更好的选择。
+Doug Lea trong tài liệu `ReentrantLock` chỉ ra: chương trình sử dụng fair lock trong môi trường multi-thread thường có tổng throughput thấp hơn chương trình sử dụng non-fair lock (tức là chậm hơn), do đó `ReentrantLock` mặc định sử dụng non-fair mode. Nhưng trong tình huống cần đảm bảo thứ tự xử lý yêu cầu hoặc tránh thread starvation (như phân bổ connection pool), fair lock là lựa chọn tốt hơn.
 
-下面通过代码示例来演示公平锁与非公平锁在行为上的差异：
+Dưới đây thông qua ví dụ code để minh chứng sự khác biệt hành vi giữa fair lock và non-fair lock:
 
 ```java
 import java.util.concurrent.locks.ReentrantLock;
 
 public class FairVsUnfairLockDemo {
-    // 分别测试公平锁和非公平锁
+    // Lần lượt test fair lock và non-fair lock
     private static void testLock(ReentrantLock lock, String lockType) {
         System.out.println("=== " + lockType + " ===");
         Runnable task = () -> {
@@ -1294,44 +1294,44 @@ public class FairVsUnfairLockDemo {
     }
 
     public static void main(String[] args) {
-        // 非公平锁：同一个线程可能连续多次获取到锁
+        // Non-fair lock: cùng một thread có thể liên tục lấy lock nhiều lần
         testLock(new ReentrantLock(false), "非公平锁");
 
-        // 公平锁：线程按请求顺序交替获取锁
+        // Fair lock: các thread lần lượt lấy lock theo thứ tự yêu cầu
         testLock(new ReentrantLock(true), "公平锁");
     }
 }
 ```
 
-运行上面的代码可以观察到：非公平锁模式下，同一个线程可能连续多次获取到锁（因为它释放锁后立即又去竞争，有很大概率在队列中的线程被唤醒之前就抢到了锁）；而公平锁模式下，线程获取锁的顺序更加均匀，不会出现某个线程连续霸占锁的情况。
+Chạy code trên có thể quan sát: trong non-fair lock mode, cùng một thread có thể liên tục lấy lock nhiều lần (vì sau khi giải phóng lock nó lập tức đi cạnh tranh lại, có xác suất cao lấy được lock trước khi thread trong hàng đợi được đánh thức); còn trong fair lock mode, thứ tự thread lấy lock đồng đều hơn, không xảy ra tình huống một thread liên tục chiếm lock.
 
-## 常见同步工具类
+## Các công cụ đồng bộ hóa phổ biến
 
-### Semaphore(信号量)
+### Semaphore (Đèn hiệu)
 
-#### 介绍
+#### Giới thiệu
 
-`synchronized` 和 `ReentrantLock` 都是一次只允许一个线程访问某个资源，而`Semaphore`(信号量)可以用来控制同时访问特定资源的线程数量。
+`synchronized` và `ReentrantLock` đều chỉ cho phép một thread truy cập vào một tài nguyên tại một thời điểm, trong khi `Semaphore` (đèn hiệu) có thể được dùng để kiểm soát số lượng thread truy cập đồng thời vào một tài nguyên cụ thể.
 
-`Semaphore` 的使用简单，我们这里假设有 `N(N>5)` 个线程来获取 `Semaphore` 中的共享资源，下面的代码表示同一时刻 N 个线程中只有 5 个线程能获取到共享资源，其他线程都会阻塞，只有获取到共享资源的线程才能执行。等到有线程释放了共享资源，其他阻塞的线程才能获取到。
+`Semaphore` sử dụng đơn giản. Giả sử có `N(N>5)` thread cùng muốn lấy tài nguyên chia sẻ từ `Semaphore`, đoạn code dưới đây mô tả rằng tại cùng một thời điểm chỉ có 5 trong số N thread có thể lấy được tài nguyên chia sẻ, các thread còn lại sẽ bị chặn. Chỉ những thread đã lấy được tài nguyên chia sẻ mới được thực thi. Khi một thread giải phóng tài nguyên chia sẻ, các thread đang bị chặn mới có thể lấy được.
 
 ```java
-// 初始共享资源数量
+// Số lượng tài nguyên chia sẻ ban đầu
 final Semaphore semaphore = new Semaphore(5);
-// 获取1个许可
+// Lấy 1 giấy phép
 semaphore.acquire();
-// 释放1个许可
+// Giải phóng 1 giấy phép
 semaphore.release();
 ```
 
-当初始的资源个数为 1 的时候，`Semaphore` 退化为排他锁。
+Khi số lượng tài nguyên ban đầu là 1, `Semaphore` sẽ thoái hóa thành một exclusive lock.
 
-`Semaphore` 有两种模式：。
+`Semaphore` có hai chế độ:
 
-- **公平模式：** 调用 `acquire()` 方法的顺序就是获取许可证的顺序，遵循 FIFO；
-- **非公平模式：** 抢占式的。
+- **Chế độ công bằng (fair mode):** Thứ tự gọi phương thức `acquire()` chính là thứ tự nhận giấy phép, tuân theo FIFO;
+- **Chế độ không công bằng (non-fair mode):** Tranh giành theo kiểu preemptive.
 
-`Semaphore` 对应的两个构造方法如下：
+Hai constructor tương ứng của `Semaphore` như sau:
 
 ```java
 public Semaphore(int permits) {
@@ -1343,61 +1343,61 @@ public Semaphore(int permits, boolean fair) {
 }
 ```
 
-**这两个构造方法，都必须提供许可的数量，第二个构造方法可以指定是公平模式还是非公平模式，默认非公平模式。**
+**Cả hai constructor đều phải cung cấp số lượng giấy phép, constructor thứ hai có thể chỉ định chế độ công bằng hay không công bằng, mặc định là chế độ không công bằng.**
 
-`Semaphore` 通常用于那些资源有明确访问数量限制的场景比如限流（仅限于单机模式，实际项目中推荐使用 Redis +Lua 来做限流）。
+`Semaphore` thường được dùng cho các tình huống có giới hạn rõ ràng về số lượng truy cập tài nguyên, chẳng hạn như rate limiting (chỉ áp dụng cho chế độ single machine; trong các dự án thực tế nên dùng Redis + Lua để rate limiting).
 
-#### 原理
+#### Nguyên lý
 
-`Semaphore` 是共享锁的一种实现，它默认构造 AQS 的 `state` 值为 `permits`，你可以将 `permits` 的值理解为许可证的数量，只有拿到许可证的线程才能执行。
+`Semaphore` là một triển khai của shared lock, nó khởi tạo giá trị `state` của AQS là `permits`. Bạn có thể hiểu giá trị `permits` là số lượng giấy phép, chỉ những thread nào lấy được giấy phép mới được thực thi.
 
-以无参 `acquire` 方法为例，调用`semaphore.acquire()` ，线程尝试获取许可证，如果 `state > 0` 的话，则表示可以获取成功，如果 `state <= 0` 的话，则表示许可证数量不足，获取失败。
+Lấy phương thức `acquire` không tham số làm ví dụ, khi gọi `semaphore.acquire()`, thread sẽ cố lấy giấy phép. Nếu `state > 0` thì có thể lấy thành công; nếu `state <= 0` thì số lượng giấy phép không đủ, lấy thất bại.
 
-如果可以获取成功的话(`state > 0` )，会尝试使用 CAS 操作去修改 `state` 的值 `state=state-1`。如果获取失败则会创建一个 Node 节点加入等待队列，挂起当前线程。
+Nếu có thể lấy thành công (`state > 0`), sẽ cố dùng thao tác CAS để sửa giá trị `state` thành `state=state-1`. Nếu lấy thất bại thì sẽ tạo một Node thêm vào hàng đợi chờ và treo thread hiện tại.
 
 ```java
-// 获取1个许可证
+// Lấy 1 giấy phép
 public void acquire() throws InterruptedException {
     sync.acquireSharedInterruptibly(1);
 }
 
-// 获取一个或者多个许可证
+// Lấy một hoặc nhiều giấy phép
 public void acquire(int permits) throws InterruptedException {
     if (permits < 0) throw new IllegalArgumentException();
     sync.acquireSharedInterruptibly(permits);
 }
 ```
 
-`acquireSharedInterruptibly`方法是 `AbstractQueuedSynchronizer` 中的默认实现。
+Phương thức `acquireSharedInterruptibly` là triển khai mặc định trong `AbstractQueuedSynchronizer`.
 
 ```java
-// 共享模式下获取许可证，获取成功则返回，失败则加入等待队列，挂起线程
+// Lấy giấy phép ở chế độ chia sẻ, trả về nếu thành công, thêm vào hàng đợi chờ và treo thread nếu thất bại
 public final void acquireSharedInterruptibly(int arg)
     throws InterruptedException {
     if (Thread.interrupted())
       throw new InterruptedException();
-        // 尝试获取许可证，arg为获取许可证个数，当获取失败时,则创建一个节点加入等待队列，挂起当前线程。
+        // Thử lấy giấy phép, arg là số giấy phép muốn lấy, khi lấy thất bại thì tạo node thêm vào hàng đợi chờ và treo thread hiện tại.
     if (tryAcquireShared(arg) < 0)
       doAcquireSharedInterruptibly(arg);
 }
 ```
 
-这里再以非公平模式（`NonfairSync`）的为例，看看 `tryAcquireShared` 方法的实现。
+Tiếp theo, lấy chế độ không công bằng (`NonfairSync`) làm ví dụ để xem triển khai của phương thức `tryAcquireShared`.
 
 ```java
-// 共享模式下尝试获取资源(在Semaphore中的资源即许可证):
+// Thử lấy tài nguyên ở chế độ chia sẻ (tài nguyên trong Semaphore chính là giấy phép):
 protected int tryAcquireShared(int acquires) {
     return nonfairTryAcquireShared(acquires);
 }
 
-// 非公平的共享模式获取许可证
+// Lấy giấy phép ở chế độ chia sẻ không công bằng
 final int nonfairTryAcquireShared(int acquires) {
     for (;;) {
-        // 当前可用许可证数量
+        // Số lượng giấy phép hiện có
         int available = getState();
         /*
-         * 尝试获取许可证，当前可用许可证数量小于等于0时，返回负值，表示获取失败，
-         * 当前可用许可证大于0时才可能获取成功，CAS失败了会循环重新获取最新的值尝试获取
+         * Thử lấy giấy phép, khi số giấy phép hiện có nhỏ hơn hoặc bằng 0, trả về giá trị âm tức là lấy thất bại,
+         * chỉ khi số giấy phép hiện có lớn hơn 0 mới có thể lấy thành công, nếu CAS thất bại sẽ vòng lặp lại để lấy giá trị mới nhất và thử lại
          */
         int remaining = available - acquires;
         if (remaining < 0 ||
@@ -1407,30 +1407,30 @@ final int nonfairTryAcquireShared(int acquires) {
 }
 ```
 
-以无参 `release` 方法为例，调用`semaphore.release();` ，线程尝试释放许可证，并使用 CAS 操作去修改 `state` 的值 `state=state+1`。释放许可证成功之后，同时会唤醒等待队列中的一个线程。被唤醒的线程会重新尝试去修改 `state` 的值 `state=state-1` ，如果 `state > 0` 则获取令牌成功，否则重新进入等待队列，挂起线程。
+Lấy phương thức `release` không tham số làm ví dụ, khi gọi `semaphore.release()`, thread sẽ cố giải phóng giấy phép và dùng thao tác CAS để sửa giá trị `state` thành `state=state+1`. Sau khi giải phóng giấy phép thành công, đồng thời sẽ đánh thức một thread trong hàng đợi chờ. Thread được đánh thức sẽ thử lại việc sửa giá trị `state` thành `state=state-1`, nếu `state > 0` thì lấy token thành công, ngược lại sẽ vào lại hàng đợi chờ và treo thread.
 
 ```java
-// 释放一个许可证
+// Giải phóng một giấy phép
 public void release() {
     sync.releaseShared(1);
 }
 
-// 释放一个或者多个许可证
+// Giải phóng một hoặc nhiều giấy phép
 public void release(int permits) {
     if (permits < 0) throw new IllegalArgumentException();
     sync.releaseShared(permits);
 }
 ```
 
-`releaseShared`方法是 `AbstractQueuedSynchronizer` 中的默认实现。
+Phương thức `releaseShared` là triển khai mặc định trong `AbstractQueuedSynchronizer`.
 
 ```java
-// 释放共享锁
-// 如果 tryReleaseShared 返回 true，就唤醒等待队列中的一个或多个线程。
+// Giải phóng shared lock
+// Nếu tryReleaseShared trả về true, thì đánh thức một hoặc nhiều thread trong hàng đợi chờ.
 public final boolean releaseShared(int arg) {
-    //释放共享锁
+    //Giải phóng shared lock
     if (tryReleaseShared(arg)) {
-      //释放当前节点的后置等待节点
+      //Giải phóng node chờ phía sau của node hiện tại
       doReleaseShared();
       return true;
     }
@@ -1438,26 +1438,26 @@ public final boolean releaseShared(int arg) {
 }
 ```
 
-`tryReleaseShared` 方法是`Semaphore` 的内部类 `Sync` 重写的一个方法， `AbstractQueuedSynchronizer`中的默认实现仅仅抛出 `UnsupportedOperationException` 异常。
+Phương thức `tryReleaseShared` là một phương thức được override bởi lớp nội bộ `Sync` của `Semaphore`. Triển khai mặc định trong `AbstractQueuedSynchronizer` chỉ ném ra ngoại lệ `UnsupportedOperationException`.
 
 ```java
-// 内部类 Sync 中重写的一个方法
-// 尝试释放资源
+// Một phương thức được override trong lớp nội bộ Sync
+// Thử giải phóng tài nguyên
 protected final boolean tryReleaseShared(int releases) {
     for (;;) {
         int current = getState();
-        // 可用许可证+1
+        // Số giấy phép hiện có +1
         int next = current + releases;
         if (next < current) // overflow
             throw new Error("Maximum permit count exceeded");
-         // CAS修改state的值
+         // CAS sửa giá trị state
         if (compareAndSetState(current, next))
             return true;
     }
 }
 ```
 
-可以看到，上面提到的几个方法底层基本都是通过同步器 `sync` 实现的。`Sync` 是 `CountDownLatch` 的内部类 , 继承了 `AbstractQueuedSynchronizer` ，重写了其中的某些方法。并且，Sync 对应的还有两个子类 `NonfairSync`（对应非公平模式） 和 `FairSync`（对应公平模式）。
+Có thể thấy, các phương thức được đề cập ở trên về cơ bản đều được triển khai thông qua bộ đồng bộ hóa `sync`. `Sync` là lớp nội bộ của `CountDownLatch`, kế thừa `AbstractQueuedSynchronizer` và override một số phương thức của nó. Ngoài ra, `Sync` còn có hai lớp con là `NonfairSync` (tương ứng với chế độ không công bằng) và `FairSync` (tương ứng với chế độ công bằng).
 
 ```java
 private static final class Sync extends AbstractQueuedSynchronizer {
@@ -1471,26 +1471,26 @@ static final class FairSync extends Sync {
 }
 ```
 
-#### 实战
+#### Thực hành
 
 ```java
 public class SemaphoreExample {
-  // 请求的数量
+  // Số lượng request
   private static final int threadCount = 550;
 
   public static void main(String[] args) throws InterruptedException {
-    // 创建一个具有固定线程数量的线程池对象（如果这里线程池的线程数量给太少的话你会发现执行的很慢）
+    // Tạo một thread pool có số lượng thread cố định (nếu số thread ở đây quá ít bạn sẽ thấy thực thi rất chậm)
     ExecutorService threadPool = Executors.newFixedThreadPool(300);
-    // 初始许可证数量
+    // Số lượng giấy phép ban đầu
     final Semaphore semaphore = new Semaphore(20);
 
     for (int i = 0; i < threadCount; i++) {
       final int threadnum = i;
-      threadPool.execute(() -> {// Lambda 表达式的运用
+      threadPool.execute(() -> {// Sử dụng Lambda expression
         try {
-          semaphore.acquire();// 获取一个许可，所以可运行线程数量为20/1=20
+          semaphore.acquire();// Lấy 1 giấy phép, vậy số thread có thể chạy là 20/1=20
           test(threadnum);
-          semaphore.release();// 释放一个许可
+          semaphore.release();// Giải phóng 1 giấy phép
         } catch (InterruptedException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -1503,40 +1503,40 @@ public class SemaphoreExample {
   }
 
   public static void test(int threadnum) throws InterruptedException {
-    Thread.sleep(1000);// 模拟请求的耗时操作
+    Thread.sleep(1000);// Mô phỏng thao tác tốn thời gian của request
     System.out.println("threadnum:" + threadnum);
-    Thread.sleep(1000);// 模拟请求的耗时操作
+    Thread.sleep(1000);// Mô phỏng thao tác tốn thời gian của request
   }
 }
 ```
 
-执行 `acquire()` 方法阻塞，直到有一个许可证可以获得然后拿走一个许可证；每个 `release` 方法增加一个许可证，这可能会释放一个阻塞的 `acquire()` 方法。然而，其实并没有实际的许可证这个对象，`Semaphore` 只是维持了一个可获得许可证的数量。 `Semaphore` 经常用于限制获取某种资源的线程数量。
+Việc thực thi phương thức `acquire()` sẽ bị chặn cho đến khi có một giấy phép có thể lấy được, rồi lấy đi một giấy phép; mỗi lần gọi phương thức `release` sẽ tăng thêm một giấy phép, điều này có thể giải phóng một phương thức `acquire()` đang bị chặn. Tuy nhiên, thực ra không có đối tượng giấy phép thực sự nào; `Semaphore` chỉ duy trì một số lượng giấy phép có thể lấy được. `Semaphore` thường được dùng để giới hạn số lượng thread truy cập vào một tài nguyên nhất định.
 
-当然一次也可以一次拿取和释放多个许可，不过一般没有必要这样做：
+Tất nhiên cũng có thể lấy và giải phóng nhiều giấy phép một lúc, nhưng thông thường không cần thiết phải làm vậy:
 
 ```java
-semaphore.acquire(5);// 获取5个许可，所以可运行线程数量为20/5=4
+semaphore.acquire(5);// Lấy 5 giấy phép, vậy số thread có thể chạy là 20/5=4
 test(threadnum);
-semaphore.release(5);// 释放5个许可
+semaphore.release(5);// Giải phóng 5 giấy phép
 ```
 
-除了 `acquire()` 方法之外，另一个比较常用的与之对应的方法是 `tryAcquire()` 方法，该方法如果获取不到许可就立即返回 false。
+Ngoài phương thức `acquire()`, một phương thức phổ biến khác tương ứng là `tryAcquire()`, phương thức này sẽ trả về `false` ngay lập tức nếu không lấy được giấy phép.
 
-[issue645 补充内容](https://github.com/Snailclimb/JavaGuide/issues/645)：
+[Nội dung bổ sung issue645](https://github.com/Snailclimb/JavaGuide/issues/645):
 
-> `Semaphore` 基于 AQS 实现，用于控制并发访问的线程数量，但它与共享锁的概念有所不同。`Semaphore` 的构造函数使用 `permits` 参数初始化 AQS 的 `state` 变量，该变量表示可用的许可数量。当线程调用 `acquire()` 方法尝试获取许可时，`state` 会原子性地减 1。如果 `state` 减 1 后大于等于 0，则 `acquire()` 成功返回，线程可以继续执行。如果 `state` 减 1 后小于 0，表示当前并发访问的线程数量已达到 `permits` 的限制，该线程会被放入 AQS 的等待队列并阻塞，**而不是自旋等待**。当其他线程完成任务并调用 `release()` 方法时，`state` 会原子性地加 1。`release()` 操作会唤醒 AQS 等待队列中的一个或多个阻塞线程。这些被唤醒的线程将再次尝试 `acquire()` 操作，竞争获取可用的许可。因此，`Semaphore` 通过控制许可数量来限制并发访问的线程数量，而不是通过自旋和共享锁机制。
+> `Semaphore` được triển khai dựa trên AQS, dùng để kiểm soát số lượng thread truy cập đồng thời, nhưng khái niệm của nó khác với shared lock. Constructor của `Semaphore` dùng tham số `permits` để khởi tạo biến `state` của AQS, biến này đại diện cho số lượng giấy phép hiện có. Khi một thread gọi phương thức `acquire()` để cố lấy giấy phép, `state` sẽ giảm 1 theo cách nguyên tử. Nếu `state` sau khi giảm 1 lớn hơn hoặc bằng 0, thì `acquire()` thành công và thread có thể tiếp tục thực thi. Nếu `state` sau khi giảm 1 nhỏ hơn 0, tức là số lượng thread truy cập đồng thời hiện tại đã đạt đến giới hạn `permits`, thread đó sẽ được đưa vào hàng đợi chờ của AQS và bị chặn, **thay vì spin-wait**. Khi một thread khác hoàn thành công việc và gọi phương thức `release()`, `state` sẽ tăng 1 theo cách nguyên tử. Thao tác `release()` sẽ đánh thức một hoặc nhiều thread đang bị chặn trong hàng đợi chờ của AQS. Các thread được đánh thức sẽ thử lại thao tác `acquire()`, tranh giành lấy giấy phép còn trống. Do đó, `Semaphore` kiểm soát số lượng thread truy cập đồng thời bằng cách kiểm soát số lượng giấy phép, chứ không phải thông qua cơ chế spin và shared lock.
 
-### CountDownLatch （倒计时器）
+### CountDownLatch (Bộ đếm ngược)
 
-#### 介绍
+#### Giới thiệu
 
-`CountDownLatch` 允许 `count` 个线程阻塞在一个地方，直至所有线程的任务都执行完毕。
+`CountDownLatch` cho phép `count` thread bị chặn tại một điểm, cho đến khi tất cả các thread hoàn thành công việc của mình.
 
-`CountDownLatch` 是一次性的，计数器的值只能在构造方法中初始化一次，之后没有任何机制再次对其设置值，当 `CountDownLatch` 使用完毕后，它不能再次被使用。
+`CountDownLatch` chỉ dùng được một lần, giá trị bộ đếm chỉ có thể được khởi tạo một lần trong constructor, sau đó không có cơ chế nào để đặt lại giá trị. Sau khi `CountDownLatch` đã được sử dụng xong, nó không thể được dùng lại.
 
-#### 原理
+#### Nguyên lý
 
-`CountDownLatch` 是共享锁的一种实现，它默认构造 AQS 的 `state` 值为 `count`。这个我们通过 `CountDownLatch` 的构造方法即可看出。
+`CountDownLatch` là một triển khai của shared lock, nó khởi tạo giá trị `state` của AQS là `count`. Điều này có thể thấy qua constructor của `CountDownLatch`.
 
 ```java
 public CountDownLatch(int count) {
@@ -1552,24 +1552,24 @@ private static final class Sync extends AbstractQueuedSynchronizer {
 }
 ```
 
-当线程调用 `countDown()` 时，其实使用了`tryReleaseShared`方法以 CAS 的操作来减少 `state`，直至 `state` 为 0 。当 `state` 为 0 时，表示所有的线程都调用了 `countDown` 方法，那么在 `CountDownLatch` 上等待的线程就会被唤醒并继续执行。
+Khi một thread gọi `countDown()`, thực ra nó dùng phương thức `tryReleaseShared` với thao tác CAS để giảm `state` cho đến khi `state` bằng 0. Khi `state` bằng 0, tức là tất cả các thread đã gọi phương thức `countDown`, thì các thread đang chờ trên `CountDownLatch` sẽ được đánh thức và tiếp tục thực thi.
 
 ```java
 public void countDown() {
-    // Sync 是 CountDownLatch 的内部类 , 继承了 AbstractQueuedSynchronizer
+    // Sync là lớp nội bộ của CountDownLatch, kế thừa AbstractQueuedSynchronizer
     sync.releaseShared(1);
 }
 ```
 
-`releaseShared`方法是 `AbstractQueuedSynchronizer` 中的默认实现。
+Phương thức `releaseShared` là triển khai mặc định trong `AbstractQueuedSynchronizer`.
 
 ```java
-// 释放共享锁
-// 如果 tryReleaseShared 返回 true，就唤醒等待队列中的一个或多个线程。
+// Giải phóng shared lock
+// Nếu tryReleaseShared trả về true, thì đánh thức một hoặc nhiều thread trong hàng đợi chờ.
 public final boolean releaseShared(int arg) {
-    //释放共享锁
+    //Giải phóng shared lock
     if (tryReleaseShared(arg)) {
-      //释放当前节点的后置等待节点
+      //Giải phóng node chờ phía sau của node hiện tại
       doReleaseShared();
       return true;
     }
@@ -1577,57 +1577,57 @@ public final boolean releaseShared(int arg) {
 }
 ```
 
-`tryReleaseShared` 方法是`CountDownLatch` 的内部类 `Sync` 重写的一个方法， `AbstractQueuedSynchronizer`中的默认实现仅仅抛出 `UnsupportedOperationException` 异常。
+Phương thức `tryReleaseShared` là một phương thức được override bởi lớp nội bộ `Sync` của `CountDownLatch`. Triển khai mặc định trong `AbstractQueuedSynchronizer` chỉ ném ra ngoại lệ `UnsupportedOperationException`.
 
 ```java
-// 对 state 进行递减，直到 state 变成 0；
-// 只有 count 递减到 0 时，countDown 才会返回 true
+// Giảm dần state cho đến khi state bằng 0;
+// Chỉ khi count giảm về 0, countDown mới trả về true
 protected boolean tryReleaseShared(int releases) {
-    // 自选检查 state 是否为 0
+    // Vòng lặp kiểm tra xem state có bằng 0 không
     for (;;) {
         int c = getState();
-        // 如果 state 已经是 0 了，直接返回 false
+        // Nếu state đã là 0 rồi, trả về false ngay
         if (c == 0)
             return false;
-        // 对 state 进行递减
+        // Giảm state
         int nextc = c-1;
-        // CAS 操作更新 state 的值
+        // Dùng CAS để cập nhật giá trị state
         if (compareAndSetState(c, nextc))
             return nextc == 0;
     }
 }
 ```
 
-以无参 `await`方法为例，当调用 `await()` 的时候，如果 `state` 不为 0，那就证明任务还没有执行完毕，`await()` 就会一直阻塞，也就是说 `await()` 之后的语句不会被执行（`main` 线程被加入到等待队列也就是 变体 CLH 队列中了）。然后，`CountDownLatch` 会自旋 CAS 判断 `state == 0`，如果 `state == 0` 的话，就会释放所有等待的线程，`await()` 方法之后的语句得到执行。
+Lấy phương thức `await` không tham số làm ví dụ, khi gọi `await()`, nếu `state` không bằng 0 thì chứng tỏ công việc chưa hoàn thành, `await()` sẽ tiếp tục bị chặn, tức là các câu lệnh sau `await()` sẽ không được thực thi (thread `main` được thêm vào hàng đợi chờ, tức là hàng đợi CLH biến thể). Sau đó, `CountDownLatch` sẽ spin CAS kiểm tra `state == 0`, nếu `state == 0` thì sẽ giải phóng tất cả các thread đang chờ, và các câu lệnh sau phương thức `await()` sẽ được thực thi.
 
 ```java
-// 等待（也可以叫做加锁）
+// Chờ (cũng có thể gọi là khóa)
 public void await() throws InterruptedException {
     sync.acquireSharedInterruptibly(1);
 }
-// 带有超时时间的等待
+// Chờ có thời gian timeout
 public boolean await(long timeout, TimeUnit unit)
     throws InterruptedException {
     return sync.tryAcquireSharedNanos(1, unit.toNanos(timeout));
 }
 ```
 
-`acquireSharedInterruptibly`方法是 `AbstractQueuedSynchronizer` 中的默认实现。
+Phương thức `acquireSharedInterruptibly` là triển khai mặc định trong `AbstractQueuedSynchronizer`.
 
 ```java
-// 尝试获取锁，获取成功则返回，失败则加入等待队列，挂起线程
+// Thử lấy lock, nếu thành công thì trả về, nếu thất bại thì thêm vào hàng đợi chờ và treo thread
 public final void acquireSharedInterruptibly(int arg)
     throws InterruptedException {
     if (Thread.interrupted())
       throw new InterruptedException();
-        // 尝试获得锁，获取成功则返回
+        // Thử lấy lock, nếu thành công thì trả về
     if (tryAcquireShared(arg) < 0)
-      // 获取失败加入等待队列，挂起线程
+      // Lấy thất bại thì thêm vào hàng đợi chờ và treo thread
       doAcquireSharedInterruptibly(arg);
 }
 ```
 
-`tryAcquireShared` 方法是`CountDownLatch` 的内部类 `Sync` 重写的一个方法，其作用就是判断 `state` 的值是否为 0，是的话就返回 1，否则返回 -1。
+Phương thức `tryAcquireShared` là một phương thức được override bởi lớp nội bộ `Sync` của `CountDownLatch`, tác dụng của nó là kiểm tra xem giá trị `state` có bằng 0 không, nếu có thì trả về 1, ngược lại trả về -1.
 
 ```java
 protected int tryAcquireShared(int acquires) {
@@ -1635,23 +1635,23 @@ protected int tryAcquireShared(int acquires) {
 }
 ```
 
-#### 实战
+#### Thực hành
 
-**CountDownLatch 的两种典型用法**：
+**Hai cách dùng điển hình của CountDownLatch**:
 
-1. 某一线程在开始运行前等待 n 个线程执行完毕 : 将 `CountDownLatch` 的计数器初始化为 n （`new CountDownLatch(n)`），每当一个任务线程执行完毕，就将计数器减 1 （`countdownlatch.countDown()`），当计数器的值变为 0 时，在 `CountDownLatch 上 await()` 的线程就会被唤醒。一个典型应用场景就是启动一个服务时，主线程需要等待多个组件加载完毕，之后再继续执行。
-2. 实现多个线程开始执行任务的最大并行性：注意是并行性，不是并发，强调的是多个线程在某一时刻同时开始执行。类似于赛跑，将多个线程放到起点，等待发令枪响，然后同时开跑。做法是初始化一个共享的 `CountDownLatch` 对象，将其计数器初始化为 1 （`new CountDownLatch(1)`），多个线程在开始执行任务前首先 `coundownlatch.await()`，当主线程调用 `countDown()` 时，计数器变为 0，多个线程同时被唤醒。
+1. Một thread chờ n thread thực thi xong trước khi bắt đầu chạy: Khởi tạo bộ đếm của `CountDownLatch` là n (`new CountDownLatch(n)`), mỗi khi một task thread hoàn thành thì giảm bộ đếm 1 (`countdownlatch.countDown()`), khi bộ đếm về 0 thì thread đang `await()` trên `CountDownLatch` sẽ được đánh thức. Một ứng dụng điển hình là khi khởi động service, main thread cần chờ nhiều component tải xong mới tiếp tục thực thi.
+2. Thực hiện tính song song tối đa cho nhiều thread bắt đầu thực thi cùng lúc: Chú ý là tính song song (parallelism), không phải concurrency, nhấn mạnh rằng nhiều thread bắt đầu thực thi tại cùng một thời điểm. Tương tự như đua chạy, đặt nhiều thread vào điểm xuất phát, chờ súng phát lệnh rồi cùng chạy. Cách làm là khởi tạo một đối tượng `CountDownLatch` dùng chung với bộ đếm là 1 (`new CountDownLatch(1)`), nhiều thread `coundownlatch.await()` trước khi bắt đầu thực thi task, khi main thread gọi `countDown()`, bộ đếm về 0, nhiều thread được đánh thức cùng lúc.
 
-**CountDownLatch 代码示例**：
+**Ví dụ code CountDownLatch**:
 
 ```java
 public class CountDownLatchExample {
-  // 请求的数量
+  // Số lượng request
   private static final int THREAD_COUNT = 550;
 
   public static void main(String[] args) throws InterruptedException {
-    // 创建一个具有固定线程数量的线程池对象（如果这里线程池的线程数量给太少的话你会发现执行的很慢）
-    // 只是测试使用，实际场景请手动赋值线程池参数
+    // Tạo một thread pool có số lượng thread cố định (nếu số thread ở đây quá ít bạn sẽ thấy thực thi rất chậm)
+    // Chỉ dùng để test, trong thực tế hãy gán thủ công các tham số của thread pool
     ExecutorService threadPool = Executors.newFixedThreadPool(300);
     final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
     for (int i = 0; i < THREAD_COUNT; i++) {
@@ -1662,7 +1662,7 @@ public class CountDownLatchExample {
         } catch (InterruptedException e) {
           e.printStackTrace();
         } finally {
-          // 表示一个请求已经被完成
+          // Biểu thị một request đã được hoàn thành
           countDownLatch.countDown();
         }
 
@@ -1681,13 +1681,13 @@ public class CountDownLatchExample {
 }
 ```
 
-上面的代码中，我们定义了请求的数量为 550，当这 550 个请求被处理完成之后，才会执行`System.out.println("finish");`。
+Trong đoạn code trên, chúng ta định nghĩa số lượng request là 550, chỉ sau khi 550 request này được xử lý xong mới thực thi `System.out.println("finish");`.
 
-与 `CountDownLatch` 的第一次交互是主线程等待其他线程。主线程必须在启动其他线程后立即调用 `CountDownLatch.await()` 方法。这样主线程的操作就会在这个方法上阻塞，直到其他线程完成各自的任务。
+Lần tương tác đầu tiên với `CountDownLatch` là main thread chờ các thread khác. Main thread phải gọi phương thức `CountDownLatch.await()` ngay sau khi khởi động các thread khác. Như vậy thao tác của main thread sẽ bị chặn tại phương thức này cho đến khi các thread khác hoàn thành công việc của mình.
 
-其他 N 个线程必须引用闭锁对象，因为他们需要通知 `CountDownLatch` 对象，他们已经完成了各自的任务。这种通知机制是通过 `CountDownLatch.countDown()`方法来完成的；每调用一次这个方法，在构造函数中初始化的 count 值就减 1。所以当 N 个线程都调 用了这个方法，count 的值等于 0，然后主线程就能通过 `await()`方法，恢复执行自己的任务。
+N thread còn lại phải tham chiếu đối tượng latch, vì chúng cần thông báo cho đối tượng `CountDownLatch` rằng chúng đã hoàn thành công việc. Cơ chế thông báo này được thực hiện thông qua phương thức `CountDownLatch.countDown()`; mỗi lần gọi phương thức này, giá trị count khởi tạo trong constructor sẽ giảm 1. Vì vậy khi N thread đều đã gọi phương thức này, giá trị count bằng 0, main thread có thể tiếp tục thực thi công việc của mình thông qua phương thức `await()`.
 
-再插一嘴：`CountDownLatch` 的 `await()` 方法使用不当很容易产生死锁，比如我们上面代码中的 for 循环改为：
+Thêm một điểm nữa: Nếu dùng không đúng phương thức `await()` của `CountDownLatch` rất dễ gây deadlock, ví dụ như nếu đổi vòng for trong code trên thành:
 
 ```java
 for (int i = 0; i < threadCount-1; i++) {
@@ -1695,32 +1695,32 @@ for (int i = 0; i < threadCount-1; i++) {
 }
 ```
 
-这样就导致 `count` 的值没办法等于 0，然后就会导致一直等待。
+Điều này sẽ khiến giá trị `count` không thể bằng 0, dẫn đến chờ mãi mãi.
 
-### CyclicBarrier(循环栅栏)
+### CyclicBarrier (Rào chắn tuần hoàn)
 
-#### 介绍
+#### Giới thiệu
 
-`CyclicBarrier` 和 `CountDownLatch` 非常类似，它也可以实现线程间的技术等待，但是它的功能比 `CountDownLatch` 更加复杂和强大。主要应用场景和 `CountDownLatch` 类似。
+`CyclicBarrier` rất giống với `CountDownLatch`, nó cũng có thể thực hiện chờ đợi kỹ thuật giữa các thread, nhưng chức năng của nó phức tạp và mạnh hơn `CountDownLatch`. Kịch bản ứng dụng chính tương tự `CountDownLatch`.
 
-> `CountDownLatch` 的实现是基于 AQS 的，而 `CyclicBarrier` 是基于 `ReentrantLock`(`ReentrantLock` 也属于 AQS 同步器)和 `Condition` 的。
+> `CountDownLatch` được triển khai dựa trên AQS, còn `CyclicBarrier` dựa trên `ReentrantLock` (`ReentrantLock` cũng thuộc bộ đồng bộ hóa AQS) và `Condition`.
 
-`CyclicBarrier` 的字面意思是可循环使用（Cyclic）的屏障（Barrier）。它要做的事情是：让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活。
+Nghĩa đen của `CyclicBarrier` là rào chắn (Barrier) có thể dùng theo chu kỳ (Cyclic). Tác dụng của nó là: cho một nhóm thread bị chặn khi đến một rào chắn (cũng có thể gọi là điểm đồng bộ hóa), cho đến khi thread cuối cùng đến rào chắn thì rào chắn mới mở, và tất cả các thread bị rào chắn chặn mới có thể tiếp tục thực thi.
 
-#### 原理
+#### Nguyên lý
 
-`CyclicBarrier` 内部通过一个 `count` 变量作为计数器，`count` 的初始值为 `parties` 属性的初始化值，每当一个线程到了栅栏这里了，那么就将计数器减 1。如果 count 值为 0 了，表示这是这一代最后一个线程到达栅栏，就尝试执行我们构造方法中输入的任务。
+Bên trong `CyclicBarrier` sử dụng một biến `count` làm bộ đếm, giá trị ban đầu của `count` là giá trị khởi tạo của thuộc tính `parties`, mỗi khi một thread đến rào chắn thì bộ đếm giảm 1. Nếu giá trị `count` bằng 0, tức là đây là thread cuối cùng trong thế hệ này đến rào chắn, thì sẽ cố thực thi task được truyền vào constructor.
 
 ```java
-//每次拦截的线程数
+//Số thread bị chặn mỗi lần
 private final int parties;
-//计数器
+//Bộ đếm
 private int count;
 ```
 
-下面我们结合源码来简单看看。
+Dưới đây chúng ta kết hợp source code để xem sơ qua.
 
-1、`CyclicBarrier` 默认的构造方法是 `CyclicBarrier(int parties)`，其参数表示屏障拦截的线程数量，每个线程调用 `await()` 方法告诉 `CyclicBarrier` 我已经到达了屏障，然后当前线程被阻塞。
+1、Constructor mặc định của `CyclicBarrier` là `CyclicBarrier(int parties)`, tham số của nó đại diện cho số lượng thread bị rào chắn chặn, mỗi thread gọi phương thức `await()` để thông báo với `CyclicBarrier` rằng tôi đã đến rào chắn, sau đó thread hiện tại bị chặn.
 
 ```java
 public CyclicBarrier(int parties) {
@@ -1735,9 +1735,9 @@ public CyclicBarrier(int parties, Runnable barrierAction) {
 }
 ```
 
-其中，`parties` 就代表了有拦截的线程的数量，当拦截的线程数量达到这个值的时候就打开栅栏，让所有线程通过。
+Trong đó, `parties` đại diện cho số lượng thread bị chặn, khi số lượng thread bị chặn đạt đến giá trị này thì mở rào chắn cho tất cả thread đi qua.
 
-2、当调用 `CyclicBarrier` 对象调用 `await()` 方法时，实际上调用的是 `dowait(false, 0L)`方法。 `await()` 方法就像树立起一个栅栏的行为一样，将线程挡住了，当拦住的线程数量达到 `parties` 的值时，栅栏才会打开，线程才得以通过执行。
+2、Khi gọi phương thức `await()` trên đối tượng `CyclicBarrier`, thực ra là gọi phương thức `dowait(false, 0L)`. Phương thức `await()` giống như hành động dựng lên một rào chắn, chặn các thread lại, khi số lượng thread bị chặn đạt đến giá trị `parties` thì rào chắn mới mở và các thread mới được thực thi tiếp.
 
 ```java
 public int await() throws InterruptedException, BrokenBarrierException {
@@ -1749,10 +1749,10 @@ public int await() throws InterruptedException, BrokenBarrierException {
 }
 ```
 
-`dowait(false, 0L)`方法源码分析如下：
+Phân tích source code phương thức `dowait(false, 0L)` như sau:
 
 ```java
-    // 当线程数量或者请求数量达到 count 时 await 之后的方法才会被执行。上面的示例中 count 的值就为 5。
+    // Chỉ sau khi số lượng thread hoặc số lượng request đạt đến count thì các phương thức sau await mới được thực thi. Trong ví dụ trên, giá trị count là 5.
     private int count;
     /**
      * Main barrier code, covering the various policies.
@@ -1761,7 +1761,7 @@ public int await() throws InterruptedException, BrokenBarrierException {
         throws InterruptedException, BrokenBarrierException,
                TimeoutException {
         final ReentrantLock lock = this.lock;
-        // 锁住
+        // Khóa lại
         lock.lock();
         try {
             final Generation g = generation;
@@ -1769,14 +1769,14 @@ public int await() throws InterruptedException, BrokenBarrierException {
             if (g.broken)
                 throw new BrokenBarrierException();
 
-            // 如果线程中断了，抛出异常
+            // Nếu thread bị interrupt, ném ngoại lệ
             if (Thread.interrupted()) {
                 breakBarrier();
                 throw new InterruptedException();
             }
-            // count 减1
+            // count giảm 1
             int index = --count;
-            // 当 count 数量减为 0 之后说明最后一个线程已经到达栅栏了，也就是达到了可以执行await 方法之后的条件
+            // Khi count giảm về 0 thì thread cuối cùng đã đến rào chắn, tức là đã đạt điều kiện để thực thi các phương thức sau await
             if (index == 0) {  // tripped
                 boolean ranAction = false;
                 try {
@@ -1784,9 +1784,9 @@ public int await() throws InterruptedException, BrokenBarrierException {
                     if (command != null)
                         command.run();
                     ranAction = true;
-                    // 将 count 重置为 parties 属性的初始化值
-                    // 唤醒之前等待的线程
-                    // 下一波执行开始
+                    // Đặt lại count về giá trị khởi tạo của thuộc tính parties
+                    // Đánh thức các thread đang chờ trước đó
+                    // Bắt đầu lượt thực thi tiếp theo
                     nextGeneration();
                     return 0;
                 } finally {
@@ -1831,19 +1831,19 @@ public int await() throws InterruptedException, BrokenBarrierException {
     }
 ```
 
-#### 实战
+#### Thực hành
 
-示例 1：
+Ví dụ 1:
 
 ```java
 public class CyclicBarrierExample1 {
-  // 请求的数量
+  // Số lượng request
   private static final int threadCount = 550;
-  // 需要同步的线程数量
+  // Số lượng thread cần đồng bộ hóa
   private static final CyclicBarrier cyclicBarrier = new CyclicBarrier(5);
 
   public static void main(String[] args) throws InterruptedException {
-    // 创建线程池
+    // Tạo thread pool
     ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     for (int i = 0; i < threadCount; i++) {
@@ -1867,7 +1867,7 @@ public class CyclicBarrierExample1 {
   public static void test(int threadnum) throws InterruptedException, BrokenBarrierException {
     System.out.println("threadnum:" + threadnum + "is ready");
     try {
-      /**等待60秒，保证子线程完全执行结束*/
+      /**Chờ 60 giây, đảm bảo các thread con thực thi xong hoàn toàn*/
       cyclicBarrier.await(60, TimeUnit.SECONDS);
     } catch (Exception e) {
       System.out.println("-----CyclicBarrierException------");
@@ -1878,7 +1878,7 @@ public class CyclicBarrierExample1 {
 }
 ```
 
-运行结果，如下：
+Kết quả chạy như sau:
 
 ```plain
 threadnum:0is ready
@@ -1904,23 +1904,23 @@ threadnum:6is finish
 ......
 ```
 
-可以看到当线程数量也就是请求数量达到我们定义的 5 个的时候， `await()` 方法之后的方法才被执行。
+Có thể thấy khi số lượng thread tức là số lượng request đạt đến 5 như chúng ta đã định nghĩa, các phương thức sau `await()` mới được thực thi.
 
-另外，`CyclicBarrier` 还提供一个更高级的构造函数 `CyclicBarrier(int parties, Runnable barrierAction)`，用于在线程到达屏障时，优先执行 `barrierAction`，方便处理更复杂的业务场景。
+Ngoài ra, `CyclicBarrier` còn cung cấp một constructor nâng cao hơn là `CyclicBarrier(int parties, Runnable barrierAction)`, dùng để thực thi `barrierAction` ưu tiên khi thread đến rào chắn, thuận tiện xử lý các kịch bản nghiệp vụ phức tạp hơn.
 
-示例 2：
+Ví dụ 2:
 
 ```java
 public class CyclicBarrierExample2 {
-  // 请求的数量
+  // Số lượng request
   private static final int threadCount = 550;
-  // 需要同步的线程数量
+  // Số lượng thread cần đồng bộ hóa
   private static final CyclicBarrier cyclicBarrier = new CyclicBarrier(5, () -> {
     System.out.println("------当线程数达到之后，优先执行------");
   });
 
   public static void main(String[] args) throws InterruptedException {
-    // 创建线程池
+    // Tạo thread pool
     ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     for (int i = 0; i < threadCount; i++) {
@@ -1950,7 +1950,7 @@ public class CyclicBarrierExample2 {
 }
 ```
 
-运行结果，如下：
+Kết quả chạy như sau:
 
 ```plain
 threadnum:0is ready
@@ -1978,10 +1978,9 @@ threadnum:7is finish
 ......
 ```
 
-## 参考
+## Tham khảo
 
 - Java 并发之 AQS 详解：<https://www.cnblogs.com/waterystone/p/4920797.html>
 - 从 ReentrantLock 的实现看 AQS 的原理及应用：<https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html>
 
 <!-- @include: @article-footer.snippet.md -->
-````

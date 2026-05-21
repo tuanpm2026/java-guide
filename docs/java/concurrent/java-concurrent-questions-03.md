@@ -1,9 +1,9 @@
 ---
-title: Java并发常见面试题总结（下）
-description: Java并发高级面试题：详解ThreadLocal原理与内存泄漏、线程池参数配置与工作原理、Future/CompletableFuture异步编程、并发容器与工具类使用。
+title: Tổng hợp câu hỏi phỏng vấn Java Concurrency (Phần cuối)
+description: Câu hỏi phỏng vấn nâng cao về Java Concurrency: Giải thích chi tiết nguyên lý ThreadLocal và rò rỉ bộ nhớ, cấu hình tham số thread pool và nguyên lý hoạt động, lập trình bất đồng bộ với Future/CompletableFuture, sử dụng các container và công cụ concurrent.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
@@ -14,15 +14,15 @@ head:
 
 ## ThreadLocal
 
-### ThreadLocal 有什么用？
+### ThreadLocal dùng để làm gì?
 
-通常情况下，我们创建的变量可以被任何一个线程访问和修改。这在多线程环境中可能导致数据竞争和线程安全问题。那么，**如果想让每个线程都有自己的专属本地变量，该如何实现呢？**
+Thông thường, các biến chúng ta tạo ra có thể được truy cập và sửa đổi bởi bất kỳ thread nào. Điều này trong môi trường đa luồng có thể dẫn đến tranh chấp dữ liệu và các vấn đề thread safety. Vậy, **nếu muốn mỗi thread có biến cục bộ riêng của mình, thì phải làm như thế nào?**
 
-JDK 中提供的 `ThreadLocal` 类正是为了解决这个问题。**`ThreadLocal` 类允许每个线程绑定自己的值**，可以将其形象地比喻为一个“存放数据的盒子”。每个线程都有自己独立的盒子，用于存储私有数据，确保不同线程之间的数据互不干扰。
+Lớp `ThreadLocal` trong JDK chính xác là để giải quyết vấn đề này. **Lớp `ThreadLocal` cho phép mỗi thread gắn kết với giá trị của riêng mình**, có thể hình dung nó như một "chiếc hộp chứa dữ liệu". Mỗi thread có chiếc hộp độc lập riêng của mình để lưu trữ dữ liệu riêng tư, đảm bảo dữ liệu giữa các thread khác nhau không ảnh hưởng lẫn nhau.
 
-当你创建一个 `ThreadLocal` 变量时，每个访问该变量的线程都会拥有一个独立的副本。这也是 `ThreadLocal` 名称的由来。线程可以通过 `get()` 方法获取自己线程的本地副本，或通过 `set()` 方法修改该副本的值，从而避免了线程安全问题。
+Khi bạn tạo một biến `ThreadLocal`, mỗi thread truy cập biến đó sẽ có một bản sao độc lập. Đây cũng là lý do `ThreadLocal` có tên như vậy. Thread có thể lấy bản sao cục bộ của mình thông qua phương thức `get()`, hoặc sửa đổi giá trị của bản sao đó thông qua phương thức `set()`, từ đó tránh được các vấn đề về thread safety.
 
-举个简单的例子：假设有两个人去宝屋收集宝物。如果他们共用一个袋子，必然会产生争执；但如果每个人都有一个独立的袋子，就不会有这个问题。如果将这两个人比作线程，那么 `ThreadLocal` 就是用来避免这两个线程竞争同一个资源的方法。
+Ví dụ đơn giản: Giả sử có hai người đến kho báu để thu thập châu báu. Nếu họ dùng chung một túi, chắc chắn sẽ xảy ra tranh giành; nhưng nếu mỗi người có một túi riêng biệt, sẽ không có vấn đề gì. Nếu coi hai người này là các thread, thì `ThreadLocal` chính là phương pháp để tránh hai thread này tranh giành cùng một tài nguyên.
 
 ```java
 public class ThreadLocalExample {
@@ -45,9 +45,9 @@ public class ThreadLocalExample {
 }
 ```
 
-### ⭐️ThreadLocal 原理了解吗？
+### ⭐️Bạn có hiểu nguyên lý hoạt động của ThreadLocal không?
 
-从 `Thread`类源代码入手。
+Hãy bắt đầu từ source code của lớp `Thread`.
 
 ```java
 public class Thread implements Runnable {
@@ -61,9 +61,9 @@ public class Thread implements Runnable {
 }
 ```
 
-从上面`Thread`类 源代码可以看出`Thread` 类中有一个 `threadLocals` 和 一个 `inheritableThreadLocals` 变量，它们都是 `ThreadLocalMap` 类型的变量,我们可以把 `ThreadLocalMap` 理解为`ThreadLocal` 类实现的定制化的 `HashMap`。默认情况下这两个变量都是 null，只有当前线程调用 `ThreadLocal` 类的 `set`或`get`方法时才创建它们，实际上调用这两个方法的时候，我们调用的是`ThreadLocalMap`类对应的 `get()`、`set()`方法。
+Từ source code của lớp `Thread` ở trên, ta có thể thấy rằng trong lớp `Thread` có một biến `threadLocals` và một biến `inheritableThreadLocals`, cả hai đều là biến kiểu `ThreadLocalMap`. Chúng ta có thể hiểu `ThreadLocalMap` như một `HashMap` tùy chỉnh được triển khai bởi lớp `ThreadLocal`. Theo mặc định, cả hai biến này đều là null, chỉ khi thread hiện tại gọi phương thức `set` hoặc `get` của lớp `ThreadLocal` thì chúng mới được tạo ra. Thực tế, khi gọi hai phương thức này, chúng ta đang gọi các phương thức `get()` và `set()` tương ứng của lớp `ThreadLocalMap`.
 
-`ThreadLocal`类的`set()`方法
+Phương thức `set()` của lớp `ThreadLocal`
 
 ```java
 public void set(T value) {
@@ -82,9 +82,9 @@ ThreadLocalMap getMap(Thread t) {
 }
 ```
 
-通过上面这些内容，我们足以通过猜测得出结论：**最终的变量是放在了当前线程的 `ThreadLocalMap` 中，并不是存在 `ThreadLocal` 上，`ThreadLocal` 可以理解为只是`ThreadLocalMap`的封装，传递了变量值。** `ThrealLocal` 类中可以通过`Thread.currentThread()`获取到当前线程对象后，直接通过`getMap(Thread t)`可以访问到该线程的`ThreadLocalMap`对象。
+Qua những nội dung trên, chúng ta có thể suy luận ra kết luận: **Cuối cùng, biến được lưu trong `ThreadLocalMap` của thread hiện tại, chứ không phải trong `ThreadLocal`. `ThreadLocal` chỉ có thể hiểu là lớp bọc của `ThreadLocalMap`, dùng để truyền giá trị biến.** Trong lớp `ThreadLocal`, có thể lấy đối tượng thread hiện tại thông qua `Thread.currentThread()`, sau đó truy cập trực tiếp vào đối tượng `ThreadLocalMap` của thread đó thông qua `getMap(Thread t)`.
 
-**每个`Thread`中都具备一个`ThreadLocalMap`，而`ThreadLocalMap`可以存储以`ThreadLocal`为 key ，Object 对象为 value 的键值对。**
+**Mỗi `Thread` đều có một `ThreadLocalMap`, và `ThreadLocalMap` có thể lưu trữ các cặp key-value với key là `ThreadLocal`, value là đối tượng Object.**
 
 ```java
 ThreadLocalMap(ThreadLocal<?> firstKey, Object firstValue) {
@@ -92,23 +92,23 @@ ThreadLocalMap(ThreadLocal<?> firstKey, Object firstValue) {
 }
 ```
 
-比如我们在同一个线程中声明了两个 `ThreadLocal` 对象的话， `Thread`内部都是使用仅有的那个`ThreadLocalMap` 存放数据的，`ThreadLocalMap`的 key 就是 `ThreadLocal`对象，value 就是 `ThreadLocal` 对象调用`set`方法设置的值。
+Ví dụ, nếu chúng ta khai báo hai đối tượng `ThreadLocal` trong cùng một thread, thì nội bộ `Thread` vẫn chỉ dùng một `ThreadLocalMap` duy nhất để lưu trữ dữ liệu. Key của `ThreadLocalMap` chính là đối tượng `ThreadLocal`, value là giá trị được đặt thông qua phương thức `set` của đối tượng `ThreadLocal`.
 
-`ThreadLocal` 数据结构如下图所示：
+Cấu trúc dữ liệu của `ThreadLocal` được thể hiện trong hình dưới đây:
 
-![ThreadLocal 数据结构](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadlocal-data-structure.png)
+![Cấu trúc dữ liệu ThreadLocal](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadlocal-data-structure.png)
 
-`ThreadLocalMap`是`ThreadLocal`的静态内部类。
+`ThreadLocalMap` là lớp inner static của `ThreadLocal`.
 
-![ThreadLocal内部类](https://oss.javaguide.cn/github/javaguide/java/concurrent/thread-local-inner-class.png)
+![Lớp nội tại ThreadLocal](https://oss.javaguide.cn/github/javaguide/java/concurrent/thread-local-inner-class.png)
 
-### ⭐️ThreadLocal 内存泄露问题是怎么导致的？
+### ⭐️Vấn đề rò rỉ bộ nhớ của ThreadLocal được gây ra như thế nào?
 
-`ThreadLocal` 内存泄漏的根本原因在于其内部实现机制。
+Nguyên nhân cơ bản của rò rỉ bộ nhớ `ThreadLocal` nằm ở cơ chế triển khai nội bộ của nó.
 
-通过上面的内容我们已经知道：每个线程维护一个名为 `ThreadLocalMap` 的 map。 当你使用 `ThreadLocal` 存储值时，实际上是将值存储在当前线程的 `ThreadLocalMap` 中，其中 `ThreadLocal` 实例本身作为 key，而你要存储的值作为 value。
+Từ những nội dung trên, chúng ta đã biết: Mỗi thread duy trì một map tên là `ThreadLocalMap`. Khi bạn dùng `ThreadLocal` để lưu giá trị, thực tế là lưu giá trị vào `ThreadLocalMap` của thread hiện tại, trong đó bản thân instance `ThreadLocal` là key, còn giá trị bạn muốn lưu là value.
 
-`ThreadLocal` 的 `set()` 方法源码如下：
+Source code của phương thức `set()` của `ThreadLocal` như sau:
 
 ```java
 public void set(T value) {
@@ -122,13 +122,13 @@ public void set(T value) {
 }
 ```
 
-`ThreadLocalMap` 的 `set()` 和 `createMap()` 方法中，并没有直接存储 `ThreadLocal` 对象本身，而是使用 `ThreadLocal` 的哈希值计算数组索引，最终存储于类型为`static class Entry extends WeakReference<ThreadLocal<?>>`的数组中。
+Trong các phương thức `set()` và `createMap()` của `ThreadLocalMap`, không lưu trực tiếp bản thân đối tượng `ThreadLocal`, mà sử dụng hash code của `ThreadLocal` để tính chỉ số mảng, cuối cùng lưu vào mảng kiểu `static class Entry extends WeakReference<ThreadLocal<?>>`.
 
 ```java
 int i = key.threadLocalHashCode & (len-1);
 ```
 
-`ThreadLocalMap` 的 `Entry` 定义如下：
+Định nghĩa `Entry` của `ThreadLocalMap` như sau:
 
 ```java
 static class Entry extends WeakReference<ThreadLocal<?>> {
@@ -141,30 +141,30 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
 }
 ```
 
-`ThreadLocalMap` 的 `key` 和 `value` 引用机制：
+Cơ chế tham chiếu của key và value trong `ThreadLocalMap`:
 
-- **key 是弱引用**：`ThreadLocalMap` 中的 key 是 `ThreadLocal` 的弱引用 (`WeakReference<ThreadLocal<?>>`)。 这意味着，如果 `ThreadLocal` 实例不再被任何强引用指向，垃圾回收器会在下次 GC 时回收该实例，导致 `ThreadLocalMap` 中对应的 key 变为 `null`。
-- **value 是强引用**：即使 `key` 被 GC 回收，`value` 仍然被 `ThreadLocalMap.Entry` 强引用存在，无法被 GC 回收。
+- **key là weak reference**: key trong `ThreadLocalMap` là weak reference của `ThreadLocal` (`WeakReference<ThreadLocal<?>>`). Điều này có nghĩa là nếu instance `ThreadLocal` không còn được bất kỳ strong reference nào trỏ đến, garbage collector sẽ thu hồi instance đó trong lần GC tiếp theo, khiến key tương ứng trong `ThreadLocalMap` trở thành `null`.
+- **value là strong reference**: Ngay cả khi key bị GC thu hồi, value vẫn được `ThreadLocalMap.Entry` giữ bằng strong reference, không thể bị GC thu hồi.
 
-当 `ThreadLocal` 实例失去强引用后，其对应的 value 仍然存在于 `ThreadLocalMap` 中，因为 `Entry` 对象强引用了它。如果线程持续存活（例如线程池中的线程），`ThreadLocalMap` 也会一直存在，导致 key 为 `null` 的 entry 无法被垃圾回收，即会造成内存泄漏。
+Khi instance `ThreadLocal` mất strong reference, value tương ứng của nó vẫn tồn tại trong `ThreadLocalMap`, vì đối tượng `Entry` đang giữ nó bằng strong reference. Nếu thread tiếp tục tồn tại (ví dụ như thread trong thread pool), `ThreadLocalMap` cũng sẽ tiếp tục tồn tại, khiến các entry có key là `null` không thể được garbage collect, dẫn đến rò rỉ bộ nhớ.
 
-也就是说，内存泄漏的发生需要同时满足两个条件：
+Tức là, để xảy ra rò rỉ bộ nhớ cần đồng thời thỏa mãn hai điều kiện:
 
-1. `ThreadLocal` 实例不再被强引用；
-2. 线程持续存活，导致 `ThreadLocalMap` 长期存在。
+1. Instance `ThreadLocal` không còn được strong reference nào giữ;
+2. Thread tiếp tục tồn tại, khiến `ThreadLocalMap` tồn tại lâu dài.
 
-虽然 `ThreadLocalMap` 在 `get()`, `set()` 和 `remove()` 操作时会尝试清理 key 为 null 的 entry，但这种清理机制是被动的，并不完全可靠。
+Mặc dù `ThreadLocalMap` sẽ cố gắng dọn sạch các entry có key là null trong các thao tác `get()`, `set()` và `remove()`, nhưng cơ chế dọn dẹp này là thụ động và không hoàn toàn đáng tin cậy.
 
-**如何避免内存泄漏的发生？**
+**Làm thế nào để tránh rò rỉ bộ nhớ?**
 
-1. 在使用完 `ThreadLocal` 后，务必调用 `remove()` 方法。 这是最安全和最推荐的做法。 `remove()` 方法会从 `ThreadLocalMap` 中显式地移除对应的 entry，彻底解决内存泄漏的风险。 即使将 `ThreadLocal` 定义为 `static final`，也强烈建议在每次使用后调用 `remove()`。
-2. 在线程池等线程复用的场景下，使用 `try-finally` 块可以确保即使发生异常，`remove()` 方法也一定会被执行。
+1. Sau khi sử dụng xong `ThreadLocal`, nhất định phải gọi phương thức `remove()`. Đây là cách an toàn nhất và được khuyến nghị nhất. Phương thức `remove()` sẽ xóa entry tương ứng khỏi `ThreadLocalMap` một cách tường minh, giải quyết triệt để nguy cơ rò rỉ bộ nhớ. Ngay cả khi khai báo `ThreadLocal` là `static final`, vẫn nên gọi `remove()` sau mỗi lần sử dụng.
+2. Trong các kịch bản tái sử dụng thread như thread pool, sử dụng khối `try-finally` để đảm bảo phương thức `remove()` nhất định được thực thi dù có xảy ra exception hay không.
 
-#### 为什么 Entry 的 key 要设计为弱引用？
+#### Tại sao key của Entry được thiết kế là weak reference?
 
-这是一个经典的面试追问。很多同学知道 `ThreadLocalMap` 的 key 是弱引用，但不清楚**为什么要这样设计**，以及如果换成强引用会怎样。
+Đây là câu hỏi phỏng vấn kinh điển. Nhiều bạn biết rằng key của `ThreadLocalMap` là weak reference, nhưng không rõ **tại sao lại thiết kế như vậy**, và nếu thay bằng strong reference thì sẽ ra sao.
 
-我们先来看完整的引用链路。当一个线程使用 `ThreadLocal` 时，涉及以下引用关系：
+Trước tiên, hãy xem toàn bộ chuỗi tham chiếu. Khi một thread sử dụng `ThreadLocal`, liên quan đến các mối quan hệ tham chiếu sau:
 
 ```
 强引用（栈/静态变量）──→ ThreadLocal 实例
@@ -174,40 +174,40 @@ Thread ──→ ThreadLocalMap ──→ Entry ─── key（WeakReference）
                               └─── value（强引用）──→ 实际存储的对象
 ```
 
-理解了这条引用链路，我们来对比两种设计方案：
+Hiểu được chuỗi tham chiếu này, hãy so sánh hai phương án thiết kế:
 
-**假设 key 使用强引用（实际没有采用）：**
+**Giả sử key dùng strong reference (thực tế không áp dụng):**
 
-当业务代码中的 `ThreadLocal` 引用被置为 `null`（例如方法执行结束、对象被回收），此时虽然业务代码已经不再需要这个 `ThreadLocal`，但由于 `ThreadLocalMap` 的 Entry 对 key 持有**强引用**，`ThreadLocal` 实例仍然无法被 GC 回收。只要线程不终止，这个 `ThreadLocal` 和它对应的 value 都会一直存在于内存中，造成 key 和 value **都无法回收**的内存泄漏。
+Khi reference `ThreadLocal` trong code nghiệp vụ bị đặt thành `null` (ví dụ sau khi phương thức kết thúc, đối tượng bị thu hồi), dù code nghiệp vụ không còn cần `ThreadLocal` này nữa, nhưng do Entry của `ThreadLocalMap` giữ **strong reference** đến key, instance `ThreadLocal` vẫn không thể bị GC thu hồi. Miễn là thread không kết thúc, `ThreadLocal` này và value tương ứng sẽ luôn tồn tại trong bộ nhớ, gây ra rò rỉ bộ nhớ khi **cả key và value đều không thể được thu hồi**.
 
-**key 使用弱引用（实际采用的方案）：**
+**key dùng weak reference (phương án thực tế được áp dụng):**
 
-当业务代码中的 `ThreadLocal` 引用被置为 `null` 后，由于 Entry 的 key 是弱引用，`ThreadLocal` 实例在下次 GC 时会被回收，key 变为 `null`。此时虽然 value 仍然存在（强引用），但 `ThreadLocalMap` 在执行 `get()`、`set()`、`remove()` 等操作时，会主动探测并清理这些 key 为 `null` 的 "stale entry"（过期条目），从而释放 value 对象。
+Khi reference `ThreadLocal` trong code nghiệp vụ bị đặt thành `null`, do key của Entry là weak reference, instance `ThreadLocal` sẽ bị thu hồi trong lần GC tiếp theo, key trở thành `null`. Lúc này dù value vẫn tồn tại (strong reference), nhưng `ThreadLocalMap` khi thực thi các thao tác `get()`, `set()`, `remove()` sẽ chủ động thăm dò và dọn sạch các "stale entry" (entry hết hạn) có key là `null`, từ đó giải phóng đối tượng value.
 
-也就是说，**弱引用的设计是一种"兜底"防御机制**——即便开发者忘记调用 `remove()`，JVM 的 GC 配合 `ThreadLocalMap` 的自清理逻辑，仍然有机会回收泄漏的数据。而如果使用强引用，一旦忘记 `remove()`，就完全没有任何补救机会了。
+Tức là, **thiết kế weak reference là một cơ chế phòng thủ "dự phòng"** — ngay cả khi lập trình viên quên gọi `remove()`, GC của JVM kết hợp với logic tự dọn dẹp của `ThreadLocalMap` vẫn có cơ hội thu hồi dữ liệu bị rò rỉ. Còn nếu dùng strong reference, một khi quên `remove()`, sẽ hoàn toàn không có cơ hội khắc phục nào cả.
 
-> 需要注意的是，这种自清理机制是**被动触发**的（只在 `get`/`set`/`remove` 操作时顺便清理），并不能保证所有过期条目都被及时清理。因此，**弱引用只是降低了内存泄漏的风险，并没有彻底消除它**，手动调用 `remove()` 仍然是必须的。
+> Cần lưu ý rằng cơ chế tự dọn dẹp này được **kích hoạt thụ động** (chỉ dọn dẹp kèm theo trong các thao tác `get`/`set`/`remove`), không thể đảm bảo tất cả entry hết hạn đều được dọn sạch kịp thời. Do đó, **weak reference chỉ giảm thiểu nguy cơ rò rỉ bộ nhớ, chứ không loại bỏ hoàn toàn**, việc gọi `remove()` thủ công vẫn là bắt buộc.
 
-#### 线程池场景下的特殊风险
+#### Rủi ro đặc biệt trong kịch bản thread pool
 
-上面提到内存泄漏的条件之一是"线程持续存活"。在使用 `new Thread()` 创建线程的场景下，线程执行完毕后会被销毁，其持有的 `ThreadLocalMap` 也会随之被 GC 回收，泄漏的影响相对有限。
+Ở trên đã đề cập rằng một trong những điều kiện gây ra rò rỉ bộ nhớ là "thread tiếp tục tồn tại". Trong kịch bản tạo thread bằng `new Thread()`, sau khi thread thực thi xong sẽ bị hủy, `ThreadLocalMap` mà nó giữ cũng sẽ được GC thu hồi, tác động của rò rỉ tương đối hạn chế.
 
-但在**线程池**场景下，问题会被严重放大。线程池中的核心线程默认不会被销毁，它们会被反复复用来执行不同的任务。这意味着：
+Nhưng trong kịch bản **thread pool**, vấn đề sẽ bị khuếch đại nghiêm trọng. Các core thread trong thread pool mặc định không bị hủy, chúng được tái sử dụng lặp đi lặp lại để thực thi các task khác nhau. Điều này có nghĩa là:
 
-1. **内存泄漏持续累积**：每个任务如果使用了 `ThreadLocal` 却没有清理，其 value 就会一直残留在该线程的 `ThreadLocalMap` 中。随着任务不断提交和执行，泄漏的数据会越积越多，最终可能导致 OOM。
-2. **数据污染（脏数据）**：上一个任务设置的 `ThreadLocal` 值，如果没有被清理，下一个被分配到同一线程的任务就能读取到这个残留值。这可能导致严重的业务逻辑错误，比如用户 A 的请求读取到了用户 B 的身份信息。
+1. **Rò rỉ bộ nhớ tích lũy liên tục**: Mỗi task nếu sử dụng `ThreadLocal` mà không dọn sạch, value của nó sẽ luôn tồn tại trong `ThreadLocalMap` của thread đó. Khi task liên tục được submit và thực thi, dữ liệu bị rò rỉ sẽ ngày càng tích lũy nhiều hơn, cuối cùng có thể dẫn đến OOM.
+2. **Ô nhiễm dữ liệu (dirty data)**: Giá trị `ThreadLocal` được đặt bởi task trước, nếu không được dọn sạch, task tiếp theo được phân công cùng thread sẽ đọc được giá trị còn sót này. Điều này có thể dẫn đến lỗi logic nghiệp vụ nghiêm trọng, ví dụ request của người dùng A đọc được thông tin danh tính của người dùng B.
 
-**美团技术团队的真实事故案例：**
+**Vụ sự cố thực tế của đội kỹ thuật Meituan:**
 
-美团技术团队在[《Java 线程池实现原理及其在美团业务中的实践》](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html)一文中就记录了一次因 `ThreadLocal` 使用不当引发的线上事故：在一个依赖 `ThreadLocal` 传递用户上下文的 Web 应用中，由于使用了线程池处理请求，且没有在请求结束后清理 `ThreadLocal`，导致**后续请求复用了同一线程时，读取到了前一个请求遗留的用户信息**，造成了用户数据串号的严重问题。
+Đội kỹ thuật Meituan trong bài viết [《Nguyên lý triển khai Java Thread Pool và thực tiễn trong nghiệp vụ Meituan》](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html) đã ghi lại một sự cố trên production do sử dụng `ThreadLocal` không đúng cách: Trong một ứng dụng Web dựa vào `ThreadLocal` để truyền context người dùng, do sử dụng thread pool để xử lý request và không dọn sạch `ThreadLocal` sau khi request kết thúc, dẫn đến **khi request tiếp theo tái sử dụng cùng thread, đọc được thông tin người dùng còn sót lại từ request trước**, gây ra vấn đề nghiêm trọng là dữ liệu người dùng bị trộn lẫn.
 
-#### 阿里巴巴 Java 开发手册的强制规约
+#### Quy định bắt buộc trong Alibaba Java Development Manual
 
-正因为线程池 + `ThreadLocal` 的组合如此容易踩坑，《阿里巴巴 Java 开发手册》在"并发处理"章节中对此做出了**强制**级别的要求：
+Chính vì sự kết hợp thread pool + `ThreadLocal` rất dễ mắc bẫy, "Alibaba Java Development Manual" trong chương "Xử lý Concurrent" đã đưa ra yêu cầu ở mức độ **bắt buộc**:
 
-> **【强制】** 必须回收自定义的 `ThreadLocal` 变量记录的当前线程的值，尤其在线程池场景下，线程经常会被复用，如果不清理自定义的 `ThreadLocal` 变量，可能会影响后续业务逻辑和造成内存泄露等问题。尽量在代理中使用 `try-finally` 块进行回收。
+> **【Bắt buộc】** Phải thu hồi giá trị của thread hiện tại được ghi bởi biến `ThreadLocal` tùy chỉnh, đặc biệt trong kịch bản thread pool, thread thường xuyên được tái sử dụng. Nếu không dọn sạch biến `ThreadLocal` tùy chỉnh, có thể ảnh hưởng đến logic nghiệp vụ tiếp theo và gây ra rò rỉ bộ nhớ. Nên dùng khối `try-finally` trong proxy để thu hồi.
 
-正确的使用模式如下：
+Mẫu sử dụng đúng như sau:
 
 ```java
 // 定义为 static final，避免重复创建 ThreadLocal 实例
@@ -228,42 +228,42 @@ public void processRequest(HttpServletRequest request) {
 }
 ```
 
-这里有三个关键要点：
+Có ba điểm quan trọng ở đây:
 
-1. **`ThreadLocal` 声明为 `static final`**：确保整个应用只有一个 `ThreadLocal` 实例，避免因重复创建导致旧实例失去强引用后 key 被回收，加剧内存泄漏。
-2. **`try-finally` 保证 `remove()` 一定被执行**：即使业务逻辑抛出异常，`finally` 块也能确保 `ThreadLocal` 被清理。
-3. **在使用完毕后立即清理，而不是在下次使用前设置**：在使用前 `set()` 虽然可以覆盖旧值解决脏数据问题，但无法解决上一次任务遗留 value 的内存占用问题。只有在用完后 `remove()`，才能同时避免内存泄漏和数据污染。
+1. **Khai báo `ThreadLocal` là `static final`**: Đảm bảo toàn bộ ứng dụng chỉ có một instance `ThreadLocal`, tránh việc tạo lại nhiều lần dẫn đến instance cũ mất strong reference và key bị thu hồi, làm trầm trọng thêm rò rỉ bộ nhớ.
+2. **`try-finally` đảm bảo `remove()` nhất định được thực thi**: Ngay cả khi logic nghiệp vụ ném ra exception, khối `finally` vẫn đảm bảo `ThreadLocal` được dọn sạch.
+3. **Dọn sạch ngay sau khi sử dụng xong, không phải đặt lại trước lần sử dụng tiếp theo**: Mặc dù `set()` trước khi sử dụng có thể ghi đè giá trị cũ để giải quyết vấn đề dirty data, nhưng không giải quyết được việc chiếm dụng bộ nhớ của value còn sót từ task trước. Chỉ khi `remove()` sau khi dùng xong mới có thể đồng thời tránh cả rò rỉ bộ nhớ lẫn ô nhiễm dữ liệu.
 
-### ⭐️如何跨线程传递 ThreadLocal 的值？
+### ⭐️Làm thế nào để truyền giá trị ThreadLocal qua các thread?
 
-**为什么 ThreadLocal 在异步场景下会失效？**
+**Tại sao ThreadLocal lại không hoạt động trong kịch bản bất đồng bộ?**
 
-`ThreadLocal` 的值不在 `ThreadLocal` 对象中，而是存储在 `Thread` 里：
+Giá trị của `ThreadLocal` không nằm trong đối tượng `ThreadLocal`, mà được lưu trữ trong `Thread`:
 
 ```java
 Thread → ThreadLocalMap → Entry(ThreadLocal, value)
 ```
 
-`ThreadLocal` 数据结构如下图所示：
+Cấu trúc dữ liệu của `ThreadLocal` được thể hiện trong hình dưới đây:
 
-![ThreadLocal 数据结构](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadlocal-data-structure.png)
+![Cấu trúc dữ liệu ThreadLocal](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadlocal-data-structure.png)
 
-异步执行往往意味着任务会从当前线程切换到另一个线程（例如线程池中的工作线程）执行。由于不同线程各自维护独立的 `ThreadLocalMap`，默认情况下 `ThreadLocal` 的上下文无法在异步执行中自动传递。
+Thực thi bất đồng bộ thường có nghĩa là task sẽ chuyển từ thread hiện tại sang một thread khác (ví dụ worker thread trong thread pool) để thực thi. Do các thread khác nhau duy trì `ThreadLocalMap` độc lập riêng biệt, theo mặc định context `ThreadLocal` không thể được truyền tự động trong quá trình thực thi bất đồng bộ.
 
-**如何跨线程传递 ThreadLocal 的值？**
+**Làm thế nào để truyền giá trị ThreadLocal qua các thread?**
 
-为了解决这个问题，业界有两套主流的解决方案，一套是 JDK 原生的，另一套是阿里巴巴开源的。
+Để giải quyết vấn đề này, có hai giải pháp chính được ngành sử dụng: một là của JDK gốc, một là của Alibaba open source.
 
-1. `InheritableThreadLocal` ：JDK1.2 提供的一个类，继承自 `ThreadLocal` 。使用 `InheritableThreadLocal` 时，会在创建子线程时，令子线程继承父线程中的 `ThreadLocal` 值，但是无法支持线程池场景下的 `ThreadLocal` 值传递。
-2. `TransmittableThreadLocal` ： `TransmittableThreadLocal` （简称 TTL） 是阿里巴巴开源的工具类，继承并加强了`InheritableThreadLocal`类，可以在线程池的场景下支持 `ThreadLocal` 值传递。项目地址：<https://github.com/alibaba/transmittable-thread-local>。
+1. `InheritableThreadLocal`: Một lớp được JDK1.2 cung cấp, kế thừa từ `ThreadLocal`. Khi sử dụng `InheritableThreadLocal`, khi tạo thread con, thread con sẽ kế thừa giá trị `ThreadLocal` từ thread cha, nhưng không hỗ trợ truyền giá trị `ThreadLocal` trong kịch bản thread pool.
+2. `TransmittableThreadLocal`: `TransmittableThreadLocal` (viết tắt TTL) là công cụ open source của Alibaba, kế thừa và tăng cường lớp `InheritableThreadLocal`, có thể hỗ trợ truyền giá trị `ThreadLocal` trong kịch bản thread pool. Địa chỉ dự án: <https://github.com/alibaba/transmittable-thread-local>.
 
-#### InheritableThreadLocal 原理
+#### Nguyên lý của InheritableThreadLocal
 
-`InheritableThreadLocal` 实现了创建异步线程时，继承父线程 `ThreadLocal` 值的功能。该类是 JDK 团队提供的，通过改造 JDK 源码包中的 `Thread` 类来实现创建线程时，`ThreadLocal` 值的传递。
+`InheritableThreadLocal` triển khai chức năng kế thừa giá trị `ThreadLocal` của thread cha khi tạo thread bất đồng bộ. Lớp này được cung cấp bởi team JDK, thực hiện truyền giá trị `ThreadLocal` khi tạo thread bằng cách sửa đổi lớp `Thread` trong package source JDK.
 
-**`InheritableThreadLocal` 的值存储在哪里？**
+**Giá trị của `InheritableThreadLocal` được lưu ở đâu?**
 
-在 `Thread` 类中添加了一个新的 `ThreadLocalMap` ，命名为 `inheritableThreadLocals` ，该变量用于存储需要跨线程传递的 `ThreadLocal` 值。如下：
+Trong lớp `Thread`, một `ThreadLocalMap` mới được thêm vào, đặt tên là `inheritableThreadLocals`, biến này dùng để lưu trữ các giá trị `ThreadLocal` cần được truyền qua thread. Như sau:
 
 ```JAVA
 class Thread implements Runnable {
@@ -272,9 +272,9 @@ class Thread implements Runnable {
 }
 ```
 
-**如何完成 `ThreadLocal` 值的传递？**
+**Làm thế nào để hoàn thành việc truyền giá trị `ThreadLocal`?**
 
-通过改造 `Thread` 类的构造方法来实现，在创建 `Thread` 线程时，拿到父线程的 `inheritableThreadLocals` 变量赋值给子线程即可。相关代码如下：
+Được thực hiện thông qua việc sửa đổi constructor của lớp `Thread`, khi tạo thread `Thread`, lấy biến `inheritableThreadLocals` của thread cha và gán cho thread con. Code liên quan như sau:
 
 ```JAVA
 // Thread 的构造方法会调用 init() 方法
@@ -288,29 +288,29 @@ private void init(/* ... */) {
 }
 ```
 
-**`InheritableThreadLocal` 的方案有什么问题？**
+**Phương án `InheritableThreadLocal` có vấn đề gì?**
 
-这个方案的缺陷在于它的**一次性**，也就是它只在线程创建时发生一次复制。然而，现在的开发中，我们会大量使用线程池，但线程池里的线程是被复用的。
+Điểm yếu của phương án này là **tính một lần**, tức là nó chỉ xảy ra sao chép một lần khi thread được tạo. Tuy nhiên, trong phát triển hiện nay, chúng ta sử dụng rất nhiều thread pool, nhưng các thread trong thread pool được tái sử dụng.
 
-想象一下，任务A在线程1中执行，把它的 `ThreadLocal` 值传给了线程池里的子线程2。任务A结束后，线程1去休息了。接着，任务B来了，它在线程3中执行，线程池又复用了刚才那个子线程2来执行任务B的一部分。此时，子线程2的`ThreadLocal`里还残留着任务A传给它的脏数据，而任务B（在线程3里）的上下文却完全没有传递过来。这就导致了数据污染和上下文丢失。
+Hãy tưởng tượng: Task A thực thi trong thread 1, truyền giá trị `ThreadLocal` của nó cho thread con 2 trong thread pool. Sau khi Task A kết thúc, thread 1 nghỉ ngơi. Tiếp theo, Task B đến, thực thi trong thread 3, thread pool lại tái sử dụng thread con 2 vừa rồi để thực thi một phần của Task B. Lúc này, trong `ThreadLocal` của thread con 2 vẫn còn sót dirty data từ Task A, trong khi context của Task B (trong thread 3) hoàn toàn không được truyền sang. Điều này dẫn đến ô nhiễm dữ liệu và mất context.
 
-#### TransmittableThreadLocal 原理
+#### Nguyên lý của TransmittableThreadLocal
 
-JDK 默认没有支持线程池场景下 `ThreadLocal` 值传递的功能，因此阿里巴巴开源了一套工具 `TransmittableThreadLocal` 来实现该功能。
+JDK mặc định không hỗ trợ chức năng truyền giá trị `ThreadLocal` trong kịch bản thread pool, vì vậy Alibaba đã open source một bộ công cụ `TransmittableThreadLocal` để triển khai chức năng này.
 
-由于阿里巴巴无法改动 JDK 源码，TTL 巧妙地利用了**装饰器模式**对任务（`Runnable`/`Callable`）或线程池（`Executor`）进行增强，将上下文的传递时机从“线程创建时”延迟到了“任务提交与执行时”。
+Do Alibaba không thể sửa đổi source JDK, TTL đã khéo léo sử dụng **Decorator Pattern** để tăng cường task (`Runnable`/`Callable`) hoặc thread pool (`Executor`), chuyển thời điểm truyền context từ "khi tạo thread" sang "khi submit và thực thi task".
 
-TTL 的核心逻辑可以概括为三个阶段（CRR）：
+Logic cốt lõi của TTL có thể tóm tắt thành ba giai đoạn (CRR):
 
-- **Capture（捕获）**：在提交任务（如调用 `execute`）的一瞬间，`TtlRunnable` 会调用 `TransmittableThreadLocal.Transmitter.capture()`。它通过内部维护的 `holder` 集合，抓取当前父线程中所有活跃的 TTL 变量并存入快照。
-- **Replay（回放）**：在线程池的工作线程执行 `run()` 方法前，调用 `replay()`。它将快照中的值 `set` 到当前工作线程中，并备份该线程原有的旧值。
-- **Restore（恢复）**：任务执行结束后，调用 `restore()`。它根据备份将工作线程恢复到执行前的状态，防止上下文污染或内存泄漏。
+- **Capture (Bắt)**: Ngay khoảnh khắc submit task (như gọi `execute`), `TtlRunnable` sẽ gọi `TransmittableThreadLocal.Transmitter.capture()`. Nó lấy tập hợp `holder` được duy trì nội bộ, chụp lại tất cả biến TTL đang hoạt động trong thread cha hiện tại và lưu vào snapshot.
+- **Replay (Phát lại)**: Trước khi worker thread trong thread pool thực thi phương thức `run()`, gọi `replay()`. Nó `set` các giá trị trong snapshot vào worker thread hiện tại, và backup các giá trị cũ ban đầu của thread đó.
+- **Restore (Khôi phục)**: Sau khi task thực thi xong, gọi `restore()`. Nó khôi phục worker thread về trạng thái trước khi thực thi dựa trên bản backup, ngăn ô nhiễm context hoặc rò rỉ bộ nhớ.
 
-这张图是 TTL 官方提供的 CRR 整个过程的时序图：
+Hình này là sequence diagram cho toàn bộ quá trình CRR do TTL chính thức cung cấp:
 
-![TTL 官方提供的 CRR 整个过程的时序图](https://oss.javaguide.cn/github/javaguide/java/concurrent/ttl-crr-timing-diagram.png)
+![Biểu đồ tuần tự toàn bộ quá trình CRR do TTL cung cấp chính thức](https://oss.javaguide.cn/github/javaguide/java/concurrent/ttl-crr-timing-diagram.png)
 
-不太好理解吧？可以看下我绘制的这张 CRR 时序图，更清晰直观一些：
+Hơi khó hiểu phải không? Có thể xem sequence diagram CRR tôi vẽ dưới đây, rõ ràng và trực quan hơn:
 
 ```mermaid
 sequenceDiagram
@@ -335,15 +335,15 @@ sequenceDiagram
 
 ```
 
-也就是说，TTL 的本质是在任务提交时 Capture 上下文，在任务执行前 Replay 上下文，在任务结束后 Restore 线程状态，从而安全地支持线程池中的 `ThreadLocal` 传递。
+Tức là, bản chất của TTL là Capture context khi submit task, Replay context trước khi thực thi task, Restore trạng thái thread sau khi task kết thúc, từ đó hỗ trợ an toàn việc truyền `ThreadLocal` trong thread pool.
 
-TTL 提供了两种主要的接入方式，可根据侵入性要求和改造成本进行选择。
+TTL cung cấp hai cách tích hợp chính, có thể chọn tùy theo yêu cầu về xâm phạm và chi phí sửa đổi.
 
-**1. 显式包装（手动接入）**
+**1. Bọc tường minh (tích hợp thủ công)**
 
-使用 `TtlRunnable.get(Runnable)` 或 `TtlCallable.get(Callable)` 对任务进行包装，使用 `TtlExecutors.getTtlExecutor(Executor)`、`getTtlExecutorService(...)` 对线程池进行包装。这种接入方式清晰可控，但需要业务代码配合，存在一定侵入性。
+Sử dụng `TtlRunnable.get(Runnable)` hoặc `TtlCallable.get(Callable)` để bọc task, sử dụng `TtlExecutors.getTtlExecutor(Executor)`, `getTtlExecutorService(...)` để bọc thread pool. Cách tích hợp này rõ ràng và dễ kiểm soát, nhưng cần code nghiệp vụ phải phối hợp, có tính xâm phạm nhất định.
 
-下面这段代码展示了 TTL 通过 CRR，在支持线程池复用和拒绝策略的前提下，安全地传递并隔离 `ThreadLocal` 上下文。
+Đoạn code dưới đây minh họa TTL thông qua CRR, truyền và cách ly an toàn context `ThreadLocal` trong điều kiện hỗ trợ tái sử dụng thread pool và reject policy.
 
 ```java
 public class TtlContextHolder {
@@ -404,7 +404,7 @@ public class TtlContextHolder {
 }
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```ba
 09:06:31.438 INFO  [main] TtlContextHolder - 父线程上下文: value-set-in-parent
@@ -413,7 +413,7 @@ public class TtlContextHolder {
 09:06:31.453 INFO  [main] TtlContextHolder - 父线程最终上下文: value-set-in-parent
 ```
 
-如果你想要测试这段代码，记得引入 TTL 的 Maven 依赖；
+Nếu bạn muốn test đoạn code này, nhớ thêm Maven dependency của TTL:
 
 ```XML
 <dependency>
@@ -423,17 +423,17 @@ public class TtlContextHolder {
 </dependency>
 ```
 
-**2. 无侵入接入（Java Agent）**
+**2. Tích hợp không xâm phạm (Java Agent)**
 
-通过 Java Agent 在类加载阶段对线程池相关类进行 字节码增强，自动织入 TTL 的上下文传递逻辑，实现业务代码零改造的上下文透传。这种方式业务代码无需感知 TTL 的存在，但实现复杂度相对较高。
+Thông qua Java Agent, tăng cường bytecode cho các lớp liên quan đến thread pool trong giai đoạn load class, tự động dệt vào logic truyền context của TTL, thực hiện truyền context mà code nghiệp vụ không cần sửa đổi. Cách này code nghiệp vụ không cần biết TTL tồn tại, nhưng độ phức tạp triển khai tương đối cao hơn.
 
-TTL Agent 默认修饰了以下 JDK 执行器组件：
+TTL Agent mặc định sửa đổi các thành phần executor JDK sau:
 
-1. **标准线程池**：`java.util.concurrent.ThreadPoolExecutor` 和 `java.util.concurrent.ScheduledThreadPoolExecutor`。
-2. **ForkJoin 体系**：`java.util.concurrent.ForkJoinTask`（从而透明支持了 `CompletableFuture` 和 Java 8 并行流 `Stream`）。
-3. **遗留组件**：`java.util.TimerTask`（自 v2.7.0 起支持，v2.11.2 起默认开启）。
+1. **Thread pool tiêu chuẩn**: `java.util.concurrent.ThreadPoolExecutor` và `java.util.concurrent.ScheduledThreadPoolExecutor`.
+2. **Hệ thống ForkJoin**: `java.util.concurrent.ForkJoinTask` (từ đó hỗ trợ trong suốt `CompletableFuture` và Java 8 parallel stream `Stream`).
+3. **Thành phần kế thừa**: `java.util.TimerTask` (hỗ trợ từ v2.7.0, mặc định bật từ v2.11.2).
 
-在 Java 启动参数中加入 `-javaagent` 配置：
+Thêm cấu hình `-javaagent` vào tham số khởi động Java:
 
 ```bash
 # 基础配置
@@ -442,76 +442,76 @@ java -javaagent:path/to/transmittable-thread-local-2.x.y.jar \
      com.your.app.Main
 ```
 
-#### 应用场景
+#### Kịch bản ứng dụng
 
-1. **压测流量标记**： 在压测场景中，使用 `ThreadLocal` 存储压测标记，用于区分压测流量和真实流量。如果标记丢失，可能导致压测流量被错误地当成线上流量处理。
-2. **上下文传递**：在分布式系统中，传递链路追踪信息（如 Trace ID）或用户上下文信息。
+1. **Đánh dấu lưu lượng stress test**: Trong kịch bản stress test, dùng `ThreadLocal` để lưu dấu hiệu stress test, phân biệt lưu lượng stress test và lưu lượng thực. Nếu dấu hiệu bị mất, có thể dẫn đến lưu lượng stress test bị xử lý nhầm thành lưu lượng production.
+2. **Truyền context**: Trong hệ thống phân tán, truyền thông tin theo dõi liên kết (như Trace ID) hoặc thông tin context người dùng.
 
-#### 总结
+#### Tóm tắt
 
-`ThreadLocal` 的值默认是无法跨线程传递的，因为它的值是存在**每个 `Thread` 对象自己**的 `ThreadLocalMap` 里的，父子线程是两个不同的对象。
+Giá trị của `ThreadLocal` mặc định không thể truyền qua các thread, vì giá trị của nó được lưu trong `ThreadLocalMap` của **từng đối tượng `Thread`**, thread cha và thread con là hai đối tượng khác nhau.
 
-为了解决这个问题，主要有两种方案：
+Để giải quyết vấn đề này, có hai phương án chính:
 
-1. **JDK的 InheritableThreadLocal**：它会在**创建子线程**的时候，把父线程的值**复制**一份给子线程。但它的问题是，在**线程池**场景下会失效。因为线程池会**复用**线程，这会导致线程拿到的可能是上一个任务传下来的**脏数据**。
-2. **阿里的 TransmittableThreadLocal (TTL)**：这是我们项目里用的方案，它专门解决线程池的问题。它的原理是，在**提交任务**到线程池时，它会把父线程的 `ThreadLocal` 值**捕获**下来，和任务**绑定**在一起。等线程池里的某个线程要执行这个任务时，它再把捕获的值**设置**到这个线程上，任务执行完再**清理**掉。
+1. **InheritableThreadLocal của JDK**: Khi **tạo thread con**, nó sẽ **sao chép** giá trị của thread cha cho thread con. Nhưng vấn đề là trong kịch bản **thread pool** sẽ thất bại. Vì thread pool sẽ **tái sử dụng** thread, điều này có thể dẫn đến thread lấy được **dirty data** từ task trước truyền xuống.
+2. **TransmittableThreadLocal (TTL) của Alibaba**: Đây là phương án được dùng trong dự án của chúng ta, nó chuyên giải quyết vấn đề thread pool. Nguyên lý của nó là: khi **submit task** vào thread pool, nó sẽ **capture** giá trị `ThreadLocal` của thread cha, và **ràng buộc** với task. Khi một thread trong thread pool sắp thực thi task này, nó sẽ **set** giá trị đã capture vào thread đó, sau khi task thực thi xong thì **dọn sạch**.
 
-简单说，**InheritableThreadLocal是跟线程绑定的，只在创建时有效；而TTL是跟任务绑定的，完美支持线程池。**
+Nói đơn giản, **InheritableThreadLocal được gắn với thread, chỉ có hiệu lực khi tạo; còn TTL được gắn với task, hỗ trợ hoàn hảo thread pool.**
 
-## 线程池
+## Thread Pool
 
-### 什么是线程池?
+### Thread pool là gì?
 
-顾名思义，线程池就是管理一系列线程的资源池。当有任务要处理时，直接从线程池中获取线程来处理，处理完之后线程并不会立即被销毁，而是等待下一个任务。
+Như tên gọi, thread pool là một resource pool quản lý một loạt thread. Khi có task cần xử lý, thread được lấy trực tiếp từ thread pool để xử lý. Sau khi xử lý xong, thread không bị hủy ngay lập tức mà chờ task tiếp theo.
 
-### ⭐️为什么要用线程池？
+### ⭐️Tại sao phải dùng thread pool?
 
-池化技术想必大家已经屡见不鲜了，线程池、数据库连接池、HTTP 连接池等等都是对这个思想的应用。池化技术的思想主要是为了减少每次获取资源的消耗，提高对资源的利用率。
+Kỹ thuật pooling chắc hẳn ai cũng đã quen thuộc: thread pool, database connection pool, HTTP connection pool, v.v. đều là ứng dụng của tư tưởng này. Tư tưởng chính của kỹ thuật pooling là để giảm tiêu tốn tài nguyên mỗi lần lấy, nâng cao tỷ lệ sử dụng tài nguyên.
 
-线程池提供了一种限制和管理资源（包括执行一个任务）的方式。 每个线程池还维护一些基本统计信息，例如已完成任务的数量。使用线程池主要带来以下几个好处：
+Thread pool cung cấp một cách để giới hạn và quản lý tài nguyên (bao gồm cả thực thi một task). Mỗi thread pool còn duy trì một số thống kê cơ bản, ví dụ số lượng task đã hoàn thành. Sử dụng thread pool mang lại những lợi ích chính sau:
 
-1. **降低资源消耗**：线程池里的线程是可以重复利用的。一旦线程完成了某个任务，它不会立即销毁，而是回到池子里等待下一个任务。这就避免了频繁创建和销毁线程带来的开销。
-2. **提高响应速度**：因为线程池里通常会维护一定数量的核心线程（或者说“常驻工人”），任务来了之后，可以直接交给这些已经存在的、空闲的线程去执行，省去了创建线程的时间，任务能够更快地得到处理。
-3. **提高线程的可管理性**：线程池允许我们统一管理池中的线程。我们可以配置线程池的大小（核心线程数、最大线程数）、任务队列的类型和大小、拒绝策略等。这样就能控制并发线程的总量，防止资源耗尽，保证系统的稳定性。同时，线程池通常也提供了监控接口，方便我们了解线程池的运行状态（比如有多少活跃线程、多少任务在排队等），便于调优。
+1. **Giảm tiêu tốn tài nguyên**: Các thread trong thread pool có thể được tái sử dụng. Sau khi thread hoàn thành một task, nó không bị hủy ngay lập tức mà quay lại pool chờ task tiếp theo. Điều này tránh được chi phí tạo và hủy thread thường xuyên.
+2. **Tăng tốc độ phản hồi**: Vì thread pool thường duy trì một số lượng nhất định core thread (hay còn gọi là "nhân viên thường trực"), sau khi task đến, có thể giao trực tiếp cho các thread đang tồn tại, rảnh rỗi để thực thi, tiết kiệm thời gian tạo thread, task có thể được xử lý nhanh hơn.
+3. **Nâng cao khả năng quản lý thread**: Thread pool cho phép chúng ta quản lý tập trung các thread trong pool. Chúng ta có thể cấu hình kích thước thread pool (số core thread, số thread tối đa), loại và kích thước task queue, reject policy, v.v. Điều này có thể kiểm soát tổng số thread concurrent, ngăn ngừa cạn kiệt tài nguyên, đảm bảo tính ổn định của hệ thống. Đồng thời, thread pool thường cũng cung cấp interface giám sát, tiện cho chúng ta theo dõi trạng thái hoạt động của thread pool (ví dụ có bao nhiêu active thread, bao nhiêu task đang xếp hàng), tiện cho việc tuning.
 
-### 如何创建线程池？
+### Làm thế nào để tạo thread pool?
 
-在 Java 中，创建线程池主要有两种方式：
+Trong Java, tạo thread pool chủ yếu có hai cách:
 
-**方式一：通过 `ThreadPoolExecutor` 构造函数直接创建 (推荐)**
+**Cách 1: Tạo trực tiếp qua constructor của `ThreadPoolExecutor` (khuyến nghị)**
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpoolexecutor-construtors.png)
 
-这是最推荐的方式，因为它允许开发者明确指定线程池的核心参数，对线程池的运行行为有更精细的控制，从而避免资源耗尽的风险。
+Đây là cách được khuyến nghị nhất, vì nó cho phép lập trình viên chỉ định rõ ràng các tham số cốt lõi của thread pool, kiểm soát tinh tế hơn hành vi hoạt động của thread pool, từ đó tránh nguy cơ cạn kiệt tài nguyên.
 
-**方式二：通过 `Executors` 工具类创建 (不推荐用于生产环境)**
+**Cách 2: Tạo qua lớp tiện ích `Executors` (không khuyến nghị cho môi trường production)**
 
-`Executors`工具类提供的创建线程池的方法如下图所示：
+Các phương thức tạo thread pool được cung cấp bởi lớp tiện ích `Executors` như hình dưới:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/executors-new-thread-pool-methods.png)
 
-可以看出，通过`Executors`工具类可以创建多种类型的线程池，包括：
+Có thể thấy, thông qua lớp tiện ích `Executors` có thể tạo nhiều loại thread pool, bao gồm:
 
-- `FixedThreadPool`：固定线程数量的线程池。该线程池中的线程数量始终不变。当有一个新的任务提交时，线程池中若有空闲线程，则立即执行。若没有，则新的任务会被暂存在一个任务队列中，待有线程空闲时，便处理在任务队列中的任务。
-- `SingleThreadExecutor`： 只有一个线程的线程池。若多余一个任务被提交到该线程池，任务会被保存在一个任务队列中，待线程空闲，按先入先出的顺序执行队列中的任务。
-- `CachedThreadPool`： 可根据实际情况调整线程数量的线程池。线程池的线程数量不确定，但若有空闲线程可以复用，则会优先使用可复用的线程。若所有线程均在工作，又有新的任务提交，则会创建新的线程处理任务。所有线程在当前任务执行完毕后，将返回线程池进行复用。
-- `ScheduledThreadPool`：给定的延迟后运行任务或者定期执行任务的线程池。
+- `FixedThreadPool`: Thread pool với số lượng thread cố định. Số lượng thread trong thread pool này luôn không đổi. Khi có task mới được submit, nếu trong thread pool có thread rảnh thì sẽ thực thi ngay. Nếu không, task mới sẽ được lưu tạm trong một task queue, chờ khi có thread rảnh sẽ xử lý các task trong task queue.
+- `SingleThreadExecutor`: Thread pool chỉ có một thread. Nếu nhiều hơn một task được submit vào thread pool, các task sẽ được lưu trong task queue, chờ thread rảnh, thực thi theo thứ tự FIFO.
+- `CachedThreadPool`: Thread pool có thể điều chỉnh số lượng thread theo tình hình thực tế. Số lượng thread trong thread pool không xác định, nhưng nếu có thread rảnh có thể tái sử dụng thì sẽ ưu tiên dùng thread tái sử dụng. Nếu tất cả thread đều đang làm việc mà có task mới được submit, sẽ tạo thread mới để xử lý task. Tất cả thread sau khi hoàn thành task hiện tại sẽ quay lại thread pool để tái sử dụng.
+- `ScheduledThreadPool`: Thread pool chạy task sau một độ trễ nhất định hoặc thực thi task định kỳ.
 
-### ⭐️为什么不推荐使用内置线程池？
+### ⭐️Tại sao không nên dùng thread pool tích hợp?
 
-在《阿里巴巴 Java 开发手册》“并发处理”这一章节，明确指出线程资源必须通过线程池提供，不允许在应用中自行显式创建线程。
+Trong "Alibaba Java Development Manual" chương "Xử lý Concurrent", đã chỉ rõ rằng tài nguyên thread phải được cung cấp thông qua thread pool, không được phép tự tạo thread tường minh trong ứng dụng.
 
-**为什么呢？**
+**Tại sao vậy?**
 
-> 使用线程池的好处是减少在创建和销毁线程上所消耗的时间以及系统资源开销，解决资源不足的问题。如果不使用线程池，有可能会造成系统创建大量同类线程而导致消耗完内存或者“过度切换”的问题。
+> Lợi ích của việc dùng thread pool là giảm thời gian và chi phí tài nguyên hệ thống tiêu tốn vào việc tạo và hủy thread, giải quyết vấn đề thiếu tài nguyên. Nếu không dùng thread pool, có thể dẫn đến hệ thống tạo ra lượng lớn thread cùng loại, gây tiêu tốn hết bộ nhớ hoặc vấn đề "chuyển đổi quá mức".
 
-另外，《阿里巴巴 Java 开发手册》中强制线程池不允许使用 `Executors` 去创建，而是通过 `ThreadPoolExecutor` 构造函数的方式，这样的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险
+Ngoài ra, "Alibaba Java Development Manual" bắt buộc thread pool không được phép tạo bằng `Executors`, mà phải qua cách dùng constructor của `ThreadPoolExecutor`. Cách xử lý này giúp người viết code hiểu rõ hơn các quy tắc hoạt động của thread pool, tránh nguy cơ cạn kiệt tài nguyên.
 
-`Executors` 返回线程池对象的弊端如下(后文会详细介绍到)：
+Những nhược điểm của các đối tượng thread pool được trả về bởi `Executors` như sau (sẽ giới thiệu chi tiết ở phần sau):
 
-- `FixedThreadPool` 和 `SingleThreadExecutor`:使用的是阻塞队列 `LinkedBlockingQueue`，任务队列最大长度为 `Integer.MAX_VALUE`，可以看作是无界的，可能堆积大量的请求，从而导致 OOM。
-- `CachedThreadPool`:使用的是同步队列 `SynchronousQueue`, 允许创建的线程数量为 `Integer.MAX_VALUE` ，如果任务数量过多且执行速度较慢，可能会创建大量的线程，从而导致 OOM。
-- `ScheduledThreadPool` 和 `SingleThreadScheduledExecutor`:使用的无界的延迟阻塞队列`DelayedWorkQueue`，任务队列最大长度为 `Integer.MAX_VALUE`,可能堆积大量的请求，从而导致 OOM。
+- `FixedThreadPool` và `SingleThreadExecutor`: Dùng blocking queue `LinkedBlockingQueue`, độ dài tối đa của task queue là `Integer.MAX_VALUE`, có thể coi là vô hạn, có thể tích lũy lượng lớn request, dẫn đến OOM.
+- `CachedThreadPool`: Dùng synchronous queue `SynchronousQueue`, cho phép tạo số lượng thread là `Integer.MAX_VALUE`. Nếu số lượng task quá nhiều và tốc độ thực thi chậm, có thể tạo ra lượng lớn thread, dẫn đến OOM.
+- `ScheduledThreadPool` và `SingleThreadScheduledExecutor`: Dùng delayed blocking queue vô hạn `DelayedWorkQueue`, độ dài tối đa của task queue là `Integer.MAX_VALUE`, có thể tích lũy lượng lớn request, dẫn đến OOM.
 
 ```java
 public static ExecutorService newFixedThreadPool(int nThreads) {
@@ -543,7 +543,7 @@ public ScheduledThreadPoolExecutor(int corePoolSize) {
 }
 ```
 
-### ⭐️线程池常见参数有哪些？如何解释？
+### ⭐️Các tham số phổ biến của thread pool là gì? Giải thích như thế nào?
 
 ```java
     /**
@@ -573,26 +573,26 @@ public ScheduledThreadPoolExecutor(int corePoolSize) {
     }
 ```
 
-`ThreadPoolExecutor` 3 个最重要的参数：
+3 tham số quan trọng nhất của `ThreadPoolExecutor`:
 
-- `corePoolSize` : 任务队列未达到队列容量时，最大可以同时运行的线程数量。
-- `maximumPoolSize` : 任务队列中存放的任务达到队列容量的时候，当前可以同时运行的线程数量变为最大线程数。
-- `workQueue`: 新任务来的时候会先判断当前运行的线程数量是否达到核心线程数，如果达到的话，新任务就会被存放在队列中。
+- `corePoolSize`: Số lượng thread tối đa có thể chạy đồng thời khi task queue chưa đạt dung lượng.
+- `maximumPoolSize`: Khi số lượng task trong task queue đạt dung lượng, số lượng thread có thể chạy đồng thời hiện tại trở thành số thread tối đa.
+- `workQueue`: Khi task mới đến, sẽ kiểm tra xem số lượng thread hiện đang chạy có đạt core thread count chưa. Nếu đạt rồi, task mới sẽ được lưu vào queue.
 
-`ThreadPoolExecutor`其他常见参数 :
+Các tham số phổ biến khác của `ThreadPoolExecutor`:
 
-- `keepAliveTime`:当线程池中的线程数量大于 `corePoolSize` ，即有非核心线程（线程池中核心线程以外的线程）时，这些非核心线程空闲后不会立即销毁，而是会等待，直到等待的时间超过了 `keepAliveTime`才会被回收销毁。
-- `unit` : `keepAliveTime` 参数的时间单位。
-- `threadFactory` :executor 创建新线程的时候会用到。
-- `handler` :拒绝策略（后面会单独详细介绍一下）。
+- `keepAliveTime`: Khi số lượng thread trong thread pool lớn hơn `corePoolSize`, tức là có non-core thread (thread ngoài core thread trong thread pool), các non-core thread này sau khi rảnh không bị hủy ngay lập tức mà sẽ chờ đợi, cho đến khi thời gian chờ vượt quá `keepAliveTime` mới bị thu hồi và hủy.
+- `unit`: Đơn vị thời gian của tham số `keepAliveTime`.
+- `threadFactory`: Được dùng khi executor tạo thread mới.
+- `handler`: Reject policy (sẽ được giới thiệu chi tiết riêng sau).
 
-下面这张图可以加深你对线程池中各个参数的相互关系的理解（图片来源：《Java 性能调优实战》）：
+Hình dưới đây có thể giúp bạn hiểu sâu hơn về mối quan hệ giữa các tham số trong thread pool (nguồn ảnh: "Java Performance Tuning in Action"):
 
-![线程池各个参数的关系](https://oss.javaguide.cn/github/javaguide/java/concurrent/relationship-between-thread-pool-parameters.png)
+![Mối quan hệ giữa các tham số của thread pool](https://oss.javaguide.cn/github/javaguide/java/concurrent/relationship-between-thread-pool-parameters.png)
 
-### 线程池的核心线程会被回收吗？
+### Core thread trong thread pool có bị thu hồi không?
 
-`ThreadPoolExecutor` 默认不会回收核心线程，即使它们已经空闲了。这是为了减少创建线程的开销，因为核心线程通常是要长期保持活跃的。但是，如果线程池是被用于周期性使用的场景，且频率不高（周期之间有明显的空闲时间），可以考虑将 `allowCoreThreadTimeOut(boolean value)` 方法的参数设置为 `true`，这样就会回收空闲（时间间隔由 `keepAliveTime` 指定）的核心线程了。
+`ThreadPoolExecutor` mặc định không thu hồi core thread, ngay cả khi chúng đã rảnh. Điều này để giảm chi phí tạo thread, vì core thread thường cần được giữ active lâu dài. Tuy nhiên, nếu thread pool được dùng trong kịch bản sử dụng định kỳ với tần suất không cao (có thời gian rảnh rõ rệt giữa các chu kỳ), có thể cân nhắc đặt tham số của phương thức `allowCoreThreadTimeOut(boolean value)` thành `true`, khi đó core thread rảnh (khoảng thời gian được chỉ định bởi `keepAliveTime`) sẽ bị thu hồi.
 
 ```java
 public void allowCoreThreadTimeOut(boolean value) {
@@ -611,27 +611,27 @@ public void allowCoreThreadTimeOut(boolean value) {
 }
 ```
 
-### 核心线程空闲时处于什么状态？
+### Core thread khi rảnh ở trạng thái gì?
 
-核心线程空闲时，其状态分为以下两种情况：
+Khi core thread rảnh, trạng thái của nó chia thành hai trường hợp sau:
 
-- **设置了核心线程的存活时间** ：核心线程在空闲时，会处于 `WAITING` 状态，等待获取任务。如果阻塞等待的时间超过了核心线程存活时间，则该线程会退出工作，将该线程从线程池的工作线程集合中移除，线程状态变为 `TERMINATED` 状态。
-- **没有设置核心线程的存活时间** ：核心线程在空闲时，会一直处于 `WAITING` 状态，等待获取任务，核心线程会一直存活在线程池中。
+- **Đã đặt thời gian tồn tại của core thread**: Core thread khi rảnh sẽ ở trạng thái `WAITING`, chờ lấy task. Nếu thời gian chờ blocking vượt quá thời gian tồn tại của core thread, thread đó sẽ thoát khỏi công việc, bị loại khỏi tập hợp worker thread của thread pool, trạng thái thread chuyển sang `TERMINATED`.
+- **Chưa đặt thời gian tồn tại của core thread**: Core thread khi rảnh sẽ luôn ở trạng thái `WAITING`, chờ lấy task, core thread sẽ tồn tại mãi trong thread pool.
 
-当队列中有可用任务时，会唤醒被阻塞的线程，线程的状态会由 `WAITING` 状态变为 `RUNNABLE` 状态，之后去执行对应任务。
+Khi có task khả dụng trong queue, thread bị block sẽ được đánh thức, trạng thái thread sẽ chuyển từ `WAITING` sang `RUNNABLE`, sau đó thực thi task tương ứng.
 
-接下来通过相关源码，了解一下线程池内部是如何做的。
+Tiếp theo, hãy tìm hiểu cách thread pool xử lý nội bộ thông qua source code liên quan.
 
-线程在线程池内部被抽象为了 `Worker` ，当 `Worker` 被启动之后，会不断去任务队列中获取任务。
+Thread được trừu tượng hóa thành `Worker` bên trong thread pool. Sau khi `Worker` được khởi động, nó sẽ liên tục lấy task từ task queue.
 
-在获取任务的时候，会根据 `timed` 值来决定从任务队列（ `BlockingQueue` ）获取任务的行为。
+Khi lấy task, sẽ quyết định hành vi lấy task từ task queue (`BlockingQueue`) dựa trên giá trị `timed`.
 
-如果「设置了核心线程的存活时间」或者「线程数量超过了核心线程数量」，则将 `timed` 标记为 `true` ，表明获取任务时需要使用 `poll()` 指定超时时间。
+Nếu "đã đặt thời gian tồn tại của core thread" hoặc "số lượng thread vượt quá số lượng core thread", thì đánh dấu `timed` là `true`, cho biết khi lấy task cần dùng `poll()` với timeout được chỉ định.
 
-- `timed == true` ：使用 `poll(timeout, unit)` 来获取任务。使用 `poll(timeout, unit)` 方法获取任务超时的话，则当前线程会退出执行（ `TERMINATED` ），该线程从线程池中被移除。
-- `timed == false` ：使用 `take()` 来获取任务。使用 `take()` 方法获取任务会让当前线程一直阻塞等待（`WAITING`）。
+- `timed == true`: Dùng `poll(timeout, unit)` để lấy task. Nếu lấy task bằng `poll(timeout, unit)` bị timeout, thread hiện tại sẽ thoát thực thi (`TERMINATED`), thread bị loại khỏi thread pool.
+- `timed == false`: Dùng `take()` để lấy task. Dùng `take()` để lấy task sẽ khiến thread hiện tại block chờ mãi (`WAITING`).
 
-源码如下：
+Source code như sau:
 
 ```JAVA
 // ThreadPoolExecutor
@@ -668,16 +668,16 @@ private Runnable getTask() {
 }
 ```
 
-### ⭐️线程池的拒绝策略有哪些？
+### ⭐️Thread pool có những reject policy nào?
 
-如果当前同时运行的线程数量达到最大线程数量并且队列也已经被放满了任务时，`ThreadPoolExecutor` 定义一些策略:
+Khi số lượng thread đang chạy đồng thời hiện tại đạt số lượng thread tối đa và queue cũng đã đầy task, `ThreadPoolExecutor` định nghĩa một số chiến lược:
 
-- `ThreadPoolExecutor.AbortPolicy`：抛出 `RejectedExecutionException`来拒绝新任务的处理。
-- `ThreadPoolExecutor.CallerRunsPolicy`：调用执行者自己的线程运行任务，也就是直接在调用`execute`方法的线程中运行(`run`)被拒绝的任务，如果执行程序已关闭，则会丢弃该任务。因此这种策略会降低对于新任务提交速度，影响程序的整体性能。如果你的应用程序可以承受此延迟并且你要求任何一个任务请求都要被执行的话，你可以选择这个策略。
-- `ThreadPoolExecutor.DiscardPolicy`：不处理新任务，直接丢弃掉。
-- `ThreadPoolExecutor.DiscardOldestPolicy`：此策略将丢弃最早的未处理的任务请求。
+- `ThreadPoolExecutor.AbortPolicy`: Ném `RejectedExecutionException` để từ chối xử lý task mới.
+- `ThreadPoolExecutor.CallerRunsPolicy`: Gọi thread của executor chính để chạy task, tức là chạy (`run`) task bị từ chối trực tiếp trong thread gọi phương thức `execute`. Nếu chương trình đã đóng, task sẽ bị bỏ. Do đó, chiến lược này sẽ làm giảm tốc độ submit task mới, ảnh hưởng đến hiệu suất tổng thể của chương trình. Nếu ứng dụng của bạn có thể chịu được độ trễ này và bạn yêu cầu mỗi request task đều phải được thực thi, bạn có thể chọn chiến lược này.
+- `ThreadPoolExecutor.DiscardPolicy`: Không xử lý task mới, bỏ thẳng.
+- `ThreadPoolExecutor.DiscardOldestPolicy`: Chiến lược này sẽ bỏ request task chưa xử lý cũ nhất.
 
-举个例子：Spring 通过 `ThreadPoolTaskExecutor` 或者我们直接通过 `ThreadPoolExecutor` 的构造函数创建线程池的时候，当我们不指定 `RejectedExecutionHandler` 拒绝策略来配置线程池的时候，默认使用的是 `AbortPolicy`。在这种拒绝策略下，如果队列满了，`ThreadPoolExecutor` 将抛出 `RejectedExecutionException` 异常来拒绝新来的任务 ，这代表你将丢失对这个任务的处理。如果不想丢弃任务的话，可以使用`CallerRunsPolicy`。`CallerRunsPolicy` 和其他的几个策略不同，它既不会抛弃任务，也不会抛出异常，而是将任务回退给调用者，使用调用者的线程来执行任务。
+Ví dụ: Khi Spring tạo thread pool qua `ThreadPoolTaskExecutor` hoặc chúng ta tạo trực tiếp qua constructor của `ThreadPoolExecutor`, nếu không chỉ định `RejectedExecutionHandler` reject policy để cấu hình thread pool, mặc định sẽ dùng `AbortPolicy`. Với reject policy này, nếu queue đầy, `ThreadPoolExecutor` sẽ ném `RejectedExecutionException` để từ chối task mới đến, điều này có nghĩa bạn sẽ mất xử lý task đó. Nếu không muốn mất task, có thể dùng `CallerRunsPolicy`. `CallerRunsPolicy` khác với các chiến lược khác, nó không bỏ task cũng không ném exception, mà trả task về cho người gọi, dùng thread của người gọi để thực thi task.
 
 ```java
 public static class CallerRunsPolicy implements RejectedExecutionHandler {
@@ -693,11 +693,11 @@ public static class CallerRunsPolicy implements RejectedExecutionHandler {
     }
 ```
 
-### 如果不允许丢弃任务，应该选择哪个拒绝策略？
+### Nếu không được phép bỏ task, nên chọn reject policy nào?
 
-根据上面对线程池拒绝策略的介绍，相信大家很容易能够得出答案是：`CallerRunsPolicy` 。
+Dựa trên phần giới thiệu về reject policy của thread pool ở trên, chắc hẳn mọi người dễ dàng đưa ra câu trả lời là: `CallerRunsPolicy`.
 
-这里我们再来结合`CallerRunsPolicy` 的源码来看看：
+Ở đây, hãy kết hợp với source code của `CallerRunsPolicy` để xem:
 
 ```java
 public static class CallerRunsPolicy implements RejectedExecutionHandler {
@@ -715,15 +715,15 @@ public static class CallerRunsPolicy implements RejectedExecutionHandler {
     }
 ```
 
-从源码可以看出，只要当前程序不关闭就会使用执行`execute`方法的线程执行该任务。
+Từ source code có thể thấy, miễn là chương trình hiện tại không đóng thì sẽ dùng thread thực thi phương thức `execute` để thực thi task đó.
 
-### CallerRunsPolicy 拒绝策略有什么风险？如何解决？
+### CallerRunsPolicy reject policy có rủi ro gì? Làm thế nào để giải quyết?
 
-我们上面也提到了：如果想要保证任何一个任务请求都要被执行的话，那选择 `CallerRunsPolicy` 拒绝策略更合适一些。
+Ở trên chúng ta cũng đã đề cập: nếu muốn đảm bảo mọi request task đều được thực thi thì chọn reject policy `CallerRunsPolicy` phù hợp hơn.
 
-不过，如果走到`CallerRunsPolicy`的任务是个非常耗时的任务，且处理提交任务的线程是主线程，可能会导致主线程阻塞，影响程序的正常运行。
+Tuy nhiên, nếu task đến `CallerRunsPolicy` là task rất tốn thời gian, và thread xử lý submit task là main thread, có thể dẫn đến main thread bị block, ảnh hưởng đến hoạt động bình thường của chương trình.
 
-这里简单举一个例子，该线程池限定了最大线程数为 2，阻塞队列大小为 1(这意味着第 4 个任务就会走到拒绝策略)，`ThreadUtil`为 Hutool 提供的工具类：
+Đây là một ví dụ đơn giản, thread pool giới hạn số thread tối đa là 2, kích thước blocking queue là 1 (điều này có nghĩa task thứ 4 sẽ đến reject policy), `ThreadUtil` là lớp tiện ích do Hutool cung cấp:
 
 ```java
 public class ThreadPoolTest {
@@ -777,7 +777,7 @@ public class ThreadPoolTest {
 
 ```
 
-输出：
+Kết quả đầu ra:
 
 ```bash
 18:19:48.203 INFO  [pool-1-thread-1] c.j.concurrent.ThreadPoolTest - 核心线程执行第一个任务
@@ -787,32 +787,32 @@ public class ThreadPoolTest {
 18:21:48.219 INFO  [pool-1-thread-2] c.j.concurrent.ThreadPoolTest - 核心线程执行第五个任务
 ```
 
-从输出结果可以看出，因为`CallerRunsPolicy`这个拒绝策略，导致耗时的任务用了主线程执行，导致线程池阻塞，进而导致后续任务无法及时执行，严重的情况下很可能导致 OOM。
+Từ kết quả đầu ra có thể thấy, vì reject policy `CallerRunsPolicy`, task tốn thời gian đã dùng main thread để thực thi, dẫn đến thread pool bị block, từ đó dẫn đến các task tiếp theo không thể được thực thi kịp thời. Trong trường hợp nghiêm trọng, rất có thể dẫn đến OOM.
 
-我们从问题的本质入手，调用者采用`CallerRunsPolicy`是希望所有的任务都能够被执行，暂时无法处理的任务又被保存在阻塞队列`BlockingQueue`中。这样的话，在内存允许的情况下，我们可以增加阻塞队列`BlockingQueue`的大小并调整堆内存以容纳更多的任务，确保任务能够被准确执行。
+Xuất phát từ bản chất của vấn đề, người gọi áp dụng `CallerRunsPolicy` là mong muốn tất cả task đều được thực thi, các task tạm thời chưa xử lý được thì lưu trong blocking queue `BlockingQueue`. Như vậy, trong giới hạn bộ nhớ cho phép, chúng ta có thể tăng kích thước `BlockingQueue` và điều chỉnh heap memory để chứa nhiều task hơn, đảm bảo task được thực thi chính xác.
 
-为了充分利用 CPU，我们还可以调整线程池的`maximumPoolSize` （最大线程数）参数，这样可以提高任务处理速度，避免累计在 `BlockingQueue`的任务过多导致内存用完。
+Để tận dụng đầy đủ CPU, chúng ta cũng có thể điều chỉnh tham số `maximumPoolSize` (số thread tối đa) của thread pool, điều này có thể tăng tốc độ xử lý task, tránh việc tích lũy quá nhiều task trong `BlockingQueue` dẫn đến hết bộ nhớ.
 
-![调整阻塞队列大小和最大线程数](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpool-reject-2-threadpool-reject-01.png)
+![Điều chỉnh kích thước blocking queue và max thread count](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpool-reject-2-threadpool-reject-01.png)
 
-如果服务器资源以达到可利用的极限，这就意味我们要在设计策略上改变线程池的调度了，我们都知道，导致主线程卡死的本质就是因为我们不希望任何一个任务被丢弃。换个思路，有没有办法既能保证任务不被丢弃且在服务器有余力时及时处理呢？
+Nếu tài nguyên server đã đạt giới hạn có thể sử dụng, điều này có nghĩa chúng ta cần thay đổi chiến lược thiết kế lịch trình của thread pool. Chúng ta đều biết, nguyên nhân cốt lõi khiến main thread bị kẹt là vì chúng ta không muốn bất kỳ task nào bị bỏ. Suy nghĩ theo hướng khác, có cách nào vừa đảm bảo task không bị bỏ mà khi server có khả năng lại xử lý kịp thời không?
 
-这里提供的一种**任务持久化**的思路，这里所谓的任务持久化，包括但不限于:
+Ở đây cung cấp một tư tưởng về **task persistence** (lưu trữ task bền vững), bao gồm nhưng không giới hạn ở:
 
-1. 设计一张任务表将任务存储到 MySQL 数据库中。
-2. Redis 缓存任务。
-3. 将任务提交到消息队列中。
+1. Thiết kế một bảng task để lưu trữ task vào database MySQL.
+2. Cache task bằng Redis.
+3. Submit task vào message queue.
 
-这里以方案一为例，简单介绍一下实现逻辑：
+Lấy phương án 1 làm ví dụ, giới thiệu sơ bộ logic triển khai:
 
-1. 实现`RejectedExecutionHandler`接口自定义拒绝策略，自定义拒绝策略负责将线程池暂时无法处理（此时阻塞队列已满）的任务入库（保存到 MySQL 中）。注意：线程池暂时无法处理的任务会先被放在阻塞队列中，阻塞队列满了才会触发拒绝策略。
-2. 继承`BlockingQueue`实现一个混合式阻塞队列，该队列包含 JDK 自带的`ArrayBlockingQueue`。另外，该混合式阻塞队列需要修改取任务处理的逻辑，也就是重写`take()`方法，取任务时优先从数据库中读取最早的任务，数据库中无任务时再从 `ArrayBlockingQueue`中去取任务。
+1. Triển khai interface `RejectedExecutionHandler` để tự định nghĩa reject policy. Reject policy tùy chỉnh chịu trách nhiệm lưu vào database (lưu vào MySQL) các task mà thread pool tạm thời chưa xử lý được (lúc này blocking queue đã đầy). Lưu ý: Task mà thread pool tạm thời chưa xử lý được trước tiên sẽ được đặt vào blocking queue, chỉ khi blocking queue đầy mới kích hoạt reject policy.
+2. Kế thừa `BlockingQueue` để triển khai một hybrid blocking queue, queue này chứa `ArrayBlockingQueue` sẵn có trong JDK. Ngoài ra, hybrid blocking queue cần sửa đổi logic lấy task để xử lý, tức là override phương thức `take()`. Khi lấy task, ưu tiên đọc task sớm nhất từ database, khi database không có task mới lấy từ `ArrayBlockingQueue`.
 
-![将一部分任务保存到MySQL中](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpool-reject-2-threadpool-reject-02.png)
+![Lưu một phần task vào MySQL](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpool-reject-2-threadpool-reject-02.png)
 
-整个实现逻辑还是比较简单的，核心在于自定义拒绝策略和阻塞队列。如此一来，一旦我们的线程池中线程达到满载时，我们就可以通过拒绝策略将最新任务持久化到 MySQL 数据库中，等到线程池有了有余力处理所有任务时，让其优先处理数据库中的任务以避免"饥饿"问题。
+Logic triển khai tổng thể còn khá đơn giản, cốt lõi nằm ở reject policy và blocking queue tùy chỉnh. Như vậy, một khi thread trong thread pool đạt tải tối đa, chúng ta có thể thông qua reject policy để lưu task mới nhất bền vững vào database MySQL, chờ khi thread pool có dư khả năng xử lý tất cả task thì ưu tiên xử lý các task trong database để tránh vấn đề "starvation".
 
-当然，对于这个问题，我们也可以参考其他主流框架的做法，以 Netty 为例，它的拒绝策略则是直接创建一个线程池以外的线程处理这些任务，为了保证任务的实时处理，这种做法可能需要良好的硬件设备且临时创建的线程无法做到准确的监控：
+Tất nhiên, với vấn đề này, chúng ta cũng có thể tham khảo cách làm của các framework chính thống khác. Lấy Netty làm ví dụ, reject policy của nó là tạo trực tiếp một thread ngoài thread pool để xử lý các task này. Để đảm bảo xử lý task kịp thời, cách làm này có thể cần phần cứng tốt và thread tạm thời tạo ra không thể giám sát chính xác:
 
 ```java
 private static final class NewThreadRunsPolicy implements RejectedExecutionHandler {
@@ -832,7 +832,7 @@ private static final class NewThreadRunsPolicy implements RejectedExecutionHandl
 }
 ```
 
-ActiveMQ 则是尝试在指定的时效内尽可能的争取将任务入队，以保证最大交付：
+ActiveMQ thì cố gắng tranh thủ enqueue task trong thời hạn được chỉ định để đảm bảo giao hàng tối đa:
 
 ```java
 new RejectedExecutionHandler() {
@@ -849,55 +849,55 @@ new RejectedExecutionHandler() {
             });
 ```
 
-### 线程池常用的阻塞队列有哪些？
+### Các blocking queue phổ biến được dùng trong thread pool là gì?
 
-新任务来的时候会先判断当前运行的线程数量是否达到核心线程数，如果达到的话，新任务就会被存放在队列中。
+Khi task mới đến, sẽ kiểm tra trước xem số lượng thread hiện đang chạy có đạt core thread count chưa. Nếu đạt rồi, task mới sẽ được lưu vào queue.
 
-不同的线程池会选用不同的阻塞队列，我们可以结合内置线程池来分析。
+Các thread pool khác nhau sẽ chọn blocking queue khác nhau. Chúng ta có thể phân tích kết hợp với các thread pool tích hợp sẵn.
 
-- 容量为 `Integer.MAX_VALUE` 的 `LinkedBlockingQueue`（无界阻塞队列）：`FixedThreadPool` 和 `SingleThreadExecutor` 。`FixedThreadPool`最多只能创建核心线程数的线程（核心线程数和最大线程数相等），`SingleThreadExecutor`只能创建一个线程（核心线程数和最大线程数都是 1），二者的任务队列永远不会被放满。
-- `SynchronousQueue`（同步队列）：`CachedThreadPool` 。`SynchronousQueue` 没有容量，不存储元素，目的是保证对于提交的任务，如果有空闲线程，则使用空闲线程来处理；否则新建一个线程来处理任务。也就是说，`CachedThreadPool` 的最大线程数是 `Integer.MAX_VALUE` ，可以理解为线程数是可以无限扩展的，可能会创建大量线程，从而导致 OOM。
-- `DelayedWorkQueue`（延迟队列）：`ScheduledThreadPool` 和 `SingleThreadScheduledExecutor` 。`DelayedWorkQueue` 的内部元素并不是按照放入的时间排序，而是会按照延迟的时间长短对任务进行排序，内部采用的是“堆”的数据结构，可以保证每次出队的任务都是当前队列中执行时间最靠前的。`DelayedWorkQueue` 是一个无界队列。其底层虽然是数组，但当数组容量不足时，它会自动进行扩容，因此队列永远不会被填满。当任务不断提交时，它们会全部被添加到队列中。这意味着线程池的线程数量永远不会超过其核心线程数，最大线程数参数对于使用该队列的线程池来说是无效的。
-- `ArrayBlockingQueue`（有界阻塞队列）：底层由数组实现，容量一旦创建，就不能修改。
+- `LinkedBlockingQueue` với dung lượng `Integer.MAX_VALUE` (unbounded blocking queue): `FixedThreadPool` và `SingleThreadExecutor`. `FixedThreadPool` tối đa chỉ có thể tạo số lượng thread bằng core thread count (core thread count và max thread count bằng nhau), `SingleThreadExecutor` chỉ có thể tạo một thread (core thread count và max thread count đều là 1), task queue của cả hai sẽ không bao giờ bị đầy.
+- `SynchronousQueue` (synchronous queue): `CachedThreadPool`. `SynchronousQueue` không có dung lượng, không lưu trữ element, mục đích là đảm bảo rằng với task được submit, nếu có thread rảnh thì dùng thread rảnh để xử lý; nếu không thì tạo thread mới để xử lý task. Tức là, max thread count của `CachedThreadPool` là `Integer.MAX_VALUE`, có thể hiểu là số lượng thread có thể mở rộng vô hạn, có thể tạo ra lượng lớn thread, dẫn đến OOM.
+- `DelayedWorkQueue` (delayed queue): `ScheduledThreadPool` và `SingleThreadScheduledExecutor`. Các element bên trong `DelayedWorkQueue` không được sắp xếp theo thứ tự thời gian đưa vào, mà sắp xếp task theo thời gian delay từ ngắn đến dài, bên trong dùng cấu trúc dữ liệu "heap", có thể đảm bảo mỗi lần dequeue đều là task có thời gian thực thi sớm nhất trong queue hiện tại. `DelayedWorkQueue` là unbounded queue. Mặc dù đáy là mảng, nhưng khi dung lượng mảng không đủ sẽ tự động mở rộng, do đó queue sẽ không bao giờ bị đầy. Khi task liên tục được submit, chúng sẽ được thêm vào queue. Điều này có nghĩa số lượng thread trong thread pool sẽ không bao giờ vượt quá core thread count, tham số max thread count không có hiệu lực với thread pool sử dụng queue này.
+- `ArrayBlockingQueue` (bounded blocking queue): Đáy được triển khai bằng mảng, dung lượng một khi được tạo ra thì không thể thay đổi.
 
-### ⭐️线程池处理任务的流程了解吗？
+### ⭐️Bạn có hiểu quy trình thread pool xử lý task không?
 
-![图解线程池实现原理](https://oss.javaguide.cn/github/javaguide/java/concurrent/thread-pool-principle.png)
+![Minh họa nguyên lý triển khai thread pool](https://oss.javaguide.cn/github/javaguide/java/concurrent/thread-pool-principle.png)
 
-1. 如果当前运行的线程数小于核心线程数，那么就会新建一个线程来执行任务。
-2. 如果当前运行的线程数等于或大于核心线程数，但是小于最大线程数，那么就把该任务放入到任务队列里等待执行。
-3. 如果向任务队列投放任务失败（任务队列已经满了），但是当前运行的线程数是小于最大线程数的，就新建一个线程来执行任务。
-4. 如果当前运行的线程数已经等同于最大线程数了，新建线程将会使当前运行的线程超出最大线程数，那么当前任务会被拒绝，拒绝策略会调用`RejectedExecutionHandler.rejectedExecution()`方法。
+1. Nếu số lượng thread hiện đang chạy nhỏ hơn core thread count, sẽ tạo một thread mới để thực thi task.
+2. Nếu số lượng thread hiện đang chạy bằng hoặc lớn hơn core thread count, nhưng nhỏ hơn max thread count, thì đặt task đó vào task queue để chờ thực thi.
+3. Nếu việc đưa task vào task queue thất bại (task queue đã đầy), nhưng số lượng thread hiện đang chạy nhỏ hơn max thread count, thì tạo thread mới để thực thi task.
+4. Nếu số lượng thread hiện đang chạy đã bằng max thread count, tạo thêm thread sẽ khiến số lượng thread vượt quá max, thì task hiện tại sẽ bị từ chối, reject policy sẽ gọi phương thức `RejectedExecutionHandler.rejectedExecution()`.
 
-再提一个有意思的小问题：**线程池在提交任务前，可以提前创建线程吗？**
+Thêm một câu hỏi nhỏ thú vị: **Thread pool có thể tạo thread trước khi submit task không?**
 
-答案是可以的！`ThreadPoolExecutor` 提供了两个方法帮助我们在提交任务之前，完成核心线程的创建，从而实现线程池预热的效果：
+Câu trả lời là có! `ThreadPoolExecutor` cung cấp hai phương thức giúp chúng ta hoàn thành việc tạo core thread trước khi submit task, từ đó đạt được hiệu ứng "warm up" thread pool:
 
-- `prestartCoreThread()`:启动一个线程，等待任务，如果已达到核心线程数，这个方法返回 false，否则返回 true；
-- `prestartAllCoreThreads()`:启动所有的核心线程，并返回启动成功的核心线程数。
+- `prestartCoreThread()`: Khởi động một thread, chờ task. Nếu đã đạt core thread count, phương thức này trả về false, ngược lại trả về true;
+- `prestartAllCoreThreads()`: Khởi động tất cả core thread, và trả về số lượng core thread khởi động thành công.
 
-### ⭐️线程池中线程异常后，销毁还是复用？
+### ⭐️Khi thread trong thread pool gặp exception, bị hủy hay tái sử dụng?
 
-直接说结论，需要分两种情况：
+Nói thẳng kết luận, cần phân thành hai trường hợp:
 
-- **使用`execute()`提交任务**：当任务通过`execute()`提交到线程池并在执行过程中抛出异常时，如果这个异常没有在任务内被捕获，那么该异常会导致当前线程终止，并且异常会被打印到控制台或日志文件中。线程池会检测到这种线程终止，并创建一个新线程来替换它，从而保持配置的线程数不变。
-- **使用`submit()`提交任务**：对于通过`submit()`提交的任务，如果在任务执行中发生异常，这个异常不会直接打印出来。相反，异常会被封装在由`submit()`返回的`Future`对象中。当调用`Future.get()`方法时，可以捕获到一个`ExecutionException`。在这种情况下，线程不会因为异常而终止，它会继续存在于线程池中，准备执行后续的任务。
+- **Submit task bằng `execute()`**: Khi task được submit vào thread pool qua `execute()` và ném ra exception trong quá trình thực thi, nếu exception đó không được bắt trong task, thì exception sẽ khiến thread hiện tại kết thúc, và exception sẽ được in ra console hoặc file log. Thread pool sẽ phát hiện thread này bị kết thúc và tạo một thread mới để thay thế, từ đó giữ nguyên số lượng thread đã cấu hình.
+- **Submit task bằng `submit()`**: Với task được submit qua `submit()`, nếu xảy ra exception trong quá trình thực thi, exception này sẽ không được in ra trực tiếp. Thay vào đó, exception sẽ được đóng gói trong đối tượng `Future` được trả về bởi `submit()`. Khi gọi phương thức `Future.get()`, có thể bắt được `ExecutionException`. Trong trường hợp này, thread sẽ không bị kết thúc do exception, nó sẽ tiếp tục tồn tại trong thread pool, sẵn sàng thực thi các task tiếp theo.
 
-简单来说：使用`execute()`时，未捕获异常导致线程终止，线程池创建新线程替代；使用`submit()`时，异常被封装在`Future`中，线程继续复用。
+Nói đơn giản: Khi dùng `execute()`, exception chưa được bắt dẫn đến thread kết thúc, thread pool tạo thread mới để thay thế; khi dùng `submit()`, exception được đóng gói trong `Future`, thread tiếp tục được tái sử dụng.
 
-这种设计允许`submit()`提供更灵活的错误处理机制，因为它允许调用者决定如何处理异常，而`execute()`则适用于那些不需要关注执行结果的场景。
+Thiết kế này cho phép `submit()` cung cấp cơ chế xử lý lỗi linh hoạt hơn, vì nó cho phép người gọi quyết định cách xử lý exception, trong khi `execute()` phù hợp với các kịch bản không cần quan tâm đến kết quả thực thi.
 
-具体的源码分析可以参考这篇：[线程池中线程异常后：销毁还是复用？ - 京东技术](https://mp.weixin.qq.com/s/9ODjdUU-EwQFF5PrnzOGfw)。
+Phân tích source code cụ thể có thể tham khảo bài viết này: [Thread trong thread pool sau khi xảy ra exception: Hủy hay tái sử dụng? - JD Technology](https://mp.weixin.qq.com/s/9ODjdUU-EwQFF5PrnzOGfw).
 
-### ⭐️如何给线程池命名？
+### ⭐️Làm thế nào để đặt tên cho thread trong thread pool?
 
-初始化线程池的时候需要显示命名（设置线程池名称前缀），有利于定位问题。
+Khi khởi tạo thread pool cần hiển thị đặt tên (đặt tiền tố tên thread pool), thuận tiện cho việc định vị vấn đề.
 
-默认情况下创建的线程名字类似 `pool-1-thread-n` 这样的，没有业务含义，不利于我们定位问题。
+Theo mặc định, tên thread được tạo ra có dạng `pool-1-thread-n`, không có ý nghĩa nghiệp vụ, không thuận tiện cho việc định vị vấn đề.
 
-给线程池里的线程命名通常有下面两种方式：
+Đặt tên cho thread trong thread pool thường có hai cách sau:
 
-**1、利用 guava 的 `ThreadFactoryBuilder`**
+**1. Dùng `ThreadFactoryBuilder` của guava**
 
 ```java
 ThreadFactory threadFactory = new ThreadFactoryBuilder()
@@ -906,7 +906,7 @@ ThreadFactory threadFactory = new ThreadFactoryBuilder()
 ExecutorService threadPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MINUTES, workQueue, threadFactory);
 ```
 
-**2、自己实现 `ThreadFactory`。**
+**2. Tự triển khai `ThreadFactory`.**
 
 ```java
 import java.util.concurrent.ThreadFactory;
@@ -936,128 +936,128 @@ public final class NamingThreadFactory implements ThreadFactory {
 }
 ```
 
-### 如何设定线程池的大小？
+### Làm thế nào để xác định kích thước thread pool?
 
-很多人甚至可能都会觉得把线程池配置过大一点比较好！我觉得这明显是有问题的。就拿我们生活中非常常见的一例子来说：**并不是人多就能把事情做好，增加了沟通交流成本。你本来一件事情只需要 3 个人做，你硬是拉来了 6 个人，会提升做事效率嘛？我想并不会。** 线程数量过多的影响也是和我们分配多少人做事情一样，对于多线程这个场景来说主要是增加了**上下文切换**成本。不清楚什么是上下文切换的话，可以看我下面的介绍。
+Nhiều người thậm chí có thể nghĩ rằng cấu hình thread pool lớn một chút cho an toàn! Tôi nghĩ điều đó rõ ràng là có vấn đề. Lấy một ví dụ rất phổ biến trong cuộc sống: **không phải cứ có nhiều người là làm việc tốt hơn, tăng chi phí giao tiếp. Một việc vốn chỉ cần 3 người làm, bạn kéo thêm 6 người vào, có nâng cao hiệu suất làm việc không? Tôi nghĩ không.** Tác động của số lượng thread quá nhiều cũng giống như việc chúng ta phân công bao nhiêu người làm việc, trong kịch bản đa luồng này chủ yếu là tăng chi phí **context switching**. Nếu không rõ context switching là gì, có thể xem phần giải thích dưới đây.
 
-> 上下文切换：
+> Context switching:
 >
-> 多线程编程中一般线程的个数都大于 CPU 核心的个数，而一个 CPU 核心在任意时刻只能被一个线程使用，为了让这些线程都能得到有效执行，CPU 采取的策略是为每个线程分配时间片并轮转的形式。当一个线程的时间片用完的时候就会重新处于就绪状态让给其他线程使用，这个过程就属于一次上下文切换。概括来说就是：当前任务在执行完 CPU 时间片切换到另一个任务之前会先保存自己的状态，以便下次再切换回这个任务时，可以再加载这个任务的状态。**任务从保存到再加载的过程就是一次上下文切换**。
+> Trong lập trình đa luồng, số lượng thread thường lớn hơn số lõi CPU, và một lõi CPU ở bất kỳ thời điểm nào chỉ có thể được sử dụng bởi một thread. Để tất cả các thread đều được thực thi hiệu quả, CPU áp dụng chiến lược phân bổ time slice cho từng thread theo hình thức round-robin. Khi time slice của một thread hết, nó sẽ trở về trạng thái ready để nhường cho thread khác sử dụng, quá trình này gọi là context switching. Tóm lại: Trước khi task hiện tại chuyển sang task khác sau khi CPU time slice kết thúc, nó sẽ lưu lại trạng thái của mình để lần sau khi chuyển lại task này có thể load lại trạng thái đó. **Quá trình từ khi lưu đến khi load lại của task là một lần context switching**.
 >
-> 上下文切换通常是计算密集型的。也就是说，它需要相当可观的处理器时间，在每秒几十上百次的切换中，每次切换都需要纳秒量级的时间。所以，上下文切换对系统来说意味着消耗大量的 CPU 时间，事实上，可能是操作系统中时间消耗最大的操作。
+> Context switching thường là compute-intensive. Tức là, nó cần lượng đáng kể thời gian xử lý, trong hàng chục đến hàng trăm lần switching mỗi giây, mỗi lần switching cần thời gian ở cấp nanosecond. Do đó, context switching đối với hệ thống có nghĩa là tiêu tốn lượng lớn thời gian CPU, thực tế có thể là thao tác tốn thời gian nhất trong hệ điều hành.
 >
-> Linux 相比与其他操作系统（包括其他类 Unix 系统）有很多的优点，其中有一项就是，其上下文切换和模式切换的时间消耗非常少。
+> Linux so với các hệ điều hành khác (bao gồm các hệ thống Unix khác) có nhiều ưu điểm, trong đó một điểm là thời gian tiêu tốn cho context switching và mode switching rất ít.
 
-类比于现实世界中的人类通过合作做某件事情，我们可以肯定的一点是线程池大小设置过大或者过小都会有问题，合适的才是最好。
+So sánh với con người trong thế giới thực hợp tác làm việc, chúng ta có thể khẳng định một điểm là cài đặt kích thước thread pool quá lớn hay quá nhỏ đều có vấn đề, phù hợp mới là tốt nhất.
 
-- 如果我们设置的线程池数量太小的话，如果同一时间有大量任务/请求需要处理，可能会导致大量的请求/任务在任务队列中排队等待执行，甚至会出现任务队列满了之后任务/请求无法处理的情况，或者大量任务堆积在任务队列导致 OOM。这样很明显是有问题的，CPU 根本没有得到充分利用。
-- 如果我们设置线程数量太大，大量线程可能会同时在争取 CPU 资源，这样会导致大量的上下文切换，从而增加线程的执行时间，影响了整体执行效率。
+- Nếu chúng ta cài đặt số lượng thread trong thread pool quá nhỏ, nếu cùng một lúc có lượng lớn task/request cần xử lý, có thể dẫn đến lượng lớn request/task xếp hàng chờ thực thi trong task queue, thậm chí xảy ra tình huống task queue đầy mà task/request không thể xử lý, hoặc lượng lớn task tích lũy trong task queue dẫn đến OOM. Điều này rõ ràng là có vấn đề, CPU hoàn toàn không được tận dụng đầy đủ.
+- Nếu chúng ta cài đặt số lượng thread quá nhiều, lượng lớn thread có thể đồng thời tranh giành tài nguyên CPU, điều này sẽ dẫn đến lượng lớn context switching, làm tăng thời gian thực thi thread, ảnh hưởng đến hiệu suất thực thi tổng thể.
 
-有一个简单并且适用面比较广的公式：
+Có một công thức đơn giản và có phạm vi ứng dụng tương đối rộng:
 
-- **CPU 密集型任务(N+1)：** 这种任务消耗的主要是 CPU 资源，可以将线程数设置为 N（CPU 核心数）+1。比 CPU 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，CPU 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。
-- **I/O 密集型任务(2N)：** 这种任务应用起来，系统会用大部分的时间来处理 I/O 交互，而线程在处理 I/O 的时间段内不会占用 CPU 来处理，这时就可以将 CPU 交出给其它线程使用。因此在 I/O 密集型任务的应用中，我们可以多配置一些线程，具体的计算方法是 2N。
+- **CPU-intensive task (N+1):** Loại task này chủ yếu tiêu tốn tài nguyên CPU, có thể đặt số thread là N (số lõi CPU) +1. Thread thừa ra so với core CPU count là để phòng trường hợp thread đôi khi bị ngắt do page fault hoặc các lý do khác. Một khi task tạm dừng, CPU sẽ ở trạng thái rảnh, và trong trường hợp đó thread thừa ra có thể tận dụng thời gian rảnh của CPU.
+- **I/O-intensive task (2N):** Loại task này khi ứng dụng, hệ thống sẽ dùng phần lớn thời gian để xử lý tương tác I/O, trong khoảng thời gian thread xử lý I/O sẽ không chiếm CPU để xử lý, lúc đó có thể giao CPU cho thread khác sử dụng. Do đó trong ứng dụng task I/O-intensive, chúng ta có thể cấu hình nhiều thread hơn, phương pháp tính cụ thể là 2N.
 
-**如何判断是 CPU 密集任务还是 IO 密集任务？**
+**Làm thế nào để phán đoán là CPU-intensive hay IO-intensive?**
 
-CPU 密集型简单理解就是利用 CPU 计算能力的任务比如你在内存中对大量数据进行排序。但凡涉及到网络读取，文件读取这类都是 IO 密集型，这类任务的特点是 CPU 计算耗费时间相比于等待 IO 操作完成的时间来说很少，大部分时间都花在了等待 IO 操作完成上。
+CPU-intensive đơn giản là task tận dụng khả năng tính toán CPU, ví dụ sắp xếp lượng lớn dữ liệu trong bộ nhớ. Bất kỳ thứ gì liên quan đến đọc mạng, đọc file đều là IO-intensive, đặc điểm của loại task này là thời gian CPU tính toán so với thời gian chờ thao tác I/O hoàn thành là rất ít, phần lớn thời gian đều dành cho việc chờ thao tác I/O hoàn thành.
 
-> 🌈 拓展一下（参见：[issue#1737](https://github.com/Snailclimb/JavaGuide/issues/1737)）：
+> Mở rộng thêm (tham khảo: [issue#1737](https://github.com/Snailclimb/JavaGuide/issues/1737)):
 >
-> 线程数更严谨的计算的方法应该是：`最佳线程数 = N（CPU 核心数）∗（1+WT（线程等待时间）/ST（线程计算时间））`，其中 `WT（线程等待时间）=线程运行总时间 - ST（线程计算时间）`。
+> Phương pháp tính số thread chính xác hơn nên là: `Số thread tối ưu = N (số lõi CPU) * (1 + WT (thời gian chờ thread) / ST (thời gian tính toán thread))`, trong đó `WT (thời gian chờ thread) = tổng thời gian chạy thread - ST (thời gian tính toán thread)`.
 >
-> 线程等待时间所占比例越高，需要越多线程。线程计算时间所占比例越高，需要越少线程。
+> Tỷ lệ thời gian chờ thread càng cao, cần càng nhiều thread. Tỷ lệ thời gian tính toán thread càng cao, cần càng ít thread.
 >
-> 我们可以通过 JDK 自带的工具 VisualVM 来查看 `WT/ST` 比例。
+> Chúng ta có thể xem tỷ lệ `WT/ST` thông qua công cụ VisualVM có sẵn trong JDK.
 >
-> CPU 密集型任务的 `WT/ST` 接近或者等于 0，因此， 线程数可以设置为 N（CPU 核心数）∗（1+0）= N，和我们上面说的 N（CPU 核心数）+1 差不多。
+> `WT/ST` của CPU-intensive task xấp xỉ hoặc bằng 0, do đó, số thread có thể đặt là N (số lõi CPU) \* (1+0) = N, gần giống N (số lõi CPU) +1 như đã nói ở trên.
 >
-> IO 密集型任务下，几乎全是线程等待时间，从理论上来说，你就可以将线程数设置为 2N（按道理来说，WT/ST 的结果应该比较大，这里选择 2N 的原因应该是为了避免创建过多线程吧）。
+> Trong I/O-intensive task, hầu như toàn bộ là thời gian chờ thread, về lý thuyết bạn có thể đặt số thread là 2N (lý do chọn 2N ở đây có lẽ là để tránh tạo ra quá nhiều thread).
 
-公式也只是参考，具体还是要根据项目实际线上运行情况来动态调整。我在后面介绍的美团的线程池参数动态配置这种方案就非常不错，很实用！
+Công thức cũng chỉ là tham khảo, cụ thể vẫn phải điều chỉnh động theo tình hình hoạt động thực tế trên production của dự án. Phương án cấu hình tham số thread pool động của Meituan mà tôi sẽ giới thiệu sau rất hay, rất thực dụng!
 
-### ⭐️如何动态修改线程池的参数？
+### ⭐️Làm thế nào để động thay đổi tham số thread pool?
 
-美团技术团队在[《Java 线程池实现原理及其在美团业务中的实践》](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html)这篇文章中介绍到对线程池参数实现可自定义配置的思路和方法。
+Đội kỹ thuật Meituan trong bài viết [《Nguyên lý triển khai Java Thread Pool và thực tiễn trong nghiệp vụ Meituan》](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html) đã giới thiệu ý tưởng và phương pháp triển khai cấu hình tùy chỉnh cho tham số thread pool.
 
-美团技术团队的思路是主要对线程池的核心参数实现自定义可配置。这三个核心参数是：
+Ý tưởng của đội kỹ thuật Meituan chủ yếu là triển khai cấu hình tùy chỉnh có thể thay đổi được cho các tham số cốt lõi của thread pool. Ba tham số cốt lõi này là:
 
-- **`corePoolSize` :** 核心线程数定义了最小可以同时运行的线程数量。
-- **`maximumPoolSize` :** 当队列中存放的任务达到队列容量的时候，当前可以同时运行的线程数量变为最大线程数。
-- **`workQueue`:** 当新任务来的时候会先判断当前运行的线程数量是否达到核心线程数，如果达到的话，新任务就会被存放在队列中。
+- **`corePoolSize`**: Core thread count định nghĩa số lượng thread tối thiểu có thể chạy đồng thời.
+- **`maximumPoolSize`**: Khi số lượng task trong queue đạt dung lượng, số lượng thread có thể chạy đồng thời hiện tại trở thành max thread count.
+- **`workQueue`**: Khi task mới đến, sẽ kiểm tra xem số lượng thread hiện đang chạy có đạt core thread count chưa, nếu đạt rồi thì task mới sẽ được lưu vào queue.
 
-**为什么是这三个参数？**
+**Tại sao lại là ba tham số này?**
 
-我在[Java 线程池详解](https://javaguide.cn/java/concurrent/java-thread-pool-summary.html) 这篇文章中就说过这三个参数是 `ThreadPoolExecutor` 最重要的参数，它们基本决定了线程池对于任务的处理策略。
+Trong bài viết [Giải thích chi tiết Java Thread Pool](https://javaguide.cn/java/concurrent/java-thread-pool-summary.html) tôi đã đề cập ba tham số này là tham số quan trọng nhất của `ThreadPoolExecutor`, chúng về cơ bản quyết định chiến lược xử lý task của thread pool.
 
-**如何支持参数动态配置？** 且看 `ThreadPoolExecutor` 提供的下面这些方法。
+**Làm thế nào để hỗ trợ cấu hình tham số động?** Xem các phương thức được cung cấp bởi `ThreadPoolExecutor` dưới đây.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpoolexecutor-methods.png)
 
-格外需要注意的是`corePoolSize`， 程序运行期间的时候，我们调用 `setCorePoolSize()`这个方法的话，线程池会首先判断当前工作线程数是否大于`corePoolSize`，如果大于的话就会回收工作线程。
+Cần đặc biệt chú ý đến `corePoolSize`. Trong quá trình chương trình chạy, nếu chúng ta gọi phương thức `setCorePoolSize()`, thread pool sẽ trước tiên kiểm tra xem số worker thread hiện tại có lớn hơn `corePoolSize` không, nếu lớn hơn thì sẽ thu hồi worker thread.
 
-另外，你也看到了上面并没有动态指定队列长度的方法，美团的方式是自定义了一个叫做 `ResizableCapacityLinkedBlockIngQueue` 的队列（主要就是把`LinkedBlockingQueue`的 capacity 字段的 final 关键字修饰给去掉了，让它变为可变的）。
+Ngoài ra, bạn cũng thấy ở trên không có phương thức để chỉ định động độ dài queue. Cách của Meituan là tự định nghĩa một queue tên là `ResizableCapacityLinkedBlockIngQueue` (chủ yếu là bỏ modifier `final` khỏi field `capacity` của `LinkedBlockingQueue`, biến nó thành có thể thay đổi).
 
-最终实现的可动态修改线程池参数效果如下。👏👏👏
+Hiệu quả cuối cùng của việc thay đổi tham số thread pool một cách động như hình dưới đây.
 
-![动态配置线程池参数最终效果](https://oss.javaguide.cn/github/javaguide/java/concurrent/meituan-dynamically-configuring-thread-pool-parameters.png)
+![Hiệu quả cuối cùng của việc cấu hình động tham số thread pool](https://oss.javaguide.cn/github/javaguide/java/concurrent/meituan-dynamically-configuring-thread-pool-parameters.png)
 
-还没看够？我在[《后端面试高频系统设计&场景题》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html)中详细介绍了如何设计一个动态线程池，这也是面试中常问的一道系统设计题。
+Muốn xem thêm? Trong [《Câu hỏi System Design & tình huống thường gặp trong phỏng vấn Backend》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html) tôi đã giới thiệu chi tiết cách thiết kế một dynamic thread pool, đây cũng là một câu hỏi system design thường gặp trong phỏng vấn.
 
-![《后端面试高频系统设计&场景题》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
+![《Câu hỏi System Design & tình huống thường gặp trong phỏng vấn Backend》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
 
-如果我们的项目也想要实现这种效果的话，可以借助现成的开源项目：
+Nếu dự án của chúng ta cũng muốn đạt được hiệu quả này, có thể dựa vào các dự án open source có sẵn:
 
-- **[Hippo4j](https://github.com/opengoofy/hippo4j)**：异步线程池框架，支持线程池动态变更&监控&报警，无需修改代码轻松引入。支持多种使用模式，轻松引入，致力于提高系统运行保障能力。
-- **[Dynamic TP](https://github.com/dromara/dynamic-tp)**：轻量级动态线程池，内置监控告警功能，集成三方中间件线程池管理，基于主流配置中心（已支持 Nacos、Apollo，Zookeeper、Consul、Etcd，可通过 SPI 自定义实现）。
+- **[Hippo4j](https://github.com/opengoofy/hippo4j)**: Framework thread pool bất đồng bộ, hỗ trợ thay đổi động & giám sát & cảnh báo thread pool, giới thiệu dễ dàng mà không cần sửa code. Hỗ trợ nhiều chế độ sử dụng, giới thiệu dễ dàng, hướng đến nâng cao khả năng bảo đảm vận hành hệ thống.
+- **[Dynamic TP](https://github.com/dromara/dynamic-tp)**: Dynamic thread pool nhẹ, tích hợp chức năng giám sát cảnh báo, quản lý thread pool middleware bên thứ ba, dựa trên các configuration center chính thống (đã hỗ trợ Nacos, Apollo, Zookeeper, Consul, Etcd, có thể tùy chỉnh triển khai qua SPI).
 
-### ⭐️如何设计一个能够根据任务的优先级来执行的线程池？
+### ⭐️Làm thế nào để thiết kế một thread pool có thể thực thi task theo độ ưu tiên?
 
-这是一个常见的面试问题，本质其实还是在考察求职者对于线程池以及阻塞队列的掌握。
+Đây là câu hỏi phỏng vấn thường gặp, bản chất thực ra vẫn là kiểm tra sự nắm bắt của ứng viên về thread pool và blocking queue.
 
-我们上面也提到了，不同的线程池会选用不同的阻塞队列作为任务队列，比如`FixedThreadPool` 使用的是`LinkedBlockingQueue`（有界队列），默认构造器初始的队列长度为 `Integer.MAX_VALUE` ，由于队列永远不会被放满，因此`FixedThreadPool`最多只能创建核心线程数的线程。
+Ở trên chúng ta cũng đã đề cập, các thread pool khác nhau sẽ chọn blocking queue khác nhau làm task queue. Ví dụ `FixedThreadPool` dùng `LinkedBlockingQueue` (bounded queue), constructor mặc định khởi tạo độ dài queue là `Integer.MAX_VALUE`, do queue không bao giờ bị đầy nên `FixedThreadPool` tối đa chỉ có thể tạo số lượng thread bằng core thread count.
 
-假如我们需要实现一个优先级任务线程池的话，那可以考虑使用 `PriorityBlockingQueue` （优先级阻塞队列）作为任务队列（`ThreadPoolExecutor` 的构造函数有一个 `workQueue` 参数可以传入任务队列）。
+Nếu chúng ta cần triển khai một thread pool task có độ ưu tiên, có thể cân nhắc dùng `PriorityBlockingQueue` (priority blocking queue) làm task queue (constructor của `ThreadPoolExecutor` có tham số `workQueue` để truyền vào task queue).
 
-![ThreadPoolExecutor构造函数](https://oss.javaguide.cn/github/javaguide/java/concurrent/common-parameters-of-threadpool-workqueue.jpg)
+![Constructor ThreadPoolExecutor](https://oss.javaguide.cn/github/javaguide/java/concurrent/common-parameters-of-threadpool-workqueue.jpg)
 
-`PriorityBlockingQueue` 是一个支持优先级的无界阻塞队列，可以看作是线程安全的 `PriorityQueue`，两者底层都是使用小顶堆形式的二叉堆，即值最小的元素优先出队。不过，`PriorityQueue` 不支持阻塞操作。
+`PriorityBlockingQueue` là unbounded blocking queue hỗ trợ độ ưu tiên, có thể coi là `PriorityQueue` thread-safe, cả hai đều dùng binary heap dạng min-heap ở đáy, tức là element có giá trị nhỏ nhất sẽ dequeue trước. Tuy nhiên, `PriorityQueue` không hỗ trợ blocking operation.
 
-要想让 `PriorityBlockingQueue` 实现对任务的排序，传入其中的任务必须是具备排序能力的，方式有两种：
+Để `PriorityBlockingQueue` triển khai sắp xếp task, các task được truyền vào phải có khả năng sắp xếp, có hai cách:
 
-1. 提交到线程池的任务实现 `Comparable` 接口，并重写 `compareTo` 方法来指定任务之间的优先级比较规则。
-2. 创建 `PriorityBlockingQueue` 时传入一个 `Comparator` 对象来指定任务之间的排序规则(推荐)。
+1. Task được submit vào thread pool triển khai interface `Comparable`, và override phương thức `compareTo` để chỉ định quy tắc so sánh độ ưu tiên giữa các task.
+2. Khi tạo `PriorityBlockingQueue`, truyền vào một đối tượng `Comparator` để chỉ định quy tắc sắp xếp giữa các task (khuyến nghị).
 
-不过，这存在一些风险和问题，比如：
+Tuy nhiên, điều này tồn tại một số rủi ro và vấn đề, ví dụ:
 
-- `PriorityBlockingQueue` 是无界的，可能堆积大量的请求，从而导致 OOM。
-- 可能会导致饥饿问题，即低优先级的任务长时间得不到执行。
-- 由于需要对队列中的元素进行排序操作以及保证线程安全（并发控制采用的是可重入锁 `ReentrantLock`），因此会降低性能。
+- `PriorityBlockingQueue` là vô hạn, có thể tích lũy lượng lớn request, dẫn đến OOM.
+- Có thể dẫn đến vấn đề starvation, tức là task có độ ưu tiên thấp lâu dài không được thực thi.
+- Do cần thực hiện thao tác sắp xếp trên các element trong queue và đảm bảo thread safety (concurrent control dùng reentrant lock `ReentrantLock`), do đó sẽ giảm hiệu suất.
 
-对于 OOM 这个问题的解决比较简单粗暴，就是继承`PriorityBlockingQueue` 并重写一下 `offer` 方法(入队)的逻辑，当插入的元素数量超过指定值就返回 false 。
+Để giải quyết vấn đề OOM khá đơn giản và trực tiếp: kế thừa `PriorityBlockingQueue` và override logic của phương thức `offer` (enqueue), khi số lượng element được chèn vào vượt quá giá trị chỉ định thì trả về false.
 
-饥饿问题这个可以通过优化设计来解决（比较麻烦），比如等待时间过长的任务会被移除并重新添加到队列中，但是优先级会被提升。
+Vấn đề starvation có thể được giải quyết thông qua tối ưu thiết kế (khá phức tạp), ví dụ task chờ quá lâu sẽ bị loại khỏi queue và thêm lại, nhưng độ ưu tiên sẽ được nâng lên.
 
-对于性能方面的影响，是没办法避免的，毕竟需要对任务进行排序操作。并且，对于大部分业务场景来说，这点性能影响是可以接受的。
+Về ảnh hưởng đến hiệu suất, không thể tránh khỏi vì cần thực hiện thao tác sắp xếp task. Và với phần lớn kịch bản nghiệp vụ, ảnh hưởng hiệu suất này là có thể chấp nhận được.
 
 ## Future
 
-重点是要掌握 `CompletableFuture` 的使用以及常见面试题。
+Điều quan trọng là phải nắm vững cách sử dụng `CompletableFuture` và các câu hỏi phỏng vấn thường gặp.
 
-除了下面的面试题之外，还推荐你看看我写的这篇文章： [CompletableFuture 详解](https://javaguide.cn/java/concurrent/completablefuture-intro.html)。
+Ngoài các câu hỏi phỏng vấn dưới đây, tôi cũng khuyên bạn đọc bài viết này: [Giải thích chi tiết CompletableFuture](https://javaguide.cn/java/concurrent/completablefuture-intro.html).
 
-### Future 类有什么用？
+### Lớp Future dùng để làm gì?
 
-`Future` 类是异步思想的典型运用，主要用在一些需要执行耗时任务的场景，避免程序一直原地等待耗时任务执行完成，执行效率太低。具体来说是这样的：当我们执行某一耗时的任务时，可以将这个耗时任务交给一个子线程去异步执行，同时我们可以干点其他事情，不用傻傻等待耗时任务执行完成。等我们的事情干完后，我们再通过 `Future` 类获取到耗时任务的执行结果。这样一来，程序的执行效率就明显提高了。
+Lớp `Future` là ứng dụng điển hình của tư tưởng bất đồng bộ, chủ yếu được dùng trong các tình huống cần thực thi các tác vụ tốn thời gian, tránh cho chương trình phải chờ đợi tại chỗ cho đến khi tác vụ hoàn thành, khiến hiệu suất thực thi quá thấp. Cụ thể như sau: khi chúng ta thực hiện một tác vụ tốn thời gian, có thể giao tác vụ đó cho một thread con thực thi bất đồng bộ, trong khi đó chúng ta có thể làm việc khác mà không cần chờ đợi tác vụ hoàn thành. Sau khi chúng ta hoàn thành công việc của mình, chúng ta lấy kết quả thực thi của tác vụ tốn thời gian thông qua lớp `Future`. Như vậy, hiệu suất thực thi của chương trình được cải thiện rõ rệt.
 
-这其实就是多线程中经典的 **Future 模式**，你可以将其看作是一种设计模式，核心思想是异步调用，主要用在多线程领域，并非 Java 语言独有。
+Đây thực chất là **Future pattern** kinh điển trong lập trình đa luồng, bạn có thể xem nó như một design pattern, tư tưởng cốt lõi là lời gọi bất đồng bộ, chủ yếu được dùng trong lĩnh vực đa luồng, không phải độc quyền của ngôn ngữ Java.
 
-在 Java 中，`Future` 类只是一个泛型接口，位于 `java.util.concurrent` 包下，其中定义了 5 个方法，主要包括下面这 4 个功能：
+Trong Java, lớp `Future` chỉ là một generic interface, nằm trong package `java.util.concurrent`, định nghĩa 5 phương thức, chủ yếu bao gồm 4 chức năng sau:
 
-- 取消任务；
-- 判断任务是否被取消;
-- 判断任务是否已经执行完成;
-- 获取任务执行结果。
+- Hủy tác vụ;
+- Kiểm tra xem tác vụ có bị hủy không;
+- Kiểm tra xem tác vụ đã thực thi xong chưa;
+- Lấy kết quả thực thi của tác vụ.
 
 ```java
 // V 代表了Future执行的任务返回值的类型
@@ -1079,24 +1079,24 @@ public interface Future<V> {
 }
 ```
 
-简单理解就是：我有一个任务，提交给了 `Future` 来处理。任务执行期间我自己可以去做任何想做的事情。并且，在这期间我还可以取消任务以及获取任务的执行状态。一段时间之后，我就可以 `Future` 那里直接取出任务执行结果。
+Hiểu đơn giản là: tôi có một tác vụ, giao cho `Future` xử lý. Trong thời gian tác vụ thực thi, tôi có thể làm bất kỳ điều gì muốn. Và trong thời gian đó, tôi còn có thể hủy tác vụ cũng như lấy trạng thái thực thi của tác vụ. Sau một khoảng thời gian, tôi có thể lấy kết quả thực thi tác vụ trực tiếp từ `Future`.
 
-### Callable 和 Future 有什么关系？
+### Callable và Future có quan hệ gì?
 
-我们可以通过 `FutureTask` 来理解 `Callable` 和 `Future` 之间的关系。
+Chúng ta có thể hiểu mối quan hệ giữa `Callable` và `Future` thông qua `FutureTask`.
 
-`FutureTask` 提供了 `Future` 接口的基本实现，常用来封装 `Callable` 和 `Runnable`，具有取消任务、查看任务是否执行完成以及获取任务执行结果的方法。`ExecutorService.submit()` 方法返回的其实就是 `Future` 的实现类 `FutureTask` 。
+`FutureTask` cung cấp hiện thực cơ bản của interface `Future`, thường dùng để đóng gói `Callable` và `Runnable`, có các phương thức hủy tác vụ, kiểm tra xem tác vụ đã thực thi xong chưa và lấy kết quả thực thi của tác vụ. Phương thức `ExecutorService.submit()` thực ra trả về `FutureTask` - lớp hiện thực của `Future`.
 
 ```java
 <T> Future<T> submit(Callable<T> task);
 Future<?> submit(Runnable task);
 ```
 
-`FutureTask` 不光实现了 `Future`接口，还实现了`Runnable` 接口，因此可以作为任务直接被线程执行。
+`FutureTask` không chỉ hiện thực interface `Future`, mà còn hiện thực interface `Runnable`, do đó có thể được thread thực thi trực tiếp như một tác vụ.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/completablefuture-class-diagram.jpg)
 
-`FutureTask` 有两个构造函数，可传入 `Callable` 或者 `Runnable` 对象。实际上，传入 `Runnable` 对象也会在方法内部转换为`Callable` 对象。
+`FutureTask` có hai constructor, có thể truyền vào đối tượng `Callable` hoặc `Runnable`. Thực ra, khi truyền vào đối tượng `Runnable`, nó cũng sẽ được chuyển đổi thành đối tượng `Callable` bên trong phương thức.
 
 ```java
 public FutureTask(Callable<V> callable) {
@@ -1112,38 +1112,38 @@ public FutureTask(Runnable runnable, V result) {
 }
 ```
 
-`FutureTask`相当于对`Callable` 进行了封装，管理着任务执行的情况，存储了 `Callable` 的 `call` 方法的任务执行结果。
+`FutureTask` tương đương với việc đóng gói `Callable`, quản lý tình trạng thực thi của tác vụ, lưu trữ kết quả thực thi của phương thức `call` trong `Callable`.
 
-关于更多 `Future` 的源码细节，可以肝这篇万字解析，写的很清楚：[Java 是如何实现 Future 模式的？万字详解！](https://juejin.cn/post/6844904199625375757)。
+Để biết thêm chi tiết về source code của `Future`, bạn có thể xem bài phân tích hàng vạn từ này, được viết rất rõ ràng: [Java triển khai Future pattern như thế nào? Giải thích chi tiết hàng vạn từ!](https://juejin.cn/post/6844904199625375757).
 
-### CompletableFuture 类有什么用？
+### Lớp CompletableFuture dùng để làm gì?
 
-`Future` 在实际使用过程中存在一些局限性，比如不支持异步任务的编排组合、获取计算结果的 `get()` 方法为阻塞调用。
+`Future` trong quá trình sử dụng thực tế có một số hạn chế, chẳng hạn như không hỗ trợ sắp xếp kết hợp các tác vụ bất đồng bộ, phương thức `get()` để lấy kết quả tính toán là lời gọi chặn.
 
-Java 8 才被引入`CompletableFuture` 类可以解决`Future` 的这些缺陷。`CompletableFuture` 除了提供了更为好用和强大的 `Future` 特性之外，还提供了函数式编程、异步任务编排组合（可以将多个异步任务串联起来，组成一个完整的链式调用）等能力。
+Lớp `CompletableFuture` được giới thiệu trong Java 8 có thể giải quyết những thiếu sót này của `Future`. Ngoài việc cung cấp các tính năng `Future` tiện dụng và mạnh mẽ hơn, `CompletableFuture` còn cung cấp lập trình hàm, khả năng sắp xếp kết hợp các tác vụ bất đồng bộ (có thể nối nhiều tác vụ bất đồng bộ lại với nhau, tạo thành một chuỗi lời gọi hoàn chỉnh).
 
-下面我们来简单看看 `CompletableFuture` 类的定义。
+Hãy cùng xem qua định nghĩa lớp `CompletableFuture`.
 
 ```java
 public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
 }
 ```
 
-可以看到，`CompletableFuture` 同时实现了 `Future` 和 `CompletionStage` 接口。
+Có thể thấy, `CompletableFuture` đồng thời hiện thực cả interface `Future` và `CompletionStage`.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/completablefuture-class-diagram.jpg)
 
-`CompletionStage` 接口描述了一个异步计算的阶段。很多计算可以分成多个阶段或步骤，此时可以通过它将所有步骤组合起来，形成异步计算的流水线。
+Interface `CompletionStage` mô tả một giai đoạn của phép tính bất đồng bộ. Nhiều phép tính có thể được chia thành nhiều giai đoạn hoặc bước, lúc này có thể sử dụng nó để kết hợp tất cả các bước lại, tạo thành pipeline tính toán bất đồng bộ.
 
-`CompletionStage` 接口中的方法比较多，`CompletableFuture` 的函数式能力就是这个接口赋予的。从这个接口的方法参数你就可以发现其大量使用了 Java8 引入的函数式编程。
+Interface `CompletionStage` có khá nhiều phương thức, khả năng lập trình hàm của `CompletableFuture` là do interface này mang lại. Từ các tham số phương thức của interface này bạn có thể nhận thấy nó sử dụng nhiều lập trình hàm được giới thiệu trong Java 8.
 
 ![](https://oss.javaguide.cn/javaguide/image-20210902093026059.png)
 
-### ⭐️一个任务需要依赖另外两个任务执行完之后再执行，怎么设计？
+### ⭐️Một tác vụ cần phụ thuộc vào hai tác vụ khác hoàn thành trước rồi mới thực thi, thiết kế như thế nào?
 
-这种任务编排场景非常适合通过`CompletableFuture`实现。这里假设要实现 T3 在 T2 和 T1 执行完后执行。
+Tình huống sắp xếp tác vụ này rất phù hợp để hiện thực bằng `CompletableFuture`. Ở đây giả sử cần hiện thực T3 thực thi sau khi T2 và T1 đều hoàn thành.
 
-代码如下（这里为了简化代码，用到了 Hutool 的线程工具类 `ThreadUtil` 和日期时间工具类 `DateUtil`）：
+Code như sau (để đơn giản hóa code, sử dụng lớp tiện ích thread `ThreadUtil` và lớp tiện ích ngày giờ `DateUtil` của Hutool):
 
 ```java
 // T1
@@ -1166,31 +1166,31 @@ bothCompleted.thenRunAsync(() -> System.out.println("T3 is executing after T1 an
 ThreadUtil.sleep(3000);
 ```
 
-通过 `CompletableFuture` 的 `allOf()` 这个静态方法来并行运行 T1 和 T2，当 T1 和 T2 都完成后，再执行 T3。
+Sử dụng phương thức tĩnh `allOf()` của `CompletableFuture` để chạy T1 và T2 song song, khi cả T1 và T2 đều hoàn thành, mới thực thi T3.
 
-### ⭐️使用 CompletableFuture，有一个任务失败，如何处理异常？
+### ⭐️Khi sử dụng CompletableFuture, nếu một tác vụ thất bại, xử lý ngoại lệ như thế nào?
 
-使用 `CompletableFuture`的时候一定要以正确的方式进行异常处理，避免异常丢失或者出现不可控问题。
+Khi sử dụng `CompletableFuture`, nhất định phải xử lý ngoại lệ đúng cách, tránh để ngoại lệ bị mất hoặc xuất hiện các vấn đề không kiểm soát được.
 
-下面是一些建议：
+Dưới đây là một số gợi ý:
 
-- 使用 `whenComplete` 方法可以在任务完成时触发回调函数，并正确地处理异常，而不是让异常被吞噬或丢失。
-- 使用 `exceptionally` 方法可以处理异常并重新抛出，以便异常能够传播到后续阶段，而不是让异常被忽略或终止。
-- 使用 `handle` 方法可以处理正常的返回结果和异常，并返回一个新的结果，而不是让异常影响正常的业务逻辑。
-- 使用 `CompletableFuture.allOf` 方法可以组合多个 `CompletableFuture`，并统一处理所有任务的异常，而不是让异常处理过于冗长或重复。
+- Sử dụng phương thức `whenComplete` có thể kích hoạt hàm callback khi tác vụ hoàn thành và xử lý ngoại lệ đúng cách, thay vì để ngoại lệ bị nuốt hoặc mất.
+- Sử dụng phương thức `exceptionally` có thể xử lý ngoại lệ và ném lại, để ngoại lệ có thể lan truyền đến các giai đoạn tiếp theo, thay vì để ngoại lệ bị bỏ qua hoặc chấm dứt.
+- Sử dụng phương thức `handle` có thể xử lý cả kết quả trả về bình thường và ngoại lệ, và trả về một kết quả mới, thay vì để ngoại lệ ảnh hưởng đến logic nghiệp vụ bình thường.
+- Sử dụng phương thức `CompletableFuture.allOf` có thể kết hợp nhiều `CompletableFuture`, và xử lý thống nhất ngoại lệ của tất cả các tác vụ, thay vì để việc xử lý ngoại lệ quá dài dòng hoặc lặp lại.
 - ……
 
-### ⭐️在使用 CompletableFuture 的时候为什么要自定义线程池？
+### ⭐️Tại sao nên tự định nghĩa thread pool khi sử dụng CompletableFuture?
 
-`CompletableFuture` 默认使用全局共享的 `ForkJoinPool.commonPool()` 作为执行器，所有未指定执行器的异步任务都会使用该线程池。这意味着应用程序、多个库或框架（如 Spring、第三方库）若都依赖 `CompletableFuture`，默认情况下它们都会共享同一个线程池。
+`CompletableFuture` mặc định sử dụng `ForkJoinPool.commonPool()` được chia sẻ toàn cục làm executor, tất cả các tác vụ bất đồng bộ không chỉ định executor đều sẽ sử dụng thread pool này. Điều này có nghĩa là ứng dụng, nhiều thư viện hoặc framework (như Spring, third-party library) nếu đều phụ thuộc vào `CompletableFuture`, theo mặc định chúng sẽ dùng chung một thread pool.
 
-虽然 `ForkJoinPool` 效率很高，但当同时提交大量任务时，可能会导致资源竞争和线程饥饿，进而影响系统性能。
+Mặc dù `ForkJoinPool` rất hiệu quả, nhưng khi gửi một lượng lớn tác vụ cùng lúc, có thể gây ra tranh chấp tài nguyên và thread starvation, từ đó ảnh hưởng đến hiệu suất hệ thống.
 
-为避免这些问题，建议为 `CompletableFuture` 提供自定义线程池，带来以下优势：
+Để tránh những vấn đề này, nên cung cấp thread pool tùy chỉnh cho `CompletableFuture`, mang lại những ưu điểm sau:
 
-- 隔离性：为不同任务分配独立的线程池，避免全局线程池资源争夺。
-- 资源控制：根据任务特性调整线程池大小和队列类型，优化性能表现。
-- 异常处理：通过自定义 `ThreadFactory` 更好地处理线程中的异常情况。
+- Cô lập: phân bổ thread pool độc lập cho các tác vụ khác nhau, tránh tranh chấp tài nguyên thread pool toàn cục.
+- Kiểm soát tài nguyên: điều chỉnh kích thước thread pool và loại queue theo đặc điểm của tác vụ, tối ưu hóa hiệu suất.
+- Xử lý ngoại lệ: xử lý tốt hơn các tình huống ngoại lệ trong thread thông qua `ThreadFactory` tùy chỉnh.
 
 ```java
 private ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10,
@@ -1204,51 +1204,51 @@ CompletableFuture.runAsync(() -> {
 
 ## AQS
 
-关于 AQS 源码的详细分析，可以看看这一篇文章：[AQS 详解](https://javaguide.cn/java/concurrent/aqs.html)。
+Để phân tích chi tiết source code AQS, bạn có thể xem bài viết này: [Giải thích chi tiết AQS](https://javaguide.cn/java/concurrent/aqs.html).
 
-### AQS 是什么？
+### AQS là gì?
 
-AQS （`AbstractQueuedSynchronizer` ，抽象队列同步器）是从 JDK1.5 开始提供的 Java 并发核心组件。
+AQS (`AbstractQueuedSynchronizer`, bộ đồng bộ hóa hàng đợi trừu tượng) là thành phần cốt lõi của Java concurrency được cung cấp từ JDK1.5.
 
-AQS 解决了开发者在实现同步器时的复杂性问题。它提供了一个通用框架，用于实现各种同步器，例如 **可重入锁**（`ReentrantLock`）、**信号量**（`Semaphore`）和 **倒计时器**（`CountDownLatch`）。通过封装底层的线程同步机制，AQS 将复杂的线程管理逻辑隐藏起来，使开发者只需专注于具体的同步逻辑。
+AQS giải quyết vấn đề phức tạp khi các nhà phát triển hiện thực synchronizer. Nó cung cấp một framework chung để hiện thực các loại synchronizer khác nhau, ví dụ như **reentrant lock** (`ReentrantLock`), **semaphore** (`Semaphore`) và **countdown latch** (`CountDownLatch`). Bằng cách đóng gói cơ chế đồng bộ hóa thread ở tầng dưới, AQS ẩn đi logic quản lý thread phức tạp, cho phép nhà phát triển chỉ cần tập trung vào logic đồng bộ hóa cụ thể.
 
-简单来说，AQS 是一个抽象类，为同步器提供了通用的 **执行框架**。它定义了 **资源获取和释放的通用流程**，而具体的资源获取逻辑则由具体同步器通过重写模板方法来实现。 因此，可以将 AQS 看作是同步器的 **基础“底座”**，而同步器则是基于 AQS 实现的 **具体“应用”**。
+Nói đơn giản, AQS là một lớp trừu tượng, cung cấp **execution framework** chung cho các synchronizer. Nó định nghĩa **quy trình chung để lấy và giải phóng tài nguyên**, còn logic lấy tài nguyên cụ thể do các synchronizer cụ thể hiện thực thông qua việc override các template method. Do đó, có thể xem AQS như là **"nền tảng"** của synchronizer, còn synchronizer là **"ứng dụng cụ thể"** được xây dựng trên AQS.
 
-### ⭐️AQS 的原理是什么？
+### ⭐️Nguyên lý của AQS là gì?
 
-AQS 核心思想是，如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并且将共享资源设置为锁定状态。如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及被唤醒时锁分配的机制，这个机制 AQS 是基于 **CLH 锁** （Craig, Landin, and Hagersten locks） 进一步优化实现的。
+Tư tưởng cốt lõi của AQS là: nếu tài nguyên chia sẻ được yêu cầu còn trống, thì đặt thread đang yêu cầu tài nguyên đó làm thread làm việc hợp lệ, và đặt tài nguyên chia sẻ sang trạng thái khóa. Nếu tài nguyên chia sẻ được yêu cầu đang bị chiếm dụng, thì cần một cơ chế để thread chặn chờ và phân bổ lock khi được đánh thức, cơ chế này trong AQS được hiện thực dựa trên **CLH lock** (Craig, Landin, and Hagersten locks) và được tối ưu hóa thêm.
 
-**CLH 锁** 对自旋锁进行了改进，是基于单链表的自旋锁。在多线程场景下，会将请求获取锁的线程组织成一个单向队列，每个等待的线程会通过自旋访问前一个线程节点的状态，前一个节点释放锁之后，当前节点才可以获取锁。**CLH 锁** 的队列结构如下图所示。
+**CLH lock** là cải tiến của spin lock, là spin lock dựa trên danh sách liên kết đơn. Trong tình huống đa luồng, các thread yêu cầu lấy lock sẽ được tổ chức thành một hàng đợi một chiều, mỗi thread chờ sẽ spin truy cập trạng thái của node thread trước đó, node trước giải phóng lock thì node hiện tại mới có thể lấy lock. Cấu trúc hàng đợi của **CLH lock** được thể hiện như sơ đồ dưới đây.
 
-![CLH 锁的队列结构](https://oss.javaguide.cn/github/javaguide/open-source-project/clh-lock-queue-structure.png)
+![Cấu trúc hàng đợi của CLH lock](https://oss.javaguide.cn/github/javaguide/open-source-project/clh-lock-queue-structure.png)
 
-AQS 中使用的 **等待队列** 是 CLH 锁队列的变体（接下来简称为 CLH 变体队列）。
+**Hàng đợi chờ** được sử dụng trong AQS là biến thể của hàng đợi CLH lock (sau đây gọi tắt là hàng đợi biến thể CLH).
 
-AQS 的 CLH 变体队列是一个双向队列，会暂时获取不到锁的线程将被加入到该队列中，CLH 变体队列和原本的 CLH 锁队列的区别主要有两点：
+Hàng đợi biến thể CLH của AQS là một hàng đợi hai chiều, các thread tạm thời không lấy được lock sẽ được thêm vào hàng đợi này. Sự khác biệt chính giữa hàng đợi biến thể CLH và hàng đợi CLH lock gốc có hai điểm:
 
-- 由 **自旋** 优化为 **自旋 + 阻塞** ：自旋操作的性能很高，但大量的自旋操作比较占用 CPU 资源，因此在 CLH 变体队列中会先通过自旋尝试获取锁，如果失败再进行阻塞等待。
-- 由 **单向队列** 优化为 **双向队列** ：在 CLH 变体队列中，会对等待的线程进行阻塞操作，当队列前边的线程释放锁之后，需要对后边的线程进行唤醒，因此增加了 `next` 指针，成为了双向队列。
+- Từ **spin** tối ưu hóa thành **spin + blocking**: hiệu suất của spin rất cao, nhưng spin nhiều sẽ chiếm nhiều tài nguyên CPU, do đó trong hàng đợi biến thể CLH sẽ thử lấy lock bằng spin trước, nếu thất bại mới chặn chờ.
+- Từ **hàng đợi một chiều** tối ưu hóa thành **hàng đợi hai chiều**: trong hàng đợi biến thể CLH, sẽ thực hiện thao tác chặn đối với các thread chờ, khi thread phía trước trong hàng đợi giải phóng lock, cần đánh thức thread phía sau, do đó đã thêm con trỏ `next`, trở thành hàng đợi hai chiều.
 
-AQS 将每条请求共享资源的线程封装成一个 CLH 变体队列的一个结点（Node）来实现锁的分配。在 CLH 变体队列中，一个节点表示一个线程，它保存着线程的引用（thread）、 当前节点在队列中的状态（waitStatus）、前驱节点（prev）、后继节点（next）。
+AQS đóng gói mỗi thread yêu cầu tài nguyên chia sẻ thành một node (Node) của hàng đợi biến thể CLH để hiện thực phân bổ lock. Trong hàng đợi biến thể CLH, một node đại diện cho một thread, nó lưu trữ tham chiếu thread (thread), trạng thái của node hiện tại trong hàng đợi (waitStatus), node trước (prev), node kế tiếp (next).
 
-AQS 中的 CLH 变体队列结构如下图所示：
+Cấu trúc hàng đợi biến thể CLH trong AQS được thể hiện như sơ đồ dưới đây:
 
-![CLH 变体队列结构](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-structure-bianti.png)
+![Cấu trúc hàng đợi biến thể CLH](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-structure-bianti.png)
 
-AQS(`AbstractQueuedSynchronizer`)的核心原理图：
+Sơ đồ nguyên lý cốt lõi của AQS (`AbstractQueuedSynchronizer`):
 
-![CLH 变体队列](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-state.png)
+![Hàng đợi biến thể CLH](https://oss.javaguide.cn/github/javaguide/java/concurrent/clh-queue-state.png)
 
-AQS 使用 **int 成员变量 `state` 表示同步状态**，通过内置的 **线程等待队列** 来完成获取资源线程的排队工作。
+AQS sử dụng **biến thành viên int `state` để biểu thị trạng thái đồng bộ hóa**, hoàn thành việc xếp hàng của các thread lấy tài nguyên thông qua **hàng đợi chờ thread** tích hợp sẵn.
 
-`state` 变量由 `volatile` 修饰，用于展示当前临界资源的获锁情况。
+Biến `state` được sửa đổi bởi `volatile`, dùng để hiển thị tình trạng lấy lock của tài nguyên critical hiện tại.
 
 ```java
 // 共享变量，使用volatile修饰保证线程可见性
 private volatile int state;
 ```
 
-另外，状态信息 `state` 可以通过 `protected` 类型的`getState()`、`setState()`和`compareAndSetState()` 进行操作。并且，这几个方法都是 `final` 修饰的，在子类中无法被重写。
+Ngoài ra, thông tin trạng thái `state` có thể được thao tác thông qua `getState()`, `setState()` và `compareAndSetState()` kiểu `protected`. Và, các phương thức này đều được sửa đổi bởi `final`, không thể bị override trong lớp con.
 
 ```java
 //返回同步状态的当前值
@@ -1265,15 +1265,15 @@ protected final boolean compareAndSetState(int expect, int update) {
 }
 ```
 
-以 `ReentrantLock` 为例，`state` 初始值为 0，表示未锁定状态。A 线程 `lock()` 时，会调用 `tryAcquire()` 独占该锁并将 `state+1` 。此后，其他线程再 `tryAcquire()` 时就会失败，直到 A 线程 `unlock()` 到 `state=`0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A 线程自己是可以重复获取此锁的（`state` 会累加），这就是可重入的概念。但要注意，获取多少次就要释放多少次，这样才能保证 state 是能回到零态的。
+Lấy `ReentrantLock` làm ví dụ, giá trị ban đầu của `state` là 0, biểu thị trạng thái chưa khóa. Khi thread A `lock()`, sẽ gọi `tryAcquire()` để độc chiếm lock đó và `state+1`. Sau đó, các thread khác khi `tryAcquire()` sẽ thất bại, cho đến khi thread A `unlock()` đến `state=0` (tức là giải phóng lock), các thread khác mới có cơ hội lấy lock đó. Tất nhiên, trước khi giải phóng lock, bản thân thread A có thể lấy lock này nhiều lần (`state` sẽ tích lũy), đây là khái niệm reentrant. Nhưng cần lưu ý, lấy bao nhiêu lần thì phải giải phóng bấy nhiêu lần, như vậy mới đảm bảo state có thể trở về trạng thái zero.
 
-再以 `CountDownLatch` 以例，任务分为 N 个子线程去执行，`state` 也初始化为 N（注意 N 要与线程个数一致）。这 N 个子线程是并行执行的，每个子线程执行完后`countDown()` 一次，state 会 CAS(Compare and Swap) 减 1。等到所有子线程都执行完后(即 `state=0` )，会 `unpark()` 主调用线程，然后主调用线程就会从 `await()` 函数返回，继续后续动作。
+Lấy `CountDownLatch` làm ví dụ, tác vụ được chia thành N thread con để thực thi, `state` cũng khởi tạo thành N (lưu ý N phải nhất quán với số lượng thread). N thread con này thực thi song song, mỗi thread con sau khi thực thi xong sẽ `countDown()` một lần, state sẽ CAS (Compare and Swap) giảm 1. Khi tất cả thread con đều thực thi xong (tức `state=0`), sẽ `unpark()` thread gọi chính, sau đó thread gọi chính sẽ trả về từ hàm `await()`, tiếp tục các hành động tiếp theo.
 
-### Semaphore 有什么用？
+### Semaphore dùng để làm gì?
 
-`synchronized` 和 `ReentrantLock` 都是一次只允许一个线程访问某个资源，而`Semaphore`(信号量)可以用来控制同时访问特定资源的线程数量。
+`synchronized` và `ReentrantLock` chỉ cho phép một thread truy cập một tài nguyên nhất định tại một thời điểm, còn `Semaphore` (tín hiệu) có thể dùng để kiểm soát số lượng thread cùng truy cập một tài nguyên cụ thể.
 
-Semaphore 的使用简单，我们这里假设有 N(N>5) 个线程来获取 `Semaphore` 中的共享资源，下面的代码表示同一时刻 N 个线程中只有 5 个线程能获取到共享资源，其他线程都会阻塞，只有获取到共享资源的线程才能执行。等到有线程释放了共享资源，其他阻塞的线程才能获取到。
+Cách sử dụng Semaphore đơn giản, ở đây giả sử có N (N>5) thread đến lấy tài nguyên chia sẻ trong `Semaphore`, code dưới đây biểu thị rằng tại cùng một thời điểm trong N thread chỉ có 5 thread có thể lấy được tài nguyên chia sẻ, các thread khác đều sẽ bị chặn, chỉ thread nào lấy được tài nguyên chia sẻ mới có thể thực thi. Khi có thread giải phóng tài nguyên chia sẻ, các thread bị chặn khác mới có thể lấy được.
 
 ```java
 // 初始共享资源数量
@@ -1284,14 +1284,14 @@ semaphore.acquire();
 semaphore.release();
 ```
 
-当初始的资源个数为 1 的时候，`Semaphore` 退化为排他锁。
+Khi số lượng tài nguyên ban đầu là 1, `Semaphore` suy biến thành exclusive lock.
 
-`Semaphore` 有两种模式：。
+`Semaphore` có hai chế độ:
 
-- **公平模式：** 调用 `acquire()` 方法的顺序就是获取许可证的顺序，遵循 FIFO；
-- **非公平模式：** 抢占式的。
+- **Chế độ công bằng:** Thứ tự gọi phương thức `acquire()` là thứ tự lấy giấy phép, tuân theo FIFO;
+- **Chế độ không công bằng:** Kiểu tranh giành.
 
-`Semaphore` 对应的两个构造方法如下：
+Hai constructor tương ứng của `Semaphore` như sau:
 
 ```java
 public Semaphore(int permits) {
@@ -1303,15 +1303,15 @@ public Semaphore(int permits, boolean fair) {
 }
 ```
 
-**这两个构造方法，都必须提供许可的数量，第二个构造方法可以指定是公平模式还是非公平模式，默认非公平模式。**
+**Cả hai constructor này đều phải cung cấp số lượng giấy phép, constructor thứ hai có thể chỉ định chế độ công bằng hay không công bằng, mặc định là chế độ không công bằng.**
 
-`Semaphore` 通常用于那些资源有明确访问数量限制的场景比如限流（仅限于单机模式，实际项目中推荐使用 Redis +Lua 来做限流）。
+`Semaphore` thường được dùng trong những tình huống tài nguyên có giới hạn số lượng truy cập rõ ràng, chẳng hạn như rate limiting (chỉ áp dụng cho chế độ single machine, trong dự án thực tế nên dùng Redis + Lua để làm rate limiting).
 
-### Semaphore 的原理是什么？
+### Nguyên lý của Semaphore là gì?
 
-`Semaphore` 是共享锁的一种实现，它默认构造 AQS 的 `state` 值为 `permits`，你可以将 `permits` 的值理解为许可证的数量，只有拿到许可证的线程才能执行。
+`Semaphore` là một hiện thực của shared lock, nó mặc định khởi tạo giá trị `state` của AQS là `permits`, bạn có thể hiểu giá trị `permits` là số lượng giấy phép, chỉ thread nào lấy được giấy phép mới có thể thực thi.
 
-调用`semaphore.acquire()` ，线程尝试获取许可证，如果 `state >= 0` 的话，则表示可以获取成功。如果获取成功的话，使用 CAS 操作去修改 `state` 的值 `state=state-1`。如果 `state<0` 的话，则表示许可证数量不足。此时会创建一个 Node 节点加入阻塞队列，挂起当前线程。
+Khi gọi `semaphore.acquire()`, thread thử lấy giấy phép, nếu `state >= 0` thì biểu thị có thể lấy thành công. Nếu lấy thành công, sử dụng thao tác CAS để sửa giá trị `state` thành `state=state-1`. Nếu `state<0` thì biểu thị số lượng giấy phép không đủ. Lúc này sẽ tạo một node Node thêm vào hàng đợi chặn, treo thread hiện tại.
 
 ```java
 /**
@@ -1333,7 +1333,7 @@ public final void acquireSharedInterruptibly(int arg)
 }
 ```
 
-调用`semaphore.release();` ，线程尝试释放许可证，并使用 CAS 操作去修改 `state` 的值 `state=state+1`。释放许可证成功之后，同时会唤醒同步队列中的一个线程。被唤醒的线程会重新尝试去修改 `state` 的值 `state=state-1` ，如果 `state>=0` 则获取令牌成功，否则重新进入阻塞队列，挂起线程。
+Khi gọi `semaphore.release()`, thread thử giải phóng giấy phép, và sử dụng thao tác CAS để sửa giá trị `state` thành `state=state+1`. Sau khi giải phóng giấy phép thành công, đồng thời cũng đánh thức một thread trong hàng đợi đồng bộ. Thread được đánh thức sẽ thử lại để sửa giá trị `state` thành `state=state-1`, nếu `state>=0` thì lấy token thành công, ngược lại lại vào hàng đợi chặn, treo thread.
 
 ```java
 // 释放一个许可证
@@ -1353,25 +1353,25 @@ public final boolean releaseShared(int arg) {
 }
 ```
 
-### CountDownLatch 有什么用？
+### CountDownLatch dùng để làm gì?
 
-`CountDownLatch` 允许 `count` 个线程阻塞在一个地方，直至所有线程的任务都执行完毕。
+`CountDownLatch` cho phép `count` thread chặn tại một chỗ, cho đến khi tất cả các thread hoàn thành tác vụ của mình.
 
-`CountDownLatch` 是一次性的，计数器的值只能在构造方法中初始化一次，之后没有任何机制再次对其设置值，当 `CountDownLatch` 使用完毕后，它不能再次被使用。
+`CountDownLatch` chỉ dùng một lần, giá trị của bộ đếm chỉ có thể được khởi tạo một lần trong constructor, sau đó không có cơ chế nào để đặt lại giá trị cho nó, khi `CountDownLatch` đã được sử dụng xong, nó không thể được sử dụng lại.
 
-### CountDownLatch 的原理是什么？
+### Nguyên lý của CountDownLatch là gì?
 
-`CountDownLatch` 是共享锁的一种实现,它默认构造 AQS 的 `state` 值为 `count`。当线程使用 `countDown()` 方法时,其实使用了`tryReleaseShared`方法以 CAS 的操作来减少 `state`,直至 `state` 为 0 。当调用 `await()` 方法的时候，如果 `state` 不为 0，那就证明任务还没有执行完毕，`await()` 方法就会一直阻塞，也就是说 `await()` 方法之后的语句不会被执行。直到`count` 个线程调用了`countDown()`使 state 值被减为 0，或者调用`await()`的线程被中断，该线程才会从阻塞中被唤醒，`await()` 方法之后的语句得到执行。
+`CountDownLatch` là một hiện thực của shared lock, nó mặc định khởi tạo giá trị `state` của AQS là `count`. Khi thread sử dụng phương thức `countDown()`, thực ra sử dụng phương thức `tryReleaseShared` với thao tác CAS để giảm `state`, cho đến khi `state` bằng 0. Khi gọi phương thức `await()`, nếu `state` khác 0, thì chứng tỏ tác vụ chưa thực thi xong, phương thức `await()` sẽ tiếp tục chặn, tức là các câu lệnh sau phương thức `await()` sẽ không được thực thi. Cho đến khi `count` thread gọi `countDown()` làm giá trị state giảm về 0, hoặc thread gọi `await()` bị ngắt, thread đó mới được đánh thức khỏi trạng thái chặn, các câu lệnh sau phương thức `await()` mới được thực thi.
 
-### 用过 CountDownLatch 么？什么场景下用的？
+### Bạn đã dùng CountDownLatch chưa? Dùng trong tình huống nào?
 
-`CountDownLatch` 的作用就是 允许 count 个线程阻塞在一个地方，直至所有线程的任务都执行完毕。之前在项目中，有一个使用多线程读取多个文件处理的场景，我用到了 `CountDownLatch` 。具体场景是下面这样的：
+Tác dụng của `CountDownLatch` là cho phép count thread chặn tại một chỗ, cho đến khi tất cả các thread hoàn thành tác vụ của mình. Trước đây trong dự án, có một tình huống sử dụng đa luồng để đọc và xử lý nhiều file, tôi đã dùng `CountDownLatch`. Tình huống cụ thể như sau:
 
-我们要读取处理 6 个文件，这 6 个任务都是没有执行顺序依赖的任务，但是我们需要返回给用户的时候将这几个文件的处理的结果进行统计整理。
+Chúng ta cần đọc và xử lý 6 file, 6 tác vụ này không có sự phụ thuộc về thứ tự thực thi, nhưng chúng ta cần tổng hợp kết quả xử lý của các file này khi trả về cho người dùng.
 
-为此我们定义了一个线程池和 count 为 6 的`CountDownLatch`对象 。使用线程池处理读取任务，每一个线程处理完之后就将 count-1，调用`CountDownLatch`对象的 `await()`方法，直到所有文件读取完之后，才会接着执行后面的逻辑。
+Vì vậy chúng ta định nghĩa một thread pool và đối tượng `CountDownLatch` với count bằng 6. Sử dụng thread pool xử lý tác vụ đọc, mỗi thread sau khi xử lý xong thì count-1, gọi phương thức `await()` của đối tượng `CountDownLatch`, cho đến khi tất cả file đều được đọc xong, mới tiếp tục thực thi logic phía sau.
 
-伪代码是下面这样的：
+Pseudocode như sau:
 
 ```java
 public class CountDownLatchExample1 {
@@ -1404,9 +1404,9 @@ public class CountDownLatchExample1 {
 }
 ```
 
-**有没有可以改进的地方呢？**
+**Có chỗ nào có thể cải tiến không?**
 
-可以使用 `CompletableFuture` 类来改进！Java8 的 `CompletableFuture` 提供了很多对多线程友好的方法，使用它可以很方便地为我们编写多线程程序，什么异步、串行、并行或者等待所有线程执行完任务什么的都非常方便。
+Có thể dùng lớp `CompletableFuture` để cải tiến! `CompletableFuture` của Java 8 cung cấp nhiều phương thức thân thiện với đa luồng, sử dụng nó có thể dễ dàng viết chương trình đa luồng, bất đồng bộ, tuần tự, song song hay chờ tất cả thread thực thi xong tác vụ đều rất tiện lợi.
 
 ```java
 CompletableFuture<Void> task1 =
@@ -1429,7 +1429,7 @@ try {
 System.out.println("all done. ");
 ```
 
-上面的代码还可以继续优化，当任务过多的时候，把每一个 task 都列出来不太现实，可以考虑通过循环来添加任务。
+Code trên có thể tiếp tục tối ưu, khi có quá nhiều tác vụ, việc liệt kê từng task một không thực tế, có thể xem xét thêm tác vụ bằng vòng lặp.
 
 ```java
 //文件夹位置
@@ -1444,17 +1444,17 @@ CompletableFuture<Void> allFutures = CompletableFuture.allOf(
 );
 ```
 
-### CyclicBarrier 有什么用？
+### CyclicBarrier dùng để làm gì?
 
-`CyclicBarrier` 和 `CountDownLatch` 非常类似，它也可以实现线程间的技术等待，但是它的功能比 `CountDownLatch` 更加复杂和强大。主要应用场景和 `CountDownLatch` 类似。
+`CyclicBarrier` rất giống với `CountDownLatch`, nó cũng có thể hiện thực việc chờ đếm giữa các thread, nhưng chức năng của nó phức tạp và mạnh hơn `CountDownLatch`. Tình huống ứng dụng chính tương tự như `CountDownLatch`.
 
-> `CountDownLatch` 的实现是基于 AQS 的，而 `CyclicBarrier` 是基于 `ReentrantLock`(`ReentrantLock` 也属于 AQS 同步器)和 `Condition` 的。
+> Hiện thực của `CountDownLatch` dựa trên AQS, còn `CyclicBarrier` dựa trên `ReentrantLock` (`ReentrantLock` cũng thuộc synchronizer AQS) và `Condition`.
 
-`CyclicBarrier` 的字面意思是可循环使用（Cyclic）的屏障（Barrier）。它要做的事情是：让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活。
+Nghĩa đen của `CyclicBarrier` là barrier (hàng rào) có thể dùng lặp đi lặp lại (Cyclic). Việc nó cần làm là: để một nhóm thread bị chặn khi đến một barrier (còn gọi là điểm đồng bộ), cho đến khi thread cuối cùng đến barrier thì barrier mới mở cổng, tất cả các thread bị barrier chặn mới có thể tiếp tục làm việc.
 
-### CyclicBarrier 的原理是什么？
+### Nguyên lý của CyclicBarrier là gì?
 
-`CyclicBarrier` 内部通过一个 `count` 变量作为计数器，`count` 的初始值为 `parties` 属性的初始化值，每当一个线程到了栅栏这里了，那么就将计数器减 1。如果 count 值为 0 了，表示这是这一代最后一个线程到达栅栏，就尝试执行我们构造方法中输入的任务。
+`CyclicBarrier` sử dụng một biến `count` bên trong làm bộ đếm, giá trị ban đầu của `count` là giá trị khởi tạo của thuộc tính `parties`, mỗi khi một thread đến barrier thì giảm bộ đếm đi 1. Nếu giá trị count bằng 0, biểu thị đây là thread cuối cùng trong thế hệ này đến barrier, sẽ thử thực thi tác vụ được truyền vào trong constructor.
 
 ```java
 //每次拦截的线程数
@@ -1463,9 +1463,9 @@ private final int parties;
 private int count;
 ```
 
-下面我们结合源码来简单看看。
+Dưới đây chúng ta kết hợp source code để xem qua.
 
-1、`CyclicBarrier` 默认的构造方法是 `CyclicBarrier(int parties)`，其参数表示屏障拦截的线程数量，每个线程调用 `await()` 方法告诉 `CyclicBarrier` 我已经到达了屏障，然后当前线程被阻塞。
+1、Constructor mặc định của `CyclicBarrier` là `CyclicBarrier(int parties)`, tham số của nó biểu thị số lượng thread mà barrier chặn, mỗi thread gọi phương thức `await()` để thông báo cho `CyclicBarrier` rằng mình đã đến barrier, sau đó thread hiện tại bị chặn.
 
 ```java
 public CyclicBarrier(int parties) {
@@ -1480,9 +1480,9 @@ public CyclicBarrier(int parties, Runnable barrierAction) {
 }
 ```
 
-其中，`parties` 就代表了有拦截的线程的数量，当拦截的线程数量达到这个值的时候就打开栅栏，让所有线程通过。
+Trong đó, `parties` đại diện cho số lượng thread bị chặn, khi số lượng thread bị chặn đạt đến giá trị này thì mở rào, cho phép tất cả thread đi qua.
 
-2、当调用 `CyclicBarrier` 对象调用 `await()` 方法时，实际上调用的是 `dowait(false, 0L)`方法。 `await()` 方法就像树立起一个栅栏的行为一样，将线程挡住了，当拦住的线程数量达到 `parties` 的值时，栅栏才会打开，线程才得以通过执行。
+2、Khi gọi phương thức `await()` trên đối tượng `CyclicBarrier`, thực ra đang gọi phương thức `dowait(false, 0L)`. Phương thức `await()` giống như hành động dựng lên một rào chắn, chặn các thread lại, khi số lượng thread bị chặn đạt đến giá trị `parties`, rào chắn mới mở, thread mới có thể đi qua thực thi.
 
 ```java
 public int await() throws InterruptedException, BrokenBarrierException {
@@ -1494,7 +1494,7 @@ public int await() throws InterruptedException, BrokenBarrierException {
 }
 ```
 
-`dowait(false, 0L)`方法源码分析如下：
+Phân tích source code phương thức `dowait(false, 0L)` như sau:
 
 ```java
     // 当线程数量或者请求数量达到 count 时 await 之后的方法才会被执行。上面的示例中 count 的值就为 5。
@@ -1576,25 +1576,25 @@ public int await() throws InterruptedException, BrokenBarrierException {
     }
 ```
 
-## 虚拟线程
+## Virtual Thread
 
-虚拟线程在 Java 21 正式发布，这是一项重量级的更新。虽然目前面试中问的不多，但还是建议大家去简单了解一下。我写了一篇文章来总结虚拟线程常见的问题：[虚拟线程常见问题总结](https://javaguide.cn/java/concurrent/virtual-thread.html)，包含下面这些问题：
+Virtual thread được chính thức phát hành trong Java 21, đây là một bản cập nhật trọng lượng nặng. Mặc dù hiện tại các câu hỏi phỏng vấn về nó chưa nhiều, nhưng vẫn nên tìm hiểu qua. Tôi đã viết một bài viết tổng hợp các câu hỏi thường gặp về virtual thread: [Tổng hợp các câu hỏi thường gặp về Virtual Thread](https://javaguide.cn/java/concurrent/virtual-thread.html), bao gồm các câu hỏi sau:
 
-1. 什么是虚拟线程？
-2. 虚拟线程和平台线程有什么关系？
-3. 虚拟线程有什么优点和缺点？
-4. 如何创建虚拟线程？
-5. 虚拟线程的底层原理是什么？
+1. Virtual thread là gì?
+2. Virtual thread và platform thread có quan hệ gì?
+3. Virtual thread có những ưu điểm và nhược điểm gì?
+4. Làm thế nào để tạo virtual thread?
+5. Nguyên lý cơ bản của virtual thread là gì?
 
-## 参考
+## Tham khảo
 
-- 《深入理解 Java 虚拟机》
-- 《实战 Java 高并发程序设计》
-- Java 线程池的实现原理及其在业务中的最佳实践:阿里云开发者：<https://mp.weixin.qq.com/s/icrrxEsbABBvEU0Gym7D5Q>
-- 带你了解下 SynchronousQueue（并发队列专题）：<https://juejin.cn/post/7031196740128768037>
-- 阻塞队列 — DelayedWorkQueue 源码分析：<https://zhuanlan.zhihu.com/p/310621485>
-- Java 多线程（三）——FutureTask/CompletableFuture：<https://www.cnblogs.com/iwehdio/p/14285282.html>
-- Java 并发之 AQS 详解：<https://www.cnblogs.com/waterystone/p/4920797.html>
-- Java 并发包基石-AQS 详解：<https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html>
+- 《Hiểu sâu Java Virtual Machine》
+- 《Lập trình Java đa luồng thực chiến》
+- Nguyên lý triển khai Java thread pool và best practice trong nghiệp vụ - Alibaba Cloud Developer: <https://mp.weixin.qq.com/s/icrrxEsbABBvEU0Gym7D5Q>
+- Tìm hiểu về SynchronousQueue (chuyên đề concurrent queue): <https://juejin.cn/post/7031196740128768037>
+- Blocking queue — Phân tích source code DelayedWorkQueue: <https://zhuanlan.zhihu.com/p/310621485>
+- Java đa luồng (3) — FutureTask/CompletableFuture: <https://www.cnblogs.com/iwehdio/p/14285282.html>
+- Giải thích chi tiết AQS trong Java concurrency: <https://www.cnblogs.com/waterystone/p/4920797.html>
+- Nền tảng của Java concurrent package - Giải thích chi tiết AQS: <https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html>
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,10 +1,10 @@
 ---
-title: MySQL常见面试题总结
-description: MySQL高频面试题精讲：基础架构、InnoDB引擎、索引原理、B+树、事务ACID、MVCC、redo/undo/binlog日志、行锁/表锁、慢查询优化，一文速通大厂必考点！
-category: 数据库
+title: Tổng hợp các câu hỏi phỏng vấn MySQL thường gặp
+description: Giải thích chuyên sâu các câu hỏi phỏng vấn MySQL tần suất cao: kiến trúc cơ bản, engine InnoDB, nguyên lý index, B+tree, ACID của transaction, MVCC, redo/undo/binlog log, row lock/table lock, tối ưu hóa slow query - tất cả trong một bài viết!
+category: Cơ sở dữ liệu
 tag:
   - MySQL
-  - 大厂面试
+  - Phỏng vấn công ty lớn
 head:
   - - meta
     - name: keywords
@@ -13,257 +13,257 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-## MySQL 基础
+## Kiến thức cơ bản về MySQL
 
-### 什么是关系型数据库？
+### Cơ sở dữ liệu quan hệ là gì?
 
-顾名思义，关系型数据库（RDB，Relational Database）就是一种建立在关系模型的基础上的数据库。关系模型表明了数据库中所存储的数据之间的联系（一对一、一对多、多对多）。
+Đúng như tên gọi, cơ sở dữ liệu quan hệ (RDB, Relational Database) là một loại cơ sở dữ liệu được xây dựng trên nền tảng mô hình quan hệ. Mô hình quan hệ mô tả mối liên kết giữa các dữ liệu được lưu trữ trong cơ sở dữ liệu (một-một, một-nhiều, nhiều-nhiều).
 
-关系型数据库中，我们的数据都被存放在了各种表中（比如用户表），表中的每一行就存放着一条数据（比如一个用户的信息）。
+Trong cơ sở dữ liệu quan hệ, dữ liệu của chúng ta được lưu trữ trong các bảng (ví dụ: bảng người dùng), mỗi hàng trong bảng chứa một bản ghi dữ liệu (ví dụ: thông tin của một người dùng).
 
-![关系型数据库表关系](https://oss.javaguide.cn/java-guide-blog/5e3c1a71724a38245aa43b02_99bf70d46cc247be878de9d3a88f0c44.png)
+![Mối quan hệ bảng trong cơ sở dữ liệu quan hệ](https://oss.javaguide.cn/java-guide-blog/5e3c1a71724a38245aa43b02_99bf70d46cc247be878de9d3a88f0c44.png)
 
-大部分关系型数据库都使用 SQL 来操作数据库中的数据。并且，大部分关系型数据库都支持事务的四大特性(ACID)。
+Hầu hết các cơ sở dữ liệu quan hệ đều sử dụng SQL để thao tác dữ liệu. Đồng thời, hầu hết các cơ sở dữ liệu quan hệ đều hỗ trợ bốn đặc tính của transaction (ACID).
 
-**有哪些常见的关系型数据库呢？**
+**Các cơ sở dữ liệu quan hệ phổ biến là gì?**
 
-MySQL、PostgreSQL、Oracle、SQL Server、SQLite（微信本地的聊天记录的存储就是用的 SQLite） ……。
+MySQL, PostgreSQL, Oracle, SQL Server, SQLite (bộ nhớ lưu trữ lịch sử chat cục bộ của WeChat dùng SQLite)...
 
-### 什么是 SQL？
+### SQL là gì?
 
-SQL 是一种结构化查询语言(Structured Query Language)，专门用来与数据库打交道，目的是提供一种从数据库中读写数据的简单有效的方法。
+SQL là ngôn ngữ truy vấn có cấu trúc (Structured Query Language), được thiết kế riêng để giao tiếp với cơ sở dữ liệu, với mục đích cung cấp một phương thức đơn giản và hiệu quả để đọc và ghi dữ liệu từ cơ sở dữ liệu.
 
-几乎所有的主流关系数据库都支持 SQL ，适用性非常强。并且，一些非关系型数据库也兼容 SQL 或者使用的是类似于 SQL 的查询语言。
+Hầu hết các cơ sở dữ liệu quan hệ chính thống đều hỗ trợ SQL, tính ứng dụng rất rộng. Ngoài ra, một số cơ sở dữ liệu phi quan hệ cũng tương thích với SQL hoặc sử dụng ngôn ngữ truy vấn tương tự SQL.
 
-SQL 可以帮助我们：
+SQL có thể giúp chúng ta:
 
-- 新建数据库、数据表、字段；
-- 在数据库中增加，删除，修改，查询数据；
-- 新建视图、函数、存储过程；
-- 对数据库中的数据进行简单的数据分析；
-- 搭配 Hive，Spark SQL 做大数据；
-- 搭配 SQLFlow 做机器学习；
-- ……
+- Tạo cơ sở dữ liệu, bảng, trường;
+- Thêm, xóa, sửa, truy vấn dữ liệu trong cơ sở dữ liệu;
+- Tạo view, function, stored procedure;
+- Thực hiện phân tích dữ liệu đơn giản trên dữ liệu trong cơ sở dữ liệu;
+- Kết hợp với Hive, Spark SQL để xử lý big data;
+- Kết hợp với SQLFlow để làm machine learning;
+- ...
 
-### 什么是 MySQL？
+### MySQL là gì?
 
 ![](https://oss.javaguide.cn/github/javaguide/csdn/20210327143351823.png)
 
-**MySQL 是一种关系型数据库，主要用于持久化存储我们的系统中的一些数据比如用户信息。**
+**MySQL là một cơ sở dữ liệu quan hệ, chủ yếu được dùng để lưu trữ bền vững một số dữ liệu trong hệ thống của chúng ta, ví dụ như thông tin người dùng.**
 
-由于 MySQL 是开源免费并且比较成熟的数据库，因此，MySQL 被大量使用在各种系统中。任何人都可以在 GPL(General Public License) 的许可下下载并根据个性化的需要对其进行修改。MySQL 的默认端口号是**3306**。
+Do MySQL là cơ sở dữ liệu mã nguồn mở, miễn phí và khá hoàn thiện, MySQL được sử dụng rộng rãi trong nhiều hệ thống. Bất kỳ ai cũng có thể tải xuống theo giấy phép GPL (General Public License) và tùy chỉnh theo nhu cầu cá nhân. Cổng mặc định của MySQL là **3306**.
 
-### ⭐️MySQL 有什么优点？
+### ⭐️MySQL có những ưu điểm gì?
 
-这个问题本质上是在问 MySQL 如此流行的原因。
+Câu hỏi này về bản chất đang hỏi tại sao MySQL lại phổ biến đến vậy.
 
-MySQL 成功可以归功于在**生态、功能和运维**这三个层面上的综合优势。
+Sự thành công của MySQL có thể được quy cho lợi thế tổng hợp trên ba phương diện: **hệ sinh thái, tính năng và vận hành**.
 
-**第一，从生态和成本角度看，它的护城河非常深。**
+**Thứ nhất, nhìn từ góc độ hệ sinh thái và chi phí, hào lũy cạnh tranh của nó rất sâu.**
 
-- **开源免费：** 这是它得以广泛普及的基石。任何公司和个人都可以免费使用，极大地降低了技术门槛和初期成本。
-- **社区庞大，生态完善：** 经过几十年的发展，MySQL 拥有极其活跃的社区和丰富的生态系统。这意味着无论你遇到什么问题，几乎都能在网上找到解决方案；同时，市面上所有的主流编程语言、框架、ORM 工具、监控系统都对 MySQL 有完美的支持。它的文档也非常丰富，学习资源唾手可得。
+- **Mã nguồn mở, miễn phí:** Đây là nền tảng giúp nó được phổ biến rộng rãi. Bất kỳ công ty và cá nhân nào đều có thể sử dụng miễn phí, giảm đáng kể ngưỡng kỹ thuật và chi phí ban đầu.
+- **Cộng đồng lớn, hệ sinh thái hoàn thiện:** Sau nhiều thập kỷ phát triển, MySQL có cộng đồng cực kỳ năng động và hệ sinh thái phong phú. Điều này có nghĩa là dù bạn gặp vấn đề gì, hầu như đều có thể tìm thấy giải pháp trên mạng; đồng thời tất cả các ngôn ngữ lập trình, framework, công cụ ORM, hệ thống giám sát chính thống đều có hỗ trợ hoàn hảo cho MySQL. Tài liệu của nó cũng rất phong phú, tài nguyên học tập dễ dàng tiếp cận.
 
-**第二，从核心技术功能上看，它非常强大且均衡。**
+**Thứ hai, nhìn từ góc độ tính năng kỹ thuật cốt lõi, nó rất mạnh mẽ và cân bằng.**
 
-- **强大的事务支持：** 这是它作为关系型数据库的立身之本。值得一提的是，InnoDB 默认的可重复读（REPEATABLE-READ）隔离级别，通过 MVCC 和 Next-Key Lock 机制，很大程度上避免了幻读问题，这在很多其他数据库中都需要更高的隔离级别才能做到，兼顾了性能和一致性。详细介绍可以阅读笔者写的这篇文章：[MySQL 事务隔离级别详解](https://javaguide.cn/database/mysql/transaction-isolation-level.html)。
-- **优秀的性能和可扩展性：** MySQL 本身经过了海量互联网业务的严酷考验，单机性能非常出色。更重要的是，它围绕着水平扩展，形成了一套非常成熟的架构方案，比如主从复制、读写分离、以及通过中间件实现的分库分表。这让它能够支撑从初创公司到大型互联网平台的各种规模的业务。
+- **Hỗ trợ transaction mạnh mẽ:** Đây là nền tảng tồn tại của nó với tư cách là cơ sở dữ liệu quan hệ. Đáng chú ý là mức cô lập mặc định REPEATABLE-READ (đọc lặp lại) của InnoDB, thông qua cơ chế MVCC và Next-Key Lock, phần lớn tránh được vấn đề phantom read - điều mà nhiều cơ sở dữ liệu khác cần mức cô lập cao hơn mới đạt được, cân bằng giữa hiệu suất và tính nhất quán. Để biết thêm chi tiết, có thể đọc bài viết này: [Giải thích chi tiết mức cô lập transaction MySQL](https://javaguide.cn/database/mysql/transaction-isolation-level.html).
+- **Hiệu suất và khả năng mở rộng xuất sắc:** MySQL đã được kiểm chứng qua lượng lớn nghiệp vụ internet, hiệu suất single-node rất tốt. Quan trọng hơn, xoay quanh khả năng mở rộng ngang, nó đã hình thành một bộ giải pháp kiến trúc rất hoàn thiện, như replication chủ-phụ, phân tách đọc-ghi, và phân tách database/bảng thông qua middleware. Điều này cho phép nó hỗ trợ nghiệp vụ từ quy mô startup đến nền tảng internet lớn.
 
-**第三，从运维和使用角度看，它非常‘亲民’。**
+**Thứ ba, nhìn từ góc độ vận hành và sử dụng, nó rất "thân thiện".**
 
-- **开箱即用，上手简单：** 相比于 Oracle 等大型商业数据库，MySQL 的安装、配置和日常使用都非常简单直观，学习曲线平缓，对于开发者和初级 DBA 非常友好。
-- **维护成本低：** 由于其简单性和庞大的社区，找到相关的运维人才和解决方案都相对容易，整体的维护成本也更低。
+- **Dùng được ngay, dễ bắt đầu:** So với các cơ sở dữ liệu thương mại lớn như Oracle, việc cài đặt, cấu hình và sử dụng hàng ngày của MySQL rất đơn giản và trực quan, đường học tập thoải mái, rất thân thiện với developer và DBA mới vào nghề.
+- **Chi phí bảo trì thấp:** Do tính đơn giản và cộng đồng lớn, việc tìm kiếm nhân lực vận hành và giải pháp liên quan tương đối dễ dàng, tổng chi phí bảo trì cũng thấp hơn.
 
-值得一提的是最近几年，PostgreSQL 的势头很猛，甚至压过了 MySQL。网上出现了很多抨击诋毁 MySQL 的文章，笔者认为任何无脑抨击其中一方或者吹捧另外一方的行为都是不可取的。
+Đáng chú ý là trong vài năm gần đây, PostgreSQL đang phát triển rất mạnh mẽ, thậm chí vượt qua MySQL. Trên mạng xuất hiện nhiều bài viết chỉ trích, phê phán MySQL, nhưng tôi cho rằng bất kỳ hành vi nào mù quáng chỉ trích bên này hoặc tâng bốc bên kia đều không đúng đắn.
 
-笔者也写过一篇文章分享对这两个关系型数据库代表的看法，感兴趣的可以看看：[MySQL 被干成老二了？](https://mp.weixin.qq.com/s/APWD-PzTcTqGUuibAw7GGw)。
+Tôi cũng đã viết một bài chia sẻ quan điểm về hai đại diện cơ sở dữ liệu quan hệ này, bạn có thể tham khảo: [MySQL bị đánh bật xuống hạng hai?](https://mp.weixin.qq.com/s/APWD-PzTcTqGUuibAw7GGw)
 
-## MySQL 字段类型
+## Kiểu dữ liệu trường MySQL
 
-MySQL 字段类型可以简单分为三大类：
+Kiểu dữ liệu trường MySQL có thể chia đơn giản thành ba loại lớn:
 
-- **数值类型**：整型（TINYINT、SMALLINT、MEDIUMINT、INT 和 BIGINT）、浮点型（FLOAT 和 DOUBLE）、定点型（DECIMAL）、位字段数据类型(BIT)
-- **字符串类型**：CHAR、VARCHAR、TINYTEXT、TEXT、MEDIUMTEXT、LONGTEXT、BINARY、TINYBLOB、BLOB、MEDIUMBLOB 和 LONGBLOB 等，最常用的是 CHAR 和 VARCHAR。
-- **日期时间类型**：YEAR、TIME、DATE、DATETIME 和 TIMESTAMP 等。
+- **Kiểu số**: Kiểu nguyên (TINYINT, SMALLINT, MEDIUMINT, INT và BIGINT), kiểu dấu phẩy động (FLOAT và DOUBLE), kiểu dấu phẩy cố định (DECIMAL), kiểu dữ liệu bit (BIT)
+- **Kiểu chuỗi**: CHAR, VARCHAR, TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, BINARY, TINYBLOB, BLOB, MEDIUMBLOB và LONGBLOB, thường dùng nhất là CHAR và VARCHAR.
+- **Kiểu ngày giờ**: YEAR, TIME, DATE, DATETIME và TIMESTAMP, v.v.
 
-下面这张图不是我画的，忘记是从哪里保存下来的了，总结的还蛮不错的。
+Hình dưới đây không phải do tôi vẽ, quên mất đã lưu từ đâu, nhưng tóm tắt khá tốt.
 
-![MySQL 常见字段类型总结](https://oss.javaguide.cn/github/javaguide/mysql/summary-of-mysql-field-types.png)
+![Tổng hợp các kiểu trường MySQL thường gặp](https://oss.javaguide.cn/github/javaguide/mysql/summary-of-mysql-field-types.png)
 
-MySQL 字段类型比较多，我这里会挑选一些日常开发使用很频繁且面试常问的字段类型，以面试问题的形式来详细介绍。如无特殊说明，针对的都是 InnoDB 存储引擎。
+Kiểu trường MySQL khá nhiều, ở đây tôi sẽ chọn một số kiểu trường được dùng thường xuyên trong phát triển hàng ngày và hay được hỏi trong phỏng vấn, trình bày chi tiết dưới dạng câu hỏi phỏng vấn. Trừ khi có ghi chú đặc biệt, tất cả đều liên quan đến storage engine InnoDB.
 
-另外，推荐阅读一下《高性能 MySQL(第三版)》的第四章，有详细介绍 MySQL 字段类型优化。
+Ngoài ra, nên đọc chương 4 của "High Performance MySQL (Phiên bản 3)" để biết thêm về tối ưu hóa kiểu trường MySQL.
 
-### ⭐️整数类型的 UNSIGNED 属性有什么用？
+### ⭐️Thuộc tính UNSIGNED của kiểu số nguyên có tác dụng gì?
 
-MySQL 中的整数类型可以使用可选的 UNSIGNED 属性来表示不允许负值的无符号整数。使用 UNSIGNED 属性可以将正整数的上限提高一倍，因为它不需要存储负数值。
+Các kiểu số nguyên trong MySQL có thể sử dụng thuộc tính UNSIGNED tùy chọn để biểu thị số nguyên không dấu không cho phép giá trị âm. Sử dụng thuộc tính UNSIGNED có thể tăng gấp đôi giới hạn trên của số nguyên dương, vì nó không cần lưu trữ giá trị âm.
 
-例如， TINYINT UNSIGNED 类型的取值范围是 0 ~ 255，而普通的 TINYINT 类型的值范围是 -128 ~ 127。INT UNSIGNED 类型的取值范围是 0 ~ 4,294,967,295，而普通的 INT 类型的值范围是 -2,147,483,648 ~ 2,147,483,647。
+Ví dụ, phạm vi giá trị của kiểu TINYINT UNSIGNED là 0 ~ 255, trong khi kiểu TINYINT thông thường có phạm vi -128 ~ 127. Phạm vi giá trị của kiểu INT UNSIGNED là 0 ~ 4,294,967,295, trong khi kiểu INT thông thường có phạm vi -2,147,483,648 ~ 2,147,483,647.
 
-对于从 0 开始递增的 ID 列，使用 UNSIGNED 属性可以非常适合，因为不允许负值并且可以拥有更大的上限范围，提供了更多的 ID 值可用。
+Đối với cột ID tăng dần từ 0, việc sử dụng thuộc tính UNSIGNED rất thích hợp, vì không cho phép giá trị âm và có thể có phạm vi giới hạn trên lớn hơn, cung cấp nhiều giá trị ID hơn.
 
-### CHAR 和 VARCHAR 的区别是什么？
+### Sự khác biệt giữa CHAR và VARCHAR là gì?
 
-CHAR 和 VARCHAR 是最常用到的字符串类型，两者的主要区别在于：**CHAR 是定长字符串，VARCHAR 是变长字符串。**
+CHAR và VARCHAR là các kiểu chuỗi được sử dụng phổ biến nhất, sự khác biệt chính giữa hai loại là: **CHAR là chuỗi có độ dài cố định, VARCHAR là chuỗi có độ dài biến đổi.**
 
-CHAR 在存储时会在右边填充空格以达到指定的长度，检索时会去掉空格；VARCHAR 在存储时需要使用 1 或 2 个额外字节记录字符串的长度，检索时不需要处理。
+Khi lưu trữ, CHAR sẽ điền khoảng trắng ở bên phải để đạt độ dài chỉ định, khi truy xuất sẽ bỏ khoảng trắng; VARCHAR khi lưu trữ cần dùng thêm 1 hoặc 2 byte để ghi lại độ dài chuỗi, khi truy xuất không cần xử lý.
 
-CHAR 更适合存储长度较短或者长度都差不多的字符串，例如 Bcrypt 算法、MD5 算法加密后的密码、身份证号码。VARCHAR 类型适合存储长度不确定或者差异较大的字符串，例如用户昵称、文章标题等。
+CHAR phù hợp hơn để lưu trữ chuỗi có độ dài ngắn hoặc tương đương nhau, ví dụ như mật khẩu được mã hóa bằng thuật toán Bcrypt, MD5, số CMND. Kiểu VARCHAR phù hợp để lưu trữ chuỗi có độ dài không xác định hoặc chênh lệch lớn, ví dụ như biệt danh người dùng, tiêu đề bài viết, v.v.
 
-CHAR(M) 和 VARCHAR(M) 的 M 都代表能够保存的字符数的最大值，无论是字母、数字还是中文，每个都只占用一个字符。
+M của CHAR(M) và VARCHAR(M) đều đại diện cho giá trị tối đa số ký tự có thể lưu, dù là chữ cái, số hay tiếng Trung, mỗi ký tự đều chỉ chiếm một ký tự.
 
-### VARCHAR(100)和 VARCHAR(10)的区别是什么？
+### Sự khác biệt giữa VARCHAR(100) và VARCHAR(10) là gì?
 
-VARCHAR(100)和 VARCHAR(10)都是变长类型，表示能存储最多 100 个字符和 10 个字符。因此，VARCHAR (100) 可以满足更大范围的字符存储需求，有更好的业务拓展性。而 VARCHAR(10)存储超过 10 个字符时，就需要修改表结构才可以。
+VARCHAR(100) và VARCHAR(10) đều là kiểu độ dài biến, biểu thị có thể lưu tối đa 100 ký tự và 10 ký tự. Do đó, VARCHAR(100) có thể đáp ứng nhu cầu lưu trữ ký tự với phạm vi lớn hơn, có tính mở rộng nghiệp vụ tốt hơn. Còn VARCHAR(10) khi lưu trữ hơn 10 ký tự thì cần phải sửa đổi cấu trúc bảng.
 
-虽说 VARCHAR(100)和 VARCHAR(10)能存储的字符范围不同，但二者存储相同的字符串，所占用磁盘的存储空间其实是一样的，这也是很多人容易误解的一点。
+Mặc dù VARCHAR(100) và VARCHAR(10) có phạm vi lưu trữ ký tự khác nhau, nhưng khi lưu trữ cùng một chuỗi, không gian lưu trữ trên đĩa thực ra là giống nhau, đây cũng là điều nhiều người dễ hiểu nhầm.
 
-不过，VARCHAR(100) 会消耗更多的内存。这是因为 VARCHAR 类型在内存中操作时，通常会分配固定大小的内存块来保存值，即使用字符类型中定义的长度。例如在进行排序的时候，VARCHAR(100)是按照 100 这个长度来进行的，也就会消耗更多内存。
+Tuy nhiên, VARCHAR(100) sẽ tiêu tốn nhiều bộ nhớ hơn. Điều này là do khi kiểu VARCHAR vận hành trong bộ nhớ, thường sẽ phân bổ khối bộ nhớ có kích thước cố định để lưu giá trị, tức là sử dụng độ dài được định nghĩa trong kiểu ký tự. Ví dụ khi sắp xếp, VARCHAR(100) được sắp xếp theo độ dài 100, nên sẽ tiêu tốn nhiều bộ nhớ hơn.
 
-### DECIMAL 和 FLOAT/DOUBLE 的区别是什么？
+### Sự khác biệt giữa DECIMAL và FLOAT/DOUBLE là gì?
 
-DECIMAL 和 FLOAT 的区别是：**DECIMAL 是定点数，FLOAT/DOUBLE 是浮点数。DECIMAL 可以存储精确的小数值，FLOAT/DOUBLE 只能存储近似的小数值。**
+Sự khác biệt giữa DECIMAL và FLOAT là: **DECIMAL là số thập phân có điểm cố định, FLOAT/DOUBLE là số dấu phẩy động. DECIMAL có thể lưu trữ giá trị thập phân chính xác, FLOAT/DOUBLE chỉ có thể lưu trữ giá trị thập phân gần đúng.**
 
-DECIMAL 用于存储具有精度要求的小数，例如与货币相关的数据，可以避免浮点数带来的精度损失。
+DECIMAL được dùng để lưu trữ số thập phân có yêu cầu độ chính xác, ví dụ dữ liệu liên quan đến tiền tệ, có thể tránh được mất mát độ chính xác do số dấu phẩy động.
 
-在 Java 中，MySQL 的 DECIMAL 类型对应的是 Java 类 `java.math.BigDecimal`。
+Trong Java, kiểu DECIMAL của MySQL tương ứng với lớp Java `java.math.BigDecimal`.
 
-### 为什么不推荐使用 TEXT 和 BLOB？
+### Tại sao không nên dùng TEXT và BLOB?
 
-TEXT 类型类似于 CHAR（0-255 字节）和 VARCHAR（0-65,535 字节），但可以存储更长的字符串，即长文本数据，例如博客内容。
+Kiểu TEXT tương tự như CHAR (0-255 byte) và VARCHAR (0-65,535 byte), nhưng có thể lưu trữ chuỗi dài hơn, tức là dữ liệu văn bản dài, ví dụ nội dung blog.
 
-| 类型       | 可存储大小           | 用途           |
-| ---------- | -------------------- | -------------- |
-| TINYTEXT   | 0-255 字节           | 一般文本字符串 |
-| TEXT       | 0-65,535 字节        | 长文本字符串   |
-| MEDIUMTEXT | 0-16,772,150 字节    | 较大文本数据   |
-| LONGTEXT   | 0-4,294,967,295 字节 | 极大文本数据   |
+| Kiểu       | Kích thước có thể lưu | Mục đích sử dụng           |
+| ---------- | --------------------- | -------------------------- |
+| TINYTEXT   | 0-255 byte            | Chuỗi văn bản thông thường |
+| TEXT       | 0-65,535 byte         | Chuỗi văn bản dài          |
+| MEDIUMTEXT | 0-16,772,150 byte     | Dữ liệu văn bản khá lớn    |
+| LONGTEXT   | 0-4,294,967,295 byte  | Dữ liệu văn bản cực lớn    |
 
-BLOB 类型主要用于存储二进制大对象，例如图片、音视频等文件。
+Kiểu BLOB chủ yếu được dùng để lưu trữ đối tượng nhị phân lớn, ví dụ hình ảnh, tệp âm thanh/video.
 
-| 类型       | 可存储大小 | 用途                     |
-| ---------- | ---------- | ------------------------ |
-| TINYBLOB   | 0-255 字节 | 短文本二进制字符串       |
-| BLOB       | 0-65KB     | 二进制字符串             |
-| MEDIUMBLOB | 0-16MB     | 二进制形式的长文本数据   |
-| LONGBLOB   | 0-4GB      | 二进制形式的极大文本数据 |
+| Kiểu       | Kích thước có thể lưu | Mục đích sử dụng                      |
+| ---------- | --------------------- | ------------------------------------- |
+| TINYBLOB   | 0-255 byte            | Chuỗi nhị phân văn bản ngắn           |
+| BLOB       | 0-65KB                | Chuỗi nhị phân                        |
+| MEDIUMBLOB | 0-16MB                | Dữ liệu văn bản dài dạng nhị phân     |
+| LONGBLOB   | 0-4GB                 | Dữ liệu văn bản cực lớn dạng nhị phân |
 
-在日常开发中，很少使用 TEXT 类型，但偶尔会用到，而 BLOB 类型则基本不常用。如果预期长度范围可以通过 VARCHAR 来满足，建议避免使用 TEXT。
+Trong phát triển hàng ngày, kiểu TEXT ít được dùng nhưng đôi khi vẫn gặp, còn kiểu BLOB về cơ bản không thường dùng. Nếu phạm vi độ dài dự kiến có thể đáp ứng bằng VARCHAR, nên tránh dùng TEXT.
 
-数据库规范通常不推荐使用 BLOB 和 TEXT 类型，这两种类型具有一些缺点和限制，例如：
+Quy chuẩn cơ sở dữ liệu thường không khuyến nghị dùng kiểu BLOB và TEXT, hai kiểu này có một số nhược điểm và hạn chế, ví dụ:
 
-- 不能有默认值。
-- 在使用临时表时无法使用内存临时表，只能在磁盘上创建临时表（《高性能 MySQL》书中有提到）。
-- 检索效率较低。
-- 不能直接创建索引，需要指定前缀长度。
-- 可能会消耗大量的网络和 IO 带宽。
-- 可能导致表上的 DML 操作变慢。
-- ……
+- Không thể có giá trị mặc định.
+- Khi sử dụng bảng tạm không thể dùng bảng tạm trong bộ nhớ, chỉ có thể tạo bảng tạm trên đĩa (sách "High Performance MySQL" có đề cập).
+- Hiệu quả truy xuất thấp hơn.
+- Không thể tạo index trực tiếp, cần chỉ định độ dài tiền tố.
+- Có thể tiêu tốn lượng lớn băng thông mạng và IO.
+- Có thể khiến các thao tác DML trên bảng chậm lại.
+- ...
 
-### ⭐️DATETIME 和 TIMESTAMP 的区别是什么？如何选择？
+### ⭐️Sự khác biệt giữa DATETIME và TIMESTAMP là gì? Chọn cái nào?
 
-DATETIME 类型没有时区信息，TIMESTAMP 和时区有关。
+Kiểu DATETIME không có thông tin múi giờ, TIMESTAMP có liên quan đến múi giờ.
 
-TIMESTAMP 只需要使用 4 个字节的存储空间，但是 DATETIME 需要耗费 8 个字节的存储空间。但是，这样同样造成了一个问题，Timestamp 表示的时间范围更小。
+TIMESTAMP chỉ cần 4 byte lưu trữ, nhưng DATETIME cần 8 byte lưu trữ. Tuy nhiên, điều này cũng tạo ra một vấn đề: phạm vi thời gian mà Timestamp biểu thị nhỏ hơn.
 
-- DATETIME：'1000-01-01 00:00:00.000000' 到 '9999-12-31 23:59:59.999999'
-- Timestamp：'1970-01-01 00:00:01.000000' UTC 到 '2038-01-19 03:14:07.999999' UTC
+- DATETIME: '1000-01-01 00:00:00.000000' đến '9999-12-31 23:59:59.999999'
+- Timestamp: '1970-01-01 00:00:01.000000' UTC đến '2038-01-19 03:14:07.999999' UTC
 
-`TIMESTAMP` 的核心优势在于其内建的时区处理能力。数据库负责 UTC 存储和基于会话时区的自动转换，简化了需要处理多时区应用的开发。如果应用需要处理多时区，或者希望数据库能自动管理时区转换，`TIMESTAMP` 是自然的选择（注意其时间范围限制，也就是 2038 年问题）。
+Ưu điểm cốt lõi của `TIMESTAMP` nằm ở khả năng xử lý múi giờ tích hợp. Cơ sở dữ liệu chịu trách nhiệm lưu trữ UTC và tự động chuyển đổi dựa trên múi giờ phiên, đơn giản hóa phát triển ứng dụng cần xử lý nhiều múi giờ. Nếu ứng dụng cần xử lý nhiều múi giờ, hoặc muốn cơ sở dữ liệu tự động quản lý chuyển đổi múi giờ, `TIMESTAMP` là lựa chọn tự nhiên (lưu ý giới hạn phạm vi thời gian, tức là vấn đề năm 2038).
 
-如果应用场景不涉及时区转换，或者希望应用程序完全控制时区逻辑，并且需要表示 2038 年之后的时间，`DATETIME` 是更稳妥的选择。
+Nếu kịch bản ứng dụng không liên quan đến chuyển đổi múi giờ, hoặc muốn ứng dụng hoàn toàn kiểm soát logic múi giờ, và cần biểu thị thời gian sau năm 2038, `DATETIME` là lựa chọn an toàn hơn.
 
-关于两者的详细对比以及日期存储类型选择建议，请参考我写的这篇文章： [MySQL 时间类型数据存储建议](./some-thoughts-on-database-storage-time.md)。
+Về so sánh chi tiết giữa hai loại và gợi ý chọn kiểu lưu trữ ngày tháng, vui lòng tham khảo bài viết tôi đã viết: [Gợi ý lưu trữ dữ liệu kiểu thời gian MySQL](./some-thoughts-on-database-storage-time.md).
 
-### NULL 和 '' 的区别是什么？
+### Sự khác biệt giữa NULL và '' là gì?
 
-`NULL` 和 `''` (空字符串) 是两个完全不同的值，它们分别表示不同的含义，并在数据库中有着不同的行为。`NULL` 代表缺失或未知的数据，而 `''` 表示一个已知存在的空字符串。它们的主要区别如下：
+`NULL` và `''` (chuỗi rỗng) là hai giá trị hoàn toàn khác nhau, chúng biểu thị ý nghĩa khác nhau và có hành vi khác nhau trong cơ sở dữ liệu. `NULL` đại diện cho dữ liệu bị thiếu hoặc không xác định, còn `''` biểu thị một chuỗi rỗng đã biết tồn tại. Sự khác biệt chính của chúng như sau:
 
-1. **含义**:
-   - `NULL` 代表一个不确定的值，它不等于任何值，包括它自身。因此，`SELECT NULL = NULL` 的结果是 `NULL`，而不是 `true` 或 `false`。 `NULL` 意味着缺失或未知的信息。虽然 `NULL` 不等于任何值，但在某些操作中，数据库系统会将 `NULL` 值视为相同的类别进行处理，例如：`DISTINCT`,`GROUP BY`,`ORDER BY`。需要注意的是，这些操作将 `NULL` 值视为相同的类别进行处理，并不意味着 `NULL` 值之间是相等的。 它们只是在特定操作中被特殊处理，以保证结果的正确性和一致性。 这种处理方式是为了方便数据操作，而不是改变了 `NULL` 的语义。
-   - `''` 表示一个空字符串，它是一个已知的值。
-2. **存储空间**:
-   - `NULL` 的存储空间占用取决于数据库的实现，通常需要一些空间来标记该值为空。
-   - `''` 的存储空间占用通常较小，因为它只存储一个空字符串的标志，不需要存储实际的字符。
-3. **比较运算**:
-   - 任何值与 `NULL` 进行比较（例如 `=`, `!=`, `>`, `<` 等）的结果都是 `NULL`，表示结果不确定。要判断一个值是否为 `NULL`，必须使用 `IS NULL` 或 `IS NOT NULL`。
-   - `''` 可以像其他字符串一样进行比较运算。例如，`'' = ''` 的结果是 `true`。
-4. **聚合函数**:
-   - 大多数聚合函数（例如 `SUM`, `AVG`, `MIN`, `MAX`）会忽略 `NULL` 值。
-   - `COUNT(*)` 会统计所有行数，包括包含 `NULL` 值的行。`COUNT(列名)` 会统计指定列中非 `NULL` 值的行数。
-   - 空字符串 `''` 会被聚合函数计算在内。例如，`SUM` 会将其视为 0，`MIN` 和 `MAX` 会将其视为一个空字符串。
+1. **Ý nghĩa**:
+   - `NULL` đại diện cho một giá trị không xác định, nó không bằng bất kỳ giá trị nào, kể cả chính nó. Do đó, kết quả của `SELECT NULL = NULL` là `NULL`, chứ không phải `true` hay `false`. `NULL` có nghĩa là thông tin bị thiếu hoặc không xác định. Mặc dù `NULL` không bằng bất kỳ giá trị nào, nhưng trong một số thao tác, hệ thống cơ sở dữ liệu sẽ xử lý các giá trị `NULL` như cùng một danh mục, ví dụ: `DISTINCT`, `GROUP BY`, `ORDER BY`. Cần lưu ý rằng các thao tác này xử lý các giá trị `NULL` như cùng một danh mục không có nghĩa là các giá trị `NULL` bằng nhau. Chúng chỉ được xử lý đặc biệt trong các thao tác cụ thể để đảm bảo tính chính xác và nhất quán của kết quả. Cách xử lý này là để thuận tiện cho thao tác dữ liệu, chứ không phải thay đổi ngữ nghĩa của `NULL`.
+   - `''` biểu thị một chuỗi rỗng, nó là một giá trị đã biết.
+2. **Không gian lưu trữ**:
+   - Không gian lưu trữ của `NULL` phụ thuộc vào cài đặt cơ sở dữ liệu, thường cần một ít không gian để đánh dấu giá trị là null.
+   - Không gian lưu trữ của `''` thường nhỏ hơn, vì nó chỉ lưu trữ cờ hiệu của chuỗi rỗng, không cần lưu ký tự thực tế.
+3. **Toán tử so sánh**:
+   - Kết quả so sánh bất kỳ giá trị nào với `NULL` (ví dụ `=`, `!=`, `>`, `<`, v.v.) đều là `NULL`, biểu thị kết quả không xác định. Để kiểm tra một giá trị có phải là `NULL` không, phải dùng `IS NULL` hoặc `IS NOT NULL`.
+   - `''` có thể thực hiện các toán tử so sánh như các chuỗi khác. Ví dụ, kết quả của `'' = ''` là `true`.
+4. **Hàm tổng hợp**:
+   - Hầu hết các hàm tổng hợp (ví dụ `SUM`, `AVG`, `MIN`, `MAX`) sẽ bỏ qua các giá trị `NULL`.
+   - `COUNT(*)` sẽ đếm tất cả số hàng, bao gồm cả các hàng chứa giá trị `NULL`. `COUNT(tên_cột)` sẽ đếm số hàng có giá trị không phải `NULL` trong cột chỉ định.
+   - Chuỗi rỗng `''` sẽ được tính vào các hàm tổng hợp. Ví dụ, `SUM` sẽ coi nó là 0, `MIN` và `MAX` sẽ coi nó là một chuỗi rỗng.
 
-看了上面的介绍之后，相信你对另外一个高频面试题：“为什么 MySQL 不建议使用 `NULL` 作为列默认值？”也有了答案。
+Sau khi đọc phần giới thiệu trên, chắc chắn bạn cũng đã có câu trả lời cho một câu hỏi phỏng vấn tần suất cao khác: "Tại sao MySQL không khuyến nghị dùng `NULL` làm giá trị mặc định cho cột?"
 
-### ⭐️Boolean 类型如何表示？
+### ⭐️Kiểu Boolean được biểu thị như thế nào?
 
-MySQL 中没有专门的布尔类型，而是用 `bit(1)` 类型来表示布尔值。`bit(1)` 类型可以存储 0 或 1，分别对应 false 或 true。
+MySQL không có kiểu boolean chuyên dụng, mà dùng kiểu `bit(1)` để biểu thị giá trị boolean. Kiểu `bit(1)` có thể lưu trữ 0 hoặc 1, tương ứng với false hoặc true.
 
-### ⭐️手机号存储用 INT 还是 VARCHAR？
+### ⭐️Lưu số điện thoại dùng INT hay VARCHAR?
 
-存储手机号，**强烈推荐使用 VARCHAR 类型**，而不是 INT 或 BIGINT。主要原因如下：
+Để lưu số điện thoại, **rất khuyến nghị dùng kiểu VARCHAR**, thay vì INT hay BIGINT. Lý do chính như sau:
 
-1. **格式兼容性与完整性：**
-   - 手机号可能包含前导零（如某些地区的固话区号）、国家代码前缀（'+'），甚至可能带有分隔符（'-' 或空格）。INT 或 BIGINT 这种数字类型会自动丢失这些重要的格式信息（比如前导零会被去掉，'+' 和 '-' 无法存储）。
-   - VARCHAR 可以原样存储各种格式的号码，无论是国内的 11 位手机号，还是带有国家代码的国际号码，都能完美兼容。
-2. **非算术性：** 手机号虽然看起来是数字，但我们从不对它进行数学运算（比如求和、平均值）。它本质上是一个标识符，更像是一个字符串。用 VARCHAR 更符合其数据性质。
-3. **查询灵活性：**
-   - 业务中常常需要根据号段（前缀）进行查询，例如查找所有 "138" 开头的用户。使用 VARCHAR 类型配合 `LIKE '138%'` 这样的 SQL 查询既直观又高效。
-   - 如果使用数字类型，进行类似的前缀匹配通常需要复杂的函数转换（如 CAST 或 SUBSTRING），或者使用范围查询（如 `WHERE phone >= 13800000000 AND phone < 13900000000`），这不仅写法繁琐，而且可能无法有效利用索引，导致性能下降。
-4. **加密存储的要求（非常关键）：**
-   - 出于数据安全和隐私合规的要求，手机号这类敏感个人信息通常必须加密存储在数据库中。
-   - 加密后的数据（密文）是一长串字符串（通常由字母、数字、符号组成，或经过 Base64/Hex 编码），INT 或 BIGINT 类型根本无法存储这种密文。只有 VARCHAR、TEXT 或 BLOB 等类型可以。
+1. **Tương thích định dạng và tính toàn vẹn:**
+   - Số điện thoại có thể bao gồm số 0 đứng đầu (như mã vùng điện thoại cố định ở một số khu vực), tiền tố mã quốc gia ('+'), thậm chí có thể có dấu phân cách ('-' hoặc khoảng trắng). Kiểu số như INT hay BIGINT sẽ tự động mất những thông tin định dạng quan trọng này (ví dụ số 0 đứng đầu bị loại bỏ, '+' và '-' không lưu được).
+   - VARCHAR có thể lưu trữ các định dạng số khác nhau nguyên vẹn, dù là số điện thoại 11 chữ số trong nước hay số quốc tế có mã quốc gia, đều có thể tương thích hoàn hảo.
+2. **Không phải số học:** Số điện thoại tuy trông giống số, nhưng chúng ta không bao giờ thực hiện tính toán toán học trên nó (như cộng, trung bình). Về bản chất nó là một định danh, giống một chuỗi hơn. Dùng VARCHAR phù hợp hơn với bản chất dữ liệu của nó.
+3. **Tính linh hoạt trong truy vấn:**
+   - Nghiệp vụ thường cần truy vấn theo đầu số (tiền tố), ví dụ tìm tất cả người dùng bắt đầu bằng "138". Sử dụng kiểu VARCHAR kết hợp với câu SQL `LIKE '138%'` vừa trực quan vừa hiệu quả.
+   - Nếu dùng kiểu số, việc khớp tiền tố tương tự thường cần chuyển đổi function phức tạp (như CAST hoặc SUBSTRING), hoặc dùng truy vấn phạm vi (như `WHERE phone >= 13800000000 AND phone < 13900000000`), không chỉ cách viết phức tạp mà còn có thể không tận dụng hiệu quả index, dẫn đến hiệu suất giảm.
+4. **Yêu cầu lưu trữ mã hóa (rất quan trọng):**
+   - Do yêu cầu bảo mật dữ liệu và tuân thủ quyền riêng tư, thông tin cá nhân nhạy cảm như số điện thoại thường phải được mã hóa trước khi lưu vào cơ sở dữ liệu.
+   - Dữ liệu sau khi mã hóa (cipher text) là một chuỗi ký tự dài (thường gồm chữ cái, số, ký hiệu, hoặc được mã hóa Base64/Hex), kiểu INT hay BIGINT hoàn toàn không thể lưu trữ loại cipher text này. Chỉ có các kiểu như VARCHAR, TEXT hay BLOB mới có thể.
 
-**关于 VARCHAR 长度的选择：**
+**Về việc chọn độ dài VARCHAR:**
 
-- **如果不加密存储（强烈不推荐！）：** 考虑到国际号码和可能的格式符，VARCHAR(20) 到 VARCHAR(32) 通常是一个比较安全的范围，足以覆盖全球绝大多数手机号格式。VARCHAR(15) 可能对某些带国家码和格式符的号码来说不够用。
-- **如果进行加密存储（推荐的标准做法）：** 长度必须根据所选加密算法产生的密文最大长度，以及可能的编码方式（如 Base64 会使长度增加约 1/3）来精确计算和设定。通常会需要更长的 VARCHAR 长度，例如 VARCHAR(128), VARCHAR(256) 甚至更长。
+- **Nếu không mã hóa lưu trữ (rất không khuyến nghị!):** Xét đến số quốc tế và các ký tự định dạng có thể có, VARCHAR(20) đến VARCHAR(32) thường là phạm vi an toàn hơn, đủ để bao phủ hầu hết các định dạng số điện thoại trên thế giới. VARCHAR(15) có thể không đủ cho một số số có mã quốc gia và ký tự định dạng.
+- **Nếu lưu trữ mã hóa (thực hành chuẩn được khuyến nghị):** Độ dài phải được tính toán và thiết lập chính xác dựa trên độ dài tối đa của cipher text do thuật toán mã hóa đã chọn tạo ra, cũng như phương thức mã hóa có thể dùng (như Base64 sẽ tăng độ dài khoảng 1/3). Thường cần độ dài VARCHAR dài hơn, ví dụ VARCHAR(128), VARCHAR(256) hoặc dài hơn.
 
-最后，来一张表格总结一下：
+Cuối cùng, bảng tóm tắt:
 
-| 对比维度         | VARCHAR 类型（推荐）              | INT/BIGINT 类型（不推荐）    | 说明/备注                                                                   |
-| ---------------- | --------------------------------- | ---------------------------- | --------------------------------------------------------------------------- |
-| **格式兼容性**   | ✔ 能存前导零、"+"、"-"、空格等   | ✘ 自动丢失前导零，不能存符号 | VARCHAR 能原样存储各种手机号格式，INT/BIGINT 只支持单纯数字，且前导零会消失 |
-| **完整性**       | ✔ 不丢失任何格式信息             | ✘ 丢失格式信息               | 例如 "013800012345" 存进 INT 会变成 13800012345，"+" 也无法存储             |
-| **非算术性**     | ✔ 适合存储“标识符”               | ✘ 只适合做数值运算           | 手机号本质是字符串标识符，不做数学运算，VARCHAR 更贴合实际用途              |
-| **查询灵活性**   | ✔ 支持 `LIKE '138%'` 等          | ✘ 查询前缀不方便或性能差     | 使用 VARCHAR 可高效按号段/前缀查询，数字类型需转为字符串或其他复杂处理      |
-| **加密存储支持** | ✔ 可存储加密密文（字母、符号等） | ✘ 无法存储密文               | 加密手机号后密文是字符串/二进制，只有 VARCHAR、TEXT、BLOB 等能兼容          |
-| **长度设置建议** | 15~20（未加密），加密视情况而定   | 无意义                       | 不加密时 VARCHAR(15~20) 通用，加密后长度取决于算法和编码方式                |
+| Chiều so sánh             | Kiểu VARCHAR (khuyến nghị)                          | Kiểu INT/BIGINT (không khuyến nghị)            | Ghi chú/Giải thích                                                                                           |
+| ------------------------- | --------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Tương thích định dạng** | ✔ Có thể lưu số 0 đứng đầu, "+", "-", khoảng trắng | ✘ Tự động mất số 0 đứng đầu, không lưu ký hiệu | VARCHAR lưu nguyên vẹn các định dạng số điện thoại, INT/BIGINT chỉ hỗ trợ số thuần túy, số 0 đứng đầu bị mất |
+| **Tính toàn vẹn**         | ✔ Không mất thông tin định dạng nào                | ✘ Mất thông tin định dạng                      | Ví dụ "013800012345" lưu vào INT sẽ thành 13800012345, "+" cũng không lưu được                               |
+| **Không phải số học**     | ✔ Phù hợp lưu "định danh"                          | ✘ Chỉ phù hợp cho tính toán số                 | Số điện thoại về bản chất là định danh chuỗi, không làm tính toán, VARCHAR phù hợp hơn                       |
+| **Linh hoạt truy vấn**    | ✔ Hỗ trợ `LIKE '138%'`, v.v.                       | ✘ Truy vấn tiền tố bất tiện hoặc hiệu suất kém | Dùng VARCHAR có thể truy vấn hiệu quả theo đầu số/tiền tố, kiểu số cần chuyển sang chuỗi hoặc xử lý phức tạp |
+| **Hỗ trợ lưu mã hóa**     | ✔ Có thể lưu cipher text (chữ cái, ký hiệu)        | ✘ Không thể lưu cipher text                    | Sau mã hóa số điện thoại, cipher text là chuỗi/nhị phân, chỉ VARCHAR, TEXT, BLOB mới tương thích             |
+| **Gợi ý độ dài**          | 15~20 (chưa mã hóa), mã hóa tùy trường hợp          | Không có nghĩa                                 | Chưa mã hóa VARCHAR(15~20) dùng chung, sau mã hóa độ dài phụ thuộc thuật toán và phương thức mã hóa          |
 
-## MySQL 基础架构
+## Kiến trúc cơ bản MySQL
 
-> 建议配合 [SQL 语句在 MySQL 中的执行过程](./how-sql-executed-in-mysql.md) 这篇文章来理解 MySQL 基础架构。另外，“一个 SQL 语句在 MySQL 中的执行流程”也是面试中比较常问的一个问题。
+> Nên kết hợp bài viết [Quá trình thực thi câu lệnh SQL trong MySQL](./how-sql-executed-in-mysql.md) để hiểu kiến trúc cơ bản MySQL. Ngoài ra, "Luồng thực thi của một câu lệnh SQL trong MySQL" cũng là câu hỏi khá phổ biến trong phỏng vấn.
 
-下图是 MySQL 的一个简要架构图，从下图你可以很清晰的看到客户端的一条 SQL 语句在 MySQL 内部是如何执行的。
+Hình dưới đây là sơ đồ kiến trúc tóm tắt của MySQL, từ hình này bạn có thể thấy rõ ràng cách một câu SQL từ client được thực thi trong MySQL.
 
 ![](https://oss.javaguide.cn/javaguide/13526879-3037b144ed09eb88.png)
 
-从上图可以看出， MySQL 主要由下面几部分构成：
+Từ hình trên có thể thấy, MySQL chủ yếu được cấu thành từ các phần sau:
 
-- **连接器：** 身份认证和权限相关(登录 MySQL 的时候)。
-- **查询缓存：** 执行查询语句的时候，会先查询缓存（MySQL 8.0 版本后移除，因为这个功能不太实用）。
-- **分析器：** 没有命中缓存的话，SQL 语句就会经过分析器，分析器说白了就是要先看你的 SQL 语句要干嘛，再检查你的 SQL 语句语法是否正确。
-- **优化器：** 按照 MySQL 认为最优的方案去执行。
-- **执行器：** 执行语句，然后从存储引擎返回数据。 执行语句之前会先判断是否有权限，如果没有权限的话，就会报错。
-- **插件式存储引擎**：主要负责数据的存储和读取，采用的是插件式架构，支持 InnoDB、MyISAM、Memory 等多种存储引擎。InnoDB 是 MySQL 的默认存储引擎，绝大部分场景使用 InnoDB 就是最好的选择。
+- **Connector (Bộ kết nối):** Xác thực danh tính và quyền hạn liên quan (khi đăng nhập MySQL).
+- **Query Cache (Bộ nhớ cache truy vấn):** Khi thực thi câu lệnh truy vấn, sẽ kiểm tra cache trước (đã bị loại bỏ sau MySQL 8.0 vì tính năng này không thực sự hữu ích).
+- **Analyzer (Bộ phân tích):** Nếu không có trong cache, câu lệnh SQL sẽ đi qua bộ phân tích. Bộ phân tích về cơ bản là kiểm tra câu SQL muốn làm gì, sau đó kiểm tra cú pháp SQL có đúng không.
+- **Optimizer (Bộ tối ưu hóa):** Thực thi theo phương án MySQL cho là tối ưu nhất.
+- **Executor (Bộ thực thi):** Thực thi câu lệnh, rồi trả về dữ liệu từ storage engine. Trước khi thực thi sẽ kiểm tra quyền hạn, nếu không có quyền sẽ báo lỗi.
+- **Storage engine (Lưu trữ dạng plugin)**: Chủ yếu chịu trách nhiệm lưu trữ và đọc dữ liệu, sử dụng kiến trúc plugin, hỗ trợ nhiều storage engine như InnoDB, MyISAM, Memory, v.v. InnoDB là storage engine mặc định của MySQL, hầu hết các trường hợp dùng InnoDB là lựa chọn tốt nhất.
 
-## MySQL 存储引擎
+## Storage Engine MySQL
 
-MySQL 核心在于存储引擎，想要深入学习 MySQL，必定要深入研究 MySQL 存储引擎。
+Cốt lõi của MySQL nằm ở storage engine, muốn tìm hiểu sâu MySQL thì phải nghiên cứu kỹ storage engine MySQL.
 
-### MySQL 支持哪些存储引擎？默认使用哪个？
+### MySQL hỗ trợ những storage engine nào? Mặc định dùng cái nào?
 
-MySQL 支持多种存储引擎，你可以通过 `SHOW ENGINES` 命令来查看 MySQL 支持的所有存储引擎。
+MySQL hỗ trợ nhiều storage engine, bạn có thể dùng lệnh `SHOW ENGINES` để xem tất cả storage engine mà MySQL hỗ trợ.
 
-![查看 MySQL 提供的所有存储引擎](https://oss.javaguide.cn/github/javaguide/mysql/image-20220510105408703.png)
+![Xem tất cả storage engine MySQL cung cấp](https://oss.javaguide.cn/github/javaguide/mysql/image-20220510105408703.png)
 
-从上图我们可以查看出， MySQL 当前默认的存储引擎是 InnoDB。并且，所有的存储引擎中只有 InnoDB 是事务性存储引擎，也就是说只有 InnoDB 支持事务。
+Từ hình trên có thể thấy, storage engine mặc định hiện tại của MySQL là InnoDB. Và trong tất cả storage engine, chỉ InnoDB là storage engine hỗ trợ transaction, tức là chỉ InnoDB mới hỗ trợ transaction.
 
-我这里使用的 MySQL 版本是 8.x，不同的 MySQL 版本之间可能会有差别。
+Phiên bản MySQL tôi đang dùng là 8.x, có thể có sự khác biệt giữa các phiên bản MySQL khác nhau.
 
-MySQL 5.5.5 之前，MyISAM 是 MySQL 的默认存储引擎。5.5.5 版本之后，InnoDB 是 MySQL 的默认存储引擎。
+Trước MySQL 5.5.5, MyISAM là storage engine mặc định của MySQL. Từ phiên bản 5.5.5 trở đi, InnoDB là storage engine mặc định của MySQL.
 
-你可以通过 `SELECT VERSION()` 命令查看你的 MySQL 版本。
+Bạn có thể dùng lệnh `SELECT VERSION()` để xem phiên bản MySQL của mình.
 
 ```bash
 mysql> SELECT VERSION();
@@ -275,7 +275,7 @@ mysql> SELECT VERSION();
 1 row in set (0.00 sec)
 ```
 
-你也可以通过 `SHOW VARIABLES LIKE '%storage_engine%'` 命令直接查看 MySQL 当前默认的存储引擎。
+Bạn cũng có thể dùng lệnh `SHOW VARIABLES LIKE '%storage_engine%'` để xem trực tiếp storage engine mặc định hiện tại của MySQL.
 
 ```bash
 mysql> SHOW VARIABLES  LIKE '%storage_engine%';
@@ -290,220 +290,220 @@ mysql> SHOW VARIABLES  LIKE '%storage_engine%';
 4 rows in set (0.00 sec)
 ```
 
-如果你想要深入了解每个存储引擎以及它们之间的区别，推荐你去阅读以下 MySQL 官方文档对应的介绍(面试不会问这么细，了解即可)：
+Nếu bạn muốn tìm hiểu sâu từng storage engine và sự khác biệt giữa chúng, nên đọc tài liệu chính thức MySQL tương ứng (phỏng vấn sẽ không hỏi chi tiết đến vậy, biết sơ là được):
 
-- InnoDB 存储引擎详细介绍：<https://dev.mysql.com/doc/refman/8.0/en/innodb-storage-engine.html> 。
-- 其他存储引擎详细介绍：<https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html> 。
+- Giới thiệu chi tiết về InnoDB storage engine: <https://dev.mysql.com/doc/refman/8.0/en/innodb-storage-engine.html>
+- Giới thiệu chi tiết về các storage engine khác: <https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html>
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/image-20220510155143458.png)
 
-### MySQL 存储引擎架构了解吗？
+### Bạn có hiểu về kiến trúc storage engine MySQL không?
 
-MySQL 存储引擎采用的是 **插件式架构** ，支持多种存储引擎，我们甚至可以为不同的数据库表设置不同的存储引擎以适应不同场景的需要。**存储引擎是基于表的，而不是数据库。**
+Storage engine MySQL sử dụng **kiến trúc plugin**, hỗ trợ nhiều storage engine, chúng ta thậm chí có thể thiết lập storage engine khác nhau cho các bảng cơ sở dữ liệu khác nhau để phù hợp với nhu cầu của các kịch bản khác nhau. **Storage engine dựa trên bảng, không phải cơ sở dữ liệu.**
 
-下图展示了具有可插拔存储引擎的 MySQL 架构：
+Hình dưới đây mô tả kiến trúc MySQL với storage engine có thể cắm vào:
 
 ![MySQL architecture diagram showing connectors, interfaces, pluggable storage engines, the file system with files and logs.](https://oss.javaguide.cn/github/javaguide/mysql/mysql-architecture.png)
 
-你还可以根据 MySQL 定义的存储引擎实现标准接口来编写一个属于自己的存储引擎。这些非官方提供的存储引擎可以称为第三方存储引擎，区别于官方存储引擎。像目前最常用的 InnoDB 其实刚开始就是一个第三方存储引擎，后面由于过于优秀，其被 Oracle 直接收购了。
+Bạn cũng có thể viết storage engine riêng theo giao diện chuẩn storage engine do MySQL định nghĩa. Các storage engine không chính thức này có thể gọi là storage engine bên thứ ba, phân biệt với storage engine chính thức. Như InnoDB hiện tại được dùng phổ biến nhất thực ra ban đầu là storage engine bên thứ ba, sau đó do quá xuất sắc, nó đã được Oracle mua lại trực tiếp.
 
-MySQL 官方文档也有介绍到如何编写一个自定义存储引擎，地址：<https://dev.mysql.com/doc/internals/en/custom-engine.html> 。
+Tài liệu chính thức MySQL cũng có giới thiệu cách viết storage engine tùy chỉnh, địa chỉ: <https://dev.mysql.com/doc/internals/en/custom-engine.html>
 
-### ⭐️MyISAM 和 InnoDB 有什么区别？
+### ⭐️MyISAM và InnoDB khác nhau như thế nào?
 
-MySQL 5.5 之前，MyISAM 引擎是 MySQL 的默认存储引擎，可谓是风光一时。
+Trước MySQL 5.5, engine MyISAM là storage engine mặc định của MySQL, có thể nói là rất nổi tiếng một thời.
 
-虽然，MyISAM 的性能还行，各种特性也还不错（比如全文索引、压缩、空间函数等）。但是，MyISAM 不支持事务和行级锁，而且最大的缺陷就是崩溃后无法安全恢复。
+Mặc dù hiệu suất của MyISAM vẫn ổn, các tính năng cũng khá tốt (như full-text index, compression, spatial function, v.v.). Nhưng MyISAM không hỗ trợ transaction và row-level lock, và nhược điểm lớn nhất là không thể phục hồi an toàn sau khi crash.
 
-MySQL 5.5 版本之后，InnoDB 是 MySQL 的默认存储引擎。
+Từ phiên bản MySQL 5.5 trở đi, InnoDB là storage engine mặc định của MySQL.
 
-言归正传！咱们下面还是来简单对比一下两者：
+Nói thẳng vào vấn đề! Hãy so sánh đơn giản hai loại:
 
-**1、是否支持行级锁**
+**1. Có hỗ trợ row-level lock không**
 
-MyISAM 只有表级锁(table-level locking)，而 InnoDB 支持行级锁(row-level locking)和表级锁,默认为行级锁。
+MyISAM chỉ có table-level locking, trong khi InnoDB hỗ trợ row-level locking và table-level locking, mặc định là row-level lock.
 
-也就说，MyISAM 一锁就是锁住了整张表，这在并发写的情况下是多么滴憨憨啊！这也是为什么 InnoDB 在并发写的时候，性能更牛皮了！
+Nghĩa là, MyISAM khi khóa là khóa cả bảng, điều này trong trường hợp ghi đồng thời thật sự rất kém hiệu quả! Đây cũng là lý do tại sao InnoDB có hiệu suất tốt hơn khi ghi đồng thời!
 
-**2、是否支持事务**
+**2. Có hỗ trợ transaction không**
 
-MyISAM 不提供事务支持。
+MyISAM không cung cấp hỗ trợ transaction.
 
-InnoDB 提供事务支持，实现了 SQL 标准定义了四个隔离级别，具有提交(commit)和回滚(rollback)事务的能力。并且，InnoDB 默认使用的 REPEATABLE-READ（可重读）隔离级别是可以解决幻读问题发生的（基于 MVCC 和 Next-Key Lock）。
+InnoDB cung cấp hỗ trợ transaction, triển khai bốn mức cô lập được SQL chuẩn định nghĩa, có khả năng commit và rollback transaction. Và mức cô lập REPEATABLE-READ (đọc lặp lại) mà InnoDB dùng mặc định có thể giải quyết được vấn đề phantom read (dựa trên MVCC và Next-Key Lock).
 
-关于 MySQL 事务的详细介绍，可以看看我写的这篇文章：[MySQL 事务隔离级别详解](./transaction-isolation-level.md)。
+Để biết giới thiệu chi tiết về transaction MySQL, có thể xem bài viết tôi đã viết: [Giải thích chi tiết mức cô lập transaction MySQL](./transaction-isolation-level.md).
 
-**3、是否支持外键**
+**3. Có hỗ trợ foreign key không**
 
-MyISAM 不支持，而 InnoDB 支持。
+MyISAM không hỗ trợ, còn InnoDB thì hỗ trợ.
 
-外键对于维护数据一致性非常有帮助，但是对性能有一定的损耗。因此，通常情况下，我们是不建议在实际生产项目中使用外键的，在业务代码中进行约束即可！
+Foreign key rất hữu ích trong việc duy trì tính nhất quán dữ liệu, nhưng có một chút ảnh hưởng đến hiệu suất. Do đó, thông thường chúng ta không khuyến nghị dùng foreign key trong dự án sản xuất thực tế, hãy thực hiện ràng buộc trong code nghiệp vụ!
 
-阿里的《Java 开发手册》也是明确规定禁止使用外键的。
+"Java Development Manual" của Alibaba cũng quy định rõ ràng cấm sử dụng foreign key.
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/image-20220510090309427.png)
 
-不过，在代码中进行约束的话，对程序员的能力要求更高，具体是否要采用外键还是要根据你的项目实际情况而定。
+Tuy nhiên, nếu thực hiện ràng buộc trong code thì yêu cầu năng lực của lập trình viên cao hơn, việc có dùng foreign key hay không vẫn phải dựa vào tình hình thực tế của dự án bạn.
 
-总结：一般我们也是不建议在数据库层面使用外键的，应用层面可以解决。不过，这样会对数据的一致性造成威胁。具体要不要使用外键还是要根据你的项目来决定。
+Tóm lại: Nhìn chung chúng ta cũng không khuyến nghị dùng foreign key ở tầng cơ sở dữ liệu, tầng ứng dụng có thể giải quyết được. Tuy nhiên, điều này sẽ gây ra mối đe dọa đối với tính nhất quán của dữ liệu. Có dùng foreign key hay không vẫn phải quyết định dựa vào dự án của bạn.
 
-**4、是否支持数据库异常崩溃后的安全恢复**
+**4. Có hỗ trợ phục hồi an toàn sau sự cố cơ sở dữ liệu không**
 
-MyISAM 不支持，而 InnoDB 支持。
+MyISAM không hỗ trợ, còn InnoDB thì hỗ trợ.
 
-使用 InnoDB 的数据库在异常崩溃后，数据库重新启动的时候会保证数据库恢复到崩溃前的状态。这个恢复的过程依赖于 `redo log` 。
+Cơ sở dữ liệu sử dụng InnoDB sau khi xảy ra sự cố crash, khi khởi động lại cơ sở dữ liệu sẽ đảm bảo phục hồi về trạng thái trước khi crash. Quá trình phục hồi này phụ thuộc vào `redo log`.
 
-**5、是否支持 MVCC**
+**5. Có hỗ trợ MVCC không**
 
-MyISAM 不支持，而 InnoDB 支持。
+MyISAM không hỗ trợ, còn InnoDB thì hỗ trợ.
 
-讲真，这个对比有点废话，毕竟 MyISAM 连行级锁都不支持。MVCC 可以看作是行级锁的一个升级，可以有效减少加锁操作，提高性能。
+Thật ra, so sánh này hơi thừa, vì MyISAM thậm chí không hỗ trợ row-level lock. MVCC có thể coi là sự nâng cấp của row-level lock, có thể giảm hiệu quả các thao tác khóa, nâng cao hiệu suất.
 
-**6、索引实现不一样。**
+**6. Triển khai index khác nhau.**
 
-虽然 MyISAM 引擎和 InnoDB 引擎都是使用 B+Tree 作为索引结构，但是两者的实现方式不太一样。
+Mặc dù cả engine MyISAM và engine InnoDB đều dùng B+Tree làm cấu trúc index, nhưng cách triển khai của hai loại không giống nhau.
 
-InnoDB 引擎中，其数据文件本身就是索引文件。相比 MyISAM，索引文件和数据文件是分离的，其表数据文件本身就是按 B+Tree 组织的一个索引结构，树的叶节点 data 域保存了完整的数据记录。
+Trong engine InnoDB, file dữ liệu chính là file index. So với MyISAM (file index và file dữ liệu tách biệt), file dữ liệu bảng của nó được tổ chức theo cấu trúc index B+Tree, trường data của nút lá cây lưu bản ghi dữ liệu hoàn chỉnh.
 
-详细区别，推荐你看看我写的这篇文章：[MySQL 索引详解](./mysql-index.md)。
+Về sự khác biệt chi tiết, nên xem bài viết tôi đã viết: [Giải thích chi tiết MySQL index](./mysql-index.md).
 
-**7、性能有差别。**
+**7. Hiệu suất có sự khác biệt.**
 
-InnoDB 的性能比 MyISAM 更强大，不管是在读写混合模式下还是只读模式下，随着 CPU 核数的增加，InnoDB 的读写能力呈线性增长。MyISAM 因为读写不能并发，它的处理能力跟核数没关系。
+Hiệu suất InnoDB mạnh hơn MyISAM, dù trong chế độ đọc-ghi hỗn hợp hay chế độ chỉ đọc, khi số lõi CPU tăng lên, khả năng đọc-ghi của InnoDB tăng trưởng tuyến tính. MyISAM vì đọc-ghi không thể đồng thời, khả năng xử lý của nó không liên quan đến số lõi.
 
-![InnoDB 和 MyISAM 性能对比](https://oss.javaguide.cn/github/javaguide/mysql/innodb-myisam-performance-comparison.png)
+![So sánh hiệu suất InnoDB và MyISAM](https://oss.javaguide.cn/github/javaguide/mysql/innodb-myisam-performance-comparison.png)
 
-**8、数据缓存策略和机制实现不同。**
+**8. Chiến lược và cơ chế cache dữ liệu khác nhau.**
 
-InnoDB 使用缓冲池（Buffer Pool）缓存数据页和索引页，MyISAM 使用键缓存（Key Cache）仅缓存索引页而不缓存数据页。
+InnoDB dùng Buffer Pool để cache data page và index page, MyISAM dùng Key Cache chỉ cache index page mà không cache data page.
 
-**总结**：
+**Tóm tắt**:
 
-- InnoDB 支持行级别的锁粒度，MyISAM 不支持，只支持表级别的锁粒度。
-- MyISAM 不提供事务支持。InnoDB 提供事务支持，实现了 SQL 标准定义了四个隔离级别。
-- MyISAM 不支持外键，而 InnoDB 支持。
-- MyISAM 不支持 MVCC，而 InnoDB 支持。
-- 虽然 MyISAM 引擎和 InnoDB 引擎都是使用 B+Tree 作为索引结构，但是两者的实现方式不太一样。
-- MyISAM 不支持数据库异常崩溃后的安全恢复，而 InnoDB 支持。
-- InnoDB 的性能比 MyISAM 更强大。
+- InnoDB hỗ trợ độ chi tiết khóa ở cấp hàng, MyISAM không hỗ trợ, chỉ hỗ trợ độ chi tiết khóa ở cấp bảng.
+- MyISAM không cung cấp hỗ trợ transaction. InnoDB cung cấp hỗ trợ transaction, triển khai bốn mức cô lập được SQL chuẩn định nghĩa.
+- MyISAM không hỗ trợ foreign key, còn InnoDB thì hỗ trợ.
+- MyISAM không hỗ trợ MVCC, còn InnoDB thì hỗ trợ.
+- Mặc dù cả engine MyISAM và engine InnoDB đều dùng B+Tree làm cấu trúc index, nhưng cách triển khai của hai loại không giống nhau.
+- MyISAM không hỗ trợ phục hồi an toàn sau sự cố cơ sở dữ liệu, còn InnoDB thì hỗ trợ.
+- Hiệu suất InnoDB mạnh hơn MyISAM.
 
-最后，再分享一张图片给你，这张图片详细对比了常见的几种 MySQL 存储引擎。
+Cuối cùng, chia sẻ thêm một hình ảnh so sánh chi tiết một số storage engine MySQL phổ biến.
 
-![常见的几种 MySQL 存储引擎对比](https://oss.javaguide.cn/github/javaguide/mysql/comparison-of-common-mysql-storage-engines.png)
+![So sánh một số storage engine MySQL phổ biến](https://oss.javaguide.cn/github/javaguide/mysql/comparison-of-common-mysql-storage-engines.png)
 
-### MyISAM 和 InnoDB 如何选择？
+### Chọn MyISAM hay InnoDB?
 
-大多数时候我们使用的都是 InnoDB 存储引擎，在某些读密集的情况下，使用 MyISAM 也是合适的。不过，前提是你的项目不介意 MyISAM 不支持事务、崩溃恢复等缺点（可是~我们一般都会介意啊）。
+Phần lớn thời gian chúng ta dùng storage engine InnoDB, trong một số trường hợp đọc nhiều, dùng MyISAM cũng phù hợp. Tuy nhiên, với điều kiện là dự án của bạn không ngại các nhược điểm của MyISAM như không hỗ trợ transaction, không phục hồi sau crash (nhưng... chúng ta thường sẽ ngại mà).
 
-《MySQL 高性能》上面有一句话这样写到:
+"High Performance MySQL" có câu này:
 
-> 不要轻易相信“MyISAM 比 InnoDB 快”之类的经验之谈，这个结论往往不是绝对的。在很多我们已知场景中，InnoDB 的速度都可以让 MyISAM 望尘莫及，尤其是用到了聚簇索引，或者需要访问的数据都可以放入内存的应用。
+> Đừng dễ dàng tin vào những kinh nghiệm như "MyISAM nhanh hơn InnoDB", kết luận này thường không tuyệt đối. Trong nhiều tình huống chúng ta đã biết, tốc độ InnoDB có thể khiến MyISAM phải nhìn lại, đặc biệt khi dùng clustered index, hoặc các ứng dụng cần truy cập dữ liệu có thể đặt vừa trong bộ nhớ.
 
-因此，对于咱们日常开发的业务系统来说，你几乎找不到什么理由使用 MyISAM 了，老老实实用默认的 InnoDB 就可以了！
+Do đó, đối với hệ thống nghiệp vụ phát triển hàng ngày của chúng ta, bạn gần như không tìm được lý do gì để dùng MyISAM, cứ yên tâm dùng InnoDB mặc định là được!
 
-## ⭐️MySQL 索引
+## ⭐️MySQL Index
 
-MySQL 索引相关的问题比较多，也非常重要，更详细的介绍可以阅读笔者写的这篇文章：[MySQL 索引详解](./mysql-index.md) 。
+Các câu hỏi liên quan đến MySQL index khá nhiều và rất quan trọng, để biết giới thiệu chi tiết hơn có thể đọc bài viết tôi đã viết: [Giải thích chi tiết MySQL index](./mysql-index.md).
 
-### 索引是什么？
+### Index là gì?
 
-**索引是一种用于快速查询和检索数据的数据结构，其本质可以看成是一种排序好的数据结构。**
+**Index là một cấu trúc dữ liệu dùng để truy vấn và truy xuất dữ liệu nhanh chóng, bản chất của nó có thể coi là một cấu trúc dữ liệu đã được sắp xếp.**
 
-索引的作用就相当于书的目录。打个比方：我们在查字典的时候，如果没有目录，那我们就只能一页一页地去找我们需要查的那个字，速度很慢；如果有目录了，我们只需要先去目录里查找字的位置，然后直接翻到那一页就行了。
+Tác dụng của index tương đương với mục lục của sách. Ví dụ: khi tra từ điển, nếu không có mục lục, chúng ta chỉ có thể giở từng trang để tìm từ cần tra, rất chậm; nếu có mục lục, chúng ta chỉ cần tra vị trí từ trong mục lục trước, rồi lật trực tiếp đến trang đó.
 
-索引底层数据结构存在很多种类型，常见的索引结构有：B 树、 B+ 树 和 Hash、红黑树。在 MySQL 中，无论是 Innodb 还是 MyISAM，都使用了 B+ 树作为索引结构。
+Cấu trúc dữ liệu bên dưới index có nhiều loại, các cấu trúc index phổ biến là: B tree, B+ tree và Hash, Red-Black tree. Trong MySQL, dù là InnoDB hay MyISAM, đều dùng B+ tree làm cấu trúc index.
 
-**索引的优点：**
+**Ưu điểm của index:**
 
-1. **查询速度起飞 (主要目的)**：通过索引，数据库可以**大幅减少需要扫描的数据量**，直接定位到符合条件的记录，从而显著加快数据检索速度，减少磁盘 I/O 次数。
-2. **保证数据唯一性**：通过创建**唯一索引 (Unique Index)**,可以确保表中的某一列（或几列组合）的值是独一无二的，比如用户 ID、邮箱等。主键本身就是一种唯一索引。
-3. **加速排序和分组**：如果查询中的 ORDER BY 或 GROUP BY 子句涉及的列建有索引，数据库往往可以直接利用索引已经排好序的特性，避免额外的排序操作，从而提升性能。
+1. **Tốc độ truy vấn tăng vọt (mục đích chính)**: Thông qua index, cơ sở dữ liệu có thể **giảm đáng kể lượng dữ liệu cần quét**, định vị trực tiếp đến các bản ghi đáp ứng điều kiện, từ đó tăng tốc đáng kể tốc độ truy xuất dữ liệu, giảm số lần đọc đĩa I/O.
+2. **Đảm bảo tính duy nhất dữ liệu**: Thông qua việc tạo **unique index**, có thể đảm bảo giá trị của một cột (hoặc tổ hợp nhiều cột) trong bảng là duy nhất, ví dụ như user ID, email. Primary key bản thân cũng là một dạng unique index.
+3. **Tăng tốc sắp xếp và nhóm**: Nếu cột trong mệnh đề ORDER BY hay GROUP BY của truy vấn có index, cơ sở dữ liệu thường có thể tận dụng trực tiếp đặc tính đã sắp xếp sẵn của index, tránh thao tác sắp xếp bổ sung, nâng cao hiệu suất.
 
-**索引的缺点：**
+**Nhược điểm của index:**
 
-1. **创建和维护耗时**：创建索引本身需要时间，特别是对大表操作时。更重要的是，当对表中的数据进行**增、删、改 (DML 操作)** 时，不仅要操作数据本身，相关的索引也必须动态更新和维护，这会**降低这些 DML 操作的执行效率**。
-2. **占用存储空间**：索引本质上也是一种数据结构，需要以物理文件（或内存结构）的形式存储，因此会**额外占用一定的磁盘空间**。索引越多、越大，占用的空间也就越多。
-3. **可能被误用或失效**：如果索引设计不当，或者查询语句写得不好，数据库优化器可能不会选择使用索引（或者选错索引），反而导致性能下降。
+1. **Tốn thời gian tạo và bảo trì**: Tạo index bản thân cần thời gian, đặc biệt khi thao tác trên bảng lớn. Quan trọng hơn, khi **thêm, xóa, sửa (thao tác DML)** dữ liệu trong bảng, không chỉ phải thao tác dữ liệu mà các index liên quan cũng phải được cập nhật và bảo trì động, điều này sẽ **giảm hiệu quả thực thi của các thao tác DML này**.
+2. **Chiếm không gian lưu trữ**: Index về bản chất cũng là một cấu trúc dữ liệu, cần lưu trữ dưới dạng file vật lý (hoặc cấu trúc bộ nhớ), do đó sẽ **chiếm thêm một lượng không gian đĩa nhất định**. Index càng nhiều, càng lớn thì chiếm dụng không gian càng nhiều.
+3. **Có thể bị dùng sai hoặc thất bại**: Nếu thiết kế index không đúng, hoặc câu lệnh truy vấn viết không tốt, trình tối ưu hóa cơ sở dữ liệu có thể không chọn dùng index (hoặc chọn index sai), ngược lại dẫn đến hiệu suất giảm.
 
-**那么，用了索引就一定能提高查询性能吗？**
+**Vậy dùng index có nhất định cải thiện hiệu suất truy vấn không?**
 
-**不一定。** 大多数情况下，合理使用索引确实比全表扫描快得多。但也有例外：
+**Không nhất thiết.** Trong hầu hết các trường hợp, sử dụng index hợp lý thực sự nhanh hơn nhiều so với full table scan. Nhưng cũng có ngoại lệ:
 
-- **数据量太小**：如果表里的数据非常少（比如就几百条），全表扫描可能比通过索引查找更快，因为走索引本身也有开销。
-- **查询结果集占比过大**：如果要查询的数据占了整张表的大部分（比如超过 20%-30%），优化器可能会认为全表扫描更划算，因为通过索引多次回表（随机 I/O）的成本可能高于一次顺序的全表扫描。
-- **索引维护不当或统计信息过时**：导致优化器做出错误判断。
+- **Dữ liệu quá ít**: Nếu dữ liệu trong bảng rất ít (ví dụ chỉ vài trăm bản ghi), full table scan có thể nhanh hơn tìm kiếm qua index, vì bản thân việc đi qua index cũng có chi phí.
+- **Tỷ lệ kết quả truy vấn quá lớn**: Nếu dữ liệu cần truy vấn chiếm phần lớn toàn bảng (ví dụ hơn 20%-30%), trình tối ưu hóa có thể cho rằng full table scan kinh tế hơn, vì chi phí của nhiều lần quay lại bảng qua index (random I/O) có thể cao hơn một lần full table scan tuần tự.
+- **Bảo trì index không đúng cách hoặc thống kê lỗi thời**: Dẫn đến trình tối ưu hóa đưa ra phán đoán sai.
 
-### 索引为什么快？
+### Tại sao index nhanh?
 
-索引之所以快，核心原因是它**大大减少了磁盘 I/O 的次数**。
+Index nhanh vì lý do cốt lõi là nó **giảm đáng kể số lần đọc đĩa I/O**.
 
-它的本质是一种**排好序的数据结构**，就像书的目录，让我们不用一页一页地翻（全表扫描）。
+Bản chất của nó là một **cấu trúc dữ liệu đã được sắp xếp**, giống như mục lục sách, giúp chúng ta không phải giở từng trang (full table scan).
 
-在 MySQL 中，这个数据结构是**B+树**。B+树结构主要从两方面做了优化：
+Trong MySQL, cấu trúc dữ liệu này là **B+tree**. Cấu trúc B+tree chủ yếu tối ưu hóa từ hai khía cạnh:
 
-1. B+树的特点是“矮胖”，一个千万数据的表，索引树的高度可能只有 3-4 层。这意味着，最多只需要**3-4 次磁盘 I/O**，就能精确定位到我想要的数据，而全表扫描可能需要成千上万次，所以速度极快。
-2. B+树的叶子节点是**用链表连起来的**。找到开头后，就能顺着链表**顺序读**下去，这对磁盘非常友好，还能触发预读。
+1. Đặc điểm của B+tree là "thấp và béo", một bảng có hàng triệu dữ liệu, chiều cao của cây index có thể chỉ là 3-4 tầng. Điều này có nghĩa là tối đa chỉ cần **3-4 lần đọc đĩa I/O** là có thể xác định chính xác dữ liệu tôi muốn, trong khi full table scan có thể cần hàng nghìn lần, do đó tốc độ cực nhanh.
+2. Các nút lá của B+tree được **nối với nhau bằng danh sách liên kết**. Sau khi tìm thấy đầu, có thể **đọc tuần tự** theo danh sách liên kết, điều này rất thân thiện với đĩa, còn có thể kích hoạt pre-read.
 
-### MySQL 索引底层数据结构是什么？
+### Cấu trúc dữ liệu bên dưới MySQL index là gì?
 
-在 MySQL 中，MyISAM 引擎和 InnoDB 引擎都是使用 B+Tree 作为索引结构，详细介绍可以参考笔者写的这篇文章：[MySQL 索引详解](https://javaguide.cn/database/mysql/mysql-index.html)。
+Trong MySQL, cả engine MyISAM và engine InnoDB đều dùng B+Tree làm cấu trúc index, để biết giới thiệu chi tiết có thể tham khảo bài viết tôi đã viết: [Giải thích chi tiết MySQL index](https://javaguide.cn/database/mysql/mysql-index.html).
 
-### 为什么 InnoDB 没有使用哈希作为索引的数据结构？
+### Tại sao InnoDB không dùng Hash làm cấu trúc dữ liệu của index?
 
-> 我发现很多求职者甚至是面试官对这个问题都有误解，他们想当然的认为 MySQL 底层并没有使用哈希或者 B 树作为索引的数据结构。
+> Tôi nhận thấy nhiều ứng viên thậm chí cả người phỏng vấn đều có hiểu lầm về câu hỏi này, họ tự cho rằng MySQL bên dưới không dùng Hash hay B tree làm cấu trúc dữ liệu cho index.
 >
-> 实际上，不论是提问还是回答这个问题都要区分好存储引擎。像 MEMORY 引擎就同时支持哈希和 B 树。
+> Thực ra, dù hỏi hay trả lời câu hỏi này đều phải phân biệt rõ storage engine. Như engine MEMORY hỗ trợ cả Hash lẫn B tree.
 
-哈希索引的底层是哈希表。它的优点是，在进行**精确的等值查询**时，理论上时间复杂度是 **O(1)** ，速度极快。比如 `WHERE id = 123`。
+Bên dưới của hash index là bảng hash. Ưu điểm của nó là khi thực hiện **truy vấn equal chính xác**, độ phức tạp thời gian lý thuyết là **O(1)**, tốc độ cực nhanh. Ví dụ `WHERE id = 123`.
 
-但是，它有几个对于通用数据库来说是致命的缺点：
+Nhưng nó có một số nhược điểm chí mạng đối với cơ sở dữ liệu đa năng:
 
-1. **不支持范围查询:** 这是最主要的原因。哈希函数的一个特点是它会把相邻的输入值（比如 `id=100` 和 `id=101`）映射到哈希表中完全不相邻的位置。这种顺序的破坏，使得我们无法处理像 `WHERE age > 30` 或 `BETWEEN 100 AND 200`这样的范围查询。要完成这种查询，哈希索引只能退化为全表扫描。
-2. **不支持排序:** 同理，因为哈希值是无序的，所以我们无法利用哈希索引来优化 `ORDER BY` 子句。
-3. **不支持部分索引键查询:** 对于联合索引，比如`(col1, col2)`，哈希索引必须使用所有索引列进行查询，它无法单独利用 `col1` 来加速查询。
-4. **哈希冲突问题:** 当不同的键产生相同的哈希值时，需要额外的链表或开放寻址来解决，这会降低性能。
+1. **Không hỗ trợ truy vấn phạm vi:** Đây là lý do chính. Một đặc điểm của hash function là nó ánh xạ các giá trị đầu vào liền kề nhau (ví dụ `id=100` và `id=101`) đến các vị trí hoàn toàn không liền kề trong bảng hash. Sự phá vỡ thứ tự này khiến chúng ta không thể xử lý các truy vấn phạm vi như `WHERE age > 30` hay `BETWEEN 100 AND 200`. Để hoàn thành loại truy vấn này, hash index chỉ có thể thoái hóa về full table scan.
+2. **Không hỗ trợ sắp xếp:** Tương tự, vì giá trị hash không có thứ tự, chúng ta không thể dùng hash index để tối ưu hóa mệnh đề `ORDER BY`.
+3. **Không hỗ trợ truy vấn khóa index một phần:** Đối với composite index, ví dụ `(col1, col2)`, hash index phải dùng tất cả các cột index để truy vấn, nó không thể chỉ dùng riêng `col1` để tăng tốc truy vấn.
+4. **Vấn đề hash collision:** Khi các khóa khác nhau tạo ra cùng giá trị hash, cần linked list bổ sung hoặc open addressing để giải quyết, điều này sẽ làm giảm hiệu suất.
 
-鉴于数据库查询中范围查询和排序是极其常见的操作，一个不支持这些功能的索引结构，显然不能作为默认的、通用的索引类型。
+Do truy vấn phạm vi và sắp xếp là các thao tác rất phổ biến trong truy vấn cơ sở dữ liệu, một cấu trúc index không hỗ trợ các tính năng này rõ ràng không thể làm kiểu index mặc định, đa năng.
 
-### 为什么 InnoDB 没有使用 B 树作为索引的数据结构？
+### Tại sao InnoDB không dùng B tree làm cấu trúc dữ liệu của index?
 
-B 树和 B+树都是优秀的多路平衡搜索树，非常适合磁盘存储，因为它们都很“矮胖”，能最大化地利用每一次磁盘 I/O。
+B tree và B+tree đều là cây tìm kiếm đa chiều cân bằng xuất sắc, rất phù hợp để lưu trữ trên đĩa, vì chúng đều "thấp và béo", có thể tận dụng tối đa mỗi lần đọc đĩa I/O.
 
-但 B+树是 B 树的一个增强版，它针对数据库场景做了几个关键优化：
+Nhưng B+tree là phiên bản nâng cao của B tree, nó đã thực hiện một số tối ưu hóa quan trọng cho kịch bản cơ sở dữ liệu:
 
-1. **I/O 效率更高:** 在 B+树中，只有叶子节点才存储数据（或数据指针），而非叶子节点只存储索引键。因为非叶子节点不存数据，所以它们可以容纳更多的索引键。这意味着 B+树的“扇出”更大，在同样的数据量下，B+树通常会比 B 树更矮，也就意味着查找数据所需的磁盘 I/O 次数更少。
-2. **查询性能更稳定:** 在 B+树中，任何一次查询都必须从根节点走到叶子节点才能找到数据，所以查询路径的长度是固定的。而在 B 树中，如果运气好，可能在非叶子节点就找到了数据，但运气不好也得走到叶子，这导致查询性能不稳定。
-3. **对范围查询极其友好:** 这是 B+树最核心的优势。它的所有叶子节点之间通过一个双向链表连接。当我们执行一个范围查询（比如 `WHERE id > 100`）时，只需要通过树形结构找到 `id=100` 的叶子节点，然后就可以沿着链表向后顺序扫描，而无需再回溯到上层节点。这使得范围查询的效率大大提高。
+1. **Hiệu quả I/O cao hơn:** Trong B+tree, chỉ có nút lá mới lưu dữ liệu (hoặc con trỏ dữ liệu), còn nút không phải lá chỉ lưu khóa index. Vì nút không phải lá không lưu dữ liệu, chúng có thể chứa nhiều khóa index hơn. Điều này có nghĩa là "fan-out" của B+tree lớn hơn, với cùng lượng dữ liệu, B+tree thường thấp hơn B tree, tức là số lần đọc đĩa I/O cần thiết để tìm dữ liệu ít hơn.
+2. **Hiệu suất truy vấn ổn định hơn:** Trong B+tree, bất kỳ truy vấn nào cũng phải đi từ nút gốc đến nút lá mới tìm được dữ liệu, nên độ dài đường truy vấn là cố định. Còn trong B tree, nếu may mắn có thể tìm thấy dữ liệu ở nút không phải lá, nhưng xui thì phải đi đến lá, điều này khiến hiệu suất truy vấn không ổn định.
+3. **Cực kỳ thân thiện với truy vấn phạm vi:** Đây là ưu điểm cốt lõi nhất của B+tree. Tất cả các nút lá của nó được kết nối với nhau qua danh sách liên kết hai chiều. Khi chúng ta thực thi truy vấn phạm vi (ví dụ `WHERE id > 100`), chỉ cần tìm nút lá `id=100` qua cấu trúc cây, sau đó có thể quét tuần tự theo danh sách liên kết về phía sau mà không cần quay lại nút cha. Điều này làm tăng đáng kể hiệu quả truy vấn phạm vi.
 
-### 什么是覆盖索引？
+### Covering index là gì?
 
-如果一个索引包含（或者说覆盖）所有需要查询的字段的值，我们就称之为 **覆盖索引（Covering Index）**。
+Nếu một index chứa (hay nói cách khác là bao phủ) giá trị của tất cả các trường cần truy vấn, chúng ta gọi nó là **Covering Index (Index bao phủ)**.
 
-在 InnoDB 存储引擎中，非主键索引的叶子节点包含的是主键的值。这意味着，当使用非主键索引进行查询时，数据库会先找到对应的主键值，然后再通过主键索引来定位和检索完整的行数据。这个过程被称为“回表”。
+Trong storage engine InnoDB, nút lá của non-primary key index chứa giá trị của primary key. Điều này có nghĩa là khi dùng non-primary key index để truy vấn, cơ sở dữ liệu sẽ tìm giá trị primary key tương ứng trước, sau đó định vị và truy xuất hàng dữ liệu hoàn chỉnh qua primary key index. Quá trình này gọi là "quay lại bảng" (back to table).
 
-**覆盖索引即需要查询的字段正好是索引的字段，那么直接根据该索引，就可以查到数据了，而无需回表查询。**
+**Covering index tức là trường cần truy vấn đúng là trường của index, thì có thể tìm được dữ liệu trực tiếp dựa trên index đó, mà không cần quay lại bảng để truy vấn.**
 
-### 请解释一下 MySQL 的联合索引及其最左前缀原则
+### Hãy giải thích về composite index trong MySQL và nguyên tắc khớp tiền tố bên trái
 
-使用表中的多个字段创建索引，就是 **联合索引**，也叫 **组合索引** 或 **复合索引**。
+Sử dụng nhiều trường trong bảng để tạo index, gọi là **composite index**, còn gọi là **combined index** hay **compound index**.
 
-以 `score` 和 `name` 两个字段建立联合索引：
+Tạo composite index với hai trường `score` và `name`:
 
 ```sql
 ALTER TABLE `cus_order` ADD INDEX id_score_name(score, name);
 ```
 
-最左前缀匹配原则指的是在使用联合索引时，MySQL 会根据索引中的字段顺序，从左到右依次匹配查询条件中的字段。如果查询条件与索引中的最左侧字段相匹配，那么 MySQL 就会使用索引来过滤数据，这样可以提高查询效率。
+Nguyên tắc khớp tiền tố bên trái (leftmost prefix matching) đề cập đến việc khi dùng composite index, MySQL sẽ theo thứ tự các trường trong index, lần lượt từ trái sang phải khớp với các trường trong điều kiện truy vấn. Nếu điều kiện truy vấn khớp với trường ngoài cùng bên trái trong index, MySQL sẽ dùng index để lọc dữ liệu, điều này có thể nâng cao hiệu suất truy vấn.
 
-最左匹配原则会一直向右匹配，直到遇到范围查询（如 >、<）为止。对于 >=、<=、BETWEEN 以及前缀匹配 LIKE 的范围查询，不会停止匹配（相关阅读：[联合索引的最左匹配原则全网都在说的一个错误结论](https://mp.weixin.qq.com/s/8qemhRg5MgXs1So5YCv0fQ)）。
+Nguyên tắc khớp bên trái nhất sẽ tiếp tục khớp sang phải, cho đến khi gặp truy vấn phạm vi (như >, <) thì dừng. Đối với truy vấn phạm vi >=, <=, BETWEEN và LIKE khớp tiền tố, sẽ không dừng khớp (bài đọc liên quan: [Kết luận sai mà cả internet đang nói về nguyên tắc khớp bên trái nhất của composite index](https://mp.weixin.qq.com/s/8qemhRg5MgXs1So5YCv0fQ)).
 
-假设有一个联合索引 `(column1, column2, column3)`，其从左到右的所有前缀为 `(column1)`、`(column1, column2)`、`(column1, column2, column3)`（创建 1 个联合索引相当于创建了 3 个索引），包含这些列的所有查询都会走索引而不会全表扫描。
+Giả sử có composite index `(column1, column2, column3)`, tất cả tiền tố từ trái sang phải là `(column1)`, `(column1, column2)`, `(column1, column2, column3)` (tạo 1 composite index tương đương tạo 3 index), tất cả truy vấn bao gồm các cột này đều sẽ đi qua index thay vì full table scan.
 
-我们在使用联合索引时，可以将区分度高的字段放在最左边，这也可以过滤更多数据。
+Khi dùng composite index, chúng ta có thể đặt trường có tính phân biệt cao ở bên trái nhất, điều này cũng có thể lọc được nhiều dữ liệu hơn.
 
-我们这里简单演示一下最左前缀匹配的效果。
+Ở đây chúng ta demo đơn giản hiệu quả của leftmost prefix matching.
 
-1、创建一个名为 `student` 的表，这张表只有 `id`、`name`、`class` 这 3 个字段。
+1. Tạo một bảng tên `student`, bảng này chỉ có 3 trường `id`, `name`, `class`.
 
 ```sql
 CREATE TABLE `student` (
@@ -515,127 +515,127 @@ CREATE TABLE `student` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
-2、下面我们分别测试三条不同的 SQL 语句。
+2. Dưới đây chúng ta kiểm tra ba câu lệnh SQL khác nhau.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mysql/leftmost-prefix-matching-rule.png)
 
 ```sql
-# 可以命中索引
+# Có thể dùng index
 SELECT * FROM student WHERE name = 'Anne Henry';
 EXPLAIN SELECT * FROM student WHERE name = 'Anne Henry' AND class = 'lIrm08RYVk';
-# 无法命中索引
+# Không thể dùng index
 SELECT * FROM student WHERE class = 'lIrm08RYVk';
 ```
 
-再来看一个常见的面试题：如果有索引 `联合索引（a，b，c）`，查询 `a=1 AND c=1` 会走索引么？`c=1` 呢？`b=1 AND c=1` 呢？ `b = 1 AND a = 1 AND c = 1` 呢？
+Xem thêm một câu hỏi phỏng vấn thường gặp: Nếu có index `composite index (a, b, c)`, truy vấn `a=1 AND c=1` có đi qua index không? `c=1` thì sao? `b=1 AND c=1` thì sao? `b = 1 AND a = 1 AND c = 1` thì sao?
 
-先不要往下看答案，给自己 3 分钟时间想一想。
+Đừng xem đáp án bên dưới vội, cho mình 3 phút suy nghĩ.
 
-1. 查询 `a=1 AND c=1`：根据最左前缀匹配原则，查询可以使用索引的前缀部分。因此，该查询仅在 `a=1` 上使用索引，然后对结果进行 `c=1` 的过滤。
-2. 查询 `c=1`：由于查询中不包含最左列 `a`，根据最左前缀匹配原则，整个索引都无法被使用。
-3. 查询 `b=1 AND c=1`：和第二种一样的情况，整个索引都不会使用。
-4. 查询 `b=1 AND a=1 AND c=1`：这个查询是可以用到索引的。查询优化器分析 SQL 语句时，对于联合索引，会对查询条件进行重排序，以便用到索引。会将 `b=1` 和 `a=1` 的条件进行重排序，变成 `a=1 AND b=1 AND c=1`。
+1. Truy vấn `a=1 AND c=1`: Theo nguyên tắc khớp tiền tố bên trái, truy vấn có thể dùng phần tiền tố của index. Do đó, truy vấn này chỉ dùng index trên `a=1`, sau đó lọc kết quả bằng `c=1`.
+2. Truy vấn `c=1`: Vì truy vấn không bao gồm cột ngoài cùng bên trái `a`, theo nguyên tắc khớp tiền tố bên trái, toàn bộ index không thể được sử dụng.
+3. Truy vấn `b=1 AND c=1`: Giống trường hợp thứ hai, toàn bộ index sẽ không được dùng.
+4. Truy vấn `b=1 AND a=1 AND c=1`: Truy vấn này có thể dùng index. Khi trình tối ưu hóa truy vấn phân tích câu SQL, đối với composite index, nó sẽ sắp xếp lại thứ tự điều kiện truy vấn để tận dụng index. Nó sẽ sắp xếp lại điều kiện `b=1` và `a=1`, thành `a=1 AND b=1 AND c=1`.
 
-MySQL 8.0.13 版本引入了索引跳跃扫描（Index Skip Scan，简称 ISS），它可以在某些索引查询场景下提高查询效率。在没有 ISS 之前，不满足最左前缀匹配原则的联合索引查询中会执行全表扫描。而 ISS 允许 MySQL 在某些情况下避免全表扫描，即使查询条件不符合最左前缀。不过，这个功能比较鸡肋， 和 Oracle 中的没法比，MySQL 8.0.31 还报告了一个 bug：[Bug #109145 Using index for skip scan cause incorrect result](https://bugs.mysql.com/bug.php?id=109145)（后续版本已经修复）。个人建议知道有这个东西就好，不需要深究，实际项目也不一定能用上。
+MySQL 8.0.13 đã giới thiệu Index Skip Scan (ISS), có thể nâng cao hiệu quả truy vấn trong một số kịch bản truy vấn index. Trước khi có ISS, các truy vấn composite index không thỏa mãn nguyên tắc khớp tiền tố bên trái sẽ thực hiện full table scan. Còn ISS cho phép MySQL trong một số trường hợp tránh full table scan, ngay cả khi điều kiện truy vấn không phù hợp với tiền tố bên trái. Tuy nhiên, tính năng này khá hạn chế, không thể so sánh với Oracle, và MySQL 8.0.31 còn báo cáo một bug: [Bug #109145 Using index for skip scan cause incorrect result](https://bugs.mysql.com/bug.php?id=109145) (các phiên bản sau đã sửa). Tôi đề xuất cứ biết là có thứ này là được, không cần đào sâu, thực tế dự án cũng chưa chắc dùng được.
 
-### SELECT \* 会导致索引失效吗？
+### SELECT \* có gây index thất bại không?
 
-`SELECT *` 不会直接导致索引失效（如果不走索引大概率是因为 where 查询范围过大导致的），但它可能会带来一些其他的性能问题比如造成网络传输和数据处理的浪费、无法使用索引覆盖。
+`SELECT *` không trực tiếp gây index thất bại (nếu không đi qua index thì đa phần là do phạm vi truy vấn WHERE quá lớn), nhưng nó có thể mang lại một số vấn đề hiệu suất khác như gây lãng phí truyền mạng và xử lý dữ liệu, không thể dùng covering index.
 
-### 哪些字段适合创建索引？
+### Những trường nào phù hợp để tạo index?
 
-- **不为 NULL 的字段**：索引字段的数据应该尽量不为 NULL，因为对于数据为 NULL 的字段，数据库较难优化。如果字段频繁被查询，但又避免不了为 NULL，建议使用 0,1,true,false 这样语义较为清晰的短值或短字符作为替代。
-- **被频繁查询的字段**：我们创建索引的字段应该是查询操作非常频繁的字段。
-- **被作为条件查询的字段**：被作为 WHERE 条件查询的字段，应该被考虑建立索引。
-- **频繁需要排序的字段**：索引已经排序，这样查询可以利用索引的排序，加快排序查询时间。
-- **被经常频繁用于连接的字段**：经常用于连接的字段可能是一些外键列，对于外键列并不一定要建立外键，只是说该列涉及到表与表的关系。对于频繁被连接查询的字段，可以考虑建立索引，提高多表连接查询的效率。
+- **Trường không phải NULL**: Dữ liệu của trường index nên tránh NULL càng nhiều càng tốt, vì với trường dữ liệu là NULL, cơ sở dữ liệu khó tối ưu hóa hơn. Nếu trường được truy vấn thường xuyên nhưng không tránh được NULL, nên dùng giá trị ngắn hoặc chuỗi ngắn với ngữ nghĩa rõ ràng hơn như 0, 1, true, false để thay thế.
+- **Trường được truy vấn thường xuyên**: Trường chúng ta tạo index nên là trường thao tác truy vấn rất thường xuyên.
+- **Trường được dùng làm điều kiện truy vấn**: Trường được dùng làm điều kiện WHERE nên được cân nhắc tạo index.
+- **Trường thường xuyên cần sắp xếp**: Index đã được sắp xếp, nên truy vấn có thể tận dụng việc sắp xếp của index, tăng tốc thời gian truy vấn có sắp xếp.
+- **Trường thường xuyên được dùng để nối bảng**: Trường thường được dùng để nối có thể là một số cột foreign key, đối với cột foreign key không nhất thiết phải tạo foreign key, chỉ là cột đó liên quan đến mối quan hệ giữa các bảng. Đối với trường thường xuyên được truy vấn khi nối, có thể cân nhắc tạo index, nâng cao hiệu quả truy vấn nhiều bảng.
 
-### 索引失效的原因有哪些？
+### Các nguyên nhân khiến index thất bại là gì?
 
-1. 创建了组合索引，但查询条件未遵守最左匹配原则;
-2. 在索引列上进行计算、函数、类型转换等操作;
-3. 以 % 开头的 LIKE 查询比如 `LIKE '%abc';`;
-4. 查询条件中使用 OR，且 OR 的前后条件中有一个列没有索引，涉及的索引都不会被使用到;
-5. IN 的取值范围较大时会导致索引失效，走全表扫描(NOT IN 和 IN 的失效场景相同);
-6. 发生[隐式转换](https://javaguide.cn/database/mysql/index-invalidation-caused-by-implicit-conversion.html "隐式转换");
+1. Đã tạo composite index nhưng điều kiện truy vấn không tuân theo nguyên tắc khớp bên trái nhất;
+2. Thực hiện tính toán, function, chuyển đổi kiểu, v.v. trên cột index;
+3. Truy vấn LIKE bắt đầu bằng % như `LIKE '%abc';`;
+4. Dùng OR trong điều kiện truy vấn, và trong điều kiện trước sau OR có một cột không có index, các index liên quan đều không được sử dụng;
+5. Khi phạm vi giá trị IN quá lớn sẽ dẫn đến index thất bại, thực hiện full table scan (trường hợp thất bại của NOT IN và IN giống nhau);
+6. Xảy ra [implicit conversion (chuyển đổi ngầm)](https://javaguide.cn/database/mysql/index-invalidation-caused-by-implicit-conversion.html "chuyển đổi ngầm");
 
-## MySQL 查询缓存
+## MySQL Query Cache
 
-MySQL 查询缓存是查询结果缓存。执行查询语句的时候，会先查询缓存，如果缓存中有对应的查询结果，就会直接返回。
+MySQL Query Cache là bộ nhớ đệm kết quả truy vấn. Khi thực thi câu lệnh truy vấn, hệ thống sẽ kiểm tra cache trước, nếu cache có kết quả truy vấn tương ứng thì sẽ trả về ngay lập tức.
 
-`my.cnf` 加入以下配置，重启 MySQL 开启查询缓存
+Thêm cấu hình sau vào `my.cnf`, khởi động lại MySQL để bật query cache
 
 ```properties
 query_cache_type=1
 query_cache_size=600000
 ```
 
-MySQL 执行以下命令也可以开启查询缓存
+MySQL cũng có thể bật query cache bằng cách thực thi các lệnh sau
 
 ```properties
 set global  query_cache_type=1;
 set global  query_cache_size=600000;
 ```
 
-查询缓存会在同样的查询条件和数据情况下，直接返回缓存中的结果。但需要注意的是，查询缓存的匹配条件非常严格，任何细微的差异都会导致缓存无法命中。这里的查询条件包括查询语句本身、当前使用的数据库、以及其他可能影响结果的因素，如客户端协议版本号等。
+Query cache sẽ trả về kết quả từ cache khi điều kiện truy vấn và dữ liệu giống nhau. Tuy nhiên, cần lưu ý rằng điều kiện khớp của query cache rất nghiêm ngặt, bất kỳ sự khác biệt nhỏ nào cũng sẽ khiến cache không được sử dụng. Điều kiện truy vấn ở đây bao gồm chính câu lệnh truy vấn, database hiện đang sử dụng, cũng như các yếu tố khác có thể ảnh hưởng đến kết quả như số phiên bản giao thức client, v.v.
 
-**查询缓存不命中的情况：**
+**Các trường hợp query cache không được sử dụng:**
 
-1. 任何两个查询在任何字符上的不同都会导致缓存不命中。
-2. 如果查询中包含任何用户自定义函数、存储函数、用户变量、临时表、MySQL 库中的系统表，其查询结果也不会被缓存。
-3. 缓存建立之后，MySQL 的查询缓存系统会跟踪查询中涉及的每张表，如果这些表（数据或结构）发生变化，那么和这张表相关的所有缓存数据都将失效。
+1. Bất kỳ sự khác biệt nào giữa hai truy vấn dù chỉ một ký tự cũng sẽ khiến cache không được sử dụng.
+2. Nếu truy vấn chứa bất kỳ hàm do người dùng định nghĩa, stored function, biến người dùng, bảng tạm, bảng hệ thống trong thư viện MySQL, kết quả truy vấn cũng sẽ không được cache.
+3. Sau khi cache được tạo, hệ thống query cache của MySQL sẽ theo dõi từng bảng liên quan trong truy vấn, nếu các bảng này (dữ liệu hoặc cấu trúc) thay đổi, tất cả dữ liệu cache liên quan đến bảng đó sẽ bị vô hiệu hóa.
 
-**缓存虽然能够提升数据库的查询性能，但是缓存同时也带来了额外的开销，每次查询后都要做一次缓存操作，失效后还要销毁。** 因此，开启查询缓存要谨慎，尤其对于写密集的应用来说更是如此。如果开启，要注意合理控制缓存空间大小，一般来说其大小设置为几十 MB 比较合适。此外，还可以通过 `sql_cache` 和 `sql_no_cache` 来控制某个查询语句是否需要缓存：
+**Cache tuy có thể cải thiện hiệu suất truy vấn của database, nhưng cache cũng mang lại chi phí phụ, mỗi lần truy vấn xong phải thực hiện một thao tác cache, sau khi hết hạn còn phải hủy.** Do đó, việc bật query cache cần thận trọng, đặc biệt đối với các ứng dụng ghi nhiều. Nếu bật, cần chú ý kiểm soát kích thước không gian cache hợp lý, thông thường kích thước đặt vài chục MB là phù hợp. Ngoài ra, có thể sử dụng `sql_cache` và `sql_no_cache` để kiểm soát xem một câu lệnh truy vấn cụ thể có cần cache hay không:
 
 ```sql
 SELECT sql_no_cache COUNT(*) FROM usr;
 ```
 
-MySQL 5.6 开始，查询缓存已默认禁用。MySQL 8.0 开始，已经不再支持查询缓存了（具体可以参考这篇文章：[MySQL 8.0: Retiring Support for the Query Cache](https://dev.mysql.com/blog-archive/mysql-8-0-retiring-support-for-the-query-cache/)）。
+Từ MySQL 5.6, query cache đã bị tắt theo mặc định. Từ MySQL 8.0, query cache không còn được hỗ trợ nữa (chi tiết có thể tham khảo bài viết này: [MySQL 8.0: Retiring Support for the Query Cache](https://dev.mysql.com/blog-archive/mysql-8-0-retiring-support-for-the-query-cache/)).
 
 ![MySQL 8.0: Retiring Support for the Query Cache](https://oss.javaguide.cn/github/javaguide/mysql/mysql8.0-retiring-support-for-the-query-cache.png)
 
-## ⭐️MySQL 日志
+## ⭐️MySQL Log
 
-上诉问题的答案可以在[《Java 面试指北》(付费，点击链接领取优惠卷)](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html) 的 **「技术面试题篇」** 中找到。
+Câu trả lời cho câu hỏi trên có thể tìm thấy trong phần **"Phần câu hỏi phỏng vấn kỹ thuật"** của [《Hướng dẫn phỏng vấn Java》(có phí, nhấp vào liên kết để nhận phiếu giảm giá)](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html).
 
-![《Java 面试指北》技术面试题篇](https://oss.javaguide.cn/javamianshizhibei/technical-interview-questions.png)
+![《Hướng dẫn phỏng vấn Java》- Phần câu hỏi phỏng vấn kỹ thuật](https://oss.javaguide.cn/javamianshizhibei/technical-interview-questions.png)
 
-文章地址：<https://www.yuque.com/snailclimb/mf2z3k/zr4kfk> （密码获取：<https://t.zsxq.com/avfM0>）。
+Địa chỉ bài viết: <https://www.yuque.com/snailclimb/mf2z3k/zr4kfk> (lấy mật khẩu: <https://t.zsxq.com/avfM0>).
 
-## ⭐️MySQL 事务
+## ⭐️MySQL Transaction
 
-### 什么是事务？
+### Transaction là gì?
 
-我们设想一个场景，这个场景中我们需要插入多条相关联的数据到数据库，不幸的是，这个过程可能会遇到下面这些问题：
+Hãy tưởng tượng một tình huống, trong đó chúng ta cần chèn nhiều dữ liệu có liên quan vào database, không may là quá trình này có thể gặp phải những vấn đề sau:
 
-- 数据库中途突然因为某些原因挂掉了。
-- 客户端突然因为网络原因连接不上数据库了。
-- 并发访问数据库时，多个线程同时写入数据库，覆盖了彼此的更改。
+- Database đột ngột bị crash vì một lý do nào đó.
+- Client đột ngột mất kết nối đến database do sự cố mạng.
+- Khi truy cập database đồng thời, nhiều thread cùng ghi vào database, ghi đè lên các thay đổi của nhau.
 - ……
 
-上面的任何一个问题都可能会导致数据的不一致性。为了保证数据的一致性，系统必须能够处理这些问题。事务就是我们抽象出来简化这些问题的首选机制。事务的概念起源于数据库，目前，已经成为一个比较广泛的概念。
+Bất kỳ vấn đề nào ở trên đều có thể dẫn đến sự không nhất quán của dữ liệu. Để đảm bảo tính nhất quán của dữ liệu, hệ thống phải có khả năng xử lý các vấn đề này. Transaction là cơ chế ưu tiên mà chúng ta trừu tượng hóa để đơn giản hóa những vấn đề này. Khái niệm transaction bắt nguồn từ database, hiện tại đã trở thành một khái niệm khá rộng rãi.
 
-**何为事务？** 一言蔽之，**事务是逻辑上的一组操作，要么都执行，要么都不执行。**
+**Transaction là gì?** Nói ngắn gọn, **transaction là một nhóm các thao tác theo logic, hoặc tất cả đều được thực thi, hoặc không thao tác nào được thực thi.**
 
-事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账 1000 元，这个转账会涉及到两个关键操作，这两个操作必须都成功或者都失败。
+Ví dụ kinh điển nhất của transaction thường được đưa ra là chuyển tiền. Giả sử Tiểu Minh muốn chuyển 1000 tệ cho Tiểu Hồng, việc chuyển tiền này liên quan đến hai thao tác then chốt, cả hai thao tác này phải đều thành công hoặc đều thất bại.
 
-1. 将小明的余额减少 1000 元
-2. 将小红的余额增加 1000 元。
+1. Giảm số dư của Tiểu Minh đi 1000 tệ
+2. Tăng số dư của Tiểu Hồng lên 1000 tệ.
 
-事务会把这两个操作就可以看成逻辑上的一个整体，这个整体包含的操作要么都成功，要么都要失败。这样就不会出现小明余额减少而小红的余额却并没有增加的情况。
+Transaction coi hai thao tác này là một thể thống nhất về mặt logic, các thao tác trong thể thống nhất này hoặc đều thành công, hoặc đều thất bại. Như vậy sẽ không xảy ra tình huống số dư của Tiểu Minh bị giảm nhưng số dư của Tiểu Hồng lại không tăng.
 
 ![事务示意图](https://oss.javaguide.cn/github/javaguide/mysql/%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
-### 什么是数据库事务？
+### Database transaction là gì?
 
-大多数情况下，我们在谈论事务的时候，如果没有特指**分布式事务**，往往指的就是**数据库事务**。
+Trong hầu hết các trường hợp, khi chúng ta nói về transaction, nếu không đặc chỉ **distributed transaction**, thì thường có nghĩa là **database transaction**.
 
-数据库事务在我们日常开发中接触的最多了。如果你的项目属于单体架构的话，你接触到的往往就是数据库事务了。
+Database transaction là thứ chúng ta tiếp xúc nhiều nhất trong phát triển hàng ngày. Nếu dự án của bạn là kiến trúc monolithic, thì thứ bạn tiếp xúc thường là database transaction.
 
-**那数据库事务有什么作用呢？**
+**Vậy database transaction có tác dụng gì?**
 
-简单来说，数据库事务可以保证多个对数据库的操作（也就是 SQL 语句）构成一个逻辑上的整体。构成这个逻辑上的整体的这些数据库操作遵循：**要么全部执行成功,要么全部不执行** 。
+Nói đơn giản, database transaction có thể đảm bảo nhiều thao tác với database (tức là các câu lệnh SQL) tạo thành một thể thống nhất về mặt logic. Các thao tác database tạo thành thể thống nhất này tuân theo nguyên tắc: **hoặc tất cả đều thực thi thành công, hoặc không thao tác nào được thực thi**.
 
 ```sql
 # 开启一个事务
@@ -648,119 +648,119 @@ COMMIT;
 
 ![数据库事务示意图](https://oss.javaguide.cn/github/javaguide/mysql/%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
-另外，关系型数据库（例如：`MySQL`、`SQL Server`、`Oracle` 等）事务都有 **ACID** 特性：
+Ngoài ra, transaction của các cơ sở dữ liệu quan hệ (ví dụ: `MySQL`, `SQL Server`, `Oracle`, v.v.) đều có đặc tính **ACID**:
 
 ![ACID](https://oss.javaguide.cn/github/javaguide/mysql/ACID.png)
 
-1. **原子性**（`Atomicity`）：事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；
-2. **一致性**（`Consistency`）：执行事务前后，数据保持一致，例如转账业务中，无论事务是否成功，转账者和收款人的总额应该是不变的；
-3. **隔离性**（`Isolation`）：并发访问数据库时，一个用户的事务不被其他事务所干扰，各并发事务之间数据库是独立的；
-4. **持久性**（`Durability`）：一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。
+1. **Tính nguyên tử** (`Atomicity`): Transaction là đơn vị thực thi nhỏ nhất, không cho phép phân chia. Tính nguyên tử của transaction đảm bảo các hành động hoặc hoàn thành toàn bộ, hoặc hoàn toàn không có tác dụng;
+2. **Tính nhất quán** (`Consistency`): Trước và sau khi thực thi transaction, dữ liệu giữ nguyên nhất quán, ví dụ trong nghiệp vụ chuyển tiền, dù transaction thành công hay không, tổng số tiền của người chuyển và người nhận không thay đổi;
+3. **Tính cô lập** (`Isolation`): Khi truy cập database đồng thời, transaction của một người dùng không bị can thiệp bởi các transaction khác, các transaction đồng thời độc lập với nhau trong database;
+4. **Tính bền vững** (`Durability`): Sau khi một transaction được commit. Những thay đổi của nó đối với dữ liệu trong database là bền vững, ngay cả khi database gặp sự cố cũng không nên có bất kỳ ảnh hưởng nào đến nó.
 
-🌈 这里要额外补充一点：**只有保证了事务的持久性、原子性、隔离性之后，一致性才能得到保障。也就是说 A、I、D 是手段，C 是目的！** 想必大家也和我一样，被 ACID 这个概念被误导了很久! 我也是看周志明老师的公开课[《周志明的软件架构课》](https://time.geekbang.org/opencourse/intro/100064201)才搞清楚的（多看好书！！！）。
+🌈 Cần bổ sung thêm một điểm: **Chỉ khi đảm bảo tính bền vững, tính nguyên tử, tính cô lập của transaction, tính nhất quán mới có thể được bảo đảm. Nghĩa là A, I, D là phương tiện, C là mục đích!** Chắc hẳn mọi người cũng như tôi, đã bị khái niệm ACID này làm hiểu sai trong một thời gian dài! Tôi cũng chỉ hiểu ra điều này sau khi xem khóa học công khai của thầy Chu Chí Minh [《Khóa học kiến trúc phần mềm của Chu Chí Minh》](https://time.geekbang.org/opencourse/intro/100064201) (hãy đọc nhiều sách hay!!!).
 
 ![AID->C](https://oss.javaguide.cn/github/javaguide/mysql/AID-%3EC.png)
 
-另外，DDIA 也就是 [《Designing Data-Intensive Application（数据密集型应用系统设计）》](https://book.douban.com/subject/30329536/) 的作者在他的这本书中如是说：
+Ngoài ra, tác giả của DDIA tức là [《Designing Data-Intensive Application》](https://book.douban.com/subject/30329536/) đã nói trong cuốn sách của mình rằng:
 
 > Atomicity, isolation, and durability are properties of the database, whereas consis‐
 > tency (in the ACID sense) is a property of the application. The application may rely
-> on the database’s atomicity and isolation properties in order to achieve consistency,
-> but it’s not up to the database alone.
+> on the database's atomicity and isolation properties in order to achieve consistency,
+> but it's not up to the database alone.
 >
-> 翻译过来的意思是：原子性，隔离性和持久性是数据库的属性，而一致性（在 ACID 意义上）是应用程序的属性。应用可能依赖数据库的原子性和隔离属性来实现一致性，但这并不仅取决于数据库。因此，字母 C 不属于 ACID 。
+> Nghĩa là: Tính nguyên tử, tính cô lập và tính bền vững là các thuộc tính của database, còn tính nhất quán (theo nghĩa ACID) là thuộc tính của ứng dụng. Ứng dụng có thể dựa vào các thuộc tính tính nguyên tử và tính cô lập của database để đạt được tính nhất quán, nhưng điều này không chỉ phụ thuộc vào database. Do đó, chữ C không thuộc về ACID.
 
-《Designing Data-Intensive Application（数据密集型应用系统设计）》这本书强推一波，值得读很多遍！豆瓣有接近 90% 的人看了这本书之后给了五星好评。另外，中文翻译版本已经在 GitHub 开源，地址：[https://github.com/Vonng/ddia](https://github.com/Vonng/ddia) 。
+Cuốn sách 《Designing Data-Intensive Application》 này rất đáng đọc nhiều lần! Trên Douban có gần 90% người đọc cuốn sách này đã cho 5 sao. Ngoài ra, bản dịch tiếng Trung đã được mở nguồn trên GitHub, địa chỉ: [https://github.com/Vonng/ddia](https://github.com/Vonng/ddia).
 
 ![](https://oss.javaguide.cn/github/javaguide/books/ddia.png)
 
-### 并发事务带来了哪些问题?
+### Transaction đồng thời gây ra những vấn đề gì?
 
-在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（多个用户对同一数据进行操作）。并发虽然是必须的，但可能会导致以下的问题。
+Trong các ứng dụng điển hình, nhiều transaction chạy đồng thời, thường thao tác cùng một dữ liệu để hoàn thành các tác vụ của mình (nhiều người dùng thao tác cùng một dữ liệu). Đồng thời là điều cần thiết, nhưng có thể dẫn đến các vấn đề sau.
 
-#### 脏读（Dirty read）
+#### Dirty read (Đọc bẩn)
 
-一个事务读取数据并且对数据进行了修改，这个修改对其他事务来说是可见的，即使当前事务没有提交。这时另外一个事务读取了这个还未提交的数据，但第一个事务突然回滚，导致数据并没有被提交到数据库，那第二个事务读取到的就是脏数据，这也就是脏读的由来。
+Một transaction đọc dữ liệu và đã chỉnh sửa dữ liệu đó, sự chỉnh sửa này hiển thị với các transaction khác, ngay cả khi transaction hiện tại chưa commit. Lúc này một transaction khác đọc dữ liệu chưa được commit này, nhưng transaction đầu tiên đột ngột rollback, khiến dữ liệu không được commit vào database, thì transaction thứ hai đọc được dữ liệu bẩn, đây chính là nguồn gốc của dirty read.
 
-例如：事务 1 读取某表中的数据 A=20，事务 1 修改 A=A-1，事务 2 读取到 A = 19,事务 1 回滚导致对 A 的修改并未提交到数据库， A 的值还是 20。
+Ví dụ: Transaction 1 đọc dữ liệu A=20 trong một bảng, transaction 1 sửa A=A-1, transaction 2 đọc được A=19, transaction 1 rollback khiến sửa đổi A không được commit vào database, giá trị của A vẫn là 20.
 
 ![脏读](https://oss.javaguide.cn/github/javaguide/database/mysql/concurrency-consistency-issues-dirty-reading.png)
 
-#### 丢失修改（Lost to modify）
+#### Lost to modify (Mất cập nhật)
 
-在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改。
+Khi một transaction đọc một dữ liệu, một transaction khác cũng truy cập dữ liệu đó, thì sau khi transaction đầu tiên sửa đổi dữ liệu này, transaction thứ hai cũng sửa đổi dữ liệu này. Như vậy kết quả sửa đổi trong transaction đầu tiên bị mất, do đó gọi là lost to modify.
 
-例如：事务 1 读取某表中的数据 A=20，事务 2 也读取 A=20，事务 1 先修改 A=A-1，事务 2 后来也修改 A=A-1，最终结果 A=19，事务 1 的修改被丢失。
+Ví dụ: Transaction 1 đọc dữ liệu A=20 trong một bảng, transaction 2 cũng đọc A=20, transaction 1 trước sửa A=A-1, transaction 2 sau cũng sửa A=A-1, kết quả cuối cùng A=19, sửa đổi của transaction 1 bị mất.
 
 ![丢失修改](https://oss.javaguide.cn/github/javaguide/database/mysql/concurrency-consistency-issues-missing-modifications.png)
 
-#### 不可重复读（Unrepeatable read）
+#### Unrepeatable read (Đọc không lặp lại)
 
-指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的数据可能不太一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读。
+Chỉ việc đọc cùng một dữ liệu nhiều lần trong một transaction. Khi transaction này chưa kết thúc, một transaction khác cũng truy cập dữ liệu đó. Thì giữa hai lần đọc dữ liệu trong transaction đầu tiên, do sửa đổi của transaction thứ hai khiến dữ liệu đọc được hai lần trong transaction đầu tiên có thể không giống nhau. Đây là tình huống đọc được dữ liệu khác nhau hai lần trong một transaction, do đó gọi là unrepeatable read.
 
-例如：事务 1 读取某表中的数据 A=20，事务 2 也读取 A=20，事务 1 修改 A=A-1，事务 2 再次读取 A =19，此时读取的结果和第一次读取的结果不同。
+Ví dụ: Transaction 1 đọc dữ liệu A=20 trong một bảng, transaction 2 cũng đọc A=20, transaction 1 sửa A=A-1, transaction 2 đọc lại A=19, lúc này kết quả đọc khác với lần đọc đầu tiên.
 
 ![不可重复读](https://oss.javaguide.cn/github/javaguide/database/mysql/concurrency-consistency-issues-unrepeatable-read.png)
 
-#### 幻读（Phantom read）
+#### Phantom read (Đọc ảo)
 
-幻读与不可重复读类似。它发生在一个事务读取了几行数据，接着另一个并发事务插入了一些数据时。在随后的查询中，第一个事务就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读。
+Phantom read tương tự unrepeatable read. Nó xảy ra khi một transaction đọc một số hàng dữ liệu, rồi một transaction đồng thời khác chèn thêm một số dữ liệu. Trong truy vấn tiếp theo, transaction đầu tiên sẽ phát hiện có thêm một số bản ghi vốn không tồn tại, giống như ảo giác vậy, nên gọi là phantom read.
 
-例如：事务 2 读取某个范围的数据，事务 1 在这个范围插入了新的数据，事务 2 再次读取这个范围的数据发现相比于第一次读取的结果多了新的数据。
+Ví dụ: Transaction 2 đọc dữ liệu trong một phạm vi nhất định, transaction 1 chèn dữ liệu mới vào phạm vi này, transaction 2 đọc lại dữ liệu trong phạm vi này phát hiện có thêm dữ liệu mới so với lần đọc đầu tiên.
 
 ![幻读](https://oss.javaguide.cn/github/javaguide/database/mysql/concurrency-consistency-issues-phantom-read.png)
 
-### 不可重复读和幻读有什么区别？
+### Sự khác biệt giữa unrepeatable read và phantom read là gì?
 
-- 不可重复读的重点是内容修改或者记录减少比如多次读取一条记录发现其中某些记录的值被修改；
-- 幻读的重点在于记录新增比如多次执行同一条查询语句（DQL）时，发现查到的记录增加了。
+- Trọng tâm của unrepeatable read là nội dung bị sửa đổi hoặc số lượng bản ghi giảm, ví dụ đọc một bản ghi nhiều lần phát hiện giá trị của một số bản ghi bị thay đổi;
+- Trọng tâm của phantom read là số lượng bản ghi tăng thêm, ví dụ thực thi cùng một câu lệnh truy vấn (DQL) nhiều lần, phát hiện số bản ghi truy vấn được tăng lên.
 
-幻读其实可以看作是不可重复读的一种特殊情况，单独把幻读区分出来的原因主要是解决幻读和不可重复读的方案不一样。
+Phantom read thực ra có thể được coi là một trường hợp đặc biệt của unrepeatable read, lý do tách riêng phantom read chủ yếu là giải pháp để giải quyết phantom read và unrepeatable read không giống nhau.
 
-举个例子：执行 `delete` 和 `update` 操作的时候，可以直接对记录加锁，保证事务安全。而执行 `insert` 操作的时候，由于记录锁（Record Lock）只能锁住已经存在的记录，为了避免插入新记录，需要依赖间隙锁（Gap Lock）。也就是说执行 `insert` 操作的时候需要依赖 Next-Key Lock（Record Lock+Gap Lock） 进行加锁来保证不出现幻读。
+Ví dụ: Khi thực thi thao tác `delete` và `update`, có thể trực tiếp khóa bản ghi, đảm bảo an toàn transaction. Còn khi thực thi thao tác `insert`, vì record lock (khóa bản ghi) chỉ có thể khóa các bản ghi đã tồn tại, để tránh chèn bản ghi mới, cần phải dựa vào gap lock (khóa khoảng). Nghĩa là khi thực thi thao tác `insert` cần dựa vào Next-Key Lock (Record Lock+Gap Lock) để khóa nhằm đảm bảo không xảy ra phantom read.
 
-### 并发事务的控制方式有哪些？
+### Các phương thức kiểm soát transaction đồng thời là gì?
 
-MySQL 中并发事务的控制方式无非就两种：**锁** 和 **MVCC**。锁可以看作是悲观控制的模式，多版本并发控制（MVCC，Multiversion concurrency control）可以看作是乐观控制的模式。
+Các phương thức kiểm soát transaction đồng thời trong MySQL không gì khác hơn hai loại: **lock** và **MVCC**. Lock có thể được coi là chế độ kiểm soát bi quan, kiểm soát đồng thời đa phiên bản (MVCC, Multiversion concurrency control) có thể được coi là chế độ kiểm soát lạc quan.
 
-**锁** 控制方式下会通过锁来显式控制共享资源而不是通过调度手段，MySQL 中主要是通过 **读写锁** 来实现并发控制。
+Chế độ kiểm soát **lock** sẽ kiểm soát tài nguyên chia sẻ một cách tường minh thông qua lock thay vì thông qua cơ chế lập lịch, trong MySQL chủ yếu là thông qua **read-write lock** để thực hiện kiểm soát đồng thời.
 
-- **共享锁（S 锁）**：又称读锁，事务在读取记录的时候获取共享锁，允许多个事务同时获取（锁兼容）。
-- **排他锁（X 锁）**：又称写锁/独占锁，事务在修改记录的时候获取排他锁，不允许多个事务同时获取。如果一个记录已经被加了排他锁，那其他事务不能再对这条记录加任何类型的锁（锁不兼容）。
+- **Shared lock (S lock)**: Còn gọi là read lock, transaction lấy shared lock khi đọc bản ghi, cho phép nhiều transaction đồng thời lấy (lock tương thích).
+- **Exclusive lock (X lock)**: Còn gọi là write lock/independent lock, transaction lấy exclusive lock khi sửa đổi bản ghi, không cho phép nhiều transaction đồng thời lấy. Nếu một bản ghi đã bị thêm exclusive lock, thì các transaction khác không thể thêm bất kỳ loại lock nào cho bản ghi này (lock không tương thích).
 
-读写锁可以做到读读并行，但是无法做到写读、写写并行。另外，根据根据锁粒度的不同，又被分为 **表级锁(table-level locking)** 和 **行级锁(row-level locking)** 。InnoDB 不光支持表级锁，还支持行级锁，默认为行级锁。行级锁的粒度更小，仅对相关的记录上锁即可（对一行或者多行记录加锁），所以对于并发写入操作来说， InnoDB 的性能更高。不论是表级锁还是行级锁，都存在共享锁（Share Lock，S 锁）和排他锁（Exclusive Lock，X 锁）这两类。
+Read-write lock có thể đạt được đọc-đọc song song, nhưng không thể đạt được ghi-đọc, ghi-ghi song song. Ngoài ra, tùy theo độ hạt của lock, còn được phân thành **table-level locking** và **row-level locking**. InnoDB không chỉ hỗ trợ table-level locking mà còn hỗ trợ row-level locking, mặc định là row-level locking. Row-level locking có độ hạt nhỏ hơn, chỉ cần khóa các bản ghi liên quan (khóa một hàng hoặc nhiều hàng bản ghi), do đó đối với các thao tác ghi đồng thời, hiệu suất của InnoDB cao hơn. Dù là table-level lock hay row-level lock, đều tồn tại hai loại là shared lock (Share Lock, S lock) và exclusive lock (Exclusive Lock, X lock).
 
-**MVCC** 是多版本并发控制方法，即对一份数据会存储多个版本，通过事务的可见性来保证事务能看到自己应该看到的版本。通常会有一个全局的版本分配器来为每一行数据设置版本号，版本号是唯一的。
+**MVCC** là phương pháp kiểm soát đồng thời đa phiên bản, tức là đối với một dữ liệu sẽ lưu trữ nhiều phiên bản, thông qua khả năng hiển thị của transaction để đảm bảo transaction có thể thấy phiên bản mà nó cần thấy. Thường sẽ có một bộ phân phối phiên bản toàn cục để đặt số phiên bản cho mỗi hàng dữ liệu, số phiên bản là duy nhất.
 
-MVCC 在 MySQL 中实现所依赖的手段主要是: **隐藏字段、read view、undo log**。
+Các phương tiện mà MVCC dựa vào để thực hiện trong MySQL chủ yếu là: **hidden fields, read view, undo log**.
 
-- undo log : undo log 用于记录某行数据的多个版本的数据。
-- read view 和 隐藏字段 : 用来判断当前版本数据的可见性。
+- undo log: undo log dùng để ghi lại dữ liệu nhiều phiên bản của một hàng dữ liệu nhất định.
+- read view và hidden fields: dùng để xác định khả năng hiển thị của dữ liệu phiên bản hiện tại.
 
-关于 InnoDB 对 MVCC 的具体实现可以看这篇文章：[InnoDB 存储引擎对 MVCC 的实现](./innodb-implementation-of-mvcc.md) 。
+Về cách triển khai cụ thể của InnoDB đối với MVCC có thể xem bài viết này: [Cách InnoDB Storage Engine triển khai MVCC](./innodb-implementation-of-mvcc.md).
 
-### SQL 标准定义了哪些事务隔离级别?
+### SQL standard định nghĩa những mức độ cô lập transaction nào?
 
-SQL 标准定义了四种事务隔离级别，用来平衡事务的隔离性（Isolation）和并发性能。级别越高，数据一致性越好，但并发性能可能越低。这四个级别是：
+SQL standard định nghĩa bốn mức độ cô lập transaction, dùng để cân bằng tính cô lập (Isolation) của transaction và hiệu suất đồng thời. Mức độ càng cao, tính nhất quán dữ liệu càng tốt, nhưng hiệu suất đồng thời có thể càng thấp. Bốn mức độ này là:
 
-- **READ-UNCOMMITTED(读取未提交)** ：最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。这种级别在实际应用中很少使用，因为它对数据一致性的保证太弱。
-- **READ-COMMITTED(读取已提交)** ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。这是大多数数据库（如 Oracle, SQL Server）的默认隔离级别。
-- **REPEATABLE-READ(可重复读)** ：对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。MySQL InnoDB 存储引擎的默认隔离级别正是 REPEATABLE READ。并且，InnoDB 在此级别下通过 MVCC（多版本并发控制） 和 Next-Key Locks（间隙锁+行锁） 机制，在很大程度上解决了幻读问题。
-- **SERIALIZABLE(可串行化)** ：最高的隔离级别，完全服从 ACID 的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。
+- **READ-UNCOMMITTED (Đọc chưa commit)**: Mức độ cô lập thấp nhất, cho phép đọc các thay đổi dữ liệu chưa được commit, có thể dẫn đến dirty read, phantom read hoặc unrepeatable read. Mức độ này rất ít được sử dụng trong thực tế vì sự đảm bảo về tính nhất quán dữ liệu quá yếu.
+- **READ-COMMITTED (Đọc đã commit)**: Cho phép đọc dữ liệu mà các transaction đồng thời đã commit, có thể ngăn dirty read, nhưng phantom read hoặc unrepeatable read vẫn có thể xảy ra. Đây là mức độ cô lập mặc định của hầu hết các cơ sở dữ liệu (như Oracle, SQL Server).
+- **REPEATABLE-READ (Đọc lặp lại được)**: Kết quả đọc nhiều lần cùng một trường đều nhất quán, trừ khi dữ liệu bị sửa đổi bởi chính transaction đó, có thể ngăn dirty read và unrepeatable read, nhưng phantom read vẫn có thể xảy ra. Mức độ cô lập mặc định của MySQL InnoDB storage engine chính là REPEATABLE READ. Và InnoDB ở mức độ này thông qua cơ chế MVCC (Multi-Version Concurrency Control) và Next-Key Locks (gap lock + row lock), giải quyết được phần lớn vấn đề phantom read.
+- **SERIALIZABLE (Có thể tuần tự hóa)**: Mức độ cô lập cao nhất, tuân thủ hoàn toàn mức độ cô lập ACID. Tất cả các transaction được thực thi tuần tự từng cái một, như vậy giữa các transaction hoàn toàn không thể gây ra can thiệp, nghĩa là mức độ này có thể ngăn dirty read, unrepeatable read và phantom read.
 
-| 隔离级别         | 脏读 (Dirty Read) | 不可重复读 (Non-Repeatable Read) | 幻读 (Phantom Read)    |
-| ---------------- | ----------------- | -------------------------------- | ---------------------- |
-| READ UNCOMMITTED | √                 | √                                | √                      |
-| READ COMMITTED   | ×                 | √                                | √                      |
-| REPEATABLE READ  | ×                 | ×                                | √ (标准) / ≈× (InnoDB) |
-| SERIALIZABLE     | ×                 | ×                                | ×                      |
+| Mức độ cô lập    | Dirty Read | Non-Repeatable Read | Phantom Read                 |
+| ---------------- | ---------- | ------------------- | ---------------------------- |
+| READ UNCOMMITTED | √          | √                   | √                            |
+| READ COMMITTED   | ×          | √                   | √                            |
+| REPEATABLE READ  | ×          | ×                   | √ (tiêu chuẩn) / ≈× (InnoDB) |
+| SERIALIZABLE     | ×          | ×                   | ×                            |
 
-### MySQL 的默认隔离级别是什么?
+### Mức độ cô lập mặc định của MySQL là gì?
 
-MySQL InnoDB 存储引擎的默认隔离级别是 **REPEATABLE READ**。可以通过以下命令查看：
+Mức độ cô lập mặc định của MySQL InnoDB storage engine là **REPEATABLE READ**. Có thể kiểm tra bằng các lệnh sau:
 
-- MySQL 8.0 之前：`SELECT @@tx_isolation;`
-- MySQL 8.0 及之后：`SELECT @@transaction_isolation;`
+- Trước MySQL 8.0: `SELECT @@tx_isolation;`
+- MySQL 8.0 trở đi: `SELECT @@transaction_isolation;`
 
 ```sql
 mysql> SELECT @@tx_isolation;
@@ -771,60 +771,60 @@ mysql> SELECT @@tx_isolation;
 +-----------------+
 ```
 
-关于 MySQL 事务隔离级别的详细介绍，可以看看我写的这篇文章：[MySQL 事务隔离级别详解](./transaction-isolation-level.md)。
+Về giới thiệu chi tiết về mức độ cô lập transaction của MySQL, có thể xem bài viết tôi viết: [Giải thích chi tiết mức độ cô lập transaction MySQL](./transaction-isolation-level.md).
 
-### MySQL 的隔离级别是基于锁实现的吗？
+### Mức độ cô lập của MySQL có được thực hiện dựa trên lock không?
 
-MySQL 的隔离级别基于锁和 MVCC 机制共同实现的。
+Mức độ cô lập của MySQL được thực hiện dựa trên cả lock và cơ chế MVCC cùng nhau.
 
-SERIALIZABLE 隔离级别是通过锁来实现的，READ-COMMITTED 和 REPEATABLE-READ 隔离级别是基于 MVCC 实现的。不过， SERIALIZABLE 之外的其他隔离级别可能也需要用到锁机制，就比如 REPEATABLE-READ 在当前读情况下需要使用加锁读来保证不会出现幻读。
+Mức độ cô lập SERIALIZABLE được thực hiện thông qua lock, mức độ cô lập READ-COMMITTED và REPEATABLE-READ được thực hiện dựa trên MVCC. Tuy nhiên, các mức độ cô lập ngoài SERIALIZABLE cũng có thể cần sử dụng cơ chế lock, ví dụ REPEATABLE-READ trong tình huống current read cần sử dụng locking read để đảm bảo không xảy ra phantom read.
 
-## MySQL 锁
+## MySQL Lock
 
-锁是一种常见的并发事务的控制方式。
+Lock là một phương thức kiểm soát transaction đồng thời phổ biến.
 
-### 表级锁和行级锁了解吗？有什么区别？
+### Bạn có biết về table-level lock và row-level lock không? Sự khác biệt là gì?
 
-MyISAM 仅仅支持表级锁(table-level locking)，一锁就锁整张表，这在并发写的情况下性非常差。InnoDB 不光支持表级锁(table-level locking)，还支持行级锁(row-level locking)，默认为行级锁。
+MyISAM chỉ hỗ trợ table-level locking, khóa cả bảng một lần, hiệu suất rất kém trong tình huống ghi đồng thời. InnoDB không chỉ hỗ trợ table-level locking mà còn hỗ trợ row-level locking, mặc định là row-level locking.
 
-行级锁的粒度更小，仅对相关的记录上锁即可（对一行或者多行记录加锁），所以对于并发写入操作来说， InnoDB 的性能更高。
+Row-level lock có độ hạt nhỏ hơn, chỉ cần khóa các bản ghi liên quan (khóa một hàng hoặc nhiều hàng bản ghi), do đó đối với các thao tác ghi đồng thời, hiệu suất của InnoDB cao hơn.
 
-**表级锁和行级锁对比**：
+**So sánh table-level lock và row-level lock**:
 
-- **表级锁：** MySQL 中锁定粒度最大的一种锁（全局锁除外），是针对非索引字段加的锁，对当前操作的整张表加锁，实现简单，资源消耗也比较少，加锁快，不会出现死锁。不过，触发锁冲突的概率最高，高并发下效率极低。表级锁和存储引擎无关，MyISAM 和 InnoDB 引擎都支持表级锁。
-- **行级锁：** MySQL 中锁定粒度最小的一种锁，是 **针对索引字段加的锁** ，只针对当前操作的行记录进行加锁。 行级锁能大大减少数据库操作的冲突。其加锁粒度最小，并发度高，但加锁的开销也最大，加锁慢，会出现死锁。行级锁和存储引擎有关，是在存储引擎层面实现的。
+- **Table-level lock:** Loại lock có độ hạt khóa lớn nhất trong MySQL (ngoại trừ global lock), là lock thêm vào trường không phải index, khóa toàn bộ bảng đang thao tác, dễ triển khai, tốn ít tài nguyên, khóa nhanh, không xảy ra deadlock. Tuy nhiên, xác suất xung đột lock cao nhất, hiệu suất cực kém trong high concurrency. Table-level lock không liên quan đến storage engine, cả engine MyISAM và InnoDB đều hỗ trợ table-level lock.
+- **Row-level lock:** Loại lock có độ hạt khóa nhỏ nhất trong MySQL, là **lock thêm vào trường index**, chỉ khóa hàng bản ghi đang được thao tác. Row-level lock có thể giảm đáng kể xung đột trong thao tác database. Độ hạt khóa nhỏ nhất, độ đồng thời cao, nhưng chi phí khóa cũng lớn nhất, khóa chậm, có thể xảy ra deadlock. Row-level lock liên quan đến storage engine, được triển khai ở tầng storage engine.
 
-### 行级锁的使用有什么注意事项？
+### Có những lưu ý gì khi sử dụng row-level lock?
 
-InnoDB 的行锁是针对索引字段加的锁，表级锁是针对非索引字段加的锁。当我们执行 `UPDATE`、`DELETE` 语句时，如果 `WHERE`条件中字段没有命中唯一索引或者索引失效的话，就会导致扫描全表对表中的所有行记录进行加锁。这个在我们日常工作开发中经常会遇到，一定要多多注意！！！
+Row lock của InnoDB là lock thêm vào trường index, table-level lock là lock thêm vào trường không phải index. Khi chúng ta thực thi câu lệnh `UPDATE`, `DELETE`, nếu trường trong điều kiện `WHERE` không đánh trúng unique index hoặc index bị vô hiệu, sẽ dẫn đến quét toàn bảng và khóa tất cả các hàng bản ghi trong bảng. Điều này thường xuyên gặp phải trong công việc phát triển hàng ngày của chúng ta, nhất định phải chú ý!!!
 
-不过，很多时候即使用了索引也有可能会走全表扫描，这是因为 MySQL 优化器的原因。
+Tuy nhiên, nhiều khi ngay cả khi đã dùng index cũng có thể quét toàn bảng, đó là do nguyên nhân của MySQL optimizer.
 
-### InnoDB 有哪几类行锁？
+### InnoDB có những loại row lock nào?
 
-InnoDB 行锁是通过对索引数据页上的记录加锁实现的，MySQL InnoDB 支持三种行锁定方式：
+Row lock của InnoDB được thực hiện thông qua việc khóa bản ghi trên trang dữ liệu index, MySQL InnoDB hỗ trợ ba phương thức khóa hàng:
 
-- **记录锁（Record Lock）**：属于单个行记录上的锁。
-- **间隙锁（Gap Lock）**：锁定一个范围，不包括记录本身。
-- **临键锁（Next-Key Lock）**：Record Lock+Gap Lock，锁定一个范围，包含记录本身，主要目的是为了解决幻读问题（MySQL 事务部分提到过）。记录锁只能锁住已经存在的记录，为了避免插入新记录，需要依赖间隙锁。
+- **Record Lock**: Là lock trên một bản ghi hàng đơn lẻ.
+- **Gap Lock**: Khóa một phạm vi, không bao gồm bản ghi bản thân.
+- **Next-Key Lock**: Record Lock+Gap Lock, khóa một phạm vi, bao gồm bản ghi bản thân, mục đích chính là để giải quyết vấn đề phantom read (đã đề cập trong phần MySQL transaction). Record lock chỉ có thể khóa các bản ghi đã tồn tại, để tránh chèn bản ghi mới, cần phải dựa vào gap lock.
 
-**在 InnoDB 默认的隔离级别 REPEATABLE-READ 下，行锁默认使用的是 Next-Key Lock。但是，如果操作的索引是唯一索引或主键，InnoDB 会对 Next-Key Lock 进行优化，将其降级为 Record Lock，即仅锁住索引本身，而不是范围。**
+**Trong mức độ cô lập mặc định của InnoDB là REPEATABLE-READ, row lock mặc định sử dụng Next-Key Lock. Nhưng, nếu index đang thao tác là unique index hoặc primary key, InnoDB sẽ tối ưu hóa Next-Key Lock, hạ cấp nó xuống thành Record Lock, tức là chỉ khóa index bản thân, không phải phạm vi.**
 
-### 共享锁和排他锁呢？
+### Shared lock và exclusive lock là gì?
 
-不论是表级锁还是行级锁，都存在共享锁（Share Lock，S 锁）和排他锁（Exclusive Lock，X 锁）这两类：
+Dù là table-level lock hay row-level lock, đều tồn tại hai loại là shared lock (Share Lock, S lock) và exclusive lock (Exclusive Lock, X lock):
 
-- **共享锁（S 锁）**：又称读锁，事务在读取记录的时候获取共享锁，允许多个事务同时获取（锁兼容）。
-- **排他锁（X 锁）**：又称写锁/独占锁，事务在修改记录的时候获取排他锁，不允许多个事务同时获取。如果一个记录已经被加了排他锁，那其他事务不能再对这条事务加任何类型的锁（锁不兼容）。
+- **Shared lock (S lock)**: Còn gọi là read lock, transaction lấy shared lock khi đọc bản ghi, cho phép nhiều transaction đồng thời lấy (lock tương thích).
+- **Exclusive lock (X lock)**: Còn gọi là write lock/independent lock, transaction lấy exclusive lock khi sửa đổi bản ghi, không cho phép nhiều transaction đồng thời lấy. Nếu một bản ghi đã bị thêm exclusive lock, thì các transaction khác không thể thêm bất kỳ loại lock nào cho transaction này (lock không tương thích).
 
-排他锁与任何的锁都不兼容，共享锁仅和共享锁兼容。
+Exclusive lock không tương thích với bất kỳ lock nào, shared lock chỉ tương thích với shared lock.
 
-|      | S 锁   | X 锁 |
-| :--- | :----- | :--- |
-| S 锁 | 不冲突 | 冲突 |
-| X 锁 | 冲突   | 冲突 |
+|        | S lock         | X lock   |
+| :----- | :------------- | :------- |
+| S lock | Không xung đột | Xung đột |
+| X lock | Xung đột       | Xung đột |
 
-由于 MVCC 的存在，对于一般的 `SELECT` 语句，InnoDB 不会加任何锁。不过， 你可以通过以下语句显式加共享锁或排他锁。
+Do sự tồn tại của MVCC, đối với câu lệnh `SELECT` thông thường, InnoDB sẽ không thêm bất kỳ lock nào. Tuy nhiên, bạn có thể hiển thị thêm shared lock hoặc exclusive lock thông qua các câu lệnh sau.
 
 ```sql
 # 共享锁 可以在 MySQL 5.7 和 MySQL 8.0 中使用
@@ -835,38 +835,38 @@ SELECT ... FOR SHARE;
 SELECT ... FOR UPDATE;
 ```
 
-### 意向锁有什么作用？
+### Intention lock có tác dụng gì?
 
-如果需要用到表锁的话，如何判断表中的记录没有行锁呢，一行一行遍历肯定是不行，性能太差。我们需要用到一个叫做意向锁的东东来快速判断是否可以对某个表使用表锁。
+Nếu cần sử dụng table lock, làm thế nào để xác định không có row lock trong bảng, duyệt từng hàng một chắc chắn không được, hiệu suất quá kém. Chúng ta cần sử dụng một thứ gọi là intention lock để nhanh chóng xác định xem có thể sử dụng table lock cho một bảng nào đó hay không.
 
-意向锁是表级锁，共有两种：
+Intention lock là table-level lock, có hai loại:
 
-- **意向共享锁（Intention Shared Lock，IS 锁）**：事务有意向对表中的某些记录加共享锁（S 锁），加共享锁前必须先取得该表的 IS 锁。
-- **意向排他锁（Intention Exclusive Lock，IX 锁）**：事务有意向对表中的某些记录加排他锁（X 锁），加排他锁之前必须先取得该表的 IX 锁。
+- **Intention Shared Lock (IS lock)**: Transaction có ý định thêm shared lock (S lock) cho một số bản ghi trong bảng, trước khi thêm shared lock phải lấy IS lock của bảng đó trước.
+- **Intention Exclusive Lock (IX lock)**: Transaction có ý định thêm exclusive lock (X lock) cho một số bản ghi trong bảng, trước khi thêm exclusive lock phải lấy IX lock của bảng đó trước.
 
-**意向锁是由数据引擎自己维护的，用户无法手动操作意向锁，在为数据行加共享/排他锁之前，InnoDB 会先获取该数据行所在在数据表的对应意向锁。**
+**Intention lock do data engine tự duy trì, người dùng không thể thao tác intention lock thủ công, trước khi thêm shared/exclusive lock cho hàng dữ liệu, InnoDB sẽ lấy intention lock tương ứng của bảng dữ liệu nơi hàng dữ liệu đó nằm.**
 
-意向锁之间是互相兼容的。
+Các intention lock tương thích với nhau.
 
-|       | IS 锁 | IX 锁 |
-| ----- | ----- | ----- |
-| IS 锁 | 兼容  | 兼容  |
-| IX 锁 | 兼容  | 兼容  |
+|         | IS lock     | IX lock     |
+| ------- | ----------- | ----------- |
+| IS lock | Tương thích | Tương thích |
+| IX lock | Tương thích | Tương thích |
 
-意向锁和共享锁和排它锁互斥（这里指的是表级别的共享锁和排他锁，意向锁不会与行级的共享锁和排他锁互斥）。
+Intention lock và shared lock và exclusive lock xung đột với nhau (ở đây chỉ shared lock và exclusive lock ở mức table, intention lock sẽ không xung đột với shared lock và exclusive lock ở mức hàng).
 
-|      | IS 锁 | IX 锁 |
-| ---- | ----- | ----- |
-| S 锁 | 兼容  | 互斥  |
-| X 锁 | 互斥  | 互斥  |
+|        | IS lock     | IX lock  |
+| ------ | ----------- | -------- |
+| S lock | Tương thích | Xung đột |
+| X lock | Xung đột    | Xung đột |
 
-《MySQL 技术内幕 InnoDB 存储引擎》这本书对应的描述应该是笔误了。
+Mô tả tương ứng trong cuốn sách 《MySQL Internals: InnoDB Storage Engine》 có lẽ là lỗi đánh máy.
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/image-20220511171419081.png)
 
-### 当前读和快照读有什么区别？
+### Sự khác biệt giữa current read và snapshot read là gì?
 
-**快照读**（一致性非锁定读）就是单纯的 `SELECT` 语句，但不包括下面这两类 `SELECT` 语句：
+**Snapshot read** (consistent non-locking read) là câu lệnh `SELECT` đơn thuần, nhưng không bao gồm hai loại câu lệnh `SELECT` sau:
 
 ```sql
 SELECT ... FOR UPDATE
@@ -876,20 +876,20 @@ SELECT ... LOCK IN SHARE MODE;
 SELECT ... FOR SHARE;
 ```
 
-快照即记录的历史版本，每行记录可能存在多个历史版本（多版本技术）。
+Snapshot là phiên bản lịch sử của bản ghi, mỗi hàng bản ghi có thể có nhiều phiên bản lịch sử (công nghệ đa phiên bản).
 
-快照读的情况下，如果读取的记录正在执行 UPDATE/DELETE 操作，读取操作不会因此去等待记录上 X 锁的释放，而是会去读取行的一个快照。
+Trong trường hợp snapshot read, nếu bản ghi đang được đọc đang thực thi thao tác UPDATE/DELETE, thao tác đọc sẽ không chờ X lock trên bản ghi được giải phóng mà thay vào đó sẽ đọc một snapshot của hàng.
 
-只有在事务隔离级别 RC(读取已提交) 和 RR（可重读）下，InnoDB 才会使用一致性非锁定读：
+Chỉ trong mức độ cô lập transaction RC (read committed) và RR (repeatable read), InnoDB mới sử dụng consistent non-locking read:
 
-- 在 RC 级别下，对于快照数据，一致性非锁定读总是读取被锁定行的最新一份快照数据。
-- 在 RR 级别下，对于快照数据，一致性非锁定读总是读取本事务开始时的行数据版本。
+- Trong mức RC, đối với dữ liệu snapshot, consistent non-locking read luôn đọc phiên bản snapshot mới nhất của hàng bị khóa.
+- Trong mức RR, đối với dữ liệu snapshot, consistent non-locking read luôn đọc phiên bản dữ liệu hàng khi bắt đầu transaction hiện tại.
 
-快照读比较适合对于数据一致性要求不是特别高且追求极致性能的业务场景。
+Snapshot read phù hợp hơn cho các tình huống nghiệp vụ không yêu cầu tính nhất quán dữ liệu quá cao mà theo đuổi hiệu suất tối đa.
 
-**当前读** （一致性锁定读）就是给行记录加 X 锁或 S 锁。
+**Current read** (consistent locking read) là thêm X lock hoặc S lock vào bản ghi hàng.
 
-当前读的一些常见 SQL 语句类型如下：
+Một số loại câu lệnh SQL phổ biến của current read như sau:
 
 ```sql
 # 对读的记录加一个X锁
@@ -904,11 +904,11 @@ UPDATE...
 DELETE...
 ```
 
-### 自增锁有了解吗？
+### Bạn có biết về auto-increment lock không?
 
-> 不太重要的一个知识点，简单了解即可。
+> Đây là một điểm kiến thức không quá quan trọng, chỉ cần hiểu sơ qua.
 
-关系型数据库设计表的时候，通常会有一列作为自增主键。InnoDB 中的自增主键会涉及一种比较特殊的表级锁— **自增锁（AUTO-INC Locks）** 。
+Khi thiết kế bảng cơ sở dữ liệu quan hệ, thường sẽ có một cột làm primary key tự tăng. Primary key tự tăng trong InnoDB liên quan đến một loại table-level lock khá đặc biệt — **auto-increment lock (AUTO-INC Locks)**.
 
 ```sql
 CREATE TABLE `sequence_id` (
@@ -919,70 +919,70 @@ CREATE TABLE `sequence_id` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
-更准确点来说，不仅仅是自增主键，`AUTO_INCREMENT`的列都会涉及到自增锁，毕竟非主键也可以设置自增长。
+Nói chính xác hơn, không chỉ là primary key tự tăng, các cột có `AUTO_INCREMENT` đều liên quan đến auto-increment lock, bởi vì non-primary key cũng có thể được đặt tự tăng.
 
-如果一个事务正在插入数据到有自增列的表时，会先获取自增锁，拿不到就可能会被阻塞住。这里的阻塞行为只是自增锁行为的其中一种，可以理解为自增锁就是一个接口，其具体的实现有多种。具体的配置项为 `innodb_autoinc_lock_mode` （MySQL 5.1.22 引入），可以选择的值如下：
+Nếu một transaction đang chèn dữ liệu vào bảng có cột tự tăng, trước tiên sẽ lấy auto-increment lock, không lấy được có thể bị block. Hành vi block ở đây chỉ là một trong các hành vi của auto-increment lock, có thể hiểu auto-increment lock như một interface, có nhiều triển khai cụ thể. Cấu hình cụ thể là `innodb_autoinc_lock_mode` (được giới thiệu trong MySQL 5.1.22), các giá trị có thể chọn như sau:
 
-| innodb_autoinc_lock_mode | 介绍                           |
-| :----------------------- | :----------------------------- |
-| 0                        | 传统模式                       |
-| 1                        | 连续模式（MySQL 8.0 之前默认） |
-| 2                        | 交错模式(MySQL 8.0 之后默认)   |
+| innodb_autoinc_lock_mode | Giới thiệu                                 |
+| :----------------------- | :----------------------------------------- |
+| 0                        | Chế độ truyền thống                        |
+| 1                        | Chế độ liên tục (mặc định trước MySQL 8.0) |
+| 2                        | Chế độ xen kẽ (mặc định sau MySQL 8.0)     |
 
-交错模式下，所有的“INSERT-LIKE”语句（所有的插入语句，包括：`INSERT`、`REPLACE`、`INSERT…SELECT`、`REPLACE…SELECT`、`LOAD DATA`等）都不使用表级锁，使用的是轻量级互斥锁实现，多条插入语句可以并发执行，速度更快，扩展性也更好。
+Trong chế độ xen kẽ, tất cả các câu lệnh "INSERT-LIKE" (tất cả các câu lệnh chèn, bao gồm: `INSERT`, `REPLACE`, `INSERT…SELECT`, `REPLACE…SELECT`, `LOAD DATA`, v.v.) đều không sử dụng table-level lock, sử dụng mutex lightweight để triển khai, nhiều câu lệnh chèn có thể thực thi đồng thời, tốc độ nhanh hơn, khả năng mở rộng cũng tốt hơn.
 
-不过，如果你的 MySQL 数据库有主从同步需求并且 Binlog 存储格式为 Statement 的话，不要将 InnoDB 自增锁模式设置为交叉模式，不然会有数据不一致性问题。这是因为并发情况下插入语句的执行顺序就无法得到保障。
+Tuy nhiên, nếu database MySQL của bạn có nhu cầu đồng bộ hóa master-slave và định dạng lưu trữ Binlog là Statement, đừng đặt chế độ auto-increment lock của InnoDB là chế độ xen kẽ, nếu không sẽ có vấn đề không nhất quán dữ liệu. Điều này là vì trong tình huống đồng thời, thứ tự thực thi của các câu lệnh chèn không thể được đảm bảo.
 
-> 如果 MySQL 采用的格式为 Statement ，那么 MySQL 的主从同步实际上同步的就是一条一条的 SQL 语句。
+> Nếu MySQL sử dụng định dạng Statement, thì master-slave sync của MySQL thực tế là đồng bộ từng câu SQL một.
 
-最后，再推荐一篇文章：[为什么 MySQL 的自增主键不单调也不连续](https://draveness.me/whys-the-design-mysql-auto-increment/) 。
+Cuối cùng, xin giới thiệu thêm một bài viết: [Tại sao primary key tự tăng của MySQL không đơn điệu và cũng không liên tục](https://draveness.me/whys-the-design-mysql-auto-increment/).
 
-## ⭐️MySQL 性能优化
+## ⭐️MySQL Tối ưu hóa hiệu suất
 
-关于 MySQL 性能优化的建议总结，请看这篇文章：[MySQL 高性能优化规范建议总结](./mysql-high-performance-optimization-specification-recommendations.md) 。
+Về tổng hợp các gợi ý tối ưu hóa hiệu suất MySQL, vui lòng xem bài viết này: [Tổng hợp các gợi ý tối ưu hóa hiệu suất cao MySQL](./mysql-high-performance-optimization-specification-recommendations.md).
 
-### 能用 MySQL 直接存储文件（比如图片）吗？
+### Có thể dùng MySQL để lưu trực tiếp file (ví dụ hình ảnh) không?
 
-可以是可以，直接存储文件对应的二进制数据即可。不过，还是建议不要在数据库中存储文件，会严重影响数据库性能，消耗过多存储空间。
+Có thể, chỉ cần lưu trực tiếp dữ liệu nhị phân tương ứng của file. Tuy nhiên, vẫn nên tránh lưu file trong database, sẽ ảnh hưởng nghiêm trọng đến hiệu suất database, tiêu tốn quá nhiều dung lượng lưu trữ.
 
-可以选择使用云服务厂商提供的开箱即用的文件存储服务，成熟稳定，价格也比较低。
+Có thể chọn sử dụng dịch vụ lưu trữ file ready-to-use do các nhà cung cấp dịch vụ đám mây cung cấp, ổn định và giá cả cũng khá thấp.
 
 ![](https://oss.javaguide.cn/github/javaguide/mysql/oss-search.png)
 
-也可以选择自建文件存储服务，实现起来也不难，基于 FastDFS、MinIO（推荐） 等开源项目就可以实现分布式文件服务。
+Cũng có thể chọn tự xây dựng dịch vụ lưu trữ file, triển khai cũng không khó, dựa trên các dự án mã nguồn mở như FastDFS, MinIO (khuyến nghị), v.v. có thể triển khai dịch vụ file phân tán.
 
-**数据库只存储文件地址信息，文件由文件存储服务负责存储。**
+**Database chỉ lưu thông tin địa chỉ file, file do dịch vụ lưu trữ file chịu trách nhiệm lưu trữ.**
 
-### MySQL 如何存储 IP 地址？
+### MySQL lưu trữ địa chỉ IP như thế nào?
 
-可以将 IP 地址转换成整形数据存储，性能更好，占用空间也更小。
+Có thể chuyển đổi địa chỉ IP thành dữ liệu số nguyên để lưu trữ, hiệu suất tốt hơn, chiếm ít dung lượng hơn.
 
-MySQL 提供了两个方法来处理 ip 地址
+MySQL cung cấp hai phương thức để xử lý địa chỉ ip
 
-- `INET_ATON()`：把 ip 转为无符号整型 (4-8 位)
-- `INET_NTOA()` :把整型的 ip 转为地址
+- `INET_ATON()`: Chuyển ip sang số nguyên không dấu (4-8 chữ số)
+- `INET_NTOA()`: Chuyển ip kiểu số nguyên về địa chỉ
 
-插入数据前，先用 `INET_ATON()` 把 ip 地址转为整型，显示数据时，使用 `INET_NTOA()` 把整型的 ip 地址转为地址显示即可。
+Trước khi chèn dữ liệu, dùng `INET_ATON()` để chuyển địa chỉ ip thành số nguyên, khi hiển thị dữ liệu, dùng `INET_NTOA()` để chuyển địa chỉ ip kiểu số nguyên về địa chỉ để hiển thị.
 
-### 有哪些常见的 SQL 优化手段？
+### Có những phương pháp tối ưu SQL phổ biến nào?
 
-[《Java 面试指北》(付费)](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html) 的 **「技术面试题篇」** 有一篇文章详细介绍了常见的 SQL 优化手段，非常全面，清晰易懂！
+Phần **"Phần câu hỏi phỏng vấn kỹ thuật"** của [《Hướng dẫn phỏng vấn Java》(có phí)](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html) có một bài viết giới thiệu chi tiết về các phương pháp tối ưu SQL phổ biến, rất toàn diện, rõ ràng và dễ hiểu!
 
-![常见的 SQL 优化手段](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-sql-optimization.png)
+![Các phương pháp tối ưu SQL phổ biến](https://oss.javaguide.cn/javamianshizhibei/javamianshizhibei-sql-optimization.png)
 
-文章地址：https://www.yuque.com/snailclimb/mf2z3k/abc2sv （密码获取：<https://t.zsxq.com/avfM0>）。
+Địa chỉ bài viết: https://www.yuque.com/snailclimb/mf2z3k/abc2sv (lấy mật khẩu: <https://t.zsxq.com/avfM0>).
 
-### 如何分析 SQL 的性能？
+### Làm thế nào để phân tích hiệu suất SQL?
 
-我们可以使用 `EXPLAIN` 命令来分析 SQL 的 **执行计划** 。执行计划是指一条 SQL 语句在经过 MySQL 查询优化器的优化会后，具体的执行方式。
+Chúng ta có thể sử dụng lệnh `EXPLAIN` để phân tích **execution plan** của SQL. Execution plan là cách thực thi cụ thể của một câu lệnh SQL sau khi được tối ưu hóa bởi MySQL query optimizer.
 
-`EXPLAIN` 并不会真的去执行相关的语句，而是通过 **查询优化器** 对语句进行分析，找出最优的查询方案，并显示对应的信息。
+`EXPLAIN` không thực sự thực thi các câu lệnh liên quan, mà thông qua **query optimizer** để phân tích câu lệnh, tìm ra phương án truy vấn tối ưu nhất và hiển thị thông tin tương ứng.
 
-`EXPLAIN` 适用于 `SELECT`, `DELETE`, `INSERT`, `REPLACE`, 和 `UPDATE`语句，我们一般分析 `SELECT` 查询较多。
+`EXPLAIN` áp dụng cho các câu lệnh `SELECT`, `DELETE`, `INSERT`, `REPLACE` và `UPDATE`, thông thường chúng ta phân tích truy vấn `SELECT` nhiều hơn.
 
-我们这里简单来演示一下 `EXPLAIN` 的使用。
+Ở đây chúng ta demo đơn giản cách sử dụng `EXPLAIN`.
 
-`EXPLAIN` 的输出格式如下：
+Định dạng đầu ra của `EXPLAIN` như sau:
 
 ```sql
 mysql> EXPLAIN SELECT `score`,`name` FROM `cus_order` ORDER BY `score` DESC;
@@ -994,102 +994,102 @@ mysql> EXPLAIN SELECT `score`,`name` FROM `cus_order` ORDER BY `score` DESC;
 1 row in set, 1 warning (0.00 sec)
 ```
 
-各个字段的含义如下：
+Ý nghĩa của các trường như sau:
 
-| **列名**      | **含义**                                     |
-| ------------- | -------------------------------------------- |
-| id            | SELECT 查询的序列标识符                      |
-| select_type   | SELECT 关键字对应的查询类型                  |
-| table         | 用到的表名                                   |
-| partitions    | 匹配的分区，对于未分区的表，值为 NULL        |
-| type          | 表的访问方法                                 |
-| possible_keys | 可能用到的索引                               |
-| key           | 实际用到的索引                               |
-| key_len       | 所选索引的长度                               |
-| ref           | 当使用索引等值查询时，与索引作比较的列或常量 |
-| rows          | 预计要读取的行数                             |
-| filtered      | 按表条件过滤后，留存的记录数的百分比         |
-| Extra         | 附加信息                                     |
+| **Tên cột**   | **Ý nghĩa**                                                                   |
+| ------------- | ----------------------------------------------------------------------------- |
+| id            | Số định danh thứ tự của truy vấn SELECT                                       |
+| select_type   | Loại truy vấn tương ứng với từ khóa SELECT                                    |
+| table         | Tên bảng được sử dụng                                                         |
+| partitions    | Partition khớp, đối với bảng không phân vùng, giá trị là NULL                 |
+| type          | Phương thức truy cập bảng                                                     |
+| possible_keys | Index có thể được sử dụng                                                     |
+| key           | Index thực tế được sử dụng                                                    |
+| key_len       | Độ dài của index được chọn                                                    |
+| ref           | Khi sử dụng truy vấn đẳng thức index, cột hoặc hằng số được so sánh với index |
+| rows          | Số hàng dự kiến cần đọc                                                       |
+| filtered      | Tỷ lệ phần trăm số bản ghi còn lại sau khi lọc theo điều kiện bảng            |
+| Extra         | Thông tin bổ sung                                                             |
 
-篇幅问题，我这里只是简单介绍了一下 MySQL 执行计划，详细介绍请看：[SQL 的执行计划](./mysql-query-execution-plan.md)这篇文章。
+Do giới hạn về độ dài, ở đây tôi chỉ giới thiệu sơ qua về MySQL execution plan, giới thiệu chi tiết vui lòng xem bài viết: [Execution plan của SQL](./mysql-query-execution-plan.md).
 
-### 读写分离和分库分表了解吗？
+### Bạn có biết về read-write separation và database sharding không?
 
-读写分离和分库分表相关的问题比较多，于是，我单独写了一篇文章来介绍：[读写分离和分库分表详解](../../high-performance/read-and-write-separation-and-library-subtable.md)。
+Các câu hỏi liên quan đến read-write separation và database sharding khá nhiều, vì vậy tôi đã viết riêng một bài viết để giới thiệu: [Giải thích chi tiết về read-write separation và database sharding](../../high-performance/read-and-write-separation-and-library-subtable.md).
 
-### 深度分页如何优化？
+### Làm thế nào để tối ưu hóa deep pagination?
 
-[深度分页介绍及优化建议](../../high-performance/deep-pagination-optimization.md)
+[Giới thiệu và gợi ý tối ưu hóa deep pagination](../../high-performance/deep-pagination-optimization.md)
 
-### 数据冷热分离如何做？
+### Làm thế nào để phân tách dữ liệu nóng lạnh?
 
-[数据冷热分离详解](../../high-performance/data-cold-hot-separation.md)
+[Giải thích chi tiết về phân tách dữ liệu nóng lạnh](../../high-performance/data-cold-hot-separation.md)
 
-### MySQL 性能怎么优化？
+### Làm thế nào để tối ưu hóa hiệu suất MySQL?
 
-MySQL 性能优化是一个系统性工程，涉及多个方面，在面试中不可能面面俱到。因此，建议按照“点-线-面”的思路展开，从核心问题入手，再逐步扩展，展示出你对问题的思考深度和解决能力。
+Tối ưu hóa hiệu suất MySQL là một công việc có hệ thống, liên quan đến nhiều khía cạnh, trong phỏng vấn không thể nói hết tất cả. Do đó, nên theo tư duy "điểm-đường-mặt" để triển khai, bắt đầu từ vấn đề cốt lõi rồi mở rộng dần, thể hiện chiều sâu suy nghĩ và năng lực giải quyết vấn đề của bạn.
 
-**1. 抓住核心：慢 SQL 定位与分析**
+**1. Nắm bắt cốt lõi: Xác định và phân tích Slow SQL**
 
-性能优化的第一步永远是找到瓶颈。面试时，建议先从 **慢 SQL 定位和分析** 入手，这不仅能展示你解决问题的思路，还能体现你对数据库性能监控的熟练掌握：
+Bước đầu tiên của tối ưu hóa hiệu suất luôn là tìm ra nút thắt cổ chai. Trong phỏng vấn, nên bắt đầu từ **xác định và phân tích Slow SQL**, điều này không chỉ thể hiện tư duy giải quyết vấn đề của bạn mà còn thể hiện sự thành thạo về giám sát hiệu suất database:
 
-- **监控工具：** 介绍常用的慢 SQL 监控工具，如 **MySQL 慢查询日志**、**Performance Schema** 等，说明你对这些工具的熟悉程度以及如何通过它们定位问题。
-- **EXPLAIN 命令：** 详细说明 `EXPLAIN` 命令的使用，分析查询计划、索引使用情况，可以结合实际案例展示如何解读分析结果，比如执行顺序、索引使用情况、全表扫描等。
+- **Công cụ giám sát:** Giới thiệu các công cụ giám sát Slow SQL thông dụng như **MySQL slow query log**, **Performance Schema**, v.v., nói rõ mức độ quen thuộc của bạn với các công cụ này và cách sử dụng chúng để xác định vấn đề.
+- **Lệnh EXPLAIN:** Giải thích chi tiết cách sử dụng lệnh `EXPLAIN`, phân tích execution plan, tình trạng sử dụng index, có thể kết hợp với các trường hợp thực tế để thể hiện cách đọc và phân tích kết quả, như thứ tự thực thi, tình trạng sử dụng index, full table scan, v.v.
 
-**2. 由点及面：索引、表结构和 SQL 优化**
+**2. Từ điểm đến diện: Tối ưu hóa index, cấu trúc bảng và SQL**
 
-定位到慢 SQL 后，接下来就要针对具体问题进行优化。 这里可以重点介绍索引、表结构和 SQL 编写规范等方面的优化技巧：
+Sau khi xác định được Slow SQL, bước tiếp theo là tối ưu hóa vấn đề cụ thể. Ở đây có thể trọng điểm giới thiệu các kỹ thuật tối ưu hóa về index, cấu trúc bảng và quy chuẩn viết SQL:
 
-- **索引优化：** 这是 MySQL 性能优化的重点，可以介绍索引的创建原则、覆盖索引、最左前缀匹配原则等。如果能结合你项目的实际应用来说明如何选择合适的索引，会更加分一些。
-- **表结构优化：** 优化表结构设计，包括选择合适的字段类型、避免冗余字段、合理使用范式和反范式设计等等。
-- **SQL 优化：** 避免使用 `SELECT *`、尽量使用具体字段、使用连接查询代替子查询、合理使用分页查询、批量操作等，都是 SQL 编写过程中需要注意的细节。
+- **Tối ưu hóa index:** Đây là trọng điểm của tối ưu hóa hiệu suất MySQL, có thể giới thiệu nguyên tắc tạo index, covering index, nguyên tắc khớp leftmost prefix, v.v. Nếu có thể kết hợp với ứng dụng thực tế trong dự án của bạn để nói rõ cách chọn index phù hợp, sẽ ghi điểm hơn.
+- **Tối ưu hóa cấu trúc bảng:** Tối ưu thiết kế cấu trúc bảng, bao gồm chọn kiểu trường phù hợp, tránh trường dư thừa, sử dụng hợp lý normalization và denormalization, v.v.
+- **Tối ưu hóa SQL:** Tránh dùng `SELECT *`, cố gắng dùng các trường cụ thể, dùng join query thay cho subquery, sử dụng hợp lý pagination query, thao tác batch, v.v., đều là các chi tiết cần chú ý trong quá trình viết SQL.
 
-**3. 进阶方案：架构优化**
+**3. Giải pháp nâng cao: Tối ưu hóa kiến trúc**
 
-当面试官对基础优化知识比较满意时，可能会深入探讨一些架构层面的优化方案。以下是一些常见的架构优化策略：
+Khi người phỏng vấn khá hài lòng với kiến thức tối ưu hóa cơ bản, họ có thể đi sâu vào thảo luận về một số giải pháp tối ưu hóa ở tầng kiến trúc. Dưới đây là một số chiến lược tối ưu hóa kiến trúc phổ biến:
 
-- **读写分离：** 将读操作和写操作分离到不同的数据库实例，提升数据库的并发处理能力。
-- **分库分表：** 将数据分散到多个数据库实例或数据表中，降低单表数据量，提升查询效率。但要权衡其带来的复杂性和维护成本，谨慎使用。
-- **数据冷热分离**：根据数据的访问频率和业务重要性，将数据分为冷数据和热数据，冷数据一般存储在低成本、低性能的介质中，热数据存储在高性能存储介质中。
-- **缓存机制：** 使用 Redis 等缓存中间件，将热点数据缓存到内存中，减轻数据库压力。这个非常常用，提升效果非常明显，性价比极高！
+- **Read-write separation:** Tách biệt các thao tác đọc và ghi sang các database instance khác nhau, nâng cao khả năng xử lý đồng thời của database.
+- **Database sharding:** Phân tán dữ liệu vào nhiều database instance hoặc bảng dữ liệu, giảm lượng dữ liệu của bảng đơn, nâng cao hiệu suất truy vấn. Nhưng cần cân nhắc sự phức tạp và chi phí bảo trì mà nó mang lại, sử dụng thận trọng.
+- **Phân tách dữ liệu nóng lạnh**: Dựa trên tần suất truy cập và tầm quan trọng của nghiệp vụ, phân dữ liệu thành dữ liệu lạnh và dữ liệu nóng, dữ liệu lạnh thường được lưu trữ trên phương tiện có chi phí thấp, hiệu suất thấp, dữ liệu nóng được lưu trữ trên phương tiện lưu trữ hiệu suất cao.
+- **Cơ chế cache:** Sử dụng middleware cache như Redis, cache dữ liệu hot vào bộ nhớ, giảm áp lực cho database. Cái này rất phổ biến, hiệu quả nâng cao rất rõ rệt, tỷ lệ hiệu quả/chi phí cực cao!
 
-**4. 其他优化手段**
+**4. Các phương pháp tối ưu hóa khác**
 
-除了慢 SQL 定位、索引优化和架构优化，还可以提及一些其他优化手段，展示你对 MySQL 性能调优的全面理解：
+Ngoài xác định Slow SQL, tối ưu hóa index và tối ưu hóa kiến trúc, còn có thể đề cập đến một số phương pháp tối ưu hóa khác, thể hiện sự hiểu biết toàn diện về tối ưu hóa hiệu suất MySQL:
 
-- **连接池配置：** 配置合理的数据库连接池（如 **连接池大小**、**超时时间** 等），能够有效提升数据库连接的效率，避免频繁的连接开销。
-- **硬件配置：** 提升硬件性能也是优化的重要手段之一。使用高性能服务器、增加内存、使用 **SSD** 硬盘等硬件升级，都可以有效提升数据库的整体性能。
+- **Cấu hình connection pool:** Cấu hình connection pool database hợp lý (như **kích thước connection pool**, **thời gian timeout**, v.v.), có thể cải thiện hiệu quả kết nối database, tránh chi phí kết nối thường xuyên.
+- **Cấu hình phần cứng:** Nâng cấp hiệu suất phần cứng cũng là một trong những biện pháp tối ưu hóa quan trọng. Sử dụng server hiệu suất cao, tăng bộ nhớ, sử dụng ổ cứng **SSD**, v.v., các nâng cấp phần cứng đều có thể cải thiện hiệu quả hiệu suất tổng thể của database.
 
-**5.总结**
+**5. Tổng kết**
 
-在面试中，建议按优先级依次介绍慢 SQL 定位、[索引优化](./mysql-index.md)、表结构设计和 [SQL 优化](../../high-performance/sql-optimization.md)等内容。架构层面的优化，如[读写分离和分库分表](../../high-performance/read-and-write-separation-and-library-subtable.md)、[数据冷热分离](../../high-performance/data-cold-hot-separation.md) 应作为最后的手段，除非在特定场景下有明显的性能瓶颈，否则不应轻易使用，因其引入的复杂性会带来额外的维护成本。
+Trong phỏng vấn, nên lần lượt giới thiệu theo thứ tự ưu tiên về xác định Slow SQL, [tối ưu hóa index](./mysql-index.md), thiết kế cấu trúc bảng và [tối ưu hóa SQL](../../high-performance/sql-optimization.md). Các tối ưu hóa ở tầng kiến trúc như [read-write separation và database sharding](../../high-performance/read-and-write-separation-and-library-subtable.md), [phân tách dữ liệu nóng lạnh](../../high-performance/data-cold-hot-separation.md) nên là biện pháp cuối cùng, trừ khi có nút thắt hiệu suất rõ ràng trong tình huống cụ thể, nếu không không nên sử dụng tùy tiện, vì sự phức tạp mà nó mang lại sẽ tạo ra chi phí bảo trì thêm.
 
-## MySQL 学习资料推荐
+## Tài liệu học MySQL được đề xuất
 
-[**书籍推荐**](../../books/database.md#mysql) 。
+[**Đề xuất sách**](../../books/database.md#mysql).
 
-**文章推荐** :
+**Đề xuất bài viết**:
 
-- [一树一溪的 MySQL 系列教程](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzg3NTc3NjM4Nw==&action=getalbum&album_id=2372043523518300162&scene=173&from_msgid=2247484308&from_itemidx=1&count=3&nolastread=1#wechat_redirect)
-- [Yes 的 MySQL 系列教程](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzkxNTE3NjQ3MA==&action=getalbum&album_id=1903249596194095112&scene=173&from_msgid=2247490365&from_itemidx=1&count=3&nolastread=1#wechat_redirect)
-- [写完这篇 我的 SQL 优化能力直接进入新层次 - 变成派大星 - 2022](https://juejin.cn/post/7161964571853815822)
-- [两万字详解！InnoDB 锁专题！ - 捡田螺的小男孩 - 2022](https://juejin.cn/post/7094049650428084232)
-- [MySQL 的自增主键一定是连续的吗？ - 飞天小牛肉 - 2022](https://mp.weixin.qq.com/s/qci10h9rJx_COZbHV3aygQ)
-- [深入理解 MySQL 索引底层原理 - 腾讯技术工程 - 2020](https://zhuanlan.zhihu.com/p/113917726)
+- [Chuỗi hướng dẫn MySQL của Yishu Yixi](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzg3NTc3NjM4Nw==&action=getalbum&album_id=2372043523518300162&scene=173&from_msgid=2247484308&from_itemidx=1&count=3&nolastread=1#wechat_redirect)
+- [Chuỗi hướng dẫn MySQL của Yes](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzkxNTE3NjQ3MA==&action=getalbum&album_id=1903249596194095112&scene=173&from_msgid=2247490365&from_itemidx=1&count=3&nolastread=1#wechat_redirect)
+- [Viết xong bài này, khả năng tối ưu SQL của tôi đã lên một tầm mới - Biancheng Pai Da Xing - 2022](https://juejin.cn/post/7161964571853815822)
+- [Giải thích chi tiết 20.000 chữ! Chuyên đề lock InnoDB! - Jiandianluodexiaonanhai - 2022](https://juejin.cn/post/7094049650428084232)
+- [Primary key tự tăng của MySQL có nhất thiết liên tục không? - Feitianxiaoniu - 2022](https://mp.weixin.qq.com/s/qci10h9rJx_COZbHV3aygQ)
+- [Hiểu sâu nguyên lý nền tảng của MySQL index - Tencent Technology Engineering - 2020](https://zhuanlan.zhihu.com/p/113917726)
 
-## 参考
+## Tham khảo
 
-- 《高性能 MySQL》第 7 章 MySQL 高级特性
-- 《MySQL 技术内幕 InnoDB 存储引擎》第 6 章 锁
+- 《High Performance MySQL》Chương 7 Tính năng nâng cao MySQL
+- 《MySQL Internals: InnoDB Storage Engine》Chương 6 Lock
 - Relational Database：<https://www.omnisci.com/technical-glossary/relational-database>
-- 一篇文章看懂 mysql 中 varchar 能存多少汉字、数字，以及 varchar(100)和 varchar(10)的区别：<https://www.cnblogs.com/zhuyeshen/p/11642211.html>
-- 技术分享 | 隔离级别：正确理解幻读：<https://opensource.actionsky.com/20210818-mysql/>
+- Một bài viết giải thích varchar trong mysql có thể lưu bao nhiêu ký tự Hán, số, và sự khác biệt giữa varchar(100) và varchar(10)：<https://www.cnblogs.com/zhuyeshen/p/11642211.html>
+- Chia sẻ kỹ thuật | Mức độ cô lập: Hiểu đúng về phantom read：<https://opensource.actionsky.com/20210818-mysql/>
 - MySQL Server Logs - MySQL 5.7 Reference Manual：<https://dev.mysql.com/doc/refman/5.7/en/server-logs.html>
 - Redo Log - MySQL 5.7 Reference Manual：<https://dev.mysql.com/doc/refman/5.7/en/innodb-redo-log.html>
 - Locking Reads - MySQL 5.7 Reference Manual：<https://dev.mysql.com/doc/refman/5.7/en/innodb-locking-reads.html>
-- 深入理解数据库行锁与表锁 <https://zhuanlan.zhihu.com/p/52678870>
-- 详解 MySQL InnoDB 中意向锁的作用：<https://juejin.cn/post/6844903666332368909>
-- 深入剖析 MySQL 自增锁：<https://juejin.cn/post/6968420054287253540>
-- 在数据库中不可重复读和幻读到底应该怎么分？：<https://www.zhihu.com/question/392569386>
+- Hiểu sâu row lock và table lock trong database <https://zhuanlan.zhihu.com/p/52678870>
+- Giải thích chi tiết vai trò của intention lock trong MySQL InnoDB：<https://juejin.cn/post/6844903666332368909>
+- Phân tích sâu auto-increment lock của MySQL：<https://juejin.cn/post/6968420054287253540>
+- Trong database, unrepeatable read và phantom read thực sự nên phân biệt như thế nào?：<https://www.zhihu.com/question/392569386>
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,6 +1,6 @@
 ---
-title: 万字详解 Agent Skills：是什么？怎么用？和 Prompt、MCP 有什么区别？
-description: 深入解析 Agent Skills 概念，探讨 Skills 与 Prompt、MCP、Function Calling 的本质区别，以及如何在实战中设计优秀的 Skill 固化代码规范。
+title: Giải mã Agent Skills - Là gì? Dùng thế nào? Khác Prompt, MCP là gì?
+description: Phân tích chuyên sâu khái niệm Agent Skills, khám phá sự khác biệt bản chất giữa Skills với Prompt, MCP, Function Calling, cùng cách thiết kế Skill chất lượng cao trong thực tiễn để chuẩn hóa quy tắc code.
 category: AI 应用开发
 head:
   - - meta
@@ -8,286 +8,286 @@ head:
       content: Agent Skills,MCP,Function Calling,Prompt,AI Agent,智能体,延迟加载,上下文注入
 ---
 
-2025 年初，Anthropic 在推出 **MCP（Model Context Protocol）** 之后，在 Claude Code 中引入了 **Agent Skills** 的概念。背后的设计动机是：**连接性（Connectivity）与能力（Capability）应该分离**。
+Đầu năm 2025, Anthropic sau khi ra mắt **MCP (Model Context Protocol)** đã giới thiệu khái niệm **Agent Skills** trong Claude Code. Động lực thiết kế đằng sau đó là: **Connectivity (Kết nối) và Capability (Năng lực) nên được tách biệt**.
 
-很多开发者认为“只要提示词写得好，AI 就能帮我做一切”。但事实是：**Prompt 适合单次任务，Skills 才是构建可复用 AI 能力的正确做法**。
+Nhiều lập trình viên nghĩ rằng "chỉ cần viết prompt tốt, AI có thể giúp tôi làm mọi thứ". Nhưng thực tế là: **Prompt phù hợp cho tác vụ một lần, Skills mới là cách đúng để xây dựng năng lực AI có thể tái sử dụng**.
 
-Skills 把 AI 应用从“个人技巧”拉到了“工程化”的层面。今天 Guide 带大家彻底搞懂这个概念，聊清楚 Skills 的设计理念、与相关技术的本质区别，以及如何在实战中用好这个能力。
+Skills đưa ứng dụng AI từ "kỹ năng cá nhân" lên tầm "kỹ thuật hóa". Hôm nay hãy cùng hiểu rõ khái niệm này, làm rõ triết lý thiết kế của Skills, sự khác biệt bản chất với các công nghệ liên quan, và cách tận dụng tốt năng lực này trong thực tiễn.
 
-1. **Skills 是什么**：为什么说 Skill 是“延迟加载”的 sub-agent？它的核心机制——上下文注入和延迟加载是如何工作的？
-2. **Skills vs Prompt vs MCP vs Function Calling**：这四者的本质区别是什么？它们分别适用于什么场景？这是面试中的高频盲区。
-3. **优秀的 Skill 长什么样**：一个设计良好的 Skill 应该包含哪些要素？元数据、触发条件、执行流程如何设计？
-4. **项目实战**：如何在真实开发中用 Skills 固化代码规范、排查流程、Review 标准？如何把团队中的“隐性知识”变成可复用的 AI 能力？
+1. **Skills là gì**: Tại sao nói Skill là "sub-agent lazy loading"? Cơ chế cốt lõi — context injection và lazy loading hoạt động như thế nào?
+2. **Skills vs Prompt vs MCP vs Function Calling**: Sự khác biệt bản chất của bốn thứ này là gì? Chúng phù hợp với trường hợp nào? Đây là điểm mù tần suất cao trong phỏng vấn.
+3. **Skill chất lượng tốt trông như thế nào**: Một Skill được thiết kế tốt nên bao gồm những yếu tố nào? Metadata, điều kiện kích hoạt, luồng thực thi nên thiết kế ra sao?
+4. **Thực chiến dự án**: Làm thế nào để dùng Skills chuẩn hóa quy tắc code, quy trình điều tra, tiêu chuẩn Review trong phát triển thực tế? Làm sao biến "kiến thức ngầm" của đội nhóm thành năng lực AI có thể tái sử dụng?
 
-## Skills 是什么？
+## Skills là gì?
 
-用一句话概括：**Skill 是一个用自然语言定义的、具有特定领域上下文（Domain Context）的逻辑指令集，本质上是通过延迟加载（Lazy Loading）优化 Token 消耗的 Sub-Agent（子智能体）**。
+Tóm gọn một câu: **Skill là một tập hợp chỉ dẫn logic có Domain Context (ngữ cảnh lĩnh vực) cụ thể, được định nghĩa bằng ngôn ngữ tự nhiên, bản chất là Sub-Agent (tác tử con) tối ưu tiêu thụ Token thông qua Lazy Loading (tải lười biếng)**.
 
-> 这里的"Sub-Agent"是一种类比——Skill 并不是独立的 Agent 实例，没有独立的规划循环（Agent Loop），它更接近一段可动态注入的领域上下文。
+> "Sub-Agent" ở đây là một phép tương tự — Skill không phải là một instance Agent độc lập, không có vòng lặp lập kế hoạch (Agent Loop) độc lập, nó gần với một ngữ cảnh lĩnh vực có thể được inject động.
 
-在团队协作中，很多“隐性知识”都在老员工脑子里，比如代码规范、排查流程、Review 标准。Skills 的核心价值，就是**把这些隐性规则变成显性的文档（SOP），让 AI 能够自主阅读、理解并执行**。
+Trong công việc nhóm, nhiều "kiến thức ngầm" nằm trong đầu nhân viên cũ, ví dụ như quy tắc code, quy trình điều tra, tiêu chuẩn Review. Giá trị cốt lõi của Skills là **biến những quy tắc ngầm này thành tài liệu hiện (SOP), để AI có thể tự đọc, hiểu và thực thi**.
 
-与传统的硬编码工作流不同，Skills 不强制规定每一步的代码逻辑，而是**用自然语言将决策权下放给模型**——模型通过 `load_skill()` 动态加载 `SKILL.md` 后，将其中定义的规则、流程和约束**实时注入到推理上下文**中，指导后续的工具调用和决策。这既保留了 Agent 处理不确定性的优势，又避免了纯代码编排的僵化。
+Khác với quy trình công việc hardcode truyền thống, Skills không bắt buộc từng bước logic code, mà **dùng ngôn ngữ tự nhiên phân quyền quyết định cho mô hình** — mô hình sau khi động nạp `SKILL.md` qua `load_skill()`, sẽ **inject theo thời gian thực** các quy tắc, quy trình và ràng buộc được định nghĩa trong đó vào **ngữ cảnh suy luận**, hướng dẫn các lời gọi công cụ và quyết định tiếp theo. Điều này vừa bảo toàn ưu thế của Agent trong việc xử lý tính không chắc chắn, vừa tránh sự cứng nhắc của orchestration thuần code.
 
-> 为什么不用“基于 Function Calling 封装”？这个表述容易让人误以为 Skill 是某种 Function Calling 的语法糖。实际上，Skill 的核心机制是**上下文注入**——Agent 读取 Markdown 文档，把其中的规则和流程纳入推理上下文。Function Calling 只是 Agent 执行某些动作（如调脚本、查资源）时可能用到的底层手段，不是 Skills 本身的定义层。
+> Tại sao không dùng "đóng gói dựa trên Function Calling"? Cách diễn đạt này dễ khiến người ta nhầm tưởng Skill là một loại syntactic sugar của Function Calling. Thực ra, cơ chế cốt lõi của Skill là **context injection** — Agent đọc tài liệu Markdown, đưa các quy tắc và quy trình trong đó vào ngữ cảnh suy luận. Function Calling chỉ là phương tiện cơ bản có thể được dùng khi Agent thực thi một số hành động (như chạy script, truy vấn tài nguyên), không phải là tầng định nghĩa của Skills.
 >
-> 注意：`load_skill()` 是对“Agent 读取并激活 SKILL.md”这一过程的概念性描述，不同工具（Claude Code、Cursor 等）的实际触发方式会有差异。
+> Lưu ý: `load_skill()` là mô tả khái niệm về quá trình "Agent đọc và kích hoạt SKILL.md", cách kích hoạt thực tế của các công cụ khác nhau (Claude Code, Cursor, v.v.) sẽ có sự khác biệt.
 
-**关键机制**：
+**Cơ chế then chốt**:
 
-- **延迟加载（Lazy Loading）**：元数据保持简短（通常远少于正文）常驻上下文，正文仅在触发时动态注入，避免挤占 Token
-- **动态上下文注入**：不同于静态文档的“阅读”，Skills 是将规则实时注入推理上下文，直接影响模型决策
+- **Lazy Loading (Tải lười biếng)**: Metadata giữ ngắn gọn (thường ít hơn nhiều so với nội dung chính) thường trú trong context, nội dung chính chỉ được inject động khi có trigger, tránh chiếm dụng Token
+- **Dynamic context injection (Inject ngữ cảnh động)**: Khác với "đọc" tài liệu tĩnh, Skills inject quy tắc vào ngữ cảnh suy luận theo thời gian thực, trực tiếp ảnh hưởng đến quyết định mô hình
 
-## Skills 和 Prompt、MCP、Function Calling 有什么区别
+## Skills và Prompt, MCP, Function Calling có gì khác nhau
 
-这也是面试中常被问到的点，容易混淆：
+Đây cũng là điểm thường được hỏi trong phỏng vấn, dễ bị nhầm lẫn:
 
 **1. Skills vs Prompt**
 
-| 维度         | Prompt                     | Skills                         |
-| :----------- | :------------------------- | :----------------------------- |
-| **本质**     | 单次对话的文本指令         | 可持久化、可发现的**能力单元** |
-| **复用性**   | 随对话上下文丢失，难以维护 | 标准化封装，跨项目、多场景复用 |
-| **加载机制** | 全量载入（挤占 Token）     | **延迟加载**（按需读取正文）   |
+| Chiều                | Prompt                                     | Skills                                                 |
+| :------------------- | :----------------------------------------- | :----------------------------------------------------- |
+| **Bản chất**         | Chỉ dẫn văn bản cho một lần hội thoại      | **Đơn vị năng lực** có thể lưu trữ và khám phá         |
+| **Tính tái sử dụng** | Mất đi theo context hội thoại, khó bảo trì | Đóng gói chuẩn, tái sử dụng xuyên dự án, đa tình huống |
+| **Cơ chế tải**       | Tải toàn bộ (chiếm Token)                  | **Lazy loading** (đọc nội dung chính theo nhu cầu)     |
 
-- **Prompt**：用户即时表达意图的载体（如“分析这份报表”）。
-- **Skills**：包含**元数据（何时使用）+ 正文（如何执行）**的完整方案，通过 `load_skill()` 机制按需加载到上下文。
+- **Prompt**: Carrier để người dùng biểu đạt ý định tức thời (như "phân tích báo cáo này").
+- **Skills**: Gói hoàn chỉnh gồm **metadata (khi nào dùng) + nội dung chính (cách thực thi)**, tải theo nhu cầu vào context thông qua cơ chế `load_skill()`.
 
 **2. Skills vs MCP**
 
-这是最容易产生误解的地方。
+Đây là điểm dễ gây hiểu nhầm nhất.
 
-| 维度         | MCP (Model Context Protocol)               | Skills                                         |
-| :----------- | :----------------------------------------- | :--------------------------------------------- |
-| **核心思路** | **标准化连接**：通过 JSON-RPC 统一数据格式 | **逻辑编排**：用自然语言描述复杂执行路径       |
-| **定义方式** | 在 Server 端用代码（TS/Python）写死逻辑    | 在 `SKILL.md` 中用自然语言引导模型决策         |
-| **环境依赖** | 需要运行一个 MCP Server 进程               | 依赖可执行环境（如本地 Shell 或沙箱）          |
-| **哲学**     | **以协议为中心**：一次编写，所有 AI 通用   | **以模型为中心**：利用模型推理能力处理不确定性 |
+| Chiều                    | MCP (Model Context Protocol)                                     | Skills                                                                                  |
+| :----------------------- | :--------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| **Tư tưởng cốt lõi**     | **Kết nối chuẩn hóa**: Thống nhất định dạng dữ liệu qua JSON-RPC | **Orchestration logic**: Mô tả đường dẫn thực thi phức tạp bằng ngôn ngữ tự nhiên       |
+| **Cách định nghĩa**      | Viết cứng logic phía Server bằng code (TS/Python)                | Hướng dẫn quyết định mô hình bằng ngôn ngữ tự nhiên trong `SKILL.md`                    |
+| **Phụ thuộc môi trường** | Cần chạy một process MCP Server                                  | Phụ thuộc môi trường có thể thực thi (như local Shell hoặc sandbox)                     |
+| **Triết học**            | **Protocol-centric**: Viết một lần, dùng cho tất cả AI           | **Model-centric**: Tận dụng khả năng suy luận của mô hình để xử lý tính không chắc chắn |
 
-- **MCP 解决的是连通性** ：它像 USB-C，让 AI 能以统一格式读文件、查数据库。
-- **Skills 解决的是编排逻辑** ：它像一份说明书，告诉 AI 如何执行复杂任务流——这些任务完全可以包括调用多个 MCP 工具。
-- **两者的关系** ：它们解决的是不同层面的问题。MCP 负责把外部系统接入进来，Skills 负责决定什么时候用、怎么组合这些能力。一个高级 Skill 的底层往往就是调用多个 MCP 工具。
+- **MCP giải quyết connectivity (kết nối)**: Giống như USB-C, giúp AI đọc file, truy vấn database theo định dạng thống nhất.
+- **Skills giải quyết orchestration logic (logic điều phối)**: Giống như một tài liệu hướng dẫn, nói cho AI biết cách thực thi các tác vụ phức tạp — những tác vụ này hoàn toàn có thể bao gồm gọi nhiều MCP tool.
+- **Mối quan hệ giữa hai**: Chúng giải quyết các vấn đề ở các tầng khác nhau. MCP chịu trách nhiệm kết nối hệ thống bên ngoài vào, Skills chịu trách nhiệm quyết định khi nào dùng và cách kết hợp các năng lực đó. Nền tảng của một Skill cao cấp thường là gọi nhiều MCP tool.
 
-![MCP 图解](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
+![Sơ đồ MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-simple-diagram.png)
 
 ![Skills vs MCP](https://oss.javaguide.cn/github/javaguide/ai/skills/mcp-mcp-vs-skills.png)
 
 **3. Function Calling vs Skills**
 
-| 维度         | Function Calling         | Skills                                                                  |
-| :----------- | :----------------------- | :---------------------------------------------------------------------- |
-| **层级**     | 底层机制                 | 上层应用                                                                |
-| **依赖关系** | 基础能力                 | 在执行时**可能使用** Function Calling（如加载文档、执行脚本、读取资源） |
-| **粒度**     | 原子操作（单次工具调用） | 复合流程（多步骤决策 + 工具组合）                                       |
+| Chiều                 | Function Calling                         | Skills                                                                                            |
+| :-------------------- | :--------------------------------------- | :------------------------------------------------------------------------------------------------ |
+| **Tầng**              | Cơ chế tầng dưới                         | Ứng dụng tầng trên                                                                                |
+| **Quan hệ phụ thuộc** | Năng lực cơ bản                          | Khi thực thi **có thể dùng** Function Calling (như tải tài liệu, thực thi script, đọc tài nguyên) |
+| **Độ hạt**            | Thao tác nguyên tử (gọi công cụ một lần) | Quy trình tổng hợp (quyết định nhiều bước + kết hợp công cụ)                                      |
 
-Skills **没有创造新能力**，而是通过自然语言文档将能力组织成更易用的形式：
+Skills **không tạo ra năng lực mới**, mà tổ chức năng lực thành hình thức dễ dùng hơn thông qua tài liệu ngôn ngữ tự nhiên:
 
-1. Agent 读取 `SKILL.md`，将规则和流程注入推理上下文。
-2. 根据上下文指导，Agent **可能**通过 Function Calling 执行脚本、读取资源或调用 MCP 工具。
+1. Agent đọc `SKILL.md`, inject quy tắc và quy trình vào ngữ cảnh suy luận.
+2. Theo hướng dẫn ngữ cảnh, Agent **có thể** thực thi script, đọc tài nguyên hoặc gọi MCP tool thông qua Function Calling.
 
-> 并非所有 Skills 都依赖 Function Calling。有些 Skill 是纯推理型的——比如代码审查规范、架构决策指南，它们只提供上下文指导，不需要任何外部工具调用。Function Calling 是 Skills 执行动作时的底层手段，不是 Skills 存在的前提。
+> Không phải tất cả Skills đều phụ thuộc Function Calling. Một số Skill thuần suy luận — như tiêu chuẩn code review, hướng dẫn quyết định kiến trúc, chúng chỉ cung cấp hướng dẫn ngữ cảnh, không cần bất kỳ lời gọi công cụ bên ngoài nào. Function Calling là phương tiện cơ bản khi Skills thực thi hành động, không phải là điều kiện tiên quyết cho sự tồn tại của Skills.
 
-**系统总结**：
+**Tổng kết hệ thống**:
 
-| **组件**             | **一句话定义**             | **形象类比** | **关键理解**                                        |
-| :------------------- | :------------------------- | :----------- | :-------------------------------------------------- |
-| **Prompt**           | 即时意图表达的载体         | 用户说的话   | 单次、易失                                          |
-| **Function Calling** | LLM 输出结构化调用的能力   | 神经信号     | **一切的基础**，实现非结构化→结构化转换             |
-| **MCP**              | 标准化的工具接入协议       | USB-C 接口   | 解决外部系统“如何接入”（连通性）                    |
-| **Skills**           | 用自然语言定义的 sub-agent | 任务说明书   | 解决复杂任务“如何编排”（执行逻辑），可调用 MCP 工具 |
+| **Thành phần**       | **Định nghĩa một câu**                           | **Phép tương tự**         | **Hiểu then chốt**                                                                 |
+| :------------------- | :----------------------------------------------- | :------------------------ | :--------------------------------------------------------------------------------- |
+| **Prompt**           | Carrier biểu đạt ý định tức thời                 | Điều người dùng nói       | Một lần, dễ mất                                                                    |
+| **Function Calling** | Năng lực LLM output lời gọi có cấu trúc          | Tín hiệu thần kinh        | **Nền tảng của tất cả**, thực hiện chuyển đổi phi cấu trúc→có cấu trúc             |
+| **MCP**              | Protocol tiếp nhận công cụ chuẩn hóa             | Cổng USB-C                | Giải quyết "cách kết nối" hệ thống bên ngoài (connectivity)                        |
+| **Skills**           | Sub-agent được định nghĩa bằng ngôn ngữ tự nhiên | Tài liệu hướng dẫn tác vụ | Giải quyết "cách điều phối" tác vụ phức tạp (execution logic), có thể gọi MCP tool |
 
-**四层关系**：Function Calling 是地基 → Prompt 表达意图 → MCP 负责连通外部系统 → Skills 负责编排复杂任务流（可调用 MCP）
+**Quan hệ bốn tầng**: Function Calling là nền tảng → Prompt biểu đạt ý định → MCP chịu trách nhiệm kết nối hệ thống bên ngoài → Skills chịu trách nhiệm điều phối luồng tác vụ phức tạp (có thể gọi MCP)
 
-这里需要澄清一个常见误解：MCP 和 Skills 并不冲突，也**不是非此即彼**。
+Ở đây cần làm rõ một hiểu lầm phổ biến: MCP và Skills không mâu thuẫn, cũng **không phải chọn một**.
 
-- **MCP** 解决外部系统如何接入：让 AI 能以统一格式读文件、查数据库、调用 API。
-- **Skills** 解决复杂任务如何编排：用自然语言定义执行流程，这些流程完全可以包含调用多个 MCP 工具。
+- **MCP** giải quyết cách kết nối hệ thống bên ngoài: Cho phép AI đọc file, truy vấn database, gọi API theo định dạng thống nhất.
+- **Skills** giải quyết cách điều phối tác vụ phức tạp: Định nghĩa luồng thực thi bằng ngôn ngữ tự nhiên, những luồng này hoàn toàn có thể bao gồm gọi nhiều MCP tool.
 
-两者配合使用：一个 Skill 的正文里会指导 Agent 先用 MCP 读取数据库，再用 MCP 调用外部 API，最后生成报告。
+Dùng kết hợp hai loại: Nội dung chính của một Skill sẽ hướng dẫn Agent đầu tiên dùng MCP đọc database, rồi dùng MCP gọi external API, cuối cùng tạo báo cáo.
 
-**一句话总结**：Prompt 承载意图，Function Calling 实现交互，MCP 负责连通外部系统，Skills 负责编排复杂任务流。
+**Tóm tắt một câu**: Prompt mang ý định, Function Calling thực hiện tương tác, MCP chịu trách nhiệm kết nối hệ thống bên ngoài, Skills chịu trách nhiệm điều phối luồng tác vụ phức tạp.
 
-## Skills 长什么样？如何使用
+## Skill trông như thế nào? Cách sử dụng
 
-从结构上看，Skill 很简单，核心就是一个 `SKILL.md` 文件，包含**元数据**（描述什么时候用）和**正文**（具体的执行 SOP）。
+Về mặt cấu trúc, Skill rất đơn giản, cốt lõi chỉ là một file `SKILL.md`, bao gồm **metadata** (mô tả khi nào dùng) và **nội dung chính** (SOP thực thi cụ thể).
 
-**设计上的亮点是“渐进式披露”**：
+**Điểm nổi bật trong thiết kế là "progressive disclosure" (tiết lộ dần dần)**:
 
-- **元数据**常驻上下文，AI 知道有哪些技能可用。
-- **正文**按需加载，只有触发时才读取，避免挤占 Token。
+- **Metadata** thường trú trong context, AI biết có những kỹ năng nào có thể dùng.
+- **Nội dung chính** tải theo nhu cầu, chỉ đọc khi được trigger, tránh chiếm Token.
 
-复杂点的 Skill，还会有附加的资源目录、脚本和参考文档。
+Skill phức tạp hơn còn có thêm thư mục tài nguyên, script và tài liệu tham khảo.
 
-Skill 的完整目录结构是这样的：
+Cấu trúc thư mục đầy đủ của Skill như sau:
 
 ```
 skill-name/
-├── SKILL.md          # 必需：元数据（何时使用）+ 正文（指令、流程、示例）
-├── scripts/          # 可选：可执行脚本（Python/Bash），按需调用
-├── references/       # 可选：参考文档，按需读取
-└── assets/           # 可选：模板、图片等资源
+├── SKILL.md          # Bắt buộc: metadata (khi nào dùng) + nội dung chính (chỉ dẫn, quy trình, ví dụ)
+├── scripts/          # Tùy chọn: script có thể thực thi (Python/Bash), gọi theo nhu cầu
+├── references/       # Tùy chọn: tài liệu tham khảo, đọc theo nhu cầu
+└── assets/           # Tùy chọn: template, hình ảnh và tài nguyên khác
 ```
 
-**项目实战**：
+**Thực chiến dự án**:
 
-我在项目中主要用 Skills 来**固化工程标准**。比如定义一个 `code-reviewer` Skill，明确要求从架构合理性、异常处理完整性、日志规范、安全风险、性能隐患等多个维度进行结构化审查。这样 AI 在 Review 代码时，就会严格执行团队标准，而不是“随缘点评”。这对于保持代码质量的一致性非常有用。
+Tôi chủ yếu dùng Skills trong dự án để **chuẩn hóa tiêu chuẩn kỹ thuật**. Ví dụ định nghĩa một Skill `code-reviewer`, yêu cầu rõ ràng cần review cấu trúc từ nhiều chiều như tính hợp lý kiến trúc, tính hoàn chỉnh xử lý ngoại lệ, quy tắc log, rủi ro bảo mật, ẩn họa hiệu suất, v.v. Nhờ đó AI khi Review code sẽ thực thi nghiêm ngặt tiêu chuẩn đội nhóm, thay vì "bình ngẫu hứng". Điều này rất hữu ích để duy trì tính nhất quán về chất lượng code.
 
-除了 Code Review，我也会定义其他 Skill，例如：
+Ngoài Code Review, tôi cũng định nghĩa các Skill khác, ví dụ:
 
-- `api-endpoint-generator` - 按项目统一响应结构与异常模型生成标准化接口代码
-- `database-access-review` - 审查数据库访问逻辑，关注索引使用与慢查询风险
-- `refactor-analysis` - 先评估影响范围与依赖关系，再输出分步骤重构方案
-- `security-audit` - 扫描 SQL 拼接、XSS、权限绕过等常见安全风险
+- `api-endpoint-generator` - Tạo code interface chuẩn hóa theo cấu trúc response và exception model thống nhất của dự án
+- `database-access-review` - Review logic truy cập database, chú trọng việc sử dụng index và rủi ro slow query
+- `refactor-analysis` - Đánh giá phạm vi ảnh hưởng và quan hệ phụ thuộc trước, rồi output kế hoạch refactor từng bước
+- `security-audit` - Quét các rủi ro bảo mật phổ biến như SQL splicing, XSS, bypass phân quyền
 
-**优秀 Skill 示例**：
+**Ví dụ về Skill xuất sắc**:
 
-- Code-Review-Expert（专家代码审查 Skill，以资深工程师视角进行结构化代码审查，覆盖：架构设计、SOLID 原则、安全性、性能问题、错误处理、边界条件）：**https://github.com/sanyuan0704/code-review-expert**
-- Git Commit with Conventional Commits（一个基于 Conventional Commits 规范的智能提交工具，可自动分析 diff、智能暂存文件并生成语义化 commit message，安全高效完成标准化 Git 提交）：**https://github.com/github/awesome-copilot/blob/main/skills/git-commit/SKILL.md**
-- TDD（测试驱动开发，先编写测试用例，观察它是否失败，然后编写最少的代码使其通过测试）：**https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md**
+- Code-Review-Expert (Skill review code chuyên gia, thực hiện code review có cấu trúc từ góc nhìn kỹ sư cấp cao, bao gồm: thiết kế kiến trúc, nguyên tắc SOLID, bảo mật, vấn đề hiệu suất, xử lý lỗi, điều kiện biên): **https://github.com/sanyuan0704/code-review-expert**
+- Git Commit with Conventional Commits (Công cụ commit thông minh dựa trên chuẩn Conventional Commits, có thể tự động phân tích diff, tự động stage file và tạo commit message có ngữ nghĩa, hoàn thành Git commit chuẩn hóa an toàn và hiệu quả): **https://github.com/github/awesome-copilot/blob/main/skills/git-commit/SKILL.md**
+- TDD (Test-Driven Development, viết test case trước, xem nó có fail không, rồi viết code tối thiểu để vượt qua test): **https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md**
 
-**https://skills.sh/** 这个网站可以查找热门和实用的 Skills。
+**https://skills.sh/** là website có thể tìm kiếm các Skills phổ biến và thực dụng.
 
-![查找自己需要和热门的 Skiils](https://oss.javaguide.cn/github/javaguide/ai/skills/skillssh.png)
+![Tìm kiếm Skills phổ biến và cần thiết](https://oss.javaguide.cn/github/javaguide/ai/skills/skillssh.png)
 
-这里 Guide 多提一下，回答这个问题的时候，你也可以说自己团队用到了一些开源的软件开发 Skills 集合，例如 Superpowers 中内置的。
+Ở đây cần đề cập thêm, khi trả lời câu hỏi này, bạn cũng có thể nói đội nhóm mình dùng một số bộ sưu tập Software Development Skills mã nguồn mở, ví dụ như những cái được tích hợp sẵn trong Superpowers.
 
-![Superpowers 内置的 skills](https://oss.javaguide.cn/github/javaguide/ai/skills/superpowers-skills.png)
+![Skills tích hợp sẵn trong Superpowers](https://oss.javaguide.cn/github/javaguide/ai/skills/superpowers-skills.png)
 
-另外，很多 AI 编程工具也支持 Skills 机制。以 Claude Code 为例，它会在项目的 `.claude/skills/` 目录下扫描 `SKILL.md` 文件，**由模型自主判断何时激活**——用户无需手动调用，Claude 会根据任务上下文自动匹配并加载相关的 Skill。
+Ngoài ra, nhiều công cụ lập trình AI cũng hỗ trợ cơ chế Skills. Lấy Claude Code làm ví dụ, nó sẽ quét các file `SKILL.md` trong thư mục `.claude/skills/` của dự án, **do mô hình tự chủ phán đoán khi nào kích hoạt** — người dùng không cần gọi thủ công, Claude sẽ tự động khớp và tải Skill liên quan theo ngữ cảnh tác vụ.
 
-> 也就是说，Claude Code 的 Skills 是 **model-invoked**（模型主动调用），而非 user-invoked（用户手动触发）。这也是 Skills 和传统插件系统的关键区别之一。Anthropic 官方也在持续发布和维护 Agent Skills 集合（见 [Anthropic Skills 仓库](https://github.com/anthropics/skills)）。
+> Nói cách khác, Skills của Claude Code là **model-invoked** (mô hình chủ động gọi), không phải user-invoked (người dùng kích hoạt thủ công). Đây cũng là một trong những khác biệt then chốt giữa Skills và hệ thống plugin truyền thống. Anthropic chính thức cũng đang liên tục phát hành và duy trì bộ sưu tập Agent Skills (xem [Anthropic Skills repository](https://github.com/anthropics/skills)).
 
-::: warning 第三方 Skills 的安全风险
+::: warning Rủi ro bảo mật của Skills bên thứ ba
 
-使用第三方 Skills 时需要注意安全风险：
+Khi dùng Skills bên thứ ba cần chú ý rủi ro bảo mật:
 
-- **提示注入**：恶意 Skill 可能包含诱导模型执行非预期操作的指令（如读取敏感文件、执行危险命令）。
-- **数据泄露**：Skill 可能引导模型将敏感信息输出到外部服务。
-- **建议**：使用前审查 `SKILL.md` 内容；企业场景下建立内部 Skill 审核机制；避免直接使用来源不明的 Skill。
+- **Prompt injection**: Skill độc hại có thể chứa chỉ dẫn dụ dỗ mô hình thực thi các thao tác ngoài dự kiến (như đọc file nhạy cảm, thực thi lệnh nguy hiểm).
+- **Rò rỉ dữ liệu**: Skill có thể hướng dẫn mô hình output thông tin nhạy cảm đến service bên ngoài.
+- **Khuyến nghị**: Review nội dung `SKILL.md` trước khi dùng; trong trường hợp doanh nghiệp hãy thiết lập cơ chế kiểm duyệt Skill nội bộ; tránh dùng trực tiếp Skill không rõ nguồn gốc.
 
 :::
 
-## 如何实现渐进式披露？
+## Làm thế nào để thực hiện progressive disclosure?
 
-前面讲了渐进式披露的理念——元数据常驻、正文按需加载。这一节展开聊聊**具体怎么落地**。
+Phần trước đã nói về lý niệm progressive disclosure — metadata thường trú, nội dung chính tải theo nhu cầu. Phần này sẽ bàn chi tiết hơn về **cách triển khai cụ thể**.
 
-### 上下文不是越多越好
+### Context không phải càng nhiều càng tốt
 
-很多开发者的直觉是“给模型的信息越全，它表现应该越好”，但实际跑下来并非如此。这意味着如果你把几十条规范指令全塞进 System Prompt，排在中间的那些指令基本等于没写。盲目堆内容不但没用，反而会让真正重要的指令被淹没在噪声里。
+Trực giác của nhiều lập trình viên là "càng đưa nhiều thông tin cho mô hình, nó hoạt động càng tốt", nhưng chạy thực tế không phải như vậy. Điều này có nghĩa nếu bạn nhét hàng chục chỉ dẫn quy tắc vào System Prompt, những chỉ dẫn ở giữa cơ bản như chưa viết. Chất đống nội dung mù quáng không những vô ích mà còn làm chỉ dẫn thực sự quan trọng bị chìm trong nhiễu.
 
-![渐进式披露](https://oss.javaguide.cn/github/javaguide/ai/skills/skills-progressive-disclosure.svg)
+![Progressive Disclosure](https://oss.javaguide.cn/github/javaguide/ai/skills/skills-progressive-disclosure.svg)
 
-上下文管理核心原则是：**每一段放进来的内容，对当前任务的贡献越大越好，无关内容就是纯噪声**。
+Nguyên tắc cốt lõi của quản lý context là: **Mỗi nội dung đưa vào, càng đóng góp nhiều cho tác vụ hiện tại càng tốt, nội dung không liên quan chỉ là nhiễu thuần túy**.
 
-### 分层设计方案
+### Phương án thiết kế phân tầng
 
-处理思路是**分层设计**，把“知道有哪些能力”和“获取具体指令”拆成两步：
+Tư duy xử lý là **thiết kế phân tầng**, tách "biết có những năng lực nào" và "lấy chỉ dẫn cụ thể" thành hai bước:
 
-**第一层：元信息常驻**。每条 Skill 只保留一个名称加两三句描述，全部 Skill 加在一起也就几百 token。这个“目录”始终留在上下文里，让模型知道有哪些能力可用。
+**Tầng một: Metadata thường trú**. Mỗi Skill chỉ giữ một tên kèm hai ba câu mô tả, tổng cộng tất cả Skill gộp lại cũng chỉ vài trăm token. "Mục lục" này luôn ở trong context, để mô hình biết có những năng lực nào có thể dùng.
 
-**第二层：按需加载正文**。用户请求进来后，先用这份“目录”做一次粗筛，判断当前任务涉及哪几个 Skill，只有被命中的 Skill 才读取完整内容拼进上下文。
+**Tầng hai: Tải nội dung chính theo nhu cầu**. Sau khi request người dùng đến, đầu tiên dùng "mục lục" này để lọc thô, phán đoán tác vụ hiện tại liên quan đến những Skill nào, chỉ Skill được match mới đọc nội dung đầy đủ ghép vào context.
 
-### “相关”怎么判断
+### "Liên quan" được phán đoán như thế nào
 
-关于“怎么判断当前任务需要哪些 Skill”，实践中主要有两种方案：
+Về "làm thế nào để phán đoán tác vụ hiện tại cần những Skill nào", trong thực tế chủ yếu có hai phương án:
 
-- **关键词匹配**：速度快，但召回率差，用户稍微换个说法就匹配不上。
-- **语义匹配**：把每条 Skill 的描述提前用嵌入模型向量化存好，请求进来后对用户 Query 做向量化，算余弦相似度，取 top-k 命中。效果好了很多，但引入了一个额外的嵌入模型调用，延迟上有一点开销。
+- **Keyword matching (khớp từ khóa)**: Tốc độ nhanh, nhưng recall kém, người dùng đổi cách nói một chút là không khớp được.
+- **Semantic matching (khớp ngữ nghĩa)**: Trước đó vector hóa mô tả mỗi Skill bằng embedding model và lưu lại, khi request đến thì vector hóa user Query, tính cosine similarity, lấy top-k match. Hiệu quả tốt hơn nhiều, nhưng giới thiệu một lần gọi embedding model bổ sung, có một chút overhead về độ trễ.
 
-实际项目中推荐语义匹配为主、关键词匹配兜底的组合策略。
+Trong dự án thực tế nên ưu tiên semantic matching làm chính, keyword matching làm fallback.
 
-> 语义匹配有一个常见的**冷启动问题**：新上线的 Skill 还没有历史 Query 数据，嵌入模型只能靠元信息描述来匹配，准确度可能不够。实践中可以通过**预设典型 Query 样本**（在 Skill 元数据中加入 `examples` 字段）来缓解——相当于给新 Skill 预热。
+> Semantic matching có một **vấn đề cold start** phổ biến: Skill mới lên sóng chưa có dữ liệu Query lịch sử, embedding model chỉ có thể dựa vào mô tả metadata để match, độ chính xác có thể không đủ. Trong thực tế có thể giảm thiểu bằng cách **preset Query sample điển hình** (thêm trường `examples` vào metadata của Skill) — tương đương với warm-up cho Skill mới.
 
-### 兜底机制
+### Cơ chế fallback
 
-首次匹配难免漏掉，所以需要一个**补充加载**机制：如果本轮任务在执行中触发了某个之前没有被加载的 Skill 关键词，就把对应内容追加进上下文。这个机制解决了首次匹配漏掉的问题，但要注意拼接位置对模型的影响——指令放在 Prompt 哪个位置会直接影响模型的关注度，不能随意插在中间。
+Lần match đầu tiên khó tránh bỏ sót, vì vậy cần một cơ chế **supplemental loading** (tải bổ sung): Nếu trong quá trình thực thi tác vụ lần này kích hoạt keyword của một Skill chưa được tải trước đó, thì append nội dung tương ứng vào context. Cơ chế này giải quyết vấn đề bỏ sót trong lần match đầu, nhưng cần chú ý ảnh hưởng của vị trí ghép đến mô hình — chỉ dẫn đặt ở vị trí nào trong Prompt sẽ trực tiếp ảnh hưởng đến mức độ chú ý của mô hình, không thể tùy tiện chèn vào giữa.
 
-> 从系统设计的角度看，这套分层逻辑和数据库“先走索引再回表”是一样的——全量扫描代价太高，所以用一个轻量的辅助结构（元数据索引）做预过滤，命中之后再拿完整数据（Skill 正文）。核心思想都是“用小代价换范围收窄，再用精确查询获取完整数据”。
+> Từ góc nhìn thiết kế hệ thống, logic phân tầng này giống hệt "đi index trước rồi lookup lại" trong database — full scan chi phí quá cao, nên dùng một cấu trúc phụ trợ nhẹ (metadata index) để pre-filter, sau khi match rồi mới lấy dữ liệu đầy đủ (nội dung chính Skill). Tư tưởng cốt lõi đều là "dùng chi phí nhỏ để thu hẹp phạm vi, rồi dùng truy vấn chính xác để lấy dữ liệu đầy đủ".
 
-## 如果设计一个 Skill 路由模块？
+## Nếu thiết kế một Skill routing module?
 
-上一节聊了渐进式披露的实现，这一节更进一步：如果让你从零设计一个 **Skill 路由模块**，需要从几十个 Skill 里快速选出最相关的 2-3 个，怎么建索引、怎么做排序？
+Phần trước đã bàn về cách thực hiện progressive disclosure, phần này đi sâu hơn: Nếu bạn thiết kế từ đầu một **Skill routing module**, cần nhanh chóng chọn ra 2-3 Skill liên quan nhất từ vài chục Skill, nên build index như thế nào, sort như thế nào?
 
-这里有一个容易混淆的点：这个问题表面看起来像 RAG，但在几十个 Skill 的规模下，本质更接近一个“小规模检索 + 精排”的问题，而不是一个完整的知识增强系统设计。
+Ở đây có một điểm dễ nhầm lẫn: Câu hỏi này bề ngoài trông giống RAG, nhưng ở quy mô vài chục Skill, bản chất gần với bài toán "small-scale retrieval + re-ranking" hơn là thiết kế hệ thống knowledge augmentation đầy đủ.
 
-### 和 RAG 的本质区别
+### Sự khác biệt bản chất so với RAG
 
-Skill 路由和 RAG 的逻辑是相通的——都是“先检索再生成”，但本质区别在于**内容的性质和稳定性**：
+Logic Skill routing và RAG là giống nhau — đều là "truy xuất trước rồi sinh", nhưng sự khác biệt bản chất nằm ở **tính chất và độ ổn định của nội dung**:
 
-- **RAG** 检索的是外部知识库，内容动态、量大、不在模型控制范围内，多召回几条不相关文档还有一定容忍度，模型自己能在生成阶段过滤掉一部分，本质目标是“补充上下文信息”。
-- **Skill 路由**检索的是有限数量的结构化指令集，内容相对稳定、总量可控，但精准度要求更高——一旦选错 Skill，后续整个执行链路都会跑偏，本质目标是“选对能力而不是补知识”。
+- **RAG** truy xuất external knowledge base, nội dung động, lượng lớn, nằm ngoài tầm kiểm soát của mô hình, retrieve thêm vài tài liệu không liên quan cũng có mức độ dung sai nhất định, mô hình tự có thể filter một phần trong giai đoạn generation, mục tiêu bản chất là "bổ sung thông tin ngữ cảnh".
+- **Skill routing** truy xuất tập hợp chỉ dẫn có cấu trúc số lượng hữu hạn, nội dung tương đối ổn định, tổng lượng có thể kiểm soát, nhưng yêu cầu độ chính xác cao hơn — một khi chọn sai Skill, toàn bộ execution chain tiếp theo sẽ đi sai, mục tiêu bản chất là "chọn đúng năng lực chứ không phải bổ sung kiến thức".
 
-换句话说，RAG 更偏“召回尽可能有用的信息”，而 Skill 路由更偏“尽量避免选错”。
+Nói cách khác, RAG nghiêng về "recall càng nhiều thông tin hữu ích càng tốt", còn Skill routing nghiêng về "cố gắng tránh chọn sai".
 
-### 四步路由流程
+### Quy trình routing bốn bước
 
-![Skill 四步路由流程](https://oss.javaguide.cn/github/javaguide/ai/skills/skills-router.svg)
+![Quy trình routing bốn bước của Skill](https://oss.javaguide.cn/github/javaguide/ai/skills/skills-router.svg)
 
-完整的 Skill 路由流程可以拆成四步：
+Toàn bộ quy trình Skill routing có thể chia thành bốn bước:
 
-1. **向量化索引**：把每个 Skill 的名称、描述、典型触发场景提前用嵌入模型向量化，存到一个轻量向量库里。几十个 Skill 的量级，用 NumPy 在内存里做余弦相似度计算就足够了（微秒级响应），不需要引入 FAISS 等专门的向量检索库，这样实现成本更低、调试也更简单。当然，如果后续 Skill 数量增长到数百甚至上千，再考虑迁移到 FAISS 或专门的向量数据库也不迟。
+1. **Vector index**: Trước đó vector hóa tên, mô tả, tình huống trigger điển hình của mỗi Skill bằng embedding model, lưu vào một vector store nhẹ. Ở quy mô vài chục Skill, dùng NumPy tính cosine similarity trong bộ nhớ là đủ (phản hồi micro giây), không cần giới thiệu thư viện vector retrieval chuyên dụng như FAISS, như vậy chi phí triển khai thấp hơn, debug cũng đơn giản hơn. Tất nhiên, nếu sau này số Skill tăng lên hàng trăm hay hàng nghìn, lúc đó mới cần cân nhắc migrate sang FAISS hoặc vector database chuyên dụng.
 
-2. **初筛候选**：对用户输入做向量化，算相似度，先取 top-5 候选。这一步追求召回率，宁可多选几个，为后续精排留空间，而不是一开始就试图选准。
+2. **Initial filtering**: Vector hóa user input, tính similarity, trước tiên lấy top-5 candidates. Bước này ưu tiên recall rate, thà chọn thêm vài cái, để dành không gian cho re-ranking tiếp theo, thay vì ngay từ đầu đã cố gắng chọn chính xác.
 
-3. **Rerank 重排**：用一个轻量的交叉编码器模型对候选列表重新打分，最终选 top-2 或 top-3。Rerank 的核心价值是把“语义相近但意图不匹配”的误召回过滤掉，这比纯向量匹配精准很多，本质是在做“能力级别”的判别。
+3. **Rerank**: Dùng một cross-encoder model nhẹ để re-score candidate list, cuối cùng chọn top-2 hoặc top-3. Giá trị cốt lõi của Rerank là filter những "sai match ngữ nghĩa gần nhưng ý định không khớp", chính xác hơn nhiều so với pure vector matching, bản chất là đang phân loại ở "tầng năng lực".
 
-4. **置信度兜底**：如果最高分的 Skill 相似度都低于某个阈值，说明当前任务不需要任何特殊 Skill，走默认流程，避免强行匹配导致错误指令介入。在 Skill 路由里，“不选”有时候比“选错”更重要。
+4. **Confidence fallback**: Nếu similarity của Skill điểm cao nhất cũng thấp hơn một ngưỡng nào đó, có nghĩa tác vụ hiện tại không cần Skill đặc biệt nào, đi qua flow mặc định, tránh match cưỡng bức dẫn đến chỉ dẫn sai được đưa vào. Trong Skill routing, "không chọn" đôi khi quan trọng hơn "chọn sai".
 
-### “检索到了但生成跑偏”怎么办
+### "Retrieve được rồi nhưng generation đi lạc" thì làm sao
 
-这是 RAG 和 Skill 路由都会遇到的问题，原因通常有两类：
+Đây là vấn đề cả RAG và Skill routing đều gặp, nguyên nhân thường có hai loại:
 
-- **检索内容本身的问题**：召回的段落是相关主题但不是模型真正需要的那个细节。比如问“Java 单例模式线程安全写法”，召回了一堆讲单例模式的通用介绍，但双重检查锁的关键代码没进来。解法是**优化分块策略**，让关键片段在检索粒度上更容易被命中。
+- **Vấn đề bản thân nội dung retrieve**: Đoạn được retrieve là chủ đề liên quan nhưng không phải chi tiết mà mô hình thực sự cần. Ví dụ hỏi "cách viết thread-safe singleton trong Java", retrieve về một đống giới thiệu tổng quát về singleton pattern, nhưng code then chốt của double-checked locking không vào được. Giải pháp là **tối ưu chiến lược chunking**, làm cho các fragment quan trọng dễ bị match hơn ở độ hạt retrieval.
 
-- **拼接方式的问题**：把多段检索结果直接拼在一起，没做任何整理，模型读到的是一堆结构混乱的碎片，生成时就容易抓不住重点。解法是在召回后加一步 **rerank 或者摘要压缩**，甚至可以显式标注结构（如“背景 / 约束 / 关键步骤”），提高模型可读性。
+- **Vấn đề cách ghép**: Trực tiếp ghép nhiều đoạn retrieve lại với nhau, không chỉnh lý gì, mô hình đọc được là một mớ mảnh vỡ cấu trúc lộn xộn, khi generation dễ mất trọng tâm. Giải pháp là sau khi recall thêm một bước **rerank hoặc summary compression**, thậm chí có thể đánh nhãn cấu trúc rõ ràng (như "background / constraints / key steps"), cải thiện khả năng đọc của mô hình.
 
-### 通用指令调度器的架构
+### Kiến trúc của instruction dispatcher tổng quát
 
-如果要设计一个更通用的“指令调度器”，可以抽象出四个核心组件：
+Nếu muốn thiết kế một "instruction dispatcher" tổng quát hơn, có thể trừu tượng hóa thành bốn thành phần cốt lõi:
 
-| 组件             | 职责                                                | 关键点                                   |
-| ---------------- | --------------------------------------------------- | ---------------------------------------- |
-| **指令注册中心** | 维护所有指令的元信息，提供增删改查接口              | 注册时自动生成向量并持久化               |
-| **路由引擎**     | 接收用户意图，做语义匹配，输出候选指令列表和置信度  | 无状态，可横向扩展                       |
-| **加载器**       | 按需拉取指令完整内容                                | 支持缓存，避免重复读文件                 |
-| **上下文装配器** | 把选出来的指令按优先级和位置规则拼装进最终的 Prompt | 指令放在 Prompt 哪个位置会影响模型关注度 |
+| Thành phần               | Trách nhiệm                                                                    | Điểm then chốt                                                       |
+| ------------------------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| **Instruction Registry** | Duy trì metadata của tất cả chỉ dẫn, cung cấp CRUD interface                   | Tự động vector hóa và persist khi đăng ký                            |
+| **Routing Engine**       | Nhận ý định người dùng, semantic match, output candidate list và confidence    | Stateless, có thể scale ngang                                        |
+| **Loader**               | Lấy nội dung đầy đủ của chỉ dẫn theo nhu cầu                                   | Hỗ trợ cache, tránh đọc file lặp lại                                 |
+| **Context Assembler**    | Ghép các chỉ dẫn được chọn vào Prompt cuối cùng theo quy tắc ưu tiên và vị trí | Chỉ dẫn ở vị trí nào trong Prompt ảnh hưởng đến mức độ chú ý mô hình |
 
-这里可以注意一个实践点：路由和加载解耦是很关键的，这样可以在不影响路由性能的情况下，灵活调整指令内容和存储方式。
+Ở đây có thể chú ý một điểm thực hành: Tách routing và loading là rất quan trọng, như vậy có thể linh hoạt điều chỉnh nội dung chỉ dẫn và cách lưu trữ mà không ảnh hưởng đến hiệu suất routing.
 
-### 高并发下的性能考量
+### Cân nhắc hiệu suất dưới high concurrency
 
-高并发场景下，语义匹配可能成为瓶颈，主要有两个：一是每次请求都要调嵌入模型生成向量（如果用的是外部 API，延迟不可控）；二是向量相似度计算本身（Skill 数量少可以全量算，规模上去了就需要 ANN 索引）。
+Trong trường hợp high concurrency, semantic matching có thể trở thành bottleneck, chủ yếu có hai điểm: một là mỗi request đều phải gọi embedding model để tạo vector (nếu dùng external API, độ trễ không kiểm soát được); hai là bản thân tính toán vector similarity (số Skill ít có thể tính full, khi quy mô tăng lên cần ANN index).
 
-实际项目里的应对策略：
+Chiến lược ứng phó trong dự án thực tế:
 
-- **Query 向量化做缓存**：高频的相似 Query 命中缓存直接返回，绕过嵌入调用，收益通常很明显。
-- **内存向量检索**：Skill 数量通常就几十个，用 NumPy 在内存里直接算余弦相似度即可（微秒级），不需要 FAISS 等额外依赖，优先保证简单可靠。
-- **无状态路由服务**：把路由服务单独抽出来，因为是无状态的，扩容很容易，同时也方便做灰度和策略迭代。
+- **Cache vector hóa Query**: Query tần suất cao tương tự hit cache trả về trực tiếp, bypass embedding call, lợi ích thường rất rõ ràng.
+- **In-memory vector retrieval**: Số lượng Skill thường chỉ vài chục, dùng NumPy tính cosine similarity trong bộ nhớ trực tiếp là được (micro giây), không cần dependency bổ sung như FAISS, ưu tiên đảm bảo đơn giản đáng tin cậy.
+- **Stateless routing service**: Tách routing service ra độc lập, vì stateless nên scale out rất dễ, đồng thời cũng tiện cho gray release và iteration chiến lược.
 
-## 如何编写高质量的 AI Agent Skills？
+## Làm thế nào để viết Agent Skills chất lượng cao?
 
-很多开发者第一次接触 Skills 时，会下意识地把它当成“文档”来写——堆砌背景介绍、安装指南、版本历史……结果发现 AI 要么“读不懂”，要么“不用它”。
+Nhiều lập trình viên khi lần đầu tiếp xúc với Skills thường có phản xạ coi nó như "tài liệu" — chất đống background giới thiệu, hướng dẫn cài đặt, lịch sử phiên bản... Kết quả là AI hoặc "không hiểu", hoặc "không dùng".
 
-**编写高质量的 Skills 是一项专门的技能**——你写的不是给人看的 README，而是**给 AI 写执行协议**。这个区别决定了你需要完全不同的思维方式：
+**Viết Skills chất lượng cao là một kỹ năng chuyên biệt** — bạn không viết README cho người đọc, mà **viết execution protocol cho AI**. Sự khác biệt này quyết định bạn cần một cách tư duy hoàn toàn khác:
 
-- **写给人**：注重可读性、完整性、背景知识
-- **写给 AI**：注重精准性、可执行性、上下文效率
+- **Viết cho người**: Chú trọng readability, completeness, background knowledge
+- **Viết cho AI**: Chú trọng precision, executability, context efficiency
 
-接下来的内容将系统性地介绍如何编写高质量的 Skills。这些原则来自 Anthropic 官方文档和社区大规模生产实践，经过实战验证。
+Nội dung tiếp theo sẽ giới thiệu hệ thống cách viết Skills chất lượng cao. Những nguyên tắc này đến từ tài liệu chính thức Anthropic và thực tiễn production quy mô lớn của cộng đồng, đã được xác nhận trong thực chiến.
 
-### 语义精确的 Metadata（元数据）
+### Metadata ngữ nghĩa chính xác
 
-Metadata 是 Agent 进行任务路由的核心依据，尤其是 description，它充当 LLM 的“索引”。
+Metadata là cơ sở cốt lõi để Agent thực hiện task routing, đặc biệt là description, nó đóng vai trò là "index" của LLM.
 
-- **原则**：消除歧义，明确边界，并融入意图触发词。
-- **优化逻辑**：从“描述功能”转向“定义场景、问题和触发条件”。
+- **Nguyên tắc**: Loại bỏ mơ hồ, làm rõ ranh giới, và tích hợp các từ kích hoạt ý định.
+- **Logic tối ưu**: Chuyển từ "mô tả chức năng" sang "định nghĩa tình huống, vấn đề và điều kiện trigger".
 
-| 维度       | 描述                                                                                               | 触发意图                                                                           |
-| ---------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 不好的示例 | 分析系统日志                                                                                       | 无明确引导                                                                         |
-| 优化的示例 | 诊断 Spring Boot 生产环境的运行时异常，包括解析 Java 堆栈跟踪、定位 OOM 内存溢出和分析慢接口耗时。 | 当用户提到“接口报错”、“系统卡死”、“频繁 Full GC”或粘贴错误日志时，立即激活此技能。 |
+| Chiều        | Mô tả                                                                                                                                                            | Ý định trigger                                                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Ví dụ kém    | Phân tích system log                                                                                                                                             | Không có hướng dẫn rõ ràng                                                                                                        |
+| Ví dụ tối ưu | Chẩn đoán runtime exception trong môi trường production Spring Boot, bao gồm parse Java stack trace, xác định OOM memory overflow và phân tích slow API latency. | Khi người dùng đề cập "API báo lỗi", "hệ thống treo", "Full GC thường xuyên" hoặc paste error log, lập tức kích hoạt kỹ năng này. |
 
-在 Metadata 中添加 `parameters` 字段，定义输入输出格式（如 YAML），帮助 LLM 减少幻觉。例如：
+Thêm trường `parameters` trong Metadata, định nghĩa định dạng input/output (như YAML), giúp LLM giảm ảo giác. Ví dụ:
 
 ```yaml
 parameters:
@@ -295,99 +295,99 @@ parameters:
   output: { type: json, description: "诊断结果，包括根因和建议" }
 ```
 
-### 模块化与单一职责
+### Modular và Single Responsibility
 
-大型“全能” Skills 会导致 LLM 在参数构建时产生幻觉。Agentic Workflow 更适合细粒度工具矩阵。
+Các "all-in-one" Skills lớn sẽ khiến LLM sinh ảo giác khi xây dựng tham số. Agentic Workflow phù hợp hơn với ma trận công cụ fine-grained.
 
-- **原则**：按排查维度拆分，确保每个 Skill 单一职责（SRP）。
-- **优化方案**：避免单一“系统故障排查器”，改为工具集：
-  - `jvm-metrics-analyzer`：专责通过 Prometheus 采集 JVM 指标（如堆内存、线程数）。
-  - `distributed-trace-finder`：利用 SkyWalking 或 Zipkin 追踪特定 TraceId 的链路耗时。
-  - `k8s-pod-event-viewer`：专责查询 Kubernetes Pod 状态变更和重启记录。
+- **Nguyên tắc**: Tách biệt theo chiều điều tra, đảm bảo mỗi Skill có trách nhiệm đơn lẻ (SRP).
+- **Phương án tối ưu**: Tránh một "system failure troubleshooter" duy nhất, thay vào đó là bộ công cụ:
+  - `jvm-metrics-analyzer`: Chuyên thu thập JVM metrics (như heap memory, thread count) qua Prometheus.
+  - `distributed-trace-finder`: Theo dõi link latency của TraceId cụ thể bằng SkyWalking hoặc Zipkin.
+  - `k8s-pod-event-viewer`: Chuyên truy vấn Kubernetes Pod state change và restart records.
 
-### 确定性优先原则
+### Nguyên tắc ưu tiên tính xác định
 
-对于需要严谨逻辑的计算或格式转化，**永远不要相信 LLM 的“直觉”**，要让它去驱动脚本。
+Đối với tính toán hoặc chuyển đổi định dạng cần logic chặt chẽ, **đừng bao giờ tin vào "trực giác" của LLM**, hãy để nó drive script.
 
-- **原则**：LLM 负责**提取参数**，脚本负责**逻辑闭环**。
-- **案例优化**： 当 Agent 发现 CPU 负载过高时，不要让它“盲猜”哪个线程有问题，而是让它调用一个封装好的诊断脚本。
+- **Nguyên tắc**: LLM chịu trách nhiệm **trích xuất tham số**, script chịu trách nhiệm **logic closure**.
+- **Tối ưu ví dụ**: Khi Agent phát hiện CPU load quá cao, đừng để nó "đoán mò" thread nào có vấn đề, mà hãy để nó gọi một diagnostic script đã được đóng gói sẵn.
 
-**Skill 定义中的执行逻辑：**
+**Logic thực thi trong định nghĩa Skill:**
 
-> “如果 CPU 使用率超过 80%，请提取节点 IP，调用 `./scripts/capture_thread_dump.sh`。不要尝试在对话框中手动模拟线程分析，直接解析脚本返回的 **Top 3 耗时线程堆栈**。”
+> "Nếu CPU usage vượt quá 80%, hãy trích xuất node IP, gọi `./scripts/capture_thread_dump.sh`. Đừng cố mô phỏng thread analysis thủ công trong dialog box, hãy parse trực tiếp **Top 3 耗时线程堆栈** mà script trả về."
 
-> 注意适用边界：确定性优先适用于**涉及精确计算、格式转化、副作用操作**（如执行脚本、修改数据库）的场景。对于需要模糊判断、创意生成或开放性推理的任务（如方案设计、文案优化），过度脚本化反而会限制模型的表达能力。
+> Lưu ý phạm vi áp dụng: Ưu tiên tính xác định phù hợp với **các tình huống liên quan đến tính toán chính xác, chuyển đổi định dạng, side-effect operations** (như thực thi script, modify database). Đối với các tác vụ cần phán đoán mơ hồ, generation sáng tạo hoặc suy luận mở (như thiết kế phương án, tối ưu văn bản), quá nhiều script hóa ngược lại sẽ giới hạn khả năng biểu đạt của mô hình.
 
-### 渐进式披露策略
+### Chiến lược progressive disclosure
 
-避免“信息过载”导致 Agent 迷失。通过文档的分层结构，让 Agent 只在需要时加载细节。
+Tránh "information overload" làm Agent bị lạc. Thông qua cấu trúc phân tầng của tài liệu, để Agent chỉ tải chi tiết khi cần.
 
-**三层结构建议**：
+**Khuyến nghị cấu trúc ba tầng**:
 
-1. **SKILL.md（主体）**：定义核心故障类型（4xx, 5xx）和标准排查流转（SOP）。
-2. **`troubleshooting-guide.md`（附加）**：放置一些罕见的“陈年老坑”或特定中间件（如 RocketMQ）的配置盲区。
-3. **runbooks/（数据文件）**：存储历史故障知识库，由 Agent 通过 RAG 检索后再参考，而不是一股脑塞进上下文。
+1. **SKILL.md (chính)**: Định nghĩa các loại fault cốt lõi (4xx, 5xx) và SOP troubleshoot chuẩn.
+2. **`troubleshooting-guide.md` (bổ sung)**: Đặt một số "lỗi cũ hiếm gặp" hoặc điểm mù cấu hình của middleware cụ thể (như RocketMQ).
+3. **runbooks/ (data files)**: Lưu trữ knowledge base fault lịch sử, để Agent truy vấn qua RAG rồi mới tham khảo, thay vì nhét tất cả vào context.
 
-### 总结
+### Tổng kết
 
-编写高质量 Skills 的 **五大核心原则**：
+**Năm nguyên tắc cốt lõi** để viết Skills chất lượng cao:
 
-| **原则**       | **核心思想**             | **关键实践**                              |
-| -------------- | ------------------------ | ----------------------------------------- |
-| **语义精确**   | 从“描述功能”到“定义场景” | 用祈使句 + 触发关键词 + 明确边界          |
-| **极简主义**   | 上下文是公共资源         | 删除噪音，10 行示例代替100行文字          |
-| **模块化**     | 单一职责避免幻觉         | 按排查维度拆解，而非建立“全能工具”        |
-| **确定性优先** | 识别“脆弱操作”           | LLM 提取参数，脚本负责逻辑闭环            |
-| **渐进式披露** | 按需加载，避免上下文爆炸 | L1 元数据常驻 + L2 正文按需 + L3 资源隔离 |
+| **Nguyên tắc**             | **Tư tưởng cốt lõi**                             | **Thực hành then chốt**                                                         |
+| -------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| **Ngữ nghĩa chính xác**    | Từ "mô tả chức năng" đến "định nghĩa tình huống" | Dùng câu mệnh lệnh + từ kích hoạt + ranh giới rõ ràng                           |
+| **Chủ nghĩa tối giản**     | Context là tài nguyên công cộng                  | Xóa nhiễu, 10 dòng ví dụ thay thế 100 dòng văn bản                              |
+| **Modular**                | SRP tránh ảo giác                                | Tách biệt theo chiều điều tra, thay vì xây "công cụ vạn năng"                   |
+| **Ưu tiên xác định**       | Nhận ra "thao tác dễ vỡ"                         | LLM trích xuất tham số, script chịu trách nhiệm logic closure                   |
+| **Progressive disclosure** | Tải theo nhu cầu, tránh context explosion        | L1 metadata thường trú + L2 nội dung chính theo nhu cầu + L3 tài nguyên cách ly |
 
-**记住**：Skills 本质上是**执行协议**，别把它当文档写。
+**Nhớ**: Skills bản chất là **execution protocol**, đừng viết nó như tài liệu.
 
-## 总结与选型建议
+## Tổng kết và khuyến nghị chọn lựa
 
-### 核心观点
+### Quan điểm cốt lõi
 
-Skills 和 MCP 代表了智能体技术栈中两个关键的抽象层：
+Skills và MCP đại diện cho hai tầng trừu tượng then chốt trong agent technology stack:
 
-| **组件**   | **一句话定义**             | **形象类比** | **关键理解**                       |
-| ---------- | -------------------------- | ------------ | ---------------------------------- |
-| **MCP**    | 标准化的工具接入协议       | USB-C 接口   | 解决外部系统“如何接入”（连通性）   |
-| **Skills** | 用自然语言定义的 sub-agent | 任务说明书   | 解决复杂任务“如何编排”（执行逻辑） |
+| **Thành phần** | **Định nghĩa một câu**                           | **Phép tương tự**         | **Hiểu then chốt**                                            |
+| -------------- | ------------------------------------------------ | ------------------------- | ------------------------------------------------------------- |
+| **MCP**        | Protocol tiếp nhận công cụ chuẩn hóa             | Cổng USB-C                | Giải quyết "cách kết nối" hệ thống bên ngoài (connectivity)   |
+| **Skills**     | Sub-agent được định nghĩa bằng ngôn ngữ tự nhiên | Tài liệu hướng dẫn tác vụ | Giải quyết "cách điều phối" tác vụ phức tạp (execution logic) |
 
-### 实践建议
+### Khuyến nghị thực hành
 
-| 场景                                   | 推荐方案                         | 原因                                 |
-| -------------------------------------- | -------------------------------- | ------------------------------------ |
-| 外部服务连接（数据库、API、云服务）    | **优先使用 MCP**                 | 标准化接口，易于维护                 |
-| 复杂工作流（多步骤任务、领域专业知识） | **优先使用 Skills**              | 封装领域知识，可复用                 |
-| 上下文受限场景（长对话、大量工具）     | **使用 Skills 进行渐进式管理**   | 只加载相关 Skill，大幅减少无效 token |
-| 企业级智能体构建                       | **采用 MCP + Skills 的分层架构** | 关注点分离，易维护扩展               |
+| Tình huống                                                           | Phương án khuyến nghị                     | Lý do                                              |
+| -------------------------------------------------------------------- | ----------------------------------------- | -------------------------------------------------- |
+| Kết nối service bên ngoài (database, API, cloud)                     | **Ưu tiên dùng MCP**                      | Interface chuẩn hóa, dễ bảo trì                    |
+| Workflow phức tạp (tác vụ nhiều bước, kiến thức lĩnh vực chuyên sâu) | **Ưu tiên dùng Skills**                   | Đóng gói kiến thức lĩnh vực, có thể tái sử dụng    |
+| Tình huống context bị hạn chế (hội thoại dài, nhiều công cụ)         | **Dùng Skills để quản lý dần dần**        | Chỉ tải Skill liên quan, giảm đáng kể token vô ích |
+| Xây dựng enterprise-level agent                                      | **Dùng kiến trúc phân tầng MCP + Skills** | Separation of concerns, dễ bảo trì mở rộng         |
 
-### 面试准备要点
+### Chuẩn bị phỏng vấn
 
-**高频问题**：
+**Câu hỏi tần suất cao**:
 
-1. **Skills 是什么？** → 延迟加载的 sub-agent，解决“如何编排”问题
-2. **Skills 和 MCP 的区别？** → MCP 负责连通性，Skills 负责执行逻辑，互补关系
-3. **如何降低 token 消耗？** → 渐进式披露：元数据常驻，正文按需加载
-4. **什么是渐进式披露？** → 三层架构：元数据 → 正文 → 附加资源
-5. **如何编写高质量 Skills？** → 精准 description + 单一职责 + 确定性优先
-6. **怎么实现渐进式披露？** → 元信息常驻做索引，语义匹配（向量化 + 余弦相似度 top-k）筛选相关 Skill，按需加载正文，触发关键词时补充加载兜底
-7. **上下文信噪比怎么理解？** → "Lost in the Middle"效应（Liu et al., 2023），模型对上下文头尾记得住、中间容易忽略，盲目堆内容反而让关键指令被淹没
-8. **渐进式披露和 RAG 的本质区别？** → 内容性质不同：Skill 路由是有限结构化指令集，要求精准度更高，选错会连错整条链路；RAG 是外部知识库，多召回几条还有容忍度
-9. **Skill 路由模块怎么设计？** → 嵌入模型向量化索引 → top-5 候选 → 交叉编码器 rerank 重排 → 置信度阈值兜底
-10. **渐进式披露和数据库索引的类比？** → 都是用轻量辅助结构做预过滤，缩小范围后再取完整数据；指令调度器 = 注册中心 + 路由引擎 + 加载器 + 上下文装配器
-11. **高并发下语义匹配怎么扛？** → Query 向量化缓存 + NumPy 内存检索（几十个 Skill 不需要 FAISS）+ 无状态路由服务横向扩展
-12. **Skills 有什么局限性？** → 纯推理型 Skill 缺乏执行能力、第三方 Skill 存在安全风险（提示注入、数据泄露）、模型自主判断可能误触发或漏触发
+1. **Skills là gì?** → Sub-agent lazy loading, giải quyết vấn đề "cách điều phối"
+2. **Sự khác biệt giữa Skills và MCP?** → MCP chịu trách nhiệm connectivity, Skills chịu trách nhiệm execution logic, quan hệ bổ sung
+3. **Làm thế nào để giảm token consumption?** → Progressive disclosure: metadata thường trú, nội dung chính tải theo nhu cầu
+4. **Progressive disclosure là gì?** → Kiến trúc ba tầng: metadata → nội dung chính → tài nguyên bổ sung
+5. **Làm thế nào để viết Skills chất lượng cao?** → Description chính xác + single responsibility + ưu tiên tính xác định
+6. **Làm thế nào để thực hiện progressive disclosure?** → Metadata thường trú làm index, semantic matching (vector hóa + cosine similarity top-k) lọc Skill liên quan, tải nội dung chính theo nhu cầu, keyword trigger bổ sung làm fallback
+7. **Tỷ lệ signal/noise trong context hiểu như thế nào?** → Hiệu ứng "Lost in the Middle" (Liu et al., 2023), mô hình nhớ đầu và cuối context, dễ bỏ qua phần giữa, chất đống nội dung mù quáng ngược lại làm chỉ dẫn quan trọng bị chìm ngập
+8. **Sự khác biệt bản chất giữa progressive disclosure và RAG?** → Tính chất nội dung khác nhau: Skill routing là tập hợp chỉ dẫn có cấu trúc hữu hạn, yêu cầu độ chính xác cao hơn, chọn sai sẽ làm sai toàn bộ chain; RAG là external knowledge base, recall thêm vài tài liệu còn có mức dung sai
+9. **Thiết kế Skill routing module như thế nào?** → Embedding model vector index → top-5 candidates → cross-encoder rerank → confidence threshold fallback
+10. **Phép tương tự giữa progressive disclosure và database index?** → Đều dùng cấu trúc phụ trợ nhẹ để pre-filter, thu hẹp phạm vi rồi lấy dữ liệu đầy đủ; instruction dispatcher = registry + routing engine + loader + context assembler
+11. **Semantic matching dưới high concurrency chịu được không?** → Query vector hóa cache + NumPy in-memory retrieval (vài chục Skill không cần FAISS) + stateless routing service scale ngang
+12. **Skills có những hạn chế gì?** → Pure reasoning Skill thiếu execution capability, Skills bên thứ ba có rủi ro bảo mật (prompt injection, data leakage), mô hình tự chủ phán đoán có thể trigger nhầm hoặc bỏ trigger
 
-**追问准备**：
+**Chuẩn bị câu hỏi follow-up**:
 
-- 你的团队用了哪些 Skills？如何组织的？
-- 如何评估一个 Skill 的好坏？
-- Skills 如何与 MCP 配合使用？
-- 如何避免 Skills 的上下文污染问题？
-- 上下文装不下的情况怎么处理？“相关 Skill”怎么判断——关键词匹配还是语义匹配？
-- 语义匹配出了问题（误加载或漏加载）怎么兜底？
-- 上下文信噪比怎么量化评估？精简上下文 vs 全量上下文怎么对比？
-- RAG 检索到了但生成跑偏，根因在哪？怎么优化分块策略和拼接方式？
-- 高并发下分层加载有没有性能瓶颈？嵌入模型调用延迟怎么控制？
-- 第三方 Skill 的安全风险怎么评估？如何防范提示注入？
+- Đội nhóm bạn dùng những Skills nào? Tổ chức như thế nào?
+- Làm thế nào để đánh giá chất lượng của một Skill?
+- Skills kết hợp với MCP như thế nào?
+- Làm thế nào để tránh vấn đề context pollution của Skills?
+- Khi context không đủ chứa thì xử lý như thế nào? "Skill liên quan" được phán đoán như thế nào — keyword matching hay semantic matching?
+- Semantic matching có vấn đề (load nhầm hoặc bỏ load) thì fallback như thế nào?
+- Tỷ lệ signal/noise của context được đánh giá định lượng như thế nào? Context tinh giản vs context đầy đủ so sánh như thế nào?
+- RAG retrieve được rồi nhưng generation đi lạc, root cause ở đâu? Làm thế nào để tối ưu chunking strategy và cách ghép?
+- Phân tầng tải dưới high concurrency có performance bottleneck không? Embedding model call latency kiểm soát như thế nào?
+- Rủi ro bảo mật của Skills bên thứ ba đánh giá như thế nào? Làm thế nào để phòng chống prompt injection?

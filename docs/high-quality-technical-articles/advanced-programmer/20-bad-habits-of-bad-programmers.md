@@ -1,151 +1,151 @@
 ---
-title: 糟糕程序员的 20 个坏习惯
-description: "糟糕程序员的 20 个坏习惯：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
+title: 20 thói quen xấu của programmer tệ
+description: "20 thói quen xấu của programmer tệ - Tổng hợp các điểm thực hành."
+category: Technical Articles Selection
 author: Kaito
 tag:
-  - 练级攻略
+  - Level-up Strategies
 head:
   - - meta
     - name: keywords
-      content: 程序员坏习惯,编程规范,代码注释,技术文档,团队协作,代码提交,职业素养,编程修养
+      content: programmer bad habits,coding standards,code comments,technical documentation,teamwork,code commits,professionalism,programming cultivation
 ---
 
-> **推荐语**：Kaito 大佬的一篇文章，很实用的建议！
+> **Lời giới thiệu**: Bài viết của đại ca Kaito — lời khuyên rất thực tiễn!
 >
-> **原文地址：** <https://mp.weixin.qq.com/s/6hUU6SZsxGPWAIIByq93Rw>
+> **Original article**: <https://mp.weixin.qq.com/s/6hUU6SZsxGPWAIIByq93Rw>
 
-我想你肯定遇到过这样一类程序员：**他们无论是写代码，还是写文档，又或是和别人沟通，都显得特别专业**。每次遇到这类人，我都在想，他们到底是怎么做到的？
+Chắc bạn đã từng gặp loại programmer này: **Dù viết code, viết documentation hay giao tiếp với người khác, họ đều trông rất chuyên nghiệp.** Mỗi lần gặp những người như vậy, tôi thường tự hỏi họ làm được điều đó như thế nào?
 
-随着工作时间的增长，渐渐地我也总结出一些经验，他们身上都保持着一些看似很微小的优秀习惯，但正是因为这些习惯，体现出了一个优秀程序员的基本素养。
+Theo thời gian làm việc, tôi dần tổng kết được một số kinh nghiệm. Họ duy trì những thói quen tốt có vẻ rất nhỏ nhặt, nhưng chính những thói quen này thể hiện phẩm chất cơ bản của một excellent programmer.
 
-但今天我们来换个角度，来看看一个糟糕程序员有哪些坏习惯？只要我们都能避开这些问题，就可以逐渐向一个优秀程序员靠近。
+Hôm nay hãy nhìn theo góc độ khác — xem một programmer tệ có những thói quen xấu nào? Chỉ cần chúng ta tránh được những vấn đề này, sẽ dần tiếp cận được một excellent programmer.
 
-## 1、技术名词拼写不规范
+## 1. Không viết hoa đúng chuẩn các technical terms
 
-无论是个人简历，还是技术文档，我经常看到拼写不规范的技术名词，例如 JAVA、javascript、python、MySql、Hbase、restful。
+Dù là trong resume hay technical documents, tôi thường thấy technical terms được viết sai, ví dụ JAVA, javascript, python, MySql, Hbase, restful.
 
-正确的拼写应该是 Java、JavaScript、Python、MySQL、HBase、RESTful，不要小看这个问题，很多面试官很有可能因为这一点刷掉你的简历。
+Chuẩn xác phải là Java, JavaScript, Python, MySQL, HBase, RESTful. Đừng coi thường vấn đề này — nhiều interviewers rất có thể loại resume của bạn vì điểm này.
 
-## 2、写文档，中英文混排不规范
+## 2. Viết documentation, mixed Chinese-English không chuẩn
 
-中文描述使用英文标点符号，英文和数字使用了全角字符，中文与英文、数字之间没有空格等等。
+Mô tả tiếng Việt/tiếng Trung dùng English punctuation, English và số dùng full-width characters, không có khoảng cách giữa tiếng Việt và tiếng Anh v.v.
 
-其中很多人会忽视中文和英文、数字之间加一个「空格」，这样排版阅读起来会更舒服。之前我的文章排版，都是遵循了这些细节。
+Nhiều người bỏ qua việc thêm "khoảng cách" giữa tiếng Việt và tiếng Anh, số — như vậy layout đọc thoải mái hơn.
 
-## 3、重要逻辑不写注释，或写得很拖沓
+## 3. Logic quan trọng không có comment, hoặc comment rườm rà
 
-复杂且重要的逻辑代码，很多程序员不写注释，除了自己能看懂代码逻辑，其他人根本看不懂。或者是注释虽然写了，但写得很拖沓，没有逻辑可言。
+Nhiều programmers không viết comments cho code complex và quan trọng — ngoài bản thân đọc được, người khác hoàn toàn không hiểu. Hoặc comment có viết nhưng rất rườm rà, không có logic.
 
-重要的逻辑不止要写注释，还要写得简洁、清晰。如果是一眼就能读懂的简单代码，可以不加注释。
+Logic quan trọng không chỉ phải có comment mà còn phải viết ngắn gọn và rõ ràng. Nếu là code đơn giản đọc một cái hiểu ngay, không cần comment.
 
-## 4、写复杂冗长的函数
+## 4. Viết functions phức tạp và dài dòng
 
-一个函数几百行，一个文件上千行代码，复杂函数不做拆分，导致代码变得越来越难维护，最后谁也不敢动。
+Một function vài trăm dòng, một file hàng nghìn dòng code, complex functions không được split — khiến code ngày càng khó maintain, cuối cùng không ai dám đụng vào.
 
-基本的设计模式还是要遵守的，例如单一职责，一个函数只做一件事，开闭原则，对扩展开放，对修改关闭。
+Các basic design patterns vẫn phải tuân thủ — ví dụ Single Responsibility: một function chỉ làm một việc; Open/Closed Principle: open for extension, closed for modification.
 
-如果函数逻辑确实复杂，也至少要保证主干逻辑足够清晰。
+Nếu function logic thực sự phức tạp, ít nhất cũng phải đảm bảo main logic đủ rõ ràng.
 
-## 5、不看官方文档，只看垃圾博客
+## 5. Không đọc official documentation, chỉ xem các blog chất lượng thấp
 
-很多人遇到问题不先去看官方文档，而是热衷于去看垃圾博客，这些博客的内容都是互相抄袭，错误百出。
+Nhiều người gặp vấn đề không đọc official documentation mà thích xem các blog copy nhau, đầy lỗi sai.
 
-其实很多软件官方文档写得已经非常好了，常见问题都能找到答案，认真读一读官方文档，比看垃圾博客强一百倍，要养成看官方文档的好习惯。
+Thực ra documentation chính thức của nhiều software đã viết rất tốt, các common problems đều tìm được đáp án. Đọc kỹ official documentation tốt hơn xem blog tệ gấp trăm lần. Hãy hình thành thói quen đọc official documentation.
 
-## 6、宣扬内功无用论
+## 6. Tuyên truyền "technical foundations vô dụng"
 
-有些人天天追求日新月异的开源项目和框架，却不肯花时间去啃一啃底层原理，常见问题虽然可以解决，但遇到稍微深一点的问题就束手无策。
+Một số người ngày ngày theo đuổi các open source projects và frameworks mới nhất nhưng không chịu bỏ thời gian nghiên cứu underlying principles. Common problems có thể giải quyết được, nhưng gặp vấn đề sâu hơn một chút là bó tay.
 
-很多高大上的架构设计，思路其实都源于底层。想一想，像计算机体系结构、操作系统、网络协议这些东西，经过多少年演进才变为现在的样子，演进过程中遇到的复杂问题比比皆是，理解了解决这些问题的思路，再看上层技术会变得很简单。
+Nhiều high-level architecture designs thực ra đều có nguồn gốc từ bottom layer. Computer architecture, operating systems, network protocols — đã qua bao nhiêu năm evolution mới trở thành dạng hiện tại, trong quá trình evolution gặp vô số complex problems. Hiểu tư duy giải quyết những vấn đề đó, nhìn vào upper-level technologies sẽ trở nên rất đơn giản.
 
-## 7、乐于炫技
+## 7. Thích khoe kỹ năng
 
-有些人天天把「高大上」的技术名词挂在嘴边，生怕别人不知道自己学了什么高深技术，嘴上乐于炫技，但别人一问他细节就会哑口无言。
+Một số người ngày ngày phủ phục những tech buzzwords "cao siêu", sợ người khác không biết mình học được công nghệ gì. Thích khoe bằng lời, nhưng người khác hỏi chi tiết thì im re.
 
-## 8、不接受质疑
+## 8. Không chấp nhận nghi vấn
 
-自己设计的方案，别人提出疑问时只会回怼，而不是理性分析利弊，抱着学习的心态交流。
+Khi người khác đặt câu hỏi về giải pháp mình thiết kế, chỉ biết phản bác thay vì phân tích lý lẽ và trao đổi với thái độ học hỏi.
 
-这些人学了点东西就觉得自己很有本事，殊不知只是自己见识太少。
+Những người này học được chút gì đó liền nghĩ mình tài giỏi, không biết mình còn quá ít kinh nghiệm.
 
-## 9、接口协议不规范
+## 9. API protocols không chuẩn
 
-和别人定 API 协议全靠口头沟通，不给规范的文档说明，甚至到了测试联调时会发现，竟然和协商的还不一样，或者改协议了却不通知对接方，合作体验极差。
+Khi thỏa thuận API protocol với người khác, chỉ giao tiếp miệng mà không có documentation rõ ràng. Thậm chí đến lúc test integration mới phát hiện khác với thỏa thuận, hoặc thay đổi protocol mà không thông báo cho đối tác — trải nghiệm hợp tác cực kỳ tệ.
 
-## 10、遇到问题自己死磕
+## 10. Gặp vấn đề tự cắm đầu giải quyết mà không báo
 
-很初级程序员容易犯的问题，遇到问题只会自己死磕，拖到 deadline 也没有产出，领导来问才知道有问题解决不了。
+Lỗi dễ mắc của junior programmers. Gặp vấn đề chỉ biết tự cắm đầu giải quyết, kéo đến deadline vẫn không có output, leader hỏi mới biết có vấn đề không giải quyết được.
 
-有问题及时反馈才是对自己负责，对团队负责。
+Báo cáo vấn đề kịp thời mới là có trách nhiệm với bản thân và team.
 
-## 11、一说就会，一写就废
+## 11. Nói thì dễ, làm thì hỏng
 
-平时技术方案吹得天花乱坠，一让他写代码就废，典型的眼高手低选手。
+Bình thường nói technical solutions như mây bay trên trời, để viết code thì hỏng — điển hình của "ambitious nhưng thiếu năng lực thực tế".
 
-## 12、表达没有逻辑，不站在对方角度看问题
+## 12. Diễn đạt không logic, không đặt mình vào vị trí đối phương
 
-讨论问题不交代背景，上来就说自己的方案，别人听得云里雾里，让你从头描述你又讲不明白。
+Thảo luận vấn đề không cung cấp background, vào thẳng solution của mình khiến người khác ngơ ngác, yêu cầu mô tả lại từ đầu lại không nói được rõ.
 
-学会沟通和表达，是合作的基础。
+Học giao tiếp và diễn đạt là nền tảng của hợp tác.
 
-## 13、不主动思考，伸手党
+## 13. Không chủ động suy nghĩ, "ngửa tay" xin giải pháp
 
-遇到问题不去 google，不做思考就向别人提问，喜欢做伸手党。
+Gặp vấn đề không Google, không suy nghĩ đã hỏi người khác, thích làm người "ngửa tay xin".
 
-每个人的时间都很宝贵，大家都更喜欢你带着自己的思考来提问，一来可以规避很多低级问题，二来可以提高交流质量。
+Thời gian của ai cũng quý. Mọi người đều thích bạn đặt câu hỏi sau khi đã có suy nghĩ của mình — một là tránh được nhiều low-level questions, hai là nâng cao chất lượng giao tiếp.
 
-## 14、经常犯重复的错误
+## 14. Lặp đi lặp lại cùng một lỗi
 
-出问题后说下次会注意，但下次问题依旧，对自己不负责任，说到底是态度问题。
+Khi có vấn đề nói lần sau sẽ chú ý, nhưng lần sau vấn đề vẫn vậy — không có trách nhiệm với bản thân. Nói đến cùng là vấn đề thái độ.
 
-## 15、加功能不考虑扩展性
+## 15. Thêm tính năng không suy nghĩ về extensibility
 
-加新功能只关注某一小块业务，不考虑系统整体的扩展性，堆代码行为严重。
+Chỉ tập trung vào business nhỏ khi thêm tính năng mới, không xem xét extensibility tổng thể của hệ thống — hành vi "pile code" rất nghiêm trọng.
 
-要学会分析需求和未来可能发生的变化，设计更通用的解决方案，降低后期开发成本。
+Cần học cách phân tích requirements và những thay đổi có thể xảy ra trong tương lai. Thiết kế solutions tổng quát hơn, giảm chi phí phát triển sau này.
 
-## 16、接口不自测，出问题不打日志
+## 16. Interface không self-test, gặp vấn đề không có logs
 
-自己开发的接口不自测就和别人联调，出了问题又说没打日志，协作效率极低。
+Interfaces tự phát triển không self-test đã integration test với người khác. Có vấn đề lại nói không có logs — collaboration efficiency cực thấp.
 
-## 17、提交代码不规范
+## 17. Commit code không theo chuẩn
 
-很多人提交代码不写描述，或者写的是无意义的描述，尤其是修改很少代码时，这种情况会导致回溯问题成本变高。
+Nhiều người commit code không viết description, hoặc viết mô tả vô nghĩa — đặc biệt khi thay đổi rất ít code. Điều này khiến chi phí trace-back tăng cao.
 
-制定代码提交规范，能让你在每一次提交代码时，不会做太随意的代码修改。
+Thiết lập code commit standards giúp mỗi lần commit code không làm thay đổi code quá tùy tiện.
 
-## 18、手动修改生产环境数据库
+## 18. Tay chân thẳng vào production database
 
-直连生产环境数据库修改数据，更有 UPDATE / DELETE SQL 忘写 WHERE 条件的情况，产生数据事故。
+Trực tiếp kết nối production database để sửa data, thậm chí còn quên WHERE condition trong UPDATE/DELETE SQL — gây data incidents.
 
-修改生产环境数据库一定要谨慎再谨慎，建议操作前先找同事 review 代码再操作。
+Phải hết sức thận trọng khi sửa production database. Khuyến nghị nhờ colleague review code trước khi thực hiện.
 
-## 19、没理清需求就直接写代码
+## 19. Chưa làm rõ requirements đã viết code
 
-很多程序员接到需求后，不怎么思考就开始写代码，需求和自己理解的有偏差，造成无意义返工。
+Nhiều programmers nhận requirements xong không suy nghĩ nhiều đã viết code. Requirements khác với những gì mình hiểu gây ra rework vô ích.
 
-多花些时间梳理需求，能规避很多不合理的问题。
+Dành thêm thời gian clarify requirements có thể tránh được nhiều vấn đề không hợp lý.
 
-## 20、重要设计不写文档
+## 20. Design quan trọng không có documentation
 
-重要的设计没有文档输出，和别人交接系统时只做口头描述，丢失关键信息。
+Design quan trọng không có document output. Khi bàn giao system cho người khác chỉ mô tả miệng — mất key information.
 
-有时候理解一个设计方案，一个好的文档要比看几百行代码更高效。
+Đôi khi để hiểu một design solution, một good document hiệu quả hơn đọc vài trăm dòng code.
 
-## 总结
+## Tổng kết
 
-以上这些不良习惯，你命中几个呢？或者你身边有没有碰到这样的人？
+Trong những thói quen xấu trên, bạn trúng bao nhiêu cái? Hoặc bạn có gặp ai như vậy xung quanh không?
 
-我认为提早规避这些问题，是成为一个优秀程序员必须要做的。这些习惯总结起来大致分为这 4 个方面：
+Tôi cho rằng tránh sớm những vấn đề này là điều một excellent programmer phải làm. Những thói quen này tóm gọn vào 4 khía cạnh:
 
-- 良好的编程修养
-- 谦虚的学习心态
-- 良好的沟通和表达
-- 注重团队协作
+- Coding cultivation tốt
+- Thái độ học hỏi khiêm tốn
+- Giao tiếp và diễn đạt tốt
+- Chú trọng teamwork
 
-优秀程序员的专业技能，我们可能很难在短时间内学会，但这些基本的职业素养，是可以在短期内做到的。
+Professional skills của excellent programmers có thể rất khó học trong thời gian ngắn, nhưng những basic professional qualities này hoàn toàn có thể đạt được trong thời gian ngắn.
 
-希望你我可以有则改之，无则加勉。
+Hy vọng cả bạn và tôi đều có thể sửa những gì cần sửa và cố gắng đạt những gì chưa đạt được.
 
 <!-- @include: @article-footer.snippet.md -->

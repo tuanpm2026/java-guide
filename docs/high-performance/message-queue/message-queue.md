@@ -1,9 +1,9 @@
 ---
-title: 消息队列基础知识总结
-description: 本文系统总结消息队列的核心知识，涵盖消息队列的应用场景（异步处理/解耦/削峰）、消息模型（点对点/发布订阅）、如何保证消息不丢失、消息幂等性、消息顺序性、消息积压处理等常见问题，以及 Kafka、RocketMQ、RabbitMQ 技术选型对比。
-category: 高性能
+title: Tổng hợp kiến thức cơ bản về hàng đợi tin nhắn
+description: Bài viết này tổng hợp có hệ thống các kiến thức cốt lõi về hàng đợi tin nhắn, bao gồm các tình huống ứng dụng (xử lý bất đồng bộ/tách coupling/cắt đỉnh), mô hình tin nhắn (point-to-point/pub-sub), cách đảm bảo không mất tin nhắn, tính idempotent của tin nhắn, thứ tự tin nhắn, xử lý tích lũy tin nhắn và các vấn đề phổ biến khác, cũng như so sánh lựa chọn công nghệ Kafka, RocketMQ, RabbitMQ.
+category: Hiệu suất cao
 tag:
-  - 消息队列
+  - Hàng đợi tin nhắn
 head:
   - - meta
     - name: keywords
@@ -12,308 +12,308 @@ head:
 
 ::: tip
 
-这篇文章中的消息队列主要指的是分布式消息队列。
+Hàng đợi tin nhắn được đề cập trong bài viết này chủ yếu đề cập đến hàng đợi tin nhắn phân tán.
 
 :::
 
-“RabbitMQ？”“Kafka？”“RocketMQ？”...在日常学习与开发过程中，我们常常听到消息队列这个关键词。我也在我的多篇文章中提到了这个概念。可能你是熟练使用消息队列的老手，又或者你是不懂消息队列的新手，不论你了不了解消息队列，本文都将带你搞懂消息队列的一些基本理论。
+"RabbitMQ?" "Kafka?" "RocketMQ?"... Trong quá trình học tập và phát triển hàng ngày, chúng ta thường nghe đến từ khóa hàng đợi tin nhắn. Tôi cũng đề cập đến khái niệm này trong nhiều bài viết của mình. Có thể bạn là người dày dạn kinh nghiệm sử dụng hàng đợi tin nhắn, hoặc bạn là người mới chưa hiểu về hàng đợi tin nhắn, dù bạn có hiểu hay không, bài viết này sẽ giúp bạn nắm được một số lý thuyết cơ bản về hàng đợi tin nhắn.
 
-如果你是老手，你可能从本文学到你之前不曾注意的一些关于消息队列的重要概念，如果你是新手，相信本文将是你打开消息队列大门的一板砖。
+Nếu bạn là người có kinh nghiệm, có thể bạn sẽ học được từ bài viết này một số khái niệm quan trọng về hàng đợi tin nhắn mà trước đây bạn chưa chú ý. Nếu bạn là người mới, tin rằng bài viết này sẽ là viên gạch mở ra cánh cửa hàng đợi tin nhắn cho bạn.
 
-## 什么是消息队列？
+## Hàng đợi tin nhắn là gì?
 
-我们可以把消息队列看作是一个存放消息的容器，当我们需要使用消息的时候，直接从容器中取出消息供自己使用即可。由于队列 Queue 是一种先进先出的数据结构，所以消费消息时也是按照顺序来消费的。
+Chúng ta có thể coi hàng đợi tin nhắn như một container chứa tin nhắn, khi chúng ta cần sử dụng tin nhắn, chỉ cần lấy tin nhắn từ container ra để dùng. Vì Queue là một cấu trúc dữ liệu vào trước ra trước (FIFO), nên khi tiêu thụ tin nhắn cũng theo thứ tự.
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-small.png)
 
-参与消息传递的双方称为 **生产者** 和 **消费者** ，生产者负责发送消息，消费者负责处理消息。
+Hai bên tham gia truyền tin nhắn được gọi là **producer** và **consumer**, producer chịu trách nhiệm gửi tin nhắn, consumer chịu trách nhiệm xử lý tin nhắn.
 
-![发布/订阅（Pub/Sub）模型](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
+![Mô hình Publish/Subscribe (Pub/Sub)](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
 
-操作系统中的进程通信的一种很重要的方式就是消息队列。我们这里提到的消息队列稍微有点区别，更多指的是各个服务以及系统内部各个组件/模块之前的通信，属于一种 **中间件** 。
+Một trong những phương thức giao tiếp liên tiến trình quan trọng trong hệ điều hành là hàng đợi tin nhắn. Hàng đợi tin nhắn mà chúng ta đề cập ở đây có sự khác biệt nhỏ, chủ yếu đề cập đến giao tiếp giữa các dịch vụ và các thành phần/module bên trong hệ thống, thuộc một loại **middleware**.
 
-维基百科是这样介绍中间件的：
+Wikipedia giới thiệu về middleware như sau:
 
-> 中间件（英语：Middleware），又译中间件、中介层，是一类提供系统软件和应用软件之间连接、便于软件各部件之间的沟通的软件，应用软件可以借助中间件在不同的技术架构之间共享信息与资源。中间件位于客户机服务器的操作系统之上，管理着计算资源和网络通信。
+> Middleware (tiếng Anh: Middleware), còn dịch là phần mềm trung gian, là loại phần mềm cung cấp kết nối giữa phần mềm hệ thống và phần mềm ứng dụng, tạo điều kiện giao tiếp giữa các thành phần phần mềm. Phần mềm ứng dụng có thể nhờ middleware chia sẻ thông tin và tài nguyên giữa các kiến trúc công nghệ khác nhau. Middleware nằm phía trên hệ điều hành client-server, quản lý tài nguyên tính toán và giao tiếp mạng.
 
-简单来说：**中间件就是一类为应用软件服务的软件，应用软件是为用户服务的，用户不会接触或者使用到中间件。**
+Nói đơn giản: **Middleware là loại phần mềm phục vụ cho phần mềm ứng dụng, phần mềm ứng dụng phục vụ người dùng, người dùng không tiếp xúc hoặc sử dụng middleware.**
 
-除了消息队列之外，常见的中间件还有 RPC 框架、分布式组件、HTTP 服务器、任务调度框架、配置中心、数据库层的分库分表工具和数据迁移工具等等。
+Ngoài hàng đợi tin nhắn, các middleware phổ biến khác còn có RPC framework, thành phần phân tán, HTTP server, framework lập lịch tác vụ, configuration center, công cụ phân vùng cơ sở dữ liệu và công cụ di chuyển dữ liệu, v.v.
 
-关于中间件比较详细的介绍可以参考阿里巴巴淘系技术的一篇回答：<https://www.zhihu.com/question/19730582/answer/1663627873> 。
+Bạn có thể tham khảo câu trả lời chi tiết hơn về middleware từ công nghệ Taobao của Alibaba: <https://www.zhihu.com/question/19730582/answer/1663627873>.
 
-随着分布式和微服务系统的发展，消息队列在系统设计中有了更大的发挥空间，使用消息队列可以降低系统耦合性、实现任务异步、有效地进行流量削峰，是分布式和微服务系统中重要的组件之一。
+Cùng với sự phát triển của hệ thống phân tán và microservice, hàng đợi tin nhắn có không gian phát huy lớn hơn trong thiết kế hệ thống. Sử dụng hàng đợi tin nhắn có thể giảm coupling của hệ thống, thực hiện tác vụ bất đồng bộ, cắt đỉnh lưu lượng hiệu quả, là một trong những thành phần quan trọng của hệ thống phân tán và microservice.
 
-## 消息队列有什么用？
+## Hàng đợi tin nhắn có tác dụng gì?
 
-通常来说，使用消息队列主要能为我们的系统带来下面三点好处：
+Thông thường, sử dụng hàng đợi tin nhắn có thể mang lại ba lợi ích sau cho hệ thống của chúng ta:
 
-1. 异步处理
-2. 削峰/限流
-3. 降低系统耦合性
+1. Xử lý bất đồng bộ
+2. Cắt đỉnh/giới hạn lưu lượng
+3. Giảm coupling của hệ thống
 
-除了这三点之外，消息队列还有其他的一些应用场景，例如实现分布式事务、顺序保证和数据流处理。
+Ngoài ba điểm này, hàng đợi tin nhắn còn có một số tình huống ứng dụng khác, ví dụ như thực hiện giao dịch phân tán, đảm bảo thứ tự và xử lý luồng dữ liệu.
 
-如果在面试的时候你被面试官问到这个问题的话，一般情况是你在你的简历上涉及到消息队列这方面的内容，这个时候推荐你结合你自己的项目来回答。
+Nếu trong phỏng vấn bạn được người phỏng vấn hỏi câu hỏi này, thông thường là vì trong CV của bạn có đề cập đến nội dung hàng đợi tin nhắn. Lúc này khuyến nghị bạn kết hợp dự án của bản thân để trả lời.
 
-### 异步处理
+### Xử lý bất đồng bộ
 
-![通过异步处理提高系统性能](https://oss.javaguide.cn/github/javaguide/Asynchronous-message-queue.png)
+![Nâng cao hiệu suất hệ thống thông qua xử lý bất đồng bộ](https://oss.javaguide.cn/github/javaguide/Asynchronous-message-queue.png)
 
-将用户请求中包含的耗时操作，通过消息队列实现异步处理，将对应的消息发送到消息队列之后就立即返回结果，减少响应时间，提高用户体验。随后，系统再对消息进行消费。
+Các thao tác tốn thời gian trong yêu cầu người dùng được xử lý bất đồng bộ thông qua hàng đợi tin nhắn. Sau khi gửi tin nhắn tương ứng vào hàng đợi tin nhắn, kết quả được trả về ngay lập tức, giảm thời gian phản hồi, nâng cao trải nghiệm người dùng. Sau đó, hệ thống tiêu thụ tin nhắn.
 
-因为用户请求数据写入消息队列之后就立即返回给用户了，但是请求数据在后续的业务校验、写数据库等操作中可能失败。因此，**使用消息队列进行异步处理之后，需要适当修改业务流程进行配合**，比如用户在提交订单之后，订单数据写入消息队列，不能立即返回用户订单提交成功，需要在消息队列的订单消费者进程真正处理完该订单之后，甚至出库后，再通过电子邮件或短信通知用户订单成功，以免交易纠纷。这就类似我们平时手机订火车票和电影票。
+Vì dữ liệu yêu cầu của người dùng được trả về ngay sau khi ghi vào hàng đợi tin nhắn, nhưng dữ liệu yêu cầu có thể thất bại trong các thao tác tiếp theo như xác thực nghiệp vụ, ghi cơ sở dữ liệu. Vì vậy, **sau khi sử dụng hàng đợi tin nhắn để xử lý bất đồng bộ, cần sửa đổi phù hợp quy trình nghiệp vụ để phối hợp**, ví dụ sau khi người dùng đặt hàng, dữ liệu đơn hàng được ghi vào hàng đợi tin nhắn, không thể ngay lập tức trả về cho người dùng rằng đơn hàng đã được gửi thành công, cần đợi đến khi tiến trình consumer đơn hàng trong hàng đợi tin nhắn thực sự xử lý xong đơn hàng đó, thậm chí sau khi xuất kho, mới thông báo cho người dùng qua email hoặc tin nhắn rằng đơn hàng đã thành công, để tránh tranh chấp giao dịch. Điều này giống như việc chúng ta đặt vé tàu và vé phim trên điện thoại.
 
-### 削峰/限流
+### Cắt đỉnh/Giới hạn lưu lượng
 
-**先将短时间高并发产生的事务消息存储在消息队列中，然后后端服务再慢慢根据自己的能力去消费这些消息，这样就避免直接把后端服务打垮掉。**
+**Trước tiên lưu trữ các tin nhắn giao dịch được tạo ra trong thời gian ngắn với lượng đồng thời cao vào hàng đợi tin nhắn, sau đó dịch vụ backend từ từ tiêu thụ các tin nhắn này theo khả năng của mình, điều này tránh được việc làm sập trực tiếp dịch vụ backend.**
 
-举例：在电子商务一些秒杀、促销活动中，合理使用消息队列可以有效抵御促销活动刚开始大量订单涌入对系统的冲击。如下图所示：
+Ví dụ: Trong một số hoạt động flash sale, khuyến mại trên thương mại điện tử, sử dụng hợp lý hàng đợi tin nhắn có thể chống đỡ hiệu quả cú sốc lên hệ thống do lượng lớn đơn hàng tràn vào ngay khi hoạt động khuyến mại bắt đầu. Như hình dưới đây:
 
-![削峰](https://oss.javaguide.cn/github/javaguide/%E5%89%8A%E5%B3%B0-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97.png)
+![Cắt đỉnh](https://oss.javaguide.cn/github/javaguide/%E5%89%8A%E5%B3%B0-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97.png)
 
-### 降低系统耦合性
+### Giảm coupling của hệ thống
 
-使用消息队列还可以降低系统耦合性。如果模块之间不存在直接调用，那么新增模块或者修改模块就对其他模块影响较小，这样系统的可扩展性无疑更好一些。
+Sử dụng hàng đợi tin nhắn còn có thể giảm coupling của hệ thống. Nếu giữa các module không có lời gọi trực tiếp, thì việc thêm module mới hoặc sửa đổi module ít ảnh hưởng đến các module khác hơn, như vậy khả năng mở rộng của hệ thống chắc chắn tốt hơn.
 
-生产者（客户端）发送消息到消息队列中去，消费者（服务端）处理消息，需要消费的系统直接去消息队列取消息进行消费即可而不需要和其他系统有耦合，这显然也提高了系统的扩展性。
+Producer (client) gửi tin nhắn vào hàng đợi tin nhắn, consumer (server) xử lý tin nhắn. Hệ thống cần tiêu thụ chỉ cần lấy tin nhắn từ hàng đợi tin nhắn để tiêu thụ mà không cần coupling với các hệ thống khác, điều này rõ ràng cũng nâng cao khả năng mở rộng của hệ thống.
 
-![发布/订阅（Pub/Sub）模型](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
+![Mô hình Publish/Subscribe (Pub/Sub)](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
 
-**消息队列使用发布-订阅模式工作，消息发送者（生产者）发布消息，一个或多个消息接受者（消费者）订阅消息。** 从上图可以看到**消息发送者（生产者）和消息接受者（消费者）之间没有直接耦合**，消息发送者将消息发送至分布式消息队列即结束对消息的处理，消息接受者从分布式消息队列获取该消息后进行后续处理，并不需要知道该消息从何而来。**对新增业务，只要对该类消息感兴趣，即可订阅该消息，对原有系统和业务没有任何影响，从而实现网站业务的可扩展性设计**。
+**Hàng đợi tin nhắn hoạt động theo mô hình publish-subscribe, người gửi tin nhắn (producer) publish tin nhắn, một hoặc nhiều người nhận tin nhắn (consumer) subscribe tin nhắn.** Từ hình trên có thể thấy **người gửi tin nhắn (producer) và người nhận tin nhắn (consumer) không có coupling trực tiếp**, người gửi tin nhắn gửi tin nhắn đến hàng đợi tin nhắn phân tán là kết thúc việc xử lý tin nhắn, người nhận tin nhắn lấy tin nhắn đó từ hàng đợi tin nhắn phân tán để xử lý tiếp theo, và không cần biết tin nhắn đó đến từ đâu. **Đối với nghiệp vụ mới, chỉ cần quan tâm đến loại tin nhắn đó, là có thể subscribe tin nhắn đó, không có bất kỳ ảnh hưởng nào đến hệ thống và nghiệp vụ ban đầu, từ đó thực hiện thiết kế khả năng mở rộng của nghiệp vụ website**.
 
-例如，我们商城系统分为用户、订单、财务、仓储、消息通知、物流、风控等多个服务。用户在完成下单后，需要调用财务（扣款）、仓储（库存管理）、物流（发货）、消息通知（通知用户发货）、风控（风险评估）等服务。使用消息队列后，下单操作和后续的扣款、发货、通知等操作就解耦了，下单完成发送一个消息到消息队列，需要用到的地方去订阅这个消息进行消费即可。
+Ví dụ, hệ thống thương mại của chúng ta chia thành nhiều dịch vụ như người dùng, đơn hàng, tài chính, kho hàng, thông báo tin nhắn, logistics, kiểm soát rủi ro. Sau khi người dùng hoàn tất đặt hàng, cần gọi đến các dịch vụ tài chính (trừ tiền), kho hàng (quản lý tồn kho), logistics (giao hàng), thông báo tin nhắn (thông báo người dùng giao hàng), kiểm soát rủi ro (đánh giá rủi ro). Sau khi sử dụng hàng đợi tin nhắn, thao tác đặt hàng và các thao tác trừ tiền, giao hàng, thông báo tiếp theo được tách biệt. Đặt hàng xong gửi một tin nhắn vào hàng đợi tin nhắn, nơi nào cần dùng thì subscribe tin nhắn đó để tiêu thụ.
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-decouple-mall-example.png)
 
-另外，为了避免消息队列服务器宕机造成消息丢失，会将成功发送到消息队列的消息存储在消息生产者服务器上，等消息真正被消费者服务器处理后才删除消息。在消息队列服务器宕机后，生产者服务器会选择分布式消息队列服务器集群中的其他服务器发布消息。
+Ngoài ra, để tránh việc mất tin nhắn do máy chủ hàng đợi tin nhắn bị down, tin nhắn đã được gửi thành công vào hàng đợi tin nhắn sẽ được lưu trữ trên máy chủ producer tin nhắn, chờ đến khi tin nhắn thực sự được xử lý bởi máy chủ consumer mới xóa tin nhắn. Sau khi máy chủ hàng đợi tin nhắn bị down, máy chủ producer sẽ chọn các máy chủ khác trong cụm máy chủ hàng đợi tin nhắn phân tán để publish tin nhắn.
 
-**备注：** 不要认为消息队列只能利用发布-订阅模式工作，只不过在解耦这个特定业务环境下是使用发布-订阅模式的。除了发布-订阅模式，还有点对点订阅模式（一个消息只有一个消费者），我们比较常用的是发布-订阅模式。另外，这两种消息模型是 JMS 提供的，AMQP 协议还提供了另外 5 种消息模型。
+**Lưu ý:** Đừng nghĩ rằng hàng đợi tin nhắn chỉ có thể hoạt động theo mô hình publish-subscribe, chỉ là trong môi trường nghiệp vụ tách coupling cụ thể này mới sử dụng mô hình publish-subscribe. Ngoài mô hình publish-subscribe, còn có mô hình point-to-point subscription (một tin nhắn chỉ có một consumer). Chúng ta thường dùng mô hình publish-subscribe hơn. Ngoài ra, hai mô hình tin nhắn này do JMS cung cấp, giao thức AMQP còn cung cấp thêm 5 mô hình tin nhắn khác.
 
-### 实现分布式事务
+### Thực hiện giao dịch phân tán
 
-分布式事务的解决方案之一就是 MQ 事务。
+Một trong những giải pháp cho giao dịch phân tán là MQ transaction.
 
-RocketMQ、 Kafka、Pulsar、QMQ 都提供了事务相关的功能。事务允许事件流应用将消费，处理，生产消息整个过程定义为一个原子操作。
+RocketMQ, Kafka, Pulsar, QMQ đều cung cấp các chức năng liên quan đến giao dịch. Giao dịch cho phép ứng dụng luồng sự kiện định nghĩa toàn bộ quá trình tiêu thụ, xử lý, tạo tin nhắn là một thao tác nguyên tử.
 
-详细介绍可以查看 [分布式事务详解(付费)](https://javaguide.cn/distributed-system/distributed-transaction.html) 这篇文章。
+Bạn có thể xem chi tiết trong bài viết [Giải thích chi tiết giao dịch phân tán (trả phí)](https://javaguide.cn/distributed-system/distributed-transaction.html).
 
-![分布式事务详解 - MQ事务](https://oss.javaguide.cn/github/javaguide/csdn/07b338324a7d8894b8aef4b659b76d92.png)
+![Giải thích chi tiết giao dịch phân tán - MQ transaction](https://oss.javaguide.cn/github/javaguide/csdn/07b338324a7d8894b8aef4b659b76d92.png)
 
-### 顺序保证
+### Đảm bảo thứ tự
 
-在很多应用场景中，处理数据的顺序至关重要。消息队列保证数据按照特定的顺序被处理，适用于那些对数据顺序有严格要求的场景。大部分消息队列，例如 RocketMQ、RabbitMQ、Pulsar、Kafka，都支持顺序消息。
+Trong nhiều tình huống ứng dụng, thứ tự xử lý dữ liệu là cực kỳ quan trọng. Hàng đợi tin nhắn đảm bảo dữ liệu được xử lý theo thứ tự cụ thể, phù hợp với các tình huống có yêu cầu nghiêm ngặt về thứ tự dữ liệu. Hầu hết các hàng đợi tin nhắn như RocketMQ, RabbitMQ, Pulsar, Kafka đều hỗ trợ tin nhắn có thứ tự.
 
-### 延时/定时处理
+### Xử lý trễ/theo lịch
 
-消息发送后不会立即被消费，而是指定一个时间，到时间后再消费。大部分消息队列，例如 RocketMQ、RabbitMQ、Pulsar，都支持定时/延时消息。
+Tin nhắn sau khi gửi sẽ không được tiêu thụ ngay lập tức, mà chỉ định một thời gian, đến thời gian đó mới tiêu thụ. Hầu hết các hàng đợi tin nhắn như RocketMQ, RabbitMQ, Pulsar đều hỗ trợ tin nhắn theo lịch/tin nhắn trễ.
 
 ![](https://oss.javaguide.cn/github/javaguide/tools/docker/rocketmq-schedule-message.png)
 
-### 即时通讯
+### Nhắn tin tức thời
 
-MQTT（消息队列遥测传输协议）是一种轻量级的通讯协议，采用发布/订阅模式，非常适合于物联网（IoT）等需要在低带宽、高延迟或不可靠网络环境下工作的应用。它支持即时消息传递，即使在网络条件较差的情况下也能保持通信的稳定性。
+MQTT (Message Queuing Telemetry Transport) là một giao thức truyền thông nhẹ, áp dụng mô hình publish/subscribe, rất phù hợp cho các ứng dụng như Internet of Things (IoT) cần hoạt động trong môi trường mạng băng thông thấp, độ trễ cao hoặc không đáng tin cậy. Nó hỗ trợ truyền tin nhắn tức thời, duy trì sự ổn định giao tiếp ngay cả trong điều kiện mạng kém.
 
-RabbitMQ 内置了 MQTT 插件用于实现 MQTT 功能（默认不启用，需要手动开启）。
+RabbitMQ tích hợp sẵn plugin MQTT để thực hiện chức năng MQTT (mặc định không bật, cần bật thủ công).
 
-### 数据流处理
+### Xử lý luồng dữ liệu
 
-针对分布式系统产生的海量数据流，如业务日志、监控数据、用户行为等，消息队列可以实时或批量收集这些数据，并将其导入到大数据处理引擎中，实现高效的数据流管理和处理。
+Đối với luồng dữ liệu khổng lồ được tạo ra bởi hệ thống phân tán, như log nghiệp vụ, dữ liệu giám sát, hành vi người dùng, v.v., hàng đợi tin nhắn có thể thu thập dữ liệu này theo thời gian thực hoặc theo batch và nhập vào engine xử lý big data, thực hiện quản lý và xử lý luồng dữ liệu hiệu quả.
 
-## 使用消息队列会带来哪些问题？
+## Sử dụng hàng đợi tin nhắn sẽ mang lại những vấn đề gì?
 
-- **系统可用性降低：** 系统可用性在某种程度上降低，为什么这样说呢？在加入 MQ 之前，你不用考虑消息丢失或者说 MQ 挂掉等等的情况，但是，引入 MQ 之后你就需要去考虑了！
-- **系统复杂性提高：** 加入 MQ 之后，你需要保证消息没有被重复消费、处理消息丢失的情况、保证消息传递的顺序性等等问题！
-- **一致性问题：** 我上面讲了消息队列可以实现异步，消息队列带来的异步确实可以提高系统响应速度。但是，万一消息的真正消费者并没有正确消费消息怎么办？这样就会导致数据不一致的情况了!
+- **Khả năng sẵn sàng của hệ thống giảm xuống:** Khả năng sẵn sàng của hệ thống giảm xuống ở một mức độ nào đó, tại sao lại như vậy? Trước khi thêm MQ, bạn không cần lo lắng về việc mất tin nhắn hay MQ bị down, v.v. Nhưng sau khi giới thiệu MQ, bạn cần phải lo về những điều đó!
+- **Độ phức tạp của hệ thống tăng lên:** Sau khi thêm MQ, bạn cần đảm bảo tin nhắn không bị tiêu thụ trùng lặp, xử lý tình huống mất tin nhắn, đảm bảo thứ tự truyền tin nhắn, v.v.!
+- **Vấn đề nhất quán:** Tôi đã đề cập ở trên rằng hàng đợi tin nhắn có thể thực hiện bất đồng bộ, tính bất đồng bộ mà hàng đợi tin nhắn mang lại thực sự có thể nâng cao tốc độ phản hồi của hệ thống. Nhưng, nếu consumer thực sự của tin nhắn không tiêu thụ tin nhắn đúng cách thì sao? Điều này sẽ dẫn đến tình trạng dữ liệu không nhất quán!
 
-## JMS 和 AMQP
+## JMS và AMQP
 
-### JMS 是什么？
+### JMS là gì?
 
-JMS（JAVA Message Service,java 消息服务）是 Java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。**JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范**，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。
+JMS (JAVA Message Service, dịch vụ tin nhắn Java) là dịch vụ tin nhắn của Java, các client JMS có thể truyền tin nhắn bất đồng bộ với nhau thông qua dịch vụ JMS. **API JMS (JAVA Message Service, dịch vụ tin nhắn Java) là một tiêu chuẩn hoặc đặc tả dịch vụ tin nhắn**, cho phép các thành phần ứng dụng tạo, gửi, nhận và đọc tin nhắn dựa trên nền tảng JavaEE. Nó giúp truyền thông phân tán có coupling thấp hơn, dịch vụ tin nhắn đáng tin cậy hơn và có tính bất đồng bộ.
 
-JMS 定义了五种不同的消息正文格式以及调用的消息类型，允许你发送并接收以一些不同形式的数据：
+JMS định nghĩa năm loại định dạng nội dung tin nhắn khác nhau và loại tin nhắn được gọi, cho phép bạn gửi và nhận dữ liệu ở một số dạng khác nhau:
 
-- `StreamMessage：Java` 原始值的数据流
-- `MapMessage`：一套名称-值对
-- `TextMessage`：一个字符串对象
-- `ObjectMessage`：一个序列化的 Java 对象
-- `BytesMessage`：一个字节的数据流
+- `StreamMessage: Java` luồng dữ liệu của các giá trị nguyên thủy
+- `MapMessage`: một tập hợp các cặp tên-giá trị
+- `TextMessage`: một đối tượng chuỗi
+- `ObjectMessage`: một đối tượng Java được serialize
+- `BytesMessage`: một luồng dữ liệu byte
 
-**ActiveMQ（已被淘汰） 就是基于 JMS 规范实现的。**
+**ActiveMQ (đã bị loại bỏ) được triển khai dựa trên đặc tả JMS.**
 
-### JMS 两种消息模型
+### Hai mô hình tin nhắn của JMS
 
-#### 点到点（P2P）模型
+#### Mô hình Point-to-Point (P2P)
 
-![队列模型](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-queue-model.png)
+![Mô hình hàng đợi](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-queue-model.png)
 
-使用**队列（Queue）**作为消息通信载体；满足**生产者与消费者模式**，一条消息只能被一个消费者使用，未被消费的消息在队列中保留直到被消费或超时。比如：我们生产者发送 100 条消息的话，两个消费者来消费一般情况下两个消费者会按照消息发送的顺序各自消费一半（也就是你一个我一个的消费。）
+Sử dụng **Queue (Hàng đợi)** làm phương tiện truyền tin nhắn; thỏa mãn **mô hình producer-consumer**, một tin nhắn chỉ có thể được một consumer sử dụng, tin nhắn chưa được tiêu thụ được giữ trong hàng đợi cho đến khi được tiêu thụ hoặc hết thời gian. Ví dụ: nếu producer gửi 100 tin nhắn, hai consumer đến tiêu thụ thì thông thường hai consumer sẽ mỗi người tiêu thụ một nửa theo thứ tự tin nhắn được gửi (tức là bạn một cái tôi một cái mà tiêu thụ).
 
-#### 发布/订阅（Pub/Sub）模型
+#### Mô hình Publish/Subscribe (Pub/Sub)
 
-![发布/订阅（Pub/Sub）模型](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
+![Mô hình Publish/Subscribe (Pub/Sub)](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/message-queue-pub-sub-model.png)
 
-发布订阅模型（Pub/Sub） 使用**主题（Topic）**作为消息通信载体，类似于**广播模式**；发布者发布一条消息，该消息通过主题传递给所有的订阅者。
+Mô hình publish-subscribe (Pub/Sub) sử dụng **Topic (Chủ đề)** làm phương tiện truyền tin nhắn, tương tự như **chế độ broadcast**; publisher publish một tin nhắn, tin nhắn đó được truyền đến tất cả subscriber thông qua chủ đề.
 
-### AMQP 是什么？
+### AMQP là gì?
 
-AMQP，即 Advanced Message Queuing Protocol，一个提供统一消息服务的应用层标准 **高级消息队列协议**（二进制应用层协议），是应用层协议的一个开放标准，为面向消息的中间件设计，兼容 JMS。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件同产品，不同的开发语言等条件的限制。
+AMQP, tức là Advanced Message Queuing Protocol, một **giao thức hàng đợi tin nhắn nâng cao** tiêu chuẩn tầng ứng dụng cung cấp dịch vụ tin nhắn thống nhất (giao thức tầng ứng dụng nhị phân), là một tiêu chuẩn mở của giao thức tầng ứng dụng, được thiết kế cho middleware hướng tin nhắn, tương thích với JMS. Client và middleware tin nhắn dựa trên giao thức này có thể truyền tin nhắn, không bị giới hạn bởi điều kiện như client/middleware cùng sản phẩm, ngôn ngữ phát triển khác nhau.
 
-**RabbitMQ 就是基于 AMQP 协议实现的。**
+**RabbitMQ được triển khai dựa trên giao thức AMQP.**
 
 ### JMS vs AMQP
 
-|   对比方向   | JMS                                     | AMQP                                                                                                                                                                                               |
-| :----------: | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     定义     | Java API                                | 协议                                                                                                                                                                                               |
-|    跨语言    | 否                                      | 是                                                                                                                                                                                                 |
-|    跨平台    | 否                                      | 是                                                                                                                                                                                                 |
-| 支持消息类型 | 提供两种消息模型：①Peer-2-Peer;②Pub/sub | 提供了五种消息模型：①direct exchange；②fanout exchange；③topic change；④headers exchange；⑤system exchange。本质来讲，后四种和 JMS 的 pub/sub 模型没有太大差别，仅是在路由机制上做了更详细的划分； |
-| 支持消息类型 | 支持多种消息类型 ，我们在上面提到过     | byte[]（二进制）                                                                                                                                                                                   |
+|    Chiều so sánh     | JMS                                                  | AMQP                                                                                                                                                                                                                                                      |
+| :------------------: | :--------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|      Định nghĩa      | Java API                                             | Giao thức                                                                                                                                                                                                                                                 |
+|     Đa ngôn ngữ      | Không                                                | Có                                                                                                                                                                                                                                                        |
+|     Đa nền tảng      | Không                                                | Có                                                                                                                                                                                                                                                        |
+| Loại tin nhắn hỗ trợ | Cung cấp hai mô hình tin nhắn: ①Peer-2-Peer;②Pub/sub | Cung cấp năm mô hình tin nhắn: ①direct exchange; ②fanout exchange; ③topic change; ④headers exchange; ⑤system exchange. Về bản chất, bốn loại sau và mô hình pub/sub của JMS không có nhiều khác biệt, chỉ là phân chia chi tiết hơn về cơ chế định tuyến; |
+| Loại tin nhắn hỗ trợ | Hỗ trợ nhiều loại tin nhắn, đã đề cập ở trên         | byte[] (nhị phân)                                                                                                                                                                                                                                         |
 
-**总结：**
+**Tổng kết:**
 
-- AMQP 为消息定义了线路层（wire-level protocol）的协议，而 JMS 所定义的是 API 规范。在 Java 体系中，多个 client 均可以通过 JMS 进行交互，不需要应用修改代码，但是其对跨平台的支持较差。而 AMQP 天然具有跨平台、跨语言特性。
-- JMS 支持 `TextMessage`、`MapMessage` 等复杂的消息类型；而 AMQP 仅支持 `byte[]` 消息类型（复杂的类型可序列化后发送）。
-- 由于 Exchange 提供的路由算法，AMQP 可以提供多样化的路由方式来传递消息到消息队列，而 JMS 仅支持 队列 和 主题/订阅 方式两种。
+- AMQP định nghĩa giao thức tầng wire (wire-level protocol) cho tin nhắn, trong khi JMS định nghĩa đặc tả API. Trong hệ sinh thái Java, nhiều client đều có thể tương tác thông qua JMS mà không cần sửa đổi code ứng dụng, nhưng hỗ trợ đa nền tảng của nó yếu hơn. Trong khi AMQP vốn có đặc tính đa nền tảng và đa ngôn ngữ.
+- JMS hỗ trợ các loại tin nhắn phức tạp như `TextMessage`, `MapMessage`; trong khi AMQP chỉ hỗ trợ loại tin nhắn `byte[]` (các loại phức tạp có thể serialize rồi gửi).
+- Do thuật toán định tuyến mà Exchange cung cấp, AMQP có thể cung cấp nhiều phương thức định tuyến đa dạng để truyền tin nhắn đến hàng đợi tin nhắn, trong khi JMS chỉ hỗ trợ hai cách là Queue và Topic/Subscription.
 
-## RPC 和消息队列的区别
+## Sự khác biệt giữa RPC và hàng đợi tin nhắn
 
-RPC 和消息队列都是分布式微服务系统中重要的组件之一，下面我们来简单对比一下两者：
+RPC và hàng đợi tin nhắn đều là một trong những thành phần quan trọng của hệ thống microservice phân tán, dưới đây hãy so sánh đơn giản hai thứ:
 
-- **从用途来看**：RPC 主要用来解决两个服务的远程通信问题，不需要了解底层网络的通信机制。通过 RPC 可以帮助我们调用远程计算机上某个服务的方法，这个过程就像调用本地方法一样简单。消息队列主要用来降低系统耦合性、实现任务异步、有效地进行流量削峰。
-- **从通信方式来看**：RPC 是双向直接网络通讯，消息队列是单向引入中间载体的网络通讯。
-- **从架构上来看**：消息队列需要把消息存储起来，RPC 则没有这个要求，因为前面也说了 RPC 是双向直接网络通讯。
-- **从请求处理的时效性来看**：通过 RPC 发出的调用一般会立即被处理，存放在消息队列中的消息并不一定会立即被处理。
+- **Xét về mục đích sử dụng**: RPC chủ yếu được dùng để giải quyết vấn đề giao tiếp từ xa giữa hai dịch vụ, không cần hiểu cơ chế giao tiếp mạng cơ bản. Thông qua RPC có thể giúp chúng ta gọi phương thức của một dịch vụ nào đó trên máy tính từ xa, quá trình này giống như gọi phương thức cục bộ. Hàng đợi tin nhắn chủ yếu được dùng để giảm coupling của hệ thống, thực hiện tác vụ bất đồng bộ, cắt đỉnh lưu lượng hiệu quả.
+- **Xét về phương thức giao tiếp**: RPC là giao tiếp mạng trực tiếp hai chiều, hàng đợi tin nhắn là giao tiếp mạng một chiều có giới thiệu phương tiện trung gian.
+- **Xét về kiến trúc**: Hàng đợi tin nhắn cần lưu trữ tin nhắn, RPC không có yêu cầu này, vì như đã nói trước đó RPC là giao tiếp mạng trực tiếp hai chiều.
+- **Xét về tính kịp thời xử lý yêu cầu**: Các lời gọi được gửi thông qua RPC thường sẽ được xử lý ngay lập tức, tin nhắn được lưu trong hàng đợi tin nhắn không nhất thiết sẽ được xử lý ngay lập tức.
 
-RPC 和消息队列本质上是网络通讯的两种不同的实现机制，两者的用途不同，万不可将两者混为一谈。
+RPC và hàng đợi tin nhắn về bản chất là hai cơ chế triển khai khác nhau của giao tiếp mạng, hai thứ có mục đích sử dụng khác nhau, tuyệt đối không được nhầm lẫn giữa hai thứ.
 
-## 分布式消息队列技术选型
+## Lựa chọn công nghệ hàng đợi tin nhắn phân tán
 
-### 常见的消息队列有哪些？
+### Các hàng đợi tin nhắn phổ biến là gì?
 
 #### Kafka
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/kafka-logo.png)
 
-Kafka 是 LinkedIn 开源的一个分布式流式处理平台，已经成为 Apache 顶级项目，早期被用来用于处理海量的日志，后面才慢慢发展成了一款功能全面的高性能消息队列。
+Kafka là nền tảng xử lý luồng phân tán được LinkedIn mã nguồn mở, đã trở thành dự án cấp cao của Apache, ban đầu được dùng để xử lý lượng log khổng lồ, sau đó dần dần phát triển thành một hàng đợi tin nhắn hiệu suất cao đầy đủ tính năng.
 
-流式处理平台具有三个关键功能：
+Nền tảng xử lý luồng có ba chức năng chính:
 
-1. **消息队列**：发布和订阅消息流，这个功能类似于消息队列，这也是 Kafka 也被归类为消息队列的原因。
-2. **容错的持久方式存储记录消息流**：Kafka 会把消息持久化到磁盘，有效避免了消息丢失的风险。
-3. **流式处理平台：** 在消息发布的时候进行处理，Kafka 提供了一个完整的流式处理类库。
+1. **Hàng đợi tin nhắn**: Publish và subscribe luồng tin nhắn, chức năng này tương tự như hàng đợi tin nhắn, đây cũng là lý do Kafka được xếp vào danh mục hàng đợi tin nhắn.
+2. **Lưu trữ bền vững chịu lỗi cho luồng tin nhắn**: Kafka sẽ lưu tin nhắn vào ổ đĩa, tránh hiệu quả rủi ro mất tin nhắn.
+3. **Nền tảng xử lý luồng:** Xử lý khi tin nhắn được publish, Kafka cung cấp một thư viện xử lý luồng đầy đủ.
 
-Kafka 是一个分布式系统，由通过高性能 TCP 网络协议进行通信的服务器和客户端组成，可以部署在在本地和云环境中的裸机硬件、虚拟机和容器上。
+Kafka là một hệ thống phân tán, bao gồm các server và client giao tiếp thông qua giao thức mạng TCP hiệu suất cao, có thể triển khai trên phần cứng bare-metal, máy ảo và container trong môi trường on-premises và cloud.
 
-在 Kafka 2.8 之前，Kafka 最被大家诟病的就是其重度依赖于 Zookeeper 做元数据管理和集群的高可用。在 Kafka 2.8 之后，引入了基于 Raft 协议的 KRaft 模式，不再依赖 Zookeeper，大大简化了 Kafka 的架构，让你可以以一种轻量级的方式来使用 Kafka。
+Trước Kafka 2.8, điều bị chỉ trích nhiều nhất ở Kafka là sự phụ thuộc nặng vào Zookeeper để quản lý metadata và khả năng sẵn sàng cao của cụm. Sau Kafka 2.8, đã giới thiệu chế độ KRaft dựa trên giao thức Raft, không còn phụ thuộc vào Zookeeper nữa, đơn giản hóa đáng kể kiến trúc của Kafka, cho phép bạn sử dụng Kafka theo cách nhẹ nhàng hơn.
 
-不过，要提示一下：**如果要使用 KRaft 模式的话，建议选择较高版本的 Kafka，因为这个功能还在持续完善优化中。Kafka 3.3.1 版本是第一个将 KRaft（Kafka Raft）共识协议标记为生产就绪的版本。**
+Tuy nhiên, cần lưu ý: **Nếu muốn sử dụng chế độ KRaft, khuyến nghị chọn phiên bản Kafka cao hơn, vì tính năng này vẫn đang được tiếp tục hoàn thiện tối ưu. Kafka 3.3.1 là phiên bản đầu tiên đánh dấu giao thức đồng thuận KRaft (Kafka Raft) là sẵn sàng cho production.**
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/kafka3.3.1-kraft-production-ready.png)
 
-Kafka 官网：<http://kafka.apache.org/>
+Trang web chính thức Kafka: <http://kafka.apache.org/>
 
-Kafka 更新记录（可以直观看到项目是否还在维护）：<https://kafka.apache.org/downloads>
+Lịch sử cập nhật Kafka (có thể thấy trực quan dự án có còn được duy trì không): <https://kafka.apache.org/downloads>
 
 #### RocketMQ
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/rocketmq-logo.png)
 
-RocketMQ 是阿里开源的一款云原生“消息、事件、流”实时数据处理平台，借鉴了 Kafka，已经成为 Apache 顶级项目。
+RocketMQ là nền tảng xử lý dữ liệu thời gian thực "tin nhắn, sự kiện, luồng" cloud-native mã nguồn mở của Alibaba, lấy cảm hứng từ Kafka, đã trở thành dự án cấp cao của Apache.
 
-RocketMQ 的核心特性（摘自 RocketMQ 官网）：
+Các tính năng cốt lõi của RocketMQ (trích từ trang web chính thức RocketMQ):
 
-- 云原生：生与云，长与云，无限弹性扩缩，K8s 友好
-- 高吞吐：万亿级吞吐保证，同时满足微服务与大数据场景。
-- 流处理：提供轻量、高扩展、高性能和丰富功能的流计算引擎。
-- 金融级：金融级的稳定性，广泛用于交易核心链路。
-- 架构极简：零外部依赖，Shared-nothing 架构。
-- 生态友好：无缝对接微服务、实时计算、数据湖等周边生态。
+- Cloud-native: sinh ra trong cloud, lớn lên trong cloud, mở rộng co giãn vô hạn, thân thiện với K8s
+- Thông lượng cao: đảm bảo thông lượng hàng nghìn tỷ, đồng thời đáp ứng các tình huống microservice và big data.
+- Xử lý luồng: cung cấp engine tính toán luồng nhẹ, khả năng mở rộng cao, hiệu suất cao và chức năng phong phú.
+- Cấp độ tài chính: độ ổn định cấp độ tài chính, được sử dụng rộng rãi trong chuỗi giao dịch cốt lõi.
+- Kiến trúc cực đơn giản: không có phụ thuộc bên ngoài, kiến trúc Shared-nothing.
+- Hệ sinh thái thân thiện: kết nối liền mạch với hệ sinh thái xung quanh như microservice, tính toán thời gian thực, data lake.
 
-根据官网介绍：
+Theo giới thiệu từ trang web chính thức:
 
-> Apache RocketMQ 自诞生以来，因其架构简单、业务功能丰富、具备极强可扩展性等特点被众多企业开发者以及云厂商广泛采用。历经十余年的大规模场景打磨，RocketMQ 已经成为业内共识的金融级可靠业务消息首选方案，被广泛应用于互联网、大数据、移动互联网、物联网等领域的业务场景。
+> Kể từ khi ra đời, Apache RocketMQ đã được nhiều doanh nghiệp và nhà cung cấp cloud áp dụng rộng rãi nhờ các đặc điểm như kiến trúc đơn giản, chức năng nghiệp vụ phong phú, có khả năng mở rộng cực mạnh. Trải qua hơn mười năm được rèn luyện trong các tình huống quy mô lớn, RocketMQ đã trở thành giải pháp tin nhắn nghiệp vụ đáng tin cậy cấp tài chính được đồng thuận trong ngành công nghiệp, được ứng dụng rộng rãi trong các tình huống nghiệp vụ như Internet, big data, di động Internet, IoT.
 
-RocketMQ 官网：<https://rocketmq.apache.org/> （文档很详细，推荐阅读）
+Trang web chính thức RocketMQ: <https://rocketmq.apache.org/> (tài liệu rất chi tiết, khuyến nghị đọc)
 
-RocketMQ 更新记录（可以直观看到项目是否还在维护）：<https://github.com/apache/rocketmq/releases>
+Lịch sử cập nhật RocketMQ (có thể thấy trực quan dự án có còn được duy trì không): <https://github.com/apache/rocketmq/releases>
 
 #### RabbitMQ
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/rabbitmq-logo.png)
 
-RabbitMQ 是采用 Erlang 语言实现 AMQP(Advanced Message Queuing Protocol，高级消息队列协议）的消息中间件，它最初起源于金融系统，用于在分布式系统中存储转发消息。
+RabbitMQ là middleware tin nhắn triển khai AMQP (Advanced Message Queuing Protocol, giao thức hàng đợi tin nhắn nâng cao) bằng ngôn ngữ Erlang, ban đầu xuất phát từ hệ thống tài chính, dùng để lưu trữ và chuyển tiếp tin nhắn trong hệ thống phân tán.
 
-RabbitMQ 发展到今天，被越来越多的人认可，这和它在易用性、扩展性、可靠性和高可用性等方面的卓著表现是分不开的。RabbitMQ 的具体特点可以概括为以下几点：
+RabbitMQ phát triển đến ngày nay được ngày càng nhiều người công nhận, điều này gắn liền với thành tích xuất sắc trong tính dễ sử dụng, khả năng mở rộng, độ tin cậy và khả năng sẵn sàng cao. Các đặc điểm cụ thể của RabbitMQ có thể tóm tắt thành các điểm sau:
 
-- **可靠性：** RabbitMQ 使用一些机制来保证消息的可靠性，如持久化、传输确认及发布确认等。
-- **灵活的路由：** 在消息进入队列之前，通过交换器来路由消息。对于典型的路由功能，RabbitMQ 己经提供了一些内置的交换器来实现。针对更复杂的路由功能，可以将多个交换器绑定在一起，也可以通过插件机制来实现自己的交换器。这个后面会在我们讲 RabbitMQ 核心概念的时候详细介绍到。
-- **扩展性：** 多个 RabbitMQ 节点可以组成一个集群，也可以根据实际业务情况动态地扩展集群中节点。
-- **高可用性：** 队列可以在集群中的机器上设置镜像，使得在部分节点出现问题的情况下队列仍然可用。
-- **支持多种协议：** RabbitMQ 除了原生支持 AMQP 协议，还支持 STOMP、MQTT 等多种消息中间件协议。
-- **多语言客户端：** RabbitMQ 几乎支持所有常用语言，比如 Java、Python、Ruby、PHP、C#、JavaScript 等。
-- **易用的管理界面：** RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管理消息、集群中的节点等。在安装 RabbitMQ 的时候会介绍到，安装好 RabbitMQ 就自带管理界面。
-- **插件机制：** RabbitMQ 提供了许多插件，以实现从多方面进行扩展，当然也可以编写自己的插件。感觉这个有点类似 Dubbo 的 SPI 机制
+- **Độ tin cậy:** RabbitMQ sử dụng một số cơ chế để đảm bảo độ tin cậy của tin nhắn, như persistence, xác nhận truyền tải và xác nhận publish.
+- **Định tuyến linh hoạt:** Trước khi tin nhắn vào hàng đợi, định tuyến tin nhắn thông qua exchange. Đối với các chức năng định tuyến thông thường, RabbitMQ đã cung cấp một số exchange tích hợp sẵn để triển khai. Đối với các chức năng định tuyến phức tạp hơn, có thể bind nhiều exchange với nhau, hoặc triển khai exchange của riêng mình thông qua cơ chế plugin. Phần này sẽ được giới thiệu chi tiết khi chúng ta nói về các khái niệm cốt lõi của RabbitMQ.
+- **Khả năng mở rộng:** Nhiều node RabbitMQ có thể tạo thành một cụm, cũng có thể mở rộng động các node trong cụm theo tình huống nghiệp vụ thực tế.
+- **Khả năng sẵn sàng cao:** Hàng đợi có thể được thiết lập mirror trên các máy trong cụm, đảm bảo hàng đợi vẫn khả dụng trong trường hợp một số node gặp vấn đề.
+- **Hỗ trợ nhiều giao thức:** Ngoài hỗ trợ nguyên sinh giao thức AMQP, RabbitMQ còn hỗ trợ nhiều giao thức middleware tin nhắn như STOMP, MQTT.
+- **Client đa ngôn ngữ:** RabbitMQ hỗ trợ hầu hết các ngôn ngữ phổ biến, như Java, Python, Ruby, PHP, C#, JavaScript, v.v.
+- **Giao diện quản lý dễ sử dụng:** RabbitMQ cung cấp giao diện người dùng dễ sử dụng, cho phép người dùng giám sát và quản lý tin nhắn, các node trong cụm, v.v. Khi cài đặt RabbitMQ sẽ được giới thiệu, cài đặt xong RabbitMQ đã có sẵn giao diện quản lý.
+- **Cơ chế plugin:** RabbitMQ cung cấp nhiều plugin để mở rộng từ nhiều phương diện, tất nhiên cũng có thể viết plugin của riêng mình. Cảm giác điều này hơi giống cơ chế SPI của Dubbo.
 
-RabbitMQ 官网：<https://www.rabbitmq.com/> 。
+Trang web chính thức RabbitMQ: <https://www.rabbitmq.com/>.
 
-RabbitMQ 更新记录（可以直观看到项目是否还在维护）：<https://www.rabbitmq.com/news.html>
+Lịch sử cập nhật RabbitMQ (có thể thấy trực quan dự án có còn được duy trì không): <https://www.rabbitmq.com/news.html>
 
 #### Pulsar
 
 ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/pulsar-logo.png)
 
-Pulsar 是下一代云原生分布式消息流平台，最初由 Yahoo 开发 ，已经成为 Apache 顶级项目。
+Pulsar là nền tảng luồng tin nhắn phân tán cloud-native thế hệ tiếp theo, ban đầu được phát triển bởi Yahoo, đã trở thành dự án cấp cao của Apache.
 
-Pulsar 集消息、存储、轻量化函数式计算为一体，采用计算与存储分离架构设计，支持多租户、持久化存储、多机房跨区域数据复制，具有强一致性、高吞吐、低延时及高可扩展性等流数据存储特性，被看作是云原生时代实时消息流传输、存储和计算最佳解决方案。
+Pulsar tích hợp tin nhắn, lưu trữ, tính toán hàm nhẹ làm một, áp dụng thiết kế kiến trúc tách biệt tính toán và lưu trữ, hỗ trợ multi-tenant, lưu trữ bền vững, sao chép dữ liệu đa vùng đa trung tâm dữ liệu, có đặc tính lưu trữ dữ liệu luồng như nhất quán mạnh, thông lượng cao, độ trễ thấp và khả năng mở rộng cao, được coi là giải pháp tốt nhất cho truyền, lưu trữ và tính toán luồng tin nhắn thời gian thực trong thời đại cloud-native.
 
-Pulsar 的关键特性如下（摘自官网）：
+Các tính năng chính của Pulsar như sau (trích từ trang web chính thức):
 
-- 是下一代云原生分布式消息流平台。
-- Pulsar 的单个实例原生支持多个集群，可跨机房在集群间无缝地完成消息复制。
-- 极低的发布延迟和端到端延迟。
-- 可无缝扩展到超过一百万个 topic。
-- 简单的客户端 API，支持 Java、Go、Python 和 C++。
-- 主题的多种订阅模式（独占、共享和故障转移）。
-- 通过 Apache BookKeeper 提供的持久化消息存储机制保证消息传递 。
-- 由轻量级的 serverless 计算框架 Pulsar Functions 实现流原生的数据处理。
-- 基于 Pulsar Functions 的 serverless connector 框架 Pulsar IO 使得数据更易移入、移出 Apache Pulsar。
-- 分层式存储可在数据陈旧时，将数据从热存储卸载到冷/长期存储（如 S3、GCS）中。
+- Là nền tảng luồng tin nhắn phân tán cloud-native thế hệ tiếp theo.
+- Một instance đơn của Pulsar hỗ trợ nguyên sinh nhiều cụm, có thể hoàn thành liền mạch việc sao chép tin nhắn giữa các cụm đa trung tâm dữ liệu.
+- Độ trễ publish và end-to-end cực thấp.
+- Có thể mở rộng liền mạch đến hơn một triệu topic.
+- API client đơn giản, hỗ trợ Java, Go, Python và C++.
+- Nhiều chế độ subscribe cho topic (exclusive, shared và failover).
+- Cơ chế lưu trữ tin nhắn bền vững do Apache BookKeeper cung cấp đảm bảo truyền tin nhắn.
+- Xử lý dữ liệu stream-native được thực hiện bởi framework tính toán serverless nhẹ Pulsar Functions.
+- Pulsar IO, framework serverless connector dựa trên Pulsar Functions, giúp dữ liệu dễ dàng di chuyển vào và ra Apache Pulsar hơn.
+- Lưu trữ phân tầng có thể offload dữ liệu từ hot storage sang cold/long-term storage (như S3, GCS) khi dữ liệu cũ đi.
 
-Pulsar 官网：<https://pulsar.apache.org/>
+Trang web chính thức Pulsar: <https://pulsar.apache.org/>
 
-Pulsar 更新记录（可以直观看到项目是否还在维护）：<https://github.com/apache/pulsar/releases>
+Lịch sử cập nhật Pulsar (có thể thấy trực quan dự án có còn được duy trì không): <https://github.com/apache/pulsar/releases>
 
 #### ActiveMQ
 
-目前已经被淘汰，不推荐使用，不建议学习。
+Hiện đã bị loại bỏ, không khuyến nghị sử dụng, không khuyến nghị học.
 
-### 如何选择？
+### Làm thế nào để lựa chọn?
 
-> 参考《Java 工程师面试突击第 1 季-中华石杉老师》
+> Tham khảo 《Java工程师面试突击第1季 - thầy 中华石杉》
 
-| 对比方向 | 概要                                                                                                                                                                            |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 吞吐量   | 万级的 ActiveMQ 和 RabbitMQ 的吞吐量（ActiveMQ 的性能最差）要比十万级甚至是百万级的 RocketMQ 和 Kafka 低一个数量级。                                                            |
-| 可用性   | 都可以实现高可用。ActiveMQ 和 RabbitMQ 都是基于主从架构实现高可用性。RocketMQ 基于分布式架构。 Kafka 也是分布式的，一个数据多个副本，少数机器宕机，不会丢失数据，不会导致不可用 |
-| 时效性   | RabbitMQ 基于 Erlang 开发，所以并发能力很强，性能极其好，延时很低，达到微秒级，其他几个都是 ms 级。                                                                             |
-| 功能支持 | Pulsar 的功能更全面，支持多租户、多种消费模式和持久性模式等功能，是下一代云原生分布式消息流平台。                                                                               |
-| 消息丢失 | ActiveMQ 和 RabbitMQ 丢失的可能性非常低， Kafka、RocketMQ 和 Pulsar 理论上可以做到 0 丢失。                                                                                     |
+| Chiều so sánh     | Tóm tắt                                                                                                                                                                                                                                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Thông lượng       | Thông lượng của ActiveMQ và RabbitMQ ở mức chục nghìn (ActiveMQ có hiệu suất kém nhất) thấp hơn một bậc so với RocketMQ và Kafka ở mức hàng trăm nghìn đến triệu.                                                                                                                                   |
+| Khả năng sẵn sàng | Đều có thể thực hiện khả năng sẵn sàng cao. ActiveMQ và RabbitMQ đều dựa trên kiến trúc master-slave để thực hiện khả năng sẵn sàng cao. RocketMQ dựa trên kiến trúc phân tán. Kafka cũng là phân tán, một dữ liệu có nhiều bản sao, ít máy bị down không mất dữ liệu, không dẫn đến không khả dụng |
+| Tính kịp thời     | RabbitMQ phát triển dựa trên Erlang, nên khả năng đồng thời rất mạnh, hiệu suất cực kỳ tốt, độ trễ rất thấp, đạt cấp độ microsecond, các loại khác đều ở cấp độ ms.                                                                                                                                 |
+| Hỗ trợ tính năng  | Pulsar có tính năng đầy đủ hơn, hỗ trợ multi-tenant, nhiều chế độ tiêu thụ và chế độ bền vững, v.v., là nền tảng luồng tin nhắn phân tán cloud-native thế hệ tiếp theo.                                                                                                                             |
+| Mất tin nhắn      | Khả năng mất tin nhắn của ActiveMQ và RabbitMQ là rất thấp, Kafka, RocketMQ và Pulsar về lý thuyết có thể đạt 0 mất mát.                                                                                                                                                                            |
 
-**总结：**
+**Tổng kết:**
 
-- ActiveMQ 的社区算是比较成熟，但是较目前来说，ActiveMQ 的性能比较差，而且版本迭代很慢，不推荐使用，已经被淘汰了。
-- RabbitMQ 在吞吐量方面虽然稍逊于 Kafka、RocketMQ 和 Pulsar，但是由于它基于 Erlang 开发，所以并发能力很强，性能极其好，延时很低，达到微秒级。但是也因为 RabbitMQ 基于 Erlang 开发，所以国内很少有公司有实力做 Erlang 源码级别的研究和定制。如果业务场景对并发量要求不是太高（十万级、百万级），那这几种消息队列中，RabbitMQ 或许是你的首选。
-- RocketMQ 和 Pulsar 支持强一致性，对消息一致性要求比较高的场景可以使用。
-- RocketMQ 阿里出品，Java 系开源项目，源代码我们可以直接阅读，然后可以定制自己公司的 MQ，并且 RocketMQ 有阿里巴巴的实际业务场景的实战考验。
-- Kafka 的特点其实很明显，就是仅仅提供较少的核心功能，但是提供超高的吞吐量，ms 级的延迟，极高的可用性以及可靠性，而且分布式可以任意扩展。同时 Kafka 最好是支撑较少的 topic 数量即可，保证其超高吞吐量。Kafka 唯一的一点劣势是有可能消息重复消费，那么对数据准确性会造成极其轻微的影响，在大数据领域中以及日志采集中，这点轻微影响可以忽略这个特性天然适合大数据实时计算以及日志收集。如果是大数据领域的实时计算、日志采集等场景，用 Kafka 是业内标准的，绝对没问题，社区活跃度很高，绝对不会黄，何况几乎是全世界这个领域的事实性规范。
+- Cộng đồng của ActiveMQ thuộc loại khá trưởng thành, nhưng so với hiện tại, hiệu suất của ActiveMQ khá kém, và phiên bản lặp đi chậm, không khuyến nghị sử dụng, đã bị loại bỏ.
+- RabbitMQ mặc dù thông lượng kém hơn Kafka, RocketMQ và Pulsar một chút, nhưng vì phát triển dựa trên Erlang nên khả năng đồng thời rất mạnh, hiệu suất cực kỳ tốt, độ trễ rất thấp, đạt cấp độ microsecond. Nhưng cũng chính vì RabbitMQ phát triển dựa trên Erlang, nên trong nước ít có công ty có đủ năng lực để nghiên cứu và tùy chỉnh source code cấp độ Erlang. Nếu tình huống nghiệp vụ không có yêu cầu quá cao về lượng đồng thời (hàng trăm nghìn, triệu), thì trong số các hàng đợi tin nhắn này, RabbitMQ có lẽ là lựa chọn hàng đầu của bạn.
+- RocketMQ và Pulsar hỗ trợ nhất quán mạnh, có thể sử dụng cho các tình huống có yêu cầu nhất quán tin nhắn cao.
+- RocketMQ là sản phẩm của Alibaba, dự án mã nguồn mở hệ Java, source code có thể đọc trực tiếp, sau đó có thể tùy chỉnh MQ của công ty mình, và RocketMQ có kinh nghiệm thực chiến từ tình huống nghiệp vụ thực tế của Alibaba.
+- Đặc điểm của Kafka thực sự rất rõ ràng, đó là chỉ cung cấp ít tính năng cốt lõi hơn, nhưng cung cấp thông lượng cực cao, độ trễ cấp ms, khả năng sẵn sàng cực cao và độ tin cậy, và phân tán có thể mở rộng tùy ý. Đồng thời Kafka tốt nhất là hỗ trợ ít topic hơn, đảm bảo thông lượng cực cao của nó. Điểm yếu duy nhất của Kafka là có thể tiêu thụ tin nhắn trùng lặp, điều đó sẽ gây ra ảnh hưởng cực kỳ nhỏ đến độ chính xác dữ liệu. Trong lĩnh vực big data và thu thập log, ảnh hưởng nhỏ này có thể bỏ qua. Đặc tính này phù hợp tự nhiên với tính toán thời gian thực big data và thu thập log. Nếu là các tình huống tính toán thời gian thực, thu thập log trong lĩnh vực big data, dùng Kafka là tiêu chuẩn ngành, hoàn toàn không vấn đề gì, hoạt động cộng đồng rất cao, chắc chắn không biến mất, huống chi gần như là tiêu chuẩn thực tế trên toàn thế giới trong lĩnh vực này.
 
-## 参考
+## Tham khảo
 
-- 《大型网站技术架构 》
-- KRaft: Apache Kafka Without ZooKeeper：<https://developer.confluent.io/learn/kraft/>
-- 消息队列的使用场景是什么样的？：<https://mp.weixin.qq.com/s/4V1jI6RylJr7Jr9JsQe73A>
+- 《Kiến trúc kỹ thuật website quy mô lớn》
+- KRaft: Apache Kafka Without ZooKeeper: <https://developer.confluent.io/learn/kraft/>
+- Tình huống sử dụng hàng đợi tin nhắn là gì?: <https://mp.weixin.qq.com/s/4V1jI6RylJr7Jr9JsQe73A>
 
 <!-- @include: @article-footer.snippet.md -->

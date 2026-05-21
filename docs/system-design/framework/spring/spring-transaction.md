@@ -1,7 +1,7 @@
 ---
-title: Spring 事务详解
-description: Spring事务管理详解，涵盖@Transactional注解、事务传播行为、隔离级别、事务失效场景及回滚规则。
-category: 框架
+title: Giải thích chi tiết về Spring Transaction
+description: Giải thích chi tiết về quản lý transaction trong Spring, bao gồm annotation @Transactional, hành vi truyền transaction, mức độ cô lập, các trường hợp transaction không hoạt động và quy tắc rollback.
+category: Framework
 tag:
   - Spring
 head:
@@ -10,15 +10,15 @@ head:
       content: Spring事务,@Transactional,事务传播,隔离级别,事务失效,回滚规则,声明式事务,AOP事务
 ---
 
-前段时间答应读者的 **Spring 事务** 分析总结终于来了。这部分内容比较重要，不论是对于工作还是面试，但是网上比较好的参考资料比较少。
+Bài phân tích tổng hợp về **Spring Transaction** mà tôi đã hứa với độc giả từ trước cuối cùng cũng ra đây rồi. Phần nội dung này khá quan trọng, dù là để làm việc hay để phỏng vấn, nhưng các tài liệu tham khảo tốt trên mạng lại khá ít.
 
-## 什么是事务？
+## Transaction là gì?
 
-**事务是逻辑上的一组操作，要么都执行，要么都不执行。**
+**Transaction (giao dịch) là một nhóm các thao tác được xử lý theo logic, hoặc tất cả đều thực thi, hoặc không có thao tác nào được thực thi.**
 
-相信大家应该都能背上面这句话了，下面我结合我们日常的真实开发来谈一谈。
+Chắc chắn mọi người đều có thể đọc thuộc lòng câu trên. Dưới đây tôi sẽ nói về điều này kết hợp với thực tế phát triển hàng ngày.
 
-我们系统的每个业务方法可能包括了多个原子性的数据库操作，比如下面的 `savePerson()` 方法中就有两个原子性的数据库操作。这些原子性的数据库操作是有依赖的，它们要么都执行，要不就都不执行。
+Mỗi phương thức nghiệp vụ trong hệ thống của chúng ta có thể bao gồm nhiều thao tác database nguyên tử, ví dụ như trong phương thức `savePerson()` dưới đây có hai thao tác database nguyên tử. Những thao tác database nguyên tử này có sự phụ thuộc lẫn nhau, chúng hoặc đều thực thi, hoặc không có gì được thực thi.
 
 ```java
   public void savePerson() {
@@ -27,16 +27,16 @@ head:
   }
 ```
 
-另外，需要格外注意的是：**事务能否生效数据库引擎是否支持事务是关键。比如常用的 MySQL 数据库默认使用支持事务的 `innodb`引擎。但是，如果把数据库引擎变为 `myisam`，那么程序也就不再支持事务了！**
+Ngoài ra, cần đặc biệt chú ý: **Việc transaction có hoạt động hay không, điều then chốt là liệu database engine có hỗ trợ transaction hay không. Ví dụ, MySQL mặc định sử dụng engine `innodb` hỗ trợ transaction. Tuy nhiên, nếu đổi database engine sang `myisam`, thì chương trình cũng sẽ không hỗ trợ transaction nữa!**
 
-事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账 1000 元，这个转账会涉及到两个关键操作就是：
+Ví dụ kinh điển nhất thường được dùng để minh họa transaction là chuyển khoản ngân hàng. Giả sử Tiểu Minh muốn chuyển 1000 đồng cho Tiểu Hồng, giao dịch chuyển khoản này liên quan đến hai thao tác then chốt:
 
-> 1. 将小明的余额减少 1000 元。
-> 2. 将小红的余额增加 1000 元。
+> 1. Giảm số dư của Tiểu Minh đi 1000 đồng.
+> 2. Tăng số dư của Tiểu Hồng lên 1000 đồng.
 
-万一在这两个操作之间突然出现错误比如银行系统崩溃或者网络故障，导致小明余额减少而小红的余额没有增加，这样就不对了。事务就是保证这两个关键操作要么都成功，要么都要失败。
+Nếu giữa hai thao tác này đột ngột xảy ra lỗi như hệ thống ngân hàng bị sập hoặc sự cố mạng, dẫn đến số dư của Tiểu Minh giảm nhưng số dư của Tiểu Hồng không tăng, thì sẽ sai. Transaction đảm bảo rằng hai thao tác then chốt này hoặc đều thành công, hoặc đều thất bại.
 
-![事务示意图](https://oss.javaguide.cn/github/javaguide/mysql/%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![Sơ đồ minh họa transaction](https://oss.javaguide.cn/github/javaguide/mysql/%E4%BA%8B%E5%8A%A1%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
 
 ```java
 public class OrdersService {
@@ -60,42 +60,42 @@ public class OrdersService {
 }
 ```
 
-另外，数据库事务的 ACID 四大特性是事务的基础，下面简单来了解一下。
+Ngoài ra, bốn đặc tính ACID của database transaction là nền tảng của transaction. Dưới đây hãy cùng tìm hiểu sơ qua về những đặc tính này.
 
-## 事务的特性（ACID）了解么?
+## Bạn có hiểu về các đặc tính (ACID) của Transaction không?
 
-1. **原子性**（`Atomicity`）：事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；
-2. **一致性**（`Consistency`）：执行事务前后，数据保持一致，例如转账业务中，无论事务是否成功，转账者和收款人的总额应该是不变的；
-3. **隔离性**（`Isolation`）：并发访问数据库时，一个用户的事务不被其他事务所干扰，各并发事务之间数据库是独立的；
-4. **持久性**（`Durability`）：一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。
+1. **Tính nguyên tử** (`Atomicity`): Transaction là đơn vị thực thi nhỏ nhất, không cho phép phân chia. Tính nguyên tử của transaction đảm bảo rằng hành động hoặc được hoàn thành toàn bộ, hoặc không có tác dụng gì cả;
+2. **Tính nhất quán** (`Consistency`): Trước và sau khi thực thi transaction, dữ liệu vẫn nhất quán. Ví dụ trong nghiệp vụ chuyển khoản, dù transaction thành công hay thất bại, tổng số tiền của người chuyển và người nhận phải không thay đổi;
+3. **Tính cô lập** (`Isolation`): Khi truy cập database đồng thời, transaction của một người dùng không bị can thiệp bởi các transaction khác, các transaction đồng thời độc lập với nhau trong database;
+4. **Tính bền vững** (`Durability`): Sau khi một transaction được commit, những thay đổi của nó đối với dữ liệu trong database là vĩnh viễn, ngay cả khi database gặp sự cố cũng không nên có bất kỳ ảnh hưởng nào đến nó.
 
-🌈 这里要额外补充一点：**只有保证了事务的持久性、原子性、隔离性之后，一致性才能得到保障。也就是说 A、I、D 是手段，C 是目的！** 想必大家也和我一样，被 ACID 这个概念被误导了很久! 我也是看周志明老师的公开课[《周志明的软件架构课》](https://time.geekbang.org/opencourse/intro/100064201)才搞清楚的（多看好书！！！）。
+🌈 Đây cần bổ sung thêm một điểm: **Chỉ khi đảm bảo được tính bền vững, tính nguyên tử và tính cô lập của transaction, thì tính nhất quán mới có thể được đảm bảo. Tức là D, A, I là phương tiện, C là mục đích!** Chắc chắn mọi người cũng như tôi, đã bị khái niệm ACID này gây hiểu nhầm một thời gian! Tôi cũng chỉ hiểu rõ sau khi xem khóa học công khai của thầy Zhou Zhiming [《Khóa học Kiến trúc Phần mềm của Zhou Zhiming》](https://time.geekbang.org/opencourse/intro/100064201) (Hãy đọc nhiều sách hay hơn!).
 
 ![AID->C](https://oss.javaguide.cn/github/javaguide/mysql/AID->C.png)
 
-另外，DDIA 也就是 [《Designing Data-Intensive Application（数据密集型应用系统设计）》](https://book.douban.com/subject/30329536/) 的作者在他的这本书中如是说：
+Ngoài ra, tác giả của DDIA tức là [《Designing Data-Intensive Application (Thiết kế Hệ thống Ứng dụng Tập trung Dữ liệu)》](https://book.douban.com/subject/30329536/) đã nói trong cuốn sách của ông:
 
-> Atomicity, isolation, and durability are properties of the database, whereas consis‐ tency (in the ACID sense) is a property of the application. The application may rely on the database’s atomicity and isolation properties in order to achieve consistency, but it’s not up to the database alone.
+> Atomicity, isolation, and durability are properties of the database, whereas consis‐ tency (in the ACID sense) is a property of the application. The application may rely on the database's atomicity and isolation properties in order to achieve consistency, but it's not up to the database alone.
 >
-> 翻译过来的意思是：原子性，隔离性和持久性是数据库的属性，而一致性（在 ACID 意义上）是应用程序的属性。应用可能依赖数据库的原子性和隔离属性来实现一致性，但这并不仅取决于数据库。因此，字母 C 不属于 ACID 。
+> Tạm dịch: Tính nguyên tử, tính cô lập và tính bền vững là các thuộc tính của database, trong khi tính nhất quán (theo nghĩa ACID) là thuộc tính của ứng dụng. Ứng dụng có thể dựa vào các thuộc tính nguyên tử và cô lập của database để đạt được tính nhất quán, nhưng điều đó không chỉ phụ thuộc vào database. Vì vậy, chữ C không thuộc về ACID.
 
-《Designing Data-Intensive Application（数据密集型应用系统设计）》这本书强推一波，值得读很多遍！豆瓣有接近 90% 的人看了这本书之后给了五星好评。另外，中文翻译版本已经在 GitHub 开源，地址：[https://github.com/Vonng/ddia](https://github.com/Vonng/ddia) 。
+Cuốn sách 《Designing Data-Intensive Application (Thiết kế Hệ thống Ứng dụng Tập trung Dữ liệu)》 rất đáng được giới thiệu, xứng đáng được đọc nhiều lần! Trên Douban gần 90% người đọc cuốn sách này đã đánh giá 5 sao. Ngoài ra, bản dịch tiếng Trung đã được mở nguồn trên GitHub, địa chỉ: [https://github.com/Vonng/ddia](https://github.com/Vonng/ddia).
 
-## 详谈 Spring 对事务的支持
+## Bàn chi tiết về hỗ trợ Transaction của Spring
 
-> ⚠️ 再提醒一次：你的程序是否支持事务首先取决于数据库 ，比如使用 MySQL 的话，如果你选择的是 innodb 引擎，那么恭喜你，是可以支持事务的。但是，如果你的 MySQL 数据库使用的是 myisam 引擎的话，那不好意思，从根上就是不支持事务的。
+> ⚠️ Nhắc lại một lần nữa: Chương trình của bạn có hỗ trợ transaction hay không, trước tiên phụ thuộc vào database. Ví dụ, nếu dùng MySQL, nếu bạn chọn engine innodb, thì xin chúc mừng, hoàn toàn có thể hỗ trợ transaction. Nhưng nếu MySQL database của bạn sử dụng engine myisam, thì xin lỗi, từ gốc đã không hỗ trợ transaction rồi.
 
-这里再多提一下一个非常重要的知识点：**MySQL 怎么保证原子性的？**
+Đây cần nêu thêm một điểm kiến thức rất quan trọng: **MySQL bảo đảm tính nguyên tử như thế nào?**
 
-我们知道如果想要保证事务的原子性，就需要在异常发生时，对已经执行的操作进行**回滚**，在 MySQL 中，恢复机制是通过 **回滚日志（undo log）** 实现的，所有事务进行的修改都会先记录到这个回滚日志中，然后再执行相关的操作。如果执行过程中遇到异常的话，我们直接利用 **回滚日志** 中的信息将数据回滚到修改之前的样子即可！并且，回滚日志会先于数据持久化到磁盘上。这样就保证了即使遇到数据库突然宕机等情况，当用户再次启动数据库的时候，数据库还能够通过查询回滚日志来回滚之前未完成的事务。
+Chúng ta biết rằng nếu muốn đảm bảo tính nguyên tử của transaction, cần phải **rollback (hoàn tác)** các thao tác đã thực thi khi xảy ra ngoại lệ. Trong MySQL, cơ chế phục hồi được thực hiện thông qua **undo log (nhật ký hoàn tác)**, tất cả các sửa đổi của transaction sẽ được ghi vào undo log này trước rồi mới thực thi các thao tác liên quan. Nếu trong quá trình thực thi gặp ngoại lệ, chúng ta có thể sử dụng trực tiếp thông tin trong **undo log** để khôi phục dữ liệu về trạng thái trước khi sửa đổi! Hơn nữa, undo log sẽ được lưu vào đĩa trước dữ liệu. Điều này đảm bảo rằng ngay cả khi database đột ngột bị tắt, khi người dùng khởi động lại database, database vẫn có thể rollback các transaction chưa hoàn thành trước đó bằng cách truy vấn undo log.
 
-### Spring 支持两种方式的事务管理
+### Spring hỗ trợ hai phương thức quản lý Transaction
 
-#### 编程式事务管理
+#### Quản lý Transaction theo lập trình (Programmatic Transaction Management)
 
-通过 `TransactionTemplate`或者`TransactionManager`手动管理事务，实际应用中很少使用，但是对于你理解 Spring 事务管理原理有帮助。
+Quản lý transaction thủ công thông qua `TransactionTemplate` hoặc `TransactionManager`. Ít được sử dụng trong ứng dụng thực tế, nhưng hữu ích để bạn hiểu nguyên lý quản lý transaction của Spring.
 
-使用`TransactionTemplate` 进行编程式事务管理的示例代码如下：
+Ví dụ code sử dụng `TransactionTemplate` để quản lý transaction theo lập trình như sau:
 
 ```java
 @Autowired
@@ -119,7 +119,7 @@ public void testTransaction() {
 }
 ```
 
-使用 `TransactionManager` 进行编程式事务管理的示例代码如下：
+Ví dụ code sử dụng `TransactionManager` để quản lý transaction theo lập trình như sau:
 
 ```java
 @Autowired
@@ -137,11 +137,11 @@ public void testTransaction() {
 }
 ```
 
-#### 声明式事务管理
+#### Quản lý Transaction khai báo (Declarative Transaction Management)
 
-推荐使用（代码侵入性最小），实际是通过 AOP 实现（基于`@Transactional` 的全注解方式使用最多）。
+Được khuyến nghị sử dụng (xâm nhập code ít nhất), thực sự được thực hiện thông qua AOP (sử dụng annotation `@Transactional` phổ biến nhất).
 
-使用 `@Transactional`注解进行事务管理的示例代码如下：
+Ví dụ code sử dụng annotation `@Transactional` để quản lý transaction như sau:
 
 ```java
 @Transactional(propagation = Propagation.REQUIRED)
@@ -154,29 +154,29 @@ public void aMethod {
 }
 ```
 
-### Spring 事务管理接口介绍
+### Giới thiệu về các Interface quản lý Transaction của Spring
 
-Spring 框架中，事务管理相关最重要的 3 个接口如下：
+Trong framework Spring, ba interface quan trọng nhất liên quan đến quản lý transaction như sau:
 
-- **`PlatformTransactionManager`**：（平台）事务管理器，Spring 事务策略的核心。
-- **`TransactionDefinition`**：事务定义信息(事务隔离级别、传播行为、超时、只读、回滚规则)。
-- **`TransactionStatus`**：事务运行状态。
+- **`PlatformTransactionManager`**: Trình quản lý transaction (của nền tảng), là core của chiến lược transaction Spring.
+- **`TransactionDefinition`**: Thông tin định nghĩa transaction (mức độ cô lập transaction, hành vi truyền, timeout, readonly, quy tắc rollback).
+- **`TransactionStatus`**: Trạng thái chạy transaction.
 
-我们可以把 **`PlatformTransactionManager`** 接口可以被看作是事务上层的管理者，而 **`TransactionDefinition`** 和 **`TransactionStatus`** 这两个接口可以看作是事务的描述。
+Chúng ta có thể xem interface **`PlatformTransactionManager`** như là manager ở tầng trên của transaction, trong khi hai interface **`TransactionDefinition`** và **`TransactionStatus`** có thể được xem là mô tả của transaction.
 
-**`PlatformTransactionManager`** 会根据 **`TransactionDefinition`** 的定义比如事务超时时间、隔离级别、传播行为等来进行事务管理 ，而 **`TransactionStatus`** 接口则提供了一些方法来获取事务相应的状态比如是否新事务、是否可以回滚等等。
+**`PlatformTransactionManager`** sẽ quản lý transaction dựa trên định nghĩa của **`TransactionDefinition`** như thời gian timeout, mức độ cô lập, hành vi truyền, v.v. Còn interface **`TransactionStatus`** cung cấp một số phương thức để lấy trạng thái tương ứng của transaction như là transaction mới hay không, có thể rollback hay không, v.v.
 
-#### PlatformTransactionManager:事务管理接口
+#### PlatformTransactionManager: Interface quản lý Transaction
 
-**Spring 并不直接管理事务，而是提供了多种事务管理器** 。Spring 事务管理器的接口是：**`PlatformTransactionManager`** 。
+**Spring không quản lý transaction trực tiếp, mà cung cấp nhiều loại transaction manager.** Interface của Spring transaction manager là: **`PlatformTransactionManager`**.
 
-通过这个接口，Spring 为各个平台如：JDBC(`DataSourceTransactionManager`)、Hibernate(`HibernateTransactionManager`)、JPA(`JpaTransactionManager`)等都提供了对应的事务管理器，但是具体的实现就是各个平台自己的事情了。
+Thông qua interface này, Spring cung cấp transaction manager tương ứng cho các nền tảng như: JDBC (`DataSourceTransactionManager`), Hibernate (`HibernateTransactionManager`), JPA (`JpaTransactionManager`), v.v. Nhưng việc triển khai cụ thể là việc của mỗi nền tảng.
 
-**`PlatformTransactionManager` 接口的具体实现如下:**
+**Các triển khai cụ thể của interface `PlatformTransactionManager` như sau:**
 
 ![](./images/spring-transaction/PlatformTransactionManager.png)
 
-`PlatformTransactionManager`接口中定义了三个方法：
+Interface `PlatformTransactionManager` định nghĩa ba phương thức:
 
 ```java
 package org.springframework.transaction;
@@ -194,39 +194,39 @@ public interface PlatformTransactionManager {
 
 ```
 
-**这里多插一嘴。为什么要定义或者说抽象出来`PlatformTransactionManager`这个接口呢？**
+**Đây tôi xen vào một câu hỏi. Tại sao cần định nghĩa hoặc trừu tượng hóa interface `PlatformTransactionManager` này?**
 
-主要是因为要将事务管理行为抽象出来，然后不同的平台去实现它，这样我们可以保证提供给外部的行为不变，方便我们扩展。
+Chủ yếu là vì cần trừu tượng hóa hành vi quản lý transaction ra, sau đó các nền tảng khác nhau sẽ triển khai nó. Điều này cho phép chúng ta đảm bảo rằng hành vi cung cấp ra bên ngoài không thay đổi, thuận tiện cho việc mở rộng.
 
-我前段时间在我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)分享过：**“为什么我们要用接口？”** 。
+Gần đây tôi đã chia sẻ trên [knowledge planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) của mình: **"Tại sao chúng ta phải dùng interface?"**
 
-> 《设计模式》（GOF 那本）这本书在很多年前都提到过说要基于接口而非实现编程，你真的知道为什么要基于接口编程么？
+> Cuốn sách 《Design Patterns》(của GOF) đã đề cập từ nhiều năm trước rằng nên lập trình dựa trên interface chứ không phải triển khai. Bạn có thực sự biết tại sao phải lập trình dựa trên interface không?
 >
-> 纵观开源框架和项目的源码，接口是它们不可或缺的重要组成部分。要理解为什么要用接口，首先要搞懂接口提供了什么功能。我们可以把接口理解为提供了一系列功能列表的约定，接口本身不提供功能，它只定义行为。但是谁要用，就要先实现我，遵守我的约定，然后再自己去实现我定义的要实现的功能。
+> Nhìn vào mã nguồn của các framework và dự án mã nguồn mở, interface là thành phần quan trọng không thể thiếu của chúng. Để hiểu tại sao phải dùng interface, trước tiên cần hiểu interface cung cấp chức năng gì. Chúng ta có thể hiểu interface như một giao ước cung cấp danh sách các chức năng. Interface bản thân không cung cấp chức năng, nó chỉ định nghĩa hành vi. Nhưng ai muốn dùng thì phải triển khai nó trước, tuân theo giao ước của nó, rồi mới tự triển khai các chức năng mà nó định nghĩa cần triển khai.
 >
-> 举个例子，我上个项目有发送短信的需求，为此，我们定了一个接口，接口只有两个方法:
+> Ví dụ, dự án trước của tôi có nhu cầu gửi SMS. Vì vậy, chúng tôi đã định nghĩa một interface, interface này chỉ có hai phương thức:
 >
-> 1.发送短信 2.处理发送结果的方法。
+> 1. Gửi SMS 2. Phương thức xử lý kết quả gửi.
 >
-> 刚开始我们用的是阿里云短信服务，然后我们实现这个接口完成了一个阿里云短信的服务。后来，我们突然又换到了别的短信服务平台，我们这个时候只需要再实现这个接口即可。这样保证了我们提供给外部的行为不变。几乎不需要改变什么代码，我们就轻松完成了需求的转变，提高了代码的灵活性和可扩展性。
+> Ban đầu chúng tôi dùng Alibaba Cloud SMS service, sau đó chúng tôi triển khai interface này để hoàn thành một dịch vụ SMS Alibaba Cloud. Sau đó, chúng tôi đột ngột chuyển sang nền tảng SMS khác. Lúc này chúng tôi chỉ cần triển khai interface này nữa là được. Điều này đảm bảo hành vi cung cấp ra bên ngoài của chúng tôi không thay đổi. Gần như không cần thay đổi bất kỳ code nào, chúng tôi đã hoàn thành sự chuyển đổi yêu cầu một cách dễ dàng, cải thiện tính linh hoạt và khả năng mở rộng của code.
 >
-> 什么时候用接口？当你要实现的功能模块设计抽象行为的时候，比如发送短信的服务，图床的存储服务等等。
+> Khi nào dùng interface? Khi module chức năng bạn muốn triển khai liên quan đến hành vi trừu tượng, chẳng hạn như dịch vụ gửi SMS, dịch vụ lưu trữ ảnh, v.v.
 
-#### TransactionDefinition:事务属性
+#### TransactionDefinition: Thuộc tính Transaction
 
-事务管理器接口 **`PlatformTransactionManager`** 通过 **`getTransaction(TransactionDefinition definition)`** 方法来得到一个事务，这个方法里面的参数是 **`TransactionDefinition`** 类 ，这个类就定义了一些基本的事务属性。
+Interface transaction manager **`PlatformTransactionManager`** lấy một transaction thông qua phương thức **`getTransaction(TransactionDefinition definition)`**, tham số trong phương thức này là lớp **`TransactionDefinition`**, lớp này định nghĩa một số thuộc tính transaction cơ bản.
 
-**什么是事务属性呢？** 事务属性可以理解成事务的一些基本配置，描述了事务策略如何应用到方法上。
+**Thuộc tính transaction là gì?** Thuộc tính transaction có thể được hiểu là một số cấu hình cơ bản của transaction, mô tả cách chiến lược transaction được áp dụng lên phương thức.
 
-事务属性包含了 5 个方面：
+Thuộc tính transaction bao gồm 5 phương diện:
 
-- 隔离级别
-- 传播行为
-- 回滚规则
-- 是否只读
-- 事务超时
+- Mức độ cô lập
+- Hành vi truyền
+- Quy tắc rollback
+- Chỉ đọc hay không
+- Timeout transaction
 
-`TransactionDefinition` 接口中定义了 5 个方法以及一些表示事务属性的常量比如隔离级别、传播行为等等。
+Interface `TransactionDefinition` định nghĩa 5 phương thức và một số hằng số biểu thị thuộc tính transaction như mức độ cô lập, hành vi truyền, v.v.
 
 ```java
 package org.springframework.transaction;
@@ -261,13 +261,13 @@ public interface TransactionDefinition {
 }
 ```
 
-#### TransactionStatus:事务状态
+#### TransactionStatus: Trạng thái Transaction
 
-`TransactionStatus`接口用来记录事务的状态 该接口定义了一组方法,用来获取或判断事务的相应状态信息。
+Interface `TransactionStatus` được dùng để ghi lại trạng thái của transaction. Interface này định nghĩa một nhóm phương thức để lấy hoặc kiểm tra thông tin trạng thái tương ứng của transaction.
 
-`PlatformTransactionManager.getTransaction(…)`方法返回一个 `TransactionStatus` 对象。
+Phương thức `PlatformTransactionManager.getTransaction(…)` trả về một đối tượng `TransactionStatus`.
 
-**TransactionStatus 接口内容如下：**
+**Nội dung interface TransactionStatus như sau:**
 
 ```java
 public interface TransactionStatus{
@@ -279,17 +279,17 @@ public interface TransactionStatus{
 }
 ```
 
-### 事务属性详解
+### Giải thích chi tiết về thuộc tính Transaction
 
-实际业务开发中，大家一般都是使用 `@Transactional` 注解来开启事务，很多人并不清楚这个注解里面的参数是什么意思，有什么用。为了更好的在项目中使用事务管理，强烈推荐好好阅读一下下面的内容。
+Trong phát triển nghiệp vụ thực tế, mọi người thường dùng annotation `@Transactional` để bật transaction, nhiều người không rõ các tham số trong annotation này có ý nghĩa gì, có tác dụng gì. Để sử dụng quản lý transaction tốt hơn trong dự án, tôi đặc biệt khuyên bạn đọc kỹ nội dung dưới đây.
 
-#### 事务传播行为
+#### Hành vi truyền Transaction (Transaction Propagation Behavior)
 
-**事务传播行为是为了解决业务层方法之间互相调用的事务问题**。
+**Hành vi truyền transaction được thiết kế để giải quyết vấn đề transaction giữa các phương thức lớp nghiệp vụ gọi lẫn nhau**.
 
-当事务方法被另一个事务方法调用时，必须指定事务应该如何传播。例如：方法可能继续在现有事务中运行，也可能开启一个新事务，并在自己的事务中运行。
+Khi một phương thức transaction bị gọi bởi một phương thức transaction khác, phải chỉ định cách transaction nên được truyền. Ví dụ: phương thức có thể tiếp tục chạy trong transaction hiện tại, hoặc có thể mở một transaction mới và chạy trong transaction của riêng nó.
 
-举个例子：我们在 A 类的`aMethod()`方法中调用了 B 类的 `bMethod()` 方法。这个时候就涉及到业务层方法之间互相调用的事务问题。如果我们的 `bMethod()`如果发生异常需要回滚，如何配置事务传播行为才能让 `aMethod()`也跟着回滚呢？这个时候就需要事务传播行为的知识了，如果你不知道的话一定要好好看一下。
+Ví dụ: Chúng ta gọi phương thức `bMethod()` của lớp B trong phương thức `aMethod()` của lớp A. Lúc này sẽ liên quan đến vấn đề transaction giữa các phương thức lớp nghiệp vụ gọi lẫn nhau. Nếu `bMethod()` xảy ra ngoại lệ cần rollback, làm thế nào để cấu hình hành vi truyền transaction để `aMethod()` cũng rollback theo? Đây là lúc cần kiến thức về hành vi truyền transaction. Nếu bạn không biết thì nhất định phải đọc kỹ.
 
 ```java
 @Service
@@ -312,7 +312,7 @@ Class B {
 }
 ```
 
-在`TransactionDefinition`定义中包括了如下几个表示传播行为的常量：
+Trong `TransactionDefinition` định nghĩa bao gồm một số hằng số biểu thị hành vi truyền như sau:
 
 ```java
 public interface TransactionDefinition {
@@ -327,7 +327,7 @@ public interface TransactionDefinition {
 }
 ```
 
-不过，为了方便使用，Spring 相应地定义了一个枚举类：`Propagation`
+Tuy nhiên, để thuận tiện sử dụng, Spring cũng đã định nghĩa tương ứng một class enum: `Propagation`
 
 ```java
 package org.springframework.transaction.annotation;
@@ -364,16 +364,16 @@ public enum Propagation {
 
 ```
 
-**正确的事务传播行为可能的值如下**：
+**Các giá trị hành vi truyền transaction đúng đắn như sau**:
 
 **1.`TransactionDefinition.PROPAGATION_REQUIRED`**
 
-使用的最多的一个事务传播行为，我们平时经常使用的`@Transactional`注解默认使用就是这个事务传播行为。如果当前存在事务，则加入该事务；如果当前没有事务，则创建一个新的事务。也就是说：
+Đây là hành vi truyền transaction được sử dụng nhiều nhất, và là hành vi truyền transaction mặc định của annotation `@Transactional` mà chúng ta thường dùng. Nếu hiện tại đã có transaction thì tham gia vào transaction đó; nếu hiện tại không có transaction thì tạo một transaction mới. Tức là:
 
-- 如果外部方法没有开启事务的话，`Propagation.REQUIRED`修饰的内部方法会新开启自己的事务，且开启的事务相互独立，互不干扰。
-- 如果外部方法开启事务并且被`Propagation.REQUIRED`的话，所有`Propagation.REQUIRED`修饰的内部方法和外部方法均属于同一事务 ，只要一个方法回滚，整个事务均回滚。
+- Nếu phương thức bên ngoài không mở transaction, phương thức bên trong được đánh dấu `Propagation.REQUIRED` sẽ mở transaction riêng của nó, và các transaction được mở là độc lập, không ảnh hưởng lẫn nhau.
+- Nếu phương thức bên ngoài đã mở transaction và được đánh dấu `Propagation.REQUIRED`, thì tất cả các phương thức bên trong được đánh dấu `Propagation.REQUIRED` và phương thức bên ngoài đều thuộc cùng một transaction. Chỉ cần một phương thức rollback, toàn bộ transaction đều rollback.
 
-举个例子：如果我们上面的`aMethod()`和`bMethod()`使用的都是`PROPAGATION_REQUIRED`传播行为的话，两者使用的就是同一个事务，只要其中一个方法回滚，整个事务均回滚。
+Ví dụ: Nếu `aMethod()` và `bMethod()` ở trên đều sử dụng hành vi truyền `PROPAGATION_REQUIRED`, cả hai sẽ dùng cùng một transaction. Chỉ cần một trong các phương thức rollback, toàn bộ transaction đều rollback.
 
 ```java
 @Service
@@ -397,9 +397,9 @@ Class B {
 
 **`2.TransactionDefinition.PROPAGATION_REQUIRES_NEW`**
 
-创建一个新的事务，如果当前存在事务，则把当前事务挂起。也就是说不管外部方法是否开启事务，`Propagation.REQUIRES_NEW`修饰的内部方法会新开启自己的事务，且开启的事务相互独立，互不干扰。
+Tạo một transaction mới. Nếu hiện tại đã có transaction, thì treo transaction hiện tại lại. Tức là dù phương thức bên ngoài có mở transaction hay không, phương thức bên trong được đánh dấu `Propagation.REQUIRES_NEW` sẽ mở transaction riêng của nó, và các transaction được mở là độc lập, không ảnh hưởng lẫn nhau.
 
-举个例子：如果我们上面的`bMethod()`使用`PROPAGATION_REQUIRES_NEW`事务传播行为修饰，`aMethod`还是用`PROPAGATION_REQUIRED`修饰的话。如果`aMethod()`发生异常回滚，`bMethod()`不会跟着回滚，因为 `bMethod()`开启了独立的事务。但是，如果 `bMethod()`抛出了未被捕获的异常并且这个异常满足事务回滚规则的话,`aMethod()`同样也会回滚，因为这个异常被 `aMethod()`的事务管理机制检测到了。
+Ví dụ: Nếu `bMethod()` ở trên được đánh dấu bằng hành vi truyền transaction `PROPAGATION_REQUIRES_NEW`, và `aMethod` vẫn sử dụng `PROPAGATION_REQUIRED`. Nếu `aMethod()` xảy ra ngoại lệ và rollback, `bMethod()` sẽ không rollback theo vì `bMethod()` đã mở transaction độc lập. Tuy nhiên, nếu `bMethod()` ném ngoại lệ chưa được bắt và ngoại lệ này thỏa mãn quy tắc rollback của transaction, thì `aMethod()` cũng sẽ rollback vì ngoại lệ này đã được cơ chế quản lý transaction của `aMethod()` phát hiện.
 
 ```java
 @Service
@@ -424,23 +424,23 @@ Class B {
 
 **3.`TransactionDefinition.PROPAGATION_NESTED`**:
 
-如果当前存在事务，则创建一个事务作为当前事务的嵌套事务执行； 如果当前没有事务，就执行与`TransactionDefinition.PROPAGATION_REQUIRED`类似的操作。也就是说：
+Nếu hiện tại đã có transaction, thì tạo một transaction làm nested transaction (transaction lồng nhau) của transaction hiện tại để thực thi; nếu hiện tại không có transaction, thì thực hiện thao tác tương tự `TransactionDefinition.PROPAGATION_REQUIRED`. Tức là:
 
-- 在外部方法开启事务的情况下，在内部开启一个新的事务，作为嵌套事务存在。
-- 如果外部方法无事务，则单独开启一个事务，与 `PROPAGATION_REQUIRED` 类似。
+- Trong trường hợp phương thức bên ngoài đã mở transaction, mở một transaction mới bên trong làm nested transaction.
+- Nếu phương thức bên ngoài không có transaction, mở một transaction riêng biệt, tương tự `PROPAGATION_REQUIRED`.
 
-`TransactionDefinition.PROPAGATION_NESTED`代表的嵌套事务以父子关系呈现，其核心理念是子事务不会独立提交，依赖于父事务，在父事务中运行；当父事务提交时，子事务也会随着提交，理所当然的，当父事务回滚时，子事务也会回滚；
+`TransactionDefinition.PROPAGATION_NESTED` đại diện cho nested transaction theo quan hệ cha-con. Ý tưởng cốt lõi là child transaction không commit độc lập mà phụ thuộc vào parent transaction, chạy trong parent transaction. Khi parent transaction commit, child transaction cũng sẽ commit theo. Tất nhiên, khi parent transaction rollback, child transaction cũng sẽ rollback.
 
-> 与`TransactionDefinition.PROPAGATION_REQUIRES_NEW`区别于：`PROPAGATION_REQUIRES_NEW`是独立事务，不依赖于外部事务，以平级关系呈现，执行完就会立即提交，与外部事务无关；
+> Điểm khác biệt với `TransactionDefinition.PROPAGATION_REQUIRES_NEW`: `PROPAGATION_REQUIRES_NEW` là transaction độc lập, không phụ thuộc vào transaction bên ngoài, theo quan hệ ngang hàng. Sau khi thực thi xong sẽ commit ngay lập tức, không liên quan đến transaction bên ngoài.
 
-子事务也有自己的特性，可以独立进行回滚，不会引发父事务的回滚，但是前提是需要处理子事务的异常，避免异常被父事务感知导致外部事务回滚；
+Child transaction cũng có đặc tính riêng, có thể rollback độc lập mà không gây rollback cho parent transaction. Nhưng điều kiện tiên quyết là phải xử lý ngoại lệ của child transaction, tránh ngoại lệ bị parent transaction phát hiện dẫn đến transaction bên ngoài rollback.
 
-举个例子：
+Ví dụ:
 
-- 如果 `aMethod()` 回滚的话，作为嵌套事务的`bMethod()`会回滚。
-- 如果 `bMethod()` 回滚的话，`aMethod()`是否回滚，要看`bMethod()`的异常是否被处理：
+- Nếu `aMethod()` rollback, thì `bMethod()` là nested transaction cũng sẽ rollback.
+- Nếu `bMethod()` rollback, thì `aMethod()` có rollback hay không phụ thuộc vào ngoại lệ của `bMethod()` có được xử lý hay không:
 
-  - `bMethod()`的异常没有被处理，即`bMethod()`内部没有处理异常，且`aMethod()`也没有处理异常，那么`aMethod()`将感知异常致使整体回滚。
+  - Ngoại lệ của `bMethod()` không được xử lý, tức là bên trong `bMethod()` không xử lý ngoại lệ, và `aMethod()` cũng không xử lý ngoại lệ, thì `aMethod()` sẽ nhận thấy ngoại lệ và gây ra rollback toàn bộ.
 
     ```java
     @Service
@@ -463,7 +463,7 @@ Class B {
     }
     ```
 
-  - `bMethod()`处理异常或`aMethod()`处理异常，`aMethod()`不会回滚。
+  - `bMethod()` xử lý ngoại lệ hoặc `aMethod()` xử lý ngoại lệ, thì `aMethod()` sẽ không rollback.
 
     ```java
     @Service
@@ -492,21 +492,21 @@ Class B {
 
 **4.`TransactionDefinition.PROPAGATION_MANDATORY`**
 
-如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常。（mandatory：强制性）
+Nếu hiện tại đã có transaction, thì tham gia vào transaction đó; nếu hiện tại không có transaction, thì ném ngoại lệ. (mandatory: bắt buộc)
 
-这个使用的很少，就不举例子来说了。
+Loại này ít được sử dụng, không đưa ra ví dụ nữa.
 
-**若是错误的配置以下 3 种事务传播行为，事务将不会发生回滚，这里不对照案例讲解了，使用的很少。**
+**Nếu cấu hình sai 3 hành vi truyền transaction dưới đây, transaction sẽ không rollback. Ở đây không trình bày ví dụ so sánh vì chúng ít được sử dụng.**
 
-- **`TransactionDefinition.PROPAGATION_SUPPORTS`**: 如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行。
-- **`TransactionDefinition.PROPAGATION_NOT_SUPPORTED`**: 以非事务方式运行，如果当前存在事务，则把当前事务挂起。
-- **`TransactionDefinition.PROPAGATION_NEVER`**: 以非事务方式运行，如果当前存在事务，则抛出异常。
+- **`TransactionDefinition.PROPAGATION_SUPPORTS`**: Nếu hiện tại đã có transaction, thì tham gia vào transaction đó; nếu hiện tại không có transaction, thì tiếp tục chạy theo cách phi transaction.
+- **`TransactionDefinition.PROPAGATION_NOT_SUPPORTED`**: Chạy theo cách phi transaction. Nếu hiện tại đã có transaction, thì treo transaction hiện tại lại.
+- **`TransactionDefinition.PROPAGATION_NEVER`**: Chạy theo cách phi transaction. Nếu hiện tại đã có transaction, thì ném ngoại lệ.
 
-更多关于事务传播行为的内容请看这篇文章：[《太难了~面试官让我结合案例讲讲自己对 Spring 事务传播行为的理解。》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247486668&idx=2&sn=0381e8c836442f46bdc5367170234abb&chksm=cea24307f9d5ca11c96943b3ccfa1fc70dc97dd87d9c540388581f8fe6d805ff548dff5f6b5b&token=1776990505&lang=zh_CN#rd)
+Để biết thêm về nội dung hành vi truyền transaction, hãy đọc bài viết này: [《Khó quá~Người phỏng vấn yêu cầu tôi kết hợp ví dụ để nói về sự hiểu biết của tôi về hành vi truyền transaction trong Spring.》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247486668&idx=2&sn=0381e8c836442f46bdc5367170234abb&chksm=cea24307f9d5ca11c96943b3ccfa1fc70dc97dd87d9c540388581f8fe6d805ff548dff5f6b5b&token=1776990505&lang=zh_CN#rd)
 
-#### 事务隔离级别
+#### Mức độ cô lập Transaction (Transaction Isolation Level)
 
-`TransactionDefinition` 接口中定义了五个表示隔离级别的常量：
+Interface `TransactionDefinition` định nghĩa năm hằng số biểu thị mức độ cô lập:
 
 ```java
 public interface TransactionDefinition {
@@ -520,7 +520,7 @@ public interface TransactionDefinition {
 }
 ```
 
-和事务传播行为那块一样，为了方便使用，Spring 也相应地定义了一个枚举类：`Isolation`
+Cũng giống như hành vi truyền transaction, để thuận tiện sử dụng, Spring cũng định nghĩa một class enum tương ứng: `Isolation`
 
 ```java
 public enum Isolation {
@@ -548,21 +548,21 @@ public enum Isolation {
 }
 ```
 
-下面我依次对每一种事务隔离级别进行介绍：
+Dưới đây tôi lần lượt giới thiệu từng mức độ cô lập transaction:
 
-- **`TransactionDefinition.ISOLATION_DEFAULT`** :使用后端数据库默认的隔离级别，MySQL 默认采用的 `REPEATABLE_READ` 隔离级别 Oracle 默认采用的 `READ_COMMITTED` 隔离级别.
-- **`TransactionDefinition.ISOLATION_READ_UNCOMMITTED`** :最低的隔离级别，使用这个隔离级别很少，因为它允许读取尚未提交的数据变更，**可能会导致脏读、幻读或不可重复读**
-- **`TransactionDefinition.ISOLATION_READ_COMMITTED`** : 允许读取并发事务已经提交的数据，**可以阻止脏读，但是幻读或不可重复读仍有可能发生**
-- **`TransactionDefinition.ISOLATION_REPEATABLE_READ`** : 对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，**可以阻止脏读和不可重复读，但幻读仍有可能发生。**
-- **`TransactionDefinition.ISOLATION_SERIALIZABLE`** : 最高的隔离级别，完全服从 ACID 的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，**该级别可以防止脏读、不可重复读以及幻读**。但是这将严重影响程序的性能。通常情况下也不会用到该级别。
+- **`TransactionDefinition.ISOLATION_DEFAULT`**: Sử dụng mức độ cô lập mặc định của database backend. MySQL mặc định sử dụng mức độ cô lập `REPEATABLE_READ`, Oracle mặc định sử dụng mức độ cô lập `READ_COMMITTED`.
+- **`TransactionDefinition.ISOLATION_READ_UNCOMMITTED`**: Mức độ cô lập thấp nhất. Ít được sử dụng vì nó cho phép đọc dữ liệu chưa được commit, **có thể gây ra dirty read, phantom read hoặc non-repeatable read**
+- **`TransactionDefinition.ISOLATION_READ_COMMITTED`**: Cho phép đọc dữ liệu đã được commit bởi các transaction đồng thời. **Có thể ngăn chặn dirty read, nhưng phantom read hoặc non-repeatable read vẫn có thể xảy ra**
+- **`TransactionDefinition.ISOLATION_REPEATABLE_READ`**: Kết quả đọc nhiều lần cùng một trường đều nhất quán, trừ khi dữ liệu bị sửa đổi bởi chính transaction đó. **Có thể ngăn chặn dirty read và non-repeatable read, nhưng phantom read vẫn có thể xảy ra.**
+- **`TransactionDefinition.ISOLATION_SERIALIZABLE`**: Mức độ cô lập cao nhất, hoàn toàn tuân thủ mức độ cô lập ACID. Tất cả các transaction được thực thi tuần tự từng cái một, do đó các transaction hoàn toàn không thể can thiệp lẫn nhau. Tức là, **mức độ này có thể ngăn chặn dirty read, non-repeatable read và phantom read**. Nhưng điều này sẽ ảnh hưởng nghiêm trọng đến hiệu suất chương trình. Thông thường cũng không sử dụng mức độ này.
 
-相关阅读：[MySQL 事务隔离级别详解](https://javaguide.cn/database/mysql/transaction-isolation-level.html)。
+Tài liệu liên quan: [Giải thích chi tiết về mức độ cô lập transaction MySQL](https://javaguide.cn/database/mysql/transaction-isolation-level.html).
 
-#### 事务超时属性
+#### Thuộc tính Timeout Transaction
 
-所谓事务超时，就是指一个事务所允许执行的最长时间，如果超过该时间限制但事务还没有完成，则自动回滚事务。在 `TransactionDefinition` 中以 int 的值来表示超时时间，其单位是秒，默认值为-1，这表示事务的超时时间取决于底层事务系统或者没有超时时间。
+Timeout transaction là thời gian tối đa cho phép một transaction thực thi. Nếu vượt quá giới hạn thời gian đó mà transaction vẫn chưa hoàn thành, transaction sẽ tự động rollback. Trong `TransactionDefinition`, thời gian timeout được biểu thị bằng giá trị int, đơn vị là giây, giá trị mặc định là -1, điều này có nghĩa là timeout của transaction phụ thuộc vào hệ thống transaction bên dưới hoặc không có timeout.
 
-#### 事务只读属性
+#### Thuộc tính Chỉ đọc (Readonly) của Transaction
 
 ```java
 package org.springframework.transaction;
@@ -577,46 +577,46 @@ public interface TransactionDefinition {
 }
 ```
 
-对于只有读取数据查询的事务，可以指定事务类型为 readonly，即只读事务。只读事务不涉及数据的修改，数据库会提供一些优化手段，适合用在有多条数据库查询操作的方法中。
+Đối với các transaction chỉ thực hiện thao tác đọc dữ liệu, có thể chỉ định kiểu transaction là readonly, tức là transaction chỉ đọc. Transaction chỉ đọc không liên quan đến việc sửa đổi dữ liệu, database sẽ cung cấp một số tối ưu hóa, phù hợp để sử dụng trong các phương thức có nhiều thao tác query database.
 
-很多人就会疑问了，为什么我一个数据查询操作还要启用事务支持呢？
+Nhiều người sẽ thắc mắc, tại sao một thao tác query dữ liệu lại cần bật hỗ trợ transaction?
 
-拿 MySQL 的 innodb 举例子，根据官网 [https://dev.mysql.com/doc/refman/5.7/en/innodb-autocommit-commit-rollback.html](https://dev.mysql.com/doc/refman/5.7/en/innodb-autocommit-commit-rollback.html) 描述：
+Lấy innodb của MySQL làm ví dụ, theo mô tả của trang web chính thức [https://dev.mysql.com/doc/refman/5.7/en/innodb-autocommit-commit-rollback.html](https://dev.mysql.com/doc/refman/5.7/en/innodb-autocommit-commit-rollback.html):
 
-> MySQL 默认对每一个新建立的连接都启用了`autocommit`模式。在该模式下，每一个发送到 MySQL 服务器的`sql`语句都会在一个单独的事务中进行处理，执行结束后会自动提交事务，并开启一个新的事务。
+> MySQL mặc định bật chế độ `autocommit` cho mỗi kết nối mới được thiết lập. Trong chế độ này, mỗi câu lệnh `sql` gửi đến MySQL server sẽ được xử lý trong một transaction riêng biệt, sau khi thực thi xong sẽ tự động commit transaction và mở một transaction mới.
 
-但是，如果你给方法加上了`Transactional`注解的话，这个方法执行的所有`sql`会被放在一个事务中。如果声明了只读事务的话，数据库就会去优化它的执行，并不会带来其他的什么收益。
+Tuy nhiên, nếu bạn thêm annotation `Transactional` cho phương thức, tất cả các câu lệnh `sql` của phương thức này sẽ được đặt trong một transaction. Nếu khai báo transaction chỉ đọc, database sẽ tối ưu hóa việc thực thi của nó mà không mang lại các lợi ích khác.
 
-如果不加`Transactional`，每条`sql`会开启一个单独的事务，中间被其它事务改了数据，都会实时读取到最新值。
+Nếu không thêm `Transactional`, mỗi câu lệnh `sql` sẽ mở một transaction riêng biệt, và nếu dữ liệu bị thay đổi bởi các transaction khác ở giữa, giá trị mới nhất sẽ được đọc theo thời gian thực.
 
-分享一下关于事务只读属性，其他人的解答：
+Chia sẻ về thuộc tính chỉ đọc của transaction, giải đáp của người khác:
 
-- 如果你一次执行单条查询语句，则没有必要启用事务支持，数据库默认支持 SQL 执行期间的读一致性；
-- 如果你一次执行多条查询语句，例如统计查询，报表查询，在这种场景下，多条查询 SQL 必须保证整体的读一致性，否则，在前条 SQL 查询之后，后条 SQL 查询之前，数据被其他用户改变，则该次整体的统计查询将会出现读数据不一致的状态，此时，应该启用事务支持
+- Nếu bạn thực thi một câu lệnh query đơn một lần, thì không cần bật hỗ trợ transaction, database mặc định hỗ trợ tính nhất quán đọc trong thời gian thực thi SQL;
+- Nếu bạn thực thi nhiều câu lệnh query một lần, ví dụ như query thống kê, query báo cáo. Trong trường hợp này, nhiều câu lệnh query SQL phải đảm bảo tính nhất quán đọc của toàn bộ. Nếu không, sau câu lệnh SQL query trước, trước câu lệnh SQL query sau, dữ liệu bị người dùng khác thay đổi, thì lần query thống kê tổng thể này sẽ xuất hiện trạng thái dữ liệu đọc không nhất quán. Lúc này nên bật hỗ trợ transaction.
 
-#### 事务回滚规则
+#### Quy tắc Rollback Transaction
 
-这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。
+Những quy tắc này định nghĩa loại ngoại lệ nào sẽ gây ra rollback transaction và loại nào sẽ không. Theo mặc định, transaction chỉ rollback khi gặp runtime exception (subclass của `RuntimeException`). `Error` cũng sẽ gây rollback transaction. Nhưng khi gặp checked exception (exception kiểm tra) thì sẽ không rollback.
 
 ![](./images/spring-transaction/roollbackFor.png)
 
-如果你想要回滚你定义的特定的异常类型的话，可以这样：
+Nếu muốn rollback cho loại exception cụ thể bạn đã định nghĩa, có thể làm như sau:
 
 ```java
 @Transactional(rollbackFor= MyException.class)
 ```
 
-### @Transactional 注解使用详解
+### Giải thích chi tiết về cách sử dụng Annotation @Transactional
 
-#### `@Transactional` 的作用范围
+#### Phạm vi tác dụng của `@Transactional`
 
-1. **方法**：推荐将注解使用于方法上，不过需要注意的是：**该注解只能应用到 public 方法上，否则不生效。**
-2. **类**：如果这个注解使用在类上的话，表明该注解对该类中所有的 public 方法都生效。
-3. **接口**：不推荐在接口上使用。
+1. **Phương thức**: Khuyến nghị sử dụng annotation trên phương thức. Tuy nhiên cần lưu ý: **Annotation này chỉ có thể được áp dụng cho phương thức public, nếu không sẽ không có hiệu lực.**
+2. **Lớp**: Nếu annotation này được sử dụng trên lớp, thì annotation sẽ có hiệu lực cho tất cả các phương thức public trong lớp đó.
+3. **Interface**: Không khuyến nghị sử dụng trên interface.
 
-#### `@Transactional` 的常用配置参数
+#### Các tham số cấu hình thường dùng của `@Transactional`
 
-`@Transactional`注解源码如下，里面包含了基本事务属性的配置：
+Mã nguồn annotation `@Transactional` như sau, trong đó bao gồm cấu hình các thuộc tính transaction cơ bản:
 
 ```java
 @Target({ElementType.TYPE, ElementType.METHOD})
@@ -650,23 +650,23 @@ public @interface Transactional {
 }
 ```
 
-**`@Transactional` 的常用配置参数总结（只列出了 5 个我平时比较常用的）：**
+**Tổng hợp các tham số cấu hình thường dùng của `@Transactional` (chỉ liệt kê 5 tham số tôi thường dùng):**
 
-| 属性名      | 说明                                                                                         |
-| :---------- | :------------------------------------------------------------------------------------------- |
-| propagation | 事务的传播行为，默认值为 REQUIRED，可选的值在上面介绍过                                      |
-| isolation   | 事务的隔离级别，默认值采用 DEFAULT，可选的值在上面介绍过                                     |
-| timeout     | 事务的超时时间，默认值为-1（不会超时）。如果超过该时间限制但事务还没有完成，则自动回滚事务。 |
-| readOnly    | 指定事务是否为只读事务，默认值为 false。                                                     |
-| rollbackFor | 用于指定能够触发事务回滚的异常类型，并且可以指定多个异常类型。                               |
+| Tên thuộc tính | Mô tả                                                                                                                                                        |
+| :------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| propagation    | Hành vi truyền transaction, giá trị mặc định là REQUIRED, các giá trị có thể chọn đã được giới thiệu ở trên                                                  |
+| isolation      | Mức độ cô lập transaction, giá trị mặc định sử dụng DEFAULT, các giá trị có thể chọn đã được giới thiệu ở trên                                               |
+| timeout        | Thời gian timeout của transaction, giá trị mặc định là -1 (không timeout). Nếu vượt quá giới hạn thời gian mà transaction chưa hoàn thành, tự động rollback. |
+| readOnly       | Chỉ định transaction có phải là transaction chỉ đọc hay không, giá trị mặc định là false.                                                                    |
+| rollbackFor    | Dùng để chỉ định loại exception có thể kích hoạt rollback transaction, và có thể chỉ định nhiều loại exception.                                              |
 
-#### `@Transactional` 事务注解原理
+#### Nguyên lý của annotation transaction `@Transactional`
 
-面试中在问 AOP 的时候可能会被问到的一个问题。简单说下吧！
+Đây là câu hỏi có thể được hỏi trong phỏng vấn khi nói về AOP. Nói sơ qua thôi!
 
-我们知道，**`@Transactional` 的工作机制是基于 AOP 实现的，AOP 又是使用动态代理实现的。如果目标对象实现了接口，默认情况下会采用 JDK 的动态代理，如果目标对象没有实现了接口,会使用 CGLIB 动态代理。**
+Chúng ta biết rằng, **cơ chế hoạt động của `@Transactional` dựa trên AOP. AOP được triển khai bằng dynamic proxy. Nếu đối tượng đích triển khai interface, mặc định sẽ sử dụng dynamic proxy JDK. Nếu đối tượng đích không triển khai interface, sẽ sử dụng CGLIB dynamic proxy.**
 
-🤐 多提一嘴：`createAopProxy()` 方法 决定了是使用 JDK 还是 Cglib 来做动态代理，源码如下：
+🤐 Thêm một câu: phương thức `createAopProxy()` quyết định sử dụng JDK hay Cglib để làm dynamic proxy, mã nguồn như sau:
 
 ```java
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
@@ -692,17 +692,17 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 }
 ```
 
-如果一个类或者一个类中的 public 方法上被标注`@Transactional` 注解的话，Spring 容器就会在启动的时候为其创建一个代理类，在调用被`@Transactional` 注解的 public 方法的时候，实际调用的是，`TransactionInterceptor` 类中的 `invoke()`方法。这个方法的作用就是在目标方法之前开启事务，方法执行过程中如果遇到异常的时候回滚事务，方法调用完成之后提交事务。
+Nếu một lớp hoặc một phương thức public trong lớp được đánh dấu bằng annotation `@Transactional`, Spring container sẽ tạo một proxy class cho nó khi khởi động. Khi gọi phương thức public được đánh dấu `@Transactional`, thực sự đang gọi phương thức `invoke()` trong lớp `TransactionInterceptor`. Tác dụng của phương thức này là mở transaction trước phương thức đích, rollback transaction khi gặp ngoại lệ trong quá trình thực thi, và commit transaction sau khi phương thức gọi hoàn thành.
 
-> `TransactionInterceptor` 类中的 `invoke()`方法内部实际调用的是 `TransactionAspectSupport` 类的 `invokeWithinTransaction()`方法。由于新版本的 Spring 对这部分重写很大，而且用到了很多响应式编程的知识，这里就不列源码了。
+> Phương thức `invoke()` trong lớp `TransactionInterceptor` thực chất gọi nội bộ phương thức `invokeWithinTransaction()` của lớp `TransactionAspectSupport`. Do phiên bản Spring mới đã viết lại phần này rất nhiều, và sử dụng nhiều kiến thức về reactive programming, ở đây không liệt kê mã nguồn nữa.
 
-#### Spring AOP 自调用问题
+#### Vấn đề self-invocation trong Spring AOP
 
-当一个方法被标记了`@Transactional` 注解的时候，Spring 事务管理器只会在被其他类方法调用的时候生效，而不会在一个类中方法调用生效。
+Khi một phương thức được đánh dấu bằng annotation `@Transactional`, Spring transaction manager chỉ có hiệu lực khi được gọi từ phương thức của lớp khác, và sẽ không có hiệu lực khi gọi nội bộ trong cùng một lớp.
 
-这是因为 Spring AOP 工作原理决定的。因为 Spring AOP 使用动态代理来实现事务的管理，它会在运行的时候为带有 `@Transactional` 注解的方法生成代理对象，并在方法调用的前后应用事物逻辑。如果该方法被其他类调用我们的代理对象就会拦截方法调用并处理事务。但是在一个类中的其他方法内部调用的时候，我们代理对象就无法拦截到这个内部调用，因此事务也就失效了。
+Điều này do cách hoạt động của Spring AOP quyết định. Vì Spring AOP sử dụng dynamic proxy để triển khai quản lý transaction, nó sẽ tạo đối tượng proxy cho các phương thức có annotation `@Transactional` tại runtime, và áp dụng logic transaction trước và sau khi gọi phương thức. Nếu phương thức được gọi từ lớp khác, proxy object của chúng ta sẽ chặn lệnh gọi phương thức và xử lý transaction. Nhưng khi gọi nội bộ trong phương thức khác của cùng một lớp, proxy object của chúng ta không thể chặn lệnh gọi nội bộ này, do đó transaction cũng sẽ không có hiệu lực.
 
-`MyService` 类中的`method1()`调用`method2()`就会导致`method2()`的事务失效。
+`method1()` trong lớp `MyService` gọi `method2()` sẽ gây ra transaction của `method2()` không có hiệu lực.
 
 ```java
 @Service
@@ -719,9 +719,9 @@ private void method1() {
 }
 ```
 
-解决办法就是避免同一类中自调用或者使用 AspectJ 取代 Spring AOP 代理。
+Giải pháp là tránh self-invocation trong cùng lớp hoặc sử dụng AspectJ thay thế Spring AOP proxy.
 
-[issue #2091](https://github.com/Snailclimb/JavaGuide/issues/2091)补充了一个例子：
+[issue #2091](https://github.com/Snailclimb/JavaGuide/issues/2091) bổ sung thêm một ví dụ:
 
 ```java
 @Service
@@ -738,25 +738,25 @@ private void method1() {
 }
 ```
 
-上面的代码确实可以在自调用的时候开启事务，但是这是因为使用了 `AopContext.currentProxy()` 方法来获取当前类的代理对象，然后通过代理对象调用 `method2()`。这样就相当于从外部调用了 `method2()`，所以事务注解才会生效。我们一般也不会在代码中这么写，所以可以忽略这个特殊的例子。
+Code trên thực sự có thể mở transaction khi self-invoking vì sử dụng phương thức `AopContext.currentProxy()` để lấy đối tượng proxy của lớp hiện tại, sau đó gọi `method2()` thông qua proxy object. Điều này tương đương với việc gọi `method2()` từ bên ngoài, vì vậy annotation transaction mới có hiệu lực. Thông thường chúng ta cũng không viết code như vậy, vì vậy có thể bỏ qua ví dụ đặc biệt này.
 
-#### `@Transactional` 的使用注意事项总结
+#### Tổng hợp các lưu ý khi sử dụng `@Transactional`
 
-- `@Transactional` 注解只有作用到 public 方法上事务才生效，不推荐在接口上使用；
-- 避免同一个类中调用 `@Transactional` 注解的方法，这样会导致事务失效；
-- 正确的设置 `@Transactional` 的 `rollbackFor` 和 `propagation` 属性，否则事务可能会回滚失败;
-- 被 `@Transactional` 注解的方法所在的类必须被 Spring 管理，否则不生效；
-- 底层使用的数据库必须支持事务机制，否则不生效；
+- Annotation `@Transactional` chỉ có hiệu lực cho phương thức public, không khuyến nghị sử dụng trên interface;
+- Tránh gọi phương thức có annotation `@Transactional` trong cùng một lớp vì sẽ gây transaction không có hiệu lực;
+- Đặt đúng các thuộc tính `rollbackFor` và `propagation` của `@Transactional`, nếu không transaction có thể rollback thất bại;
+- Lớp chứa phương thức được đánh dấu `@Transactional` phải được Spring quản lý, nếu không sẽ không có hiệu lực;
+- Database bên dưới phải hỗ trợ cơ chế transaction, nếu không sẽ không có hiệu lực;
 - ……
 
-## 参考
+## Tài liệu tham khảo
 
-- [总结]Spring 事务管理中@Transactional 的参数:[http://www.mobabel.net/spring 事务管理中 transactional 的参数/](http://www.mobabel.net/spring事务管理中transactional的参数/)
-- Spring 官方文档：[https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html](https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html)
-- 《Spring5 高级编程》
-- 透彻的掌握 Spring 中@transactional 的使用: [https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/index.html](https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/index.html)
-- Spring 事务的传播特性：[https://github.com/love-somnus/Spring/wiki/Spring 事务的传播特性](https://github.com/love-somnus/Spring/wiki/Spring事务的传播特性)
-- [Spring 事务传播行为详解](https://segmentfault.com/a/1190000013341344)：[https://segmentfault.com/a/1190000013341344](https://segmentfault.com/a/1190000013341344)
-- 全面分析 Spring 的编程式事务管理及声明式事务管理：[https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/index.html](https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/index.html)
+- [Tổng hợp] Các tham số của @Transactional trong quản lý transaction Spring:[http://www.mobabel.net/spring事务管理中transactional的参数/](http://www.mobabel.net/spring事务管理中transactional的参数/)
+- Tài liệu chính thức Spring：[https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html](https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html)
+- 《Spring5 Advanced Programming》
+- Nắm vững cách sử dụng @transactional trong Spring: [https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/index.html](https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/index.html)
+- Đặc tính truyền transaction Spring：[https://github.com/love-somnus/Spring/wiki/Spring事务的传播特性](https://github.com/love-somnus/Spring/wiki/Spring事务的传播特性)
+- [Giải thích chi tiết về hành vi truyền transaction Spring](https://segmentfault.com/a/1190000013341344)：[https://segmentfault.com/a/1190000013341344](https://segmentfault.com/a/1190000013341344)
+- Phân tích toàn diện về quản lý transaction theo lập trình và khai báo trong Spring：[https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/index.html](https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/index.html)
 
 <!-- @include: @article-footer.snippet.md -->

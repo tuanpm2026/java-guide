@@ -1,10 +1,10 @@
 ---
-title: Java IO 基础知识总结
-description: Java IO基础知识全面总结：详解字节流与字符流区别、InputStream/OutputStream字节流、Reader/Writer字符流、缓冲流优化、文件读写操作。
+title: Tổng hợp kiến thức cơ bản về Java IO
+description: Tổng hợp toàn diện kiến thức cơ bản về Java IO：giải thích chi tiết sự khác biệt giữa luồng byte và luồng ký tự, luồng byte InputStream/OutputStream, luồng ký tự Reader/Writer, tối ưu hóa bằng luồng đệm, thao tác đọc ghi file.
 category: Java
 tag:
   - Java IO
-  - Java基础
+  - Java Cơ bản
 head:
   - - meta
     - name: keywords
@@ -13,39 +13,39 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-## IO 流简介
+## Giới thiệu IO Stream
 
-IO 即 `Input/Output`，输入和输出。数据输入到计算机内存的过程即输入，反之输出到外部存储（比如数据库，文件，远程主机）的过程即输出。数据传输过程类似于水流，因此称为 IO 流。IO 流在 Java 中分为输入流和输出流，而根据数据的处理方式又分为字节流和字符流。
+IO tức là `Input/Output`, nhập và xuất. Quá trình dữ liệu đi vào bộ nhớ máy tính gọi là nhập, ngược lại quá trình xuất ra bộ lưu trữ bên ngoài (ví dụ cơ sở dữ liệu, file, máy chủ từ xa) gọi là xuất. Quá trình truyền dữ liệu giống như dòng nước chảy, vì vậy gọi là IO stream. Trong Java, IO stream được chia thành luồng nhập và luồng xuất, và dựa theo cách xử lý dữ liệu lại chia thành luồng byte và luồng ký tự.
 
-Java IO 流的 40 多个类都是从如下 4 个抽象类基类中派生出来的。
+Hơn 40 lớp IO stream trong Java đều được dẫn xuất từ 4 lớp trừu tượng cơ sở sau.
 
-- `InputStream`/`Reader`: 所有的输入流的基类，前者是字节输入流，后者是字符输入流。
-- `OutputStream`/`Writer`: 所有输出流的基类，前者是字节输出流，后者是字符输出流。
+- `InputStream`/`Reader`: Lớp cơ sở của tất cả các luồng nhập, lớp trước là luồng byte nhập, lớp sau là luồng ký tự nhập.
+- `OutputStream`/`Writer`: Lớp cơ sở của tất cả các luồng xuất, lớp trước là luồng byte xuất, lớp sau là luồng ký tự xuất.
 
-## 字节流
+## Luồng byte
 
-### InputStream（字节输入流）
+### InputStream (Luồng byte nhập)
 
-`InputStream`用于从源头（通常是文件）读取数据（字节信息）到内存中，`java.io.InputStream`抽象类是所有字节输入流的父类。
+`InputStream` dùng để đọc dữ liệu (thông tin byte) từ nguồn (thường là file) vào bộ nhớ, lớp trừu tượng `java.io.InputStream` là lớp cha của tất cả các luồng byte nhập.
 
-`InputStream` 常用方法：
+Các phương thức thường dùng của `InputStream`:
 
-- `read()`：返回输入流中下一个字节的数据。返回的值介于 0 到 255 之间。如果未读取任何字节，则代码返回 `-1` ，表示文件结束。
-- `read(byte b[ ])` : 从输入流中读取一些字节存储到数组 `b` 中。如果数组 `b` 的长度为零，则不读取。如果没有可用字节读取，返回 `-1`。如果有可用字节读取，则最多读取的字节数最多等于 `b.length` ， 返回读取的字节数。这个方法等价于 `read(b, 0, b.length)`。
-- `read(byte b[], int off, int len)`：在`read(byte b[ ])` 方法的基础上增加了 `off` 参数（偏移量）和 `len` 参数（要读取的最大字节数）。
-- `skip(long n)`：忽略输入流中的 n 个字节 ,返回实际忽略的字节数。
-- `available()`：返回输入流中可以读取的字节数。
-- `close()`：关闭输入流释放相关的系统资源。
+- `read()`: Trả về dữ liệu của byte tiếp theo trong luồng nhập. Giá trị trả về nằm trong khoảng 0 đến 255. Nếu không đọc được byte nào, mã trả về `-1`, biểu thị kết thúc file.
+- `read(byte b[])`: Đọc một số byte từ luồng nhập và lưu vào mảng `b`. Nếu độ dài của mảng `b` bằng không, không đọc gì. Nếu không có byte khả dụng để đọc, trả về `-1`. Nếu có byte khả dụng, số byte đọc nhiều nhất bằng `b.length`, trả về số byte đã đọc. Phương thức này tương đương với `read(b, 0, b.length)`.
+- `read(byte b[], int off, int len)`: Dựa trên phương thức `read(byte b[])` thêm tham số `off` (offset) và `len` (số byte tối đa cần đọc).
+- `skip(long n)`: Bỏ qua n byte trong luồng nhập, trả về số byte thực sự đã bỏ qua.
+- `available()`: Trả về số byte có thể đọc trong luồng nhập.
+- `close()`: Đóng luồng nhập và giải phóng tài nguyên hệ thống liên quan.
 
-从 Java 9 开始，`InputStream` 新增加了多个实用的方法：
+Từ Java 9, `InputStream` bổ sung thêm nhiều phương thức tiện ích:
 
-- `readAllBytes()`：读取输入流中的所有字节，返回字节数组。
-- `readNBytes(byte[] b, int off, int len)`：阻塞直到读取 `len` 个字节。
-- `transferTo(OutputStream out)`：将所有字节从一个输入流传递到一个输出流。
+- `readAllBytes()`: Đọc tất cả byte trong luồng nhập, trả về mảng byte.
+- `readNBytes(byte[] b, int off, int len)`: Chặn cho đến khi đọc đủ `len` byte.
+- `transferTo(OutputStream out)`: Chuyển tất cả byte từ một luồng nhập sang một luồng xuất.
 
-`FileInputStream` 是一个比较常用的字节输入流对象，可直接指定文件路径，可以直接读取单字节数据，也可以读取至字节数组中。
+`FileInputStream` là đối tượng luồng byte nhập được dùng phổ biến, có thể chỉ định trực tiếp đường dẫn file, có thể đọc trực tiếp dữ liệu đơn byte hoặc đọc vào mảng byte.
 
-`FileInputStream` 代码示例：
+Ví dụ code `FileInputStream`:
 
 ```java
 try (InputStream fis = new FileInputStream("input.txt")) {
@@ -63,11 +63,11 @@ try (InputStream fis = new FileInputStream("input.txt")) {
 }
 ```
 
-`input.txt` 文件内容：
+Nội dung file `input.txt`:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155214614.png)
 
-输出：
+Đầu ra:
 
 ```plain
 Number of remaining bytes:11
@@ -75,9 +75,9 @@ The actual number of bytes skipped:2
 The content read from file:JavaGuide
 ```
 
-不过，一般我们是不会直接单独使用 `FileInputStream` ，通常会配合 `BufferedInputStream`（字节缓冲输入流，后文会讲到）来使用。
+Tuy nhiên, thông thường chúng ta không dùng `FileInputStream` đơn lẻ, thường kết hợp với `BufferedInputStream` (luồng byte nhập đệm, sẽ đề cập sau).
 
-像下面这段代码在我们的项目中就比较常见，我们通过 `readAllBytes()` 读取输入流所有字节并将其直接赋值给一个 `String` 对象。
+Đoạn code dưới đây khá phổ biến trong dự án của chúng ta, chúng ta dùng `readAllBytes()` để đọc tất cả byte từ luồng nhập và gán trực tiếp vào đối tượng `String`.
 
 ```java
 // 新建一个 BufferedInputStream 对象
@@ -87,7 +87,7 @@ String result = new String(bufferedInputStream.readAllBytes());
 System.out.println(result);
 ```
 
-`DataInputStream` 用于读取指定类型数据，不能单独使用，必须结合其它流，比如 `FileInputStream` 。
+`DataInputStream` dùng để đọc dữ liệu của kiểu cụ thể, không thể dùng độc lập, phải kết hợp với luồng khác như `FileInputStream`.
 
 ```java
 FileInputStream fileInputStream = new FileInputStream("input.txt");
@@ -99,7 +99,7 @@ dataInputStream.readInt();
 dataInputStream.readUTF();
 ```
 
-`ObjectInputStream` 用于从输入流中读取 Java 对象（反序列化），`ObjectOutputStream` 用于将对象写入到输出流(序列化)。
+`ObjectInputStream` dùng để đọc đối tượng Java từ luồng nhập (deserialization), `ObjectOutputStream` dùng để ghi đối tượng vào luồng xuất (serialization).
 
 ```java
 ObjectInputStream input = new ObjectInputStream(new FileInputStream("object.data"));
@@ -107,23 +107,23 @@ MyClass object = (MyClass) input.readObject();
 input.close();
 ```
 
-另外，用于序列化和反序列化的类必须实现 `Serializable` 接口，对象中如果有属性不想被序列化，使用 `transient` 修饰。
+Ngoài ra, lớp dùng để serialize và deserialize phải triển khai giao diện `Serializable`. Nếu có thuộc tính trong đối tượng không muốn serialize, dùng `transient` để đánh dấu.
 
-### OutputStream（字节输出流）
+### OutputStream (Luồng byte xuất)
 
-`OutputStream`用于将数据（字节信息）写入到目的地（通常是文件），`java.io.OutputStream`抽象类是所有字节输出流的父类。
+`OutputStream` dùng để ghi dữ liệu (thông tin byte) vào đích (thường là file), lớp trừu tượng `java.io.OutputStream` là lớp cha của tất cả các luồng byte xuất.
 
-`OutputStream` 常用方法：
+Các phương thức thường dùng của `OutputStream`:
 
-- `write(int b)`：将特定字节写入输出流。
-- `write(byte b[ ])` : 将数组`b` 写入到输出流，等价于 `write(b, 0, b.length)` 。
-- `write(byte[] b, int off, int len)` : 在`write(byte b[ ])` 方法的基础上增加了 `off` 参数（偏移量）和 `len` 参数（要读取的最大字节数）。
-- `flush()`：刷新此输出流并强制写出所有缓冲的输出字节。
-- `close()`：关闭输出流释放相关的系统资源。
+- `write(int b)`: Ghi một byte cụ thể vào luồng xuất.
+- `write(byte b[])`: Ghi mảng `b` vào luồng xuất, tương đương với `write(b, 0, b.length)`.
+- `write(byte[] b, int off, int len)`: Dựa trên phương thức `write(byte b[])` thêm tham số `off` (offset) và `len` (số byte tối đa cần đọc).
+- `flush()`: Xả luồng xuất này và buộc ghi tất cả các byte xuất đã được đệm.
+- `close()`: Đóng luồng xuất và giải phóng tài nguyên hệ thống liên quan.
 
-`FileOutputStream` 是最常用的字节输出流对象，可直接指定文件路径，可以直接输出单字节数据，也可以输出指定的字节数组。
+`FileOutputStream` là đối tượng luồng byte xuất được dùng phổ biến nhất, có thể chỉ định trực tiếp đường dẫn file, có thể xuất trực tiếp dữ liệu đơn byte hoặc xuất mảng byte cụ thể.
 
-`FileOutputStream` 代码示例：
+Ví dụ code `FileOutputStream`:
 
 ```java
 try (FileOutputStream output = new FileOutputStream("output.txt")) {
@@ -134,18 +134,18 @@ try (FileOutputStream output = new FileOutputStream("output.txt")) {
 }
 ```
 
-运行结果：
+Kết quả chạy:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155514392.png)
 
-类似于 `FileInputStream`，`FileOutputStream` 通常也会配合 `BufferedOutputStream`（字节缓冲输出流，后文会讲到）来使用。
+Tương tự `FileInputStream`, `FileOutputStream` thường cũng kết hợp với `BufferedOutputStream` (luồng byte xuất đệm, sẽ đề cập sau).
 
 ```java
 FileOutputStream fileOutputStream = new FileOutputStream("output.txt");
 BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream)
 ```
 
-**`DataOutputStream`** 用于写入指定类型数据，不能单独使用，必须结合其它流，比如 `FileOutputStream` 。
+**`DataOutputStream`** dùng để ghi dữ liệu của kiểu cụ thể, không thể dùng độc lập, phải kết hợp với luồng khác như `FileOutputStream`.
 
 ```java
 // 输出流
@@ -156,7 +156,7 @@ dataOutputStream.writeBoolean(true);
 dataOutputStream.writeByte(1);
 ```
 
-`ObjectInputStream` 用于从输入流中读取 Java 对象（反序列化），`ObjectOutputStream` 将对象写入到输出流（序列化）。
+`ObjectInputStream` dùng để đọc đối tượng Java từ luồng nhập (deserialization), `ObjectOutputStream` ghi đối tượng vào luồng xuất (serialization).
 
 ```java
 ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("file.txt")
@@ -164,20 +164,20 @@ Person person = new Person("Guide哥", "JavaGuide作者");
 output.writeObject(person);
 ```
 
-## 字符流
+## Luồng ký tự
 
-不管是文件读写还是网络发送接收，信息的最小存储单元都是字节。 **那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
+Dù là đọc ghi file hay gửi nhận qua mạng, đơn vị lưu trữ nhỏ nhất của thông tin đều là byte. **Vậy tại sao thao tác I/O stream lại cần chia thành thao tác luồng byte và luồng ký tự?**
 
-个人认为主要有两点原因：
+Theo tôi có hai lý do chính:
 
-- 字符流是由 Java 虚拟机将字节转换得到的，这个过程还算是比较耗时。
-- 如果我们不知道编码类型就很容易出现乱码问题。
+- Luồng ký tự được Java Virtual Machine chuyển đổi từ byte, quá trình này tương đối tốn thời gian.
+- Nếu không biết kiểu encoding, rất dễ xảy ra vấn đề ký tự rác (garbled text).
 
-乱码问题这个很容易就可以复现，我们只需要将上面提到的 `FileInputStream` 代码示例中的 `input.txt` 文件内容改为中文即可，原代码不需要改动。
+Vấn đề ký tự rác rất dễ tái hiện, chỉ cần thay đổi nội dung file `input.txt` trong ví dụ `FileInputStream` ở trên thành chữ Trung văn là được, không cần thay đổi code.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220419154632551.png)
 
-输出：
+Đầu ra:
 
 ```java
 Number of remaining bytes:9
@@ -185,29 +185,29 @@ The actual number of bytes skipped:2
 The content read from file:§å®¶å¥½
 ```
 
-可以很明显地看到读取出来的内容已经变成了乱码。
+Có thể thấy rõ ràng nội dung đọc ra đã biến thành ký tự rác.
 
-因此，I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
+Do đó, I/O stream cung cấp thẳng một giao diện thao tác trực tiếp trên ký tự, tiện lợi cho thao tác luồng ký tự hàng ngày. Nếu là file âm thanh, ảnh hay các file đa phương tiện, dùng luồng byte sẽ tốt hơn; còn nếu liên quan đến ký tự thì nên dùng luồng ký tự.
 
-字符流默认采用的是 `Unicode` 编码，我们可以通过构造方法自定义编码。
+Luồng ký tự mặc định dùng encoding `Unicode`, bạn có thể tùy chỉnh encoding thông qua constructor.
 
-Unicode 本身只是一种字符集，它为每个字符分配一个唯一的数字编号，并没有规定具体的存储方式。UTF-8、UTF-16、UTF-32 都是 Unicode 的编码方式，它们使用不同的字节数来表示 Unicode 字符。例如，UTF-8 :英文占 1 字节，中文占 3 字节。
+Unicode bản thân chỉ là một bộ ký tự, nó gán một số duy nhất cho mỗi ký tự, không quy định cách lưu trữ cụ thể. UTF-8, UTF-16, UTF-32 đều là các phương thức encoding của Unicode, chúng dùng số byte khác nhau để biểu diễn ký tự Unicode. Ví dụ, UTF-8: tiếng Anh chiếm 1 byte, tiếng Trung chiếm 3 byte.
 
-### Reader（字符输入流）
+### Reader (Luồng ký tự nhập)
 
-`Reader`用于从源头（通常是文件）读取数据（字符信息）到内存中，`java.io.Reader`抽象类是所有字符输入流的父类。
+`Reader` dùng để đọc dữ liệu (thông tin ký tự) từ nguồn (thường là file) vào bộ nhớ, lớp trừu tượng `java.io.Reader` là lớp cha của tất cả các luồng ký tự nhập.
 
-`Reader` 用于读取文本， `InputStream` 用于读取原始字节。
+`Reader` dùng để đọc văn bản, `InputStream` dùng để đọc byte thô.
 
-`Reader` 常用方法：
+Các phương thức thường dùng của `Reader`:
 
-- `read()` : 从输入流读取一个字符。
-- `read(char[] cbuf)` : 从输入流中读取一些字符，并将它们存储到字符数组 `cbuf`中，等价于 `read(cbuf, 0, cbuf.length)` 。
-- `read(char[] cbuf, int off, int len)`：在`read(char[] cbuf)` 方法的基础上增加了 `off` 参数（偏移量）和 `len` 参数（要读取的最大字符数）。
-- `skip(long n)`：忽略输入流中的 n 个字符 ,返回实际忽略的字符数。
-- `close()` : 关闭输入流并释放相关的系统资源。
+- `read()`: Đọc một ký tự từ luồng nhập.
+- `read(char[] cbuf)`: Đọc một số ký tự từ luồng nhập và lưu vào mảng ký tự `cbuf`, tương đương với `read(cbuf, 0, cbuf.length)`.
+- `read(char[] cbuf, int off, int len)`: Dựa trên phương thức `read(char[] cbuf)` thêm tham số `off` (offset) và `len` (số ký tự tối đa cần đọc).
+- `skip(long n)`: Bỏ qua n ký tự trong luồng nhập, trả về số ký tự thực sự đã bỏ qua.
+- `close()`: Đóng luồng nhập và giải phóng tài nguyên hệ thống liên quan.
 
-`InputStreamReader` 是字节流转换为字符流的桥梁，其子类 `FileReader` 是基于该基础上的封装，可以直接操作字符文件。
+`InputStreamReader` là cầu nối chuyển đổi luồng byte sang luồng ký tự, lớp con của nó `FileReader` là một lớp đóng gói dựa trên đó, có thể thao tác trực tiếp trên file ký tự.
 
 ```java
 // 字节流转换为字符流的桥梁
@@ -218,7 +218,7 @@ public class FileReader extends InputStreamReader {
 }
 ```
 
-`FileReader` 代码示例：
+Ví dụ code `FileReader`:
 
 ```java
 try (FileReader fileReader = new FileReader("input.txt");) {
@@ -234,34 +234,34 @@ try (FileReader fileReader = new FileReader("input.txt");) {
 }
 ```
 
-`input.txt` 文件内容：
+Nội dung file `input.txt`:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220419154632551.png)
 
-输出：
+Đầu ra:
 
 ```plain
 The actual number of characters skipped:3
 The content read from file:我是Guide。
 ```
 
-### Writer（字符输出流）
+### Writer (Luồng ký tự xuất)
 
-`Writer`用于将数据（字符信息）写入到目的地（通常是文件），`java.io.Writer`抽象类是所有字符输出流的父类。
+`Writer` dùng để ghi dữ liệu (thông tin ký tự) vào đích (thường là file), lớp trừu tượng `java.io.Writer` là lớp cha của tất cả các luồng ký tự xuất.
 
-`Writer` 常用方法：
+Các phương thức thường dùng của `Writer`:
 
-- `write(int c)` : 写入单个字符。
-- `write(char[] cbuf)`：写入字符数组 `cbuf`，等价于`write(cbuf, 0, cbuf.length)`。
-- `write(char[] cbuf, int off, int len)`：在`write(char[] cbuf)` 方法的基础上增加了 `off` 参数（偏移量）和 `len` 参数（要读取的最大字符数）。
-- `write(String str)`：写入字符串，等价于 `write(str, 0, str.length())` 。
-- `write(String str, int off, int len)`：在`write(String str)` 方法的基础上增加了 `off` 参数（偏移量）和 `len` 参数（要读取的最大字符数）。
-- `append(CharSequence csq)`：将指定的字符序列附加到指定的 `Writer` 对象并返回该 `Writer` 对象。
-- `append(char c)`：将指定的字符附加到指定的 `Writer` 对象并返回该 `Writer` 对象。
-- `flush()`：刷新此输出流并强制写出所有缓冲的输出字符。
-- `close()`:关闭输出流释放相关的系统资源。
+- `write(int c)`: Ghi một ký tự đơn.
+- `write(char[] cbuf)`: Ghi mảng ký tự `cbuf`, tương đương với `write(cbuf, 0, cbuf.length)`.
+- `write(char[] cbuf, int off, int len)`: Dựa trên phương thức `write(char[] cbuf)` thêm tham số `off` (offset) và `len` (số ký tự tối đa cần đọc).
+- `write(String str)`: Ghi chuỗi ký tự, tương đương với `write(str, 0, str.length())`.
+- `write(String str, int off, int len)`: Dựa trên phương thức `write(String str)` thêm tham số `off` (offset) và `len` (số ký tự tối đa cần đọc).
+- `append(CharSequence csq)`: Nối chuỗi ký tự cụ thể vào đối tượng `Writer` cụ thể và trả về đối tượng `Writer` đó.
+- `append(char c)`: Nối ký tự cụ thể vào đối tượng `Writer` cụ thể và trả về đối tượng `Writer` đó.
+- `flush()`: Xả luồng xuất này và buộc ghi tất cả các ký tự xuất đã được đệm.
+- `close()`: Đóng luồng xuất và giải phóng tài nguyên hệ thống liên quan.
 
-`OutputStreamWriter` 是字符流转换为字节流的桥梁，其子类 `FileWriter` 是基于该基础上的封装，可以直接将字符写入到文件。
+`OutputStreamWriter` là cầu nối chuyển đổi luồng ký tự sang luồng byte, lớp con của nó `FileWriter` là một lớp đóng gói dựa trên đó, có thể ghi trực tiếp ký tự vào file.
 
 ```java
 // 字符流转换为字节流的桥梁
@@ -272,7 +272,7 @@ public class FileWriter extends OutputStreamWriter {
 }
 ```
 
-`FileWriter` 代码示例：
+Ví dụ code `FileWriter`:
 
 ```java
 try (Writer output = new FileWriter("output.txt")) {
@@ -282,35 +282,35 @@ try (Writer output = new FileWriter("output.txt")) {
 }
 ```
 
-输出结果：
+Kết quả đầu ra:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220419155802288.png)
 
-## 字节缓冲流
+## Luồng đệm byte
 
-IO 操作是很消耗性能的，缓冲流将数据加载至缓冲区，一次性读取/写入多个字节，从而避免频繁的 IO 操作，提高流的传输效率。
+Thao tác IO rất tốn hiệu năng, luồng đệm tải dữ liệu vào vùng đệm, đọc/ghi nhiều byte cùng một lúc, từ đó tránh các thao tác IO thường xuyên, nâng cao hiệu quả truyền dữ liệu.
 
-字节缓冲流这里采用了装饰器模式来增强 `InputStream` 和`OutputStream`子类对象的功能。
+Luồng đệm byte ở đây áp dụng mẫu thiết kế Decorator để tăng cường chức năng cho các đối tượng con của `InputStream` và `OutputStream`.
 
-举个例子，我们可以通过 `BufferedInputStream`（字节缓冲输入流）来增强 `FileInputStream` 的功能。
+Ví dụ, chúng ta có thể dùng `BufferedInputStream` (luồng byte nhập đệm) để tăng cường chức năng của `FileInputStream`.
 
 ```java
 // 新建一个 BufferedInputStream 对象
 BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("input.txt"));
 ```
 
-字节流和字节缓冲流的性能差别主要体现在我们使用两者的时候都是调用 `write(int b)` 和 `read()` 这两个一次只读取一个字节的方法的时候。由于字节缓冲流内部有缓冲区（字节数组），因此，字节缓冲流会先将读取到的字节存放在缓存区，大幅减少 IO 次数，提高读取效率。
+Sự khác biệt về hiệu năng giữa luồng byte và luồng đệm byte chủ yếu thể hiện khi chúng ta dùng cả hai đều gọi phương thức `write(int b)` và `read()` - các phương thức chỉ đọc/ghi một byte mỗi lần. Vì luồng đệm byte có vùng đệm nội bộ (mảng byte), luồng đệm byte sẽ lưu trữ các byte đã đọc vào vùng đệm trước, giảm đáng kể số lần IO, nâng cao hiệu quả đọc.
 
-我使用 `write(int b)` 和 `read()` 方法，分别通过字节流和字节缓冲流复制一个 `524.9 mb` 的 PDF 文件耗时对比如下：
+Tôi dùng phương thức `write(int b)` và `read()`, so sánh thời gian sao chép một file PDF `524.9 mb` qua luồng byte và luồng đệm byte:
 
 ```plain
 使用缓冲流复制PDF文件总耗时:15428 毫秒
 使用普通字节流复制PDF文件总耗时:2555062 毫秒
 ```
 
-两者耗时差别非常大，缓冲流耗费的时间是字节流的 1/165。
+Chênh lệch thời gian giữa hai loại rất lớn, luồng đệm chỉ mất 1/165 thời gian so với luồng byte.
 
-测试代码如下:
+Code test như sau:
 
 ```java
 @Test
@@ -350,18 +350,18 @@ void copy_pdf_to_another_pdf_stream() {
 }
 ```
 
-如果是调用 `read(byte b[])` 和 `write(byte b[], int off, int len)` 这两个写入一个字节数组的方法的话，只要字节数组的大小合适，两者的性能差距其实不大，基本可以忽略。
+Nếu gọi phương thức `read(byte b[])` và `write(byte b[], int off, int len)` - các phương thức ghi một mảng byte, miễn là kích thước mảng byte hợp lý, chênh lệch hiệu năng giữa hai loại thực ra không lớn, cơ bản có thể bỏ qua.
 
-这次我们使用 `read(byte b[])` 和 `write(byte b[], int off, int len)` 方法，分别通过字节流和字节缓冲流复制一个 524.9 mb 的 PDF 文件耗时对比如下：
+Lần này chúng ta dùng phương thức `read(byte b[])` và `write(byte b[], int off, int len)`, so sánh thời gian sao chép một file PDF 524.9 mb qua luồng byte và luồng đệm byte:
 
 ```plain
 使用缓冲流复制PDF文件总耗时:695 毫秒
 使用普通字节流复制PDF文件总耗时:989 毫秒
 ```
 
-两者耗时差别不是很大，缓冲流的性能要略微好一点点。
+Chênh lệch thời gian giữa hai loại không nhiều, hiệu năng của luồng đệm chỉ nhỉnh hơn một chút.
 
-测试代码如下：
+Code test như sau:
 
 ```java
 @Test
@@ -403,11 +403,11 @@ void copy_pdf_to_another_pdf_with_byte_array_stream() {
 }
 ```
 
-### BufferedInputStream（字节缓冲输入流）
+### BufferedInputStream (Luồng byte nhập đệm)
 
-`BufferedInputStream` 从源头（通常是文件）读取数据（字节信息）到内存的过程中不会一个字节一个字节的读取，而是会先将读取到的字节存放在缓存区，并从内部缓冲区中单独读取字节。这样大幅减少了 IO 次数，提高了读取效率。
+`BufferedInputStream` trong quá trình đọc dữ liệu (thông tin byte) từ nguồn (thường là file) vào bộ nhớ không đọc từng byte một, mà sẽ lưu trữ các byte đã đọc vào vùng đệm trước, rồi đọc riêng lẻ từng byte từ vùng đệm nội bộ. Điều này giảm đáng kể số lần IO, nâng cao hiệu quả đọc.
 
-`BufferedInputStream` 内部维护了一个缓冲区，这个缓冲区实际就是一个字节数组，通过阅读 `BufferedInputStream` 源码即可得到这个结论。
+`BufferedInputStream` duy trì nội bộ một vùng đệm, vùng đệm này thực chất là một mảng byte, có thể xác nhận kết luận này bằng cách đọc source code của `BufferedInputStream`.
 
 ```java
 public
@@ -431,11 +431,11 @@ class BufferedInputStream extends FilterInputStream {
 }
 ```
 
-缓冲区的大小默认为 **8192** 字节，当然了，你也可以通过 `BufferedInputStream(InputStream in, int size)` 这个构造方法来指定缓冲区的大小。
+Kích thước vùng đệm mặc định là **8192** byte, tất nhiên bạn cũng có thể chỉ định kích thước vùng đệm thông qua constructor `BufferedInputStream(InputStream in, int size)`.
 
-### BufferedOutputStream（字节缓冲输出流）
+### BufferedOutputStream (Luồng byte xuất đệm)
 
-`BufferedOutputStream` 将数据（字节信息）写入到目的地（通常是文件）的过程中不会一个字节一个字节的写入，而是会先将要写入的字节存放在缓存区，并从内部缓冲区中单独写入字节。这样大幅减少了 IO 次数，提高了效率
+`BufferedOutputStream` trong quá trình ghi dữ liệu (thông tin byte) vào đích (thường là file) không ghi từng byte một, mà sẽ lưu trữ các byte cần ghi vào vùng đệm trước, rồi ghi riêng lẻ từng byte từ vùng đệm nội bộ. Điều này giảm đáng kể số lần IO, nâng cao hiệu quả.
 
 ```java
 try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("output.txt"))) {
@@ -446,24 +446,24 @@ try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("o
 }
 ```
 
-类似于 `BufferedInputStream` ，`BufferedOutputStream` 内部也维护了一个缓冲区，并且，这个缓存区的大小也是 **8192** 字节。
+Tương tự `BufferedInputStream`, `BufferedOutputStream` cũng duy trì nội bộ một vùng đệm, và kích thước vùng đệm này cũng là **8192** byte.
 
-## 字符缓冲流
+## Luồng đệm ký tự
 
-`BufferedReader` （字符缓冲输入流）和 `BufferedWriter`（字符缓冲输出流）类似于 `BufferedInputStream`（字节缓冲输入流）和`BufferedOutputStream`（字节缓冲输入流），内部都维护了一个字节数组作为缓冲区。不过，前者主要是用来操作字符信息。
+`BufferedReader` (luồng ký tự nhập đệm) và `BufferedWriter` (luồng ký tự xuất đệm) tương tự `BufferedInputStream` (luồng byte nhập đệm) và `BufferedOutputStream` (luồng byte nhập đệm), đều duy trì nội bộ một mảng byte làm vùng đệm. Tuy nhiên, loại trước chủ yếu dùng để thao tác thông tin ký tự.
 
-## 打印流
+## Luồng in
 
-下面这段代码大家经常使用吧？
+Đoạn code dưới đây mọi người dùng thường xuyên phải không?
 
 ```java
 System.out.print("Hello！");
 System.out.println("Hello！");
 ```
 
-`System.out` 实际是用于获取一个 `PrintStream` 对象，`print`方法实际调用的是 `PrintStream` 对象的 `write` 方法。
+`System.out` thực ra là để lấy đối tượng `PrintStream`, phương thức `print` thực ra gọi phương thức `write` của đối tượng `PrintStream`.
 
-`PrintStream` 属于字节打印流，与之对应的是 `PrintWriter` （字符打印流）。`PrintStream` 是 `OutputStream` 的子类，`PrintWriter` 是 `Writer` 的子类。
+`PrintStream` thuộc luồng in byte, tương ứng với nó là `PrintWriter` (luồng in ký tự). `PrintStream` là lớp con của `OutputStream`, `PrintWriter` là lớp con của `Writer`.
 
 ```java
 public class PrintStream extends FilterOutputStream
@@ -473,11 +473,11 @@ public class PrintWriter extends Writer {
 }
 ```
 
-## 随机访问流
+## Luồng truy cập ngẫu nhiên
 
-这里要介绍的随机访问流指的是支持随意跳转到文件的任意位置进行读写的 `RandomAccessFile` 。
+Luồng truy cập ngẫu nhiên được đề cập ở đây là `RandomAccessFile`, hỗ trợ nhảy tùy ý đến bất kỳ vị trí nào trong file để đọc ghi.
 
-`RandomAccessFile` 的构造方法如下，我们可以指定 `mode`（读写模式）。
+Constructor của `RandomAccessFile` như sau, chúng ta có thể chỉ định `mode` (chế độ đọc ghi).
 
 ```java
 // openAndDelete 参数默认为 false 表示打开文件并且这个文件不会被删除
@@ -491,18 +491,18 @@ private RandomAccessFile(File file, String mode, boolean openAndDelete)  throws 
 }
 ```
 
-读写模式主要有下面四种：
+Chế độ đọc ghi chủ yếu có bốn loại sau:
 
-- `r` : 只读模式。
-- `rw`: 读写模式
-- `rws`: 相对于 `rw`，`rws` 同步更新对“文件的内容”或“元数据”的修改到外部存储设备。
-- `rwd` : 相对于 `rw`，`rwd` 同步更新对“文件的内容”的修改到外部存储设备。
+- `r`: Chế độ chỉ đọc.
+- `rw`: Chế độ đọc ghi.
+- `rws`: So với `rw`, `rws` đồng bộ cập nhật sửa đổi "nội dung file" hoặc "metadata" vào thiết bị lưu trữ ngoài.
+- `rwd`: So với `rw`, `rwd` đồng bộ cập nhật sửa đổi "nội dung file" vào thiết bị lưu trữ ngoài.
 
-文件内容指的是文件中实际保存的数据，元数据则是用来描述文件属性比如文件的大小信息、创建和修改时间。
+Nội dung file là dữ liệu thực sự được lưu trong file, metadata là thông tin mô tả thuộc tính file như kích thước file, thời gian tạo và sửa đổi.
 
-`RandomAccessFile` 中有一个文件指针用来表示下一个将要被写入或者读取的字节所处的位置。我们可以通过 `RandomAccessFile` 的 `seek(long pos)` 方法来设置文件指针的偏移量（距文件开头 `pos` 个字节处）。如果想要获取文件指针当前的位置的话，可以使用 `getFilePointer()` 方法。
+`RandomAccessFile` có một con trỏ file để biểu thị vị trí của byte tiếp theo sẽ được ghi vào hoặc đọc ra. Chúng ta có thể dùng phương thức `seek(long pos)` của `RandomAccessFile` để đặt offset của con trỏ file (vị trí cách đầu file `pos` byte). Nếu muốn lấy vị trí hiện tại của con trỏ file, có thể dùng phương thức `getFilePointer()`.
 
-`RandomAccessFile` 代码示例：
+Ví dụ code `RandomAccessFile`:
 
 ```java
 RandomAccessFile randomAccessFile = new RandomAccessFile(new File("input.txt"), "rw");
@@ -517,11 +517,11 @@ randomAccessFile.seek(0);
 System.out.println("读取之前的偏移量：" + randomAccessFile.getFilePointer() + ",当前读取到的字符" + (char) randomAccessFile.read() + "，读取之后的偏移量：" + randomAccessFile.getFilePointer());
 ```
 
-`input.txt` 文件内容：
+Nội dung file `input.txt`:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220421162050158.png)
 
-输出：
+Đầu ra:
 
 ```plain
 读取之前的偏移量：0,当前读取到的字符A，读取之后的偏移量：1
@@ -529,27 +529,27 @@ System.out.println("读取之前的偏移量：" + randomAccessFile.getFilePoint
 读取之前的偏移量：0,当前读取到的字符A，读取之后的偏移量：1
 ```
 
-`input.txt` 文件内容变为 `ABCDEFGHIJK` 。
+Nội dung file `input.txt` trở thành `ABCDEFGHIJK`.
 
-`RandomAccessFile` 的 `write` 方法在写入对象的时候如果对应的位置已经有数据的话，会将其覆盖掉。
+Phương thức `write` của `RandomAccessFile` khi ghi đối tượng nếu vị trí tương ứng đã có dữ liệu sẽ ghi đè lên đó.
 
 ```java
 RandomAccessFile randomAccessFile = new RandomAccessFile(new File("input.txt"), "rw");
 randomAccessFile.write(new byte[]{'H', 'I', 'J', 'K'});
 ```
 
-假设运行上面这段程序之前 `input.txt` 文件内容变为 `ABCD` ，运行之后则变为 `HIJK` 。
+Giả sử trước khi chạy đoạn chương trình trên nội dung file `input.txt` là `ABCD`, sau khi chạy sẽ trở thành `HIJK`.
 
-`RandomAccessFile` 比较常见的一个应用就是实现大文件的 **断点续传** 。何谓断点续传？简单来说就是上传文件中途暂停或失败（比如遇到网络问题）之后，不需要重新上传，只需要上传那些未成功上传的文件分片即可。分片（先将文件切分成多个文件分片）上传是断点续传的基础。
+Một ứng dụng phổ biến của `RandomAccessFile` là triển khai **truyền tệp từ điểm dừng** (breakpoint resume) cho file lớn. Truyền tệp từ điểm dừng là gì? Nói đơn giản là sau khi tải file bị tạm dừng hoặc thất bại giữa chừng (ví dụ gặp vấn đề mạng), không cần tải lại từ đầu, chỉ cần tải những phần chưa tải thành công. Tải theo phần (chia file thành nhiều phần trước) là cơ sở của truyền tệp từ điểm dừng.
 
-`RandomAccessFile` 可以帮助我们合并文件分片，示例代码如下：
+`RandomAccessFile` có thể giúp chúng ta hợp nhất các phần file, code ví dụ như sau:
 
 ![](https://oss.javaguide.cn/github/javaguide/java/io/20210609164749122.png)
 
-我在[《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)中详细介绍了大文件的上传问题。
+Tôi đã giới thiệu chi tiết vấn đề tải file lớn trong [《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html).
 
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220428104115362.png)
 
-`RandomAccessFile` 的实现依赖于 `FileDescriptor` (文件描述符) 和 `FileChannel` （内存映射文件）。
+Triển khai của `RandomAccessFile` phụ thuộc vào `FileDescriptor` (file descriptor) và `FileChannel` (memory-mapped file).
 
 <!-- @include: @article-footer.snippet.md -->

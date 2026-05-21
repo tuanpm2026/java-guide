@@ -1,42 +1,42 @@
 ---
-title: Java 学习路线(最新版，4w+字)
-description: Java学习路线最新版：结合当下 Java 后端招聘要求，提供从基础到进阶的系统学习路径与资料建议，覆盖Java核心、数据库、缓存、中间件、框架与面试重点，帮助高效规划与提速上岸。
-category: 面试准备
+title: Lộ trình học Java (Phiên bản mới nhất, 4w+ từ)
+description: Lộ trình học Java phiên bản mới nhất - Kết hợp yêu cầu tuyển dụng Java backend hiện tại, cung cấp lộ trình học tập có hệ thống từ cơ bản đến nâng cao cùng gợi ý tài liệu, bao phủ Java core, database, cache, middleware, framework và trọng tâm phỏng vấn.
+category: Interview Preparation
 icon: path
 head:
   - - meta
     - name: keywords
-      content: Java学习路线,Java后端路线,Java学习计划,校招准备,面试路线,Spring Boot,MySQL,Redis,JVM
+      content: Java learning path,Java backend roadmap,Java study plan,campus recruitment preparation,interview path,Spring Boot,MySQL,Redis,JVM
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-::: tip 重要说明
+::: tip Lưu ý quan trọng
 
-本学习路线保持**年度系统性修订**，严格同步 Java 技术生态与招聘市场的最新动态，**确保内容时效性与前瞻性**。
+Lộ trình học tập này được **cập nhật hệ thống hàng năm**, đồng bộ chặt chẽ với các động thái mới nhất của Java tech ecosystem và thị trường tuyển dụng, **đảm bảo nội dung luôn mới và có tính tiên phong**.
 
 :::
 
-历时一个月精心打磨，笔者基于当下 Java 后端开发岗位招聘的最新要求，对既有学习路线进行了全面升级。本次升级涵盖技术栈增删、学习路径优化、配套学习资源更新等维度，力争构建出更符合 Java 开发者成长曲线的知识体系。
+Dành một tháng tâm huyết để chỉnh sửa, tác giả dựa trên yêu cầu tuyển dụng mới nhất của vị trí Java backend developer hiện tại đã toàn diện nâng cấp lộ trình học tập hiện có. Lần nâng cấp này bao gồm việc thêm/bớt tech stack, tối ưu lộ trình học tập, cập nhật tài nguyên học tập đi kèm, cố gắng xây dựng hệ thống kiến thức phù hợp hơn với đường cong phát triển của Java developer.
 
-亮色板概览：
+Tổng quan light mode:
 
-![Java 学习路线 PDF 概览 - 亮色板](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf.png)
+![Java Learning Path PDF Overview - Light Mode](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf.png)
 
-暗色板概览：
+Tổng quan dark mode:
 
-![Java 学习路线 PDF 概览 - 暗色版](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf-dark.png)
+![Java Learning Path PDF Overview - Dark Mode](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map-pdf-dark.png)
 
-这可能是你见过的最用心、最全面的 Java 后端学习路线。这份学习路线共包含 **4w+** 字，但你完全不用担心内容过多而学不完。我会根据学习难度，划分出适合找小厂工作必学的内容，以及适合逐步提升 Java 后端开发能力的学习路径。
+Đây có thể là lộ trình học Java backend tâm huyết và toàn diện nhất bạn từng thấy. Lộ trình học này bao gồm hơn **4w+** từ, nhưng bạn hoàn toàn không cần lo lắng nội dung quá nhiều không học hết. Tôi sẽ phân chia theo độ khó học tập, ra nội dung bắt buộc phải học để xin việc công ty nhỏ, và lộ trình học tập phù hợp để dần nâng cao năng lực phát triển Java backend.
 
-![Java 学习路线图](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map.png)
+![Java Learning Roadmap](https://oss.javaguide.cn/github/javaguide/interview-preparation/java-road-map.png)
 
-对于初学者，你可以按照这篇文章推荐的学习路线和资料进行系统性的学习；对于有经验的开发者，你可以根据这篇文章更一步地深入学习 Java 后端开发，提升个人竞争力。
+Đối với người mới, bạn có thể học có hệ thống theo lộ trình học và tài liệu được giới thiệu trong bài này; đối với developer có kinh nghiệm, bạn có thể dựa vào bài này để tiếp tục học sâu hơn về Java backend development, nâng cao khả năng cạnh tranh cá nhân.
 
-在看这份学习路线的过程中，建议搭配 [Java 面试重点总结(重要)](https://javaguide.cn/interview-preparation/key-points-of-interview.html)，可以让你在学习过程中更有目的性。
+Trong khi đọc lộ trình học này, khuyến nghị kết hợp với [Tổng hợp trọng tâm Java Interview (Quan trọng)](https://javaguide.cn/interview-preparation/key-points-of-interview.html), có thể giúp bạn có mục đích hơn trong quá trình học.
 
-由于这份学习路线内容太多，因此我将其整理成了 PDF 版本（共 **55** 页），方便大家阅读。这份 PDF 有黑夜和白天两种阅读版本，满足大家的不同需求。
+Vì lộ trình học này có quá nhiều nội dung, nên tôi đã tổng hợp thành phiên bản PDF (tổng cộng **55** trang) để mọi người dễ đọc. PDF này có hai chế độ đọc ban ngày và ban đêm, đáp ứng nhu cầu khác nhau của mọi người.
 
-这份学习路线的获取方法很简单：直接在公众号「**JavaGuide**」后台回复“**路线**”即可获取。
+Cách lấy lộ trình học này rất đơn giản: Trả lời "**路线**" trong phần backend của tài khoản WeChat Official Account「**JavaGuide**」là có thể lấy được.
 
-![JavaGuide 官方公众号](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)
+![JavaGuide Official WeChat Account](https://oss.javaguide.cn/github/javaguide/gongzhonghaoxuanchuan.png)

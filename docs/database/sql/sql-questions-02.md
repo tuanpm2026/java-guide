@@ -1,9 +1,9 @@
 ---
-title: SQL常见面试题总结（2）
-description: SQL常见面试题总结第二篇，详解INSERT、UPDATE、DELETE等DML数据操作语句，包括批量插入、从其他表导入、带更新的插入等实战技巧。
-category: 数据库
+title: Tổng hợp câu hỏi phỏng vấn SQL thường gặp (2)
+description: Phần 2 tổng hợp câu hỏi phỏng vấn SQL thường gặp, giải thích chi tiết các câu lệnh DML như INSERT, UPDATE, DELETE, bao gồm các kỹ thuật thực tế như chèn hàng loạt, nhập từ bảng khác, chèn có cập nhật, v.v.
+category: Cơ sở dữ liệu
 tag:
-  - 数据库基础
+  - Kiến thức cơ bản về cơ sở dữ liệu
   - SQL
 head:
   - - meta
@@ -11,37 +11,37 @@ head:
       content: SQL面试题,INSERT插入,UPDATE更新,DELETE删除,批量插入,REPLACE INTO,数据操作
 ---
 
-> 题目来源于：[牛客题霸 - SQL 进阶挑战](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=240)
+> Nguồn đề bài: [Nowcoder - SQL Advanced Challenge](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=240)
 
-## 增删改操作
+## Thao tác thêm, xóa, sửa
 
-SQL 插入记录的方式汇总：
+Tổng hợp các cách chèn bản ghi trong SQL:
 
-- **普通插入（全字段）** ：`INSERT INTO table_name VALUES (value1, value2, ...)`
-- **普通插入（限定字段）** ：`INSERT INTO table_name (column1, column2, ...) VALUES (value1, value2, ...)`
-- **多条一次性插入** ：`INSERT INTO table_name (column1, column2, ...) VALUES (value1_1, value1_2, ...), (value2_1, value2_2, ...), ...`
-- **从另一个表导入** ：`INSERT INTO table_name SELECT * FROM table_name2 [WHERE key=value]`
-- **带更新的插入** ：`REPLACE INTO table_name VALUES (value1, value2, ...)`（注意这种原理是检测到主键或唯一性索引键重复就删除原记录后重新插入）
+- **Chèn thông thường (tất cả các trường)**: `INSERT INTO table_name VALUES (value1, value2, ...)`
+- **Chèn thông thường (chỉ định trường)**: `INSERT INTO table_name (column1, column2, ...) VALUES (value1, value2, ...)`
+- **Chèn nhiều bản ghi cùng lúc**: `INSERT INTO table_name (column1, column2, ...) VALUES (value1_1, value1_2, ...), (value2_1, value2_2, ...), ...`
+- **Nhập từ bảng khác**: `INSERT INTO table_name SELECT * FROM table_name2 [WHERE key=value]`
+- **Chèn có cập nhật**: `REPLACE INTO table_name VALUES (value1, value2, ...)` (lưu ý nguyên lý của cách này là khi phát hiện khóa chính hoặc khóa chỉ mục duy nhất bị trùng sẽ xóa bản ghi cũ rồi chèn lại)
 
-### 插入记录（一）
+### Chèn bản ghi (1)
 
-**描述**：牛客后台会记录每个用户的试卷作答记录到 `exam_record` 表，现在有两个用户的作答记录详情如下：
+**Mô tả**: Backend Nowcoder sẽ ghi lại lịch sử làm bài thi của mỗi người dùng vào bảng `exam_record`. Hiện có chi tiết lịch sử làm bài của hai người dùng như sau:
 
-- 用户 1001 在 2021 年 9 月 1 日晚上 10 点 11 分 12 秒开始作答试卷 9001，并在 50 分钟后提交，得了 90 分；
-- 用户 1002 在 2021 年 9 月 4 日上午 7 点 1 分 2 秒开始作答试卷 9002，并在 10 分钟后退出了平台。
+- Người dùng 1001 bắt đầu làm bài thi 9001 vào lúc 10 giờ 11 phút 12 giây tối ngày 1 tháng 9 năm 2021, nộp bài sau 50 phút, đạt 90 điểm;
+- Người dùng 1002 bắt đầu làm bài thi 9002 vào lúc 7 giờ 1 phút 2 giây sáng ngày 4 tháng 9 năm 2021, và thoát khỏi nền tảng sau 10 phút.
 
-试卷作答记录表`exam_record`中，表已建好，其结构如下，请用一条语句将这两条记录插入表中。
+Bảng lịch sử làm bài `exam_record` đã được tạo, cấu trúc như sau. Vui lòng dùng một câu lệnh để chèn hai bản ghi này vào bảng.
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | ---- | --- | -------------- | ------- | -------- |
-| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    | NO   |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    | NO   |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   | NO   |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 得分     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | ---- | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    | NO   |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    | NO   |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   | NO   |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-**答案**：
+**Đáp án**:
 
 ```sql
 // 存在自增主键，无需手动赋值
@@ -50,24 +50,24 @@ INSERT INTO exam_record (uid, exam_id, start_time, submit_time, score) VALUES
 (1002, 9002, '2021-09-04 07:01:02', NULL, NULL);
 ```
 
-### 插入记录（二）
+### Chèn bản ghi (2)
 
-**描述**：现有一张试卷作答记录表`exam_record`，结构如下表，其中包含多年来的用户作答试卷记录，由于数据越来越多，维护难度越来越大，需要对数据表内容做精简，历史数据做备份。
+**Mô tả**: Hiện có bảng lịch sử làm bài `exam_record`, cấu trúc như bảng dưới đây. Bảng chứa lịch sử làm bài thi của người dùng qua nhiều năm. Do dữ liệu ngày càng nhiều, việc bảo trì ngày càng khó khăn, cần tinh gọn nội dung bảng và sao lưu dữ liệu lịch sử.
 
-表`exam_record`：
+Bảng `exam_record`:
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | ---- | --- | -------------- | ------- | -------- |
-| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    | NO   |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    | NO   |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   | NO   |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 得分     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | ---- | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    | NO   |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    | NO   |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   | NO   |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-我们已经创建了一张新表`exam_record_before_2021`用来备份 2021 年之前的试题作答记录，结构和`exam_record`表一致，请将 2021 年之前的已完成了的试题作答纪录导入到该表。
+Chúng tôi đã tạo một bảng mới `exam_record_before_2021` để sao lưu lịch sử làm bài trước năm 2021, cấu trúc giống với bảng `exam_record`. Vui lòng nhập các bản ghi lịch sử làm bài đã hoàn thành trước năm 2021 vào bảng đó.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 INSERT INTO exam_record_before_2021 (uid, exam_id, start_time, submit_time, score)
@@ -76,52 +76,52 @@ FROM exam_record
 WHERE YEAR(submit_time) < 2021;
 ```
 
-### 插入记录（三）
+### Chèn bản ghi (3)
 
-**描述**：现在有一套 ID 为 9003 的高难度 SQL 试卷，时长为一个半小时，请你将 2021-01-01 00:00:00 作为发布时间插入到试题信息表`examination_info`，不管该 ID 试卷是否存在，都要插入成功，请尝试插入它。
+**Mô tả**: Hiện có một bộ đề thi SQL khó (ID 9003), thời lượng một tiếng rưỡi. Hãy chèn thời điểm 2021-01-01 00:00:00 làm thời gian phát hành vào bảng thông tin đề thi `examination_info`. Dù bài thi với ID đó có tồn tại hay không, đều phải chèn thành công.
 
-试题信息表`examination_info`：
+Bảng thông tin đề thi `examination_info`:
 
-| Filed        | Type        | Null | Key | Extra          | Default | Comment      |
-| ------------ | ----------- | ---- | --- | -------------- | ------- | ------------ |
-| id           | int(11)     | NO   | PRI | auto_increment | (NULL)  | 自增 ID      |
-| exam_id      | int(11)     | NO   | UNI |                | (NULL)  | 试卷 ID      |
-| tag          | varchar(32) | YES  |     |                | (NULL)  | 类别标签     |
-| difficulty   | varchar(8)  | YES  |     |                | (NULL)  | 难度         |
-| duration     | int(11)     | NO   |     |                | (NULL)  | 时长(分钟数) |
-| release_time | datetime    | YES  |     |                | (NULL)  | 发布时间     |
+| Filed        | Type        | Null | Key | Extra          | Default | Comment             |
+| ------------ | ----------- | ---- | --- | -------------- | ------- | ------------------- |
+| id           | int(11)     | NO   | PRI | auto_increment | (NULL)  | ID tự tăng          |
+| exam_id      | int(11)     | NO   | UNI |                | (NULL)  | ID bài thi          |
+| tag          | varchar(32) | YES  |     |                | (NULL)  | Nhãn danh mục       |
+| difficulty   | varchar(8)  | YES  |     |                | (NULL)  | Độ khó              |
+| duration     | int(11)     | NO   |     |                | (NULL)  | Thời lượng (phút)   |
+| release_time | datetime    | YES  |     |                | (NULL)  | Thời gian phát hành |
 
-**答案**：
+**Đáp án**:
 
 ```sql
 REPLACE INTO examination_info VALUES
  (NULL, 9003, "SQL", "hard", 90, "2021-01-01 00:00:00");
 ```
 
-### 更新记录（一）
+### Cập nhật bản ghi (1)
 
-**描述**：现在有一张试卷信息表 `examination_info`, 表结构如下图所示：
+**Mô tả**: Hiện có bảng thông tin đề thi `examination_info`, cấu trúc như sau:
 
-| Filed        | Type     | Null | Key | Extra          | Default | Comment  |
-| ------------ | -------- | ---- | --- | -------------- | ------- | -------- |
-| id           | int(11)  | NO   | PRI | auto_increment | (NULL)  | 自增 ID  |
-| exam_id      | int(11)  | NO   | UNI |                | (NULL)  | 试卷 ID  |
-| tag          | char(32) | YES  |     |                | (NULL)  | 类别标签 |
-| difficulty   | char(8)  | YES  |     |                | (NULL)  | 难度     |
-| duration     | int(11)  | NO   |     |                | (NULL)  | 时长     |
-| release_time | datetime | YES  |     |                | (NULL)  | 发布时间 |
+| Filed        | Type     | Null | Key | Extra          | Default | Comment             |
+| ------------ | -------- | ---- | --- | -------------- | ------- | ------------------- |
+| id           | int(11)  | NO   | PRI | auto_increment | (NULL)  | ID tự tăng          |
+| exam_id      | int(11)  | NO   | UNI |                | (NULL)  | ID bài thi          |
+| tag          | char(32) | YES  |     |                | (NULL)  | Nhãn danh mục       |
+| difficulty   | char(8)  | YES  |     |                | (NULL)  | Độ khó              |
+| duration     | int(11)  | NO   |     |                | (NULL)  | Thời lượng          |
+| release_time | datetime | YES  |     |                | (NULL)  | Thời gian phát hành |
 
-请把**examination_info**表中`tag`为`PYTHON`的`tag`字段全部修改为`Python`。
+Hãy sửa tất cả trường `tag` có giá trị `PYTHON` trong bảng **examination_info** thành `Python`.
 
-**思路**：这题有两种解题思路，最容易想到的是直接`update + where`来指定条件更新，第二种就是根据要修改的字段进行查找替换
+**Hướng giải**: Bài này có hai hướng giải, cách dễ nghĩ nhất là dùng `update + where` để chỉ định điều kiện cập nhật trực tiếp, cách thứ hai là tìm và thay thế dựa trên trường cần sửa.
 
-**答案一**：
+**Đáp án 1**:
 
 ```sql
 UPDATE examination_info SET tag = 'Python' WHERE tag='PYTHON'
 ```
 
-**答案二**：
+**Đáp án 2**:
 
 ```sql
 UPDATE examination_info
@@ -130,59 +130,59 @@ SET tag = REPLACE(tag,'PYTHON','Python')
 # REPLACE (目标字段，"查找内容","替换内容")
 ```
 
-### 更新记录（二）
+### Cập nhật bản ghi (2)
 
-**描述**：现有一张试卷作答记录表 exam_record，其中包含多年来的用户作答试卷记录，结构如下表：作答记录表 `exam_record`： **`submit_time`** 为 完成时间 （注意这句话）
+**Mô tả**: Hiện có bảng lịch sử làm bài exam_record, chứa lịch sử làm bài thi của người dùng qua nhiều năm, cấu trúc như bảng dưới: Bảng lịch sử làm bài `exam_record`: **`submit_time`** là thời gian hoàn thành (lưu ý câu này)
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | ---- | --- | -------------- | ------- | -------- |
-| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    | NO   |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    | NO   |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   | NO   |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 得分     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | ---- | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    | NO   |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    | NO   |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   | NO   |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-**题目要求**：请把 `exam_record` 表中 2021 年 9 月 1 日==之前==开始作答的==未完成==记录全部改为被动完成，即：将完成时间改为'2099-01-01 00:00:00'，分数改为 0。
+**Yêu cầu**: Hãy sửa tất cả các bản ghi chưa hoàn thành trong bảng `exam_record` bắt đầu làm bài ==trước== ngày 1 tháng 9 năm 2021 thành hoàn thành thụ động, tức là: đổi thời gian hoàn thành thành '2099-01-01 00:00:00', điểm số thành 0.
 
-**思路**：注意题干中的关键字(已经高亮) `" xxx 时间 "`之前这个条件， 那么这里马上就要想到要进行时间的比较 可以直接 `xxx_time < "2021-09-01 00:00:00",` 也可以采用`date()`函数来进行比较；第二个条件就是 `"未完成"`， 即完成时间为 NULL，也就是题目中的提交时间 ----- `submit_time 为 NULL`。
+**Hướng giải**: Chú ý các từ khóa trong đề bài (đã được làm nổi bật) — điều kiện `"trước xxx thời gian"`, ngay lập tức cần nghĩ đến so sánh thời gian, có thể dùng trực tiếp `xxx_time < "2021-09-01 00:00:00"` hoặc dùng hàm `date()` để so sánh; điều kiện thứ hai là `"chưa hoàn thành"`, tức là thời gian hoàn thành là NULL, nghĩa là `submit_time IS NULL` trong bảng.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 UPDATE exam_record SET submit_time = '2099-01-01 00:00:00', score = 0 WHERE DATE(start_time) < "2021-09-01" AND submit_time IS null
 ```
 
-### 删除记录（一）
+### Xóa bản ghi (1)
 
-**描述**：现有一张试卷作答记录表 `exam_record`，其中包含多年来的用户作答试卷记录，结构如下表：
+**Mô tả**: Hiện có bảng lịch sử làm bài `exam_record`, chứa lịch sử làm bài thi của người dùng qua nhiều năm, cấu trúc như bảng dưới:
 
-作答记录表`exam_record：` **`start_time`** 是试卷开始时间`submit_time` 是交卷，即结束时间。
+Bảng lịch sử làm bài `exam_record:` **`start_time`** là thời gian bắt đầu làm bài, `submit_time` là thời gian nộp bài, tức là thời gian kết thúc.
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | ---- | --- | -------------- | ------- | -------- |
-| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    | NO   |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    | NO   |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   | NO   |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 得分     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | ---- | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    | NO   | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    | NO   |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    | NO   |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   | NO   |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-**要求**：请删除`exam_record`表中作答时间小于 5 分钟整且分数不及格（及格线为 60 分）的记录；
+**Yêu cầu**: Hãy xóa các bản ghi trong bảng `exam_record` có thời gian làm bài dưới 5 phút và điểm số không đạt (ngưỡng đạt là 60 điểm);
 
-**思路**：这一题虽然是练习删除，仔细看确是考察对时间函数的用法，这里提及的分钟数比较，常用的函数有 **`TIMEDIFF`**和**`TIMESTAMPDIFF`** ，两者用法稍有区别，后者更为灵活，这都是看个人习惯。
+**Hướng giải**: Dù đây là bài luyện xóa, nhưng thực ra đang kiểm tra cách sử dụng hàm thời gian. Để so sánh số phút được đề cập ở đây, các hàm thường dùng là **`TIMEDIFF`** và **`TIMESTAMPDIFF`**, hai hàm này có sự khác biệt nhỏ về cách dùng, hàm sau linh hoạt hơn, tùy theo thói quen cá nhân.
 
-1.　 `TIMEDIFF`：两个时间之间的差值
+1.　 `TIMEDIFF`: Sự chênh lệch giữa hai thời điểm
 
 ```sql
 TIMEDIFF(time1, time2)
 ```
 
-两者参数都是必须的，都是一个时间或者日期时间表达式。如果指定的参数不合法或者是 NULL，那么函数将返回 NULL。
+Cả hai tham số đều bắt buộc, đều là biểu thức thời gian hoặc ngày giờ. Nếu tham số không hợp lệ hoặc là NULL, hàm sẽ trả về NULL.
 
-对于这题而言，可以用在 minute 函数里面，因为 TIMEDIFF 计算出来的是时间的差值，在外面套一个 MINUTE 函数，计算出来的就是分钟数。
+Với bài này, có thể dùng trong hàm MINUTE, vì TIMEDIFF tính ra là giá trị chênh lệch thời gian, bọc ngoài bằng hàm MINUTE thì tính ra số phút.
 
-2. `TIMESTAMPDIFF`：用于计算两个日期的时间差
+2. `TIMESTAMPDIFF`: Dùng để tính chênh lệch thời gian giữa hai ngày
 
 ```sql
 TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)
@@ -196,12 +196,12 @@ WEEK：星期
 MONTH：月
 QUARTER：季度
 YEAR：年
-# TIMESTAMPDIFF函数返回datetime_expr2 - datetime_expr1的结果（人话： 后面的 - 前面的  即2-1），其中datetime_expr1和datetime_expr2可以是DATE或DATETIME类型值（人话：可以是“2023-01-01”， 也可以是“2023-01-01- 00:00:00”）
+# TIMESTAMPDIFF函数返回datetime_expr2 - datetime_expr1的结果（人话： 后面的 - 前面的  即2-1），其中datetime_expr1和datetime_expr2可以是DATE或DATETIME类型值（人话：可以是"2023-01-01"， 也可以是"2023-01-01- 00:00:00"）
 ```
 
-这题需要进行分钟的比较，那么就是 TIMESTAMPDIFF(MINUTE, 开始时间， 结束时间) < 5
+Bài này cần so sánh phút, vì vậy là TIMESTAMPDIFF(MINUTE, thời gian bắt đầu, thời gian kết thúc) < 5
 
-**答案**：
+**Đáp án**:
 
 ```sql
 DELETE FROM exam_record WHERE MINUTE (TIMEDIFF(submit_time , start_time)) < 5 AND score < 60
@@ -211,28 +211,28 @@ DELETE FROM exam_record WHERE MINUTE (TIMEDIFF(submit_time , start_time)) < 5 AN
 DELETE FROM exam_record WHERE TIMESTAMPDIFF(MINUTE, start_time, submit_time) < 5 AND score < 60
 ```
 
-### 删除记录（二）
+### Xóa bản ghi (2)
 
-**描述**：现有一张试卷作答记录表`exam_record`，其中包含多年来的用户作答试卷记录，结构如下表：
+**Mô tả**: Hiện có bảng lịch sử làm bài `exam_record`, chứa lịch sử làm bài thi của người dùng qua nhiều năm, cấu trúc như bảng dưới:
 
-作答记录表`exam_record`：`start_time` 是试卷开始时间，`submit_time` 是交卷时间，即结束时间，如果未完成的话，则为空。
+Bảng lịch sử làm bài `exam_record`: `start_time` là thời gian bắt đầu làm bài, `submit_time` là thời gian nộp bài, tức là thời gian kết thúc, nếu chưa hoàn thành thì để trống.
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | :--: | --- | -------------- | ------- | -------- |
-| id          | int(11)    |  NO  | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    |  NO  |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    |  NO  |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   |  NO  |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 分数     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | :--: | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    |  NO  | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    |  NO  |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    |  NO  |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   |  NO  |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-**要求**：请删除`exam_record`表中未完成作答==或==作答时间小于 5 分钟整的记录中，开始作答时间最早的 3 条记录。
+**Yêu cầu**: Hãy xóa 3 bản ghi bắt đầu làm bài sớm nhất trong số các bản ghi chưa hoàn thành làm bài ==hoặc== thời gian làm bài dưới 5 phút trong bảng `exam_record`.
 
-**思路**：这题比较简单，但是要注意题干中给出的信息，结束时间，如果未完成的话，则为空，这个其实就是一个条件
+**Hướng giải**: Bài này tương đối đơn giản, nhưng cần chú ý thông tin trong đề bài: thời gian kết thúc, nếu chưa hoàn thành thì để trống — đây thực ra là một điều kiện.
 
-还有一个条件就是小于 5 分钟，跟上题类似，但是这里是**或**，即两个条件满足一个就行；另外就是稍微考察到了排序和 limit 的用法。
+Điều kiện còn lại là dưới 5 phút, tương tự bài trên, nhưng ở đây là **hoặc**, tức là thỏa mãn một trong hai điều kiện là được; ngoài ra còn kiểm tra nhẹ cách dùng ORDER BY và LIMIT.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 DELETE FROM exam_record WHERE submit_time IS null OR TIMESTAMPDIFF(MINUTE, start_time, submit_time) < 5
@@ -241,74 +241,74 @@ LIMIT 3
 # 默认就是asc， desc是降序排列
 ```
 
-### 删除记录（三）
+### Xóa bản ghi (3)
 
-**描述**：现有一张试卷作答记录表 exam_record，其中包含多年来的用户作答试卷记录，结构如下表：
+**Mô tả**: Hiện có bảng lịch sử làm bài exam_record, chứa lịch sử làm bài thi của người dùng qua nhiều năm, cấu trúc như bảng dưới:
 
-| Filed       | Type       | Null | Key | Extra          | Default | Comment  |
-| ----------- | ---------- | :--: | --- | -------------- | ------- | -------- |
-| id          | int(11)    |  NO  | PRI | auto_increment | (NULL)  | 自增 ID  |
-| uid         | int(11)    |  NO  |     |                | (NULL)  | 用户 ID  |
-| exam_id     | int(11)    |  NO  |     |                | (NULL)  | 试卷 ID  |
-| start_time  | datetime   |  NO  |     |                | (NULL)  | 开始时间 |
-| submit_time | datetime   | YES  |     |                | (NULL)  | 提交时间 |
-| score       | tinyint(4) | YES  |     |                | (NULL)  | 分数     |
+| Filed       | Type       | Null | Key | Extra          | Default | Comment           |
+| ----------- | ---------- | :--: | --- | -------------- | ------- | ----------------- |
+| id          | int(11)    |  NO  | PRI | auto_increment | (NULL)  | ID tự tăng        |
+| uid         | int(11)    |  NO  |     |                | (NULL)  | ID người dùng     |
+| exam_id     | int(11)    |  NO  |     |                | (NULL)  | ID bài thi        |
+| start_time  | datetime   |  NO  |     |                | (NULL)  | Thời gian bắt đầu |
+| submit_time | datetime   | YES  |     |                | (NULL)  | Thời gian nộp     |
+| score       | tinyint(4) | YES  |     |                | (NULL)  | Điểm số           |
 
-**要求**：请删除`exam_record`表中所有记录，==并重置自增主键==
+**Yêu cầu**: Hãy xóa tất cả bản ghi trong bảng `exam_record` và ==đặt lại khóa chính tự tăng==
 
-**思路**：这题考察对三种删除语句的区别，注意高亮部分，要求重置主键；
+**Hướng giải**: Bài này kiểm tra sự khác biệt giữa ba câu lệnh xóa, chú ý phần được làm nổi bật, yêu cầu đặt lại khóa chính;
 
-- `DROP`: 清空表，删除表结构，不可逆
-- `TRUNCATE`: 格式化表，不删除表结构，不可逆
-- `DELETE`：删除数据，可逆
+- `DROP`: Xóa bảng, xóa cấu trúc bảng, không thể hoàn tác
+- `TRUNCATE`: Định dạng lại bảng, không xóa cấu trúc bảng, không thể hoàn tác
+- `DELETE`: Xóa dữ liệu, có thể hoàn tác
 
-这里选用`TRUNCATE`的原因是：TRUNCATE 只能作用于表；`TRUNCATE`会清空表中的所有行，但表结构及其约束、索引等保持不变；`TRUNCATE`会重置表的自增值；使用`TRUNCATE`后会使表和索引所占用的空间会恢复到初始大小。
+Lý do chọn `TRUNCATE` là: TRUNCATE chỉ có thể áp dụng cho bảng; `TRUNCATE` sẽ xóa tất cả các hàng trong bảng nhưng cấu trúc bảng cùng các ràng buộc, chỉ mục, v.v. vẫn được giữ nguyên; `TRUNCATE` sẽ đặt lại giá trị tự tăng của bảng; sau khi dùng `TRUNCATE`, không gian mà bảng và chỉ mục chiếm dụng sẽ được phục hồi về kích thước ban đầu.
 
-这题也可以采用`DELETE`来做，但是在删除后，还需要手动`ALTER`表结构来设置主键初始值；
+Bài này cũng có thể dùng `DELETE`, nhưng sau khi xóa, cần phải thủ công `ALTER` cấu trúc bảng để đặt lại giá trị ban đầu của khóa chính;
 
-同理也可以采用`DROP`来做，直接删除整张表，包括表结构，然后再新建表即可。
+Tương tự cũng có thể dùng `DROP`, xóa toàn bộ bảng bao gồm cả cấu trúc, rồi tạo lại bảng.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 TRUNCATE  exam_record;
 ```
 
-## 表与索引操作
+## Thao tác bảng và chỉ mục
 
-### 创建一张新表
+### Tạo bảng mới
 
-**描述**：现有一张用户信息表，其中包含多年来在平台注册过的用户信息，随着牛客平台的不断壮大，用户量飞速增长，为了高效地为高活跃用户提供服务，现需要将部分用户拆分出一张新表。
+**Mô tả**: Hiện có bảng thông tin người dùng chứa thông tin người dùng đã đăng ký trên nền tảng qua nhiều năm. Khi nền tảng Nowcoder không ngừng phát triển, lượng người dùng tăng trưởng nhanh chóng. Để phục vụ hiệu quả những người dùng hoạt động tích cực, cần tách một phần người dùng ra thành một bảng mới.
 
-原来的用户信息表：
+Bảng thông tin người dùng ban đầu:
 
-| Filed         | Type        | Null | Key | Default           | Extra          | Comment  |
-| ------------- | ----------- | ---- | --- | ----------------- | -------------- | -------- |
-| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | 自增 ID  |
-| uid           | int(11)     | NO   | UNI | (NULL)            |                | 用户 ID  |
-| nick_name     | varchar(64) | YES  |     | (NULL)            |                | 昵称     |
-| achievement   | int(11)     | YES  |     | 0                 |                | 成就值   |
-| level         | int(11)     | YES  |     | (NULL)            |                | 用户等级 |
-| job           | varchar(32) | YES  |     | (NULL)            |                | 职业方向 |
-| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | 注册时间 |
+| Filed         | Type        | Null | Key | Default           | Extra          | Comment           |
+| ------------- | ----------- | ---- | --- | ----------------- | -------------- | ----------------- |
+| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | ID tự tăng        |
+| uid           | int(11)     | NO   | UNI | (NULL)            |                | ID người dùng     |
+| nick_name     | varchar(64) | YES  |     | (NULL)            |                | Biệt danh         |
+| achievement   | int(11)     | YES  |     | 0                 |                | Điểm thành tích   |
+| level         | int(11)     | YES  |     | (NULL)            |                | Cấp độ người dùng |
+| job           | varchar(32) | YES  |     | (NULL)            |                | Hướng nghề nghiệp |
+| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | Thời gian đăng ký |
 
-作为数据分析师，请**创建一张优质用户信息表 user_info_vip**，表结构和用户信息表一致。
+Với tư cách là nhà phân tích dữ liệu, hãy **tạo bảng thông tin người dùng VIP user_info_vip**, cấu trúc giống với bảng thông tin người dùng.
 
-你应该返回的输出如下表格所示，请写出建表语句将表格中所有限制和说明记录到表里。
+Kết quả bạn cần trả về như bảng dưới, hãy viết câu lệnh tạo bảng ghi lại tất cả các ràng buộc và mô tả trong bảng.
 
-| Filed         | Type        | Null | Key | Default           | Extra          | Comment  |
-| ------------- | ----------- | ---- | --- | ----------------- | -------------- | -------- |
-| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | 自增 ID  |
-| uid           | int(11)     | NO   | UNI | (NULL)            |                | 用户 ID  |
-| nick_name     | varchar(64) | YES  |     | (NULL)            |                | 昵称     |
-| achievement   | int(11)     | YES  |     | 0                 |                | 成就值   |
-| level         | int(11)     | YES  |     | (NULL)            |                | 用户等级 |
-| job           | varchar(32) | YES  |     | (NULL)            |                | 职业方向 |
-| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | 注册时间 |
+| Filed         | Type        | Null | Key | Default           | Extra          | Comment           |
+| ------------- | ----------- | ---- | --- | ----------------- | -------------- | ----------------- |
+| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | ID tự tăng        |
+| uid           | int(11)     | NO   | UNI | (NULL)            |                | ID người dùng     |
+| nick_name     | varchar(64) | YES  |     | (NULL)            |                | Biệt danh         |
+| achievement   | int(11)     | YES  |     | 0                 |                | Điểm thành tích   |
+| level         | int(11)     | YES  |     | (NULL)            |                | Cấp độ người dùng |
+| job           | varchar(32) | YES  |     | (NULL)            |                | Hướng nghề nghiệp |
+| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | Thời gian đăng ký |
 
-**思路**：如果这题给出了旧表的名称，可直接`create table 新表 as select * from 旧表;` 但是这题并没有给出旧表名称，所以需要自己创建，注意默认值和键的创建即可，比较简单。（注意：如果是在牛客网上面执行，请注意 comment 中要和题目中的 comment 保持一致，包括大小写，否则不通过，还有字符也要设置）
+**Hướng giải**: Nếu bài cho tên bảng cũ, có thể dùng trực tiếp `create table bảng mới as select * from bảng cũ;`. Nhưng bài này không cho tên bảng cũ, nên cần tự tạo. Chú ý tạo giá trị mặc định và khóa, khá đơn giản. (Lưu ý: nếu thực thi trên Nowcoder, chú ý comment trong bảng phải giống với comment trong đề bài, bao gồm cả hoa thường, nếu không sẽ không qua; ngoài ra bộ ký tự cũng phải được thiết lập)
 
-答案：
+Đáp án:
 
 ```sql
 CREATE TABLE IF NOT EXISTS user_info_vip(
@@ -322,38 +322,38 @@ CREATE TABLE IF NOT EXISTS user_info_vip(
 )CHARACTER SET UTF8
 ```
 
-### 修改表
+### Sửa bảng
 
-**描述**： 现有一张用户信息表`user_info`，其中包含多年来在平台注册过的用户信息。
+**Mô tả**: Hiện có bảng thông tin người dùng `user_info`, chứa thông tin người dùng đã đăng ký trên nền tảng qua nhiều năm.
 
-**用户信息表 `user_info`：**
+**Bảng thông tin người dùng `user_info`:**
 
-| Filed         | Type        | Null | Key | Default           | Extra          | Comment  |
-| ------------- | ----------- | ---- | --- | ----------------- | -------------- | -------- |
-| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | 自增 ID  |
-| uid           | int(11)     | NO   | UNI | (NULL)            |                | 用户 ID  |
-| nick_name     | varchar(64) | YES  |     | (NULL)            |                | 昵称     |
-| achievement   | int(11)     | YES  |     | 0                 |                | 成就值   |
-| level         | int(11)     | YES  |     | (NULL)            |                | 用户等级 |
-| job           | varchar(32) | YES  |     | (NULL)            |                | 职业方向 |
-| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | 注册时间 |
+| Filed         | Type        | Null | Key | Default           | Extra          | Comment           |
+| ------------- | ----------- | ---- | --- | ----------------- | -------------- | ----------------- |
+| id            | int(11)     | NO   | PRI | (NULL)            | auto_increment | ID tự tăng        |
+| uid           | int(11)     | NO   | UNI | (NULL)            |                | ID người dùng     |
+| nick_name     | varchar(64) | YES  |     | (NULL)            |                | Biệt danh         |
+| achievement   | int(11)     | YES  |     | 0                 |                | Điểm thành tích   |
+| level         | int(11)     | YES  |     | (NULL)            |                | Cấp độ người dùng |
+| job           | varchar(32) | YES  |     | (NULL)            |                | Hướng nghề nghiệp |
+| register_time | datetime    | YES  |     | CURRENT_TIMESTAMP |                | Thời gian đăng ký |
 
-**要求：**请在用户信息表，字段 `level` 的后面增加一列最多可保存 15 个汉字的字段 `school`；并将表中 `job` 列名改为 `profession`，同时 `varchar` 字段长度变为 10；`achievement` 的默认值设置为 0。
+**Yêu cầu:** Hãy thêm vào bảng thông tin người dùng, sau trường `level`, một cột `school` có thể lưu tối đa 15 ký tự Hán; đổi tên cột `job` thành `profession` đồng thời thay đổi độ dài trường `varchar` thành 10; đặt giá trị mặc định của `achievement` là 0.
 
-**思路**：首先做这题之前，需要了解 ALTER 语句的基本用法：
+**Hướng giải**: Trước tiên cần hiểu cú pháp cơ bản của câu lệnh ALTER:
 
-- 添加一列：`ALTER TABLE 表名 ADD COLUMN 列名 类型 【first | after 字段名】;`（first ： 在某列之前添加，after 反之）
-- 修改列的类型或约束：`ALTER TABLE 表名 MODIFY COLUMN 列名 新类型 【新约束】;`
-- 修改列名：`ALTER TABLE 表名 change COLUMN 旧列名 新列名 类型;`
-- 删除列：`ALTER TABLE 表名 drop COLUMN 列名;`
-- 修改表名：`ALTER TABLE 表名 rename 【to】 新表名;`
-- 将某一列放到第一列：`ALTER TABLE 表名 MODIFY COLUMN 列名 类型 first;`
+- Thêm một cột: `ALTER TABLE tên_bảng ADD COLUMN tên_cột kiểu_dữ_liệu 【first | after tên_trường】;` (first: thêm trước một cột nào đó, after thì ngược lại)
+- Sửa kiểu hoặc ràng buộc của cột: `ALTER TABLE tên_bảng MODIFY COLUMN tên_cột kiểu_mới 【ràng_buộc_mới】;`
+- Đổi tên cột: `ALTER TABLE tên_bảng change COLUMN tên_cột_cũ tên_cột_mới kiểu;`
+- Xóa cột: `ALTER TABLE tên_bảng drop COLUMN tên_cột;`
+- Đổi tên bảng: `ALTER TABLE tên_bảng rename 【to】 tên_bảng_mới;`
+- Đưa một cột lên đầu tiên: `ALTER TABLE tên_bảng MODIFY COLUMN tên_cột kiểu first;`
 
-`COLUMN` 关键字其实可以省略不写，这里基于规范还是罗列出来了。
+Từ khóa `COLUMN` thực ra có thể bỏ qua, ở đây liệt kê ra để đảm bảo chuẩn.
 
-在修改时，如果有多个修改项，可以写到一起，但要注意格式
+Khi sửa, nếu có nhiều mục cần sửa, có thể viết gộp lại, nhưng chú ý định dạng.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 ALTER TABLE user_info
@@ -362,15 +362,15 @@ ALTER TABLE user_info
     MODIFY achievement INT(11) DEFAULT 0;
 ```
 
-### 删除表
+### Xóa bảng
 
-**描述**：现有一张试卷作答记录表 `exam_record`，其中包含多年来的用户作答试卷记录。一般每年都会为 `exam_record` 表建立一张备份表 `exam_record_{YEAR}，{YEAR}` 为对应年份。
+**Mô tả**: Hiện có bảng lịch sử làm bài `exam_record`, chứa lịch sử làm bài thi của người dùng qua nhiều năm. Thông thường mỗi năm đều tạo một bảng sao lưu `exam_record_{YEAR}` cho bảng `exam_record`, với `{YEAR}` là năm tương ứng.
 
-现在随着数据越来越多，存储告急，请你把很久前的（2011 到 2014 年）备份表都删掉（如果存在的话）。
+Bây giờ khi dữ liệu ngày càng nhiều, bộ nhớ đang cạn kiệt. Hãy xóa tất cả các bảng sao lưu từ rất lâu trước (từ năm 2011 đến 2014) nếu chúng tồn tại.
 
-**思路**：这题很简单，直接删就行，如果嫌麻烦，可以将要删除的表用逗号隔开，写到一行；这里肯定会有小伙伴问：如果要删除很多张表呢？放心，如果要删除很多张表，可以写脚本来进行删除。
+**Hướng giải**: Bài này rất đơn giản, xóa trực tiếp thôi. Nếu muốn gọn hơn, có thể ngăn cách các bảng cần xóa bằng dấu phẩy và viết trên một dòng. Nếu cần xóa rất nhiều bảng, hoàn toàn có thể viết script để xóa.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 DROP TABLE IF EXISTS exam_record_2011;
@@ -379,13 +379,13 @@ DROP TABLE IF EXISTS exam_record_2013;
 DROP TABLE IF EXISTS exam_record_2014;
 ```
 
-### 创建索引
+### Tạo chỉ mục
 
-**描述**：现有一张试卷信息表 `examination_info`，其中包含各种类型试卷的信息。为了对表更方便快捷地查询，需要在 `examination_info` 表创建以下索引，
+**Mô tả**: Hiện có bảng thông tin đề thi `examination_info`, chứa thông tin về các loại đề thi khác nhau. Để thuận tiện hơn trong việc truy vấn bảng, cần tạo các chỉ mục sau trên bảng `examination_info`.
 
-规则如下：在 `duration` 列创建普通索引 `idx_duration`、在 `exam_id` 列创建唯一性索引 `uniq_idx_exam_id`、在 `tag` 列创建全文索引 `full_idx_tag`。
+Quy tắc như sau: Tạo chỉ mục thông thường `idx_duration` trên cột `duration`, tạo chỉ mục duy nhất `uniq_idx_exam_id` trên cột `exam_id`, tạo chỉ mục toàn văn `full_idx_tag` trên cột `tag`.
 
-根据题意，将返回如下结果：
+Kết quả trả về sẽ như bảng dưới:
 
 | examination_info | 0   | PRIMARY          | 1   | id       | A   | 0   |     |     |     | BTREE    |
 | ---------------- | --- | ---------------- | --- | -------- | --- | --- | --- | --- | --- | -------- |
@@ -393,14 +393,14 @@ DROP TABLE IF EXISTS exam_record_2014;
 | examination_info | 1   | idx_duration     | 1   | duration | A   | 0   |     |     |     | BTREE    |
 | examination_info | 1   | full_idx_tag     | 1   | tag      |     | 0   |     |     | YES | FULLTEXT |
 
-备注：后台会通过 `SHOW INDEX FROM examination_info` 语句来对比输出结果
+Ghi chú: Phần backend sẽ so sánh kết quả đầu ra thông qua câu lệnh `SHOW INDEX FROM examination_info`
 
-**思路**：做这题首先需要了解常见的索引类型：
+**Hướng giải**: Trước tiên cần hiểu các loại chỉ mục thường gặp:
 
-- B-Tree 索引：B-Tree（或称为平衡树）索引是最常见和默认的索引类型。它适用于各种查询条件，可以快速定位到符合条件的数据。B-Tree 索引适用于普通的查找操作，支持等值查询、范围查询和排序。
-- 唯一索引：唯一索引与普通的 B-Tree 索引类似，不同之处在于它要求被索引的列的值是唯一的。这意味着在插入或更新数据时，MySQL 会验证索引列的唯一性。
-- 主键索引：主键索引是一种特殊的唯一索引，它用于唯一标识表中的每一行数据。每个表只能有一个主键索引，它可以帮助提高数据的访问速度和数据完整性。
-- 全文索引：全文索引用于在文本数据中进行全文搜索。它支持在文本字段中进行关键字搜索，而不仅仅是简单的等值或范围查找。全文索引适用于需要进行全文搜索的应用场景。
+- Chỉ mục B-Tree: Chỉ mục B-Tree (hoặc cây cân bằng) là loại chỉ mục phổ biến và mặc định nhất. Nó phù hợp với nhiều điều kiện truy vấn khác nhau, có thể nhanh chóng tìm đến dữ liệu thỏa mãn điều kiện. Chỉ mục B-Tree phù hợp với các thao tác tìm kiếm thông thường, hỗ trợ truy vấn đẳng thức, truy vấn phạm vi và sắp xếp.
+- Chỉ mục duy nhất: Chỉ mục duy nhất tương tự chỉ mục B-Tree thông thường, điểm khác biệt là nó yêu cầu giá trị của cột được lập chỉ mục phải là duy nhất. Điều này có nghĩa là khi chèn hoặc cập nhật dữ liệu, MySQL sẽ xác minh tính duy nhất của cột chỉ mục.
+- Chỉ mục khóa chính: Chỉ mục khóa chính là một loại chỉ mục duy nhất đặc biệt, được dùng để xác định duy nhất mỗi hàng dữ liệu trong bảng. Mỗi bảng chỉ có thể có một chỉ mục khóa chính, nó giúp cải thiện tốc độ truy cập dữ liệu và tính toàn vẹn dữ liệu.
+- Chỉ mục toàn văn: Chỉ mục toàn văn được dùng để tìm kiếm toàn văn trong dữ liệu văn bản. Nó hỗ trợ tìm kiếm từ khóa trong trường văn bản, không chỉ đơn giản là tìm kiếm đẳng thức hoặc phạm vi. Chỉ mục toàn văn phù hợp với các tình huống ứng dụng cần tìm kiếm toàn văn.
 
 ```sql
 -- 示例：
@@ -416,9 +416,9 @@ DROP TABLE IF EXISTS exam_record_2014;
 -- 通过以上示例，可以看出create 和 alter 都可以添加索引
 ```
 
-有了以上的基础知识之后，该题答案也就浮出水面了。
+Với kiến thức cơ bản trên, đáp án của bài này cũng đã rõ ràng.
 
-**答案**：
+**Đáp án**:
 
 ```sql
 ALTER TABLE examination_info
@@ -427,11 +427,11 @@ ALTER TABLE examination_info
     ADD FULLTEXT INDEX full_idx_tag(tag);
 ```
 
-### 删除索引
+### Xóa chỉ mục
 
-**描述**：请删除`examination_info`表上的唯一索引 uniq_idx_exam_id 和全文索引 full_idx_tag。
+**Mô tả**: Hãy xóa chỉ mục duy nhất uniq_idx_exam_id và chỉ mục toàn văn full_idx_tag trên bảng `examination_info`.
 
-**思路**：该题考察删除索引的基本语法：
+**Hướng giải**: Bài này kiểm tra cú pháp cơ bản để xóa chỉ mục:
 
 ```sql
 -- 使用 DROP INDEX 删除索引
@@ -441,11 +441,11 @@ DROP INDEX idx_name ON 表名;
 ALTER TABLE employees DROP INDEX idx_email;
 ```
 
-这里需要注意的是：在 MySQL 中，一次删除多个索引的操作是不支持的。每次删除索引时，只能指定一个索引名称进行删除。
+Cần lưu ý: Trong MySQL, không hỗ trợ xóa nhiều chỉ mục cùng một lúc. Mỗi lần xóa chỉ mục, chỉ có thể chỉ định một tên chỉ mục để xóa.
 
-而且 **DROP** 命令需要慎用！！！
+Ngoài ra, lệnh **DROP** cần phải được dùng cẩn thận!!!
 
-**答案**：
+**Đáp án**:
 
 ```sql
 DROP INDEX uniq_idx_exam_id ON examination_info;

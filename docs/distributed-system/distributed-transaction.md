@@ -1,16 +1,16 @@
 ---
-title: 分布式事务解决方案总结
-category: 分布式
-description: 分布式事务常见解决方案详解，包括2PC两阶段提交、3PC三阶段提交、TCC补偿事务、Saga编排模式、本地消息表、事务消息等方案的原理、优缺点及适用场景分析。
+title: Tổng hợp các giải pháp Distributed Transaction
+category: Distributed
+description: Giải thích chi tiết các giải pháp distributed transaction phổ biến, bao gồm nguyên lý, ưu nhược điểm và phân tích tình huống sử dụng của 2PC two-phase commit, 3PC three-phase commit, TCC compensating transaction, Saga orchestration, local message table, transactional message, v.v.
 tag:
-  - 分布式事务
+  - Distributed Transaction
 head:
   - - meta
     - name: keywords
-      content: 分布式事务,2PC,TCC,Saga,本地消息表,事务消息,分布式系统,最终一致性,补偿事务,分布式事务面试题
+      content: distributed transaction,2PC,TCC,Saga,local message table,transactional message,distributed system,eventual consistency,compensating transaction,distributed transaction interview questions
 ---
 
-**分布式事务** 相关的面试题为我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)（点击链接即可查看详细介绍以及加入方法）专属内容，已经整理到了《Java 面试指北》中。
+Các câu hỏi phỏng vấn liên quan đến **Distributed Transaction** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào 《Java Interview Guide》.
 
 ![](https://oss.javaguide.cn/javamianshizhibei/distributed-system-config.png)
 

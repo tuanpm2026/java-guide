@@ -1,128 +1,123 @@
 ---
-title: Java基础常见面试题总结(中)
-description: Java面向对象编程核心知识点总结：涵盖封装继承多态三大特性、接口与抽象类区别、Object类方法详解、深拷贝浅拷贝、String/StringBuffer/StringBuilder对比等，帮助快速掌握Java OOP精髓。
+title: Tóm tắt các câu hỏi phỏng vấn Java cơ bản (Phần 2)
+description: Tóm tắt kiến thức cốt lõi lập trình hướng đối tượng Java bao gồm ba đặc tính chính (đóng gói, kế thừa, đa hình), sự khác biệt giữa interface và abstract class, phương thức của lớp Object, deep copy và shallow copy, so sánh String/StringBuffer/StringBuilder, giúp nhanh chóng nắm bắt bản chất OOP của Java.
 category: Java
 tag:
-  - Java基础
+  - Java cơ bản
 head:
   - - meta
     - name: keywords
-      content: 面向对象,封装继承多态,接口,抽象类,深拷贝浅拷贝,Object类,equals,hashCode,String,字符串常量池,Java面试题
+      content: hướng đối tượng, đóng gói kế thừa đa hình, interface, abstract class, deep copy shallow copy, lớp Object, equals, hashCode, String, string constant pool, câu hỏi phỏng vấn Java
 ---
 
-<!-- @include: @article-header.snippet.md -->
+## Nền tảng lập trình hướng đối tượng
 
-## 面向对象基础
+### ⭐️ Sự khác biệt giữa lập trình hướng đối tượng và lập trình hướng thủ tục
 
-### ⭐️面向对象和面向过程的区别
+Lập trình hướng thủ tục (Procedural-Oriented Programming, POP) và lập trình hướng đối tượng (Object-Oriented Programming, OOP) là hai mô hình lập trình phổ biến, sự khác biệt chính nằm ở cách tiếp cận giải quyết vấn đề:
 
-面向过程编程（Procedural-Oriented Programming，POP）和面向对象编程（Object-Oriented Programming，OOP）是两种常见的编程范式，两者的主要区别在于解决问题的方式不同：
+- **Lập trình hướng thủ tục (POP)**: Lập trình hướng thủ tục chia quy trình giải quyết vấn đề thành từng phương thức riêng lẻ, và thực hiện lần lượt từng phương thức để giải quyết vấn đề.
+- **Lập trình hướng đối tượng (OOP)**: Lập trình hướng đối tượng trước tiên sẽ trừu tượng hóa các đối tượng, sau đó sử dụng các đối tượng thực hiện các phương thức để giải quyết vấn đề.
 
-- **面向过程编程（POP）**：面向过程把解决问题的过程拆成一个个方法，通过一个个方法的执行解决问题。
-- **面向对象编程（OOP）**：面向对象会先抽象出对象，然后用对象执行方法的方式解决问题。
+Khi so sánh với POP, các chương trình được phát triển bằng OOP có những ưu điểm sau:
 
-相比较于 POP，OOP 开发的程序一般具有下面这些优点：
+- **Dễ bảo trì**: Nhờ cấu trúc tốt và tính đóng gói, các chương trình OOP thường dễ bảo trì hơn.
+- **Dễ tái sử dụng**: Thông qua kế thừa và đa hình, thiết kế OOP giúp mã nguồn có khả năng tái sử dụng cao hơn, dễ dàng mở rộng chức năng.
+- **Dễ mở rộng**: Thiết kế mô-đun hóa làm cho việc mở rộng hệ thống trở nên dễ dàng và linh hoạt hơn.
 
-- **易维护**：由于良好的结构和封装性，OOP 程序通常更容易维护。
-- **易复用**：通过继承和多态，OOP 设计使得代码更具复用性，方便扩展功能。
-- **易扩展**：模块化设计使得系统扩展变得更加容易和灵活。
+Cách lập trình POP thường đơn giản và trực tiếp hơn, phù hợp để xử lý một số nhiệm vụ tương đối đơn giản.
 
-POP 的编程方式通常更为简单和直接，适合处理一些较简单的任务。
+Sự khác biệt về hiệu suất giữa POP và OOP chủ yếu phụ thuộc vào cơ chế chạy của chúng, chứ không chỉ là mô hình lập trình. Do đó, việc so sánh đơn giản hai điều này về hiệu suất là một hiểu lầm phổ biến.
 
-POP 和 OOP 的性能差异主要取决于它们的运行机制，而不仅仅是编程范式本身。因此，简单地比较两者的性能是一个常见的误区（相关 issue : [面向过程：面向过程性能比面向对象高？？](https://github.com/Snailclimb/JavaGuide/issues/431) ）。
+Khi chọn mô hình lập trình, hiệu suất không phải là yếu tố duy nhất cần xem xét. Khả năng bảo trì mã, khả năng mở rộng và hiệu quả phát triển cũng rất quan trọng.
 
-![ POP 和 OOP  性能比较不合适](https://oss.javaguide.cn/github/javaguide/java/basis/pop-vs-oop-performance.png)
+Hầu hết các ngôn ngữ lập trình hiện đại đều hỗ trợ nhiều mô hình lập trình, có thể được sử dụng cho cả lập trình hướng thủ tục và lập trình hướng đối tượng.
 
-在选择编程范式时，性能并不是唯一的考虑因素。代码的可维护性、可扩展性和开发效率同样重要。
+Dưới đây là một ví dụ về tính diện tích và chu vi của hình tròn, đơn giản minh họa hai cách tiếp cận khác nhau của lập trình hướng đối tượng và hướng thủ tục.
 
-现代编程语言基本都支持多种编程范式，既可以用来进行面向过程编程，也可以进行面向对象编程。
-
-下面是一个求圆的面积和周长的示例，简单分别展示了面向对象和面向过程两种不同的解决方案。
-
-**面向对象**：
+**Lập trình hướng đối tượng**:
 
 ```java
 public class Circle {
-    // 定义圆的半径
+    // Định nghĩa bán kính hình tròn
     private double radius;
 
-    // 构造函数
+    // Hàm khởi tạo
     public Circle(double radius) {
         this.radius = radius;
     }
 
-    // 计算圆的面积
+    // Tính diện tích hình tròn
     public double getArea() {
         return Math.PI * radius * radius;
     }
 
-    // 计算圆的周长
+    // Tính chu vi hình tròn
     public double getPerimeter() {
         return 2 * Math.PI * radius;
     }
 
     public static void main(String[] args) {
-        // 创建一个半径为3的圆
+        // Tạo một hình tròn có bán kính 3
         Circle circle = new Circle(3.0);
 
-        // 输出圆的面积和周长
-        System.out.println("圆的面积为：" + circle.getArea());
-        System.out.println("圆的周长为：" + circle.getPerimeter());
+        // Xuất diện tích và chu vi hình tròn
+        System.out.println("Diện tích hình tròn: " + circle.getArea());
+        System.out.println("Chu vi hình tròn: " + circle.getPerimeter());
     }
 }
 ```
 
-我们定义了一个 `Circle` 类来表示圆，该类包含了圆的半径属性和计算面积、周长的方法。
+Chúng tôi đã định nghĩa một lớp `Circle` để biểu diễn hình tròn, lớp này bao gồm thuộc tính bán kính của hình tròn và các phương thức để tính diện tích, chu vi.
 
-**面向过程**：
+**Lập trình hướng thủ tục**:
 
 ```java
 public class Main {
     public static void main(String[] args) {
-        // 定义圆的半径
+        // Định nghĩa bán kính hình tròn
         double radius = 3.0;
 
-        // 计算圆的面积和周长
+        // Tính diện tích và chu vi hình tròn
         double area = Math.PI * radius * radius;
         double perimeter = 2 * Math.PI * radius;
 
-        // 输出圆的面积和周长
-        System.out.println("圆的面积为：" + area);
-        System.out.println("圆的周长为：" + perimeter);
+        // Xuất diện tích và chu vi hình tròn
+        System.out.println("Diện tích hình tròn: " + area);
+        System.out.println("Chu vi hình tròn: " + perimeter);
     }
 }
 ```
 
-我们直接定义了圆的半径，并使用该半径直接计算出圆的面积和周长。
+Chúng tôi đã trực tiếp định nghĩa bán kính hình tròn và sử dụng bán kính đó để trực tiếp tính diện tích và chu vi.
 
-### 创建一个对象用什么运算符?对象实例与对象引用有何不同?
+### Sử dụng toán tử nào để tạo một đối tượng? Sự khác biệt giữa instance của đối tượng và tham chiếu đối tượng là gì?
 
-new 运算符，new 创建对象实例（对象实例在堆内存中），对象引用指向对象实例（对象引用存放在栈内存中）。
+Sử dụng toán tử `new`. Toán tử `new` tạo instance của đối tượng (instance của đối tượng nằm trong heap memory), tham chiếu đối tượng chỉ đến instance của đối tượng (tham chiếu đối tượng được lưu trữ trong stack memory).
 
-- 一个对象引用可以指向 0 个或 1 个对象（一根绳子可以不系气球，也可以系一个气球）；
-- 一个对象可以有 n 个引用指向它（可以用 n 条绳子系住一个气球）。
+- Một tham chiếu đối tượng có thể chỉ đến 0 hoặc 1 đối tượng (một sợi dây có thể không buộc bóng bay, hoặc chỉ buộc một bóng bay);
+- Một đối tượng có thể có n tham chiếu chỉ đến nó (có thể dùng n sợi dây buộc một bóng bay).
 
-### ⭐️对象的相等和引用相等的区别
+### ⭐️ Sự khác biệt giữa bằng nhau của đối tượng và bằng nhau của tham chiếu
 
-- 对象的相等一般比较的是内存中存放的内容是否相等。
-- 引用相等一般比较的是他们指向的内存地址是否相等。
+- Bằng nhau của đối tượng thường so sánh nội dung lưu trữ trong bộ nhớ có bằng nhau hay không.
+- Bằng nhau của tham chiếu thường so sánh xem địa chỉ bộ nhớ mà chúng chỉ đến có bằng nhau hay không.
 
-这里举一个例子：
+Đây là một ví dụ:
 
 ```java
 String str1 = "hello";
 String str2 = new String("hello");
 String str3 = "hello";
-// 使用 == 比较字符串的引用相等
+// Sử dụng == để so sánh tham chiếu bằng nhau của chuỗi
 System.out.println(str1 == str2);
 System.out.println(str1 == str3);
-// 使用 equals 方法比较字符串的相等
+// Sử dụng phương thức equals để so sánh bằng nhau của chuỗi
 System.out.println(str1.equals(str2));
 System.out.println(str1.equals(str3));
-
 ```
 
-输出结果：
+Kết quả đầu ra:
 
 ```plain
 false
@@ -131,564 +126,202 @@ true
 true
 ```
 
-从上面的代码输出结果可以看出：
+Từ kết quả đầu ra trên, chúng ta có thể thấy:
 
-- `str1` 和 `str2` 不相等，而 `str1` 和 `str3` 相等。这是因为 `==` 运算符比较的是字符串的引用是否相等。
-- `str1`、 `str2`、`str3` 三者的内容都相等。这是因为`equals` 方法比较的是字符串的内容，即使这些字符串的对象引用不同，只要它们的内容相等，就认为它们是相等的。
+- `str1` và `str2` không bằng nhau, trong khi `str1` và `str3` bằng nhau. Điều này là vì toán tử `==` so sánh xem các tham chiếu chuỗi có bằng nhau hay không.
+- `str1`, `str2`, `str3` đều có nội dung bằng nhau. Điều này là vì phương thức `equals` so sánh nội dung của chuỗi. Miễn là nội dung của các chuỗi này bằng nhau, ngay cả khi các tham chiếu đối tượng của các chuỗi khác nhau, chúng vẫn được coi là bằng nhau.
 
-### 如果一个类没有声明构造方法，该程序能正确执行吗?
+### Nếu một lớp không khai báo hàm khởi tạo, chương trình có thể thực hiện chính xác không?
 
-构造方法是一种特殊的方法，主要作用是完成对象的初始化工作。
+Hàm khởi tạo là một phương thức đặc biệt, công dụng chính là hoàn thành việc khởi tạo đối tượng.
 
-如果一个类没有声明构造方法，也可以执行！因为一个类即使没有声明构造方法也会有默认的不带参数的构造方法。如果我们自己添加了类的构造方法（无论是否有参），Java 就不会添加默认的无参数的构造方法了。
+Nếu một lớp không khai báo hàm khởi tạo, vẫn có thể thực hiện! Bởi vì ngay cả khi một lớp không khai báo hàm khởi tạo, nó vẫn sẽ có hàm khởi tạo mặc định không có tham số. Nếu chúng ta tự thêm hàm khởi tạo của lớp (dù có tham số hay không), Java sẽ không thêm hàm khởi tạo mặc định không có tham số nữa.
 
-我们一直在不知不觉地使用构造方法，这也是为什么我们在创建对象的时候后面要加一个括号（因为要调用无参的构造方法）。如果我们重载了有参的构造方法，记得都要把无参的构造方法也写出来（无论是否用到），因为这可以帮助我们在创建对象的时候少踩坑。
+Chúng ta luôn sử dụng hàm khởi tạo một cách không biết không tuyên bố, vì đó là lý do tại sao chúng ta phải thêm dấu ngoặc đơn ở phía sau khi tạo đối tượng (bởi vì phải gọi hàm khởi tạo không có tham số). Nếu chúng ta nạp chồng hàm khởi tạo có tham số, hãy nhớ viết ra hàm khởi tạo không có tham số (dù có sử dụng hay không), vì điều này có thể giúp chúng ta tránh gặp vấn đề khi tạo đối tượng.
 
-### 构造方法有哪些特点？是否可被 override?
+### Hàm khởi tạo có những đặc điểm gì? Có thể được override không?
 
-构造方法具有以下特点：
+Hàm khởi tạo có những đặc điểm sau:
 
-- **名称与类名相同**：构造方法的名称必须与类名完全一致。
-- **没有返回值**：构造方法没有返回类型，且不能使用 `void` 声明。
-- **自动执行**：在生成类的对象时，构造方法会自动执行，无需显式调用。
+- **Tên giống với tên lớp**: Tên của hàm khởi tạo phải giống hệt với tên lớp.
+- **Không có giá trị trả về**: Hàm khởi tạo không có kiểu trả về và không thể sử dụng `void` để khai báo.
+- **Thực hiện tự động**: Khi tạo đối tượng của lớp, hàm khởi tạo sẽ thực hiện tự động, không cần gọi một cách tường minh.
 
-构造方法**不能被重写（override）**，但**可以被重载（overload）**。因此，一个类中可以有多个构造方法，这些构造方法可以具有不同的参数列表，以提供不同的对象初始化方式。
+Hàm khởi tạo **không thể bị override (ghi đè)**, nhưng **có thể được overload (nạp chồng)**. Do đó, một lớp có thể có nhiều hàm khởi tạo, các hàm khởi tạo này có thể có các danh sách tham số khác nhau, để cung cấp các cách khác nhau để khởi tạo đối tượng.
 
-### ⭐️面向对象三大特征
+### ⭐️ Ba đặc tính chính của lập trình hướng đối tượng
 
-#### 封装
+#### Đóng gói (Encapsulation)
 
-封装是指把一个对象的状态信息（也就是属性）隐藏在对象内部，不允许外部对象直接访问对象的内部信息。但是可以提供一些可以被外界访问的方法来操作属性。就好像我们看不到挂在墙上的空调的内部的零件信息（也就是属性），但是可以通过遥控器（方法）来控制空调。如果属性不想被外界访问，我们大可不必提供方法给外界访问。但是如果一个类没有提供给外界访问的方法，那么这个类也没有什么意义了。就好像如果没有空调遥控器，那么我们就无法操控空凋制冷，空调本身就没有意义了（当然现在还有很多其他方法 ，这里只是为了举例子）。
+Đóng gói có nghĩa là ẩn thông tin trạng thái của một đối tượng (cũng là các thuộc tính) bên trong đối tượng, không cho phép các đối tượng bên ngoài truy cập trực tiếp vào thông tin bên trong của đối tượng. Nhưng có thể cung cấp một số phương thức có thể được truy cập từ bên ngoài để hoạt động trên các thuộc tính. Giống như chúng ta không thể nhìn thấy thông tin các bộ phận bên trong của máy lạnh treo trên tường (cũng là các thuộc tính), nhưng có thể kiểm soát máy lạnh thông qua điều khiển từ xa (phương thức). Nếu một thuộc tính không muốn được truy cập từ bên ngoài, chúng ta hoàn toàn không cần phải cung cấp phương thức cho bên ngoài truy cập. Tuy nhiên, nếu một lớp không cung cấp bất kỳ phương thức nào cho bên ngoài truy cập, thì lớp này cũng không có ý nghĩa gì. Giống như nếu không có điều khiển từ xa cho máy lạnh, chúng ta sẽ không thể kiểm soát việc làm lạnh của máy lạnh, máy lạnh sẽ không có ý nghĩa (tất nhiên, hiện nay có nhiều cách khác, đây chỉ là ví dụ).
 
 ```java
 public class Student {
-    private int id;//id属性私有化
-    private String name;//name属性私有化
+    private int id;      // thuộc tính id được đóng gói riêng tư
+    private String name; // thuộc tính name được đóng gói riêng tư
 
-    //获取id的方法
+    // Phương thức để lấy id
     public int getId() {
         return id;
     }
 
-    //设置id的方法
+    // Phương thức để thiết lập id
     public void setId(int id) {
         this.id = id;
     }
 
-    //获取name的方法
+    // Phương thức để lấy name
     public String getName() {
         return name;
     }
 
-    //设置name的方法
+    // Phương thức để thiết lập name
     public void setName(String name) {
         this.name = name;
     }
 }
 ```
 
-#### 继承
+#### Kế thừa (Inheritance)
 
-不同类型的对象，相互之间经常有一定数量的共同点。例如，小明同学、小红同学、小李同学，都共享学生的特性（班级、学号等）。同时，每一个对象还定义了额外的特性使得他们与众不同。例如小明的数学比较好，小红的性格惹人喜爱；小李的力气比较大。继承是使用已存在的类的定义作为基础建立新类的技术，新类的定义可以增加新的数据或新的功能，也可以用父类的功能，但不能选择性地继承父类。通过使用继承，可以快速地创建新的类，可以提高代码的重用，程序的可维护性，节省大量创建新类的时间 ，提高我们的开发效率。
+Các loại đối tượng khác nhau thường có một số điểm chung. Ví dụ, học sinh Tiểu Minh, học sinh Tiểu Hồng, học sinh Tiểu Lý đều chia sẻ các đặc điểm của học sinh (lớp, mã số học sinh, v.v.). Đồng thời, mỗi đối tượng lại định nghĩa các đặc điểm bổ sung làm cho chúng khác biệt. Ví dụ, Tiểu Minh giỏi toán, Tiểu Hồng có tính cách hấp dẫn; Tiểu Lý có sức mạnh lớn. Kế thừa là một kỹ thuật sử dụng định nghĩa của lớp hiện có như cơ sở để xây dựng các lớp mới. Định nghĩa của lớp mới có thể thêm dữ liệu hoặc chức năng mới, hoặc sử dụng chức năng của lớp cha, nhưng không thể chọn lực để kế thừa lớp cha. Bằng cách sử dụng kế thừa, có thể nhanh chóng tạo các lớp mới, có thể cải thiện khả năng tái sử dụng mã, khả năng bảo trì chương trình, tiết kiệm rất nhiều thời gian tạo lớp mới, nâng cao hiệu quả phát triển của chúng tôi.
 
-**关于继承如下 3 点请记住：**
+**Hãy nhớ 3 điểm sau về kế thừa:**
 
-1. 子类拥有父类对象所有的属性和方法（包括私有属性和私有方法），但是父类中的私有属性和方法子类是无法访问，**只是拥有**。
-2. 子类可以拥有自己属性和方法，即子类可以对父类进行扩展。
-3. 子类可以用自己的方式实现父类的方法。（以后介绍）。
+1. Lớp con sở hữu tất cả các thuộc tính và phương thức của đối tượng lớp cha (bao gồm cả thuộc tính riêng tư và phương thức riêng tư), nhưng các thuộc tính riêng tư và phương thức riêng tư của lớp cha không thể được lớp con truy cập, **chỉ là sở hữu**.
+2. Lớp con có thể có các thuộc tính và phương thức của riêng mình, tức là lớp con có thể mở rộng lớp cha.
+3. Lớp con có thể thực hiện các phương thức của lớp cha theo cách của riêng nó.
 
-#### 多态
+#### Đa hình (Polymorphism)
 
-多态，顾名思义，表示一个对象具有多种的状态，具体表现为父类的引用指向子类的实例。
+Đa hình, như tên gọi của nó, có nghĩa là một đối tượng có nhiều trạng thái, được thể hiện cụ thể là tham chiếu của lớp cha chỉ đến instance của lớp con.
 
-**多态的特点:**
+**Đặc điểm của đa hình:**
 
-- 对象类型和引用类型之间具有继承（类）/实现（接口）的关系；
-- 引用类型变量发出的方法调用的到底是哪个类中的方法，必须在程序运行期间才能确定；
-- 多态不能调用“只在子类存在但在父类不存在”的方法；
-- 如果子类重写了父类的方法，真正执行的是子类重写的方法，如果子类没有重写父类的方法，执行的是父类的方法。
+- Giữa loại đối tượng và loại tham chiếu tồn tại mối quan hệ kế thừa (lớp) / thực hiện (interface);
+- Phương thức nào được gọi bởi biến loại tham chiếu cuối cùng phải được xác định trong quá trình chạy chương trình;
+- Đa hình không thể gọi các phương thức "chỉ tồn tại trong lớp con nhưng không tồn tại trong lớp cha";
+- Nếu lớp con đã ghi đè phương thức của lớp cha, phương thức được thực hiện thực sự là phương thức được ghi đè của lớp con, nếu lớp con không ghi đè phương thức của lớp cha, phương thức được thực hiện là phương thức của lớp cha.
 
-```mermaid
-flowchart LR
-    subgraph OOP["面向对象三大特征"]
-        style OOP fill:#F0F2F5,stroke:#E0E6ED,stroke-width:1.5px
+### ⭐️ Interface và abstract class có điểm chung và khác biệt gì?
 
-        subgraph Encapsulation["封装 Encapsulation"]
-            style Encapsulation fill:#F5F7FA,stroke:#E0E6ED,stroke-width:1.5px
-            E1["隐藏内部状态"]:::core
-            E2["提供公共方法"]:::core
-            E3["保护数据安全"]:::core
-        end
+#### Điểm chung giữa interface và abstract class
 
-        subgraph Inheritance["继承 Inheritance"]
-            style Inheritance fill:#F5F7FA,stroke:#E0E6ED,stroke-width:1.5px
-            I1["代码复用"]:::core
-            I2["扩展功能"]:::core
-            I3["单继承限制"]:::highlight
-        end
+- **Khởi tạo**: Interface và abstract class đều không thể được khởi tạo trực tiếp, chỉ có thể tạo đối tượng cụ thể sau khi được thực hiện (interface) hoặc kế thừa (abstract class).
+- **Phương thức trừu tượng**: Interface và abstract class đều có thể chứa các phương thức trừu tượng. Các phương thức trừu tượng không có thân phương thức, phải được thực hiện trong lớp con hoặc lớp triển khai.
 
-        subgraph Polymorphism["多态 Polymorphism"]
-            style Polymorphism fill:#F5F7FA,stroke:#E0E6ED,stroke-width:1.5px
-            P1["父类引用指向子类"]:::core
-            P2["运行时动态绑定"]:::core
-            P3["方法重写实现"]:::core
-        end
-    end
+#### Sự khác biệt giữa interface và abstract class
 
-    classDef core fill:#4CA497,color:#fff,rx:10,ry:10
-    classDef highlight fill:#E99151,color:#fff,rx:10,ry:10
+- **Mục đích thiết kế**: Interface chủ yếu được sử dụng để ràng buộc hành vi của lớp, bạn thực hiện một interface nhất định có nghĩa là bạn có hành vi tương ứng. Abstract class chủ yếu được sử dụng để tái sử dụng mã, nhấn mạnh mối quan hệ thuộc về.
+- **Kế thừa và thực hiện**: Một lớp chỉ có thể kế thừa một lớp (bao gồm cả abstract class), bởi vì Java không hỗ trợ đa kế thừa. Nhưng một lớp có thể thực hiện nhiều interface, một interface cũng có thể kế thừa nhiều interface khác.
+- **Biến thành viên**: Biến thành viên trong interface chỉ có thể là `public static final`, không thể được sửa đổi và phải có giá trị khởi tạo. Biến thành viên của abstract class có thể có bất kỳ modifier nào (`private`, `protected`, `public`), có thể được định nghĩa lại hoặc gán lại trong lớp con.
+- **Phương thức**:
+  - Trước Java 8, các phương thức trong interface mặc định là `public abstract`, tức là chỉ có thể có khai báo phương thức. Từ Java 8 trở đi, có thể định nghĩa các phương thức `default` (mặc định) và phương thức `static` (tĩnh) trong interface. Từ Java 9 trở đi, interface có thể chứa các phương thức `private`.
+  - Abstract class có thể chứa các phương thức trừu tượng và phương thức không trừu tượng. Các phương thức trừu tượng không có thân phương thức, phải được thực hiện trong lớp con. Các phương thức không trừu tượng có cách thực hiện cụ thể, có thể được sử dụng trực tiếp trong abstract class hoặc được ghi đè trong lớp con.
 
-    linkStyle default stroke-width:1.5px,opacity:0.8
-```
+Trong các phiên bản Java 8 và cao hơn, interface đã giới thiệu các loại phương thức mới: phương thức `default`, phương thức `static` và phương thức `private`. Những phương thức này làm cho việc sử dụng interface trở nên linh hoạt hơn.
 
-### ⭐️接口和抽象类有什么共同点和区别？
-
-#### 接口和抽象类的共同点
-
-- **实例化**：接口和抽象类都不能直接实例化，只能被实现（接口）或继承（抽象类）后才能创建具体的对象。
-- **抽象方法**：接口和抽象类都可以包含抽象方法。抽象方法没有方法体，必须在子类或实现类中实现。
-
-#### 接口和抽象类的区别
-
-- **设计目的**：接口主要用于对类的行为进行约束，你实现了某个接口就具有了对应的行为。抽象类主要用于代码复用，强调的是所属关系。
-- **继承和实现**：一个类只能继承一个类（包括抽象类），因为 Java 不支持多继承。但一个类可以实现多个接口，一个接口也可以继承多个其他接口。
-- **成员变量**：接口中的成员变量只能是 `public static final` 类型的，不能被修改且必须有初始值。抽象类的成员变量可以有任何修饰符（`private`, `protected`, `public`），可以在子类中被重新定义或赋值。
-- **方法**：
-  - Java 8 之前，接口中的方法默认是 `public abstract` ，也就是只能有方法声明。自 Java 8 起，可以在接口中定义 `default`（默认） 方法和 `static` （静态）方法。 自 Java 9 起，接口可以包含 `private` 方法。
-  - 抽象类可以包含抽象方法和非抽象方法。抽象方法没有方法体，必须在子类中实现。非抽象方法有具体实现，可以直接在抽象类中使用或在子类中重写。
-
-在 Java 8 及以上版本中，接口引入了新的方法类型：`default` 方法、`static` 方法和 `private` 方法。这些方法让接口的使用更加灵活。
-
-Java 8 引入的`default` 方法用于提供接口方法的默认实现，可以在实现类中被覆盖。这样就可以在不修改实现类的情况下向现有接口添加新功能，从而增强接口的扩展性和向后兼容性。
+Phương thức `default` được giới thiệu trong Java 8 được sử dụng để cung cấp cách thực hiện mặc định cho các phương thức interface, có thể bị ghi đè trong lớp triển khai. Như vậy, có thể thêm các chức năng mới vào interface hiện có mà không phải sửa đổi lớp triển khai, do đó tăng khả năng mở rộng interface và khả năng tương thích ngược.
 
 ```java
 public interface MyInterface {
     default void defaultMethod() {
-        System.out.println("This is a default method.");
+        System.out.println("Đây là một phương thức mặc định.");
     }
 }
 ```
 
-Java 8 引入的`static` 方法无法在实现类中被覆盖，只能通过接口名直接调用（ `MyInterface.staticMethod()`），类似于类中的静态方法。`static` 方法通常用于定义一些通用的、与接口相关的工具方法，一般很少用。
+Phương thức `static` được giới thiệu trong Java 8 không thể bị ghi đè trong lớp triển khai, chỉ có thể được gọi trực tiếp thông qua tên interface (`MyInterface.staticMethod()`), tương tự như phương thức tĩnh trong lớp. Phương thức `static` thường được sử dụng để định nghĩa một số phương thức tiện ích chung liên quan đến interface, thường ít được sử dụng.
 
 ```java
 public interface MyInterface {
     static void staticMethod() {
-        System.out.println("This is a static method in the interface.");
+        System.out.println("Đây là một phương thức tĩnh trong interface.");
     }
 }
 ```
 
-Java 9 允许在接口中使用 `private` 方法。`private`方法可以用于在接口内部共享代码，不对外暴露。
+Java 9 cho phép sử dụng các phương thức `private` trong interface. Các phương thức `private` có thể được sử dụng để chia sẻ mã bên trong interface, không được công khai.
 
 ```java
 public interface MyInterface {
-    // default 方法
+    // phương thức default
     default void defaultMethod() {
         commonMethod();
     }
 
-    // static 方法
+    // phương thức static
     static void staticMethod() {
-        commonMethod();
+        // cài đặt
     }
 
-    // 私有静态方法，可以被 static 和 default 方法调用
-    private static void commonMethod() {
-        System.out.println("This is a private method used internally.");
-    }
-
-      // 实例私有方法，只能被 default 方法调用。
-    private void instanceCommonMethod() {
-        System.out.println("This is a private instance method used internally.");
+    // phương thức private
+    private void commonMethod() {
+        // cài đặt
     }
 }
 ```
 
-### 深拷贝和浅拷贝区别了解吗？什么是引用拷贝？
+## String, StringBuffer, StringBuilder
 
-```mermaid
-flowchart LR
-    Copy["对象拷贝"] --> RefCopy["引用拷贝<br/>两个引用指向同一对象"]
-    Copy --> ShallowCopy["浅拷贝<br/>复制基本类型，共享引用类型"]
-    Copy --> DeepCopy["深拷贝<br/>递归复制所有属性"]
+### ⭐️ Sự khác biệt giữa String, StringBuffer, StringBuilder
 
-    classDef main fill:#005D7B,color:#fff,rx:10,ry:10
-    class Copy main
+**String**:
 
-    linkStyle default stroke-width:1.5px,opacity:0.8
-```
+- Là một lớp bất biến, một khi được tạo, giá trị của nó không thể thay đổi.
+- Vì String là bất biến, mỗi khi thực hiện một thao tác trên String (chẳng hạn như nối, cắt), một đối tượng String mới sẽ được tạo.
+- String được sử dụng rộng rãi nhưng hiệu suất không cao khi cần thực hiện nhiều thao tác trên chuỗi.
 
-关于深拷贝和浅拷贝区别，我这里先给结论：
+**StringBuffer**:
 
-- **浅拷贝**：浅拷贝会在堆上创建一个新的对象（区别于引用拷贝的一点），不过，如果原对象内部的属性是引用类型的话，浅拷贝会直接复制内部对象的引用地址，也就是说拷贝对象和原对象共用同一个内部对象。
-- **深拷贝**：深拷贝会完全复制整个对象，包括这个对象所包含的内部对象。
+- Là một lớp có thể thay đổi và luồng an toàn (thread-safe).
+- Được đồng bộ hóa, vì vậy khi được truy cập từ nhiều luồng, nó an toàn nhưng hiệu suất thấp hơn.
+- StringBuffer được sử dụng khi cần chuỗi có thể thay đổi và tính an toàn của luồng.
 
-上面的结论没有完全理解的话也没关系，我们来看一个具体的案例！
+**StringBuilder**:
 
-#### 浅拷贝
+- Là một lớp có thể thay đổi nhưng không an toàn với các luồng.
+- Không được đồng bộ hóa, vì vậy khi được truy cập từ một luồng duy nhất, nó an toàn và có hiệu suất cao hơn StringBuffer.
+- StringBuilder được sử dụng khi cần chuỗi có thể thay đổi và không cần tính an toàn của luồng.
 
-浅拷贝的示例代码如下，我们这里实现了 `Cloneable` 接口，并重写了 `clone()` 方法。
+| Đặc tính          | String | StringBuffer | StringBuilder |
+| ----------------- | ------ | ------------ | ------------- |
+| Có thể thay đổi   | Không  | Có           | Có            |
+| An toàn với luồng | Có     | Có           | Không         |
+| Hiệu suất         | Thấp   | Trung bình   | Cao           |
 
-`clone()` 方法的实现很简单，直接调用的是父类 `Object` 的 `clone()` 方法。
-
-```java
-public class Address implements Cloneable{
-    private String name;
-    // 省略构造函数、Getter&Setter方法
-    @Override
-    public Address clone() {
-        try {
-            return (Address) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-}
-
-public class Person implements Cloneable {
-    private Address address;
-    // 省略构造函数、Getter&Setter方法
-    @Override
-    public Person clone() {
-        try {
-            Person person = (Person) super.clone();
-            return person;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-}
-```
-
-测试：
-
-```java
-Person person1 = new Person(new Address("武汉"));
-Person person1Copy = person1.clone();
-// true
-System.out.println(person1.getAddress() == person1Copy.getAddress());
-```
-
-从输出结构就可以看出， `person1` 的克隆对象和 `person1` 使用的仍然是同一个 `Address` 对象。
-
-#### 深拷贝
-
-这里我们简单对 `Person` 类的 `clone()` 方法进行修改，连带着要把 `Person` 对象内部的 `Address` 对象一起复制。
-
-```java
-@Override
-public Person clone() {
-    try {
-        Person person = (Person) super.clone();
-        person.setAddress(person.getAddress().clone());
-        return person;
-    } catch (CloneNotSupportedException e) {
-        throw new AssertionError();
-    }
-}
-```
-
-测试：
-
-```java
-Person person1 = new Person(new Address("武汉"));
-Person person1Copy = person1.clone();
-// false
-System.out.println(person1.getAddress() == person1Copy.getAddress());
-```
-
-从输出结构就可以看出，显然 `person1` 的克隆对象和 `person1` 包含的 `Address` 对象已经是不同的了。
-
-**那什么是引用拷贝呢？** 简单来说，引用拷贝就是两个不同的引用指向同一个对象。
-
-我专门画了一张图来描述浅拷贝、深拷贝和引用拷贝：
-
-![图解浅拷贝、深拷贝和引用拷贝](https://oss.javaguide.cn/github/javaguide/java/basis/shallow&deep-copy.png)
-
-## ⭐️Object
-
-### Object 类的常见方法有哪些？
-
-Object 类是一个特殊的类，是所有类的父类，主要提供了以下 11 个方法：
-
-```java
-/**
- * native 方法，用于返回当前运行时对象的 Class 对象，使用了 final 关键字修饰，故不允许子类重写。
- */
-public final native Class<?> getClass()
-/**
- * native 方法，用于返回对象的哈希码，主要使用在哈希表中，比如 JDK 中的HashMap。
- */
-public native int hashCode()
-/**
- * 用于比较 2 个对象的内存地址是否相等，String 类对该方法进行了重写以用于比较字符串的值是否相等。
- */
-public boolean equals(Object obj)
-/**
- * native 方法，用于创建并返回当前对象的一份拷贝。
- */
-protected native Object clone() throws CloneNotSupportedException
-/**
- * 返回类的名字实例的哈希码的 16 进制的字符串。建议 Object 所有的子类都重写这个方法。
- */
-public String toString()
-/**
- * native 方法，并且不能重写。唤醒一个在此对象监视器上等待的线程(监视器相当于就是锁的概念)。如果有多个线程在等待只会任意唤醒一个。
- */
-public final native void notify()
-/**
- * native 方法，并且不能重写。跟 notify 一样，唯一的区别就是会唤醒在此对象监视器上等待的所有线程，而不是一个线程。
- */
-public final native void notifyAll()
-/**
- * native方法，并且不能重写。暂停线程的执行。注意：sleep 方法没有释放锁，而 wait 方法释放了锁 ，timeout 是等待时间。
- */
-public final native void wait(long timeout) throws InterruptedException
-/**
- * 多了 nanos 参数，这个参数表示额外时间（以纳秒为单位，范围是 0-999999）。 所以超时的时间还需要加上 nanos 纳秒。。
- */
-public final void wait(long timeout, int nanos) throws InterruptedException
-/**
- * 跟之前的2个wait方法一样，只不过该方法一直等待，没有超时时间这个概念
- */
-public final void wait() throws InterruptedException
-/**
- * 实例被垃圾回收器回收的时候触发的操作
- */
-protected void finalize() throws Throwable { }
-```
-
-### == 和 equals() 的区别
-
-**`==`** 对于基本类型和引用类型的作用效果是不同的：
-
-- 对于基本数据类型来说，`==` 比较的是值。
-- 对于引用数据类型来说，`==` 比较的是对象的内存地址。
-
-> 因为 Java 只有值传递，所以，对于 == 来说，不管是比较基本数据类型，还是引用数据类型的变量，其本质比较的都是值，只是引用类型变量存的值是对象的地址。
-
-**`equals()`** 不能用于判断基本数据类型的变量，只能用来判断两个对象是否相等。`equals()`方法存在于`Object`类中，而`Object`类是所有类的直接或间接父类，因此所有的类都有`equals()`方法。
-
-`Object` 类 `equals()` 方法：
-
-```java
-public boolean equals(Object obj) {
-     return (this == obj);
-}
-```
-
-`equals()` 方法存在两种使用情况：
-
-- **类没有重写 `equals()`方法**：通过`equals()`比较该类的两个对象时，等价于通过“==”比较这两个对象，使用的默认是 `Object`类`equals()`方法。
-- **类重写了 `equals()`方法**：一般我们都重写 `equals()`方法来比较两个对象中的属性是否相等；若它们的属性相等，则返回 true(即，认为这两个对象相等)。
-
-举个例子（这里只是为了举例。实际上，你按照下面这种写法的话，像 IDEA 这种比较智能的 IDE 都会提示你将 `==` 换成 `equals()` ）：
-
-```java
-String a = new String("ab"); // a 为一个引用
-String b = new String("ab"); // b为另一个引用,对象的内容一样
-String aa = "ab"; // 放在常量池中
-String bb = "ab"; // 从常量池中查找
-System.out.println(aa == bb);// true
-System.out.println(a == b);// false
-System.out.println(a.equals(b));// true
-System.out.println(42 == 42.0);// true
-```
-
-`String` 中的 `equals` 方法是被重写过的，因为 `Object` 的 `equals` 方法是比较的对象的内存地址，而 `String` 的 `equals` 方法比较的是对象的值。
-
-当使用字符串字面量创建 `String` 类型的对象（如`String aa = "ab"`）时，虚拟机会在常量池中查找有没有已经存在的值和要创建的值相同的对象，如果有就把它赋给当前引用；如果没有，就在常量池中创建一个 `String` 对象并赋给当前引用。但当使用`new`关键字创建对象（如`String a = new String("ab")`）时，虚拟机总是会在堆内存中**创建一个新的对象**并使用常量池中的值（如果没有，会先在字符串常量池中创建字符串对象 "ab"）进行初始化，然后赋给当前引用。
-
-`String`类`equals()`方法：
-
-```java
-public boolean equals(Object anObject) {
-    if (this == anObject) {
-        return true;
-    }
-    if (anObject instanceof String) {
-        String anotherString = (String)anObject;
-        int n = value.length;
-        if (n == anotherString.value.length) {
-            char v1[] = value;
-            char v2[] = anotherString.value;
-            int i = 0;
-            while (n-- != 0) {
-                if (v1[i] != v2[i])
-                    return false;
-                i++;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-```
-
-### hashCode() 有什么用？
-
-`hashCode()` 的作用是获取哈希码（`int` 整数），也称为散列码。这个哈希码的作用是确定该对象在哈希表中的索引位置。
-
-![hashCode() 方法](https://oss.javaguide.cn/github/javaguide/java/basis/java-hashcode-method.png)
-
-`hashCode()` 定义在 JDK 的 `Object` 类中，这就意味着 Java 中的任何类都包含有 `hashCode()` 函数。另外需要注意的是：`Object` 的 `hashCode()` 方法是本地方法，也就是用 C 语言或 C++ 实现的。
-
-> ⚠️ 注意：该方法在 **Oracle OpenJDK8** 中默认是 "使用线程局部状态来实现 Marsaglia's xor-shift 随机数生成", 并不是 "地址" 或者 "地址转换而来", 不同 JDK/VM 可能不同。在 **Oracle OpenJDK8** 中有六种生成方式 (其中第五种是返回地址), 通过添加 VM 参数: -XX:hashCode=4 启用第五种。参考源码:
+> **String là thực sự bất biến**
 >
-> - <https://hg.openjdk.org/jdk8u/jdk8u/hotspot/file/87ee5ee27509/src/share/vm/runtime/globals.hpp>（1127 行）
-> - <https://hg.openjdk.org/jdk8u/jdk8u/hotspot/file/87ee5ee27509/src/share/vm/runtime/synchronizer.cpp>（537 行开始）
-
-```java
-public native int hashCode();
-```
-
-散列表存储的是键值对(key-value)，它的特点是：**能根据“键”快速的检索出对应的“值”。这其中就利用到了散列码！（可以快速找到所需要的对象）**
-
-### 为什么要有 hashCode？
-
-我们以“HashSet 如何检查重复”为例子来说明为什么要有 hashCode？
-
-当我们把对象加入 HashSet 时，HashSet 会先调用对象的 `hashCode()` 方法，得到一个“哈希值”，并通过内部散列函数对这个哈希值再做一次简单的转换（比如取余），决定这条数据应该放进底层数组的哪一个桶（bucket，对应到底层数组的某个位置）：
-
-1. 如果该桶当前是空的，就直接将对象对应的节点插入到这个桶中。
-2. 如果该桶中已经有其他元素，HashSet 会在这个桶对应的链表或红黑树中逐个比较：
-   - 对于**哈希值不同**的节点，直接跳过；
-   - 对于**哈希值相同**的节点，则会进一步调用 equals() 方法来检查这两个对象是否“相等”：
-     – 如果 `equals()` 返回 true，说明集合中已经存在与当前对象等价的元素，`HashSet` 就不会再次加入它；
-     – 如果返回 false， 则认为是新元素，会将该对象作为一个新节点加入到**同一个桶**的链表或红黑树中。
-
-通过先利用 `hashCode()` 将候选范围缩小到同一个桶内，再在桶内少量元素上调用 `equals()` 做精确判断，`HashSet` 大大减少了 `equals()` 的调用次数，从而提高了查找和插入的执行效率。
-
-**那为什么 JDK 还要同时提供这两个方法呢？**
-
-这是因为在一些容器（比如 `HashMap`、`HashSet`）中，有了 `hashCode()` 之后，判断元素是否在对应容器中的效率会更高（参考添加元素进`HashSet`的过程）！
-
-我们在前面也提到了添加元素进`HashSet`的过程，如果 `HashSet` 在对比的时候，同样的 `hashCode` 有多个对象，它会继续使用 `equals()` 来判断是否真的相同。也就是说 `hashCode` 帮助我们大大缩小了查找成本。
-
-**那为什么不只提供 `hashCode()` 方法呢？**
-
-这是因为两个对象的`hashCode` 值相等并不代表两个对象就相等。
-
-**那为什么两个对象有相同的 `hashCode` 值，它们也不一定是相等的？**
-
-因为 `hashCode()` 所使用的哈希算法也许刚好会让多个对象传回相同的哈希值。越糟糕的哈希算法越容易碰撞，但这也与数据值域分布的特性有关（所谓哈希碰撞就是指不同的对象得到相同的 `hashCode` )。
-
-总结下来就是：
-
-- 如果两个对象的`hashCode` 值相等，那这两个对象不一定相等（哈希碰撞）。
-- 如果两个对象的`hashCode` 值相等并且`equals()`方法也返回 `true`，我们才认为这两个对象相等。
-- 如果两个对象的`hashCode` 值不相等，我们就可以直接认为这两个对象不相等。
-
-相信大家看了我前面对 `hashCode()` 和 `equals()` 的介绍之后，下面这个问题已经难不倒你们了。
-
-### 为什么重写 equals() 时必须重写 hashCode() 方法？
-
-因为两个相等的对象的 `hashCode` 值必须是相等。也就是说如果 `equals` 方法判断两个对象是相等的，那这两个对象的 `hashCode` 值也要相等。
-
-如果重写 `equals()` 时没有重写 `hashCode()` 方法的话就可能会导致 `equals` 方法判断是相等的两个对象，`hashCode` 值却不相等。
-
-**思考**：重写 `equals()` 时没有重写 `hashCode()` 方法的话，使用 `HashMap` 可能会出现什么问题。
-
-**总结**：
-
-- `equals` 方法判断两个对象是相等的，那这两个对象的 `hashCode` 值也要相等。
-- 两个对象有相同的 `hashCode` 值，他们也不一定是相等的（哈希碰撞）。
-
-更多关于 `hashCode()` 和 `equals()` 的内容可以查看：[Java hashCode() 和 equals()的若干问题解答](https://www.cnblogs.com/skywang12345/p/3324958.html)
-
-## String
-
-### ⭐️String、StringBuffer、StringBuilder 的区别？
-
-**可变性**
-
-`String` 是不可变的（后面会详细分析原因）。
-
-`StringBuilder` 与 `StringBuffer` 都继承自 `AbstractStringBuilder` 类，在 `AbstractStringBuilder` 中也是使用字符数组保存字符串，不过没有使用 `final` 和 `private` 关键字修饰，最关键的是这个 `AbstractStringBuilder` 类还提供了很多修改字符串的方法比如 `append` 方法。
-
-```java
-abstract class AbstractStringBuilder implements Appendable, CharSequence {
-    char[] value;
-    public AbstractStringBuilder append(String str) {
-        if (str == null)
-            return appendNull();
-        int len = str.length();
-        ensureCapacityInternal(count + len);
-        str.getChars(0, len, value, count);
-        count += len;
-        return this;
-    }
-    //...
-}
-```
-
-**线程安全性**
-
-`String` 中的对象是不可变的，也就可以理解为常量，线程安全。`AbstractStringBuilder` 是 `StringBuilder` 与 `StringBuffer` 的公共父类，定义了一些字符串的基本操作，如 `expandCapacity`、`append`、`insert`、`indexOf` 等公共方法。`StringBuffer` 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。`StringBuilder` 并没有对方法进行加同步锁，所以是非线程安全的。
-
-<img src="https://oss.javaguide.cn/github/javaguide/java/basis/stringbuffer-methods.png" style="zoom:50%;" />
-
-**性能**
-
-每次对 `String` 类型进行改变的时候，都会生成一个新的 `String` 对象，然后将指针指向新的 `String` 对象。`StringBuffer` 每次都会对 `StringBuffer` 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 `StringBuilder` 相比使用 `StringBuffer` 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。
-
-**对于三者使用的总结：**
-
-- 操作少量的数据: 适用 `String`
-- 单线程操作字符串缓冲区下操作大量数据: 适用 `StringBuilder`
-- 多线程操作字符串缓冲区下操作大量数据: 适用 `StringBuffer`
-
-### ⭐️String 为什么是不可变的?
-
-`String` 类中使用 `final` 关键字修饰字符数组来保存字符串，~~所以`String` 对象是不可变的。~~
-
-```java
-public final class String implements java.io.Serializable, Comparable<String>, CharSequence {
-    private final char value[];
-  //...
-}
-```
-
-> 🐛 修正：我们知道被 `final` 关键字修饰的类不能被继承，修饰的方法不能被重写，修饰的变量是基本数据类型则值不能改变，修饰的变量是引用类型则不能再指向其他对象。因此，`final` 关键字修饰的数组保存字符串并不是 `String` 不可变的根本原因，因为这个数组保存的字符串是可变的（`final` 修饰引用类型变量的情况）。
+> `String` thực sự bất biến có những lý do sau:
 >
-> `String` 真正不可变有下面几点原因：
+> 1. Mảng lưu trữ chuỗi được sửa đổi bằng `final` và là riêng tư, và lớp `String` không cung cấp / không công khai bất kỳ phương thức nào để sửa đổi chuỗi này.
+> 2. Lớp `String` được sửa đổi bằng `final` dẫn đến nó không thể bị kế thừa, do đó tránh được lớp con phá vỡ tính bất biến của `String`.
 >
-> 1. 保存字符串的数组被 `final` 修饰且为私有的，并且`String` 类没有提供/暴露修改这个字符串的方法。
-> 2. `String` 类被 `final` 修饰导致其不能被继承，进而避免了子类破坏 `String` 不可变。
->
-> 相关阅读：[如何理解 String 类型值的不可变？ - 知乎提问](https://www.zhihu.com/question/20618891/answer/114125846)
->
-> 补充（来自[issue 675](https://github.com/Snailclimb/JavaGuide/issues/675)）：在 Java 9 之后，`String`、`StringBuilder` 与 `StringBuffer` 的实现改用 `byte` 数组存储字符串。
+> Lưu ý bổ sung (từ [issue 675](https://github.com/Snailclimb/JavaGuide/issues/675)): Sau Java 9, `String`, `StringBuilder` và `StringBuffer` được cài đặt bằng cách sử dụng mảng `byte` để lưu trữ chuỗi.
 >
 > ```java
 > public final class String implements java.io.Serializable,Comparable<String>, CharSequence {
->     // @Stable 注解表示变量最多被修改一次，称为“稳定的”。
+>     // @Stable annotation cho biết biến được sửa đổi tối đa một lần, được gọi là "ổn định".
 >     @Stable
 >     private final byte[] value;
 > }
 >
 > abstract class AbstractStringBuilder implements Appendable, CharSequence {
 >     byte[] value;
->
 > }
 > ```
 >
-> **Java 9 为何要将 `String` 的底层实现由 `char[]` 改成了 `byte[]` ?**
+> **Tại sao Java 9 lại thay đổi cài đặt cơ sở của `String` từ `char[]` thành `byte[]`?**
 >
-> 新版的 String 其实支持两个编码方案：Latin-1 和 UTF-16。如果字符串中包含的汉字没有超过 Latin-1 可表示范围内的字符，那就会使用 Latin-1 作为编码方案。Latin-1 编码方案下，`byte` 占一个字节(8 位)，`char` 占用 2 个字节（16），`byte` 相较 `char` 节省一半的内存空间。
+> Phiên bản mới của String thực sự hỗ trợ hai sơ đồ mã hóa: Latin-1 và UTF-16. Nếu chuỗi chứa các ký tự Hán trong phạm vi có thể được biểu diễn bằng Latin-1, thì sơ đồ mã hóa Latin-1 sẽ được sử dụng. Trong sơ đồ mã hóa Latin-1, `byte` chiếm một byte (8 bit), `char` chiếm 2 byte (16 bit), `byte` tiết kiệm một nửa bộ nhớ so với `char`.
 >
-> JDK 官方就说了绝大部分字符串对象只包含 Latin-1 可表示的字符。
+> JDK chính thức nói rằng phần lớn các đối tượng chuỗi chỉ chứa các ký tự có thể được biểu diễn bằng Latin-1.
 >
-> ![](https://oss.javaguide.cn/github/javaguide/jdk9-string-latin1.png)
->
-> 如果字符串中包含的汉字超过 Latin-1 可表示范围内的字符，`byte` 和 `char` 所占用的空间是一样的。
->
-> 这是官方的介绍：<https://openjdk.java.net/jeps/254> 。
+> Nếu chuỗi chứa các ký tự Hán vượt quá phạm vi có thể được biểu diễn bằng Latin-1, thì không gian bị chiếm bởi `byte` và `char` là như nhau.
 
-### ⭐️字符串拼接用“+” 还是 StringBuilder?
+### ⭐️ Sử dụng "+" hay StringBuilder để nối chuỗi?
 
-Java 语言本身并不支持运算符重载，“+”和“+=”是专门为 String 类重载过的运算符，也是 Java 中仅有的两个重载过的运算符。
+Ngôn ngữ Java không hỗ trợ nạp chồng toán tử, "+" và "+=" là các toán tử được nạp chồng đặc biệt cho lớp String, cũng là hai toán tử duy nhất được nạp chồng trong Java.
 
 ```java
 String str1 = "he";
@@ -697,13 +330,11 @@ String str3 = "world";
 String str4 = str1 + str2 + str3;
 ```
 
-上面的代码对应的字节码如下：
+Mã byte tương ứng với đoạn mã trên:
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220422161637929.png)
+Có thể thấy rằng, các đối tượng chuỗi thông qua cách nối chuỗi "+" thực sự được triển khai bằng cách gọi phương thức `append()` của `StringBuilder`, sau khi nối xong, gọi `toString()` để nhận được một đối tượng `String`.
 
-可以看出，字符串对象通过“+”的字符串拼接方式，实际上是通过 `StringBuilder` 调用 `append()` 方法实现的，拼接完成之后调用 `toString()` 得到一个 `String` 对象 。
-
-不过，在循环内使用“+”进行字符串的拼接的话，存在比较明显的缺陷：**编译器不会创建单个 `StringBuilder` 以复用，会导致创建过多的 `StringBuilder` 对象**。
+Tuy nhiên, nếu sử dụng "+" cho nối chuỗi bên trong vòng lặp, sẽ có một vấn đề rõ ràng: **trình biên dịch sẽ không tạo một `StringBuilder` duy nhất để tái sử dụng, sẽ dẫn đến việc tạo quá nhiều đối tượng `StringBuilder`**.
 
 ```java
 String[] arr = {"he", "llo", "world"};
@@ -714,11 +345,9 @@ for (int i = 0; i < arr.length; i++) {
 System.out.println(s);
 ```
 
-`StringBuilder` 对象是在循环内部被创建的，这意味着每循环一次就会创建一个 `StringBuilder` 对象。
+Đối tượng `StringBuilder` được tạo bên trong vòng lặp, điều này có nghĩa là mỗi lần lặp sẽ tạo một đối tượng `StringBuilder`.
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220422161320823.png)
-
-如果直接使用 `StringBuilder` 对象进行字符串拼接的话，就不会存在这个问题了。
+Nếu sử dụng trực tiếp đối tượng `StringBuilder` để nối chuỗi, vấn đề này sẽ không xảy ra.
 
 ```java
 String[] arr = {"he", "llo", "world"};
@@ -729,92 +358,88 @@ for (String value : arr) {
 System.out.println(s);
 ```
 
-![](https://oss.javaguide.cn/github/javaguide/java/image-20220422162327415.png)
+Nếu bạn sử dụng IDEA, cơ chế kiểm tra mã được tích hợp sẵn trong IDEA cũng sẽ gợi ý bạn sửa đổi mã.
 
-如果你使用 IDEA 的话，IDEA 自带的代码检查机制也会提示你修改代码。
+Trong JDK 9, phép cộng chuỗi "+" được thay đổi để sử dụng phương thức động `makeConcatWithConstants()` để triển khai, bằng cách cấp phát sẵn không gian từ đó giảm bớt việc tạo một số đối tượng tạm thời. Tuy nhiên, tối ưu hóa này chủ yếu dành cho phép nối chuỗi đơn giản, chẳng hạn như: `a+b+c`. Đối với các thao tác nối lớp bên trong vòng lặp, vẫn sẽ cấp phát bộ nhớ động từng cái một (tương tự khái niệm hai cái hai append), hiệu suất không cao bằng cách sử dụng StringBuilder thủ công để nối.
 
-在 JDK 9 中，字符串相加“+”改为用动态方法 `makeConcatWithConstants()` 来实现，通过提前分配空间从而减少了部分临时对象的创建。然而这种优化主要针对简单的字符串拼接，如： `a+b+c` 。对于循环中的大量拼接操作，仍然会逐个动态分配内存（类似于两个两个 append 的概念），并不如手动使用 StringBuilder 来进行拼接效率高。这个改进是 JDK9 的 [JEP 280](https://openjdk.org/jeps/280) 提出的，关于这部分改进的详细介绍，推荐阅读这篇文章：还在无脑用 [StringBuilder？来重温一下字符串拼接吧](https://juejin.cn/post/7182872058743750715) 以及参考 [issue#2442](https://github.com/Snailclimb/JavaGuide/issues/2442)。
+### String#equals() và Object#equals() có gì khác nhau?
 
-### String#equals() 和 Object#equals() 有何区别？
+Phương thức `equals` trong `String` đã bị ghi đè, so sánh giá trị của chuỗi String có bằng nhau hay không. Phương thức `equals` của `Object` là so sánh địa chỉ bộ nhớ của các đối tượng.
 
-`String` 中的 `equals` 方法是被重写过的，比较的是 String 字符串的值是否相等。 `Object` 的 `equals` 方法是比较的对象的内存地址。
+### ⭐️ Bạn hiểu về tác dụng của string constant pool không?
 
-### ⭐️字符串常量池的作用了解吗？
-
-**字符串常量池** 是 JVM 为了提升性能和减少内存消耗针对字符串（String 类）专门开辟的一块区域，主要目的是为了避免字符串的重复创建。
+**String constant pool** là một vùng được JVM mở ra để nâng cao hiệu suất và giảm mức tiêu thụ bộ nhớ đối với các chuỗi (lớp String), mục đích chính là tránh tạo các chuỗi trùng lặp.
 
 ```java
-// 1.在字符串常量池中查询字符串对象 "ab"，如果没有则创建"ab"并放入字符串常量池
-// 2.将字符串对象 "ab" 的引用赋值给 aa
+// 1. Tìm kiếm đối tượng chuỗi "ab" trong string constant pool, nếu không có thì tạo "ab" và đặt vào string constant pool
+// 2. Gán tham chiếu đối tượng chuỗi "ab" cho aa
 String aa = "ab";
-// 直接返回字符串常量池中字符串对象 "ab"，赋值给引用 bb
+// Trực tiếp trả về đối tượng chuỗi "ab" trong string constant pool, gán cho tham chiếu bb
 String bb = "ab";
 System.out.println(aa==bb); // true
 ```
 
-更多关于字符串常量池的介绍可以看一下 [Java 内存区域详解](https://javaguide.cn/java/jvm/memory-area.html) 这篇文章。
+Để biết thêm thông tin về string constant pool, bạn có thể xem bài viết [Chi tiết về vùng bộ nhớ Java](https://javaguide.cn/java/jvm/memory-area.html).
 
-### ⭐️String s1 = new String("abc");这句话创建了几个字符串对象？
+### ⭐️ Câu lệnh `String s1 = new String("abc");` tạo bao nhiêu đối tượng chuỗi?
 
-先说答案：会创建 1 或 2 个字符串对象。
+Câu trả lời trước tiên: sẽ tạo 1 hoặc 2 đối tượng chuỗi.
 
-1. 字符串常量池中不存在 "abc"：会创建 2 个 字符串对象。一个在字符串常量池中，由 `ldc` 指令触发创建。一个在堆中，由 `new String()` 创建，并使用常量池中的 "abc" 进行初始化。
-2. 字符串常量池中已存在 "abc"：会创建 1 个 字符串对象。该对象在堆中，由 `new String()` 创建，并使用常量池中的 "abc" 进行初始化。
+1. Nếu "abc" không tồn tại trong string constant pool: sẽ tạo 2 đối tượng chuỗi. Một cái trong string constant pool, được tạo bởi lệnh `ldc`. Một cái trong heap, được tạo bởi `new String()`, được khởi tạo sử dụng "abc" từ constant pool.
+2. Nếu "abc" đã tồn tại trong string constant pool: sẽ tạo 1 đối tượng chuỗi. Đối tượng này trong heap, được tạo bởi `new String()`, được khởi tạo sử dụng "abc" từ constant pool.
 
-下面开始详细分析。
+Bây giờ hãy bắt đầu phân tích chi tiết.
 
-下面开始详细分析。
+1、Nếu đối tượng chuỗi "abc" không tồn tại trong string constant pool, trước tiên nó sẽ tạo đối tượng chuỗi "abc" trong string constant pool, sau đó tạo một đối tượng chuỗi "abc" khác trong heap memory.
 
-1、如果字符串常量池中不存在字符串对象 “abc”，那么它首先会在字符串常量池中创建字符串对象 "abc"，然后在堆内存中再创建其中一个字符串对象 "abc"。
-
-示例代码（JDK 1.8）：
+Ví dụ mã (JDK 1.8):
 
 ```java
 String s1 = new String("abc");
 ```
 
-对应的字节码：
+Mã byte tương ứng:
 
 ```java
-// 在堆内存中分配一个尚未初始化的 String 对象。
-// #2 是常量池中的一个符号引用，指向 java/lang/String 类。
-// 在类加载的解析阶段，这个符号引用会被解析成直接引用，即指向实际的 java/lang/String 类。
+// Cấp phát một đối tượng String chưa được khởi tạo trong heap memory.
+// #2 là một tham chiếu tượng trưng trong constant pool, chỉ đến lớp java/lang/String.
+// Trong giai đoạn giải quyết của việc tải lớp, tham chiếu tượng trưng này sẽ được giải quyết thành tham chiếu trực tiếp, tức là chỉ đến lớp java/lang/String thực tế.
 0 new #2 <java/lang/String>
-// 复制栈顶的 String 对象引用，为后续的构造函数调用做准备。
-// 此时操作数栈中有两个相同的对象引用：一个用于传递给构造函数，另一个用于保持对新对象的引用，后续将其存储到局部变量表。
+// Sao chép tham chiếu đối tượng String ở đỉnh stack, chuẩn bị cho cuộc gọi hàm khởi tạo tiếp theo.
+// Lúc này, operand stack có hai tham chiếu đối tượng giống nhau: một được chuyển đến hàm khởi tạo, cái kia để giữ tham chiếu đến đối tượng mới, sau này sẽ được lưu trữ trong bảng biến cục bộ.
 3 dup
-// JVM 先检查字符串常量池中是否存在 "abc"。
-// 如果常量池中已存在 "abc"，则直接返回该字符串的引用；
-// 如果常量池中不存在 "abc"，则 JVM 会在常量池中创建该字符串字面量并返回它的引用。
-// 这个引用被压入操作数栈，用作构造函数的参数。
+// JVM trước tiên kiểm tra xem "abc" có tồn tại trong string constant pool hay không.
+// Nếu "abc" đã tồn tại trong constant pool, trả về trực tiếp tham chiếu của chuỗi đó;
+// Nếu "abc" không tồn tại trong constant pool, JVM sẽ tạo chuỗi từ chữ "abc" trong constant pool và trả về tham chiếu của nó.
+// Tham chiếu này được đẩy vào operand stack, được sử dụng như một tham số của hàm khởi tạo.
 4 ldc #3 <abc>
-// 调用构造方法，使用从常量池中加载的 "abc" 初始化堆中的 String 对象
-// 新的 String 对象将包含与常量池中的 "abc" 相同的内容，但它是一个独立的对象，存储于堆中。
+// Gọi phương thức khởi tạo, sử dụng "abc" được tải từ constant pool để khởi tạo đối tượng String trong heap
+// Đối tượng String mới sẽ chứa nội dung giống như "abc" trong constant pool, nhưng nó là một đối tượng độc lập, được lưu trữ trong heap.
 6 invokespecial #4 <java/lang/String.<init> : (Ljava/lang/String;)V>
-// 将堆中的 String 对象引用存储到局部变量表
+// Lưu trữ tham chiếu đối tượng String trong heap vào bảng biến cục bộ
 9 astore_1
-// 返回，结束方法
+// Trả về, kết thúc phương thức
 10 return
 ```
 
-`ldc (load constant)` 指令的确是从常量池中加载各种类型的常量，包括字符串常量、整数常量、浮点数常量，甚至类引用等。对于字符串常量，`ldc` 指令的行为如下：
+Lệnh `ldc (load constant)` thực sự tải các hằng số khác nhau từ constant pool, bao gồm hằng số chuỗi, hằng số nguyên, hằng số dấu phẩy động, thậm chí các tham chiếu lớp. Đối với hằng số chuỗi, hành vi của lệnh `ldc` như sau:
 
-1. **从常量池加载字符串**：`ldc` 首先检查字符串常量池中是否已经有内容相同的字符串对象。
-2. **复用已有字符串对象**：如果字符串常量池中已经存在内容相同的字符串对象，`ldc` 会将该对象的引用加载到操作数栈上。
-3. **没有则创建新对象并加入常量池**：如果字符串常量池中没有相同内容的字符串对象，JVM 会在常量池中创建一个新的字符串对象，并将其引用加载到操作数栈中。
+1. **Tải chuỗi từ constant pool**: `ldc` trước tiên kiểm tra xem constant pool đã có đối tượng chuỗi có nội dung giống nhau hay chưa.
+2. **Tái sử dụng đối tượng chuỗi hiện có**: Nếu constant pool đã có đối tượng chuỗi có nội dung giống nhau, `ldc` sẽ tải tham chiếu của đối tượng đó vào operand stack.
+3. **Không có thì tạo mới và thêm vào constant pool**: Nếu constant pool không có đối tượng chuỗi có nội dung giống nhau, JVM sẽ tạo một đối tượng chuỗi mới trong constant pool, và tải tham chiếu của nó vào operand stack.
 
-2、如果字符串常量池中已存在字符串对象“abc”，则只会在堆中创建 1 个字符串对象“abc”。
+2、Nếu đối tượng chuỗi "abc" đã tồn tại trong string constant pool, sẽ chỉ tạo 1 đối tượng chuỗi "abc" trong heap.
 
-示例代码（JDK 1.8）：
+Ví dụ mã (JDK 1.8):
 
 ```java
-// 字符串常量池中已存在字符串对象“abc”
+// Đối tượng chuỗi "abc" đã tồn tại trong string constant pool
 String s1 = "abc";
-// 下面这段代码只会在堆中创建 1 个字符串对象“abc”
+// Đoạn mã dưới đây chỉ sẽ tạo 1 đối tượng chuỗi "abc" trong heap
 String s2 = new String("abc");
 ```
 
-对应的字节码：
+Mã byte tương ứng:
 
 ```java
 0 ldc #2 <abc>
@@ -827,42 +452,42 @@ String s2 = new String("abc");
 13 return
 ```
 
-这里就不对上面的字节码进行详细注释了，7 这个位置的 `ldc` 命令不会在堆中创建新的字符串对象“abc”，这是因为 0 这个位置已经执行了一次 `ldc` 命令，已经在堆中创建过一次字符串对象“abc”了。7 这个位置执行 `ldc` 命令会直接返回字符串常量池中字符串对象“abc”对应的引用。
+Ở đây không chi tiết bình luận mã byte ở trên, lệnh `ldc` ở vị trí 7 sẽ không tạo một đối tượng chuỗi mới "abc" trong heap, điều này là vì lệnh `ldc` ở vị trí 0 đã được thực thi một lần, đã tạo một đối tượng chuỗi "abc" trong heap một lần rồi. Lệnh `ldc` ở vị trí 7 sẽ trực tiếp trả về tham chiếu của đối tượng chuỗi "abc" trong string constant pool.
 
-### String#intern 方法有什么作用?
+### Phương thức String#intern() có tác dụng gì?
 
-`String.intern()` 是一个 `native` (本地) 方法，用来处理字符串常量池中的字符串对象引用。它的工作流程可以概括为以下两种情况：
+`String.intern()` là một phương thức `native` (bản địa), được sử dụng để xử lý các tham chiếu đối tượng chuỗi trong string constant pool. Quy trình làm việc của nó có thể được tóm tắt như sau:
 
-1. **常量池中已有相同内容的字符串对象**：如果字符串常量池中已经有一个与调用 `intern()` 方法的字符串内容相同的 `String` 对象，`intern()` 方法会直接返回常量池中该对象的引用。
-2. **常量池中没有相同内容的字符串对象**：如果字符串常量池中还没有一个与调用 `intern()` 方法的字符串内容相同的对象，`intern()` 方法会将当前字符串对象的引用添加到字符串常量池中，并返回该引用。
+1. **Constant pool đã có đối tượng chuỗi có nội dung giống nhau**: Nếu string constant pool đã có một đối tượng `String` có nội dung giống với chuỗi gọi phương thức `intern()`, phương thức `intern()` sẽ trực tiếp trả về tham chiếu của đối tượng đó trong constant pool.
+2. **Constant pool không có đối tượng chuỗi có nội dung giống nhau**: Nếu string constant pool chưa có một đối tượng có nội dung giống với chuỗi gọi phương thức `intern()`, phương thức `intern()` sẽ thêm tham chiếu của đối tượng chuỗi hiện tại vào string constant pool, và trả về tham chiếu đó.
 
-总结：
+Tóm tắt:
 
-- `intern()` 方法的主要作用是确保字符串引用在常量池中的唯一性。
-- 当调用 `intern()` 时，如果常量池中已经存在相同内容的字符串，则返回常量池中已有对象的引用；否则，将该字符串添加到常量池并返回其引用。
+- Công dụng chính của phương thức `intern()` là đảm bảo tính duy nhất của tham chiếu chuỗi trong constant pool.
+- Khi gọi `intern()`, nếu constant pool đã có chuỗi có nội dung giống nhau, sẽ trả về tham chiếu của đối tượng hiện có trong constant pool; ngược lại, sẽ thêm chuỗi này vào constant pool và trả về tham chiếu của nó.
 
-示例代码（JDK 1.8） :
+Ví dụ mã (JDK 1.8):
 
 ```java
-// s1 指向字符串常量池中的 "Java" 对象
+// s1 chỉ đến đối tượng "Java" trong string constant pool
 String s1 = "Java";
-// s2 也指向字符串常量池中的 "Java" 对象，和 s1 是同一个对象
+// s2 cũng chỉ đến đối tượng "Java" trong string constant pool, là cùng một đối tượng với s1
 String s2 = s1.intern();
-// 在堆中创建一个新的 "Java" 对象，s3 指向它
+// Tạo một đối tượng "Java" mới trong heap, s3 chỉ đến nó
 String s3 = new String("Java");
-// s4 指向字符串常量池中的 "Java" 对象，和 s1 是同一个对象
+// s4 chỉ đến đối tượng "Java" trong string constant pool, là cùng một đối tượng với s1
 String s4 = s3.intern();
-// s1 和 s2 指向的是同一个常量池中的对象
+// s1 và s2 chỉ đến cùng một đối tượng trong constant pool
 System.out.println(s1 == s2); // true
-// s3 指向堆中的对象，s4 指向常量池中的对象，所以不同
+// s3 chỉ đến đối tượng trong heap, s4 chỉ đến đối tượng trong constant pool, vì vậy khác nhau
 System.out.println(s3 == s4); // false
-// s1 和 s4 都指向常量池中的同一个对象
+// s1 và s4 đều chỉ đến cùng một đối tượng trong constant pool
 System.out.println(s1 == s4); // true
 ```
 
-### String 类型的变量和常量做“+”运算时发生了什么？
+### Điều gì xảy ra khi biến loại String và hằng số String thực hiện phép "+"?
 
-先来看字符串不加 `final` 关键字拼接的情况（JDK1.8）：
+Trước tiên, hãy xem trường hợp cộng chuỗi không có từ khóa `final` (JDK1.8):
 
 ```java
 String str1 = "str";
@@ -875,70 +500,64 @@ System.out.println(str3 == str5);//true
 System.out.println(str4 == str5);//false
 ```
 
-> **注意**：比较 String 字符串的值是否相等，可以使用 `equals()` 方法。 `String` 中的 `equals` 方法是被重写过的。 `Object` 的 `equals` 方法是比较的对象的内存地址，而 `String` 的 `equals` 方法比较的是字符串的值是否相等。如果你使用 `==` 比较两个字符串是否相等的话，IDEA 还是提示你使用 `equals()` 方法替换。
+> **Lưu ý**: Để so sánh xem giá trị của chuỗi String có bằng nhau hay không, có thể sử dụng phương thức `equals()`. Phương thức `equals` trong `String` đã bị ghi đè. Phương thức `equals` của `Object` so sánh địa chỉ bộ nhớ của các đối tượng, trong khi phương thức `equals` của `String` so sánh xem giá trị của chuỗi có bằng nhau hay không. Nếu sử dụng `==` để so sánh xem hai chuỗi có bằng nhau hay không, IDEA vẫn sẽ gợi ý bạn sử dụng phương thức `equals()` để thay thế.
 
-![](https://oss.javaguide.cn/java-guide-blog/image-20210817123252441.png)
+**Đối với các chuỗi mà giá trị có thể được xác định vào thời kỳ biên dịch, tức là hằng số chuỗi, JVM sẽ lưu trữ chúng vào string constant pool. Hơn nữa, chuỗi được lấy từ việc nối các hằng số chuỗi đã được lưu trữ trong string constant pool tại thời kỳ biên dịch, điều này là nhờ tối ưu hóa của trình biên dịch.**
 
-**对于编译期可以确定值的字符串，也就是常量字符串 ，jvm 会将其存入字符串常量池。并且，字符串常量拼接得到的字符串常量在编译阶段就已经被存放字符串常量池，这个得益于编译器的优化。**
+Trong quá trình biên dịch, trình biên dịch Javac (gọi là trình biên dịch trong phần dưới đây) thực hiện một tối ưu hóa mã được gọi là **constant folding** (gấp hằng số).
 
-在编译过程中，Javac 编译器（下文中统称为编译器）会进行一个叫做 **常量折叠(Constant Folding)** 的代码优化。《深入理解 Java 虚拟机》中是也有介绍到：
+Constant folding sẽ tính toán giá trị của biểu thức hằng số và nhúng nó dưới dạng hằng số trong mã được tạo cuối cùng, đây là một trong số rất ít các tối ưu hóa mà trình biên dịch Javac sẽ thực hiện trên mã nguồn (các tối ưu hóa mã hầu như đều được thực hiện trong trình biên dịch theo thời gian thực).
 
-![](https://oss.javaguide.cn/javaguide/image-20210817142715396.png)
+Đối với `String str3 = "str" + "ing";`, trình biên dịch sẽ tối ưu hóa cho bạn thành `String str3 = "string";`.
 
-常量折叠会把常量表达式的值求出来作为常量嵌在最终生成的代码中，这是 Javac 编译器会对源代码做的极少量优化措施之一(代码优化几乎都在即时编译器中进行)。
+Không phải tất cả các hằng số đều sẽ được gấp, chỉ những hằng số mà trình biên dịch có thể xác định giá trị trong quá trình biên dịch chương trình mới có thể:
 
-对于 `String str3 = "str" + "ing";` 编译器会给你优化成 `String str3 = "string";` 。
+- Các kiểu dữ liệu cơ bản (`byte`, `boolean`, `short`, `char`, `int`, `float`, `long`, `double`) cũng như hằng số chuỗi.
+- Các biến kiểu dữ liệu cơ bản và chuỗi được sửa đổi bằng `final`
+- Chuỗi được tạo thông qua phép nối "+", phép toán số học giữa các kiểu dữ liệu cơ bản (cộng, trừ, nhân, chia), phép toán bit của kiểu dữ liệu cơ bản (<<, >>, >>>)
 
-并不是所有的常量都会进行折叠，只有编译器在程序编译期就可以确定值的常量才可以：
+**Giá trị của tham chiếu không thể được xác định vào thời kỳ biên dịch chương trình, trình biên dịch không thể tối ưu hóa nó.**
 
-- 基本数据类型( `byte`、`boolean`、`short`、`char`、`int`、`float`、`long`、`double`)以及字符串常量。
-- `final` 修饰的基本数据类型和字符串变量
-- 字符串通过 “+”拼接得到的字符串、基本数据类型之间算数运算（加减乘除）、基本数据类型的位运算（<<、\>>、\>>> ）
-
-**引用的值在程序编译期是无法确定的，编译器无法对其进行优化。**
-
-对象引用和“+”的字符串拼接方式，实际上是通过 `StringBuilder` 调用 `append()` 方法实现的，拼接完成之后调用 `toString()` 得到一个 `String` 对象 。
+Tham chiếu đối tượng và cách nối chuỗi "+", thực tế được triển khai bằng cách gọi phương thức `append()` của `StringBuilder`, sau khi nối xong, gọi `toString()` để nhận được một đối tượng `String`.
 
 ```java
 String str4 = new StringBuilder().append(str1).append(str2).toString();
 ```
 
-我们在平时写代码的时候，尽量避免多个字符串对象拼接，因为这样会重新创建对象。如果需要改变字符串的话，可以使用 `StringBuilder` 或者 `StringBuffer`。
+Khi viết mã bình thường, hãy cố gắng tránh nối nhiều đối tượng chuỗi, vì điều này sẽ tạo lại các đối tượng. Nếu cần thay đổi chuỗi, có thể sử dụng `StringBuilder` hoặc `StringBuffer`.
 
-不过，字符串使用 `final` 关键字声明之后，可以让编译器当做常量来处理。
+Tuy nhiên, sau khi chuỗi được khai báo bằng từ khóa `final`, có thể để trình biên dịch xử lý nó như một hằng số.
 
-示例代码：
+Ví dụ mã:
 
 ```java
 final String str1 = "str";
 final String str2 = "ing";
-// 下面两个表达式其实是等价的
-String c = "str" + "ing";// 常量池中的对象
-String d = str1 + str2; // 常量池中的对象
+// Hai biểu thức dưới đây thực sự tương đương
+String c = "str" + "ing";// đối tượng trong constant pool
+String d = str1 + str2; // đối tượng trong constant pool
 System.out.println(c == d);// true
 ```
 
-被 `final` 关键字修饰之后的 `String` 会被编译器当做常量来处理，编译器在程序编译期就可以确定它的值，其效果就相当于访问常量。
+Sau khi được sửa đổi bằng từ khóa `final`, `String` sẽ được trình biên dịch coi như một hằng số, trình biên dịch có thể xác định giá trị của nó vào thời kỳ biên dịch, tác dụng của nó giống như truy cập một hằng số.
 
-如果 ，编译器在运行时才能知道其确切值的话，就无法对其优化。
+Nếu giá trị của hằng số chỉ có thể được biết vào thời kỳ chạy, sẽ không thể tối ưu hóa nó.
 
-示例代码（`str2` 在运行时才能确定其值）：
+Ví dụ mã (`str2` chỉ có thể xác định giá trị vào thời kỳ chạy):
 
 ```java
 final String str1 = "str";
 final String str2 = getStr();
-String c = "str" + "ing";// 常量池中的对象
-String d = str1 + str2; // 在堆上创建的新的对象
+String c = "str" + "ing";// đối tượng trong constant pool
+String d = str1 + str2; // đối tượng mới được tạo trong heap
 System.out.println(c == d);// false
 public static String getStr() {
       return "ing";
 }
 ```
 
-## 参考
+## Tham khảo
 
-- 深入解析 String#intern：<https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html>
-- Java String 源码解读：<http://keaper.cn/2020/09/08/java-string-mian-mian-guan/>
-- R 大（RednaxelaFX）关于常量折叠的回答：<https://www.zhihu.com/question/55976094/answer/147302764>
-
-<!-- @include: @article-footer.snippet.md -->
+- Deep analysis of String#intern: <https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html>
+- Java String source code reading: <http://keaper.cn/2020/09/08/java-string-mian-mian-guan/>
+- R's answer about constant folding: <https://www.zhihu.com/question/55976094/answer/147302764>

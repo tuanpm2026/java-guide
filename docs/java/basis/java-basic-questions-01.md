@@ -1,305 +1,305 @@
 ---
-title: Java基础常见面试题总结(上)
+title: Tổng hợp câu hỏi phỏng vấn Java cơ bản (Phần 1)
 category: Java
-description: Java基础常见面试题总结：包含Java语言特点、JVM/JDK/JRE区别、字节码详解、基本数据类型、自动装箱拆箱、方法重载与重写等核心知识点，助力Java开发者面试通关。
+description: Tổng hợp câu hỏi phỏng vấn Java cơ bản bao gồm đặc điểm ngôn ngữ Java, sự khác biệt JVM/JDK/JRE, giải thích bytecode, kiểu dữ liệu nguyên thủy, autoboxing/unboxing, overloading và overriding và các kiến thức cốt lõi khác.
 tag:
-  - Java基础
+  - Java cơ bản
 head:
   - - meta
     - name: keywords
-      content: Java基础,JVM,JDK,JRE,Java SE,字节码,Java编译,自动装箱,基本数据类型,方法重载,Java面试题
+      content: Java cơ bản,JVM,JDK,JRE,Java SE,bytecode,Java compile,autoboxing,kiểu dữ liệu nguyên thủy,method overloading,câu hỏi phỏng vấn Java
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-## 基础概念与常识
+## Khái niệm cơ bản và kiến thức nền
 
-### Java 语言有哪些特点?
+### Java có những đặc điểm gì?
 
-1. 简单易学（语法简单，上手容易）；
-2. 面向对象（封装，继承，多态）；
-3. 平台无关性（Java 虚拟机实现平台无关性）；
-4. 支持多线程（C++ 语言没有内置的多线程机制，因此必须调用操作系统的多线程功能来进行多线程程序设计，而 Java 语言却提供了多线程支持）；
-5. 可靠性（具备异常处理和自动内存管理机制）；
-6. 安全性（Java 语言本身的设计就提供了多重安全防护机制如访问权限修饰符、限制程序直接访问操作系统资源）；
-7. 高效性（通过 Just In Time 编译器等技术的优化，Java 语言的运行效率还是非常不错的）；
-8. 支持网络编程并且很方便；
-9. 编译与解释并存；
+1. Dễ học (cú pháp đơn giản, dễ tiếp cận);
+2. Hướng đối tượng (encapsulation, inheritance, polymorphism);
+3. Độc lập nền tảng (JVM đảm bảo tính độc lập nền tảng);
+4. Hỗ trợ đa luồng (C++ không có cơ chế đa luồng tích hợp sẵn nên phải gọi tính năng đa luồng của hệ điều hành, trong khi Java cung cấp hỗ trợ đa luồng sẵn có);
+5. Độ tin cậy cao (có cơ chế xử lý ngoại lệ và quản lý bộ nhớ tự động);
+6. Bảo mật (thiết kế của ngôn ngữ Java cung cấp nhiều cơ chế bảo vệ như access modifier, hạn chế truy cập trực tiếp vào tài nguyên hệ điều hành);
+7. Hiệu năng tốt (được tối ưu qua JIT compiler và các công nghệ khác);
+8. Hỗ trợ lập trình mạng và rất tiện lợi;
+9. Kết hợp cả biên dịch và thông dịch;
 10. ……
 
-> **🐛 修正（参见：[issue#544](https://github.com/Snailclimb/JavaGuide/issues/544)）**：C++11 开始（2011 年的时候），C++ 就引入了多线程库，在 Windows、Linux、macOS 都可以使用`std::thread`和`std::async`来创建线程。参考链接：<http://www.cplusplus.com/reference/thread/thread/?kw=thread>
+> **🐛 Đính chính (xem: [issue#544](https://github.com/Snailclimb/JavaGuide/issues/544))**: Từ C++11 (năm 2011), C++ đã giới thiệu thư viện đa luồng. Trên Windows, Linux, macOS đều có thể dùng `std::thread` và `std::async` để tạo thread. Tham khảo: <http://www.cplusplus.com/reference/thread/thread/?kw=thread>
 
-🌈 拓展一下：
+🌈 Mở rộng thêm:
 
-“Write Once, Run Anywhere（一次编写，随处运行）”这句宣传口号，真心经典，流传了好多年！以至于，直到今天，依然有很多人觉得跨平台是 Java 语言最大的优势。实际上，跨平台已经不是 Java 最大的卖点了，各种 JDK 新特性也不是。目前市面上虚拟化技术已经非常成熟，比如你通过 Docker 就很容易实现跨平台了。在我看来，Java 强大的生态才是！
+Khẩu hiệu “Write Once, Run Anywhere (Viết một lần, chạy mọi nơi)” quả thực rất kinh điển, lưu truyền nhiều năm! Đến tận ngày nay vẫn có nhiều người cho rằng khả năng đa nền tảng là lợi thế lớn nhất của Java. Nhưng thực ra, đa nền tảng không còn là điểm bán hàng lớn nhất của Java nữa, các tính năng mới của JDK cũng không phải. Hiện nay công nghệ ảo hóa đã rất trưởng thành, ví dụ bạn có thể dùng Docker để đạt được đa nền tảng một cách dễ dàng. Theo tôi, hệ sinh thái mạnh mẽ của Java mới là điều quan trọng nhất!
 
 ### Java SE vs Java EE
 
-- Java SE（Java Platform, Standard Edition）: Java 平台标准版，Java 编程语言的基础，它包含了支持 Java 应用程序开发和运行的核心类库以及虚拟机等核心组件。Java SE 可以用于构建桌面应用程序或简单的服务器应用程序。
-- Java EE（Java Platform, Enterprise Edition）：Java 平台企业版，建立在 Java SE 的基础上，包含了支持企业级应用程序开发和部署的标准和规范（比如 Servlet、JSP、EJB、JDBC、JPA、JTA、JavaMail、JMS）。 Java EE 可以用于构建分布式、可移植、健壮、可伸缩和安全的服务端 Java 应用程序，例如 Web 应用程序。
+- Java SE (Java Platform, Standard Edition): Phiên bản tiêu chuẩn của nền tảng Java, là nền tảng của ngôn ngữ lập trình Java. Nó bao gồm các thư viện lớp cốt lõi và các thành phần như JVM để hỗ trợ phát triển và chạy ứng dụng Java. Java SE có thể dùng để xây dựng ứng dụng desktop hoặc ứng dụng server đơn giản.
+- Java EE (Java Platform, Enterprise Edition): Phiên bản doanh nghiệp của nền tảng Java, xây dựng trên nền Java SE, bao gồm các tiêu chuẩn và đặc tả hỗ trợ phát triển và triển khai ứng dụng cấp doanh nghiệp (như Servlet, JSP, EJB, JDBC, JPA, JTA, JavaMail, JMS). Java EE dùng để xây dựng các ứng dụng Java phía server phân tán, di động, mạnh mẽ, có khả năng mở rộng và bảo mật như ứng dụng Web.
 
-简单来说，Java SE 是 Java 的基础版本，Java EE 是 Java 的高级版本。Java SE 更适合开发桌面应用程序或简单的服务器应用程序，Java EE 更适合开发复杂的企业级应用程序或 Web 应用程序。
+Nói đơn giản, Java SE là phiên bản cơ bản, Java EE là phiên bản nâng cao. Java SE phù hợp hơn để phát triển ứng dụng desktop hoặc server đơn giản, Java EE phù hợp hơn để phát triển ứng dụng doanh nghiệp phức tạp hoặc ứng dụng Web.
 
-除了 Java SE 和 Java EE，还有一个 Java ME（Java Platform，Micro Edition）。Java ME 是 Java 的微型版本，主要用于开发嵌入式消费电子设备的应用程序，例如手机、PDA、机顶盒、冰箱、空调等。Java ME 无需重点关注，知道有这个东西就好了，现在已经用不上了。
+Ngoài Java SE và Java EE, còn có Java ME (Java Platform, Micro Edition). Java ME là phiên bản thu nhỏ của Java, chủ yếu dùng để phát triển ứng dụng cho thiết bị điện tử nhúng như điện thoại, PDA, set-top box, tủ lạnh, máy điều hòa, v.v. Java ME không cần chú trọng nhiều, chỉ cần biết là có nó, hiện nay gần như không còn dùng nữa.
 
 ### ⭐️JVM vs JDK vs JRE
 
 #### JVM
 
-Java 虚拟机（Java Virtual Machine, JVM）是运行 Java 字节码的虚拟机。JVM 有针对不同系统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们都会给出相同的结果。字节码和不同系统的 JVM 实现是 Java 语言“一次编译，随处可以运行”的关键所在。
+JVM (Java Virtual Machine - Máy ảo Java) là máy ảo chạy bytecode Java. JVM có các triển khai riêng cho từng hệ điều hành (Windows, Linux, macOS) với mục tiêu là dùng cùng một bytecode nhưng cho kết quả giống nhau trên mọi nền tảng. Bytecode và các triển khai JVM trên các hệ điều hành khác nhau chính là chìa khóa giúp Java “compile một lần, chạy mọi nơi”.
 
-如下图所示，不同编程语言（Java、Groovy、Kotlin、JRuby、Clojure ...）通过各自的编译器编译成 `.class` 文件，并最终通过 JVM 在不同平台（Windows、Mac、Linux）上运行。
+Như hình bên dưới, các ngôn ngữ lập trình khác nhau (Java, Groovy, Kotlin, JRuby, Clojure ...) được biên dịch thành file `.class` thông qua compiler của chúng, rồi cuối cùng chạy trên các nền tảng khác nhau (Windows, Mac, Linux) thông qua JVM.
 
-![运行在 Java 虚拟机之上的编程语言](https://oss.javaguide.cn/github/javaguide/java/basis/java-virtual-machine-program-language-os.png)
+![Các ngôn ngữ lập trình chạy trên JVM](https://oss.javaguide.cn/github/javaguide/java/basis/java-virtual-machine-program-language-os.png)
 
-**JVM 并不是只有一种！只要满足 JVM 规范，每个公司、组织或者个人都可以开发自己的专属 JVM。** 也就是说我们平时接触到的 HotSpot VM 仅仅是是 JVM 规范的一种实现而已。
+**JVM không chỉ có một loại! Miễn là tuân thủ đặc tả JVM, bất kỳ công ty, tổ chức hoặc cá nhân nào đều có thể phát triển JVM riêng của mình.** Tức là HotSpot VM mà chúng ta thường dùng chỉ là một trong nhiều triển khai của đặc tả JVM.
 
-除了我们平时最常用的 HotSpot VM 外，还有 J9 VM、Zing VM、JRockit VM 等 JVM 。维基百科上就有常见 JVM 的对比：[Comparison of Java virtual machines](https://en.wikipedia.org/wiki/Comparison_of_Java_virtual_machines) ，感兴趣的可以去看看。并且，你可以在 [Java SE Specifications](https://docs.oracle.com/javase/specs/index.html) 上找到各个版本的 JDK 对应的 JVM 规范。
+Ngoài HotSpot VM phổ biến nhất, còn có J9 VM, Zing VM, JRockit VM, v.v. Wikipedia có bảng so sánh các JVM phổ biến: [Comparison of Java virtual machines](https://en.wikipedia.org/wiki/Comparison_of_Java_virtual_machines). Bạn cũng có thể tìm đặc tả JVM tương ứng với từng phiên bản JDK tại [Java SE Specifications](https://docs.oracle.com/javase/specs/index.html).
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/JavaSeSpecifications.jpg)
 
-#### JDK 和 JRE
+#### JDK và JRE
 
-JDK（Java Development Kit）是一个功能齐全的 Java 开发工具包，供开发者使用，用于创建和编译 Java 程序。它包含了 JRE（Java Runtime Environment），以及编译器 javac 和其他工具，如 javadoc（文档生成器）、jdb（调试器）、jconsole（监控工具）、javap（反编译工具）等。
+JDK (Java Development Kit) là bộ công cụ phát triển Java đầy đủ tính năng dành cho lập trình viên, dùng để tạo và biên dịch chương trình Java. Nó bao gồm JRE (Java Runtime Environment), compiler `javac` và các công cụ khác như `javadoc` (tạo tài liệu), `jdb` (debugger), `jconsole` (công cụ monitor), `javap` (decompiler), v.v.
 
-JRE 是运行已编译 Java 程序所需的环境，主要包含以下两个部分：
+JRE là môi trường cần thiết để chạy các chương trình Java đã biên dịch, bao gồm hai phần chính:
 
-1. **JVM** : 也就是我们上面提到的 Java 虚拟机。
-2. **Java 基础类库（Class Library）**：一组标准的类库，提供常用的功能和 API（如 I/O 操作、网络通信、数据结构等）。
+1. **JVM**: Máy ảo Java như đã đề cập ở trên.
+2. **Java Class Library**: Bộ thư viện lớp chuẩn, cung cấp các chức năng và API thông dụng (như I/O, giao tiếp mạng, cấu trúc dữ liệu, v.v.).
 
-简单来说，JRE 只包含运行 Java 程序所需的环境和类库，而 JDK 不仅包含 JRE，还包括用于开发和调试 Java 程序的工具。
+Nói đơn giản, JRE chỉ chứa môi trường và thư viện cần thiết để chạy chương trình Java, trong khi JDK không chỉ có JRE mà còn có các công cụ để phát triển và debug.
 
-如果需要编写、编译 Java 程序或使用 Java API 文档，就需要安装 JDK。某些需要 Java 特性的应用程序（如 JSP 转换为 Servlet 或使用反射）也可能需要 JDK 来编译和运行 Java 代码。因此，即使不进行 Java 开发工作，有时也可能需要安装 JDK。
+Nếu cần viết, biên dịch chương trình Java hoặc dùng Java API documentation thì phải cài JDK. Một số ứng dụng cần tính năng Java (như chuyển đổi JSP sang Servlet hoặc dùng reflection) cũng có thể cần JDK để biên dịch và chạy. Do đó, dù không làm Java development, đôi khi vẫn cần cài JDK.
 
-下图清晰展示了 JDK、JRE 和 JVM 的关系。
+Hình dưới mô tả rõ ràng mối quan hệ giữa JDK, JRE và JVM.
 
 ![jdk-include-jre](https://oss.javaguide.cn/github/javaguide/java/basis/jdk-include-jre.png)
 
-不过，从 JDK 9 开始，就不需要区分 JDK 和 JRE 的关系了，取而代之的是模块系统（JDK 被重新组织成 94 个模块）+ [jlink](http://openjdk.java.net/jeps/282) 工具 (随 Java 9 一起发布的新命令行工具，用于生成自定义 Java 运行时映像，该映像仅包含给定应用程序所需的模块) 。并且，从 JDK 11 开始，Oracle 不再提供单独的 JRE 下载。
+Tuy nhiên, từ JDK 9 trở đi, không cần phân biệt JDK và JRE nữa. Thay vào đó là hệ thống module (JDK được tổ chức lại thành 94 module) + công cụ [jlink](http://openjdk.java.net/jeps/282) (công cụ dòng lệnh mới ra mắt cùng Java 9, dùng để tạo Java runtime image tùy chỉnh chỉ chứa các module cần thiết cho ứng dụng). Và từ JDK 11, Oracle không còn cung cấp bản tải JRE riêng nữa.
 
-在 [Java 9 新特性概览](https://javaguide.cn/java/new-features/java9.html)这篇文章中，我在介绍模块化系统的时候提到：
+Trong bài viết [Tổng quan tính năng mới Java 9](https://javaguide.cn/java/new-features/java9.html), tôi đã đề cập khi giới thiệu hệ thống module:
 
-> 在引入了模块系统之后，JDK 被重新组织成 94 个模块。Java 应用可以通过新增的 jlink 工具，创建出只包含所依赖的 JDK 模块的自定义运行时镜像。这样可以极大的减少 Java 运行时环境的大小。
+> Sau khi giới thiệu hệ thống module, JDK được tổ chức lại thành 94 module. Ứng dụng Java có thể dùng công cụ jlink mới để tạo runtime image tùy chỉnh chỉ chứa các module JDK mà ứng dụng phụ thuộc vào. Điều này giúp giảm đáng kể kích thước môi trường runtime Java.
 
-也就是说，可以用 jlink 根据自己的需求，创建一个更小的 runtime（运行时），而不是不管什么应用，都是同样的 JRE。
+Tức là có thể dùng jlink để tạo một runtime nhỏ hơn theo nhu cầu, thay vì mọi ứng dụng đều phải dùng cùng một JRE đầy đủ.
 
-定制的、模块化的 Java 运行时映像有助于简化 Java 应用的部署和节省内存并增强安全性和可维护性。这对于满足现代应用程序架构的需求，如虚拟化、容器化、微服务和云原生开发，是非常重要的。
+Java runtime image tùy chỉnh, module hóa giúp đơn giản hóa việc triển khai ứng dụng Java, tiết kiệm bộ nhớ, tăng cường bảo mật và khả năng bảo trì. Điều này rất quan trọng để đáp ứng yêu cầu của kiến trúc ứng dụng hiện đại như virtualization, containerization, microservices và cloud-native development.
 
-### ⭐️什么是字节码?采用字节码的好处是什么?
+### ⭐️Bytecode là gì? Lợi ích của việc dùng bytecode?
 
-在 Java 中，JVM 可以理解的代码就叫做字节码（即扩展名为 `.class` 的文件），它不面向任何特定的处理器，只面向虚拟机。Java 语言通过字节码的方式，在一定程度上解决了传统解释型语言执行效率低的问题，同时又保留了解释型语言可移植的特点。所以， Java 程序运行时相对来说还是高效的（不过，和 C、 C++，Rust，Go 等语言还是有一定差距的），而且，由于字节码并不针对一种特定的机器，因此，Java 程序无须重新编译便可在多种不同操作系统的计算机上运行。
+Trong Java, code mà JVM có thể hiểu được gọi là bytecode (tức là các file có đuôi `.class`). Bytecode không hướng đến bất kỳ processor cụ thể nào mà chỉ hướng đến máy ảo. Thông qua bytecode, Java giải quyết một phần vấn đề hiệu năng thấp của ngôn ngữ thông dịch truyền thống, đồng thời vẫn giữ lại tính di động của ngôn ngữ thông dịch. Do đó, chương trình Java khi chạy vẫn khá hiệu quả (dù vẫn có khoảng cách nhất định so với C, C++, Rust, Go), và vì bytecode không gắn với một máy cụ thể, chương trình Java có thể chạy trên nhiều hệ điều hành khác nhau mà không cần biên dịch lại.
 
-**Java 程序从源代码到运行的过程如下图所示**：
+**Quá trình từ source code đến khi chạy của chương trình Java được mô tả như hình dưới**:
 
-![Java程序转变为机器代码的过程](https://oss.javaguide.cn/github/javaguide/java/basis/java-code-to-machine-code.png)
+![Quá trình chuyển đổi chương trình Java thành machine code](https://oss.javaguide.cn/github/javaguide/java/basis/java-code-to-machine-code.png)
 
-我们需要格外注意的是 `.class->机器码` 这一步。在这一步 JVM 类加载器首先加载字节码文件，然后通过解释器逐行解释执行，这种方式的执行速度会相对比较慢。而且，有些方法和代码块是经常需要被调用的(也就是所谓的热点代码)，所以后面引进了 **JIT（Just in Time Compilation）** 编译器，而 JIT 属于运行时编译。当 JIT 编译器完成第一次编译后，其会将字节码对应的机器码保存下来，下次可以直接使用。而我们知道，机器码的运行效率肯定是高于 Java 解释器的。这也解释了我们为什么经常会说 **Java 是编译与解释共存的语言** 。
+Chúng ta cần đặc biệt chú ý bước `.class -> machine code`. Ở bước này, JVM class loader trước tiên load file bytecode, sau đó interpreter diễn giải và thực thi từng dòng — cách này tương đối chậm. Hơn nữa, một số method và code block được gọi thường xuyên (gọi là "hot code"), do đó JIT (Just in Time Compilation) compiler được giới thiệu sau này. JIT thuộc loại compile tại runtime. Khi JIT compiler hoàn thành lần compile đầu tiên, nó sẽ lưu lại machine code tương ứng với bytecode để lần sau dùng trực tiếp. Machine code chạy nhanh hơn Java interpreter. Đây là lý do tại sao ta hay nói **Java là ngôn ngữ kết hợp cả biên dịch và thông dịch**.
 
-> 🌈 拓展阅读：
+> 🌈 Đọc thêm:
 >
-> - [基本功 | Java 即时编译器原理解析及实践 - 美团技术团队](https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html)
-> - [基于静态编译构建微服务应用 - 阿里巴巴中间件](https://mp.weixin.qq.com/s/4haTyXUmh8m-dBQaEzwDJw)
+> - [Nguyên lý và thực hành JIT compiler trong Java - Meituan Tech Team](https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html)
+> - [Xây dựng microservice dựa trên static compilation - Alibaba Middleware](https://mp.weixin.qq.com/s/4haTyXUmh8m-dBQaEzwDJw)
 
-![Java程序转变为机器代码的过程](https://oss.javaguide.cn/github/javaguide/java/basis/java-code-to-machine-code-with-jit.png)
+![Quá trình chuyển đổi chương trình Java thành machine code (có JIT)](https://oss.javaguide.cn/github/javaguide/java/basis/java-code-to-machine-code-with-jit.png)
 
-> HotSpot 采用了惰性评估(Lazy Evaluation)的做法，根据二八定律，消耗大部分系统资源的只有那一小部分的代码（热点代码），而这也就是 JIT 所需要编译的部分。JVM 会根据代码每次被执行的情况收集信息并相应地做出一些优化，因此执行的次数越多，它的速度就越快。
+> HotSpot áp dụng phương pháp Lazy Evaluation. Theo quy tắc 80/20, chỉ một phần nhỏ code tiêu tốn phần lớn tài nguyên hệ thống (hot code), và đó chính là phần JIT cần compile. JVM thu thập thông tin mỗi khi code được thực thi và tối ưu hóa tương ứng, do đó code chạy càng nhiều lần thì càng nhanh hơn.
 
-JDK、JRE、JVM、JIT 这四者的关系如下图所示。
+Mối quan hệ giữa JDK, JRE, JVM, JIT được mô tả trong hình dưới.
 
-![JDK、JRE、JVM、JIT 这四者的关系](https://oss.javaguide.cn/github/javaguide/java/basis/jdk-jre-jvm-jit.png)
+![Mối quan hệ giữa JDK, JRE, JVM, JIT](https://oss.javaguide.cn/github/javaguide/java/basis/jdk-jre-jvm-jit.png)
 
-下面这张图是 JVM 的大致结构模型。
+Hình dưới là mô hình cấu trúc tổng quát của JVM.
 
-![JVM 的大致结构模型](https://oss.javaguide.cn/github/javaguide/java/basis/jvm-rough-structure-model.png)
+![Mô hình cấu trúc tổng quát của JVM](https://oss.javaguide.cn/github/javaguide/java/basis/jvm-rough-structure-model.png)
 
-### ⭐️为什么说 Java 语言“编译与解释并存”？
+### ⭐️Tại sao nói Java “kết hợp cả biên dịch và thông dịch”?
 
-其实这个问题我们讲字节码的时候已经提到过，因为比较重要，所以我们这里再提一下。
+Vấn đề này thực ra đã được đề cập khi nói về bytecode, nhưng vì quan trọng nên sẽ nhắc lại ở đây.
 
-我们可以将高级编程语言按照程序的执行方式分为两种：
+Chúng ta có thể phân loại ngôn ngữ lập trình bậc cao theo cách thực thi chương trình thành hai loại:
 
-- **编译型**：[编译型语言](https://zh.wikipedia.org/wiki/%E7%B7%A8%E8%AD%AF%E8%AA%9E%E8%A8%80) 会通过[编译器](https://zh.wikipedia.org/wiki/%E7%B7%A8%E8%AD%AF%E5%99%A8)将源代码一次性翻译成可被该平台执行的机器码。一般情况下，编译语言的执行速度比较快，开发效率比较低。常见的编译性语言有 C、C++、Go、Rust 等等。
-- **解释型**：[解释型语言](https://zh.wikipedia.org/wiki/%E7%9B%B4%E8%AD%AF%E8%AA%9E%E8%A8%80)会通过[解释器](https://zh.wikipedia.org/wiki/直譯器)一句一句的将代码解释（interpret）为机器代码后再执行。解释型语言开发效率比较快，执行速度比较慢。常见的解释性语言有 Python、JavaScript、PHP 等等。
+- **Biên dịch (Compiled)**: [Ngôn ngữ biên dịch](https://zh.wikipedia.org/wiki/%E7%B7%A8%E8%AD%AF%E8%AA%9E%E8%A8%80) dùng [compiler](https://zh.wikipedia.org/wiki/%E7%B7%A8%E8%AD%AF%E5%99%A8) để dịch toàn bộ source code thành machine code có thể chạy trên nền tảng đó. Nhìn chung, ngôn ngữ biên dịch chạy nhanh hơn nhưng tốc độ phát triển chậm hơn. Các ngôn ngữ biên dịch phổ biến: C, C++, Go, Rust, v.v.
+- **Thông dịch (Interpreted)**: [Ngôn ngữ thông dịch](https://zh.wikipedia.org/wiki/%E7%9B%B4%E8%AD%AF%E8%AA%9E%E8%A8%80) dùng [interpreter](https://zh.wikipedia.org/wiki/直譯器) để dịch từng dòng code thành machine code rồi thực thi. Ngôn ngữ thông dịch phát triển nhanh hơn nhưng chạy chậm hơn. Các ngôn ngữ thông dịch phổ biến: Python, JavaScript, PHP, v.v.
 
-![编译型语言和解释型语言](https://oss.javaguide.cn/github/javaguide/java/basis/compiled-and-interpreted-languages.png)
+![Ngôn ngữ biên dịch và ngôn ngữ thông dịch](https://oss.javaguide.cn/github/javaguide/java/basis/compiled-and-interpreted-languages.png)
 
-根据维基百科介绍：
+Theo Wikipedia:
 
-> 为了改善解释语言的效率而发展出的[即时编译](https://zh.wikipedia.org/wiki/即時編譯)技术，已经缩小了这两种语言间的差距。这种技术混合了编译语言与解释型语言的优点，它像编译语言一样，先把程序源代码编译成[字节码](https://zh.wikipedia.org/wiki/字节码)。到执行期时，再将字节码直译，之后执行。[Java](https://zh.wikipedia.org/wiki/Java)与[LLVM](https://zh.wikipedia.org/wiki/LLVM)是这种技术的代表产物。
+> Công nghệ [JIT (Just-in-time compilation)](https://zh.wikipedia.org/wiki/即時編譯) được phát triển để cải thiện hiệu năng của ngôn ngữ thông dịch, đã thu hẹp khoảng cách giữa hai loại ngôn ngữ này. Công nghệ này kết hợp ưu điểm của cả hai: giống ngôn ngữ biên dịch, nó trước tiên compile source code thành [bytecode](https://zh.wikipedia.org/wiki/字节码). Đến lúc thực thi, bytecode mới được dịch và chạy. [Java](https://zh.wikipedia.org/wiki/Java) và [LLVM](https://zh.wikipedia.org/wiki/LLVM) là đại diện tiêu biểu của công nghệ này.
 >
-> 相关阅读：[基本功 | Java 即时编译器原理解析及实践](https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html)
+> Đọc thêm: [Nguyên lý và thực hành JIT compiler trong Java](https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html)
 
-**为什么说 Java 语言“编译与解释并存”？**
+**Tại sao nói Java “kết hợp cả biên dịch và thông dịch”?**
 
-这是因为 Java 语言既具有编译型语言的特征，也具有解释型语言的特征。因为 Java 程序要经过先编译，后解释两个步骤，由 Java 编写的程序需要先经过编译步骤，生成字节码（`.class` 文件），这种字节码必须由 Java 解释器来解释执行。
+Vì Java vừa có đặc điểm của ngôn ngữ biên dịch, vừa có đặc điểm của ngôn ngữ thông dịch. Chương trình Java phải trải qua hai bước: biên dịch rồi mới thông dịch. Code Java cần được compile trước để tạo ra bytecode (file `.class`), sau đó bytecode này mới được Java interpreter thông dịch và thực thi.
 
-### AOT 有什么优点？为什么不全部使用 AOT 呢？
+### AOT có ưu điểm gì? Tại sao không dùng AOT hoàn toàn?
 
-JDK 9 引入了一种新的编译模式 **AOT(Ahead of Time Compilation)** 。和 JIT 不同的是，这种编译模式会在程序被执行前就将其编译成机器码，属于静态编译（C、 C++，Rust，Go 等语言就是静态编译）。AOT 避免了 JIT 预热等各方面的开销，可以提高 Java 程序的启动速度，避免预热时间长。并且，AOT 还能减少内存占用和增强 Java 程序的安全性（AOT 编译后的代码不容易被反编译和修改），特别适合云原生场景。
+JDK 9 giới thiệu một chế độ compile mới là **AOT (Ahead of Time Compilation)**. Khác với JIT, chế độ này compile chương trình thành machine code trước khi chạy, thuộc loại static compilation (C, C++, Rust, Go cũng là static compilation). AOT tránh được các chi phí warm-up của JIT, giúp tăng tốc khởi động Java và tránh thời gian warm-up dài. Ngoài ra, AOT còn giảm bộ nhớ và tăng bảo mật (code sau khi AOT compile khó bị decompile và sửa đổi hơn), đặc biệt phù hợp với cloud-native.
 
-**JIT 与 AOT 两者的关键指标对比**：
+**So sánh các chỉ số quan trọng giữa JIT và AOT**:
 
-| 对比维度         | JIT（即时编译）    | AOT（提前编译）              |
-| ---------------- | ------------------ | ---------------------------- |
-| **编译时机**     | 运行时编译         | 运行前编译                   |
-| **启动速度**     | 较慢（需要预热）   | 快（无需预热）               |
-| **峰值性能**     | 更高（运行时优化） | 较低（缺少运行时信息）       |
-| **内存占用**     | 较高               | 较低                         |
-| **打包体积**     | 较小               | 较大（包含机器码）           |
-| **动态特性支持** | 完全支持           | 受限（反射、动态代理等）     |
-| **适用场景**     | 长时间运行的服务   | 云原生、Serverless、CLI 工具 |
+| Tiêu chí              | JIT (Just-in-Time)           | AOT (Ahead-of-Time)                       |
+| --------------------- | ---------------------------- | ----------------------------------------- |
+| **Thời điểm compile** | Compile lúc runtime          | Compile trước khi chạy                    |
+| **Tốc độ khởi động**  | Chậm hơn (cần warm-up)       | Nhanh (không cần warm-up)                 |
+| **Hiệu năng đỉnh**    | Cao hơn (tối ưu lúc runtime) | Thấp hơn (thiếu thông tin runtime)        |
+| **Bộ nhớ sử dụng**    | Cao hơn                      | Thấp hơn                                  |
+| **Kích thước file**   | Nhỏ hơn                      | Lớn hơn (chứa machine code)               |
+| **Hỗ trợ dynamic**    | Hỗ trợ đầy đủ                | Hạn chế (reflection, dynamic proxy, v.v.) |
+| **Phù hợp cho**       | Service chạy dài hạn         | Cloud-native, Serverless, CLI tool        |
 
 <img src="https://oss.javaguide.cn/github/javaguide/java/basis/jit-vs-aot.png" alt="JIT vs AOT" style="zoom: 25%;" />
 
-可以看出，**AOT 的主要优势在于启动时间、内存占用和打包体积**。**JIT 的主要优势在于具备更高的极限处理能力**，可以降低请求的最大延迟。
+Rõ ràng, **ưu thế chính của AOT là thời gian khởi động, bộ nhớ và kích thước file**. **Ưu thế chính của JIT là khả năng xử lý đỉnh cao hơn**, giúp giảm độ trễ tối đa của request.
 
-提到 AOT 就不得不提 [GraalVM](https://www.graalvm.org/) 了！GraalVM 是一种高性能的 JDK（完整的 JDK 发行版本），它可以运行 Java 和其他 JVM 语言，以及 JavaScript、Python 等非 JVM 语言。 GraalVM 不仅能提供 AOT 编译，还能提供 JIT 编译。感兴趣的同学，可以去看看 GraalVM 的官方文档：<https://www.graalvm.org/latest/docs/>。如果觉得官方文档看着比较难理解的话，也可以找一些文章来看看，比如：
+Nhắc đến AOT không thể không nhắc đến [GraalVM](https://www.graalvm.org/)! GraalVM là một JDK hiệu năng cao (bản phân phối JDK đầy đủ), có thể chạy Java và các ngôn ngữ JVM khác, cũng như các ngôn ngữ không phải JVM như JavaScript, Python. GraalVM cung cấp cả AOT lẫn JIT compilation. Bạn có thể xem tài liệu chính thức: <https://www.graalvm.org/latest/docs/>. Hoặc tham khảo một số bài viết:
 
-- [基于静态编译构建微服务应用](https://mp.weixin.qq.com/s/4haTyXUmh8m-dBQaEzwDJw)
-- [走向 Native 化：Spring&Dubbo AOT 技术示例与原理讲解](https://cn.dubbo.apache.org/zh-cn/blog/2023/06/28/%e8%b5%b0%e5%90%91-native-%e5%8c%96springdubbo-aot-%e6%8a%80%e6%9c%af%e7%a4%ba%e4%be%8b%e4%b8%8e%e5%8e%9f%e7%90%86%e8%ae%b2%e8%a7%a3/)
+- [Xây dựng microservice dựa trên static compilation](https://mp.weixin.qq.com/s/4haTyXUmh8m-dBQaEzwDJw)
+- [Hướng tới Native hóa: Ví dụ và nguyên lý AOT của Spring & Dubbo](https://cn.dubbo.apache.org/zh-cn/blog/2023/06/28/%e8%b5%b0%e5%90%91-native-%e5%8c%96springdubbo-aot-%e6%8a%80%e6%9c%af%e7%a4%ba%e4%be%8b%e4%b8%8e%e5%8e%9f%e7%90%86%e8%ae%b2%e8%a7%a3/)
 
-**既然 AOT 这么多优点，那为什么不全部使用这种编译方式呢？**
+**AOT có nhiều ưu điểm như vậy, tại sao không dùng hoàn toàn?**
 
-我们前面也对比过 JIT 与 AOT，两者各有优点，只能说 AOT 更适合当下的云原生场景，对微服务架构的支持也比较友好。除此之外，AOT 编译无法支持 Java 的一些动态特性，如反射、动态代理、动态加载、JNI（Java Native Interface）等。然而，很多框架和库（如 Spring、CGLIB）都用到了这些特性。如果只使用 AOT 编译，那就没办法使用这些框架和库了，或者说需要针对性地去做适配和优化。举个例子，CGLIB 动态代理使用的是 ASM 技术，而这种技术大致原理是运行时直接在内存中生成并加载修改后的字节码文件也就是 `.class` 文件，如果全部使用 AOT 提前编译，也就不能使用 ASM 技术了。为了支持类似的动态特性，所以选择使用 JIT 即时编译器。
+Như đã so sánh ở trên, JIT và AOT mỗi loại đều có ưu điểm riêng. AOT phù hợp hơn với cloud-native hiện tại và hỗ trợ tốt kiến trúc microservice. Tuy nhiên, AOT không hỗ trợ một số tính năng động của Java như reflection, dynamic proxy, dynamic loading, JNI (Java Native Interface), v.v. Trong khi đó, nhiều framework và thư viện (như Spring, CGLIB) đều dùng các tính năng này. Nếu chỉ dùng AOT, sẽ không thể dùng được các framework và thư viện đó, hoặc phải thích ứng và tối ưu riêng. Ví dụ, CGLIB dynamic proxy dùng công nghệ ASM — nguyên lý của nó là tạo và load file bytecode (`.class`) đã được sửa đổi trực tiếp trong bộ nhớ lúc runtime. Nếu dùng AOT hoàn toàn thì không thể dùng ASM. Chính vì cần hỗ trợ các tính năng động như vậy nên người ta chọn JIT compiler.
 
 ### Oracle JDK vs OpenJDK
 
-可能在看这个问题之前很多人和我一样并没有接触和使用过 OpenJDK 。那么 Oracle JDK 和 OpenJDK 之间是否存在重大差异？下面我通过收集到的一些资料，为你解答这个被很多人忽视的问题。
+Có thể nhiều người chưa tiếp xúc với OpenJDK. Vậy Oracle JDK và OpenJDK có sự khác biệt lớn không? Dưới đây là phần giải đáp dựa trên các tài liệu thu thập được.
 
-首先，2006 年 SUN 公司将 Java 开源，也就有了 OpenJDK。2009 年 Oracle 收购了 Sun 公司，于是自己在 OpenJDK 的基础上搞了一个 Oracle JDK。Oracle JDK 是不开源的，并且刚开始的几个版本（Java8 ~ Java11）还会相比于 OpenJDK 添加一些特有的功能和工具。
+Trước tiên, năm 2006 SUN mở mã nguồn Java, từ đó ra đời OpenJDK. Năm 2009, Oracle mua lại Sun và tạo ra Oracle JDK dựa trên OpenJDK. Oracle JDK là closed-source, và trong các phiên bản đầu (Java 8 ~ Java 11) có thêm một số tính năng và công cụ riêng so với OpenJDK.
 
-其次，对于 Java 7 而言，OpenJDK 和 Oracle JDK 是十分接近的。 Oracle JDK 是基于 OpenJDK 7 构建的，只添加了一些小功能，由 Oracle 工程师参与维护。
+Thứ hai, với Java 7, OpenJDK và Oracle JDK rất giống nhau. Oracle JDK được xây dựng dựa trên OpenJDK 7, chỉ thêm một vài tính năng nhỏ, và được các kỹ sư Oracle tham gia bảo trì.
 
-下面这段话摘自 Oracle 官方在 2012 年发表的一个博客：
+Đoạn trích dưới đây từ blog chính thức của Oracle năm 2012:
 
-> 问：OpenJDK 存储库中的源代码与用于构建 Oracle JDK 的代码之间有什么区别？
+> Hỏi: Sự khác biệt giữa source code trong repository OpenJDK và code dùng để build Oracle JDK là gì?
 >
-> 答：非常接近 - 我们的 Oracle JDK 版本构建过程基于 OpenJDK 7 构建，只添加了几个部分，例如部署代码，其中包括 Oracle 的 Java 插件和 Java WebStart 的实现，以及一些闭源的第三方组件，如图形光栅化器，一些开源的第三方组件，如 Rhino，以及一些零碎的东西，如附加文档或第三方字体。展望未来，我们的目的是开源 Oracle JDK 的所有部分，除了我们考虑商业功能的部分。
+> Đáp: Rất gần nhau - Quá trình build Oracle JDK dựa trên OpenJDK 7, chỉ thêm một vài phần như deployment code (bao gồm Java plugin và Java WebStart của Oracle), một số third-party component closed-source (như graphic rasterizer), một số third-party component open-source (như Rhino), và một số thứ lặt vặt như tài liệu bổ sung hoặc font chữ third-party. Trong tương lai, mục tiêu của chúng tôi là open-source toàn bộ Oracle JDK, ngoại trừ những phần chúng tôi coi là tính năng thương mại.
 
-最后，简单总结一下 Oracle JDK 和 OpenJDK 的区别：
+Tóm tắt sự khác biệt giữa Oracle JDK và OpenJDK:
 
-1. **是否开源**：OpenJDK 是一个参考模型并且是完全开源的，而 Oracle JDK 是基于 OpenJDK 实现的，并不是完全开源的（个人观点：众所周知，JDK 原来是 SUN 公司开发的，后来 SUN 公司又卖给了 Oracle 公司，Oracle 公司以 Oracle 数据库而著名，而 Oracle 数据库又是闭源的，这个时候 Oracle 公司就不想完全开源了，但是原来的 SUN 公司又把 JDK 给开源了，如果这个时候 Oracle 收购回来之后就把他给闭源，必然会引起很多 Java 开发者的不满，导致大家对 Java 失去信心，那 Oracle 公司收购回来不就把 Java 烂在手里了吗！然后，Oracle 公司就想了个骚操作，这样吧，我把一部分核心代码开源出来给你们玩，并且我要和你们自己搞的 JDK 区分下，你们叫 OpenJDK，我叫 Oracle JDK，我发布我的，你们继续玩你们的，要是你们搞出来什么好玩的东西，我后续发布 Oracle JDK 也会拿来用一下，一举两得！）OpenJDK 开源项目：[https://github.com/openjdk/jdk](https://github.com/openjdk/jdk) 。
-2. **是否免费**：Oracle JDK 会提供免费版本，但一般有时间限制。JDK17 之后的版本可以免费分发和商用，但是仅有 3 年时间，3 年后无法免费商用。不过，JDK8u221 之前只要不升级可以无限期免费。OpenJDK 是完全免费的。
-3. **功能性**：Oracle JDK 在 OpenJDK 的基础上添加了一些特有的功能和工具，比如 Java Flight Recorder（JFR，一种监控工具）、Java Mission Control（JMC，一种监控工具）等工具。不过，在 Java 11 之后，OracleJDK 和 OpenJDK 的功能基本一致，之前 OracleJDK 中的私有组件大多数也已经被捐赠给开源组织。
-4. **稳定性**：OpenJDK 不提供 LTS 服务，而 OracleJDK 大概每三年都会推出一个 LTS 版进行长期支持。不过，很多公司都基于 OpenJDK 提供了对应的和 OracleJDK 周期相同的 LTS 版。因此，两者稳定性其实也是差不多的。
-5. **协议**：Oracle JDK 使用 BCL/OTN 协议获得许可，而 OpenJDK 根据 GPL v2 许可获得许可。
+1. **Open-source hay không**: OpenJDK là mô hình tham chiếu và hoàn toàn open-source. Oracle JDK được triển khai dựa trên OpenJDK nhưng không hoàn toàn open-source. (Quan điểm cá nhân: JDK ban đầu do SUN phát triển, sau đó SUN bán cho Oracle. Oracle nổi tiếng với Oracle Database vốn là closed-source, nên họ không muốn open-source hoàn toàn. Nhưng SUN đã open-source JDK rồi, nếu Oracle đóng lại sẽ khiến cộng đồng Java mất niềm tin. Vì vậy Oracle chọn cách thông minh: open-source một phần core, tạo ra hai nhánh riêng biệt — OpenJDK cho cộng đồng, Oracle JDK cho thương mại, và Oracle có thể lấy những tính năng hay từ OpenJDK để đưa vào Oracle JDK.) OpenJDK: [https://github.com/openjdk/jdk](https://github.com/openjdk/jdk).
+2. **Miễn phí hay không**: Oracle JDK có bản miễn phí nhưng thường giới hạn thời gian. Từ JDK 17 trở đi có thể phân phối và dùng thương mại miễn phí trong 3 năm, sau đó phải trả phí. Trước JDK 8u221 có thể dùng miễn phí vô thời hạn nếu không upgrade. OpenJDK hoàn toàn miễn phí.
+3. **Tính năng**: Oracle JDK bổ sung một số tính năng và công cụ riêng trên nền OpenJDK như Java Flight Recorder (JFR), Java Mission Control (JMC), v.v. Tuy nhiên, từ Java 11 trở đi, Oracle JDK và OpenJDK gần như tương đương, hầu hết các component độc quyền của Oracle JDK đã được donate cho các tổ chức open-source.
+4. **Độ ổn định**: OpenJDK không cung cấp LTS, trong khi Oracle JDK ra một phiên bản LTS khoảng 3 năm một lần. Tuy nhiên, nhiều công ty đã cung cấp phiên bản LTS dựa trên OpenJDK với chu kỳ tương tự. Nên thực tế độ ổn định của hai bên tương đương nhau.
+5. **Giấy phép**: Oracle JDK được cấp phép theo BCL/OTN, còn OpenJDK theo GPL v2.
 
-> 既然 Oracle JDK 这么好，那为什么还要有 OpenJDK？
+> Oracle JDK tốt vậy, tại sao vẫn cần OpenJDK?
 >
-> 答：
+> Đáp:
 >
-> 1. OpenJDK 是开源的，开源意味着你可以对它根据你自己的需要进行修改、优化，比如 Alibaba 基于 OpenJDK 开发了 Dragonwell8：[https://github.com/alibaba/dragonwell8](https://github.com/alibaba/dragonwell8)
-> 2. OpenJDK 是商业免费的（这也是为什么通过 yum 包管理器上默认安装的 JDK 是 OpenJDK 而不是 Oracle JDK）。虽然 Oracle JDK 也是商业免费（比如 JDK 8），但并不是所有版本都是免费的。
-> 3. OpenJDK 更新频率更快。Oracle JDK 一般是每 6 个月发布一个新版本，而 OpenJDK 一般是每 3 个月发布一个新版本。（现在你知道为啥 Oracle JDK 更稳定了吧，先在 OpenJDK 试试水，把大部分问题都解决掉了才在 Oracle JDK 上发布）
+> 1. OpenJDK là open-source, nghĩa là bạn có thể tùy chỉnh theo nhu cầu. Ví dụ, Alibaba đã phát triển Dragonwell8 dựa trên OpenJDK: [https://github.com/alibaba/dragonwell8](https://github.com/alibaba/dragonwell8)
+> 2. OpenJDK miễn phí thương mại (đó là lý do tại sao cài JDK qua yum package manager mặc định là OpenJDK). Dù Oracle JDK cũng có phiên bản miễn phí (như JDK 8), nhưng không phải tất cả phiên bản đều miễn phí.
+> 3. OpenJDK cập nhật nhanh hơn. Oracle JDK thường ra phiên bản mới mỗi 6 tháng, còn OpenJDK khoảng 3 tháng một lần. (Đó là lý do Oracle JDK ổn định hơn — họ để OpenJDK "thử nghiệm" trước, sửa hầu hết vấn đề rồi mới release trên Oracle JDK.)
 >
-> 基于以上这些原因，OpenJDK 还是有存在的必要的！
+> Vì những lý do trên, OpenJDK vẫn rất cần thiết!
 
 ![oracle jdk release cadence](https://oss.javaguide.cn/github/javaguide/java/basis/oracle-jdk-release-cadence.jpg)
 
-**Oracle JDK 和 OpenJDK 如何选择？**
+**Nên chọn Oracle JDK hay OpenJDK?**
 
-建议选择 OpenJDK 或者基于 OpenJDK 的发行版，比如 AWS 的 Amazon Corretto，阿里巴巴的 Alibaba Dragonwell。
+Khuyên dùng OpenJDK hoặc các bản phân phối dựa trên OpenJDK, như Amazon Corretto của AWS, Alibaba Dragonwell.
 
-🌈 拓展一下：
+🌈 Mở rộng thêm:
 
-- BCL 协议（Oracle Binary Code License Agreement）：可以使用 JDK（支持商用），但是不能进行修改。
-- OTN 协议（Oracle Technology Network License Agreement）：11 及之后新发布的 JDK 用的都是这个协议，可以自己私下用，但是商用需要付费。
+- Giấy phép BCL (Oracle Binary Code License Agreement): Có thể dùng JDK (bao gồm thương mại), nhưng không được sửa đổi.
+- Giấy phép OTN (Oracle Technology Network License Agreement): Các phiên bản JDK từ 11 trở đi dùng giấy phép này, có thể dùng cá nhân nhưng thương mại phải trả phí.
 
-### Java 和 C++ 的区别?
+### Sự khác biệt giữa Java và C++?
 
-我知道很多人没学过 C++，但是面试官就是没事喜欢拿咱们 Java 和 C++ 比呀！没办法！！！就算没学过 C++，也要记下来。
+Dù nhiều người chưa học C++, nhưng interviewer vẫn hay so sánh Java với C++! Không có cách nào khác, dù chưa học C++ vẫn phải nhớ.
 
-虽然，Java 和 C++ 都是面向对象的语言，都支持封装、继承和多态，但是，它们还是有挺多不相同的地方：
+Mặc dù Java và C++ đều là ngôn ngữ hướng đối tượng, đều hỗ trợ encapsulation, inheritance và polymorphism, nhưng chúng vẫn có nhiều điểm khác biệt:
 
-- Java 不提供指针来直接访问内存，程序内存更加安全
-- Java 的类是单继承的，C++ 支持多重继承；虽然 Java 的类不可以多继承，但是接口可以多继承。
-- Java 有自动内存管理垃圾回收机制(GC)，不需要程序员手动释放无用内存。
-- C ++同时支持方法重载和操作符重载，但是 Java 只支持方法重载（操作符重载增加了复杂性，这与 Java 最初的设计思想不符）。
+- Java không cung cấp pointer để truy cập trực tiếp vào bộ nhớ, giúp bộ nhớ an toàn hơn.
+- Class trong Java chỉ hỗ trợ single inheritance, còn C++ hỗ trợ multiple inheritance. Tuy nhiên, interface trong Java có thể multiple inheritance.
+- Java có cơ chế Garbage Collection (GC) tự động, lập trình viên không cần giải phóng bộ nhớ thủ công.
+- C++ hỗ trợ cả method overloading lẫn operator overloading, nhưng Java chỉ hỗ trợ method overloading (operator overloading tăng độ phức tạp, không phù hợp với triết lý thiết kế ban đầu của Java).
 - ……
 
-## 基本语法
+## Cú pháp cơ bản
 
-### 注释有哪几种形式？
+### Comment trong Java có những loại nào?
 
-Java 中的注释有三种：
+Java có ba loại comment:
 
-1. **单行注释**：通常用于解释方法内某单行代码的作用。
+1. **Single-line comment (comment một dòng)**: Thường dùng để giải thích tác dụng của một dòng code trong method.
 
-2. **多行注释**：通常用于解释一段代码的作用。
+2. **Multi-line comment (comment nhiều dòng)**: Thường dùng để giải thích tác dụng của một đoạn code.
 
-3. **文档注释**：通常用于生成 Java 开发文档。
+3. **Documentation comment (Javadoc comment)**: Thường dùng để tạo tài liệu Java API.
 
-用的比较多的还是单行注释和文档注释，多行注释在实际开发中使用的相对较少。
+Trong thực tế, single-line comment và documentation comment được dùng nhiều hơn, còn multi-line comment ít được dùng hơn.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/image-20220714112336911.png)
 
-在我们编写代码的时候，如果代码量比较少，我们自己或者团队其他成员还可以很轻易地看懂代码，但是当项目结构一旦复杂起来，我们就需要用到注释了。注释并不会执行(编译器在编译代码之前会把代码中的所有注释抹掉，字节码中不保留注释)，是我们程序员写给自己看的，注释是你的代码说明书，能够帮助看代码的人快速地理清代码之间的逻辑关系。因此，在写程序的时候随手加上注释是一个非常好的习惯。
+Khi code ít, bản thân hoặc thành viên nhóm có thể dễ dàng hiểu. Nhưng khi dự án phức tạp, comment trở nên cần thiết. Comment không được thực thi (compiler xóa toàn bộ comment trước khi biên dịch, bytecode không chứa comment), đây là thứ lập trình viên viết để giải thích cho người đọc code sau. Comment là "sách hướng dẫn" của code, giúp người đọc nhanh chóng nắm bắt logic. Vì vậy, thói quen thêm comment khi viết code là rất tốt.
 
-《Clean Code》这本书明确指出：
+Cuốn sách "Clean Code" nêu rõ:
 
-> **代码的注释不是越详细越好。实际上好的代码本身就是注释，我们要尽量规范和美化自己的代码来减少不必要的注释。**
+> **Comment không phải càng chi tiết càng tốt. Thực ra code tốt chính là comment tốt nhất, chúng ta nên chuẩn hóa và làm đẹp code để giảm thiểu comment không cần thiết.**
 >
-> **若编程语言足够有表达力，就不需要注释，尽量通过代码来阐述。**
+> **Nếu ngôn ngữ đủ biểu đạt, không cần comment — hãy để code tự giải thích.**
 >
-> 举个例子：
+> Ví dụ:
 >
-> 去掉下面复杂的注释，只需要创建一个与注释所言同一事物的函数即可
+> Thay vì comment phức tạp, chỉ cần tạo một function với tên phản ánh đúng ý nghĩa:
 >
 > ```java
 > // check to see if the employee is eligible for full benefits
 > if ((employee.flags & HOURLY_FLAG) && (employee.age > 65))
 > ```
 >
-> 应替换为
+> Nên thay bằng:
 >
 > ```java
 > if (employee.isEligibleForFullBenefits())
 > ```
 
-### 标识符和关键字的区别是什么？
+### Sự khác biệt giữa identifier và keyword là gì?
 
-在我们编写程序的时候，需要大量地为程序、类、变量、方法等取名字，于是就有了 **标识符** 。简单来说， **标识符就是一个名字** 。
+Khi viết chương trình, chúng ta cần đặt tên cho chương trình, class, biến, method, v.v. — đó gọi là **identifier (định danh)**. Nói đơn giản, **identifier chỉ là một cái tên**.
 
-有一些标识符，Java 语言已经赋予了其特殊的含义，只能用于特定的地方，这些特殊的标识符就是 **关键字** 。简单来说，**关键字是被赋予特殊含义的标识符** 。比如，在我们的日常生活中，如果我们想要开一家店，则要给这个店起一个名字，起的这个“名字”就叫标识符。但是我们店的名字不能叫“警察局”，因为“警察局”这个名字已经被赋予了特殊的含义，而“警察局”就是我们日常生活中的关键字。
+Một số identifier đã được Java gán cho ý nghĩa đặc biệt, chỉ dùng được ở những chỗ nhất định — đó là **keyword (từ khóa)**. Nói đơn giản, **keyword là identifier được gán ý nghĩa đặc biệt**. Ví dụ trong cuộc sống, nếu muốn mở cửa hàng bạn cần đặt tên cho nó — tên đó gọi là identifier. Nhưng cửa hàng không thể tên là “Đồn Cảnh Sát” vì cái tên đó đã có ý nghĩa đặc biệt — “Đồn Cảnh Sát” chính là keyword trong cuộc sống hàng ngày.
 
-### Java 语言关键字有哪些？
+### Java có những keyword nào?
 
-| 分类                 | 关键字   |            |          |              |            |           |        |
-| :------------------- | -------- | ---------- | -------- | ------------ | ---------- | --------- | ------ |
-| 访问控制             | private  | protected  | public   |              |            |           |        |
-| 类，方法和变量修饰符 | abstract | class      | extends  | final        | implements | interface | native |
-|                      | new      | static     | strictfp | synchronized | transient  | volatile  | enum   |
-| 程序控制             | break    | continue   | return   | do           | while      | if        | else   |
-|                      | for      | instanceof | switch   | case         | default    | assert    |        |
-| 错误处理             | try      | catch      | throw    | throws       | finally    |           |        |
-| 包相关               | import   | package    |          |              |            |           |        |
-| 基本类型             | boolean  | byte       | char     | double       | float      | int       | long   |
-|                      | short    |            |          |              |            |           |        |
-| 变量引用             | super    | this       | void     |              |            |           |        |
-| 保留字               | goto     | const      |          |              |            |           |        |
+| Phân loại                    | Keyword  |            |          |              |            |           |        |
+| :--------------------------- | -------- | ---------- | -------- | ------------ | ---------- | --------- | ------ |
+| Kiểm soát truy cập           | private  | protected  | public   |              |            |           |        |
+| Modifier class, method, biến | abstract | class      | extends  | final        | implements | interface | native |
+|                              | new      | static     | strictfp | synchronized | transient  | volatile  | enum   |
+| Điều khiển chương trình      | break    | continue   | return   | do           | while      | if        | else   |
+|                              | for      | instanceof | switch   | case         | default    | assert    |        |
+| Xử lý lỗi                    | try      | catch      | throw    | throws       | finally    |           |        |
+| Package                      | import   | package    |          |              |            |           |        |
+| Kiểu dữ liệu nguyên thủy     | boolean  | byte       | char     | double       | float      | int       | long   |
+|                              | short    |            |          |              |            |           |        |
+| Tham chiếu biến              | super    | this       | void     |              |            |           |        |
+| Reserved word                | goto     | const      |          |              |            |           |        |
 
-> Tips：所有的关键字都是小写的，在 IDE 中会以特殊颜色显示。
+> Tips: Tất cả keyword đều viết thường và được hiển thị với màu đặc biệt trong IDE.
 >
-> `default` 这个关键字很特殊，既属于程序控制，也属于类，方法和变量修饰符，还属于访问控制。
+> Keyword `default` khá đặc biệt — nó thuộc cả ba nhóm: điều khiển chương trình, modifier, và kiểm soát truy cập.
 >
-> - 在程序控制中，当在 `switch` 中匹配不到任何情况时，可以使用 `default` 来编写默认匹配的情况。
-> - 在类，方法和变量修饰符中，从 JDK8 开始引入了默认方法，可以使用 `default` 关键字来定义一个方法的默认实现。
-> - 在访问控制中，如果一个方法前没有任何修饰符，则默认会有一个修饰符 `default`，但是这个修饰符加上了就会报错。
+> - Trong điều khiển chương trình: dùng `default` trong `switch` để xử lý trường hợp không khớp bất kỳ case nào.
+> - Trong modifier: từ JDK 8, có thể dùng `default` để định nghĩa default method trong interface.
+> - Trong kiểm soát truy cập: nếu method không có modifier nào, mặc định có modifier `default`, nhưng nếu ghi tường minh `default` vào thì sẽ bị lỗi.
 
-⚠️ 注意：虽然 `true`, `false`, 和 `null` 看起来像关键字但实际上他们是字面值，同时你也不可以作为标识符来使用。
+⚠️ Lưu ý: Dù `true`, `false`, và `null` trông giống keyword nhưng thực ra chúng là literal value, và bạn cũng không thể dùng chúng làm identifier.
 
-官方文档：[https://docs.oracle.com/javase/tutorial/java/nutsandbolts/\_keywords.html](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html)
+Tài liệu chính thức: [https://docs.oracle.com/javase/tutorial/java/nutsandbolts/\_keywords.html](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html)
 
-### ⭐️自增自减运算符
+### ⭐️Toán tử tăng/giảm (Increment/Decrement)
 
-在写代码的过程中，常见的一种情况是需要某个整数类型变量增加 1 或减少 1。Java 提供了自增运算符 (`++`) 和自减运算符 (`--`) 来简化这种操作。
+Khi viết code, thường gặp trường hợp cần tăng hoặc giảm một biến integer lên/xuống 1. Java cung cấp toán tử tăng (`++`) và toán tử giảm (`--`) để đơn giản hóa thao tác này.
 
-`++` 和 `--` 运算符可以放在变量之前，也可以放在变量之后：
+`++` và `--` có thể đặt trước hoặc sau biến:
 
-- **前缀形式**（例如 `++a` 或 `--a`）：先自增/自减变量的值，然后再使用该变量，例如，`b = ++a` 先将 `a` 增加 1，然后把增加后的值赋给 `b`。
-- **后缀形式**（例如 `a++` 或 `a--`）：先使用变量的当前值，然后再自增/自减变量的值。例如，`b = a++` 先将 `a` 的当前值赋给 `b`，然后再将 `a` 增加 1。
+- **Prefix form** (ví dụ `++a` hoặc `--a`): Tăng/giảm giá trị biến trước, rồi mới dùng. Ví dụ `b = ++a` tăng `a` lên 1 trước, sau đó gán giá trị mới cho `b`.
+- **Postfix form** (ví dụ `a++` hoặc `a--`): Dùng giá trị hiện tại của biến trước, rồi mới tăng/giảm. Ví dụ `b = a++` gán giá trị hiện tại của `a` cho `b` trước, sau đó mới tăng `a` lên 1.
 
-为了方便记忆，可以使用下面的口诀：**符号在前就先加/减，符号在后就后加/减**。
+Để dễ nhớ: **Ký hiệu ở trước thì tăng/giảm trước, ký hiệu ở sau thì tăng/giảm sau**.
 
 ```mermaid
 flowchart LR
@@ -324,7 +324,7 @@ flowchart LR
     linkStyle default stroke-width:1.5px,opacity:0.8
 ```
 
-下面来看一个考察自增自减运算符的高频笔试题：执行下面的代码后，`a` 、`b` 、 `c` 、`d`和`e`的值是？
+Dưới đây là một câu hỏi thi phổ biến về toán tử tăng/giảm: Sau khi thực thi đoạn code dưới đây, giá trị của `a`, `b`, `c`, `d` và `e` là bao nhiêu?
 
 ```java
 int a = 9;
@@ -334,13 +334,13 @@ int d = c--;
 int e = --d;
 ```
 
-答案：`a = 11` 、`b = 9` 、 `c = 10` 、 `d = 10` 、 `e = 10`。
+Đáp án: `a = 11`, `b = 9`, `c = 10`, `d = 10`, `e = 10`.
 
-### ⭐️移位运算符
+### ⭐️Toán tử dịch bit (Shift Operators)
 
-移位运算符是最基本的运算符之一，几乎每种编程语言都包含这一运算符。移位操作中，被操作的数据被视为二进制数，移位就是将其向左或向右移动若干位的运算。
+Shift operator là một trong những toán tử cơ bản nhất, hầu hết ngôn ngữ lập trình đều có. Trong phép dịch bit, dữ liệu được coi là số nhị phân và được dịch sang trái hoặc sang phải một số vị trí.
 
-移位运算符在各种框架以及 JDK 自身的源码中使用还是挺广泛的，`HashMap`（JDK1.8） 中的 `hash` 方法的源码就用到了移位运算符：
+Shift operator được dùng khá rộng rãi trong các framework và source code của JDK. Ví dụ method `hash` của `HashMap` (JDK 1.8) cũng dùng shift operator:
 
 ```java
 static final int hash(Object key) {
@@ -353,20 +353,20 @@ static final int hash(Object key) {
 
 ```
 
-**使用移位运算符的主要原因**：
+**Lý do chính dùng shift operator**:
 
-1. **高效**：移位运算符直接对应于处理器的移位指令。现代处理器具有专门的硬件指令来执行这些移位操作，这些指令通常在一个时钟周期内完成。相比之下，乘法和除法等算术运算在硬件层面上需要更多的时钟周期来完成。
-2. **节省内存**：通过移位操作，可以使用一个整数（如 `int` 或 `long`）来存储多个布尔值或标志位，从而节省内存。
+1. **Hiệu quả**: Shift operator ánh xạ trực tiếp với lệnh dịch bit của processor. Processor hiện đại có lệnh phần cứng chuyên dụng để thực thi các phép dịch bit, thường hoàn thành trong một clock cycle. Trong khi đó, các phép tính số học như nhân và chia cần nhiều clock cycle hơn ở cấp phần cứng.
+2. **Tiết kiệm bộ nhớ**: Thông qua phép dịch bit, có thể dùng một số integer (như `int` hoặc `long`) để lưu nhiều boolean value hoặc flag bit, tiết kiệm bộ nhớ.
 
-移位运算符最常用于快速乘以或除以 2 的幂次方。除此之外，它还在以下方面发挥着重要作用：
+Shift operator thường được dùng nhất để nhân/chia nhanh với lũy thừa của 2. Ngoài ra còn được dùng trong:
 
-- **位字段管理**：例如存储和操作多个布尔值。
-- **哈希算法和加密解密**：通过移位和与、或等操作来混淆数据。
-- **数据压缩**：例如霍夫曼编码通过移位运算符可以快速处理和操作二进制数据，以生成紧凑的压缩格式。
-- **数据校验**：例如 CRC（循环冗余校验）通过移位和多项式除法生成和校验数据完整性。
-- **内存对齐**：通过移位操作，可以轻松计算和调整数据的对齐地址。
+- **Bit field management**: Ví dụ lưu trữ và thao tác nhiều boolean value.
+- **Hash algorithm và mã hóa**: Dùng phép dịch bit kết hợp AND, OR để làm rối dữ liệu.
+- **Nén dữ liệu**: Ví dụ Huffman coding dùng shift operator để xử lý nhanh dữ liệu nhị phân, tạo ra định dạng nén compact.
+- **Kiểm tra dữ liệu**: Ví dụ CRC (Cyclic Redundancy Check) dùng phép dịch bit và chia đa thức để tạo và kiểm tra tính toàn vẹn dữ liệu.
+- **Memory alignment**: Thông qua phép dịch bit, có thể dễ dàng tính toán và điều chỉnh địa chỉ căn chỉnh dữ liệu.
 
-掌握最基本的移位运算符知识还是很有必要的，这不光可以帮助我们在代码中使用，还可以帮助我们理解源码中涉及到移位运算符的代码。
+Nắm vững kiến thức cơ bản về shift operator rất cần thiết — không chỉ giúp dùng trong code mà còn giúp hiểu source code có liên quan.
 
 ```mermaid
 flowchart TB
@@ -407,25 +407,25 @@ flowchart TB
     linkStyle default stroke-width:1.5px,opacity:0.8
 ```
 
-Java 中有三种移位运算符：
+Java có ba loại shift operator:
 
-- `<<` :左移运算符，向左移若干位，高位丢弃，低位补零。`x << n`，相当于 x 乘以 2 的 n 次方(不溢出的情况下)。
-- `>>` :带符号右移，向右移若干位，高位补符号位，低位丢弃。正数高位补 0，负数高位补 1。`x >> n`，相当于 x 除以 2 的 n 次方。
-- `>>>` :无符号右移，忽略符号位，空位都以 0 补齐。
+- `<<` : Left shift — dịch sang trái n vị trí, các bit cao bị loại bỏ, bit thấp được bù 0. `x << n` tương đương x nhân với 2^n (khi không bị overflow).
+- `>>` : Signed right shift — dịch sang phải n vị trí, các bit cao được bù bằng sign bit, bit thấp bị loại bỏ. Số dương bù 0, số âm bù 1. `x >> n` tương đương x chia cho 2^n.
+- `>>>` : Unsigned right shift — dịch sang phải n vị trí, bỏ qua sign bit, tất cả bit trống được bù 0.
 
-虽然移位运算本质上可以分为左移和右移，但在实际应用中，右移操作需要考虑符号位的处理方式。
+Mặc dù về bản chất shift operation chia làm dịch trái và dịch phải, nhưng trong thực tế, phép dịch phải cần xem xét cách xử lý sign bit.
 
-由于 `double`，`float` 在二进制中的表现比较特殊，因此不能来进行移位操作。
+Vì `double` và `float` có biểu diễn nhị phân đặc biệt nên không thể thực hiện phép dịch bit.
 
-移位操作符实际上支持的类型只有`int`和`long`，编译器在对`short`、`byte`、`char`类型进行移位前，都会将其转换为`int`类型再操作。
+Shift operator thực tế chỉ hỗ trợ `int` và `long`. Khi thực hiện phép dịch trên `short`, `byte`, `char`, compiler sẽ tự động chuyển sang `int` trước rồi mới thực hiện.
 
-**如果移位的位数超过数值所占有的位数会怎样？**
+**Nếu số bit dịch vượt quá độ rộng của kiểu dữ liệu thì sao?**
 
-当 int 类型左移/右移位数大于等于 32 位操作时，会先求余（%）后再进行左移/右移操作。也就是说左移/右移 32 位相当于不进行移位操作（32%32=0），左移/右移 42 位相当于左移/右移 10 位（42%32=10）。当 long 类型进行左移/右移操作时，由于 long 对应的二进制是 64 位，因此求余操作的基数也变成了 64。
+Khi dịch `int` sang trái/phải với số bit >= 32, Java sẽ lấy phần dư (%) trước rồi mới dịch. Tức là dịch 32 bit tương đương không dịch (32%32=0), dịch 42 bit tương đương dịch 10 bit (42%32=10). Với `long` (64-bit), số chia lấy dư là 64.
 
-也就是说：`x<<42`等同于`x<<10`，`x>>42`等同于`x>>10`，`x >>>42`等同于`x >>> 10`。
+Tức là: `x<<42` tương đương `x<<10`, `x>>42` tương đương `x>>10`, `x>>>42` tương đương `x>>>10`.
 
-**左移运算符代码示例**：
+**Ví dụ về left shift operator**:
 
 ```java
 int i = -1;
@@ -436,7 +436,7 @@ System.out.println("左移 10 位后的数据 " + i);
 System.out.println("左移 10 位后的数据对应的二进制字符 " + Integer.toBinaryString(i));
 ```
 
-输出：
+Output:
 
 ```plain
 初始数据：-1
@@ -445,7 +445,7 @@ System.out.println("左移 10 位后的数据对应的二进制字符 " + Intege
 左移 10 位后的数据对应的二进制字符 11111111111111111111110000000000
 ```
 
-由于左移位数大于等于 32 位操作时，会先求余（%）后再进行左移操作，所以下面的代码左移 42 位相当于左移 10 位（42%32=10），输出结果和前面的代码一样。
+Vì khi số bit dịch >= 32, Java lấy phần dư trước rồi mới dịch, nên đoạn code dưới đây dịch 42 bit tương đương dịch 10 bit (42%32=10), kết quả output giống với đoạn code trên.
 
 ```java
 int i = -1;
@@ -456,19 +456,19 @@ System.out.println("左移 10 位后的数据 " + i);
 System.out.println("左移 10 位后的数据对应的二进制字符 " + Integer.toBinaryString(i));
 ```
 
-右移运算符使用类似，篇幅问题，这里就不做演示了。
+Right shift operator dùng tương tự, vì lý do độ dài bài viết nên không demo thêm.
 
-### continue、break 和 return 的区别是什么？
+### Sự khác biệt giữa continue, break và return?
 
-在循环结构中，当循环条件不满足或者循环次数达到要求时，循环会正常结束。但是，有时候可能需要在循环的过程中，当发生了某种条件之后 ，提前终止循环，这就需要用到下面几个关键词：
+Trong cấu trúc vòng lặp, khi điều kiện không thỏa mãn hoặc số vòng lặp đạt yêu cầu, vòng lặp kết thúc bình thường. Tuy nhiên, đôi khi cần thoát vòng lặp sớm khi một điều kiện nào đó xảy ra, khi đó dùng các keyword sau:
 
-1. `continue`：指跳出当前的这一次循环，继续下一次循环。
-2. `break`：指跳出整个循环体，继续执行循环下面的语句。
+1. `continue`: Bỏ qua lần lặp hiện tại, tiếp tục lần lặp tiếp theo.
+2. `break`: Thoát khỏi toàn bộ vòng lặp, thực thi các câu lệnh sau vòng lặp.
 
-`return` 用于跳出所在方法，结束该方法的运行。return 一般有两种用法：
+`return` dùng để thoát khỏi method hiện tại, kết thúc thực thi method. `return` có hai cách dùng:
 
-1. `return;`：直接使用 return 结束方法执行，用于没有返回值函数的方法
-2. `return value;`：return 一个特定值，用于有返回值函数的方法
+1. `return;`: Kết thúc thực thi method trực tiếp, dùng cho method không có giá trị trả về (void).
+2. `return value;`: Trả về một giá trị cụ thể, dùng cho method có giá trị trả về.
 
 ```mermaid
 flowchart TB
@@ -508,7 +508,7 @@ flowchart TB
     linkStyle default stroke-width:1.5px,opacity:0.8
 ```
 
-思考一下：下列语句的运行结果是什么？
+Hãy suy nghĩ: Kết quả chạy của đoạn code dưới đây là gì?
 
 ```java
 public static void main(String[] args) {
@@ -538,7 +538,7 @@ public static void main(String[] args) {
 }
 ```
 
-运行结果：
+Kết quả chạy:
 
 ```plain
 0
@@ -550,17 +550,17 @@ xixi
 haha
 ```
 
-## ⭐️基本数据类型
+## ⭐️Kiểu dữ liệu nguyên thủy (Primitive Data Types)
 
-### Java 中的几种基本数据类型了解么？
+### Java có những kiểu dữ liệu nguyên thủy nào?
 
-Java 中有 8 种基本数据类型，分别为：
+Java có 8 kiểu dữ liệu nguyên thủy:
 
-- 6 种数字类型：
-  - 4 种整数型：`byte`、`short`、`int`、`long`
-  - 2 种浮点型：`float`、`double`
-- 1 种字符类型：`char`
-- 1 种布尔型：`boolean`。
+- 6 kiểu số:
+  - 4 kiểu số nguyên: `byte`, `short`, `int`, `long`
+  - 2 kiểu số thực: `float`, `double`
+- 1 kiểu ký tự: `char`
+- 1 kiểu boolean: `boolean`
 
 ```mermaid
 flowchart TB
@@ -593,44 +593,44 @@ flowchart TB
     linkStyle default stroke-width:1.5px,opacity:0.8
 ```
 
-这 8 种基本数据类型的默认值以及所占空间的大小如下：
+Giá trị mặc định và kích thước của 8 kiểu dữ liệu nguyên thủy:
 
-| 基本类型  | 位数 | 字节 | 默认值  | 取值范围                                                       |
-| :-------- | :--- | :--- | :------ | -------------------------------------------------------------- |
-| `byte`    | 8    | 1    | 0       | -128 ~ 127                                                     |
-| `short`   | 16   | 2    | 0       | -32768（-2^15） ~ 32767（2^15 - 1）                            |
-| `int`     | 32   | 4    | 0       | -2147483648 ~ 2147483647                                       |
-| `long`    | 64   | 8    | 0L      | -9223372036854775808（-2^63） ~ 9223372036854775807（2^63 -1） |
-| `char`    | 16   | 2    | 'u0000' | 0 ~ 65535（2^16 - 1）                                          |
-| `float`   | 32   | 4    | 0f      | 1.4E-45 ~ 3.4028235E38                                         |
-| `double`  | 64   | 8    | 0d      | 4.9E-324 ~ 1.7976931348623157E308                              |
-| `boolean` | 1    |      | false   | true、false                                                    |
+| Kiểu      | Bit | Byte | Giá trị mặc định | Phạm vi giá trị                                               |
+| :-------- | :-- | :--- | :--------------- | ------------------------------------------------------------- |
+| `byte`    | 8   | 1    | 0                | -128 ~ 127                                                    |
+| `short`   | 16  | 2    | 0                | -32768 (-2^15) ~ 32767 (2^15 - 1)                             |
+| `int`     | 32  | 4    | 0                | -2147483648 ~ 2147483647                                      |
+| `long`    | 64  | 8    | 0L               | -9223372036854775808 (-2^63) ~ 9223372036854775807 (2^63 - 1) |
+| `char`    | 16  | 2    | 'u0000'          | 0 ~ 65535 (2^16 - 1)                                          |
+| `float`   | 32  | 4    | 0f               | 1.4E-45 ~ 3.4028235E38                                        |
+| `double`  | 64  | 8    | 0d               | 4.9E-324 ~ 1.7976931348623157E308                             |
+| `boolean` | 1   |      | false            | true, false                                                   |
 
-可以看到，像 `byte`、`short`、`int`、`long`能表示的最大正数都减 1 了。这是为什么呢？这是因为在二进制补码表示法中，最高位是用来表示符号的（0 表示正数，1 表示负数），其余位表示数值部分。所以，如果我们要表示最大的正数，我们需要把除了最高位之外的所有位都设为 1。如果我们再加 1，就会导致溢出，变成一个负数。
+Bạn có thể thấy giá trị dương lớn nhất của `byte`, `short`, `int`, `long` đều bị giảm đi 1. Lý do là trong biểu diễn bù hai (two's complement), bit cao nhất dùng để biểu diễn dấu (0 = dương, 1 = âm), các bit còn lại biểu diễn giá trị. Để biểu diễn số dương lớn nhất, tất cả bit trừ bit dấu phải là 1. Nếu cộng thêm 1 sẽ gây overflow và trở thành số âm.
 
-对于 `boolean`，官方文档未明确定义，它依赖于 JVM 厂商的具体实现。逻辑上理解是占用 1 位，但是实际中会考虑计算机高效存储因素。
+Với `boolean`, tài liệu chính thức không định nghĩa rõ, phụ thuộc vào triển khai của từng JVM vendor. Về mặt logic chiếm 1 bit, nhưng thực tế sẽ được tối ưu cho hiệu quả lưu trữ.
 
-另外，Java 的每种基本类型所占存储空间的大小不会像其他大多数语言那样随机器硬件架构的变化而变化。这种所占存储空间大小的不变性是 Java 程序比用其他大多数语言编写的程序更具可移植性的原因之一（《Java 编程思想》2.2 节有提到）。
+Ngoài ra, kích thước lưu trữ của mỗi kiểu nguyên thủy trong Java không thay đổi theo kiến trúc phần cứng như đa số ngôn ngữ khác. Tính bất biến về kích thước lưu trữ này là một trong những lý do giúp Java portable hơn (đề cập trong "Thinking in Java" mục 2.2).
 
-**注意：**
+**Lưu ý:**
 
-1. Java 里使用 `long` 类型的数据一定要在数值后面加上 **L**，否则将作为整型解析。
-2. Java 里使用 `float` 类型的数据一定要在数值后面加上 **f 或 F**，否则将无法通过编译。
-3. `char a = 'h'`char :单引号，`String a = "hello"` :双引号。
+1. Khi dùng `long` trong Java phải thêm **L** sau số, nếu không sẽ được parse là `int`.
+2. Khi dùng `float` trong Java phải thêm **f hoặc F** sau số, nếu không sẽ không compile được.
+3. `char a = 'h'` dùng dấu nháy đơn, `String a = "hello"` dùng dấu nháy kép.
 
-这八种基本类型都有对应的包装类分别为：`Byte`、`Short`、`Integer`、`Long`、`Float`、`Double`、`Character`、`Boolean` 。
+8 kiểu nguyên thủy này đều có wrapper class tương ứng: `Byte`, `Short`, `Integer`, `Long`, `Float`, `Double`, `Character`, `Boolean`.
 
-### 基本类型和包装类型的区别？
+### Sự khác biệt giữa kiểu nguyên thủy và wrapper class?
 
-- **用途**：除了定义一些常量和局部变量之外，我们在其他地方比如方法参数、对象属性中很少会使用基本类型来定义变量。并且，包装类型可用于泛型，而基本类型不可以。
-- **存储方式**：基本数据类型的局部变量存放在 Java 虚拟机栈中的局部变量表中，基本数据类型的成员变量（未被 `static` 修饰 ）存放在 Java 虚拟机的堆中。包装类型属于对象类型，我们知道几乎所有对象实例都存在于堆中。
-- **占用空间**：相比于包装类型（对象类型）， 基本数据类型占用的空间往往非常小。
-- **默认值**：成员变量包装类型不赋值就是 `null` ，而基本类型有默认值且不是 `null`。
-- **比较方式**：对于基本数据类型来说，`==` 比较的是值。对于包装数据类型来说，`==` 比较的是对象的内存地址。所有整型包装类对象之间值的比较，全部使用 `equals()` 方法。
+- **Mục đích sử dụng**: Ngoài định nghĩa hằng số và biến cục bộ, chúng ta hiếm khi dùng kiểu nguyên thủy ở các chỗ khác như tham số method, thuộc tính object. Wrapper class có thể dùng với generic, còn kiểu nguyên thủy thì không.
+- **Cách lưu trữ**: Biến cục bộ kiểu nguyên thủy được lưu trong local variable table của JVM stack. Biến thành viên kiểu nguyên thủy (không có `static`) được lưu trong heap. Wrapper class là object type, hầu hết đều lưu trong heap.
+- **Chiếm bộ nhớ**: So với wrapper class (object type), kiểu nguyên thủy chiếm bộ nhớ rất nhỏ.
+- **Giá trị mặc định**: Biến thành viên wrapper class không gán giá trị thì mặc định là `null`, còn kiểu nguyên thủy có giá trị mặc định và không phải `null`.
+- **So sánh**: Với kiểu nguyên thủy, `==` so sánh giá trị. Với wrapper class, `==` so sánh địa chỉ bộ nhớ của object. Khi so sánh giá trị giữa các wrapper class số nguyên, luôn dùng `equals()`.
 
-**为什么说是几乎所有对象实例都存在于堆中呢？** 这是因为 HotSpot 虚拟机引入了 JIT 优化之后，会对对象进行逃逸分析，如果发现某一个对象并没有逃逸到方法外部，那么就可能通过标量替换来实现栈上分配，而避免堆上分配内存
+**Tại sao nói "hầu hết" object instance nằm trong heap?** Vì HotSpot JVM sau khi áp dụng JIT optimization sẽ thực hiện escape analysis. Nếu phát hiện một object không thoát ra ngoài method, nó có thể được phân bổ trên stack thông qua scalar replacement, tránh phân bổ bộ nhớ trên heap.
 
-⚠️ 注意：**基本数据类型存放在栈中是一个常见的误区！** 基本数据类型的存储位置取决于它们的作用域和声明方式。如果它们是局部变量，那么它们会存放在栈中；如果它们是成员变量，那么它们会存放在堆/方法区/元空间中。
+⚠️ Lưu ý: **"Kiểu nguyên thủy luôn lưu trong stack" là một hiểu lầm phổ biến!** Vị trí lưu trữ phụ thuộc vào phạm vi và cách khai báo. Nếu là biến cục bộ thì lưu trong stack; nếu là biến thành viên thì lưu trong heap/method area/metaspace.
 
 ```java
 public class Test {
@@ -648,15 +648,15 @@ public class Test {
 }
 ```
 
-### 包装类型的缓存机制了解么？
+### Cơ chế cache của wrapper class là gì?
 
-Java 基本数据类型的包装类型的大部分都用到了缓存机制来提升性能。
+Hầu hết wrapper class của kiểu dữ liệu nguyên thủy Java đều dùng cơ chế cache để tăng hiệu năng.
 
-`Byte`,`Short`,`Integer`,`Long` 这 4 种包装类默认创建了数值 **[-128，127]** 的相应类型的缓存数据，`Character` 创建了数值在 **[0,127]** 范围的缓存数据，`Boolean` 直接返回 `TRUE` or `FALSE`。
+`Byte`, `Short`, `Integer`, `Long` 4 wrapper class này mặc định tạo sẵn dữ liệu cache cho các giá trị trong phạm vi **[-128, 127]**. `Character` cache các giá trị trong phạm vi **[0, 127]**. `Boolean` trả thẳng `TRUE` hoặc `FALSE`.
 
-对于 `Integer`，可以通过 JVM 参数 `-XX:AutoBoxCacheMax=<size>` 修改缓存上限，但不能修改下限 -128。实际使用时，并不建议设置过大的值，避免浪费内存，甚至是 OOM。
+Với `Integer`, có thể chỉnh giới hạn trên của cache bằng JVM parameter `-XX:AutoBoxCacheMax=<size>`, nhưng không thể chỉnh giới hạn dưới -128. Trong thực tế, không nên đặt giá trị quá lớn để tránh lãng phí bộ nhớ hoặc OOM.
 
-对于`Byte`,`Short`,`Long` ,`Character` 没有类似 `-XX:AutoBoxCacheMax` 参数可以修改，因此缓存范围是固定的，无法通过 JVM 参数调整。`Boolean` 则直接返回预定义的 `TRUE` 和 `FALSE` 实例，没有缓存范围的概念。
+`Byte`, `Short`, `Long`, `Character` không có parameter tương tự `-XX:AutoBoxCacheMax` để thay đổi, nên phạm vi cache là cố định. `Boolean` trả thẳng instance `TRUE` và `FALSE` được định nghĩa sẵn, không có khái niệm phạm vi cache.
 
 **Integer 缓存源码：**
 
@@ -705,9 +705,9 @@ public static Boolean valueOf(boolean b) {
 }
 ```
 
-如果超出对应范围仍然会去创建新的对象，缓存的范围区间的大小只是在性能和资源之间的权衡。
+Nếu vượt quá phạm vi cache, một object mới sẽ được tạo. Kích thước phạm vi cache chỉ là sự đánh đổi giữa hiệu năng và tài nguyên.
 
-两种浮点数类型的包装类 `Float`,`Double` 并没有实现缓存机制。
+Hai wrapper class số thực `Float` và `Double` không có cơ chế cache.
 
 ```java
 Integer i1 = 33;
@@ -723,7 +723,7 @@ Double i4 = 1.2;
 System.out.println(i3 == i4);// 输出 false
 ```
 
-下面我们来看一个问题：下面的代码的输出结果是 `true` 还是 `false` 呢？
+Hãy xem một câu hỏi: Kết quả output của đoạn code dưới là `true` hay `false`?
 
 ```java
 Integer i1 = 40;
@@ -731,20 +731,20 @@ Integer i2 = new Integer(40);
 System.out.println(i1==i2);
 ```
 
-`Integer i1=40` 这一行代码会发生装箱，也就是说这行代码等价于 `Integer i1=Integer.valueOf(40)` 。因此，`i1` 直接使用的是缓存中的对象。而`Integer i2 = new Integer(40)` 会直接创建新的对象。
+Dòng `Integer i1=40` sẽ xảy ra autoboxing, tức là dòng này tương đương `Integer i1=Integer.valueOf(40)`. Do đó, `i1` dùng trực tiếp object từ cache. Còn `Integer i2 = new Integer(40)` tạo ra một object mới trực tiếp.
 
-因此，答案是 `false` 。你答对了吗？
+Vì vậy, đáp án là `false`. Bạn trả lời đúng không?
 
-记住：**所有整型包装类对象之间值的比较，全部使用 equals 方法比较**。
+Nhớ: **Khi so sánh giá trị giữa các wrapper class số nguyên, luôn dùng phương thức `equals`**.
 
 ![](https://oss.javaguide.cn/github/javaguide/up-1ae0425ce8646adfb768b5374951eeb820d.png)
 
-### 自动装箱与拆箱了解吗？原理是什么？
+### Autoboxing và Unboxing là gì? Nguyên lý hoạt động?
 
-**什么是自动拆装箱？**
+**Autoboxing và Unboxing là gì?**
 
-- **装箱（Boxing）**：将基本类型用它们对应的引用类型包装起来；
-- **拆箱（Unboxing）**：将包装类型转换为基本数据类型；
+- **Autoboxing (Đóng gói tự động)**: Chuyển đổi kiểu nguyên thủy thành wrapper class tương ứng;
+- **Unboxing (Mở gói tự động)**: Chuyển đổi wrapper class thành kiểu dữ liệu nguyên thủy;
 
 ```mermaid
 flowchart LR
@@ -776,14 +776,14 @@ flowchart LR
   linkStyle default stroke-width:1.5px,opacity:0.8
 ```
 
-举例：
+Ví dụ:
 
 ```java
 Integer i = 10;  //装箱
 int n = i;   //拆箱
 ```
 
-上面这两行代码对应的字节码为：
+Bytecode tương ứng của hai dòng code trên:
 
 ```java
    L1
@@ -815,14 +815,14 @@ int n = i;   //拆箱
     RETURN
 ```
 
-从字节码中，我们发现装箱其实就是调用了 包装类的`valueOf()`方法，拆箱其实就是调用了 `xxxValue()`方法。
+Từ bytecode, ta thấy autoboxing thực ra là gọi method `valueOf()` của wrapper class, còn unboxing là gọi method `xxxValue()`.
 
-因此，
+Vì vậy:
 
-- `Integer i = 10` 等价于 `Integer i = Integer.valueOf(10)`
-- `int n = i` 等价于 `int n = i.intValue()`;
+- `Integer i = 10` tương đương `Integer i = Integer.valueOf(10)`
+- `int n = i` tương đương `int n = i.intValue()`
 
-注意：**如果频繁拆装箱的话，也会严重影响系统的性能。我们应该尽量避免不必要的拆装箱操作。**
+Lưu ý: **Nếu thực hiện autoboxing/unboxing quá thường xuyên, sẽ ảnh hưởng nghiêm trọng đến hiệu năng hệ thống. Nên tránh các thao tác boxing/unboxing không cần thiết.**
 
 ```java
 private static long sum() {
@@ -834,9 +834,9 @@ private static long sum() {
 }
 ```
 
-### 为什么浮点数运算的时候会有精度丢失的风险？
+### Tại sao phép tính số thực có nguy cơ mất độ chính xác?
 
-浮点数运算精度丢失代码演示：
+Demo mất độ chính xác trong phép tính số thực:
 
 ```java
 float a = 2.0f - 1.9f;
@@ -846,11 +846,11 @@ System.out.println(b);// 0.099999905
 System.out.println(a == b);// false
 ```
 
-**为什么会出现这个问题呢？**
+**Tại sao lại xảy ra vấn đề này?**
 
-这个和计算机保存浮点数的机制有很大关系。我们知道计算机是二进制的，而且计算机在表示一个数字时，宽度是有限的，无限循环的小数存储在计算机时，只能被截断，所以就会导致小数精度发生损失的情况。这也就解释了为什么浮点数没有办法用二进制精确表示。
+Điều này liên quan mật thiết đến cách máy tính lưu số thực. Máy tính dùng hệ nhị phân, và khi biểu diễn một số, độ rộng bit là có hạn. Các số thập phân tuần hoàn vô hạn khi lưu vào máy tính chỉ có thể bị cắt ngắn, dẫn đến mất độ chính xác. Đây cũng giải thích tại sao số thực không thể biểu diễn chính xác bằng nhị phân.
 
-就比如说十进制下的 0.2 就没办法精确转换成二进制小数：
+Ví dụ 0.2 trong hệ thập phân không thể chuyển chính xác sang nhị phân:
 
 ```java
 // 0.2 转换为二进制数的过程为，不断乘以 2，直到不存在小数为止，
@@ -863,11 +863,11 @@ System.out.println(a == b);// false
 ...
 ```
 
-关于浮点数的更多内容，建议看一下[计算机系统基础（四）浮点数](http://kaito-kidd.com/2018/08/08/computer-system-float-point/)这篇文章。
+Đọc thêm về số thực: [Cơ sở hệ thống máy tính (4) - Số thực](http://kaito-kidd.com/2018/08/08/computer-system-float-point/).
 
-### 如何解决浮点数运算的精度丢失问题？
+### Cách giải quyết vấn đề mất độ chính xác trong phép tính số thực?
 
-`BigDecimal` 可以实现对浮点数的运算，不会造成精度丢失。通常情况下，大部分需要浮点数精确运算结果的业务场景（比如涉及到钱的场景）都是通过 `BigDecimal` 来做的。
+`BigDecimal` có thể thực hiện phép tính số thực mà không bị mất độ chính xác. Thông thường, hầu hết các nghiệp vụ cần kết quả tính toán số thực chính xác (như các nghiệp vụ liên quan đến tiền tệ) đều dùng `BigDecimal`.
 
 ```java
 BigDecimal a = new BigDecimal("1.0");
@@ -885,13 +885,13 @@ System.out.println(Objects.equals(x, y)); /* false */
 System.out.println(0 == x.compareTo(y)); /* true */
 ```
 
-关于 `BigDecimal` 的详细介绍，可以看看我写的这篇文章：[BigDecimal 详解](https://javaguide.cn/java/basis/bigdecimal.html)。
+Tham khảo bài viết chi tiết về `BigDecimal`: [Giải thích chi tiết BigDecimal](https://javaguide.cn/java/basis/bigdecimal.html).
 
-### 超过 long 整型的数据应该如何表示？
+### Làm thế nào để biểu diễn số lớn hơn phạm vi của long?
 
-基本数值类型都有一个表达范围，如果超过这个范围就会有数值溢出的风险。
+Các kiểu số nguyên thủy đều có phạm vi biểu diễn, nếu vượt quá sẽ có nguy cơ overflow.
 
-在 Java 中，64 位 long 整型是最大的整数类型。
+Trong Java, `long` 64-bit là kiểu số nguyên lớn nhất.
 
 ```java
 long l = Long.MAX_VALUE;
@@ -899,35 +899,35 @@ System.out.println(l + 1); // -9223372036854775808
 System.out.println(l + 1 == Long.MIN_VALUE); // true
 ```
 
-`BigInteger` 内部使用 `int[]` 数组来存储任意大小的整形数据。
+`BigInteger` sử dụng mảng `int[]` nội bộ để lưu dữ liệu số nguyên có kích thước tùy ý.
 
-相对于常规整数类型的运算来说，`BigInteger` 运算的效率会相对较低。
+So với các phép tính kiểu số nguyên thông thường, hiệu năng tính toán của `BigInteger` sẽ thấp hơn.
 
-## 变量
+## Biến (Variables)
 
-### ⭐️成员变量与局部变量的区别？
+### ⭐️Sự khác biệt giữa instance variable và local variable?
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/java-basis-variables-member-variable-vs-local-variable.png)
 
-- **语法形式**：从语法形式上看，成员变量是属于类的，而局部变量是在代码块或方法中定义的变量或是方法的参数；成员变量可以被 `public`,`private`,`static` 等修饰符所修饰，而局部变量不能被访问控制修饰符及 `static` 所修饰；但是，成员变量和局部变量都能被 `final` 所修饰。
-- **存储方式**：从变量在内存中的存储方式来看，如果成员变量是使用 `static` 修饰的，那么这个成员变量是属于类的，如果没有使用 `static` 修饰，这个成员变量是属于实例的。而对象存在于堆内存，局部变量则存在于栈内存。
-- **生存时间**：从变量在内存中的生存时间上看，成员变量是对象的一部分，它随着对象的创建而存在，而局部变量随着方法的调用而自动生成，随着方法的调用结束而消亡。
-- **默认值**：从变量是否有默认值来看，成员变量如果没有被赋初始值，则会自动以类型的默认值而赋值（一种情况例外:被 `final` 修饰的成员变量也必须显式地赋值），而局部变量则不会自动赋值。
+- **Cú pháp**: Instance variable thuộc về class, còn local variable được khai báo trong code block hoặc method (hoặc là tham số method). Instance variable có thể được modify bằng `public`, `private`, `static`, v.v., còn local variable không thể dùng access modifier hoặc `static`. Tuy nhiên, cả hai đều có thể được modify bằng `final`.
+- **Cách lưu trữ**: Instance variable có `static` thì thuộc về class (lưu trong class area); không có `static` thì thuộc về instance (lưu trong heap). Local variable lưu trong stack.
+- **Vòng đời**: Instance variable là một phần của object, tồn tại khi object được tạo. Local variable được tạo khi method được gọi và biến mất khi method kết thúc.
+- **Giá trị mặc định**: Instance variable không gán giá trị sẽ được tự động gán giá trị mặc định theo kiểu dữ liệu (ngoại lệ: instance variable `final` phải gán giá trị tường minh). Local variable không tự động gán giá trị mặc định.
 
-**为什么成员变量有默认值？**
+**Tại sao instance variable có giá trị mặc định?**
 
-核心原因是为了保证对象状态的安全和可预测性。
+Lý do cốt lõi là để đảm bảo trạng thái object an toàn và có thể dự đoán được.
 
-成员变量和局部变量在这个规则上不同，主要是因为它们的**生命周期**不一样，导致了编译器对它们的“控制力”也不同。
+Instance variable và local variable khác nhau về quy tắc này chủ yếu do **vòng đời** khác nhau, dẫn đến “khả năng kiểm soát” của compiler cũng khác nhau.
 
-- **局部变量**只活在一个方法里，编译器能清楚地看到它是否在使用前被赋值，所以编译器会强制你必须手动赋值，否则就报错。
-- **成员变量**是跟着对象走的，它的值可能在构造函数里赋，也可能在后面的某个 `setter` 方法里赋。编译器在编译时**无法预测**它到底什么时候会被赋值。
+- **Local variable** chỉ sống trong một method, compiler có thể thấy rõ liệu nó có được gán giá trị trước khi dùng không, nên compiler bắt buộc phải gán giá trị thủ công, nếu không sẽ báo lỗi.
+- **Instance variable** gắn với object, giá trị có thể được gán trong constructor hoặc trong một `setter` method nào đó sau này. Compiler **không thể dự đoán** khi nào nó sẽ được gán giá trị.
 
-并且，如果一个变量没有被初始化，它的内存里存放的就是“垃圾值”——之前那块内存遗留下的任意数据。如果程序读取并使用了这个垃圾值，就会产生完全不可预测的结果，比如一个数字变成了随机数，一个对象引用变成了非法地址，这会直接导致程序崩溃或出现诡异的 bug。
+Ngoài ra, nếu một biến không được khởi tạo, bộ nhớ của nó chứa “garbage value” — dữ liệu tùy tiện còn lại từ vùng nhớ trước. Nếu chương trình đọc và dùng giá trị rác này, sẽ tạo ra kết quả hoàn toàn không thể đoán trước: một số trở thành số ngẫu nhiên, một object reference trở thành địa chỉ không hợp lệ, dẫn đến crash hoặc bug kỳ lạ.
 
-为了避免你拿到一个含有“垃圾值”的危险对象，Java干脆为所有成员变量提供了一个安全的默认值（如 null 或 0），作为一种**安全兜底机制**。
+Để tránh bạn nhận được một object nguy hiểm chứa “garbage value”, Java cung cấp giá trị mặc định an toàn (như `null` hoặc `0`) cho tất cả instance variable như một **cơ chế bảo vệ an toàn**.
 
-成员变量与局部变量代码示例：
+Ví dụ code về instance variable và local variable:
 
 ```java
 public class VariableExample {
@@ -963,13 +963,13 @@ public class VariableExample {
 
 ```
 
-### 静态变量有什么作用？
+### Static variable có tác dụng gì?
 
-静态变量也就是被 `static` 关键字修饰的变量。它可以被类的所有实例共享，无论一个类创建了多少个对象，它们都共享同一份静态变量。也就是说，静态变量只会被分配一次内存，即使创建多个对象，这样可以节省内存。
+Static variable là biến được modify bằng keyword `static`. Nó được chia sẻ bởi tất cả instance của class — dù class tạo bao nhiêu object, chúng đều dùng chung một static variable. Tức là static variable chỉ được cấp phát bộ nhớ một lần dù tạo nhiều object, giúp tiết kiệm bộ nhớ.
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/java-basis-variables-static-variable.png)
 
-静态变量是通过类名来访问的，例如`StaticVariableExample.staticVar`（如果被 `private`关键字修饰就无法这样访问了）。
+Static variable được truy cập qua tên class, ví dụ `StaticVariableExample.staticVar` (nếu được modify bằng `private` thì không thể truy cập như vậy).
 
 ```java
 public class StaticVariableExample {
@@ -978,7 +978,7 @@ public class StaticVariableExample {
 }
 ```
 
-通常情况下，静态变量会被 `final` 关键字修饰成为常量。
+Thông thường, static variable được modify bằng `final` để trở thành hằng số.
 
 ```java
 public class ConstantVariableExample {
@@ -987,15 +987,15 @@ public class ConstantVariableExample {
 }
 ```
 
-### 字符型常量和字符串常量的区别?
+### Sự khác biệt giữa character constant và string constant?
 
-- **形式** : 字符常量是单引号引起的一个字符，字符串常量是双引号引起的 0 个或若干个字符。
-- **含义** : 字符常量相当于一个整型值（ASCII 值），可以参加表达式运算; 字符串常量代表一个地址值（该字符串在内存中存放位置）。
-- **占内存大小**：字符常量只占 2 个字节; 字符串常量占若干个字节。
+- **Hình thức**: Character constant là một ký tự trong dấu nháy đơn, string constant là 0 hoặc nhiều ký tự trong dấu nháy kép.
+- **Ý nghĩa**: Character constant tương đương một giá trị integer (giá trị ASCII), có thể tham gia tính toán biểu thức. String constant đại diện cho một địa chỉ bộ nhớ (vị trí lưu chuỗi trong bộ nhớ).
+- **Kích thước bộ nhớ**: Character constant chỉ chiếm 2 byte; string constant chiếm nhiều byte.
 
-⚠️ 注意 `char` 在 Java 中占两个字节。
+⚠️ Lưu ý: `char` trong Java chiếm 2 byte.
 
-字符型常量和字符串常量代码示例：
+Ví dụ code về character constant và string constant:
 
 ```java
 public class StringExample {
@@ -1011,22 +1011,22 @@ public class StringExample {
 }
 ```
 
-输出：
+Output:
 
 ```plain
 字符型常量占用的字节数为：2
 字符串常量占用的字节数为：13
 ```
 
-## 方法
+## Method (Phương thức)
 
-### 什么是方法的返回值?方法有哪几种类型？
+### Return value của method là gì? Method có những loại nào?
 
-**方法的返回值** 是指我们获取到的某个方法体中的代码执行后产生的结果！（前提是该方法可能产生结果）。返回值的作用是接收出结果，使得它可以用于其他的操作！
+**Return value (giá trị trả về)** là kết quả thu được sau khi thực thi code trong method (với điều kiện method đó có thể tạo ra kết quả). Tác dụng của return value là nhận kết quả để dùng cho các thao tác khác.
 
-我们可以按照方法的返回值和参数类型将方法分为下面这几种：
+Có thể phân loại method theo return value và kiểu tham số như sau:
 
-**1、无参数无返回值的方法**
+**1. Method không có tham số, không có return value**
 
 ```java
 public void f1() {
@@ -1042,7 +1042,7 @@ public void f(int a) {
 }
 ```
 
-**2、有参数无返回值的方法**
+**2. Method có tham số, không có return value**
 
 ```java
 public void f2(Parameter 1, ..., Parameter n) {
@@ -1050,7 +1050,7 @@ public void f2(Parameter 1, ..., Parameter n) {
 }
 ```
 
-**3、有返回值无参数的方法**
+**3. Method có return value, không có tham số**
 
 ```java
 public int f3() {
@@ -1059,7 +1059,7 @@ public int f3() {
 }
 ```
 
-**4、有返回值有参数的方法**
+**4. Method có return value và có tham số**
 
 ```java
 public int f4(int a, int b) {
@@ -1067,12 +1067,12 @@ public int f4(int a, int b) {
 }
 ```
 
-### 静态方法为什么不能调用非静态成员?
+### Tại sao static method không thể gọi non-static member?
 
-这个需要结合 JVM 的相关知识，主要原因如下：
+Vấn đề này cần kết hợp kiến thức về JVM. Lý do chính:
 
-1. 静态方法是属于类的，在类加载的时候就会分配内存，可以通过类名直接访问。而非静态成员属于实例对象，只有在对象实例化之后才存在，需要通过类的实例对象去访问。
-2. 在类的非静态成员不存在的时候静态方法就已经存在了，此时调用在内存中还不存在的非静态成员，属于非法操作。
+1. Static method thuộc về class, được cấp phát bộ nhớ khi class được load, có thể truy cập trực tiếp qua tên class. Còn non-static member thuộc về instance object, chỉ tồn tại sau khi object được khởi tạo, cần truy cập qua instance của class.
+2. Khi non-static member của class chưa tồn tại, static method đã tồn tại rồi. Lúc đó gọi non-static member chưa có trong bộ nhớ là thao tác bất hợp lệ.
 
 ```java
 public class Example {
@@ -1092,15 +1092,15 @@ public class Example {
 }
 ```
 
-### ⭐️静态方法和实例方法有何不同？
+### ⭐️Static method và instance method khác nhau như thế nào?
 
-**1、调用方式**
+**1. Cách gọi**
 
-在外部调用静态方法时，可以使用 `类名.方法名` 的方式，也可以使用 `对象.方法名` 的方式，而实例方法只有后面这种方式。也就是说，**调用静态方法可以无需创建对象** 。
+Khi gọi static method từ bên ngoài, có thể dùng cú pháp `ClassName.methodName` hoặc `object.methodName`, còn instance method chỉ có thể dùng cách sau. Tức là **gọi static method không cần tạo object**.
 
-不过，需要注意的是一般不建议使用 `对象.方法名` 的方式来调用静态方法。这种方式非常容易造成混淆，静态方法不属于类的某个对象而是属于这个类。
+Tuy nhiên, thông thường không nên dùng `object.methodName` để gọi static method vì dễ gây nhầm lẫn — static method không thuộc về một object cụ thể mà thuộc về class.
 
-因此，一般建议使用 `类名.方法名` 的方式来调用静态方法。
+Do đó, nên dùng `ClassName.methodName` để gọi static method.
 
 ```java
 public class Person {
@@ -1121,62 +1121,62 @@ public class Person {
 }
 ```
 
-**2、访问类成员是否存在限制**
+**2. Giới hạn khi truy cập class member**
 
-静态方法在访问本类的成员时，只允许访问静态成员（即静态成员变量和静态方法），不允许访问实例成员（即实例成员变量和实例方法），而实例方法不存在这个限制。
+Khi truy cập member trong cùng class, static method chỉ được truy cập static member (static variable và static method), không được truy cập instance member (instance variable và instance method). Instance method không có giới hạn này.
 
-### ⭐️重载和重写有什么区别？
+### ⭐️Overloading và Overriding khác nhau như thế nào?
 
-> 重载就是同样的一个方法能够根据输入数据的不同，做出不同的处理
+> Overloading là cùng một method có thể xử lý khác nhau tùy theo input data khác nhau.
 >
-> 重写就是当子类继承自父类的相同方法，输入数据一样，但要做出有别于父类的响应时，你就要覆盖父类方法
+> Overriding là khi subclass kế thừa method từ parent class, với cùng input data nhưng muốn có hành vi khác với parent class thì phải ghi đè method đó.
 
-#### 重载
+#### Overloading (Nạp chồng phương thức)
 
-发生在同一个类中（或者父类和子类之间），方法名必须相同，参数类型不同、个数不同、顺序不同，方法返回值和访问修饰符可以不同。
+Xảy ra trong cùng một class (hoặc giữa parent class và subclass). Method name phải giống nhau, nhưng parameter type, số lượng, hoặc thứ tự khác nhau. Return value và access modifier có thể khác nhau.
 
-《Java 核心技术》这本书是这样介绍重载的：
+Sách “Core Java” giới thiệu overloading như sau:
 
-> 如果多个方法(比如 `StringBuilder` 的构造方法)有相同的名字、不同的参数， 便产生了重载。
+> Nếu nhiều method (ví dụ constructors của `StringBuilder`) có cùng tên nhưng tham số khác nhau, ta gọi là overloading.
 >
 > ```java
 > StringBuilder sb = new StringBuilder();
-> StringBuilder sb2 = new StringBuilder("HelloWorld");
+> StringBuilder sb2 = new StringBuilder(“HelloWorld”);
 > ```
 >
-> 编译器必须挑选出具体执行哪个方法，它通过用各个方法给出的参数类型与特定方法调用所使用的值类型进行匹配来挑选出相应的方法。 如果编译器找不到匹配的参数， 就会产生编译时错误， 因为根本不存在匹配， 或者没有一个比其他的更好(这个过程被称为重载解析(overloading resolution))。
+> Compiler phải chọn ra method nào sẽ được thực thi bằng cách so khớp kiểu tham số của từng method với kiểu của giá trị được dùng trong lời gọi. Nếu compiler không tìm thấy match, sẽ xảy ra compile-time error vì không có match hoặc không có match nào tốt hơn (quá trình này gọi là overloading resolution).
 >
-> Java 允许重载任何方法， 而不只是构造器方法。
+> Java cho phép overload bất kỳ method nào, không chỉ constructor.
 
-综上：重载就是同一个类中多个同名方法根据不同的传参来执行不同的逻辑处理。
+Tóm lại: Overloading là nhiều method cùng tên trong một class thực hiện logic khác nhau tùy theo tham số được truyền vào.
 
-#### 重写
+#### Overriding (Ghi đè phương thức)
 
-重写发生在运行期，是子类对父类的允许访问的方法的实现过程进行重新编写。
+Overriding xảy ra lúc runtime, là việc subclass viết lại implementation của method được phép truy cập từ parent class.
 
-1. 方法名、参数列表必须相同，子类方法返回值类型应比父类方法返回值类型更小或相等，抛出的异常范围小于等于父类，访问修饰符范围大于等于父类。
-2. 如果父类方法访问修饰符为 `private/final/static` 则子类就不能重写该方法，但是被 `static` 修饰的方法能够被再次声明。
-3. 构造方法无法被重写
+1. Method name và parameter list phải giống nhau. Return type của subclass phải nhỏ hơn hoặc bằng parent class. Exception range nhỏ hơn hoặc bằng parent class. Access modifier phải rộng hơn hoặc bằng parent class.
+2. Nếu method cha có access modifier là `private/final/static` thì subclass không thể override. Tuy nhiên, method `static` có thể được khai báo lại.
+3. Constructor không thể bị override.
 
-#### 总结
+#### Tóm tắt
 
-综上：**重写就是子类对父类方法的重新改造，外部样子不能改变，内部逻辑可以改变。**
+**Overriding là subclass viết lại method của parent class — signature bên ngoài không thể thay đổi, nhưng logic bên trong có thể thay đổi.**
 
-| 区别点         | 重载 (Overloading)                                                                   | 重写 (Overriding)                                                                            |
-| -------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| **发生范围**   | 同一个类中。                                                                         | 父类与子类之间（存在继承关系）。                                                             |
-| **方法签名**   | 方法名**必须相同**，但**参数列表必须不同**（参数的类型、个数或顺序至少有一项不同）。 | 方法名、参数列表**必须完全相同**。                                                           |
-| **返回类型**   | 与返回值类型**无关**，可以任意修改。                                                 | 子类方法的返回类型必须与父类方法的返回类型**相同**，或者是其**子类**。                       |
-| **访问修饰符** | 与访问修饰符**无关**，可以任意修改。                                                 | 子类方法的访问权限**不能低于**父类方法的访问权限。（public > protected > default > private） |
-| **绑定时期**   | 编译时绑定或称静态绑定                                                               | 运行时绑定 (Run-time Binding) 或称动态绑定                                                   |
+| Tiêu chí             | Overloading                                                                                                                            | Overriding                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Phạm vi**          | Trong cùng một class.                                                                                                                  | Giữa parent class và subclass (có quan hệ kế thừa).                                                          |
+| **Method signature** | Method name **phải giống nhau**, nhưng **parameter list phải khác nhau** (kiểu, số lượng, hoặc thứ tự ít nhất một trong ba phải khác). | Method name và parameter list **phải hoàn toàn giống nhau**.                                                 |
+| **Return type**      | **Không liên quan** đến return type, có thể thay đổi tùy ý.                                                                            | Return type của subclass phải **giống** hoặc là **subtype** của return type parent class.                    |
+| **Access modifier**  | **Không liên quan** đến access modifier, có thể thay đổi tùy ý.                                                                        | Access permission của subclass **không thể thấp hơn** parent class. (public > protected > default > private) |
+| **Binding**          | Compile-time binding (static binding)                                                                                                  | Runtime binding (dynamic binding)                                                                            |
 
-**方法的重写要遵循“两同两小一大”**（以下内容摘录自《疯狂 Java 讲义》，[issue#892](https://github.com/Snailclimb/JavaGuide/issues/892) ）：
+**Override phải tuân theo quy tắc “Hai giống, Hai nhỏ, Một lớn”** (trích từ “Crazy Java Lecture”, [issue#892](https://github.com/Snailclimb/JavaGuide/issues/892)):
 
-- “两同”即方法名相同、形参列表相同；
-- “两小”指的是子类方法返回值类型应比父类方法返回值类型更小或相等，子类方法声明抛出的异常类应比父类方法声明抛出的异常类更小或相等；
-- “一大”指的是子类方法的访问权限应比父类方法的访问权限更大或相等。
+- “Hai giống”: Method name giống nhau, parameter list giống nhau;
+- “Hai nhỏ”: Return type của subclass nhỏ hơn hoặc bằng parent class; exception type khai báo trong subclass nhỏ hơn hoặc bằng parent class;
+- “Một lớn”: Access permission của subclass lớn hơn hoặc bằng parent class.
 
-⭐️ 关于 **重写的返回值类型** 这里需要额外多说明一下，上面的表述不太清晰准确：如果方法的返回类型是 void 和基本数据类型，则返回值重写时不可修改。但是如果方法的返回值是引用类型，重写时是可以返回该引用类型的子类的。
+⭐️ Về **return type của override**, cần nói thêm cho rõ: Nếu return type là `void` hoặc kiểu nguyên thủy, không thể thay đổi khi override. Nhưng nếu return type là reference type, có thể trả về subtype của reference type đó.
 
 ```java
 public class Hero {
@@ -1207,9 +1207,9 @@ public class SuperSuperMan extends SuperMan {
 }
 ```
 
-### 什么是可变长参数？
+### Varargs (tham số độ dài biến đổi) là gì?
 
-从 Java5 开始，Java 支持定义可变长参数，所谓可变长参数就是允许在调用方法时传入不定长度的参数。就比如下面这个方法就可以接受 0 个或者多个参数。
+Từ Java 5, Java hỗ trợ định nghĩa varargs — cho phép truyền số lượng tham số không cố định khi gọi method. Ví dụ method dưới đây có thể nhận 0 hoặc nhiều tham số.
 
 ```java
 public static void method1(String... args) {
@@ -1217,7 +1217,7 @@ public static void method1(String... args) {
 }
 ```
 
-另外，可变参数只能作为函数的最后一个参数，但其前面可以有也可以没有任何其他参数。
+Ngoài ra, varargs chỉ có thể là tham số cuối cùng của method, nhưng có thể có hoặc không có tham số nào trước nó.
 
 ```java
 public static void method2(String arg1, String... args) {
@@ -1225,11 +1225,11 @@ public static void method2(String arg1, String... args) {
 }
 ```
 
-**遇到方法重载的情况怎么办呢？会优先匹配固定参数还是可变参数的方法呢？**
+**Khi gặp overloading với varargs thì sao? Ưu tiên match method tham số cố định hay varargs?**
 
-答案是会优先匹配固定参数的方法，因为固定参数的方法匹配度更高。
+Câu trả lời là ưu tiên match method tham số cố định vì độ match cao hơn.
 
-我们通过下面这个例子来证明一下。
+Hãy chứng minh qua ví dụ sau.
 
 ```java
 /**
@@ -1257,7 +1257,7 @@ public class VariableLengthArgument {
 }
 ```
 
-输出：
+Output:
 
 ```plain
 ab
@@ -1267,7 +1267,7 @@ c
 d
 ```
 
-另外，Java 的可变参数编译后实际会被转换成一个数组，我们看编译后生成的 `class`文件就可以看出来了。
+Ngoài ra, varargs trong Java sau khi compile thực ra sẽ được chuyển thành một mảng. Có thể thấy rõ điều này khi nhìn vào file `.class` sau khi compile.
 
 ```java
 public class VariableLengthArgument {
@@ -1286,11 +1286,11 @@ public class VariableLengthArgument {
 }
 ```
 
-## 参考
+## Tham khảo
 
-- What is the difference between JDK and JRE?：<https://stackoverflow.com/questions/1906445/what-is-the-difference-between-jdk-and-jre>
-- Oracle vs OpenJDK：<https://www.educba.com/oracle-vs-openjdk/>
-- Differences between Oracle JDK and OpenJDK：<https://stackoverflow.com/questions/22358071/differences-between-oracle-jdk-and-openjdk>
-- 彻底弄懂 Java 的移位操作符：<https://juejin.cn/post/6844904025880526861>
+- What is the difference between JDK and JRE?: <https://stackoverflow.com/questions/1906445/what-is-the-difference-between-jdk-and-jre>
+- Oracle vs OpenJDK: <https://www.educba.com/oracle-vs-openjdk/>
+- Differences between Oracle JDK and OpenJDK: <https://stackoverflow.com/questions/22358071/differences-between-oracle-jdk-and-openjdk>
+- Hiểu rõ hoàn toàn về shift operator trong Java: <https://juejin.cn/post/6844904025880526861>
 
 <!-- @include: @article-footer.snippet.md -->

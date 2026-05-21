@@ -1,394 +1,392 @@
 ---
-title: MySQL高性能优化规范建议总结
-description: MySQL高性能优化规范建议总结，涵盖数据库命名规范、表设计规范、字段设计规范、索引设计规范、SQL编写规范等，帮助你构建高效稳定的数据库系统。
-category: 数据库
+title: Tổng hợp quy chuẩn tối ưu MySQL high performance
+description: Tổng hợp các khuyến nghị quy chuẩn tối ưu MySQL high performance, bao gồm quy chuẩn đặt tên database, quy chuẩn thiết kế bảng, quy chuẩn thiết kế field, quy chuẩn thiết kế index, quy chuẩn viết SQL, v.v. giúp xây dựng hệ thống database hiệu quả và ổn định.
+category: Cơ sở dữ liệu
 tag:
   - MySQL
 head:
   - - meta
     - name: keywords
-      content: MySQL优化规范,数据库设计规范,索引设计,SQL编写规范,慢查询优化,字段类型选择,表结构设计
+      content: MySQL optimization specification,database design specification,index design,SQL writing specification,slow query optimization,field type selection,table structure design
 ---
 
-> 作者: 听风 原文地址: <https://www.cnblogs.com/huchong/p/10219318.html>。
+> Tác giả: Ting Feng. Link bài gốc: <https://www.cnblogs.com/huchong/p/10219318.html>.
 >
-> JavaGuide 已获得作者授权，并对原文内容进行了完善补充。
+> JavaGuide đã được tác giả cho phép và đã bổ sung hoàn thiện nội dung gốc.
 
-## 数据库命名规范
+## Quy chuẩn đặt tên Database
 
-- 所有数据库对象名称必须使用小写字母并用下划线分割。
-- 所有数据库对象名称禁止使用 MySQL 保留关键字（如果表名中包含关键字查询时，需要将其用单引号括起来）。
-- 数据库对象的命名要能做到见名识义，并且最好不要超过 32 个字符。
-- 临时库表必须以 `tmp_` 为前缀并以日期为后缀，备份表必须以 `bak_` 为前缀并以日期 (时间戳) 为后缀。
-- 所有存储相同数据的列名和列类型必须一致（一般作为关联列，如果查询时关联列类型不一致会自动进行数据类型隐式转换，会造成列上的索引失效，导致查询效率降低）。
+- Tất cả tên object database phải dùng chữ thường và phân tách bằng dấu gạch dưới.
+- Tất cả tên object database cấm dùng MySQL reserved keyword (nếu tên bảng chứa keyword khi query cần bao trong dấu nháy đơn).
+- Đặt tên database object phải làm cho tên thể hiện ý nghĩa rõ ràng, tốt nhất không vượt quá 32 ký tự.
+- Temporary table phải có prefix `tmp_` và hậu tố là ngày tháng. Backup table phải có prefix `bak_` và hậu tố là ngày (timestamp).
+- Tất cả column name và column type lưu cùng loại dữ liệu phải nhất quán (thường làm associate column. Nếu type của associate column không nhất quán khi query sẽ tự động thực hiện implicit data type conversion, gây index invalidation trên column đó và giảm query efficiency).
 
-## 数据库基本设计规范
+## Quy chuẩn thiết kế Database cơ bản
 
-### 所有表必须使用 InnoDB 存储引擎
+### Tất cả bảng phải dùng InnoDB storage engine
 
-没有特殊要求（即 InnoDB 无法满足的功能如：列存储、存储空间数据等）的情况下，所有表必须使用 InnoDB 存储引擎（MySQL5.5 之前默认使用 MyISAM，5.6 以后默认的为 InnoDB）。
+Nếu không có yêu cầu đặc biệt (tức chức năng InnoDB không đáp ứng được như column storage, lưu spatial data, v.v.), tất cả bảng phải dùng InnoDB storage engine (trước MySQL 5.5 mặc định dùng MyISAM, từ 5.6 mặc định là InnoDB).
 
-InnoDB 支持事务，支持行级锁，更好的恢复性，高并发下性能更好。
+InnoDB hỗ trợ transaction, hỗ trợ row-level lock, khả năng recovery tốt hơn, hiệu năng tốt hơn dưới high concurrency.
 
-### 数据库和表的字符集统一使用 UTF8
+### Database và bảng thống nhất dùng charset UTF8
 
-兼容性更好，统一字符集可以避免由于字符集转换产生的乱码，不同的字符集进行比较前需要进行转换会造成索引失效，如果数据库中有存储 emoji 表情的需要，字符集需要采用 utf8mb4 字符集。
+Tương thích tốt hơn. Charset thống nhất tránh garbled characters do charset conversion. Khi so sánh các charset khác nhau cần convert trước gây index invalidation. Nếu database cần lưu emoji, cần dùng charset utf8mb4.
 
-推荐阅读一下我写的这篇文章：[MySQL 字符集详解](../character-set.md) 。
+Khuyến nghị đọc bài tôi viết: [Giải thích chi tiết MySQL Charset](../character-set.md).
 
-### 所有表和字段都需要添加注释
+### Tất cả bảng và field cần thêm comment
 
-使用 comment 从句添加表和列的备注，从一开始就进行数据字典的维护。
+Dùng mệnh đề comment để thêm ghi chú cho bảng và column. Bắt đầu duy trì data dictionary từ đầu.
 
-### 尽量控制单表数据量的大小，建议控制在 500 万以内
+### Cố gắng kiểm soát kích thước data của single table, khuyến nghị giữ dưới 5 triệu
 
-500 万并不是 MySQL 数据库的限制，过大会造成修改表结构，备份，恢复都会有很大的问题。
+5 triệu không phải giới hạn của MySQL database. Quá lớn sẽ gây nhiều vấn đề lớn cho modify table structure, backup, recovery.
 
-可以用历史数据归档（应用于日志数据），分库分表（应用于业务数据）等手段来控制数据量大小。
+Có thể dùng các biện pháp như historical data archiving (áp dụng với log data), database và table sharding (áp dụng với business data) để kiểm soát kích thước data.
 
-### 谨慎使用 MySQL 分区表
+### Thận trọng khi dùng MySQL partition table
 
-分区表在物理上表现为多个文件，在逻辑上表现为一个表。
+Partition table về vật lý là nhiều file, về logic là một bảng.
 
-谨慎选择分区键，跨分区查询效率可能更低。
+Thận trọng khi chọn partition key — cross-partition query có thể kém hiệu quả hơn.
 
-建议采用物理分表的方式管理大数据。
+Khuyến nghị dùng physical table sharding để quản lý big data.
 
-### 经常一起使用的列放到一个表中
+### Đặt các column thường dùng cùng nhau vào cùng một bảng
 
-避免更多的关联操作。
+Tránh thêm nhiều JOIN operation.
 
-### 禁止在表中建立预留字段
+### Cấm tạo reserved field trong bảng
 
-- 预留字段的命名很难做到见名识义。
-- 预留字段无法确认存储的数据类型，所以无法选择合适的类型。
-- 对预留字段类型的修改，会对表进行锁定。
+- Tên reserved field khó làm thể hiện ý nghĩa rõ ràng.
+- Không thể xác định data type của reserved field nên không thể chọn type phù hợp.
+- Modify type của reserved field sẽ lock bảng.
 
-### 禁止在数据库中存储文件（比如图片）这类大的二进制数据
+### Cấm lưu file (như ảnh) dạng binary data lớn trong database
 
-在数据库中存储文件会严重影响数据库性能，消耗过多存储空间。
+Lưu file trong database ảnh hưởng nghiêm trọng đến hiệu năng database, tiêu tốn quá nhiều storage space.
 
-文件（比如图片）这类大的二进制数据通常存储于文件服务器，数据库只存储文件地址信息。
+File lớn dạng binary (như ảnh) thường được lưu trên file server. Database chỉ lưu thông tin địa chỉ file.
 
-### 不要被数据库范式所束缚
+### Không bị ràng buộc bởi database normal form
 
-一般来说，设计关系数据库时需要满足第三范式，但为了满足第三范式，我们可能会拆分出多张表。而在进行查询时需要对多张表进行关联查询，有时为了提高查询效率，会降低范式的要求，在表中保存一定的冗余信息，也叫做反范式。但要注意反范式一定要适度。
+Nói chung khi thiết kế relational database cần thỏa Third Normal Form, nhưng để thỏa Third Normal Form chúng ta có thể phải tách ra nhiều bảng. Khi query cần JOIN nhiều bảng. Đôi khi để tăng query efficiency, sẽ giảm yêu cầu về normal form, giữ lại một số thông tin dư thừa trong bảng — gọi là denormalization. Nhưng cần lưu ý denormalization phải vừa phải.
 
-### 禁止在线上做数据库压力测试
+### Cấm thực hiện stress test database trên môi trường production
 
-### 禁止从开发环境、测试环境直接连接生产环境数据库
+### Cấm kết nối trực tiếp đến production database từ môi trường development, test
 
-安全隐患极大，要对生产环境抱有敬畏之心！
+Rủi ro bảo mật cực lớn — phải có sự kính trọng với môi trường production!
 
-## 数据库字段设计规范
+## Quy chuẩn thiết kế Field của Database
 
-### 优先选择符合存储需要的最小的数据类型
+### Ưu tiên chọn data type nhỏ nhất đáp ứng nhu cầu lưu trữ
 
-存储字节越小，占用空间也就越小，性能也越好。
+Byte lưu trữ càng nhỏ, không gian chiếm dụng càng nhỏ, hiệu năng càng tốt.
 
-**a.某些字符串可以转换成数字类型存储，比如可以将 IP 地址转换成整型数据。**
+**a. Một số string có thể convert sang number type để lưu, ví dụ có thể convert IP address sang integer data.**
 
-数字是连续的，性能更好，占用空间也更小。
+Số liên tục, hiệu năng tốt hơn, chiếm không gian nhỏ hơn.
 
-MySQL 提供了两个方法来处理 ip 地址：
+MySQL cung cấp hai method xử lý IP address:
 
-- `INET_ATON()`：把 ip 转为无符号整型 (4-8 位)；
-- `INET_NTOA()`：把整型的 ip 转为地址。
+- `INET_ATON()`: Convert IP sang unsigned integer (4-8 chữ số).
+- `INET_NTOA()`: Convert integer IP sang address.
 
-插入数据前，先用 `INET_ATON()` 把 ip 地址转为整型；显示数据时，使用 `INET_NTOA()` 把整型的 ip 地址转为地址显示即可。
+Trước khi insert data, dùng `INET_ATON()` để convert IP sang integer. Khi hiển thị data, dùng `INET_NTOA()` để convert integer IP sang address.
 
-**b.对于非负型的数据 (如自增 ID、整型 IP、年龄) 来说，要优先使用无符号整型来存储。**
+**b. Với data kiểu non-negative (như auto-increment ID, integer IP, age), ưu tiên dùng unsigned integer để lưu.**
 
-无符号相对于有符号可以多出一倍的存储空间：
+Unsigned so với signed có thể lưu nhiều gấp đôi:
 
 ```sql
 SIGNED INT -2147483648~2147483647
 UNSIGNED INT 0~4294967295
 ```
 
-**c.小数值类型（比如年龄、状态表示如 0/1）优先使用 TINYINT 类型。**
+**c. Với data giá trị nhỏ (như age, status như 0/1) ưu tiên dùng kiểu TINYINT.**
 
-### 避免使用 TEXT、BLOB 数据类型，最常见的 TEXT 类型可以存储 64k 的数据
+### Tránh dùng data type TEXT, BLOB — kiểu TEXT phổ biến nhất có thể lưu 64K data
 
-**a. 建议把 BLOB 或是 TEXT 列分离到单独的扩展表中。**
+**a. Khuyến nghị tách cột BLOB hoặc TEXT ra bảng extension riêng biệt.**
 
-MySQL 内存临时表不支持 TEXT、BLOB 这样的大数据类型，如果查询中包含这样的数据，在排序等操作时，就不能使用内存临时表，必须使用磁盘临时表进行。而且对于这种数据，MySQL 还是要进行二次查询，会使 sql 性能变得很差，但是不是说一定不能使用这样的数据类型。
+MySQL memory temporary table không hỗ trợ data type lớn như TEXT, BLOB. Nếu query chứa data như vậy, trong thao tác sort v.v. không thể dùng memory temporary table mà phải dùng disk temporary table. Và với data như vậy MySQL còn phải query thêm lần nữa, khiến SQL performance rất kém. Nhưng không có nghĩa là tuyệt đối không thể dùng.
 
-如果一定要使用，建议把 BLOB 或是 TEXT 列分离到单独的扩展表中，查询时一定不要使用 `select *`而只需要取出必要的列，不需要 TEXT 列的数据时不要对该列进行查询。
+Nếu nhất thiết phải dùng, khuyến nghị tách cột BLOB hoặc TEXT ra bảng extension riêng biệt. Khi query nhất thiết không dùng `SELECT *` mà chỉ lấy các column cần thiết, không query cột TEXT khi không cần data đó.
 
-**2、TEXT 或 BLOB 类型只能使用前缀索引**
+**2. Kiểu TEXT hoặc BLOB chỉ có thể dùng prefix index**
 
-因为 MySQL 对索引字段长度是有限制的，所以 TEXT 类型只能使用前缀索引，并且 TEXT 列上是不能有默认值的。
+Vì MySQL có giới hạn về độ dài field index, nên TEXT type chỉ có thể dùng prefix index. Và column TEXT không thể có default value.
 
-### 避免使用 ENUM 类型
+### Tránh dùng kiểu ENUM
 
-- 修改 ENUM 值需要使用 ALTER 语句。
-- ENUM 类型的 ORDER BY 操作效率低，需要额外操作。
-- ENUM 数据类型存在一些限制，比如建议不要使用数值作为 ENUM 的枚举值。
+- Modify ENUM value cần dùng ALTER statement.
+- Operation ORDER BY trên ENUM type hiệu quả thấp, cần thêm thao tác.
+- Data type ENUM có một số hạn chế, ví dụ khuyến nghị không dùng số làm enum value của ENUM.
 
-相关阅读：[是否推荐使用 MySQL 的 enum 类型？ - 架构文摘 - 知乎](https://www.zhihu.com/question/404422255/answer/1661698499) 。
+Đọc liên quan: [Có nên dùng kiểu enum của MySQL không? - Architecture Digest - Zhihu](https://www.zhihu.com/question/404422255/answer/1661698499).
 
-### 尽可能把所有列定义为 NOT NULL
+### Cố gắng định nghĩa tất cả column là NOT NULL
 
-除非有特别的原因使用 NULL 值，否则应该总是让字段保持 NOT NULL。
+Trừ khi có lý do đặc biệt để dùng giá trị NULL, nếu không nên luôn giữ field là NOT NULL.
 
-- 索引 NULL 列需要额外的空间来保存，所以要占用更多的空间。
-- 进行比较和计算时要对 NULL 值做特别的处理。
+- Index NULL column cần thêm space để lưu, nên chiếm nhiều không gian hơn.
+- Khi so sánh và tính toán cần xử lý đặc biệt với giá trị NULL.
 
-相关阅读：[技术分享 | MySQL 默认值选型（是空，还是 NULL）](https://opensource.actionsky.com/20190710-mysql/) 。
+Đọc liên quan: [Chia sẻ kỹ thuật | MySQL default value selection (NULL hay empty)](https://opensource.actionsky.com/20190710-mysql/).
 
-### 一定不要用字符串存储日期
+### Tuyệt đối không dùng string để lưu ngày tháng
 
-对于日期类型来说，一定不要用字符串存储日期。可以考虑 DATETIME、TIMESTAMP 和数值型时间戳。
+Với date type, tuyệt đối không dùng string để lưu. Có thể cân nhắc DATETIME, TIMESTAMP và numeric timestamp.
 
-这三种种方式都有各自的优势，根据实际场景选择最合适的才是王道。下面再对这三种方式做一个简单的对比，以供大家在实际开发中选择正确的存放时间的数据类型：
+Ba cách đều có ưu điểm riêng, chọn cái phù hợp nhất với tình huống thực tế mới là đúng. Dưới đây so sánh đơn giản ba cách để chọn đúng data type lưu thời gian:
 
-| 类型         | 存储空间 | 日期格式                       | 日期范围                                                     | 是否带时区信息 |
-| ------------ | -------- | ------------------------------ | ------------------------------------------------------------ | -------------- |
-| DATETIME     | 5~8 字节 | YYYY-MM-DD hh:mm:ss[.fraction] | 1000-01-01 00:00:00[.000000] ～ 9999-12-31 23:59:59[.999999] | 否             |
-| TIMESTAMP    | 4~7 字节 | YYYY-MM-DD hh:mm:ss[.fraction] | 1970-01-01 00:00:01[.000000] ～ 2038-01-19 03:14:07[.999999] | 是             |
-| 数值型时间戳 | 4 字节   | 全数字如 1578707612            | 1970-01-01 00:00:01 之后的时间                               | 否             |
+| Kiểu              | Storage space | Date format                    | Date range                                                  | Có timezone không |
+| ----------------- | ------------- | ------------------------------ | ----------------------------------------------------------- | ----------------- |
+| DATETIME          | 5~8 byte      | YYYY-MM-DD hh:mm:ss[.fraction] | 1000-01-01 00:00:00[.000000] ~ 9999-12-31 23:59:59[.999999] | Không             |
+| TIMESTAMP         | 4~7 byte      | YYYY-MM-DD hh:mm:ss[.fraction] | 1970-01-01 00:00:01[.000000] ~ 2038-01-19 03:14:07[.999999] | Có                |
+| Numeric timestamp | 4 byte        | Số thuần như 1578707612        | Thời gian sau 1970-01-01 00:00:01                           | Không             |
 
-MySQL 时间类型选择的详细介绍请看这篇：[MySQL 时间类型数据存储建议](https://javaguide.cn/database/mysql/some-thoughts-on-database-storage-time.html)。
+Giới thiệu chi tiết về chọn MySQL time type xem bài: [Khuyến nghị lưu trữ kiểu thời gian MySQL](https://javaguide.cn/database/mysql/some-thoughts-on-database-storage-time.html).
 
-### 同财务相关的金额类数据必须使用 decimal 类型
+### Dữ liệu tiền tệ liên quan đến tài chính nhất thiết phải dùng kiểu decimal
 
-- **非精准浮点**：float、double
-- **精准浮点**：decimal
+- **Non-precise float**: float, double
+- **Precise float**: decimal
 
-decimal 类型为精准浮点数，在计算时不会丢失精度。占用空间由定义的宽度决定，每 4 个字节可以存储 9 位数字，并且小数点要占用一个字节。并且，decimal 可用于存储比 bigint 更大的整型数据。
+Kiểu decimal là precise float — khi tính toán không mất precision. Không gian chiếm dụng được quyết định bởi width được định nghĩa — mỗi 4 byte có thể lưu 9 chữ số, và dấu thập phân chiếm 1 byte. Hơn nữa decimal có thể dùng để lưu integer data lớn hơn bigint.
 
-不过， 由于 decimal 需要额外的空间和计算开销，应该尽量只在需要对数据进行精确计算时才使用 decimal 。
+Tuy nhiên, vì decimal cần thêm không gian và overhead tính toán, chỉ nên dùng decimal khi cần tính toán chính xác với data.
 
-### 单表不要包含过多字段
+### Không để single table chứa quá nhiều field
 
-如果一个表包含过多字段的话，可以考虑将其分解成多个表，必要时增加中间表进行关联。
+Nếu một bảng chứa quá nhiều field, có thể cân nhắc chia thành nhiều bảng. Khi cần thiết thêm intermediate table để associate.
 
-## 索引设计规范
+## Quy chuẩn thiết kế Index
 
-### 限制每张表上的索引数量，建议单张表索引不超过 5 个
+### Giới hạn số lượng index trên mỗi bảng, khuyến nghị không quá 5 index trên single table
 
-索引并不是越多越好！索引可以提高效率，同样可以降低效率。
+Index càng nhiều không hẳn càng tốt! Index có thể tăng efficiency, đồng thời cũng có thể giảm efficiency.
 
-索引可以增加查询效率，但同样也会降低插入和更新的效率，甚至有些情况下会降低查询效率。
+Index có thể tăng query efficiency nhưng đồng thời cũng giảm insert và update efficiency, thậm chí trong một số tình huống giảm cả query efficiency.
 
-因为 MySQL 优化器在选择如何优化查询时，会根据统一信息，对每一个可以用到的索引来进行评估，以生成出一个最好的执行计划。如果同时有很多个索引都可以用于查询，就会增加 MySQL 优化器生成执行计划的时间，同样会降低查询性能。
+Vì MySQL optimizer khi chọn cách tối ưu query, sẽ đánh giá mọi index có thể dùng được dựa trên thông tin thống nhất để tạo ra execution plan tốt nhất. Nếu có rất nhiều index có thể dùng cho query cùng lúc, sẽ tăng thời gian MySQL optimizer tạo execution plan, đồng thời giảm query performance.
 
-### 禁止使用全文索引
+### Cấm dùng fulltext index
 
-全文索引不适用于 OLTP 场景。
+Fulltext index không phù hợp với tình huống OLTP.
 
-### 禁止给表中的每一列都建立单独的索引
+### Cấm tạo single index riêng biệt cho mỗi column trong bảng
 
-5.6 版本之前，一个 sql 只能使用到一个表中的一个索引；5.6 以后，虽然有了合并索引的优化方式，但是还是远远没有使用一个联合索引的查询方式好。
+Trước version 5.6, một SQL chỉ dùng được một index của bảng. Từ 5.6, dù đã có optimization method merge index, nhưng vẫn kém hơn nhiều so với cách query dùng composite index.
 
-### 每个 InnoDB 表必须有个主键
+### Mỗi bảng InnoDB phải có primary key
 
-InnoDB 是一种索引组织表：数据的存储的逻辑顺序和索引的顺序是相同的。每个表都可以有多个索引，但是表的存储顺序只能有一种。
+InnoDB là loại index-organized table: thứ tự logic lưu trữ data và thứ tự index là giống nhau. Mỗi bảng có thể có nhiều index nhưng chỉ có một thứ tự lưu trữ bảng.
 
-InnoDB 是按照主键索引的顺序来组织表的。
+InnoDB tổ chức bảng theo thứ tự primary key index.
 
-- 不要使用更新频繁的列作为主键，不使用多列主键（相当于联合索引）。
-- 不要使用 UUID、MD5、HASH、字符串列作为主键（无法保证数据的顺序增长）。
-- 主键建议使用自增 ID 值。
+- Không dùng column cập nhật thường xuyên làm primary key, không dùng composite primary key (tương đương composite index).
+- Không dùng UUID, MD5, HASH, string column làm primary key (không đảm bảo data tăng theo thứ tự).
+- Primary key nên dùng auto-increment ID value.
 
-### 常见索引列建议
+### Gợi ý column index phổ biến
 
-- 出现在 SELECT、UPDATE、DELETE 语句的 WHERE 从句中的列。
-- 包含在 ORDER BY、GROUP BY、DISTINCT 中的字段。
-- 不要将符合 1 和 2 中的字段的列都建立一个索引，通常将 1、2 中的字段建立联合索引效果更好。
-- 多表 join 的关联列。
+- Column trong mệnh đề WHERE của câu SELECT, UPDATE, DELETE.
+- Field trong ORDER BY, GROUP BY, DISTINCT.
+- Không tạo single index cho tất cả field thỏa điều kiện 1 và 2 — thường tạo composite index cho field trong 1, 2 hiệu quả hơn.
+- Associate column của multi-table JOIN.
 
-### 如何选择索引列的顺序
+### Cách chọn thứ tự column index
 
-建立索引的目的是：希望通过索引进行数据查找，减少随机 IO，增加查询性能，索引能过滤出越少的数据，则从磁盘中读入的数据也就越少。
+Mục đích tạo index là muốn dùng index để data lookup, giảm random I/O, tăng query performance. Index filter được ít data hơn thì data đọc từ disk cũng ít hơn.
 
-- **区分度最高的列放在联合索引的最左侧**：这是最重要的原则。区分度越高，通过索引筛选出的数据就越少，I/O 操作也就越少。计算区分度的方法是 `count(distinct column) / count(*)`。
-- **最频繁使用的列放在联合索引的左侧**：这符合最左前缀匹配原则。将最常用的查询条件列放在最左侧，可以最大程度地利用索引。
-- **字段长度**：字段长度对联合索引非叶子节点的影响很小，因为它存储了所有联合索引字段的值。字段长度主要影响主键和包含在其他索引中的字段的存储空间，以及这些索引的叶子节点的大小。因此，在选择联合索引列的顺序时，字段长度的优先级最低。对于主键和包含在其他索引中的字段，选择较短的字段长度可以节省存储空间和提高 I/O 性能。
+- **Column có cardinality cao nhất đặt ở bên trái nhất của composite index**: Đây là nguyên tắc quan trọng nhất. Cardinality càng cao, data lọc qua index càng ít và I/O càng ít. Cách tính cardinality là `count(distinct column) / count(*)`.
+- **Column được dùng thường xuyên nhất đặt ở bên trái của composite index**: Điều này phù hợp với leftmost prefix matching principle. Đặt column query condition thường dùng nhất ở bên trái có thể tận dụng index tối đa.
+- **Độ dài field**: Độ dài field ảnh hưởng rất ít đến non-leaf node của composite index vì nó lưu tất cả giá trị field composite index. Độ dài field chủ yếu ảnh hưởng đến storage space của primary key và field trong các index khác, và kích thước leaf node của các index đó. Do đó khi chọn thứ tự column composite index, priority của độ dài field là thấp nhất. Với primary key và field trong các index khác, chọn độ dài field ngắn hơn có thể tiết kiệm storage space và cải thiện I/O performance.
 
-### 避免建立冗余索引和重复索引（增加了查询优化器生成执行计划的时间）
+### Tránh tạo redundant index và duplicate index (tăng thời gian query optimizer tạo execution plan)
 
-- 重复索引示例：primary key(id)、index(id)、unique index(id)。
-- 冗余索引示例：index(a,b,c)、index(a,b)、index(a)。
+- Ví dụ duplicate index: primary key(id), index(id), unique index(id).
+- Ví dụ redundant index: index(a,b,c), index(a,b), index(a).
 
-### 对于频繁的查询，优先考虑使用覆盖索引
+### Với query thường xuyên, ưu tiên cân nhắc dùng covering index
 
-> 覆盖索引：就是包含了所有查询字段 (where、select、order by、group by 包含的字段) 的索引
+> Covering index: Index chứa tất cả query field (field trong where, select, order by, group by).
 
-**覆盖索引的好处**：
+**Lợi ích của covering index**:
 
-- **避免 InnoDB 表进行索引的二次查询，也就是回表操作**：InnoDB 是以聚集索引的顺序来存储的，对于 InnoDB 来说，二级索引在叶子节点中所保存的是行的主键信息，如果是用二级索引查询数据的话，在查找到相应的键值后，还要通过主键进行二次查询才能获取我们真实所需要的数据。而在覆盖索引中，二级索引的键值中可以获取所有的数据，避免了对主键的二次查询（回表），减少了 IO 操作，提升了查询效率。
-- **可以把随机 IO 变成顺序 IO 加快查询效率**：由于覆盖索引是按键值的顺序存储的，对于 IO 密集型的范围查找来说，对比随机从磁盘读取每一行的数据 IO 要少的多，因此利用覆盖索引在访问时也可以把磁盘的随机读取的 IO 转变成索引查找的顺序 IO。
+- **Tránh secondary lookup trên InnoDB table — tức table lookup**: InnoDB lưu theo thứ tự clustered index. Với InnoDB, secondary index lưu primary key info của row trong leaf node. Nếu dùng secondary index để query data, sau khi tìm được key value tương ứng còn phải query lại qua primary key mới lấy được data thực sự cần. Trong covering index, secondary index key value có thể lấy được tất cả data, tránh secondary query theo primary key (table lookup), giảm I/O, tăng query efficiency.
+- **Có thể chuyển random I/O thành sequential I/O, tăng tốc query**: Vì covering index được lưu theo thứ tự key value, với IO-intensive range query, I/O ít hơn nhiều so với đọc random từng row data từ disk. Do đó dùng covering index khi truy cập cũng có thể chuyển random read disk I/O thành sequential I/O của index lookup.
 
 ---
 
-### 索引 SET 规范
+### Quy chuẩn SET index
 
-**尽量避免使用外键约束**
+**Cố gắng tránh dùng foreign key constraint**
 
-- 不建议使用外键约束（foreign key），但一定要在表与表之间的关联键上建立索引。
-- 外键可用于保证数据的参照完整性，但建议在业务端实现。
-- 外键会影响父表和子表的写操作从而降低性能。
+- Không khuyến nghị dùng foreign key constraint, nhưng nhất định phải tạo index trên associate key giữa các bảng.
+- Foreign key có thể đảm bảo referential integrity của data, nhưng khuyến nghị triển khai ở business side.
+- Foreign key ảnh hưởng đến write operation của parent table và child table từ đó giảm performance.
 
-## 数据库 SQL 开发规范
+## Quy chuẩn phát triển SQL của Database
 
-### 尽量不在数据库做运算，复杂运算需移到业务应用里完成
+### Cố gắng không tính toán trong database, tính toán phức tạp cần chuyển sang application
 
-尽量不在数据库做运算，复杂运算需移到业务应用里完成。这样可以避免数据库的负担过重，影响数据库的性能和稳定性。数据库的主要作用是存储和管理数据，而不是处理数据。
+Cố gắng không tính toán trong database, tính toán phức tạp cần chuyển sang business application. Như vậy tránh được database quá tải, ảnh hưởng đến performance và ổn định. Chức năng chính của database là lưu trữ và quản lý data chứ không phải xử lý data.
 
-### 优化对性能影响较大的 SQL 语句
+### Tối ưu câu SQL ảnh hưởng lớn đến performance
 
-要找到最需要优化的 SQL 语句。要么是使用最频繁的语句，要么是优化后提高最明显的语句，可以通过查询 MySQL 的慢查询日志来发现需要进行优化的 SQL 语句。
+Tìm câu SQL cần tối ưu nhất. Hoặc là câu lệnh được dùng thường xuyên nhất, hoặc là câu lệnh cải thiện rõ ràng nhất sau tối ưu. Có thể query slow query log của MySQL để tìm câu SQL cần tối ưu.
 
-### 充分利用表上已经存在的索引
+### Tận dụng đầy đủ index đã có trên bảng
 
-避免使用双%号的查询条件。如：`a like '%123%'`（如果无前置%,只有后置%，是可以用到列上的索引的）。
+Tránh dùng điều kiện query có ký tự `%` ở cả hai đầu. Ví dụ: `a like '%123%'` (nếu không có prefix %, chỉ có suffix %, vẫn có thể dùng index trên column).
 
-一个 SQL 只能利用到复合索引中的一列进行范围查询。如：有 a,b,c 列的联合索引，在查询条件中有 a 列的范围查询，则在 b,c 列上的索引将不会被用到。
+Một SQL chỉ có thể dùng một column của composite index để range query. Ví dụ: có composite index của cột a, b, c — nếu trong điều kiện query có range query trên cột a thì index trên cột b, c sẽ không được dùng.
 
-在定义联合索引时，如果 a 列要用到范围查找的话，就要把 a 列放到联合索引的右侧，使用 left join 或 not exists 来优化 not in 操作，因为 not in 也通常会使用索引失效。
+Khi định nghĩa composite index, nếu cột a cần range query thì đặt cột a ở bên phải composite index. Dùng left join hoặc not exists để tối ưu thao tác not in vì not in thường cũng làm index invalid.
 
-### 禁止使用 SELECT \* 必须使用 SELECT <字段列表> 查询
+### Cấm dùng `SELECT *`, phải dùng `SELECT <field list>` để query
 
-- `SELECT *` 会消耗更多的 CPU。
-- `SELECT *` 无用字段增加网络带宽资源消耗，增加数据传输时间，尤其是大字段（如 varchar、blob、text）。
-- `SELECT *` 无法使用 MySQL 优化器覆盖索引的优化（基于 MySQL 优化器的“覆盖索引”策略又是速度极快、效率极高、业界极为推荐的查询优化方式）。
-- `SELECT <字段列表>` 可减少表结构变更带来的影响。
+- `SELECT *` tiêu tốn nhiều CPU hơn.
+- `SELECT *` field không cần dùng tăng network bandwidth resource consumption, tăng thời gian data transmission, đặc biệt với large field (như varchar, blob, text).
+- `SELECT *` không thể dùng tối ưu covering index của MySQL optimizer (chiến lược "covering index" dựa trên MySQL optimizer là cách tối ưu query nhanh nhất, hiệu quả nhất và được industry khuyến nghị nhất).
+- `SELECT <field list>` có thể giảm ảnh hưởng của thay đổi table structure.
 
-### 禁止使用不含字段列表的 INSERT 语句
+### Cấm dùng câu INSERT không có field list
 
-**不推荐**：
+**Không khuyến nghị**:
 
 ```sql
 insert into t values ('a','b','c');
 ```
 
-**推荐**：
+**Khuyến nghị**:
 
 ```sql
 insert into t(c1,c2,c3) values ('a','b','c');
 ```
 
-### 建议使用预编译语句进行数据库操作
+### Khuyến nghị dùng prepared statement cho database operation
 
-- 预编译语句可以重复使用这些计划，减少 SQL 编译所需要的时间，还可以解决动态 SQL 所带来的 SQL 注入的问题。
-- 只传参数，比传递 SQL 语句更高效。
-- 相同语句可以一次解析，多次使用，提高处理效率。
+- Prepared statement có thể tái sử dụng các plan đó, giảm thời gian SQL compile. Còn có thể giải quyết vấn đề SQL injection do dynamic SQL gây ra.
+- Chỉ truyền tham số — hiệu quả hơn truyền SQL statement.
+- Cùng statement có thể parse một lần, dùng nhiều lần, tăng processing efficiency.
 
-### 避免数据类型的隐式转换
+### Tránh implicit type conversion của data type
 
-隐式转换会导致索引失效，如：
+Implicit conversion gây index invalidation:
 
 ```sql
 select name,phone from customer where id = '111';
 ```
 
-详细解读可以看：[MySQL 中的隐式转换造成的索引失效](./index-invalidation-caused-by-implicit-conversion.md) 这篇文章。
+Chi tiết xem bài: [Implicit Conversion trong MySQL gây Index Invalidation](./index-invalidation-caused-by-implicit-conversion.md).
 
-### 避免使用子查询，可以把子查询优化为 join 操作
+### Tránh dùng subquery — có thể tối ưu subquery thành JOIN operation
 
-通常子查询在 in 子句中，且子查询中为简单 SQL(不包含 union、group by、order by、limit 从句) 时，才可以把子查询转化为关联查询进行优化。
+Thường chỉ khi subquery ở trong mệnh đề in và subquery là SQL đơn giản (không chứa union, group by, order by, limit) mới có thể convert subquery thành associated query để tối ưu.
 
-**子查询性能差的原因**：子查询的结果集无法使用索引，通常子查询的结果集会被存储到临时表中，不论是内存临时表还是磁盘临时表都不会存在索引，所以查询性能会受到一定的影响。特别是对于返回结果集比较大的子查询，其对查询性能的影响也就越大。由于子查询会产生大量的临时表也没有索引，所以会消耗过多的 CPU 和 IO 资源，产生大量的慢查询。
+**Nguyên nhân subquery hiệu năng kém**: Result set của subquery không thể dùng index. Thường result set của subquery được lưu vào temporary table. Dù là memory temporary table hay disk temporary table đều không có index nên query performance sẽ bị ảnh hưởng nhất định. Đặc biệt với subquery có result set lớn, ảnh hưởng đến query performance càng lớn. Vì subquery tạo ra nhiều temporary table và không có index, sẽ tiêu tốn quá nhiều CPU và IO resource, gây nhiều slow query.
 
-### 避免使用 JOIN 关联太多的表
+### Tránh JOIN quá nhiều bảng
 
-对于 MySQL 来说，是存在关联缓存的，缓存的大小可以由 join_buffer_size 参数进行设置。
+Với MySQL, có join cache. Kích thước cache có thể cấu hình qua tham số `join_buffer_size`.
 
-在 MySQL 中，对于同一个 SQL 多关联（join）一个表，就会多分配一个关联缓存，如果在一个 SQL 中关联的表越多，所占用的内存也就越大。
+Trong MySQL, mỗi khi JOIN thêm một bảng trong cùng SQL, sẽ cấp phát thêm một join cache. Càng JOIN nhiều bảng trong SQL, memory chiếm dụng càng lớn.
 
-如果程序中大量地使用了多表关联的操作，同时 join_buffer_size 设置得也不合理，就容易造成服务器内存溢出的情况，就会影响到服务器数据库性能的稳定性。
+Nếu trong program dùng nhiều multi-table JOIN và `join_buffer_size` không cấu hình hợp lý, dễ gây server memory overflow ảnh hưởng đến ổn định hiệu năng database server.
 
-同时对于关联操作来说，会产生临时表操作，影响查询效率，MySQL 最多允许关联 61 个表，建议不超过 5 个。
+Đồng thời JOIN operation sẽ tạo temporary table ảnh hưởng đến query efficiency. MySQL cho phép tối đa 61 bảng JOIN — khuyến nghị không vượt quá 5.
 
-### 减少同数据库的交互次数
+### Giảm số lần tương tác với database
 
-数据库更适合处理批量操作，合并多个相同的操作到一起，可以提高处理效率。
+Database phù hợp hơn với xử lý batch. Gộp nhiều thao tác giống nhau lại với nhau có thể tăng processing efficiency.
 
-### 对应同一列进行 or 判断时，使用 in 代替 or
+### Với OR judgment trên cùng column, dùng IN thay vì OR
 
-in 的值不要超过 500 个。in 操作可以更有效的利用索引，or 大多数情况下很少能利用到索引。
+Giá trị của IN không vượt quá 500. IN operation có thể tận dụng index hiệu quả hơn. OR trong hầu hết tình huống ít tận dụng được index.
 
-### 禁止使用 order by rand() 进行随机排序
+### Cấm dùng ORDER BY rand() để random sort
 
-order by rand() 会把表中所有符合条件的数据装载到内存中，然后在内存中对所有数据根据随机生成的值进行排序，并且可能会对每一行都生成一个随机值。如果满足条件的数据集非常大，就会消耗大量的 CPU 和 IO 及内存资源。
+ORDER BY rand() sẽ load tất cả data thỏa điều kiện trong bảng vào memory, sau đó sort tất cả data theo giá trị random được tạo ra và có thể tạo giá trị random cho mỗi row. Nếu tập data thỏa điều kiện rất lớn, sẽ tiêu tốn nhiều CPU, IO và memory resource.
 
-推荐在程序中获取一个随机值，然后从数据库中获取数据的方式。
+Khuyến nghị lấy random value trong program rồi lấy data từ database theo cách đó.
 
-### WHERE 从句中禁止对列进行函数转换和计算
+### Cấm thực hiện function conversion và tính toán trên column trong mệnh đề WHERE
 
-对列进行函数转换或计算时会导致无法使用索引。
+Thực hiện function conversion hoặc tính toán trên column sẽ gây không thể dùng index.
 
-**不推荐**：
+**Không khuyến nghị**:
 
 ```sql
 where date(create_time)='20190101'
 ```
 
-**推荐**：
+**Khuyến nghị**:
 
 ```sql
 where create_time >= '20190101' and create_time < '20190102'
 ```
 
-### 在明显不会有重复值时使用 UNION ALL 而不是 UNION
+### Khi rõ ràng không có duplicate value thì dùng UNION ALL thay vì UNION
 
-- UNION 会把两个结果集的所有数据放到临时表中后再进行去重操作。
-- UNION ALL 不会再对结果集进行去重操作。
+- UNION đưa tất cả data của hai result set vào temporary table rồi mới dedup.
+- UNION ALL không thực hiện dedup trên result set.
 
-### 拆分复杂的大 SQL 为多个小 SQL
+### Tách SQL lớn phức tạp thành nhiều SQL nhỏ
 
-- 大 SQL 逻辑上比较复杂，需要占用大量 CPU 进行计算的 SQL。
-- MySQL 中，一个 SQL 只能使用一个 CPU 进行计算。
-- SQL 拆分后可以通过并行执行来提高处理效率。
+- SQL lớn logic phức tạp cần chiếm nhiều CPU để tính toán.
+- Trong MySQL, một SQL chỉ dùng được một CPU để tính toán.
+- Sau khi SQL được tách, có thể tăng processing efficiency qua parallel execution.
 
-### 程序连接不同的数据库使用不同的账号，禁止跨库查询
+### Program kết nối database khác nhau dùng account khác nhau, cấm cross-database query
 
-- 为数据库迁移和分库分表留出余地。
-- 降低业务耦合度。
-- 避免权限过大而产生的安全风险。
+- Để lại chỗ cho database migration và database sharding.
+- Giảm business coupling.
+- Tránh rủi ro bảo mật do permission quá lớn.
 
-## 数据库操作行为规范
+## Quy chuẩn hành vi vận hành Database
 
-### 超 100 万行的批量写 (UPDATE、DELETE、INSERT) 操作，要分批多次进行操作
+### Batch write (UPDATE, DELETE, INSERT) trên hơn 1 triệu row cần chia thành nhiều lần nhỏ
 
-**大批量操作可能会造成严重的主从延迟**
+**Batch operation lớn có thể gây master-slave delay nghiêm trọng**
 
-主从环境中，大批量操作可能会造成严重的主从延迟，大批量的写操作一般都需要执行一定长的时间，而只有当主库上执行完成后，才会在其他从库上执行，所以会造成主库与从库长时间的延迟情况。
+Trong môi trường master-slave, batch operation lớn có thể gây master-slave delay nghiêm trọng. Batch write lớn thường cần thực thi trong khoảng thời gian nhất định. Chỉ khi hoàn thành trên master mới được thực thi trên slave khác, nên gây tình trạng delay lâu giữa master và slave.
 
-**binlog 日志为 row 格式时会产生大量的日志**
+**binlog log ở row format sẽ tạo ra lượng lớn log**
 
-大批量写操作会产生大量日志，特别是对于 row 格式二进制数据而言，由于在 row 格式中会记录每一行数据的修改，我们一次修改的数据越多，产生的日志量也就会越多，日志的传输和恢复所需要的时间也就越长，这也是造成主从延迟的一个原因。
+Batch write lớn tạo ra lượng lớn log, đặc biệt với binary data ở row format. Vì trong row format ghi lại modification của mỗi row data. Chúng ta modify càng nhiều data thì log tạo ra càng nhiều, thời gian cần để transmission và recovery log càng dài — đây cũng là một nguyên nhân gây master-slave delay.
 
-**避免产生大事务操作**
+**Tránh tạo large transaction operation**
 
-大批量修改数据，一定是在一个事务中进行的，这就会造成表中大批量数据进行锁定，从而导致大量的阻塞，阻塞会对 MySQL 的性能产生非常大的影响。
+Modify data hàng loạt nhất định diễn ra trong một transaction, khiến lượng lớn data trong bảng bị lock, dẫn đến nhiều blocking. Blocking ảnh hưởng rất lớn đến MySQL performance.
 
-特别是长时间的阻塞会占满所有数据库的可用连接，这会使生产环境中的其他应用无法连接到数据库，因此一定要注意大批量写操作要进行分批。
+Đặc biệt blocking kéo dài sẽ chiếm hết tất cả available connection của database, khiến các application khác trong production không kết nối được database. Vì vậy nhất định phải chú ý batch write lớn cần chia thành nhiều batch.
 
-### 对于大表使用 pt-online-schema-change 修改表结构
+### Với bảng lớn dùng pt-online-schema-change để modify table structure
 
-- 避免大表修改产生的主从延迟。
-- 避免在对表字段进行修改时进行锁表。
+- Tránh master-slave delay do modify bảng lớn.
+- Tránh lock bảng khi modify table field.
 
-对大表数据结构的修改一定要谨慎，会造成严重的锁表操作，尤其是生产环境，是不能容忍的。
+Modify data structure của bảng lớn phải thận trọng — sẽ gây lock bảng nghiêm trọng, đặc biệt trong production không thể chấp nhận.
 
-pt-online-schema-change 它会首先建立一个与原表结构相同的新表，并且在新表上进行表结构的修改，然后再把原表中的数据复制到新表中，并在原表中增加一些触发器。把原表中新增的数据也复制到新表中，在行所有数据复制完成之后，把新表命名成原表，并把原来的表删除掉。把原来一个 DDL 操作，分解成多个小的批次进行。
+pt-online-schema-change trước tiên tạo bảng mới có cùng structure với bảng gốc, thực hiện modify table structure trên bảng mới, sau đó copy data từ bảng gốc vào bảng mới và thêm một số trigger trên bảng gốc. Copy data mới thêm trong bảng gốc vào bảng mới cũng. Sau khi tất cả data được copy xong, đặt tên bảng mới theo tên bảng gốc và xóa bảng cũ. Chia một thao tác DDL thành nhiều batch nhỏ.
 
-### 禁止为程序使用的账号赋予 super 权限
+### Cấm cấp quyền super cho account dùng bởi program
 
-- 当达到最大连接数限制时，还运行 1 个有 super 权限的用户连接。
-- super 权限只能留给 DBA 处理问题的账号使用。
+- Khi đạt giới hạn max connection, vẫn cho phép 1 user có quyền super kết nối.
+- Quyền super chỉ dành cho account DBA dùng để xử lý vấn đề.
 
-### 对于程序连接数据库账号，遵循权限最小原则
+### Với account database dùng bởi program, tuân theo nguyên tắc least privilege
 
-- 程序使用数据库账号只能在一个 DB 下使用，不准跨库。
-- 程序使用的账号原则上不准有 drop 权限。
+- Account database dùng bởi program chỉ được dùng trong một DB, không được dùng cross-database.
+- Account dùng bởi program về nguyên tắc không được có quyền drop.
 
-## 推荐阅读
+## Đọc thêm
 
-- [技术同学必会的 MySQL 设计规约，都是惨痛的教训 - 阿里开发者](https://mp.weixin.qq.com/s/XC8e5iuQtfsrEOERffEZ-Q)
-- [聊聊数据库建表的 15 个小技巧](https://mp.weixin.qq.com/s/NM-aHaW6TXrnO6la6Jfl5A)
-
-<!-- @include: @article-footer.snippet.md -->
+- [Quy chuẩn thiết kế MySQL bắt buộc phải biết cho technical, đều là bài học đau thương - Alibaba Developer](https://mp.weixin.qq.com/s/XC8e5iuQtfsrEOERffEZ-Q)
+- [Nói về 15 mẹo nhỏ khi tạo bảng database](https://mp.weixin.qq.com/s/NM-aHaW6TXrnO6la6Jfl5A)

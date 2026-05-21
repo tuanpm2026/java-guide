@@ -1,206 +1,202 @@
 ---
-title: 校招进入飞书的个人经验
-description: "校招进入飞书的个人经验：围绕技术知识与面试总结梳理关键概念、常见问题与实践要点，帮助你高效学习与备战面试。"
-category: 技术文章精选集
-author: 月色真美
+title: Kinh nghiệm cá nhân vào Feishu qua campus recruitment
+description: "Kinh nghiệm cá nhân vào Feishu qua campus recruitment - Tổng hợp các khái niệm chính, điểm thực hành."
+category: Technical Articles Selection
+author: Yuesezhenmei
 tag:
-  - 面试
+  - Interview
 head:
   - - meta
     - name: keywords
-      content: 字节跳动面试,飞书校招,C++面试,春招实习,日常实习,暑期实习,面试技巧,算法刷题
+      content: ByteDance interview,Feishu campus recruitment,C++ interview,spring internship,daily internship,summer internship,interview tips,algorithm practice
 ---
 
-> **推荐语**：这篇文章的作者校招最终去了飞书做开发。在这篇文章中，他分享了自己的校招经历以及个人经验。
+> **Lời giới thiệu**: Tác giả bài viết này cuối cùng vào Feishu làm developer qua campus recruitment. Trong bài này, anh ấy chia sẻ kinh nghiệm campus recruitment và những gì học được.
 >
-> **原文地址**：<https://www.ihewro.com/archives/1217/>
+> **Original article**: <https://www.ihewro.com/archives/1217/>
 
-## 基本情况
+## Background
 
-我是 C++主要是后台开发的方向。
+Tôi chủ yếu theo hướng C++ backend development.
 
-2021 春招入职字节飞书客户端，入职字节之前拿到了百度 offer（音视频直播部分） 以及腾讯 PCG （微视、后台开发）的 HR 面试通过（还没有收到录用意向书）。
+Spring 2021 vào ByteDance Feishu client. Trước khi vào ByteDance đã có Baidu offer (audio/video livestreaming) và Tencent PCG (Weishi, backend development) HR interview pass (chưa nhận letter of intent).
 
-## 不顺利的春招过程
+## Quá trình spring recruitment không thuận lợi
 
-### 春招实习对我来说不太顺利
+### Spring recruitment khá không thuận với tôi
 
-实验室在 1 月份元旦的那天正式可以放假回家，但回家仍然继续“远程工作”，工作并没有减少，每天日复一日的测试，调试我们开发的“流媒体会议系统”。
+Lab chính thức được nghỉ về nhà vào ngày 1/1. Nhưng về nhà vẫn tiếp tục "remote work" — công việc không giảm. Mỗi ngày test và debug "streaming conference system" chúng tôi phát triển.
 
-在 1 月的倒数第三天，我们开了“年终总结”线上会议。至此，作为研二基本上与实验室的工作开始告别。也正式开始了春招复习的阶段。
+Ngày kế cuối tháng 1, chúng tôi họp online "year-end summary". Từ đó, là master year 2, về cơ bản chia tay công việc với lab. Chính thức bước vào giai đoạn ôn tập spring recruitment.
 
-2 月前已经间歇性的开始准备，无非就是在 LeetCode 上面刷刷题目，一天刷不了几道，后面甚至象征性的刷一下每日一题。对我的算法刷题帮助很少。
+Trước tháng 2, đã bắt đầu ôn cách quãng — không gì ngoài làm problems trên LeetCode, nhưng một ngày chỉ làm được vài bài, sau này còn chỉ làm daily problem theo kiểu tượng trưng. Giúp ích rất ít cho algorithm.
 
-2 月份开始，2 月初的时候，LeetCode 才刷了大概 40 多道题目，挤出了几周时间更新了 handsome 主题的 8.x 版本，这又是一个繁忙的几周。直到春节的当天正式发布，春节过后又开始陆陆续续用一些时间修复 bug，发布修复版本。2 月份这样悄悄溜走。
+Đầu tháng 2, LeetCode mới làm được khoảng 40 bài. Dành mấy tuần update version 8.x của theme handsome — lại bận thêm mấy tuần. Đến mùng 1 Tết mới chính thức release, sau Tết lại tiếp tục dành thời gian fix bugs và release fix versions. Tháng 2 cứ thế trôi qua.
 
-### 找实习的过程
+### Quá trình tìm thực tập
 
-**2021-3 月初**
+**Đầu tháng 3/2021**
 
-3 月 初的时候，投了阿里提前批，没想到阿里 3 月 4 号提前批就结束了，那一天约的一面的电话面也被取消了。紧接了开学实验室开会同步进度的时候，发现大家都一面/二面/三面的进度，而我还没有投递的进度。
+Đầu tháng 3, nộp Alibaba early batch. Không ngờ Alibaba early batch đóng ngay 4/3, hôm đó cuộc gọi round 1 đã hẹn cũng bị hủy. Ngay sau đó khi lab họp sync progress, mới biết mọi người đã ở round 1/2/3 trong khi tôi chưa có gì cả.
 
 **2021-3-8**
 
-投递了字节飞书
+Nộp ByteDance Feishu.
 
-**2021-4 月初**
+**Đầu tháng 4/2021**
 
-字节第一次一面，腾讯第一次一面
+ByteDance round 1 lần đầu, Tencent round 1 lần đầu.
 
-**2021-4 中旬**
+**Giữa tháng 4/2021**
 
-美团一、二面，腾讯第二次一面和二面，百度三轮面试，通过了。
+Meituan round 1 và 2, Tencent round 1 lần 2 và round 2, Baidu 3 vòng — đều pass.
 
-**2021-4 底**
+**Cuối tháng 4/2021**
 
-腾讯第三次一面和字节第二次一面
+Tencent round 1 lần 3 và ByteDance round 1 lần 2.
 
-**2021-5 月初**
+**Đầu tháng 5/2021**
 
-腾讯第三次二面和字节第二次二面，后面这两个都通过了
+Tencent round 2 lần 3 và ByteDance round 2 lần 2 — cả hai đều pass.
 
-#### 阿里
+#### Alibaba
 
-第一次投了钉钉，没想到因为行测做的不好，在简历筛选给拒绝了。
+Lần đầu nộp DingTalk. Không ngờ bị từ chối ở resume screening vì aptitude test kém.
 
-第二次阿里妈妈的后端面试，一面电话面试，我感觉面的还可以，最后题目也做出来了。最后反问阶段问对我的面试有什么建议，面试官说投阿里最好还是 Java 的…… 然后电话结束后就给我拒了……
+Lần hai là backend interview cho Alimama. Round 1 phone interview — tôi cảm thấy ổn, bài cuối cũng làm được. Phần Q&A cuối hỏi có góp ý gì cho phỏng vấn không. Interviewer nói apply Alibaba tốt nhất là dùng Java... Sau khi phone kết thúc liền bị từ chối.
 
-当时真的心态有点崩，问了这个晚上 7 点半的面试，一直看书晚上都没吃……
+Lúc đó tâm trạng khá sụp. Buổi phỏng vấn lúc 7:30 tối, đọc sách cả chiều không kịp ăn tối...
 
-所以春招和阿里就无缘了。
+Vậy là spring recruitment không có duyên với Alibaba.
 
-#### 美团
+#### Meituan
 
-美团一面的面试官真的人很好。也很轻松，因为他们是 Java 岗位，也没问 c++知识，聊了一些基础知识，后面半个小时就是聊非技术问题，比如最喜欢网络上的某位程序员是谁，如何写出优雅的代码，推荐的技术类的书籍之类的。当时回答王垠是比较喜欢的程序员，面试官笑了说他也很喜欢。面试的氛围感觉很好。
+Round 1 của Meituan — interviewer rất tốt bụng, rất thoải mái. Vì là Java vị trí, không hỏi C++ knowledge. Chủ yếu hỏi basic knowledge, nửa sau 30 phút hỏi non-technical như programmer yêu thích nhất là ai, cách viết elegant code, recommend tech books. Tôi nói Wang Yin là programmer tôi khá thích, interviewer cười và nói anh ấy cũng thích. Bầu không khí phỏng vấn rất tốt.
 
-二面的时候全程就问简历上的一个项目，问了大概 90 分钟，感觉他从一开始就有点不太想要我的感觉，很大原因我觉的是我是 c++，转 Java 可能成本还是有一些的。最后问 HR 说结果待定，几天后通知被拒了。
+Round 2 suốt buổi chỉ hỏi một project trên resume, khoảng 90 phút. Cảm giác ngay từ đầu interviewer không muốn tuyển tôi mấy — lý do lớn chắc là tôi C++, chuyển Java có thể tốn chi phí đào tạo. Cuối cùng hỏi HR kết quả là "pending". Vài ngày sau bị từ chối.
 
-#### 百度
+#### Baidu
 
-百度一共三轮面试，在一个下午一起进行，真的很刺激。一面就是很基础的一些 c++问题，写了一个题目说一下思路没让运行（真的要运行还不一定能运行起来:)）
+Baidu tổng cộng 3 vòng, cùng một buổi chiều — rất căng. Round 1 hỏi các basic C++ questions cơ bản, viết một bài nói thought process mà không cần run.
 
-二面也是基础，第一个题目合并两个有序数组，第二个题目写归并排序，写的结果不对，又给我换了一个题目，树的 BFS。二面面试官最后问我对今天面试觉得怎么样，我说虽然中间有一个道题目结果不对，但是思路是对的，可能某个小地方写的有问题，但总体的应该还是可以的。二面就给我通过了。
+Round 2 cũng là basic. Bài 1 merge two sorted arrays, bài 2 write merge sort. Kết quả không đúng, đổi bài khác: tree BFS. Round 2 interviewer hỏi cuối cảm giác phỏng vấn hôm nay thế nào. Tôi nói mặc dù một bài kết quả không đúng nhưng logic đúng, có thể có lỗi nhỏ đâu đó. Round 2 pass.
 
-三面问的技术问题比较少，30 多分钟，也没写题目，问了一些基本情况和基础知识。最后问部门做的什么内容。面试官说后面 hr 会联系我告诉我内容。
+Round 3 ít câu hỏi kỹ thuật hơn, khoảng 30 phút, không viết code, hỏi basic information và basic knowledge. Cuối hỏi phòng ban đang làm gì. Interviewer nói HR sẽ liên hệ sau.
 
-#### 字节飞书
+#### ByteDance Feishu
 
-第一次一面就凉了，原因应该是笔试题目结果不对……
+Lần đầu round 1 fail — vì câu trả lời bài thi code không đúng.
 
-第二次一面在 4 月底了，很顺利。二面在五一劳动节后，面试官还让学姐告诉我让我多看看智能指针，面试的时候让我手写 shared_ptr，我之前看了一些实现，但是没有自己写过，导致代码考虑的不够完善，leader 就一直提醒我要怎么改怎么改。
+Lần hai round 1 cuối tháng 4 — diễn ra suôn sẻ. Round 2 sau kỳ nghỉ Lao Động. Senior interviewer nhắn nhủ hãy đọc về smart pointers. Round 2 hỏi tôi viết shared_ptr — trước đó có đọc implementation nhưng chưa tự viết. Code của tôi không đủ hoàn chỉnh. Leader liên tục nhắc cần sửa ở đâu.
 
-本来我以为凉了，在 5 月中旬的时候都准备去百度入职了，给我通知说过了，就这样决定去了字节。
+Lúc đó tôi nghĩ mình fail. Giữa tháng 5 đã chuẩn bị gia nhập Baidu thì được thông báo pass. Vậy là quyết định đi ByteDance.
 
-#### 感悟
+#### Cảm ngộ
 
-这么多次面试中，让我感悟最深的是面试中的考察题目真的很重要，因为我在基础知识上面也不突出，再加上如果算法题（一般 1 道或者 2 道）如果没做出来，基本就凉了。而面试之前的笔试考试反而没那么重要，也没那么难。基本 4 题写出来 1~2 道题目就有发起面试的机会了。难度也基本就是 LeetCode top 100 上面的那些算法。
+Qua nhiều lần phỏng vấn, điều tôi thấm thía nhất là bài coding trong phỏng vấn thực sự rất quan trọng. Vì basic knowledge của tôi cũng không nổi bật, lại thêm nếu algorithm problems (thường 1-2 bài) không làm được — về cơ bản là fail. Còn coding test trước phỏng vấn không quá khó — thường làm được 1-2/4 bài là có cơ hội phỏng vấn. Độ khó chỉ khoảng LeetCode top 100 level.
 
-面试中做题，我很容易紧张，头脑就容易一片空白，稍不注意，写错个符号，或者链表赋值错了，很难看出来问题，导出最终结果不对。
+Khi làm bài trong phỏng vấn, tôi rất dễ bị căng thẳng, đầu óc dễ trống rỗng. Sơ ý viết sai ký tự hay sai assignment trong linked list rất khó phát hiện, dẫn đến kết quả cuối không đúng.
 
-## 入职字节实习
+## Vào ByteDance Internship
 
-入职字节之前我本来觉得这个岗位可能是我面试的最适合我的了，因为我主 c++，而且飞书用 c++应该挺深的。来之后就觉得我可能不太喜欢做客户端相关，感觉好复杂……也许服务端好一些，现在我仍然不能确定。
+Trước khi vào tôi nghĩ đây là position phù hợp nhất với mình vì tôi chủ yếu C++ và Feishu dùng C++ khá nhiều. Vào rồi mới thấy mình có thể không thích làm client-side — có vẻ phức tạp... Có lẽ server-side sẽ tốt hơn, nhưng hiện tôi vẫn chưa chắc.
 
-字节的实习福利在这些公司中应该算是比较好的，小问题是工位比较窄，还是工作强度比其他的互联网公司大一些。字节食堂免费而且挺不错的。字节办公大厦很多，我所在的办公地点比较小。
+ByteDance internship benefits so với các công ty này khá tốt. Nhược điểm nhỏ là workstation khá hẹp và workload lớn hơn các công ty internet khác. Canteen của ByteDance miễn phí và khá ngon. Có nhiều office buildings, tôi ở một nơi khá nhỏ.
 
-目前，需要放轻松，仓库代码慢慢看呗，mentor 也让我不急，准备有问题就多问问，不能憋着，浪费时间。拿到转正 offer 后，秋招还是想多试试外企或者国企。强度太大的工作目前很难适应。
+Hiện tại, cần relaxed hơn. Đọc codebase từng bước. Mentor bảo không cần vội, cứ có gì hỏi, đừng kìm lại vì tốn thời gian. Sau khi nhận full-time offer, fall recruitment vẫn muốn thử thêm foreign companies hoặc state-owned enterprises. Work intensity hiện tại khó thích nghi.
 
-希望过段时间可以分享一下我的感受，以及能够更加适应目前的工作内容。
+## Chia sẻ kinh nghiệm tìm việc
 
-## 求职经验分享
+### Một số khái niệm
 
-### 一些概念
+#### Sự khác biệt giữa daily internship và formal (summer) internship
 
-#### 日常实习与正式（暑期）实习有什么区别
+- **Daily internship**: Nếu một team thiếu người, rất có thể tuyển intern quanh năm. Miễn là đang là sinh viên đều có thể phỏng vấn. Còn formal internship có thời gian bắt đầu cố định hơn, ví dụ 3-6 tháng mỗi năm (summer internship).
+- Daily internship dễ vào hơn tương đối, nhưng một số daily internships không có conversion slots. Cần confirm trước.
+- **Tại ByteDance, daily internship và formal internship không có gì khác nhau về conversion — cả hai apply conversion cùng nhau.**
 
-- **日常实习如果一个组比较缺人，就很可能一年四季都招实习生，就会有日常实习的机会**，只要是在校学生都可以去面试。而正式实习开始时间有一个范围比较固定，比如每年的 3-6 月，也就是暑期实习。
-- 日常实习相对要好进一些，但是有的日常实习没有转正名额，这个要先确认一下。
-- **字节的日常实习和正式实习在转正没什么区别，都是一起申请转正的。**
+#### Sau khi nhận summer internship offer, khi nào có thể bắt đầu internship?
 
-#### 正式实习拿到 offer 之后什么时候可以去实习
+Sau khi nhận offer, **có thể internship ngay lập tức** (thường cần quy trình khoảng 1 tuần), **cũng có thể chọn bắt đầu muộn hơn** — tự quản lý thời gian. Một số công ty cho chọn ngày trên hệ thống, một số thì communicate trực tiếp với HR.
 
-暑期实习拿到 offer 后就**可以立即实习**（一般需要走个流程 1 周左右的样子），**也可以选择晚一点去实习**，时间可以自己去把握，有的公司可以在系统上选择去实习的时间，有的是直接和 hr 沟通一下就可以。
+#### Sự khác biệt giữa early batch và regular batch
 
-#### 提前批和正式批的区别
+Lấy ví dụ tìm internship:
 
-以找实习为例：
+- Early batch trước, regular batch sau. Early batch thường là team trực tiếp tuyển **không vào system**, **không có written test**, **process nhanh hơn** — round 1 pass thường sớm có round 2.
+- Regular batch có interview evaluations. Failed interview evaluation from a previous attempt can affect the next. So be careful.
 
-- 先提前批，再正式批，提前批一般是小组直接招人**不进系统**，**没有笔试**，**流程相对走的快**，一般一面过了，很快就是二面。
-- 正式批面试都会有面评，如果上一次失败的面试评价会影响下一次面试，所以还是谨慎一点好
+#### Sự khác biệt giữa internship offer và full-time offer
 
-#### 实习 offer 和正式 offer 区别
+Đơn giản: Internship offer chỉ cho cơ hội internship. Nếu perform tốt có thể convert thành full-time và nhận full-time offer.
 
-简单来说，实习 offer 只是给你一个实习的机会，如果在实习期间干的不错就可以转正，获得正式 offer。
+Sau khi sign full-time offer không có nghĩa là đi làm ngay, vì chúng ta vẫn là students. Có thể tiếp tục internship (lương là % của full-time salary), hoặc take leave và đến chính thức sau khi tốt nghiệp.
 
-签署正式 offer 之后并不是意味着马上去上班，因为我们是校招生，拿到正式 offer 之后，可以继续实习（工资会是正式工资的百分比），也可以请假一段时间等真正毕业的时候再去正式工作。
+### Timeline
 
-### 时间节点
+> Làm resume sớm nhất có thể — tốt nhất là ngay bây giờ, vì bạn vẫn còn nhớ rõ lab projects. Viết bây giờ không khó. Vài tháng sau ngồi viết resume sẽ rất đau.
 
-> 尽早把简历弄出来，最好就是最近一段时间，因为大家对实验室项目现在还很熟悉，现在写起来不是很难，再过几个月写简历就比较痛苦了。
+Ví dụ về năm ngoái:
 
-以去年为例：
-
-- 2 月份中旬的时候阿里提前批开始（基本上只有阿里这个时候开了提前批），3 月 8 号阿里提前批结束。腾讯提前批是 3 月多开始的，4 月 15 号结束
-- 3-5 月拿到实习 offer，最好在 4 月份可以拿到比较想去的实习 offer。
-- 4-8 月份实习，7 月初秋招提前批，7 月底或者 8 月初就是秋招正式批，9 月底秋招就少了挺多，但是只是相对来说，还是有机会，
-- 10 月底秋招基本结束，后面还会有秋招补录
+- Giữa tháng 2, Alibaba early batch bắt đầu (cơ bản chỉ có Alibaba mở early batch lúc này), 8/3 Alibaba early batch kết thúc. Tencent early batch bắt đầu vào tháng 3, kết thúc 15/4.
+- Tháng 3-5 nhận internship offers. Tốt nhất là tháng 4 đã có internship offer từ công ty mình muốn.
+- Tháng 4-8 internship. Đầu tháng 7 fall recruitment early batch. Cuối tháng 7 hoặc đầu tháng 8 là fall recruitment regular batch. Cuối tháng 9, fall recruitment giảm đi nhiều nhưng vẫn còn cơ hội.
+- Cuối tháng 10, fall recruitment cơ bản kết thúc. Sau đó vẫn có supplementary rounds.
 
 ---
 
-- **怎么找实习机会**，个人觉得可以找认识的人内推比较好，内推好处除了可以帮看进度，一般可以直推到组，这样可以排除一些坑的组。提前知道这个组干嘛的。
-- **实习挺重要，最好是实习的时候就找到一个想去的公司，秋招会轻松很多**，因为实习转正基本没什么问题，其次实习转正的 offer 一般要比秋招的好（当然如果秋招表现好也是可以拿到很好的 offer）身边不少人正式 offer 都是实习转正的。
-- **控制好实习的时间**，因为边实习边准备秋招挺累的，一般实习的时候工作压力也挺大，没什么时间刷题。
+- **Cách tìm internship**: Cá nhân nghĩ tìm người quen referral là tốt nhất. Lợi ích ngoài track progress còn có thể bypass đến team trực tiếp — tránh được một số "pit" teams và biết trước team đang làm gì.
+- **Internship rất quan trọng. Tốt nhất là ngay trong lúc internship đã tìm được công ty muốn đến — fall recruitment sẽ nhàn hơn nhiều.** Vì internship conversion cơ bản không có vấn đề. Hơn nữa conversion offer thường tốt hơn fall recruitment offer. Nhiều người quanh tôi full-time offer đến từ internship conversion.
+- **Kiểm soát thời gian internship** — vừa internship vừa chuẩn bị fall recruitment rất vất vả. Workload trong khi internship cũng khá lớn, ít thời gian làm problems.
 
-### 面试准备
+### Chuẩn bị phỏng vấn
 
-#### 项目经历
+#### Project experience
 
-我觉得我们实验室项目是没问题的，重要是要讲好。
+Tôi nghĩ lab projects của chúng tôi không có vấn đề gì. Điều quan trọng là cách trình bày.
 
-- **项目介绍**
+- **Project introduction**
 
-首先可能让你介绍一下这个项目是什么东西，以及**为什么要去做这个项目**。
+Đầu tiên có thể yêu cầu giới thiệu project là gì và **tại sao làm project này**.
 
-- **项目的结果**
+- **Project results**
 
-然后可能会问这个项目的一些数据上最终结果，比如会议系统能够同时多少人使用，或者量化的体验，比如流畅度，或者是一些其他的一些优势。
+Tiếp theo có thể hỏi một số số liệu kết quả cuối cùng — như conference system hỗ trợ tối đa bao nhiêu người cùng lúc, hay trải nghiệm quantified như fluency.
 
-- **项目中的困难**
+- **Challenges in the project**
 
-最后都会问过程中有没有遇到什么困难、挑战的，以及怎么解决的。这个过程中主要考察这个项目的技术点是什么。
+Cuối cùng sẽ hỏi có gặp khó khăn hay thách thức nào không và giải quyết như thế nào. Phần này chủ yếu kiểm tra technical highlights của project.
 
-> 困难是指什么，个人觉得主要是花了好几天才解决的问题就是困难。
+> Khó khăn là gì? Cá nhân tôi thấy chủ yếu là vấn đề mất vài ngày mới giải quyết được.
 
-举两个例子：
+Hai ví dụ:
 
-**第一个例子是排查 bug 方面**，比如有一个内存泄露的问题花了一周才排查出来，那就算一个困难，那么解决这个困难的过程就是**如何去定位这个问题过程**，比如我们先根据错误搜索相关资料，肯定没那么容易就直接找到原因，而是我们会在这些资料中找到一些**关键词**，比如一些工具，那么我们对这个工具的使用就是解决问题的一个过程。
+**Ví dụ 1: Debug** — ví dụ một memory leak problem mất một tuần mới tìm ra. Đó là khó khăn. Quá trình giải quyết là **cách locate vấn đề** — như tìm kiếm tài liệu liên quan, từ đó tìm **keywords** như một số tools, rồi dùng tool đó.
 
-**第二个例子是需求方案的设计**，比如某个需求完成，我们实现这个需求可能有多个可行的设计方案。解决这个困难的过程就是**我们对最终选择这个方法的原因，以及其他的设计方案的优缺点的思考**。
+**Ví dụ 2: Requirements design** — để implement một requirement có thể có nhiều feasible design approaches. Quá trình giải quyết là **lý do chọn approach cuối cùng và suy nghĩ về ưu nhược điểm của các approaches khác**.
 
-[面试中被问到：你在工作中碰到的最困难的问题是什么？*发现问题，解决问题.-CSDN 博客*面试中问到工作中遇到困难是怎么解决的](https://blog.csdn.net/u012423865/article/details/79452713)
+Người ta nói giải pháp là search Baidu — thực ra cũng bắt đầu bằng search error hoặc issue, nhưng không phải ngay lập tức tìm được code answer. Thay vào đó tìm một answer có keyword nào đó, rồi tiếp tục tìm keyword đó để lấy thêm thông tin.
 
-有人说我解决方法就是通过百度搜索，但实际上细节也是先搜索某个错误或者问题，但是肯定不可能一下子就搜到了代码答案，而是找到一个答案中有某个关键词，接着我们继续找关键词获取其他的信息。
+#### Written test
 
-#### 笔试
+Written test cho internship không quá khó. Nếu 4 problems, làm được 1-2 bài là đủ cơ hội phỏng vấn.
 
-找实习的笔试我觉得不会太难，一般如果是 4 道题目，做出来 1-2 道题目差不多就有面试的机会了。
+Algorithm problems là chủ đề muôn thuở — LeetCode Top 100. Lúc đầu rất đau. Khi đã làm 40 bài thì bắt đầu có cảm giác. Khuyến nghị bắt đầu từ linked list, binary tree. Array problems có nhiều tricks không general.
 
-刷题老生常谈的问题，LeetCode Top100。一开始刷题很痛苦，等刷了 40 道题目的时候就有点感觉的，建议从链表、二叉树开始刷，数组类型题目有很多不能通用的技巧。
+- **Nhất định phải luyện bằng whiteboard** — không chỉ để nhớ API. Quan trọng hơn là sau khi quen với whiteboard, viết code sẽ thành thục hơn và suy nghĩ độc lập hơn, không phụ thuộc.
+- Algorithm problems: trọng tâm không phải là hard problems, mà là easy, medium, common, high-frequency problems phải fluent như phản xạ tự nhiên.
+- Trong coding test phỏng vấn, nếu gặp vấn đề, **nhất định ngay lập tức xin dùng local IDE để debug**, nếu không có thể mất rất nhiều thời gian mà không tìm ra vấn đề.
 
-- ::一定要用白版进行训练::，一定要用白板，不仅仅是为了面试记住 API，更重要的是用白板熟练后，写代码会更熟练而且思路更独立和没有依赖。
-- 算法题重中之重，终点不是困难题目，而是简单，中等，常见，高频的题目要熟能生巧，滚瓜烂熟。
-- 面试的笔试过程中，如果出现了问题，**一定要第一时间申请使用本地 IDE 进行调试**，否则可能很长时间找不到问题，浪费了机会。
+#### Interview
 
-#### 面试
+Mỗi phỏng vấn thường 1 giờ, chia làm hai phần. Nửa đầu hỏi basic knowledge hoặc project experience. Nửa sau làm bài code.
 
-面试一般 1 场 1 个小时候分为两个部分，前半部分会问一些基础知识或者项目经历，后半部分做题。
+**Basic knowledge review không nhất thiết phải ôn có hệ thống ngay từ đầu. Trước tiên đảm bảo high-frequency questions là biết hết** — ví dụ mấy câu network và OS nhất định bị hỏi. Đọc nhiều interview notes là tìm được câu hỏi thường gặp. Với câu hỏi khá hiếm, trả lời không được cũng không ảnh hưởng quyết định.
 
-**基础知识复习一开始没必要系统的去复习，首先是确保高频问题必会**，比如计算机网络、操作系统那几个必问的问题，可以多看看面经就能找到常问题的问题，对于比较偏问题就算没答上来也不是决定性的影响。
-
-- **多看面经!!!!!!** 不要一直埋头自己学，要看别人问过了哪些常问的问题。
-- 对于实习工作，**看的知识点常见的问题一定要全!!!!!**，不是那么精问题不大，一定要全，一定要全！！！！
-- **对于自己不会的，尽量多的说！！！！** 实在不行，就往别的地方说！！！总之是引导面试官往自己会的地方上说。
-- 面试中的笔试和前面的笔试风格不同，面试笔试题目不太难，但是考察是冷静思考，代码优雅，没有 bug，先思考清楚！！！在写！！！
-- 在描述项目的难点的时候，不要去聊文档调研是难点，回答这部分问题更应该是技术上的难点，最后通过了什么技术解决了这个问题，这部分技术可以让面试官来更多提问以便知道自己的技术能力。
+- **Đọc nhiều interview notes!!!** Đừng chỉ cắm đầu tự học. Phải xem người khác đã bị hỏi những gì.
+- Với internship, **các câu hỏi common thì PHẢI TOÀN DIỆN!!!!** Không cần quá sâu nhưng nhất định phải đủ toàn diện!
+- **Với những gì mình biết, nói nhiều nhất có thể!!** Thực sự không biết thì lái sang chỗ mình biết!! Tóm lại là guide interviewer về phía mình giỏi.
+- Coding trong phỏng vấn khác với written test trước đó. Không quá khó nhưng kiểm tra bình tĩnh suy nghĩ, code elegant, không có bugs. Suy nghĩ rõ trước khi viết!!
+- Khi mô tả technical challenges của project, đừng nói documentation research là khó khăn. Câu trả lời nên là technical challenges — rốt cuộc dùng công nghệ gì để giải quyết. Phần này để interviewer hỏi sâu hơn và từ đó đánh giá technical capability của bạn.
 
 <!-- @include: @article-footer.snippet.md -->

@@ -1,7 +1,7 @@
 ---
-title: Async 注解原理分析
-description: Spring @Async异步注解原理详解，涵盖异步任务配置、线程池设置、@EnableAsync机制及常见使用问题。
-category: 框架
+title: Phân tích nguyên lý annotation @Async
+description: Giải thích chi tiết nguyên lý annotation bất đồng bộ @Async của Spring, bao gồm cấu hình tác vụ bất đồng bộ, cài đặt thread pool, cơ chế @EnableAsync và các vấn đề thường gặp khi sử dụng.
+category: Framework
 tag:
   - Spring
 head:
@@ -10,12 +10,12 @@ head:
       content: Spring异步,@Async,EnableAsync,线程池,TaskExecutor,异步任务,Spring注解,方法异步
 ---
 
-`@Async` 注解由 Spring 框架提供，被该注解标注的类或方法会在 **异步线程** 中执行。这意味着当方法被调用时，调用者将不会等待该方法执行完成，而是可以继续执行后续的代码。
+Annotation `@Async` được cung cấp bởi Spring framework. Các lớp hoặc phương thức được đánh dấu bởi annotation này sẽ được thực thi trong **luồng bất đồng bộ**. Điều này có nghĩa là khi phương thức được gọi, người gọi sẽ không chờ phương thức đó thực thi xong, mà có thể tiếp tục thực thi code tiếp theo.
 
-`@Async` 注解的使用非常简单，需要两个步骤：
+Việc sử dụng annotation `@Async` rất đơn giản, cần hai bước:
 
-1. 在启动类上添加注解 `@EnableAsync` ，开启异步任务。
-2. 在需要异步执行的方法或类上添加注解 `@Async` 。
+1. Thêm annotation `@EnableAsync` vào lớp khởi động để bật tính năng tác vụ bất đồng bộ.
+2. Thêm annotation `@Async` vào phương thức hoặc lớp cần thực thi bất đồng bộ.
 
 ```java
 @SpringBootApplication
@@ -45,17 +45,17 @@ public class MyService {
 }
 ```
 
-接下来，我们一起来看看 `@Async` 的底层原理。
+Tiếp theo, hãy cùng tìm hiểu nguyên lý nền tảng của `@Async`.
 
-## @Async 原理分析
+## Phân tích nguyên lý @Async
 
-`@Async` 可以异步执行任务，本质上是使用 **动态代理** 来实现的。通过 Spring 中的后置处理器 `BeanPostProcessor` 为使用 `@Async` 注解的类创建动态代理，之后 `@Async` 注解方法的调用会被动态代理拦截，在拦截器中将方法的执行封装为异步任务提交给线程池处理。
+`@Async` có thể thực thi tác vụ bất đồng bộ, về bản chất là sử dụng **dynamic proxy (proxy động)**. Spring sử dụng `BeanPostProcessor` (bộ xử lý hậu kỳ) để tạo dynamic proxy cho các lớp sử dụng annotation `@Async`. Sau đó, các lời gọi phương thức được đánh dấu `@Async` sẽ bị dynamic proxy chặn lại. Trong interceptor, việc thực thi phương thức được đóng gói thành tác vụ bất đồng bộ và giao cho thread pool xử lý.
 
-接下来，我们来详细分析一下。
+Tiếp theo, hãy phân tích chi tiết.
 
-### 开启异步
+### Bật bất đồng bộ
 
-使用 `@Async` 之前，需要在启动类上添加 `@EnableAsync` 来开启异步，`@EnableAsync` 注解如下：
+Trước khi sử dụng `@Async`, cần thêm `@EnableAsync` vào lớp khởi động để bật chế độ bất đồng bộ. Annotation `@EnableAsync` như sau:
 
 ```JAVA
 // 省略其他注解 ...
@@ -63,9 +63,9 @@ public class MyService {
 public @interface EnableAsync { /* ... */ }
 ```
 
-在 `@EnableAsync` 注解上通过 `@Import` 注解引入了 `AsyncConfigurationSelector` ，因此 Spring 会去加载通过 `@Import` 注解引入的类。
+Trong annotation `@EnableAsync`, `AsyncConfigurationSelector` được import thông qua annotation `@Import`, vì vậy Spring sẽ tải lớp được import thông qua annotation `@Import`.
 
-`AsyncConfigurationSelector` 类实现了 `ImportSelector` 接口，因此在该类中会重写 `selectImports()` 方法来自定义加载 Bean 的逻辑，如下：
+Lớp `AsyncConfigurationSelector` cài đặt interface `ImportSelector`, vì vậy trong lớp này sẽ override phương thức `selectImports()` để tùy chỉnh logic tải Bean:
 
 ```JAVA
 public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableAsync> {
@@ -86,9 +86,9 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
 }
 ```
 
-在 `selectImports()` 方法中，会根据通知的不同类型来选择加载不同的类，其中 `adviceMode` 默认值为 `PROXY` 。
+Trong phương thức `selectImports()`, sẽ chọn tải các lớp khác nhau tùy thuộc vào loại advice, trong đó giá trị mặc định của `adviceMode` là `PROXY`.
 
-这里以基于 JDK 代理的通知为例，此时会加载 `ProxyAsyncConfiguration` 类，如下：
+Lấy advice dựa trên JDK proxy làm ví dụ, lúc này sẽ tải lớp `ProxyAsyncConfiguration`:
 
 ```JAVA
 @Configuration
@@ -107,15 +107,15 @@ public class ProxyAsyncConfiguration extends AbstractAsyncConfiguration {
 }
 ```
 
-### 后置处理器
+### Bộ xử lý hậu kỳ (Post Processor)
 
-在 `ProxyAsyncConfiguration` 类中，会通过 `@Bean` 注解加载一个后置处理器 `AsyncAnnotationBeanPostProcessor` ，这个后置处理器是使 `@Async` 注解起作用的关键。
+Trong lớp `ProxyAsyncConfiguration`, một bộ xử lý hậu kỳ `AsyncAnnotationBeanPostProcessor` sẽ được tải thông qua annotation `@Bean`. Bộ xử lý hậu kỳ này là chìa khóa để annotation `@Async` hoạt động.
 
-如果某一个类或者方法上使用了 `@Async` 注解，`AsyncAnnotationBeanPostProcessor` 处理器就会为该类创建一个动态代理。
+Nếu một lớp hoặc phương thức sử dụng annotation `@Async`, `AsyncAnnotationBeanPostProcessor` sẽ tạo một dynamic proxy cho lớp đó.
 
-该类的方法在执行时，会被代理对象的拦截器所拦截，其中被 `@Async` 注解标记的方法会异步执行。
+Khi các phương thức của lớp được thực thi, chúng sẽ bị interceptor của đối tượng proxy chặn lại, trong đó các phương thức được đánh dấu bởi annotation `@Async` sẽ được thực thi bất đồng bộ.
 
-`AsyncAnnotationBeanPostProcessor` 代码如下：
+Code của `AsyncAnnotationBeanPostProcessor` như sau:
 
 ```JAVA
 public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor {
@@ -136,13 +136,13 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 }
 ```
 
-`AsyncAnnotationBeanPostProcessor` 的父类实现了 `BeanFactoryAware` 接口，因此在该类中重写了 `setBeanFactory()` 方法作为扩展点，来加载 `AsyncAnnotationAdvisor` 。
+Lớp cha của `AsyncAnnotationBeanPostProcessor` cài đặt interface `BeanFactoryAware`, vì vậy trong lớp này override phương thức `setBeanFactory()` làm điểm mở rộng để tải `AsyncAnnotationAdvisor`.
 
-#### 创建 Advisor
+#### Tạo Advisor
 
-`Advisor` 是 `Spring AOP` 对 `Advice` 和 `Pointcut` 的抽象。`Advice` 为执行的通知逻辑，`Pointcut` 为通知执行的切入点。
+`Advisor` là sự trừu tượng hóa `Advice` và `Pointcut` trong `Spring AOP`. `Advice` là logic thông báo được thực thi, `Pointcut` là điểm cắt thực thi thông báo.
 
-在后置处理器 `AsyncAnnotationBeanPostProcessor` 中会去创建 `AsyncAnnotationAdvisor` ， 在它的构造方法中，会构建对应的 `Advice` 和 `Pointcut` ，如下：
+Trong bộ xử lý hậu kỳ `AsyncAnnotationBeanPostProcessor`, `AsyncAnnotationAdvisor` sẽ được tạo ra. Trong constructor của nó, `Advice` và `Pointcut` tương ứng sẽ được xây dựng:
 
 ```JAVA
 public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
@@ -191,16 +191,16 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 }
 ```
 
-`AsyncAnnotationAdvisor` 的核心在于构建 `Advice` 和 `Pointcut` ：
+Điểm cốt lõi của `AsyncAnnotationAdvisor` nằm ở việc xây dựng `Advice` và `Pointcut`:
 
-- 构建 `Advice` ：会创建 `AnnotationAsyncExecutionInterceptor` 拦截器，在拦截器的 `invoke()` 方法中会执行通知的逻辑。
-- 构建 `Pointcut` ：由 `ClassFilter` 和 `MethodMatcher` 组成，用于匹配哪些方法需要执行通知（ `Advice` ）的逻辑。
+- Xây dựng `Advice`: Sẽ tạo interceptor `AnnotationAsyncExecutionInterceptor`. Trong phương thức `invoke()` của interceptor sẽ thực thi logic thông báo.
+- Xây dựng `Pointcut`: Được tạo bởi `ClassFilter` và `MethodMatcher`, dùng để xác định các phương thức nào cần thực thi logic thông báo (`Advice`).
 
-#### 后置处理逻辑
+#### Logic xử lý hậu kỳ
 
-`AsyncAnnotationBeanPostProcessor` 后置处理器中实现的 `postProcessAfterInitialization()` 方法在其父类 `AbstractAdvisingBeanPostProcessor` 中，在 `Bean` 初始化之后，会进入到 `postProcessAfterInitialization()` 方法进行后置处理。
+Phương thức `postProcessAfterInitialization()` được cài đặt trong bộ xử lý hậu kỳ `AsyncAnnotationBeanPostProcessor` nằm ở lớp cha `AbstractAdvisingBeanPostProcessor`. Sau khi Bean được khởi tạo, sẽ vào phương thức `postProcessAfterInitialization()` để xử lý hậu kỳ.
 
-在后置处理方法中，会判断 `Bean` 是否符合后置处理器中 `Advisor` 通知的条件，如果符合，则创建代理对象。如下：
+Trong phương thức xử lý hậu kỳ, sẽ kiểm tra xem Bean có đủ điều kiện của Advisor thông báo trong bộ xử lý hậu kỳ không. Nếu đủ điều kiện, sẽ tạo đối tượng proxy:
 
 ```JAVA
 // AbstractAdvisingBeanPostProcessor
@@ -236,11 +236,11 @@ public Object postProcessAfterInitialization(Object bean, String beanName) {
 }
 ```
 
-### @Async 注解方法的拦截
+### Chặn bắt phương thức có annotation @Async
 
-`@Async` 注解方法的执行会在 `AnnotationAsyncExecutionInterceptor` 中被拦截，在 `invoke()` 方法中执行拦截器的逻辑。此时会将 `@Async` 注解标注的方法封装为异步任务，交给执行器来执行。
+Việc thực thi phương thức được đánh dấu `@Async` sẽ bị chặn bắt trong `AnnotationAsyncExecutionInterceptor`. Logic của interceptor được thực thi trong phương thức `invoke()`. Lúc này, phương thức được đánh dấu bởi annotation `@Async` sẽ được đóng gói thành tác vụ bất đồng bộ và giao cho executor thực thi.
 
-`invoke()` 方法在 `AnnotationAsyncExecutionInterceptor` 的父类 `AsyncExecutionInterceptor` 中定义，如下：
+Phương thức `invoke()` được định nghĩa trong lớp cha `AsyncExecutionInterceptor` của `AnnotationAsyncExecutionInterceptor`:
 
 ```JAVA
 public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport implements MethodInterceptor, Ordered {
@@ -278,15 +278,15 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 }
 ```
 
-在 `invoke()` 方法中，主要有 3 个步骤：
+Trong phương thức `invoke()`, có 3 bước chính:
 
-1. 确定执行异步任务的执行器。
-2. 将 `@Async` 注解标注的方法封装为 `Callable` 异步任务。
-3. 将任务提交给执行器执行。
+1. Xác định executor thực thi tác vụ bất đồng bộ.
+2. Đóng gói phương thức được đánh dấu annotation `@Async` thành tác vụ bất đồng bộ `Callable`.
+3. Giao tác vụ cho executor thực thi.
 
-#### 1、获取异步任务执行器
+#### 1. Lấy executor tác vụ bất đồng bộ
 
-在 `determineAsyncExecutor()` 方法中，会获取异步任务的执行器（即执行异步任务的 **线程池** ）。代码如下：
+Trong phương thức `determineAsyncExecutor()`, sẽ lấy executor của tác vụ bất đồng bộ (tức là **thread pool** thực thi tác vụ bất đồng bộ). Code như sau:
 
 ```JAVA
 // 确定异步任务的执行器
@@ -318,9 +318,9 @@ protected AsyncTaskExecutor determineAsyncExecutor(Method method) {
 }
 ```
 
-在 `determineAsyncExecutor()` 方法中确定了异步任务的执行器（线程池），主要是通过 `@Async` 注解的 `value` 值来获取执行器的限定符，根据限定符再去 `BeanFactory` 中查找对应的执行器就可以了。
+Trong phương thức `determineAsyncExecutor()`, executor của tác vụ bất đồng bộ (thread pool) được xác định chủ yếu thông qua việc lấy qualifier từ giá trị `value` của annotation `@Async`, sau đó tìm executor tương ứng trong `BeanFactory` theo qualifier.
 
-如果在 `@Async` 注解中没有指定线程池，则会通过 `this.defaultExecutor.get()` 来获取默认的线程池，其中 `defaultExecutor` 在下边方法中进行赋值：
+Nếu không chỉ định thread pool trong annotation `@Async`, sẽ lấy thread pool mặc định thông qua `this.defaultExecutor.get()`. `defaultExecutor` được gán giá trị trong phương thức dưới đây:
 
 ```JAVA
 // AsyncExecutionInterceptor
@@ -332,7 +332,7 @@ protected Executor getDefaultExecutor(@Nullable BeanFactory beanFactory) {
 }
 ```
 
-其中 `super.getDefaultExecutor()` 会在 `beanFactory` 中尝试获取 `Executor` 类型的线程池。代码如下：
+Trong đó `super.getDefaultExecutor()` sẽ cố gắng lấy thread pool kiểu `Executor` từ `beanFactory`. Code như sau:
 
 ```JAVA
 protected Executor getDefaultExecutor(@Nullable BeanFactory beanFactory) {
@@ -366,11 +366,11 @@ protected Executor getDefaultExecutor(@Nullable BeanFactory beanFactory) {
 }
 ```
 
-在 `getDefaultExecutor()` 中，如果从 `beanFactory` 获取线程池失败的话，则会创建 `SimpleAsyncTaskExecutor` 线程池。
+Trong `getDefaultExecutor()`, nếu việc lấy thread pool từ `beanFactory` thất bại, sẽ tạo thread pool `SimpleAsyncTaskExecutor`.
 
-该线程池的在每次执行异步任务时，都会创建一个新的线程去执行任务，并不会对线程进行复用，从而导致异步任务执行的开销很大。一旦在 `@Async` 注解标注的方法某一瞬间并发量剧增，应用就会大量创建线程，从而影响服务质量甚至出现服务不可用。
+Thread pool này mỗi khi thực thi tác vụ bất đồng bộ đều sẽ tạo một luồng mới để thực thi tác vụ, không tái sử dụng luồng, dẫn đến chi phí thực thi tác vụ bất đồng bộ rất lớn. Một khi số lượng concurrent tăng đột biến tại một thời điểm nào đó với các phương thức được đánh dấu `@Async`, ứng dụng sẽ tạo ra rất nhiều luồng, ảnh hưởng đến chất lượng dịch vụ thậm chí gây ra tình trạng dịch vụ không khả dụng.
 
-同一时刻如果向 `SimpleAsyncTaskExecutor` 线程池提交 10000 个任务，那么该线程池就会创建 10000 个线程，其的 `execute()` 方法如下：
+Nếu gửi 10000 tác vụ cùng lúc vào thread pool `SimpleAsyncTaskExecutor`, thread pool đó sẽ tạo ra 10000 luồng. Phương thức `execute()` của nó như sau:
 
 ```JAVA
 // SimpleAsyncTaskExecutor：execute() 内部会调用 doExecute()
@@ -381,9 +381,9 @@ protected void doExecute(Runnable task) {
 }
 ```
 
-**建议：在使用 `@Async` 时需要自己指定线程池，避免 Spring 默认线程池带来的风险。**
+**Khuyến nghị: Khi sử dụng `@Async`, cần tự chỉ định thread pool để tránh rủi ro từ thread pool mặc định của Spring.**
 
-在 `@Async` 注解中的 `value` 指定了线程池的限定符，根据限定符可以获取 **自定义的线程池** 。获取限定符的代码如下：
+Trong `value` của annotation `@Async` chỉ định qualifier của thread pool, thông qua qualifier có thể lấy **thread pool tùy chỉnh**. Code lấy qualifier như sau:
 
 ```JAVA
 // AnnotationAsyncExecutionInterceptor
@@ -401,9 +401,9 @@ protected String getExecutorQualifier(Method method) {
 }
 ```
 
-#### 2、将方法封装为异步任务
+#### 2. Đóng gói phương thức thành tác vụ bất đồng bộ
 
-在 `invoke()` 方法获取执行器之后，会将方法封装为异步任务，代码如下：
+Sau khi lấy executor trong phương thức `invoke()`, phương thức sẽ được đóng gói thành tác vụ bất đồng bộ:
 
 ```JAVA
 // 将要执行的方法封装为 Callable 异步任务
@@ -433,15 +433,15 @@ Callable<Object> task = () -> {
 };
 ```
 
-相比于 `Runnable` ，`Callable` 可以返回结果，并且抛出异常。
+So với `Runnable`, `Callable` có thể trả về kết quả và ném ra ngoại lệ.
 
-将 `invocation.proceed()` 的执行（原方法的执行）封装为 `Callable` 异步任务。这里仅仅当 `result` （方法返回值）类型为 `Future` 才返回，如果是其他类型则直接返回 `null` 。
+Việc thực thi `invocation.proceed()` (thực thi phương thức gốc) được đóng gói thành tác vụ bất đồng bộ `Callable`. Ở đây chỉ trả về khi `result` (giá trị trả về của phương thức) có kiểu `Future`, còn các kiểu khác thì trả về `null` trực tiếp.
 
-因此使用 `@Async` 注解标注的方法如果使用 `Future` 类型之外的返回值，则无法获取方法的执行结果。
+Vì vậy, nếu phương thức được đánh dấu annotation `@Async` sử dụng kiểu trả về khác ngoài `Future`, thì không thể lấy kết quả thực thi của phương thức.
 
-#### 3、提交异步任务
+#### 3. Gửi tác vụ bất đồng bộ
 
-在 `AsyncExecutionInterceptor # invoke()` 中将要执行的方法封装为 Callable 任务之后，就会将任务交给执行器来执行。提交相关的代码如下：
+Sau khi đóng gói phương thức cần thực thi thành tác vụ Callable trong `AsyncExecutionInterceptor # invoke()`, tác vụ sẽ được giao cho executor thực thi. Code liên quan đến gửi tác vụ như sau:
 
 ```JAVA
 protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
@@ -481,25 +481,25 @@ protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Cla
 }
 ```
 
-在 `doSubmit()` 方法中，会根据 `@Async` 注解标注方法的返回值不同，来选择不同的任务提交方式，最后任务会由执行器（线程池）执行。
+Trong phương thức `doSubmit()`, dựa trên kiểu trả về khác nhau của phương thức được đánh dấu annotation `@Async`, sẽ chọn phương thức gửi tác vụ khác nhau, và cuối cùng tác vụ sẽ được executor (thread pool) thực thi.
 
-### 总结
+### Tổng kết
 
-![Async原理总结](./images/async/async.png)
+![Tóm tắt nguyên lý Async](./images/async/async.png)
 
-理解 `@Async` 原理的核心在于理解 `@EnableAsync` 注解，该注解开启了异步任务的功能。
+Điểm cốt lõi để hiểu nguyên lý `@Async` nằm ở việc hiểu annotation `@EnableAsync`. Annotation này bật tính năng tác vụ bất đồng bộ.
 
-主要流程如上图，会通过后置处理器来创建代理对象，之后代理对象中 `@Async` 方法的执行会走到 `Advice` 内部的拦截器中，之后将方法封装为异步任务，并提交线程池进行处理。
+Luồng chính như hình trên: bộ xử lý hậu kỳ sẽ tạo đối tượng proxy, sau đó việc thực thi phương thức `@Async` trong đối tượng proxy sẽ đi vào interceptor bên trong `Advice`, sau đó đóng gói phương thức thành tác vụ bất đồng bộ và gửi vào thread pool để xử lý.
 
-## @Async 使用建议
+## Khuyến nghị sử dụng @Async
 
-### 自定义线程池
+### Tùy chỉnh thread pool
 
-如果没有显式地配置线程池，在 `@Async` 底层会先在 `BeanFactory` 中尝试获取线程池，如果获取不到，则会创建一个 `SimpleAsyncTaskExecutor` 实现。`SimpleAsyncTaskExecutor` 本质上不算是一个真正的线程池，因为它对于每个请求都会启动一个新线程而不重用现有线程，这会带来一些潜在的问题，例如资源消耗过大。
+Nếu không cấu hình thread pool một cách rõ ràng, nội tại `@Async` sẽ cố gắng lấy thread pool từ `BeanFactory` trước. Nếu không lấy được, sẽ tạo một cài đặt `SimpleAsyncTaskExecutor`. `SimpleAsyncTaskExecutor` về bản chất không phải là một thread pool thực sự, vì nó khởi động một luồng mới cho mỗi yêu cầu mà không tái sử dụng luồng hiện có, điều này có thể gây ra một số vấn đề tiềm ẩn như tiêu thụ tài nguyên quá mức.
 
-具体线程池获取可以参考这篇文章：[浅析 Spring 中 Async 注解底层异步线程池原理｜得物技术](https://mp.weixin.qq.com/s/FySv5L0bCdrlb5MoSfQtAA)。
+Để biết chi tiết về cách lấy thread pool, tham khảo bài viết này: [Phân tích nguyên lý thread pool bất đồng bộ nền của annotation Async trong Spring｜Dewu Technology](https://mp.weixin.qq.com/s/FySv5L0bCdrlb5MoSfQtAA).
 
-一定要显式配置一个线程池，推荐`ThreadPoolTaskExecutor`。并且，还可以根据任务的性质和需求，为不同的异步方法指定不同的线程池。
+Nhất định phải cấu hình rõ ràng một thread pool, khuyến nghị dùng `ThreadPoolTaskExecutor`. Ngoài ra, có thể chỉ định các thread pool khác nhau cho các phương thức bất đồng bộ khác nhau dựa trên tính chất và yêu cầu của tác vụ.
 
 ```java
 @Configuration
@@ -530,7 +530,7 @@ public class AsyncConfig {
 }
 ```
 
-`@Async` 注解中指定线程池的 Bean 名称：
+Chỉ định tên Bean của thread pool trong annotation `@Async`:
 
 ```java
 @Service
@@ -550,13 +550,13 @@ public class AsyncService {
 }
 ```
 
-### 避免 @Async 注解失效
+### Tránh annotation @Async bị vô hiệu hóa
 
-`@Async` 注解会在以下几个场景失效，需要注意：
+Annotation `@Async` sẽ bị vô hiệu hóa trong các tình huống sau, cần lưu ý:
 
-**1、同一类中调用异步方法**
+**1. Gọi phương thức bất đồng bộ trong cùng một lớp**
 
-如果你在同一个类内部调用一个`@Async`注解的方法，那这个方法将不会异步执行。
+Nếu bạn gọi một phương thức được đánh dấu `@Async` từ bên trong cùng một lớp, phương thức đó sẽ không được thực thi bất đồng bộ.
 
 ```java
 @Service
@@ -574,9 +574,9 @@ public class MyService {
 }
 ```
 
-这是因为 Spring 的异步机制是通过 **代理** 实现的，而在同一个类内部的方法调用会绕过 Spring 的代理机制，也就是绕过了代理对象，直接通过 this 引用调用的。由于没有经过代理，所有的代理相关的处理（即将任务提交线程池异步执行）都不会发生。
+Điều này là vì cơ chế bất đồng bộ của Spring được thực hiện thông qua **proxy**. Các lời gọi phương thức bên trong cùng một lớp sẽ bỏ qua cơ chế proxy của Spring, tức là bỏ qua đối tượng proxy và gọi trực tiếp thông qua tham chiếu `this`. Vì không đi qua proxy, tất cả các xử lý liên quan đến proxy (tức là gửi tác vụ vào thread pool để thực thi bất đồng bộ) đều không xảy ra.
 
-为了避免这个问题，比较推荐的做法是将异步方法移至另一个 Spring Bean 中。
+Để tránh vấn đề này, cách được khuyến nghị là chuyển phương thức bất đồng bộ sang một Spring Bean khác.
 
 ```java
 @Service
@@ -598,15 +598,15 @@ public class MyService {
 }
 ```
 
-**2、使用 static 关键字修饰异步方法**
+**2. Sử dụng từ khóa static để sửa đổi phương thức bất đồng bộ**
 
-如果`@Async`注解的方法被 `static` 关键字修饰，那这个方法将不会异步执行。
+Nếu phương thức được đánh dấu `@Async` được sửa đổi bởi từ khóa `static`, phương thức đó sẽ không được thực thi bất đồng bộ.
 
-这是因为 Spring 的异步机制是通过代理实现的，由于静态方法不属于实例而是属于类且不参与继承，Spring 的代理机制（无论是基于 JDK 还是 CGLIB）无法拦截静态方法来提供如异步执行这样的增强功能。
+Điều này là vì cơ chế bất đồng bộ của Spring được thực hiện thông qua proxy. Vì phương thức tĩnh không thuộc về instance mà thuộc về lớp và không tham gia kế thừa, cơ chế proxy của Spring (dù dựa trên JDK hay CGLIB) không thể chặn phương thức tĩnh để cung cấp các tính năng nâng cao như thực thi bất đồng bộ.
 
-篇幅问题，这里没有进一步详细介绍，不了解的代理机制的朋友，可以看看我写的 [Java 代理模式详解](https://javaguide.cn/java/basis/proxy.html)这篇文章。
+Do giới hạn dung lượng, không đi sâu chi tiết hơn ở đây. Những bạn chưa hiểu cơ chế proxy có thể xem bài viết [Giải thích chi tiết mô hình proxy trong Java](https://javaguide.cn/java/basis/proxy.html).
 
-如果你需要异步执行一个静态方法的逻辑，可以考虑设计一个非静态的包装方法，这个包装方法使用 `@Async` 注解，并在其内部调用静态方法
+Nếu cần thực thi bất đồng bộ logic của một phương thức tĩnh, có thể cân nhắc thiết kế một phương thức bọc không tĩnh. Phương thức bọc này sử dụng annotation `@Async` và bên trong gọi phương thức tĩnh.
 
 ```java
 @Service
@@ -626,9 +626,9 @@ public class SClass {
 }
 ```
 
-**3、忘记开启异步支持**
+**3. Quên bật hỗ trợ bất đồng bộ**
 
-Spring Boot 默认情况下不启用异步支持，确保在主配置类 `Application` 上添加`@EnableAsync`注解以启用异步功能。
+Spring Boot mặc định không bật hỗ trợ bất đồng bộ. Đảm bảo thêm annotation `@EnableAsync` vào lớp cấu hình chính `Application` để bật tính năng bất đồng bộ.
 
 ```java
 @SpringBootApplication
@@ -640,24 +640,24 @@ public class Application {
 }
 ```
 
-**4、`@Async` 注解的方法所在的类必须是 Spring Bean**
+**4. Lớp chứa phương thức có annotation `@Async` phải là Spring Bean**
 
-`@Async` 注解的方法必须位于 Spring 管理的 Bean 中，只有这样，Spring 才能在创建 Bean 时应用代理，代理能够拦截方法调用并实现异步执行的逻辑。如果该方法不在 Spring 管理的 bean 中，Spring 就无法创建必要的代理，`@Async` 注解就不会产生任何效果。
+Phương thức có annotation `@Async` phải nằm trong Bean được Spring quản lý. Chỉ như vậy Spring mới có thể áp dụng proxy khi tạo Bean. Proxy có thể chặn lời gọi phương thức và thực hiện logic thực thi bất đồng bộ. Nếu phương thức không nằm trong bean được Spring quản lý, Spring không thể tạo proxy cần thiết và annotation `@Async` sẽ không có hiệu lực.
 
-### 返回值类型
+### Kiểu trả về
 
-建议将 `@Async` 注解方法的返回值类型定义为 `void` 和 `Future` 。
+Khuyến nghị định nghĩa kiểu trả về của phương thức có annotation `@Async` là `void` hoặc `Future`.
 
-- 如果不需要获取异步方法返回的结果，将返回值类型定义为 `void` 。
-- 如果需要获取异步方法返回的结果，将返回值类型定义为 `Future`（例如`CompletableFuture` 、 `ListenableFuture` ）。
+- Nếu không cần lấy kết quả trả về của phương thức bất đồng bộ, định nghĩa kiểu trả về là `void`.
+- Nếu cần lấy kết quả trả về của phương thức bất đồng bộ, định nghĩa kiểu trả về là `Future` (ví dụ: `CompletableFuture`, `ListenableFuture`).
 
-如果将 `@Async` 注解方法的返回值定义为其他类型（如 `Object` 、 `String` 等等），则无法获取方法返回值。
+Nếu định nghĩa kiểu trả về của phương thức có annotation `@Async` là kiểu khác (như `Object`, `String`, v.v.), thì không thể lấy giá trị trả về của phương thức.
 
-这种设计符合异步编程的基本原则，即调用者不应立即期待一个结果，而是应该能够在未来某个时间点获取结果。如果返回类型是 `Future`，调用者可以使用这个返回的 `Future` 对象来查询任务的状态，取消任务，或者在任务完成时获取结果。
+Thiết kế này phù hợp với nguyên tắc cơ bản của lập trình bất đồng bộ: người gọi không nên ngay lập tức mong đợi một kết quả, mà nên có khả năng lấy kết quả vào một thời điểm nào đó trong tương lai. Nếu kiểu trả về là `Future`, người gọi có thể sử dụng đối tượng `Future` được trả về để kiểm tra trạng thái tác vụ, hủy tác vụ, hoặc lấy kết quả khi tác vụ hoàn thành.
 
-### 处理异步方法中的异常
+### Xử lý ngoại lệ trong phương thức bất đồng bộ
 
-异步方法中抛出的异常默认不会被调用者捕获。为了管理这些异常，建议使用`CompletableFuture`的异常处理功能，或者配置一个全局的`AsyncUncaughtExceptionHandler`来处理没有正确捕获的异常。
+Các ngoại lệ được ném ra từ phương thức bất đồng bộ mặc định sẽ không bị người gọi bắt. Để quản lý các ngoại lệ này, khuyến nghị sử dụng tính năng xử lý ngoại lệ của `CompletableFuture`, hoặc cấu hình một `AsyncUncaughtExceptionHandler` toàn cục để xử lý các ngoại lệ không được bắt đúng cách.
 
 ```java
 @Configuration
@@ -681,9 +681,9 @@ class CustomAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
 }
 ```
 
-### 未考虑事务管理
+### Chưa cân nhắc quản lý giao dịch
 
-`@Async`注解的方法需要事务支持时，务必在该异步方法上独立使用。
+Khi phương thức có annotation `@Async` cần hỗ trợ giao dịch, cần sử dụng độc lập trên phương thức bất đồng bộ đó.
 
 ```java
 @Service
@@ -699,9 +699,9 @@ public class AsyncTransactionalService {
 }
 ```
 
-### 未指定异步方法执行顺序
+### Chưa chỉ định thứ tự thực thi phương thức bất đồng bộ
 
-`@Async`注解的方法执行是非阻塞的，它们可能以任意顺序完成。如果需要按照特定的顺序处理结果，你可以将方法的返回值设定为 `Future` 或 `CompletableFuture` ，通过返回值对象来实现一个方法在另一个方法完成后再执行。
+Việc thực thi các phương thức có annotation `@Async` là không chặn, chúng có thể hoàn thành theo bất kỳ thứ tự nào. Nếu cần xử lý kết quả theo thứ tự cụ thể, bạn có thể đặt kiểu trả về của phương thức là `Future` hoặc `CompletableFuture`, sử dụng đối tượng trả về để đảm bảo một phương thức thực thi sau khi phương thức khác hoàn thành.
 
 ```java
 @Async
@@ -715,7 +715,7 @@ public CompletableFuture<String> processDataAsync(String data) {
 }
 ```
 
-`processDataAsync` 方法在 `fetchDataAsync`后执行：
+Phương thức `processDataAsync` thực thi sau `fetchDataAsync`:
 
 ```java
 CompletableFuture<String> dataFuture = asyncService.fetchDataAsync();

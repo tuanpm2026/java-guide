@@ -1,26 +1,26 @@
 ---
-title: 系统设计常见面试题总结(付费)
-description: 系统设计高频面试题解析，涵盖短链系统、秒杀系统、海量数据处理等场景题的设计思路与解决方案。
-category: Java面试指北
+title: Tổng hợp câu hỏi phỏng vấn System Design phổ biến (Trả phí)
+description: Phân tích các câu hỏi phỏng vấn System Design tần suất cao, bao gồm tư duy thiết kế và giải pháp cho các tình huống như short URL system, flash sale system, xử lý big data, v.v.
+category: Java Interview Guide
 icon: "design"
 head:
   - - meta
     - name: keywords
-      content: 系统设计面试题,场景题,短链系统,秒杀系统,海量数据,限流,缓存,分布式锁,一致性
+      content: system design interview questions,scenario questions,short URL system,flash sale system,big data,rate limiting,cache,distributed lock,consistency
 ---
 
-**系统设计** 相关的面试题为我的[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)（点击链接即可查看详细介绍以及加入方法）专属内容，已经整理到了[《后端面试高频系统设计&场景题》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html)中。
+Các câu hỏi phỏng vấn liên quan đến **System Design** là nội dung độc quyền của [Knowledge Planet](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html) (click vào link để xem giới thiệu chi tiết và cách tham gia), đã được tổng hợp vào [《Backend Interview High-Frequency System Design & Scenario Questions》](https://javaguide.cn/zhuanlan/back-end-interview-high-frequency-system-design-and-scenario-questions.html).
 
-**《后端面试高频系统设计&场景题》** 包含了常见的系统设计案例比如短链系统、秒杀系统以及高频的场景题比如海量数据去重、第三方授权登录。
+**《Backend Interview High-Frequency System Design & Scenario Questions》** chứa các case study system design phổ biến như short URL system, flash sale system cùng các câu hỏi tình huống tần suất cao như loại trùng dữ liệu lớn, third-party authorization login.
 
-![《后端面试高频系统设计&场景题》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
+![《Backend Interview High-Frequency System Design & Scenario Questions》](https://oss.javaguide.cn/xingqiu/back-end-interview-high-frequency-system-design-and-scenario-questions-fengmian.png)
 
-近年来，随着国内的技术面试越来越卷，越来越多的公司开始在面试中考察系统设计和场景问题，以此来更全面的考察求职者，不论是校招还是社招。不过，正常面试全是场景题的情况还是极少的，面试官一般会在面试中穿插一两个系统设计和场景题来考察你。
+Những năm gần đây khi phỏng vấn kỹ thuật ở Trung Quốc ngày càng cạnh tranh, ngày càng nhiều công ty bắt đầu kiểm tra system design và câu hỏi tình huống trong phỏng vấn để đánh giá toàn diện hơn ứng viên — dù là campus recruit hay social recruit. Tuy nhiên, tình trạng toàn bộ phỏng vấn là câu hỏi tình huống vẫn rất hiếm. Phỏng vấn viên thường xen kẽ một đến hai câu system design và tình huống trong phỏng vấn.
 
-于是，我总结了这份《后端面试高频系统设计&场景题》，包含了常见的系统设计案例比如短链系统、秒杀系统以及高频的场景题比如海量数据去重、第三方授权登录。
+Vì vậy tôi đã tổng hợp 《Backend Interview High-Frequency System Design & Scenario Questions》 này, bao gồm các case study system design phổ biến như short URL system, flash sale system cùng câu hỏi tình huống tần suất cao như loại trùng dữ liệu lớn, third-party authorization login.
 
-即使不是准备面试，我也强烈推荐你认真阅读这一系列文章，这对于提升自己系统设计思维和解决实际问题的能力还是非常有帮助的。并且，涉及到的很多案例都可以用到自己的项目上比如抽奖系统设计、第三方授权登录、Redis 实现延时任务的正确方式。
+Dù không chuẩn bị phỏng vấn, tôi cũng rất khuyến nghị bạn đọc kỹ series bài này — rất hữu ích để nâng cao tư duy system design và khả năng giải quyết vấn đề thực tế. Hơn nữa, nhiều case liên quan đến đây đều có thể áp dụng vào dự án của bản thân như lottery system design, third-party authorization login, cách đúng đắn dùng Redis triển khai delayed task.
 
-《后端面试高频系统设计&场景题》本身是属于[《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)的一部分，后面由于内容篇幅较多，因此被单独提了出来。
+《Backend Interview High-Frequency System Design & Scenario Questions》 thuộc một phần của [《Java Interview Guide》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html). Sau này do nội dung khá dài nên được tách ra thành phần riêng.
 
 <!-- @include: @planet.snippet.md -->

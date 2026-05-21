@@ -1,7 +1,7 @@
 ---
-title: NoSQL基础知识总结
-description: NoSQL数据库基础知识总结，包括NoSQL与SQL的区别、NoSQL的优势、四种NoSQL数据库类型（键值、文档、图形、宽列）及其代表产品Redis、MongoDB、Neo4j等的应用场景。
-category: 数据库
+title: Tổng hợp kiến thức cơ bản về NoSQL
+description: Tổng hợp kiến thức cơ bản về NoSQL database, bao gồm sự khác biệt giữa NoSQL và SQL, ưu điểm của NoSQL, bốn loại NoSQL database (key-value, document, graph, wide-column) và tình huống sử dụng của các sản phẩm đại diện như Redis, MongoDB, Neo4j.
+category: Cơ sở dữ liệu
 tag:
   - NoSQL
   - MongoDB
@@ -9,58 +9,58 @@ tag:
 head:
   - - meta
     - name: keywords
-      content: NoSQL,Redis,MongoDB,HBase,Cassandra,键值数据库,文档数据库,图数据库,宽列存储,SQL与NoSQL区别
+      content: NoSQL,Redis,MongoDB,HBase,Cassandra,key-value database,document database,graph database,wide-column storage,sự khác biệt SQL và NoSQL
 ---
 
-## NoSQL 是什么？
+## NoSQL là gì?
 
-NoSQL（Not Only SQL 的缩写）泛指非关系型的数据库，主要针对的是键值、文档以及图形类型数据存储。并且，NoSQL 数据库天生支持分布式，数据冗余和数据分片等特性，旨在提供可扩展的高可用高性能数据存储解决方案。
+NoSQL (viết tắt của Not Only SQL) là thuật ngữ chỉ chung các database phi quan hệ, chủ yếu nhắm vào việc lưu trữ dữ liệu kiểu key-value, document và graph. Ngoài ra, NoSQL database tích hợp sẵn tính năng distributed, data redundancy và data sharding, nhằm cung cấp giải pháp lưu trữ dữ liệu có khả năng mở rộng, high availability và high performance.
 
-一个常见的误解是 NoSQL 数据库或非关系型数据库不能很好地存储关系型数据。NoSQL 数据库可以存储关系型数据—它们与关系型数据库的存储方式不同。
+Một hiểu lầm phổ biến là NoSQL database hay non-relational database không lưu trữ tốt relational data. Thực ra NoSQL database CÓ THỂ lưu relational data — chỉ là cách lưu khác với relational database.
 
-NoSQL 数据库代表：HBase、Cassandra、MongoDB、Redis。
+Các đại diện NoSQL database: HBase, Cassandra, MongoDB, Redis.
 
 ![](https://oss.javaguide.cn/github/javaguide/database/mongodb/sql-nosql-tushi.png)
 
-## SQL 和 NoSQL 有什么区别？
+## SQL và NoSQL khác nhau như thế nào?
 
-|              | SQL 数据库                                                                 | NoSQL 数据库                                                                                                                            |
-| :----------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| 数据存储模型 | 结构化存储，具有固定行和列的表格                                           | 非结构化存储。文档：JSON 文档，键值：键值对，宽列：包含行和动态列的表，图：节点和边                                                     |
-| 发展历程     | 开发于 1970 年代，重点是减少数据重复                                       | 开发于 2000 年代后期，重点是提升可扩展性，减少大规模数据的存储成本                                                                      |
-| 例子         | Oracle、MySQL、Microsoft SQL Server、PostgreSQL                            | 文档：MongoDB、CouchDB，键值：Redis、DynamoDB，宽列：Cassandra、 HBase，图表：Neo4j、 Amazon Neptune、Giraph                            |
-| ACID 属性    | 提供原子性、一致性、隔离性和持久性 (ACID) 属性                             | 通常不支持 ACID 事务，为了可扩展、高性能进行了权衡，少部分支持比如 MongoDB 。不过，MongoDB 对 ACID 事务 的支持和 MySQL 还是有所区别的。 |
-| 性能         | 性能通常取决于磁盘子系统。要获得最佳性能，通常需要优化查询、索引和表结构。 | 性能通常由底层硬件集群大小、网络延迟以及调用应用程序来决定。                                                                            |
-| 扩展         | 垂直（使用性能更强大的服务器进行扩展）、读写分离、分库分表                 | 横向（增加服务器的方式横向扩展，通常是基于分片机制）                                                                                    |
-| 用途         | 普通企业级的项目的数据存储                                                 | 用途广泛比如图数据库支持分析和遍历连接数据之间的关系、键值数据库可以处理大量数据扩展和极高的状态变化                                    |
-| 查询语法     | 结构化查询语言 (SQL)                                                       | 数据访问语法可能因数据库而异                                                                                                            |
+|                    | SQL Database                                                                                                       | NoSQL Database                                                                                                                                                                |
+| :----------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data storage model | Structured storage — bảng với hàng và cột cố định                                                                  | Unstructured storage. Document: JSON document, Key-Value: cặp key-value, Wide-Column: bảng với hàng và cột động, Graph: node và edge                                          |
+| Lịch sử phát triển | Phát triển từ thập niên 1970, tập trung giảm data redundancy                                                       | Phát triển cuối thập niên 2000, tập trung tăng scalability, giảm chi phí lưu trữ large-scale data                                                                             |
+| Ví dụ              | Oracle, MySQL, Microsoft SQL Server, PostgreSQL                                                                    | Document: MongoDB, CouchDB; Key-Value: Redis, DynamoDB; Wide-Column: Cassandra, HBase; Graph: Neo4j, Amazon Neptune, Giraph                                                   |
+| ACID properties    | Cung cấp Atomicity, Consistency, Isolation và Durability (ACID)                                                    | Thường không hỗ trợ ACID transaction — đánh đổi lấy scalability và high performance. Một số ít hỗ trợ như MongoDB. Tuy nhiên hỗ trợ ACID của MongoDB vẫn khác MySQL.          |
+| Hiệu năng          | Thường phụ thuộc vào disk subsystem. Để đạt hiệu năng tốt nhất, thường cần tối ưu query, index và table structure. | Thường được quyết định bởi kích thước cluster hardware bên dưới, network latency và ứng dụng gọi.                                                                             |
+| Mở rộng            | Vertical (scale up — dùng server mạnh hơn), read-write separation, database sharding                               | Horizontal (scale out — thêm server, thường dựa trên sharding mechanism)                                                                                                      |
+| Mục đích sử dụng   | Lưu trữ dữ liệu cho các project cấp doanh nghiệp phổ thông                                                         | Đa dạng: ví dụ graph database hỗ trợ phân tích và duyệt qua mối quan hệ giữa connected data; key-value database xử lý được lượng dữ liệu lớn và state change tần suất cực cao |
+| Query syntax       | SQL (Structured Query Language)                                                                                    | Syntax truy cập dữ liệu có thể khác nhau giữa các database                                                                                                                    |
 
-## NoSQL 数据库有什么优势？
+## NoSQL Database có những ưu điểm gì?
 
-NoSQL 数据库非常适合许多现代应用程序，例如移动、Web 和游戏等应用程序，它们需要灵活、可扩展、高性能和功能强大的数据库以提供卓越的用户体验。
+NoSQL database rất phù hợp cho nhiều ứng dụng hiện đại như mobile, Web và game — những ứng dụng cần database linh hoạt, scalable, high performance và mạnh mẽ để cung cấp trải nghiệm người dùng xuất sắc.
 
-- **灵活性：** NoSQL 数据库通常提供灵活的架构，以实现更快速、更多的迭代开发。灵活的数据模型使 NoSQL 数据库成为半结构化和非结构化数据的理想之选。
-- **可扩展性：** NoSQL 数据库通常被设计为通过使用分布式硬件集群来横向扩展，而不是通过添加昂贵和强大的服务器来纵向扩展。
-- **高性能：** NoSQL 数据库针对特定的数据模型和访问模式进行了优化，这与尝试使用关系数据库完成类似功能相比可实现更高的性能。
-- **强大的功能：** NoSQL 数据库提供功能强大的 API 和数据类型，专门针对其各自的数据模型而构建。
+- **Linh hoạt**: NoSQL database thường cung cấp schema linh hoạt để thực hiện iterative development nhanh hơn và nhiều hơn. Data model linh hoạt khiến NoSQL database trở thành lựa chọn lý tưởng cho semi-structured và unstructured data.
+- **Khả năng mở rộng**: NoSQL database thường được thiết kế để scale out bằng cách dùng distributed hardware cluster, thay vì scale up bằng cách thêm server đắt tiền và mạnh hơn.
+- **High performance**: NoSQL database được tối ưu cho các data model và access pattern cụ thể, đạt hiệu năng cao hơn so với dùng relational database để thực hiện chức năng tương tự.
+- **Tính năng mạnh mẽ**: NoSQL database cung cấp API và data type mạnh mẽ, được xây dựng đặc biệt cho data model tương ứng.
 
-## NoSQL 数据库有哪些类型？
+## NoSQL Database có những loại nào?
 
-NoSQL 数据库主要可以分为下面四种类型：
+NoSQL database chủ yếu chia thành bốn loại sau:
 
-- **键值**：键值数据库是一种较简单的数据库，其中每个项目都包含键和值。这是极为灵活的 NoSQL 数据库类型，因为应用可以完全控制 value 字段中存储的内容，没有任何限制。Redis 和 DynanoDB 是两款非常流行的键值数据库。
-- **文档**：文档数据库中的数据被存储在类似于 JSON（JavaScript 对象表示法）对象的文档中，非常清晰直观。每个文档包含成对的字段和值。这些值通常可以是各种类型，包括字符串、数字、布尔值、数组或对象等，并且它们的结构通常与开发者在代码中使用的对象保持一致。MongoDB 就是一款非常流行的文档数据库。
-- **图形**：图形数据库旨在轻松构建和运行与高度连接的数据集一起使用的应用程序。图形数据库的典型使用案例包括社交网络、推荐引擎、欺诈检测和知识图形。Neo4j 和 Giraph 是两款非常流行的图形数据库。
-- **宽列**：宽列存储数据库非常适合需要存储大量的数据。Cassandra 和 HBase 是两款非常流行的宽列存储数据库。
+- **Key-Value**: Key-value database là loại database tương đối đơn giản, mỗi item chứa key và value. Đây là loại NoSQL database linh hoạt nhất vì ứng dụng có thể kiểm soát hoàn toàn nội dung lưu trong trường value, không có bất kỳ giới hạn nào. Redis và DynamoDB là hai key-value database rất phổ biến.
+- **Document**: Dữ liệu trong document database được lưu trong các document tương tự object JSON (JavaScript Object Notation), rất rõ ràng trực quan. Mỗi document chứa các cặp field và value. Các value thường có thể là nhiều loại khác nhau bao gồm string, number, boolean, array hay object, và structure của chúng thường nhất quán với các object developer dùng trong code. MongoDB là document database rất phổ biến.
+- **Graph**: Graph database được thiết kế để dễ dàng xây dựng và vận hành các ứng dụng làm việc với highly connected dataset. Tình huống sử dụng điển hình của graph database bao gồm social network, recommendation engine, fraud detection và knowledge graph. Neo4j và Giraph là hai graph database rất phổ biến.
+- **Wide-Column**: Wide-column store database rất phù hợp cho việc cần lưu trữ lượng dữ liệu cực lớn. Cassandra và HBase là hai wide-column store database rất phổ biến.
 
-下面这张图片来源于 [微软的官方文档 | 关系数据与 NoSQL 数据](https://learn.microsoft.com/en-us/dotnet/architecture/cloud-native/relational-vs-nosql-data)。
+Hình dưới đây có nguồn từ [Microsoft Official Documentation | Relational vs NoSQL data](https://learn.microsoft.com/en-us/dotnet/architecture/cloud-native/relational-vs-nosql-data).
 
-![NoSQL 数据模型](https://oss.javaguide.cn/github/javaguide/database/mongodb/types-of-nosql-datastores.png)
+![NoSQL Data Models](https://oss.javaguide.cn/github/javaguide/database/mongodb/types-of-nosql-datastores.png)
 
-## 参考
+## Tài liệu tham khảo
 
-- NoSQL 是什么？- MongoDB 官方文档：<https://www.mongodb.com/zh-cn/nosql-explained>
-- 什么是 NoSQL? - AWS：<https://aws.amazon.com/cn/nosql/>
-- NoSQL vs. SQL Databases - MongoDB 官方文档：<https://www.mongodb.com/zh-cn/nosql-explained/nosql-vs-sql>
+- NoSQL là gì? - MongoDB official docs: <https://www.mongodb.com/zh-cn/nosql-explained>
+- What is NoSQL? - AWS: <https://aws.amazon.com/cn/nosql/>
+- NoSQL vs. SQL Databases - MongoDB official docs: <https://www.mongodb.com/zh-cn/nosql-explained/nosql-vs-sql>
 
 <!-- @include: @article-footer.snippet.md -->

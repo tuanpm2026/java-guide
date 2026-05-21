@@ -1,9 +1,9 @@
 ---
-title: 计算机网络常见面试题总结(上)
-description: 最新计算机网络高频面试题总结（上）：TCP/IP四层模型、HTTP全版本对比、TCP三次握手、DNS解析、WebSocket/SSE实时推送等，附图解+⭐️重点标注，一文搞定应用层&传输层&网络层核心考点，快速备战后端面试！
-category: 计算机基础
+title: Tổng hợp câu hỏi phỏng vấn mạng máy tính thường gặp (Phần 1)
+description: Tổng hợp mới nhất các câu hỏi phỏng vấn mạng máy tính tần suất cao (Phần 1)：mô hình bốn tầng TCP/IP, so sánh toàn bộ phiên bản HTTP, bắt tay ba chiều TCP, phân giải DNS, đẩy thời gian thực WebSocket/SSE, v.v., có hình ảnh minh họa + đánh dấu điểm quan trọng ⭐️, một bài tổng kết các điểm kiến thức cốt lõi tầng ứng dụng & truyền tải & mạng, chuẩn bị nhanh cho phỏng vấn backend!
+category: Kiến thức cơ bản về máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
@@ -12,456 +12,456 @@ head:
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-上篇主要是计算机网络基础和应用层相关的内容。
+Phần trên chủ yếu là nội dung cơ bản về mạng máy tính và tầng ứng dụng.
 
-## 计算机网络基础
+## Kiến thức cơ bản về mạng máy tính
 
-### 网络分层模型
+### Mô hình phân tầng mạng
 
-#### OSI 七层模型是什么？每一层的作用是什么？
+#### Mô hình OSI 7 tầng là gì? Vai trò của mỗi tầng là gì?
 
-**OSI 七层模型** 是国际标准化组织提出的一个网络分层模型，其大体结构以及每一层提供的功能如下图所示：
+**Mô hình OSI 7 tầng** là mô hình phân tầng mạng do Tổ chức Tiêu chuẩn hóa Quốc tế đề xuất, cấu trúc tổng thể và chức năng của mỗi tầng được thể hiện trong hình dưới đây:
 
 ![OSI 七层模型](https://oss.javaguide.cn/github/javaguide/cs-basics/network/osi-7-model.png)
 
-每一层都专注做一件事情，并且每一层都需要使用下一层提供的功能比如传输层需要使用网络层提供的路由和寻址功能，这样传输层才知道把数据传输到哪里去。
+Mỗi tầng tập trung vào một việc, và mỗi tầng cần sử dụng chức năng do tầng dưới cung cấp, ví dụ tầng truyền tải cần sử dụng chức năng định tuyến và địa chỉ do tầng mạng cung cấp, để tầng truyền tải biết truyền dữ liệu đến đâu.
 
-**OSI 的七层体系结构概念清楚，理论也很完整，但是它比较复杂而且不实用，而且有些功能在多个层中重复出现。**
+**Cấu trúc hệ thống bảy tầng OSI có khái niệm rõ ràng, lý thuyết cũng rất hoàn chỉnh, nhưng nó khá phức tạp và không thực tế, và một số chức năng xuất hiện lặp lại ở nhiều tầng.**
 
-上面这种图可能比较抽象，再来一个比较生动的图片。下面这个图片是我在国外的一个网站上看到的，非常赞！
+Hình trên có thể khá trừu tượng, hãy xem thêm một hình ảnh sinh động hơn. Hình dưới đây là một hình tôi thấy trên một trang web nước ngoài, rất tuyệt!
 
 ![osi七层模型2](https://oss.javaguide.cn/github/javaguide/osi七层模型2.png)
 
-#### ⭐️TCP/IP 四层模型是什么？每一层的作用是什么？
+#### ⭐️Mô hình bốn tầng TCP/IP là gì? Vai trò của mỗi tầng là gì?
 
-**TCP/IP 四层模型** 是目前被广泛采用的一种模型,我们可以将 TCP / IP 模型看作是 OSI 七层模型的精简版本，由以下 4 层组成：
+**Mô hình bốn tầng TCP/IP** là mô hình được áp dụng rộng rãi hiện nay, chúng ta có thể xem mô hình TCP/IP như phiên bản rút gọn của mô hình OSI 7 tầng, bao gồm 4 tầng sau:
 
-1. 应用层
-2. 传输层
-3. 网络层
-4. 网络接口层
+1. Tầng ứng dụng
+2. Tầng truyền tải
+3. Tầng mạng
+4. Tầng giao diện mạng
 
-需要注意的是，我们并不能将 TCP/IP 四层模型 和 OSI 七层模型完全精确地匹配起来，不过可以简单将两者对应起来，如下图所示：
+Cần lưu ý rằng, chúng ta không thể ánh xạ mô hình bốn tầng TCP/IP và mô hình OSI 7 tầng một cách chính xác hoàn toàn, nhưng có thể so sánh đơn giản giữa hai mô hình này như hình dưới đây:
 
 ![TCP/IP 四层模型](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-ip-4-model.png)
 
-关于每一层作用的详细介绍，请看 [OSI 和 TCP/IP 网络分层模型详解（基础）](https://javaguide.cn/cs-basics/network/osi-and-tcp-ip-model.html) 这篇文章。
+Để biết thêm chi tiết về vai trò của mỗi tầng, vui lòng xem bài viết [Giải thích chi tiết mô hình phân tầng mạng OSI và TCP/IP (Cơ bản)](https://javaguide.cn/cs-basics/network/osi-and-tcp-ip-model.html) này.
 
-#### 为什么网络要分层？
+#### Tại sao mạng cần phân tầng?
 
-说到分层，我们先从我们平时使用框架开发一个后台程序来说，我们往往会按照每一层做不同的事情的原则将系统分为三层（复杂的系统分层会更多）:
+Nói đến phân tầng, hãy bắt đầu từ việc phát triển một chương trình phía backend thông thường của chúng ta. Chúng ta thường phân hệ thống thành ba tầng theo nguyên tắc mỗi tầng làm những việc khác nhau (các hệ thống phức tạp sẽ có nhiều tầng hơn):
 
-1. Repository（数据库操作）
-2. Service（业务操作）
-3. Controller（前后端数据交互）
+1. Repository (thao tác cơ sở dữ liệu)
+2. Service (thao tác nghiệp vụ)
+3. Controller (trao đổi dữ liệu front-end và back-end)
 
-**复杂的系统需要分层，因为每一层都需要专注于一类事情。网络分层的原因也是一样，每一层只专注于做一类事情。**
+**Hệ thống phức tạp cần phân tầng, vì mỗi tầng cần tập trung vào một loại việc. Lý do phân tầng mạng cũng tương tự, mỗi tầng chỉ tập trung vào một loại việc.**
 
-好了，再来说回：“为什么网络要分层？”。我觉得主要有 3 方面的原因：
+Tốt rồi, hãy quay lại câu hỏi: "Tại sao mạng cần phân tầng?". Tôi nghĩ có 3 lý do chính:
 
-1. **各层之间相互独立**：各层之间相互独立，各层之间不需要关心其他层是如何实现的，只需要知道自己如何调用下层提供好的功能就可以了（可以简单理解为接口调用）**。这个和我们对开发时系统进行分层是一个道理。**
-2. **提高了灵活性和可替换性**：每一层都可以使用最适合的技术来实现，你只需要保证你提供的功能以及暴露的接口的规则没有改变就行了。并且，每一层都可以根据需要进行修改或替换，而不会影响到整个网络的结构。**这个和我们平时开发系统的时候要求的高内聚、低耦合的原则也是可以对应上的。**
-3. **大问题化小**：分层可以将复杂的网络问题分解为许多比较小的、界线比较清晰简单的小问题来处理和解决。这样使得复杂的计算机网络系统变得易于设计，实现和标准化。 **这个和我们平时开发的时候，一般会将系统功能分解，然后将复杂的问题分解为容易理解的更小的问题是相对应的，这些较小的问题具有更好的边界（目标和接口）定义。**
+1. **Các tầng độc lập với nhau**: Các tầng độc lập với nhau, các tầng không cần quan tâm đến cách các tầng khác triển khai, chỉ cần biết cách gọi chức năng mà tầng dưới đã cung cấp là được (có thể hiểu đơn giản là gọi interface). **Điều này giống với lý do chúng ta phân tầng hệ thống khi phát triển.**
+2. **Tăng tính linh hoạt và khả năng thay thế**: Mỗi tầng có thể sử dụng công nghệ phù hợp nhất để triển khai, chỉ cần đảm bảo rằng chức năng bạn cung cấp và các quy tắc của interface bạn cung cấp không thay đổi. Và mỗi tầng có thể được sửa đổi hoặc thay thế tùy theo nhu cầu mà không ảnh hưởng đến toàn bộ cấu trúc mạng. **Điều này cũng tương ứng với nguyên tắc high cohesion, low coupling yêu cầu trong phát triển hệ thống thông thường.**
+3. **Chia vấn đề lớn thành nhỏ**: Phân tầng có thể phân tách vấn đề mạng phức tạp thành nhiều vấn đề nhỏ với ranh giới khá rõ ràng và đơn giản để xử lý và giải quyết. Điều này khiến hệ thống mạng máy tính phức tạp trở nên dễ thiết kế, triển khai và tiêu chuẩn hóa. **Điều này tương ứng với việc chúng ta thường phân tách chức năng hệ thống khi phát triển, và phân tách các vấn đề phức tạp thành các vấn đề nhỏ dễ hiểu hơn, các vấn đề nhỏ này có ranh giới (mục tiêu và interface) được định nghĩa tốt hơn.**
 
-我想到了计算机世界非常非常有名的一句话，这里分享一下：
+Tôi nghĩ đến một câu nói rất nổi tiếng trong thế giới máy tính, chia sẻ ở đây:
 
-> 计算机科学领域的任何问题都可以通过增加一个间接的中间层来解决，计算机整个体系从上到下都是按照严格的层次结构设计的。
+> Bất kỳ vấn đề nào trong lĩnh vực khoa học máy tính đều có thể được giải quyết bằng cách thêm một tầng trung gian gián tiếp, toàn bộ hệ thống máy tính từ trên xuống dưới đều được thiết kế theo cấu trúc phân tầng nghiêm ngặt.
 
-### 常见网络协议
+### Các giao thức mạng phổ biến
 
-#### ⭐️应用层有哪些常见的协议？
+#### ⭐️Tầng ứng dụng có những giao thức phổ biến nào?
 
 ![应用层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/application-layer-protocol.png)
 
-- **HTTP（Hypertext Transfer Protocol，超文本传输协议）**：基于 TCP 协议，是一种用于传输超文本和多媒体内容的协议，主要是为 Web 浏览器与 Web 服务器之间的通信而设计的。当我们使用浏览器浏览网页的时候，我们网页就是通过 HTTP 请求进行加载的。
-- **SMTP（Simple Mail Transfer Protocol，简单邮件发送协议）**：基于 TCP 协议，是一种用于发送电子邮件的协议。注意 ⚠️：SMTP 协议只负责邮件的发送，而不是接收。要从邮件服务器接收邮件，需要使用 POP3 或 IMAP 协议。
-- **POP3/IMAP（邮件接收协议）**：基于 TCP 协议，两者都是负责邮件接收的协议。IMAP 协议是比 POP3 更新的协议，它在功能和性能上都更加强大。IMAP 支持邮件搜索、标记、分类、归档等高级功能，而且可以在多个设备之间同步邮件状态。几乎所有现代电子邮件客户端和服务器都支持 IMAP。
-- **FTP（File Transfer Protocol，文件传输协议）** : 基于 TCP 协议，是一种用于在计算机之间传输文件的协议，可以屏蔽操作系统和文件存储方式。注意 ⚠️：FTP 是一种不安全的协议，因为它在传输过程中不会对数据进行加密。建议在传输敏感数据时使用更安全的协议，如 SFTP。
-- **Telnet（远程登陆协议）**：基于 TCP 协议，用于通过一个终端登陆到其他服务器。Telnet 协议的最大缺点之一是所有数据（包括用户名和密码）均以明文形式发送，这有潜在的安全风险。这就是为什么如今很少使用 Telnet，而是使用一种称为 SSH 的非常安全的网络传输协议的主要原因。
-- **SSH（Secure Shell Protocol，安全的网络传输协议）**：基于 TCP 协议，通过加密和认证机制实现安全的访问和文件传输等业务
-- **RTP（Real-time Transport Protocol，实时传输协议）**：通常基于 UDP 协议，但也支持 TCP 协议。它提供了端到端的实时传输数据的功能，但不包含资源预留存、不保证实时传输质量，这些功能由 WebRTC 实现。
-- **DNS（Domain Name System，域名管理系统）**: 通常基于 UDP 协议（端口 53），用于解决域名和 IP 地址的映射问题。当响应数据过大或进行区域传送时会改用 TCP。
+- **HTTP (Hypertext Transfer Protocol - Giao thức truyền tải siêu văn bản)**: Dựa trên giao thức TCP, là một giao thức dùng để truyền tải nội dung siêu văn bản và đa phương tiện, chủ yếu được thiết kế cho việc giao tiếp giữa trình duyệt Web và máy chủ Web. Khi chúng ta dùng trình duyệt để duyệt web, trang web được tải thông qua yêu cầu HTTP.
+- **SMTP (Simple Mail Transfer Protocol - Giao thức truyền tải thư điện tử đơn giản)**: Dựa trên giao thức TCP, là một giao thức dùng để gửi thư điện tử. Lưu ý ⚠️: Giao thức SMTP chỉ chịu trách nhiệm gửi thư, không phải nhận thư. Để nhận thư từ máy chủ thư, cần dùng giao thức POP3 hoặc IMAP.
+- **POP3/IMAP (Giao thức nhận thư)**: Dựa trên giao thức TCP, cả hai đều là giao thức chịu trách nhiệm nhận thư. Giao thức IMAP là giao thức mới hơn POP3, nó mạnh mẽ hơn về chức năng và hiệu năng. IMAP hỗ trợ các tính năng nâng cao như tìm kiếm thư, đánh dấu, phân loại, lưu trữ, và có thể đồng bộ trạng thái thư giữa nhiều thiết bị. Hầu hết các email client và máy chủ hiện đại đều hỗ trợ IMAP.
+- **FTP (File Transfer Protocol - Giao thức truyền tải tệp)**: Dựa trên giao thức TCP, là một giao thức dùng để truyền tải tệp giữa các máy tính, có thể che giấu hệ điều hành và phương thức lưu trữ tệp. Lưu ý ⚠️: FTP là một giao thức không an toàn vì nó không mã hóa dữ liệu trong quá trình truyền. Nên sử dụng giao thức an toàn hơn như SFTP khi truyền dữ liệu nhạy cảm.
+- **Telnet (Giao thức đăng nhập từ xa)**: Dựa trên giao thức TCP, dùng để đăng nhập vào máy chủ khác qua một terminal. Một trong những nhược điểm lớn nhất của giao thức Telnet là tất cả dữ liệu (bao gồm tên người dùng và mật khẩu) đều được gửi dưới dạng văn bản thuần túy, điều này có rủi ro bảo mật tiềm ẩn. Đây là lý do chính khiến ngày nay Telnet ít được sử dụng, thay vào đó là một giao thức truyền tải mạng rất an toàn gọi là SSH.
+- **SSH (Secure Shell Protocol - Giao thức truyền tải mạng an toàn)**: Dựa trên giao thức TCP, thực hiện truy cập an toàn và truyền tải tệp thông qua cơ chế mã hóa và xác thực.
+- **RTP (Real-time Transport Protocol - Giao thức truyền tải thời gian thực)**: Thường dựa trên giao thức UDP, nhưng cũng hỗ trợ giao thức TCP. Nó cung cấp chức năng truyền tải dữ liệu thời gian thực từ đầu đến đầu, nhưng không bao gồm đặt trước tài nguyên, không đảm bảo chất lượng truyền tải thời gian thực, những chức năng này được triển khai bởi WebRTC.
+- **DNS (Domain Name System - Hệ thống tên miền)**: Thường dựa trên giao thức UDP (cổng 53), dùng để giải quyết vấn đề ánh xạ giữa tên miền và địa chỉ IP. Khi dữ liệu phản hồi quá lớn hoặc thực hiện zone transfer sẽ chuyển sang dùng TCP.
 
-关于这些协议的详细介绍请看 [应用层常见协议总结（应用层）](./application-layer-protocol.md) 这篇文章。
+Để biết thêm chi tiết về các giao thức này, vui lòng xem bài viết [Tổng hợp các giao thức tầng ứng dụng thường gặp](./application-layer-protocol.md) này.
 
-#### 传输层有哪些常见的协议？
+#### Tầng truyền tải có những giao thức phổ biến nào?
 
 ![传输层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/transport-layer-protocol.png)
 
-- **TCP（Transmission Control Protocol，传输控制协议 ）**：提供 **面向连接** 的，**可靠** 的数据传输服务。
-- **UDP（User Datagram Protocol，用户数据协议）**：提供 **无连接** 的，**尽最大努力** 的数据传输服务（不保证数据传输的可靠性），简单高效。
+- **TCP (Transmission Control Protocol - Giao thức kiểm soát truyền tải)**: Cung cấp dịch vụ truyền tải dữ liệu **hướng kết nối**, **đáng tin cậy**.
+- **UDP (User Datagram Protocol - Giao thức datagram người dùng)**: Cung cấp dịch vụ truyền tải dữ liệu **không kết nối**, **cố gắng tốt nhất** (không đảm bảo độ tin cậy truyền tải dữ liệu), đơn giản và hiệu quả.
 
-#### 网络层有哪些常见的协议？
+#### Tầng mạng có những giao thức phổ biến nào?
 
 ![网络层常见协议](images/network-model/nerwork-layer-protocol.png)
 
-- **IP（Internet Protocol，网际协议）**：TCP/IP 协议中最重要的协议之一，属于网络层的协议，主要作用是定义数据包的格式、对数据包进行路由和寻址，以便它们可以跨网络传播并到达正确的目的地。目前 IP 协议主要分为两种，一种是过去的 IPv4，另一种是较新的 IPv6，目前这两种协议都在使用，但后者已经被提议来取代前者。
-- **ARP（Address Resolution Protocol，地址解析协议）**：ARP 协议解决的是网络层地址和链路层地址之间的转换问题。因为一个 IP 数据报在物理上传输的过程中，总是需要知道下一跳（物理上的下一个目的地）该去往何处，但 IP 地址属于逻辑地址，而 MAC 地址才是物理地址，ARP 协议解决了 IP 地址转 MAC 地址的一些问题。
-- **ICMP（Internet Control Message Protocol，互联网控制报文协议）**：一种用于传输网络状态和错误消息的协议，常用于网络诊断和故障排除。例如，Ping 工具就使用了 ICMP 协议来测试网络连通性。
-- **NAT（Network Address Translation，网络地址转换协议）**：NAT 协议的应用场景如同它的名称——网络地址转换，应用于内部网到外部网的地址转换过程中。具体地说，在一个小的子网（局域网，LAN）内，各主机使用的是同一个 LAN 下的 IP 地址，但在该 LAN 以外，在广域网（WAN）中，需要一个统一的 IP 地址来标识该 LAN 在整个 Internet 上的位置。
-- **OSPF（Open Shortest Path First，开放式最短路径优先）**：一种内部网关协议（Interior Gateway Protocol，IGP），也是广泛使用的一种动态路由协议，基于链路状态算法，考虑了链路的带宽、延迟等因素来选择最佳路径。
-- **RIP(Routing Information Protocol，路由信息协议）**：一种内部网关协议（Interior Gateway Protocol，IGP），也是一种动态路由协议，基于距离向量算法，使用固定的跳数作为度量标准，选择跳数最少的路径作为最佳路径。
-- **BGP（Border Gateway Protocol，边界网关协议）**：一种用来在路由选择域之间交换网络层可达性信息（Network Layer Reachability Information，NLRI）的路由选择协议，具有高度的灵活性和可扩展性。
+- **IP (Internet Protocol - Giao thức Internet)**: Một trong những giao thức quan trọng nhất trong bộ giao thức TCP/IP, thuộc giao thức tầng mạng, chức năng chính là định nghĩa định dạng gói dữ liệu, định tuyến và địa chỉ gói dữ liệu để chúng có thể truyền qua mạng và đến đúng đích. Hiện nay có hai loại giao thức IP chính, một là IPv4 cũ, và một là IPv6 mới hơn. Hiện tại cả hai giao thức đều đang được sử dụng, nhưng giao thức sau đã được đề xuất để thay thế giao thức trước.
+- **ARP (Address Resolution Protocol - Giao thức phân giải địa chỉ)**: Giao thức ARP giải quyết vấn đề chuyển đổi giữa địa chỉ tầng mạng và địa chỉ tầng liên kết. Vì trong quá trình truyền vật lý của một gói dữ liệu IP, luôn cần biết bước nhảy tiếp theo (đích tiếp theo vật lý) sẽ đi đến đâu, nhưng địa chỉ IP thuộc địa chỉ logic trong khi địa chỉ MAC mới là địa chỉ vật lý. Giao thức ARP giải quyết một số vấn đề về chuyển đổi địa chỉ IP sang địa chỉ MAC.
+- **ICMP (Internet Control Message Protocol - Giao thức thông báo kiểm soát Internet)**: Một giao thức dùng để truyền tải trạng thái mạng và thông báo lỗi, thường được dùng để chẩn đoán và khắc phục sự cố mạng. Ví dụ, công cụ Ping sử dụng giao thức ICMP để kiểm tra kết nối mạng.
+- **NAT (Network Address Translation - Giao thức dịch địa chỉ mạng)**: Ứng dụng của giao thức NAT giống như tên của nó — dịch địa chỉ mạng, áp dụng trong quá trình chuyển đổi địa chỉ từ mạng nội bộ sang mạng bên ngoài. Cụ thể, trong một mạng con nhỏ (mạng LAN), mỗi host sử dụng địa chỉ IP trong cùng LAN đó, nhưng ngoài LAN đó, trong mạng WAN (Wide Area Network), cần một địa chỉ IP thống nhất để xác định vị trí của LAN đó trên toàn Internet.
+- **OSPF (Open Shortest Path First - Giao thức ưu tiên đường ngắn nhất mở)**: Một loại giao thức cổng nội bộ (Interior Gateway Protocol, IGP), cũng là một giao thức định tuyến động được sử dụng rộng rãi, dựa trên thuật toán trạng thái liên kết, xem xét băng thông, độ trễ và các yếu tố khác của liên kết để chọn đường tốt nhất.
+- **RIP (Routing Information Protocol - Giao thức thông tin định tuyến)**: Một loại giao thức cổng nội bộ (Interior Gateway Protocol, IGP), cũng là một giao thức định tuyến động, dựa trên thuật toán vector khoảng cách, sử dụng số hop cố định làm thước đo, chọn đường có ít hop nhất làm đường tốt nhất.
+- **BGP (Border Gateway Protocol - Giao thức cổng biên giới)**: Một giao thức định tuyến dùng để trao đổi thông tin khả năng tiếp cận tầng mạng (Network Layer Reachability Information, NLRI) giữa các miền lựa chọn định tuyến, có tính linh hoạt và khả năng mở rộng cao.
 
 ## HTTP
 
-### ⭐️从输入 URL 到页面展示到底发生了什么？（非常重要）
+### ⭐️Từ khi nhập URL đến khi trang hiển thị thì chính xác điều gì đã xảy ra? (Rất quan trọng)
 
-> 类似的问题：打开一个网页，整个过程会使用哪些协议？
+> Câu hỏi tương tự: Khi mở một trang web, toàn bộ quá trình sẽ sử dụng những giao thức nào?
 
-先来看一张图（来源于《图解 HTTP》）：
+Hãy xem một hình ảnh trước (nguồn từ cuốn sách "Giải thích HTTP bằng hình ảnh"):
 
 <img src="https://oss.javaguide.cn/github/javaguide/url%E8%BE%93%E5%85%A5%E5%88%B0%E5%B1%95%E7%A4%BA%E5%87%BA%E6%9D%A5%E7%9A%84%E8%BF%87%E7%A8%8B.jpg" style="zoom:50%" />
 
-上图有一个错误需要注意：是 OSPF 不是 OPSF。 OSPF（Open Shortest Path First，ospf）开放最短路径优先协议, 是由 Internet 工程任务组开发的路由选择协议
+Hình trên có một lỗi cần lưu ý: là OSPF không phải OPSF. OSPF (Open Shortest Path First, ospf) - Giao thức ưu tiên đường ngắn nhất mở, là giao thức chọn định tuyến do Lực lượng đặc nhiệm kỹ thuật Internet phát triển.
 
-总体来说分为以下几个步骤:
+Tổng thể chia thành các bước sau:
 
-1. 在浏览器中输入指定网页的 URL。
-2. 浏览器通过 DNS 协议，获取域名对应的 IP 地址。
-3. 浏览器根据 IP 地址和端口号，向目标服务器发起一个 TCP 连接请求。
-4. 浏览器在 TCP 连接上，向服务器发送一个 HTTP 请求报文，请求获取网页的内容。
-5. 服务器收到 HTTP 请求报文后，处理请求，并返回 HTTP 响应报文给浏览器。
-6. 浏览器收到 HTTP 响应报文后，解析响应体中的 HTML 代码，渲染网页的结构和样式，同时根据 HTML 中的其他资源的 URL（如图片、CSS、JS 等），再次发起 HTTP 请求，获取这些资源的内容，直到网页完全加载显示。
-7. 浏览器在不需要和服务器通信时，可以主动关闭 TCP 连接，或者等待服务器的关闭请求。
+1. Nhập URL của trang web cụ thể vào trình duyệt.
+2. Trình duyệt thông qua giao thức DNS để lấy địa chỉ IP tương ứng với tên miền.
+3. Trình duyệt dựa trên địa chỉ IP và số cổng, gửi yêu cầu kết nối TCP đến máy chủ đích.
+4. Trình duyệt trên kết nối TCP, gửi một bản tin yêu cầu HTTP đến máy chủ, yêu cầu lấy nội dung trang web.
+5. Máy chủ nhận bản tin yêu cầu HTTP, xử lý yêu cầu và trả về bản tin phản hồi HTTP cho trình duyệt.
+6. Trình duyệt nhận bản tin phản hồi HTTP, phân tích mã HTML trong body phản hồi, kết xuất cấu trúc và kiểu dáng của trang web, đồng thời dựa trên URL của các tài nguyên khác trong HTML (như hình ảnh, CSS, JS, v.v.), gửi lại yêu cầu HTTP để lấy nội dung của các tài nguyên đó, cho đến khi trang web được tải và hiển thị hoàn toàn.
+7. Trình duyệt khi không cần giao tiếp với máy chủ nữa, có thể chủ động đóng kết nối TCP, hoặc chờ yêu cầu đóng kết nối từ phía máy chủ.
 
-详细介绍可以查看这篇文章：[访问网页的全过程（知识串联）](https://javaguide.cn/cs-basics/network/the-whole-process-of-accessing-web-pages.html)（强烈推荐）。
+Để biết thêm chi tiết, có thể xem bài viết này: [Toàn bộ quá trình truy cập một trang web (Kết nối kiến thức)](https://javaguide.cn/cs-basics/network/the-whole-process-of-accessing-web-pages.html) (Rất đáng đọc).
 
-### ⭐️HTTP 状态码有哪些？
+### ⭐️HTTP có những mã trạng thái nào?
 
-HTTP 状态码用于描述 HTTP 请求的结果，比如 2xx 就代表请求被成功处理。
+Mã trạng thái HTTP được dùng để mô tả kết quả của yêu cầu HTTP, ví dụ 2xx đại diện cho yêu cầu được xử lý thành công.
 
 ![常见 HTTP 状态码](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-status-code.png)
 
-关于 HTTP 状态码更详细的总结，可以看我写的这篇文章：[HTTP 常见状态码总结（应用层）](https://javaguide.cn/cs-basics/network/http-status-codes.html)。
+Để biết tổng hợp chi tiết hơn về mã trạng thái HTTP, có thể xem bài viết tôi đã viết: [Tổng hợp các mã trạng thái HTTP thường gặp (Tầng ứng dụng)](https://javaguide.cn/cs-basics/network/http-status-codes.html).
 
-### HTTP Header 中常见的字段有哪些？
+### Các trường phổ biến trong HTTP Header là gì?
 
-| 请求头字段名        | 说明                                                                                                                                                                          | 示例                                                                             |
-| :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
-| Accept              | 能够接受的回应内容类型（Content-Types）。                                                                                                                                     | Accept: text/plain                                                               |
-| Accept-Charset      | 能够接受的字符集                                                                                                                                                              | Accept-Charset: utf-8                                                            |
-| Accept-Datetime     | 能够接受的按照时间来表示的版本                                                                                                                                                | Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT                                   |
-| Accept-Encoding     | 能够接受的编码方式列表。参考 HTTP 压缩。                                                                                                                                      | Accept-Encoding: gzip, deflate                                                   |
-| Accept-Language     | 能够接受的回应内容的自然语言列表。                                                                                                                                            | Accept-Language: en-US                                                           |
-| Authorization       | 用于超文本传输协议的认证的认证信息                                                                                                                                            | Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==                                |
-| Cache-Control       | 用来指定在这次的请求/响应链中的所有缓存机制 都必须 遵守的指令                                                                                                                 | Cache-Control: no-cache                                                          |
-| Connection          | 该浏览器想要优先使用的连接类型                                                                                                                                                | Connection: keep-alive                                                           |
-| Content-Length      | 以八位字节数组（8 位的字节）表示的请求体的长度                                                                                                                                | Content-Length: 348                                                              |
-| Content-MD5         | 请求体的内容的二进制 MD5 散列值，以 Base64 编码的结果                                                                                                                         | Content-MD5: Q2hlY2sgSW50ZWdyaXR5IQ==                                            |
-| Content-Type        | 请求体的多媒体类型（用于 POST 和 PUT 请求中）                                                                                                                                 | Content-Type: application/x-www-form-urlencoded                                  |
-| Cookie              | 之前由服务器通过 Set-Cookie（下文详述）发送的一个超文本传输协议 Cookie                                                                                                        | Cookie: $Version=1; Skin=new;                                                    |
-| Date                | 发送该消息的日期和时间(按照 RFC 7231 中定义的"超文本传输协议日期"格式来发送)                                                                                                  | Date: Tue, 15 Nov 1994 08:12:31 GMT                                              |
-| Expect              | 表明客户端要求服务器做出特定的行为                                                                                                                                            | Expect: 100-continue                                                             |
-| From                | 发起此请求的用户的邮件地址                                                                                                                                                    | From: `user@example.com`                                                         |
-| Host                | 服务器的域名(用于虚拟主机)，以及服务器所监听的传输控制协议端口号。如果所请求的端口是对应的服务的标准端口，则端口号可被省略。                                                  | Host: en.wikipedia.org                                                           |
-| If-Match            | 仅当客户端提供的实体与服务器上对应的实体相匹配时，才进行对应的操作。主要作用是用于像 PUT 这样的方法中，仅当从用户上次更新某个资源以来，该资源未被修改的情况下，才更新该资源。 | If-Match: "737060cd8c284d8af7ad3082f209582d"                                     |
-| If-Modified-Since   | 允许服务器在请求的资源自指定的日期以来未被修改的情况下返回 `304 Not Modified` 状态码                                                                                          | If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT                                 |
-| If-None-Match       | 允许服务器在请求的资源的 ETag 未发生变化的情况下返回 `304 Not Modified` 状态码                                                                                                | If-None-Match: "737060cd8c284d8af7ad3082f209582d"                                |
-| If-Range            | 如果该实体未被修改过，则向我发送我所缺少的那一个或多个部分；否则，发送整个新的实体                                                                                            | If-Range: "737060cd8c284d8af7ad3082f209582d"                                     |
-| If-Unmodified-Since | 仅当该实体自某个特定时间以来未被修改的情况下，才发送回应。                                                                                                                    | If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT                               |
-| Max-Forwards        | 限制该消息可被代理及网关转发的次数。                                                                                                                                          | Max-Forwards: 10                                                                 |
-| Origin              | 发起一个针对跨来源资源共享的请求。                                                                                                                                            | `Origin: http://www.example-social-network.com`                                  |
-| Pragma              | 与具体的实现相关，这些字段可能在请求/回应链中的任何时候产生多种效果。                                                                                                         | Pragma: no-cache                                                                 |
-| Proxy-Authorization | 用来向代理进行认证的认证信息。                                                                                                                                                | Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==                          |
-| Range               | 仅请求某个实体的一部分。字节偏移以 0 开始。参见字节服务。                                                                                                                     | Range: bytes=500-999                                                             |
-| Referer             | 表示浏览器所访问的前一个页面，正是那个页面上的某个链接将浏览器带到了当前所请求的这个页面。                                                                                    | `Referer: http://en.wikipedia.org/wiki/Main_Page`                                |
-| TE                  | 浏览器预期接受的传输编码方式：可使用回应协议头 Transfer-Encoding 字段中的值；                                                                                                 | TE: trailers, deflate                                                            |
-| Upgrade             | 要求服务器升级到另一个协议。                                                                                                                                                  | Upgrade: HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11                                   |
-| User-Agent          | 浏览器的浏览器身份标识字符串                                                                                                                                                  | User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/21.0 |
-| Via                 | 向服务器告知，这个请求是由哪些代理发出的。                                                                                                                                    | Via: 1.0 fred, 1.1 example.com (Apache/1.1)                                      |
-| Warning             | 一个一般性的警告，告知，在实体内容体中可能存在错误。                                                                                                                          | Warning: 199 Miscellaneous warning                                               |
+| Tên trường yêu cầu  | Mô tả                                                                                                                                                                                                                                                     | Ví dụ                                                                            |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| Accept              | Loại nội dung phản hồi (Content-Types) có thể chấp nhận.                                                                                                                                                                                                  | Accept: text/plain                                                               |
+| Accept-Charset      | Bộ ký tự có thể chấp nhận                                                                                                                                                                                                                                 | Accept-Charset: utf-8                                                            |
+| Accept-Datetime     | Phiên bản được biểu diễn theo thời gian có thể chấp nhận                                                                                                                                                                                                  | Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT                                   |
+| Accept-Encoding     | Danh sách phương thức mã hóa có thể chấp nhận. Tham khảo nén HTTP.                                                                                                                                                                                        | Accept-Encoding: gzip, deflate                                                   |
+| Accept-Language     | Danh sách ngôn ngữ tự nhiên của nội dung phản hồi có thể chấp nhận.                                                                                                                                                                                       | Accept-Language: en-US                                                           |
+| Authorization       | Thông tin xác thực cho xác thực giao thức truyền tải siêu văn bản                                                                                                                                                                                         | Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==                                |
+| Cache-Control       | Dùng để chỉ định các chỉ thị mà tất cả các cơ chế bộ nhớ đệm trong chuỗi yêu cầu/phản hồi này đều phải tuân theo                                                                                                                                          | Cache-Control: no-cache                                                          |
+| Connection          | Loại kết nối mà trình duyệt muốn ưu tiên sử dụng                                                                                                                                                                                                          | Connection: keep-alive                                                           |
+| Content-Length      | Độ dài của body yêu cầu được biểu thị bằng mảng byte tám bit (byte 8 bit)                                                                                                                                                                                 | Content-Length: 348                                                              |
+| Content-MD5         | Giá trị MD5 nhị phân của nội dung body yêu cầu, được mã hóa bằng Base64                                                                                                                                                                                   | Content-MD5: Q2hlY2sgSW50ZWdyaXR5IQ==                                            |
+| Content-Type        | Loại đa phương tiện của body yêu cầu (dùng trong yêu cầu POST và PUT)                                                                                                                                                                                     | Content-Type: application/x-www-form-urlencoded                                  |
+| Cookie              | HTTP Cookie đã được máy chủ gửi trước đó thông qua Set-Cookie                                                                                                                                                                                             | Cookie: $Version=1; Skin=new;                                                    |
+| Date                | Ngày và giờ gửi tin nhắn này (theo định dạng "ngày HTTP" được định nghĩa trong RFC 7231)                                                                                                                                                                  | Date: Tue, 15 Nov 1994 08:12:31 GMT                                              |
+| Expect              | Cho biết client yêu cầu máy chủ thực hiện hành vi cụ thể                                                                                                                                                                                                  | Expect: 100-continue                                                             |
+| From                | Địa chỉ email của người dùng khởi tạo yêu cầu này                                                                                                                                                                                                         | From: `user@example.com`                                                         |
+| Host                | Tên miền của máy chủ (cho virtual host), và số cổng TCP mà máy chủ đang nghe. Số cổng có thể bị bỏ qua nếu cổng được yêu cầu là cổng tiêu chuẩn của dịch vụ tương ứng.                                                                                    | Host: en.wikipedia.org                                                           |
+| If-Match            | Chỉ thực hiện thao tác tương ứng khi entity do client cung cấp khớp với entity tương ứng trên máy chủ. Chủ yếu dùng trong các phương thức như PUT, chỉ cập nhật tài nguyên khi tài nguyên đó chưa bị sửa đổi kể từ lần cập nhật cuối cùng của người dùng. | If-Match: "737060cd8c284d8af7ad3082f209582d"                                     |
+| If-Modified-Since   | Cho phép máy chủ trả về mã trạng thái `304 Not Modified` nếu tài nguyên được yêu cầu không bị sửa đổi kể từ ngày được chỉ định                                                                                                                            | If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT                                 |
+| If-None-Match       | Cho phép máy chủ trả về mã trạng thái `304 Not Modified` nếu ETag của tài nguyên được yêu cầu không thay đổi                                                                                                                                              | If-None-Match: "737060cd8c284d8af7ad3082f209582d"                                |
+| If-Range            | Nếu entity chưa bị sửa đổi, hãy gửi cho tôi một hoặc nhiều phần tôi còn thiếu; nếu không, hãy gửi toàn bộ entity mới                                                                                                                                      | If-Range: "737060cd8c284d8af7ad3082f209582d"                                     |
+| If-Unmodified-Since | Chỉ gửi phản hồi nếu entity chưa bị sửa đổi kể từ một thời điểm cụ thể.                                                                                                                                                                                   | If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT                               |
+| Max-Forwards        | Giới hạn số lần tin nhắn này có thể được proxy và gateway chuyển tiếp.                                                                                                                                                                                    | Max-Forwards: 10                                                                 |
+| Origin              | Khởi tạo yêu cầu CORS.                                                                                                                                                                                                                                    | `Origin: http://www.example-social-network.com`                                  |
+| Pragma              | Liên quan đến các triển khai cụ thể, các trường này có thể tạo ra nhiều hiệu ứng ở bất kỳ đâu trong chuỗi yêu cầu/phản hồi.                                                                                                                               | Pragma: no-cache                                                                 |
+| Proxy-Authorization | Thông tin xác thực để xác thực với proxy.                                                                                                                                                                                                                 | Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==                          |
+| Range               | Chỉ yêu cầu một phần của entity. Độ lệch byte bắt đầu từ 0. Tham khảo dịch vụ byte.                                                                                                                                                                       | Range: bytes=500-999                                                             |
+| Referer             | Biểu thị trang trước mà trình duyệt đã truy cập, chính là trang đó có một liên kết đã đưa trình duyệt đến trang đang được yêu cầu.                                                                                                                        | `Referer: http://en.wikipedia.org/wiki/Main_Page`                                |
+| TE                  | Kiểu mã hóa truyền tải mà trình duyệt dự kiến nhận được: có thể sử dụng các giá trị trong trường header phản hồi Transfer-Encoding;                                                                                                                       | TE: trailers, deflate                                                            |
+| Upgrade             | Yêu cầu máy chủ nâng cấp lên giao thức khác.                                                                                                                                                                                                              | Upgrade: HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11                                   |
+| User-Agent          | Chuỗi định danh trình duyệt của trình duyệt                                                                                                                                                                                                               | User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/21.0 |
+| Via                 | Thông báo cho máy chủ biết, yêu cầu này được gửi bởi những proxy nào.                                                                                                                                                                                     | Via: 1.0 fred, 1.1 example.com (Apache/1.1)                                      |
+| Warning             | Một cảnh báo chung, thông báo rằng có thể có lỗi trong body nội dung entity.                                                                                                                                                                              | Warning: 199 Miscellaneous warning                                               |
 
-### ⭐️HTTP 和 HTTPS 有什么区别？（重要）
+### ⭐️HTTP và HTTPS có gì khác nhau? (Quan trọng)
 
 ![HTTP 和 HTTPS 对比](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-vs-https.png)
 
-- **端口号**：HTTP 默认是 80，HTTPS 默认是 443。
-- **URL 前缀**：HTTP 的 URL 前缀是 `http://`，HTTPS 的 URL 前缀是 `https://`。
-- **安全性和资源消耗**：HTTP 协议运行在 TCP 之上，所有传输的内容都是明文，客户端和服务器端都无法验证对方的身份。HTTPS 是运行在 SSL/TLS 之上的 HTTP 协议，SSL/TLS 运行在 TCP 之上。所有传输的内容都经过加密，加密采用对称加密，但对称加密的密钥用服务器方的证书进行了非对称加密。所以说，HTTP 安全性没有 HTTPS 高，但是 HTTPS 比 HTTP 耗费更多服务器资源。
-- **SEO（搜索引擎优化）**：搜索引擎通常会更青睐使用 HTTPS 协议的网站，因为 HTTPS 能够提供更高的安全性和用户隐私保护。使用 HTTPS 协议的网站在搜索结果中可能会被优先显示，从而对 SEO 产生影响。
+- **Số cổng**: HTTP mặc định là 80, HTTPS mặc định là 443.
+- **Tiền tố URL**: Tiền tố URL của HTTP là `http://`, tiền tố URL của HTTPS là `https://`.
+- **Bảo mật và tiêu thụ tài nguyên**: Giao thức HTTP chạy trên TCP, tất cả nội dung truyền đều là văn bản thuần túy, client và máy chủ đều không thể xác minh danh tính của nhau. HTTPS là giao thức HTTP chạy trên SSL/TLS, SSL/TLS chạy trên TCP. Tất cả nội dung truyền đều được mã hóa, mã hóa sử dụng mã hóa đối xứng, nhưng khóa mã hóa đối xứng được mã hóa bất đối xứng bằng chứng chỉ phía máy chủ. Vì vậy, bảo mật của HTTP không bằng HTTPS, nhưng HTTPS tiêu tốn nhiều tài nguyên máy chủ hơn HTTP.
+- **SEO (Tối ưu hóa công cụ tìm kiếm)**: Các công cụ tìm kiếm thường ưu tiên các trang web sử dụng giao thức HTTPS hơn vì HTTPS có thể cung cấp bảo mật và bảo vệ quyền riêng tư người dùng cao hơn. Các trang web sử dụng giao thức HTTPS có thể được hiển thị ưu tiên trong kết quả tìm kiếm, từ đó ảnh hưởng đến SEO.
 
-关于 HTTP 和 HTTPS 更详细的对比总结，可以看我写的这篇文章：[HTTP vs HTTPS（应用层）](https://javaguide.cn/cs-basics/network/http-vs-https.html) 。
+Để biết so sánh chi tiết hơn về HTTP và HTTPS, có thể xem bài viết tôi đã viết: [HTTP vs HTTPS (Tầng ứng dụng)](https://javaguide.cn/cs-basics/network/http-vs-https.html).
 
-### HTTP/1.0 和 HTTP/1.1 有什么区别？
+### HTTP/1.0 và HTTP/1.1 có gì khác nhau?
 
 ![HTTP/1.0 和 HTTP/1.1 对比](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http1.0-vs-http1.1.png)
 
-- **连接方式** : HTTP/1.0 为短连接，HTTP/1.1 支持长连接。HTTP 协议的长连接和短连接，实质上是 TCP 协议的长连接和短连接。
-- **状态响应码** : HTTP/1.1 中新加入了大量的状态码，光是错误响应状态码就新增了 24 种。比如说，`100 (Continue)`——在请求大资源前的预热请求，`206 (Partial Content)`——范围请求的标识码，`409 (Conflict)`——请求与当前资源的规定冲突，`410 (Gone)`——资源已被永久转移，而且没有任何已知的转发地址。
-- **缓存机制** : 在 HTTP/1.0 中主要使用 Header 里的 If-Modified-Since,Expires 来做为缓存判断的标准，HTTP/1.1 则引入了更多的缓存控制策略例如 Entity tag，If-Unmodified-Since, If-Match, If-None-Match 等更多可供选择的缓存头来控制缓存策略。
-- **带宽**：HTTP/1.0 中，存在一些浪费带宽的现象，例如客户端只是需要某个对象的一部分，而服务器却将整个对象送过来了，并且不支持断点续传功能，HTTP/1.1 则在请求头引入了 range 头域，它允许只请求资源的某个部分，即返回码是 206（Partial Content），这样就方便了开发者自由的选择以便于充分利用带宽和连接。
-- **Host 头（Host Header）处理** :HTTP/1.1 引入了 Host 头字段，允许在同一 IP 地址上托管多个域名，从而支持虚拟主机的功能。而 HTTP/1.0 没有 Host 头字段，无法实现虚拟主机。
+- **Phương thức kết nối**: HTTP/1.0 là kết nối ngắn, HTTP/1.1 hỗ trợ kết nối dài. Kết nối dài và ngắn của giao thức HTTP thực chất là kết nối dài và ngắn của giao thức TCP.
+- **Mã phản hồi trạng thái**: HTTP/1.1 đã thêm vào số lượng lớn mã trạng thái, riêng mã trạng thái phản hồi lỗi đã thêm 24 loại. Ví dụ như `100 (Continue)` — yêu cầu khởi động trước khi yêu cầu tài nguyên lớn, `206 (Partial Content)` — mã định danh cho yêu cầu phạm vi, `409 (Conflict)` — yêu cầu xung đột với quy định tài nguyên hiện tại, `410 (Gone)` — tài nguyên đã được chuyển vĩnh viễn và không có địa chỉ chuyển tiếp nào đã biết.
+- **Cơ chế bộ nhớ đệm**: Trong HTTP/1.0 chủ yếu dùng If-Modified-Since, Expires trong Header làm tiêu chuẩn phán xét bộ nhớ đệm, HTTP/1.1 giới thiệu nhiều chiến lược kiểm soát bộ nhớ đệm hơn như Entity tag, If-Unmodified-Since, If-Match, If-None-Match và nhiều header bộ nhớ đệm có thể lựa chọn hơn để kiểm soát chiến lược bộ nhớ đệm.
+- **Băng thông**: Trong HTTP/1.0, có một số hiện tượng lãng phí băng thông, ví dụ client chỉ cần một phần của đối tượng, nhưng máy chủ lại gửi toàn bộ đối tượng, và không hỗ trợ chức năng tiếp tục từ điểm dừng. HTTP/1.1 giới thiệu trường range trong header yêu cầu, cho phép chỉ yêu cầu một phần của tài nguyên, tức là mã trả về là 206 (Partial Content), điều này tạo thuận lợi cho các nhà phát triển tự do lựa chọn để tận dụng đầy đủ băng thông và kết nối.
+- **Xử lý Host Header**: HTTP/1.1 giới thiệu trường Host header, cho phép lưu trữ nhiều tên miền trên cùng một địa chỉ IP, từ đó hỗ trợ chức năng virtual host. Còn HTTP/1.0 không có trường Host header, không thể thực hiện virtual host.
 
-关于 HTTP/1.0 和 HTTP/1.1 更详细的对比总结，可以看我写的这篇文章：[HTTP/1.0 vs HTTP/1.1（应用层）](https://javaguide.cn/cs-basics/network/http1.0-vs-http1.1.html) 。
+Để biết so sánh chi tiết hơn về HTTP/1.0 và HTTP/1.1, có thể xem bài viết tôi đã viết: [HTTP/1.0 vs HTTP/1.1 (Tầng ứng dụng)](https://javaguide.cn/cs-basics/network/http1.0-vs-http1.1.html).
 
-### ⭐️HTTP/1.1 和 HTTP/2.0 有什么区别？
+### ⭐️HTTP/1.1 và HTTP/2.0 có gì khác nhau?
 
 ![HTTP/1.0 和 HTTP/1.1 对比](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http1.1-vs-http2.0.png)
 
-- **多路复用（Multiplexing）**：HTTP/2.0 在同一连接上可以同时传输多个请求和响应（可以看作是 HTTP/1.1 中长链接的升级版本），互不干扰。HTTP/1.1 则使用串行方式，每个请求和响应都需要独立的连接，而浏览器为了控制资源会有 6-8 个 TCP 连接的限制。这使得 HTTP/2.0 在处理多个请求时更加高效，减少了网络延迟和提高了性能。
-- **二进制帧（Binary Frames）**：HTTP/2.0 使用二进制帧进行数据传输，而 HTTP/1.1 则使用文本格式的报文。二进制帧更加紧凑和高效，减少了传输的数据量和带宽消耗。
-- **队头阻塞**：HTTP/2 引入了多路复用技术，允许多个请求和响应在单个 TCP 连接上并行交错传输，解决了 HTTP/1.1 应用层的队头阻塞问题，但 HTTP/2 依然受到 TCP 层队头阻塞 的影响。
-- **头部压缩（Header Compression）**：HTTP/1.1 支持`Body`压缩，`Header`不支持压缩。HTTP/2.0 支持对`Header`压缩，使用了专门为`Header`压缩而设计的 HPACK 算法，减少了网络开销。
-- **服务器推送（Server Push）**：HTTP/2.0 支持服务器推送，可以在客户端请求一个资源时，将其他相关资源一并推送给客户端，从而减少了客户端的请求次数和延迟。而 HTTP/1.1 需要客户端自己发送请求来获取相关资源。
+- **Ghép kênh (Multiplexing)**: HTTP/2.0 có thể truyền đồng thời nhiều yêu cầu và phản hồi trên cùng một kết nối (có thể xem như phiên bản nâng cấp của kết nối dài trong HTTP/1.1), không ảnh hưởng lẫn nhau. HTTP/1.1 sử dụng phương thức nối tiếp, mỗi yêu cầu và phản hồi cần kết nối độc lập, và trình duyệt để kiểm soát tài nguyên sẽ có giới hạn 6-8 kết nối TCP. Điều này làm cho HTTP/2.0 hiệu quả hơn khi xử lý nhiều yêu cầu, giảm độ trễ mạng và cải thiện hiệu năng.
+- **Binary Frames (Khung nhị phân)**: HTTP/2.0 sử dụng khung nhị phân để truyền dữ liệu, trong khi HTTP/1.1 sử dụng bản tin định dạng văn bản. Khung nhị phân gọn gàng và hiệu quả hơn, giảm lượng dữ liệu truyền và tiêu thụ băng thông.
+- **Tắc nghẽn đầu hàng (Head-of-Line Blocking)**: HTTP/2 giới thiệu công nghệ ghép kênh, cho phép nhiều yêu cầu và phản hồi truyền đan xen song song trên một kết nối TCP duy nhất, giải quyết vấn đề tắc nghẽn đầu hàng ở tầng ứng dụng của HTTP/1.1, nhưng HTTP/2 vẫn chịu ảnh hưởng của **tắc nghẽn đầu hàng ở tầng TCP**.
+- **Nén Header (Header Compression)**: HTTP/1.1 hỗ trợ nén `Body`, `Header` không hỗ trợ nén. HTTP/2.0 hỗ trợ nén `Header`, sử dụng thuật toán HPACK được thiết kế đặc biệt cho nén `Header`, giảm tải mạng.
+- **Server Push (Đẩy từ máy chủ)**: HTTP/2.0 hỗ trợ server push, có thể đẩy các tài nguyên liên quan khác cho client khi client yêu cầu một tài nguyên, từ đó giảm số lần yêu cầu và độ trễ của client. Còn HTTP/1.1 cần client tự gửi yêu cầu để lấy các tài nguyên liên quan.
 
-HTTP/2.0 多路复用效果图（图源： [HTTP/2 For Web Developers](https://blog.cloudflare.com/http-2-for-web-developers/)）：
+Hiệu ứng ghép kênh HTTP/2.0 (nguồn ảnh: [HTTP/2 For Web Developers](https://blog.cloudflare.com/http-2-for-web-developers/)):
 
 ![HTTP/2 Multiplexing](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http2.0-multiplexing.png)
 
-可以看到，HTTP/2 的多路复用机制允许多个请求和响应共享一个 TCP 连接，从而避免了 HTTP/1.1 在应对并发请求时需要建立多个并行连接的情况，减少了重复连接建立和维护的额外开销。而在 HTTP/1.1 中，尽管支持持久连接，但为了缓解队头阻塞问题，浏览器通常会为同一域名建立多个并行连接。
+Có thể thấy, cơ chế ghép kênh của HTTP/2 cho phép nhiều yêu cầu và phản hồi chia sẻ một kết nối TCP, từ đó tránh tình trạng HTTP/1.1 phải thiết lập nhiều kết nối song song khi xử lý yêu cầu đồng thời, giảm tải phụ thêm từ việc thiết lập và duy trì kết nối lặp lại. Còn trong HTTP/1.1, mặc dù hỗ trợ kết nối bền vững, nhưng để giảm thiểu vấn đề tắc nghẽn đầu hàng, trình duyệt thường thiết lập nhiều kết nối song song cho cùng một tên miền.
 
-### HTTP/2.0 和 HTTP/3.0 有什么区别？
+### HTTP/2.0 và HTTP/3.0 có gì khác nhau?
 
 ![HTTP/2.0 和 HTTP/3.0 对比](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http2.0-vs-http3.0.png)
 
-- **传输协议**：HTTP/2.0 是基于 TCP 协议实现的，HTTP/3.0 新增了 QUIC（Quick UDP Internet Connections） 协议来实现可靠的传输，提供与 TLS/SSL 相当的安全性，具有较低的连接和传输延迟。你可以将 QUIC 看作是 UDP 的升级版本，在其基础上新增了很多功能比如加密、重传等等。HTTP/3.0 之前名为 HTTP-over-QUIC，从这个名字中我们也可以发现，HTTP/3 最大的改造就是使用了 QUIC。
-- **连接建立**：HTTP/2.0 需要经过经典的 TCP 三次握手过程（由于安全的 HTTPS 连接建立还需要 TLS 握手，共需要大约 3 个 RTT）。由于 QUIC 协议的特性（TLS 1.3，TLS 1.3 除了支持 1 个 RTT 的握手，还支持 0 个 RTT 的握手）连接建立仅需 0-RTT 或者 1-RTT。这意味着 QUIC 在最佳情况下不需要任何的额外往返时间就可以建立新连接。
-- **头部压缩**：HTTP/2.0 使用 HPACK 算法进行头部压缩，而 HTTP/3.0 使用更高效的 QPACK 头压缩算法。
-- **队头阻塞**：HTTP/2.0 多请求复用一个 TCP 连接，一旦发生丢包，就会阻塞住所有的 HTTP 请求。由于 QUIC 协议的特性，HTTP/3.0 在一定程度上解决了队头阻塞（Head-of-Line blocking, 简写：HOL blocking）问题，一个连接建立多个不同的数据流，这些数据流之间独立互不影响，某个数据流发生丢包了，其数据流不受影响（本质上是多路复用+轮询）。
-- **连接迁移**：HTTP/3.0 支持连接迁移，因为 QUIC 使用 64 位 ID 标识连接，只要 ID 不变就不会中断，网络环境改变时（如从 Wi-Fi 切换到移动数据）也能保持连接。而 TCP 连接是由（源 IP，源端口，目的 IP，目的端口）组成，这个四元组中一旦有一项值发生改变，这个连接也就不能用了。
-- **错误恢复**：HTTP/3.0 具有更好的错误恢复机制，当出现丢包、延迟等网络问题时，可以更快地进行恢复和重传。而 HTTP/2.0 则需要依赖于 TCP 的错误恢复机制。
-- **安全性**：在 HTTP/2.0 中，TLS 用于加密和认证整个 HTTP 会话，包括所有的 HTTP 头部和数据负载。TLS 的工作是在 TCP 层之上，它加密的是在 TCP 连接中传输的应用层的数据，并不会对 TCP 头部以及 TLS 记录层头部进行加密，所以在传输的过程中 TCP 头部可能会被攻击者篡改来干扰通信。而 HTTP/3.0 的 QUIC 对整个数据包（包括报文头和报文体）进行了加密与认证处理，保障安全性。
+- **Giao thức truyền tải**: HTTP/2.0 được triển khai dựa trên giao thức TCP, HTTP/3.0 thêm giao thức QUIC (Quick UDP Internet Connections) để thực hiện truyền tải đáng tin cậy, cung cấp bảo mật tương đương TLS/SSL với độ trễ kết nối và truyền tải thấp hơn. Có thể xem QUIC như phiên bản nâng cấp của UDP, thêm nhiều chức năng như mã hóa, truyền lại, v.v. HTTP/3.0 trước đây có tên là HTTP-over-QUIC, từ cái tên này chúng ta cũng có thể thấy, đột phá lớn nhất của HTTP/3 là sử dụng QUIC.
+- **Thiết lập kết nối**: HTTP/2.0 cần trải qua quy trình bắt tay ba chiều TCP cổ điển (do thiết lập kết nối HTTPS an toàn cũng cần bắt tay TLS, cần khoảng 3 RTT). Do đặc tính của giao thức QUIC (TLS 1.3, TLS 1.3 ngoài hỗ trợ bắt tay 1 RTT còn hỗ trợ bắt tay 0 RTT), thiết lập kết nối chỉ cần 0-RTT hoặc 1-RTT. Điều này có nghĩa là QUIC trong trường hợp tốt nhất không cần bất kỳ vòng đi về thêm nào để thiết lập kết nối mới.
+- **Nén Header**: HTTP/2.0 sử dụng thuật toán HPACK để nén header, còn HTTP/3.0 sử dụng thuật toán nén header QPACK hiệu quả hơn.
+- **Tắc nghẽn đầu hàng**: HTTP/2.0 ghép nhiều yêu cầu vào một kết nối TCP, một khi xảy ra mất gói, sẽ chặn tất cả các yêu cầu HTTP. Do đặc tính của giao thức QUIC, HTTP/3.0 ở một mức độ nhất định giải quyết được vấn đề tắc nghẽn đầu hàng (Head-of-Line blocking, viết tắt: HOL blocking), một kết nối thiết lập nhiều luồng dữ liệu khác nhau, các luồng dữ liệu này độc lập với nhau, khi một luồng dữ liệu xảy ra mất gói, các luồng dữ liệu của nó không bị ảnh hưởng (về bản chất là ghép kênh + round-robin).
+- **Chuyển tiếp kết nối**: HTTP/3.0 hỗ trợ chuyển tiếp kết nối, vì QUIC sử dụng ID 64 bit để định danh kết nối, chỉ cần ID không thay đổi sẽ không bị gián đoạn, khi môi trường mạng thay đổi (ví dụ từ Wi-Fi chuyển sang dữ liệu di động) cũng có thể duy trì kết nối. Còn kết nối TCP được cấu thành từ (IP nguồn, cổng nguồn, IP đích, cổng đích), chỉ cần một trong bộ tứ này thay đổi, kết nối đó sẽ không thể dùng được nữa.
+- **Phục hồi lỗi**: HTTP/3.0 có cơ chế phục hồi lỗi tốt hơn, khi gặp các sự cố mạng như mất gói, độ trễ, có thể phục hồi và truyền lại nhanh hơn. Còn HTTP/2.0 cần dựa vào cơ chế phục hồi lỗi của TCP.
+- **Bảo mật**: Trong HTTP/2.0, TLS được dùng để mã hóa và xác thực toàn bộ phiên HTTP, bao gồm tất cả header HTTP và tải trọng dữ liệu. Công việc của TLS là ở trên tầng TCP, nó mã hóa dữ liệu tầng ứng dụng được truyền trong kết nối TCP và không mã hóa header TCP cũng như header tầng bản ghi TLS, vì vậy trong quá trình truyền, header TCP có thể bị kẻ tấn công giả mạo để gây nhiễu giao tiếp. Còn HTTP/3.0's QUIC thực hiện mã hóa và xác thực cho toàn bộ gói dữ liệu (bao gồm cả header bản tin và body bản tin), đảm bảo an toàn.
 
-HTTP/1.0、HTTP/2.0 和 HTTP/3.0 的协议栈比较：
+So sánh ngăn xếp giao thức HTTP/1.0, HTTP/2.0 và HTTP/3.0:
 
 ![http-3-implementation](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http-3-implementation.png)
 
-下图是一个更详细的 HTTP/2.0 和 HTTP/3.0 对比图：
+Dưới đây là hình so sánh chi tiết hơn về HTTP/2.0 và HTTP/3.0:
 
 ![HTTP/2.0 和 HTTP/3.0 详细对比图](https://oss.javaguide.cn/github/javaguide/cs-basics/network/http2-and-http3-stacks-comparison.png)
 
-从上图可以看出：
+Từ hình trên có thể thấy:
 
-- **HTTP/2.0**：使用 TCP 作为传输协议、使用 HPACK 进行头部压缩、依赖 TLS 进行加密。
-- **HTTP/3.0**：使用基于 UDP 的 QUIC 协议、使用更高效的 QPACK 进行头部压缩、在 QUIC 中直接集成了 TLS。QUIC 协议具备连接迁移、拥塞控制与避免、流量控制等特性。
+- **HTTP/2.0**: Sử dụng TCP làm giao thức truyền tải, dùng HPACK để nén header, phụ thuộc vào TLS để mã hóa.
+- **HTTP/3.0**: Sử dụng giao thức QUIC dựa trên UDP, dùng QPACK hiệu quả hơn để nén header, tích hợp trực tiếp TLS trong QUIC. Giao thức QUIC có các đặc tính chuyển tiếp kết nối, kiểm soát tắc nghẽn và tránh tắc nghẽn, kiểm soát luồng.
 
-关于 HTTP/1.0 -> HTTP/3.0 更详细的演进介绍，推荐阅读[HTTP1 到 HTTP3 的工程优化](https://dbwu.tech/posts/http_evolution/)。
+Để biết thêm giới thiệu chi tiết về quá trình phát triển từ HTTP/1.0 đến HTTP/3.0, đề nghị đọc [Tối ưu hóa kỹ thuật từ HTTP/1 đến HTTP/3](https://dbwu.tech/posts/http_evolution/).
 
-### HTTP/1.1 和 HTTP/2.0 的队头阻塞有什么不同？
+### Sự khác biệt về tắc nghẽn đầu hàng giữa HTTP/1.1 và HTTP/2.0 là gì?
 
-HTTP/1.1 队头阻塞的主要原因是无法多路复用：
+Nguyên nhân chính của tắc nghẽn đầu hàng HTTP/1.1 là không thể ghép kênh:
 
-- 在一个 TCP 连接中，资源的请求和响应是按顺序处理的。如果一个大的资源（如一个大文件）正在传输，后续的小资源（如较小的 CSS 文件）需要等待前面的资源传输完成后才能被发送。
-- 如果浏览器需要同时加载多个资源（如多个 CSS、JS 文件等），它通常会开启多个并行的 TCP 连接（一般限制为 6 个）。但每个连接仍然受限于顺序的请求-响应机制，因此仍然会发生 **应用层的队头阻塞**。
+- Trong một kết nối TCP, yêu cầu và phản hồi tài nguyên được xử lý theo thứ tự. Nếu một tài nguyên lớn (như một file lớn) đang được truyền, các tài nguyên nhỏ tiếp theo (như file CSS nhỏ hơn) cần đợi tài nguyên trước đó hoàn thành truyền mới có thể được gửi.
+- Nếu trình duyệt cần tải đồng thời nhiều tài nguyên (như nhiều file CSS, JS, v.v.), thường sẽ mở nhiều kết nối TCP song song (thường giới hạn 6 kết nối). Nhưng mỗi kết nối vẫn bị giới hạn bởi cơ chế yêu cầu-phản hồi tuần tự, vì vậy vẫn xảy ra **tắc nghẽn đầu hàng ở tầng ứng dụng**.
 
-虽然 HTTP/2.0 引入了多路复用技术，允许多个请求和响应在单个 TCP 连接上并行交错传输，解决了 **HTTP/1.1 应用层的队头阻塞问题**，但 HTTP/2.0 依然受到 **TCP 层队头阻塞** 的影响：
+Mặc dù HTTP/2.0 giới thiệu công nghệ ghép kênh, cho phép nhiều yêu cầu và phản hồi truyền đan xen song song trên một kết nối TCP duy nhất, giải quyết **vấn đề tắc nghẽn đầu hàng ở tầng ứng dụng của HTTP/1.1**, nhưng HTTP/2.0 vẫn chịu ảnh hưởng của **tắc nghẽn đầu hàng ở tầng TCP**:
 
-- HTTP/2.0 通过帧（frame）机制将每个资源分割成小块，并为每个资源分配唯一的流 ID，这样多个资源的数据可以在同一 TCP 连接中交错传输。
-- TCP 作为传输层协议，要求数据按顺序交付。如果某个数据包在传输过程中丢失，即使后续的数据包已经到达，也必须等待丢失的数据包重传后才能继续处理。这种传输层的顺序性导致了 **TCP 层的队头阻塞**。
-- 举例来说，如果 HTTP/2 的一个 TCP 数据包中携带了多个资源的数据（例如 JS 和 CSS），而该数据包丢失了，那么后续数据包中的所有资源数据都需要等待丢失的数据包重传回来，导致所有流（streams）都被阻塞。
+- HTTP/2.0 thông qua cơ chế frame chia mỗi tài nguyên thành các phần nhỏ và phân bổ stream ID duy nhất cho mỗi tài nguyên, để dữ liệu của nhiều tài nguyên có thể truyền đan xen trong cùng một kết nối TCP.
+- TCP với tư cách là giao thức tầng truyền tải yêu cầu giao dữ liệu theo thứ tự. Nếu một gói dữ liệu bị mất trong quá trình truyền, ngay cả khi các gói dữ liệu tiếp theo đã đến, vẫn phải đợi gói dữ liệu bị mất được truyền lại mới có thể tiếp tục xử lý. Tính thứ tự của tầng truyền tải này dẫn đến **tắc nghẽn đầu hàng ở tầng TCP**.
+- Ví dụ, nếu một gói dữ liệu TCP của HTTP/2 mang dữ liệu của nhiều tài nguyên (ví dụ JS và CSS), và gói dữ liệu đó bị mất, thì tất cả dữ liệu tài nguyên trong các gói dữ liệu tiếp theo đều cần đợi gói dữ liệu bị mất được truyền lại, dẫn đến tất cả các stream đều bị chặn.
 
-最后，来一张表格总结补充一下：
+Cuối cùng, hãy tổng kết bằng một bảng:
 
-| **方面**       | **HTTP/1.1 的队头阻塞**                  | **HTTP/2.0 的队头阻塞**                                          |
-| -------------- | ---------------------------------------- | ---------------------------------------------------------------- |
-| **层级**       | 应用层（HTTP 协议本身的限制）            | 传输层（TCP 协议的限制）                                         |
-| **根本原因**   | 无法多路复用，请求和响应必须按顺序传输   | TCP 要求数据包按顺序交付，丢包时阻塞整个连接                     |
-| **受影响范围** | 单个 HTTP 请求/响应会阻塞后续请求/响应。 | 单个 TCP 包丢失会影响所有 HTTP/2.0 流(依赖于同一个底层 TCP 连接) |
-| **缓解方法**   | 开启多个并行的 TCP 连接                  | 减少网络掉包或者使用基于 UDP 的 QUIC 协议                        |
-| **影响场景**   | 每次都会发生，尤其是大文件阻塞小文件时。 | 丢包率较高的网络环境下更容易发生。                               |
+| **Khía cạnh**              | **Tắc nghẽn đầu hàng HTTP/1.1**                                   | **Tắc nghẽn đầu hàng HTTP/2.0**                                                                 |
+| -------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Tầng**                   | Tầng ứng dụng (hạn chế của giao thức HTTP)                        | Tầng truyền tải (hạn chế của giao thức TCP)                                                     |
+| **Nguyên nhân gốc rễ**     | Không thể ghép kênh, yêu cầu và phản hồi phải truyền theo thứ tự  | TCP yêu cầu giao gói dữ liệu theo thứ tự, mất gói chặn toàn bộ kết nối                          |
+| **Phạm vi ảnh hưởng**      | Một yêu cầu/phản hồi HTTP sẽ chặn các yêu cầu/phản hồi tiếp theo. | Mất một gói TCP sẽ ảnh hưởng tất cả stream HTTP/2.0 (phụ thuộc vào cùng một kết nối TCP cơ bản) |
+| **Phương pháp giảm thiểu** | Mở nhiều kết nối TCP song song                                    | Giảm mất gói mạng hoặc dùng giao thức QUIC dựa trên UDP                                         |
+| **Tình huống ảnh hưởng**   | Xảy ra mỗi lần, đặc biệt khi file lớn chặn file nhỏ.              | Dễ xảy ra hơn trong môi trường mạng có tỷ lệ mất gói cao.                                       |
 
-### ⭐️HTTP 是不保存状态的协议, 如何保存用户状态?
+### ⭐️HTTP là giao thức không lưu trạng thái, làm sao để lưu trạng thái người dùng?
 
-HTTP 协议本身是 **无状态的 (stateless)** 。这意味着服务器默认情况下无法区分两个连续的请求是否来自同一个用户，或者同一个用户之前的操作是什么。这就像一个“健忘”的服务员，每次你跟他说话，他都不知道你是谁，也不知道你之前点过什么菜。
+Bản thân giao thức HTTP là **không có trạng thái (stateless)**. Điều này có nghĩa là máy chủ theo mặc định không thể phân biệt hai yêu cầu liên tiếp có đến từ cùng một người dùng không, hay cùng một người dùng đã thực hiện thao tác gì trước đó. Điều này giống như một người phục vụ "hay quên", mỗi lần bạn nói chuyện với anh ta, anh ta đều không biết bạn là ai, cũng không biết bạn đã gọi món gì trước đó.
 
-但在实际的 Web 应用中，比如网上购物、用户登录等场景，我们显然需要记住用户的状态（例如购物车里的商品、用户的登录信息）。为了解决这个问题，主要有以下几种常用机制：
+Nhưng trong ứng dụng Web thực tế, như mua hàng trực tuyến, đăng nhập người dùng, v.v., rõ ràng chúng ta cần nhớ trạng thái của người dùng (ví dụ như mặt hàng trong giỏ hàng, thông tin đăng nhập của người dùng). Để giải quyết vấn đề này, có một số cơ chế phổ biến sau:
 
-**方案一：Session (会话) 配合 Cookie (主流方式)：**
+**Phương án 1: Session (Phiên) kết hợp Cookie (Phương thức phổ biến):**
 
 ![](https://oss.javaguide.cn/github/javaguide/system-design/security/session-cookie-authentication-process.png)
 
-这可以说是最经典也是最常用的方法了。基本流程是这样的：
+Đây có thể nói là phương pháp cổ điển và thường dùng nhất. Quy trình cơ bản như sau:
 
-1. 用户向服务器发送用户名、密码、验证码用于登陆系统。
-2. 服务器验证通过后，会为这个用户创建一个专属的 Session 对象（可以理解为服务器上的一块内存，存放该用户的状态数据，如购物车、登录信息等）存储起来，并给这个 Session 分配一个唯一的 `SessionID`。
-3. 服务器通过 HTTP 响应头中的 `Set-Cookie` 指令，把这个 `SessionID` 发送给用户的浏览器。
-4. 浏览器接收到 `SessionID` 后，会将其以 Cookie 的形式保存在本地。当用户保持登录状态时，每次向该服务器发请求，浏览器都会自动带上这个存有 `SessionID` 的 Cookie。
-5. 服务器收到请求后，从 Cookie 中拿出 `SessionID`，就能找到之前保存的那个 Session 对象，从而知道这是哪个用户以及他之前的状态了。
+1. Người dùng gửi tên người dùng, mật khẩu, mã xác minh lên máy chủ để đăng nhập hệ thống.
+2. Sau khi máy chủ xác minh thành công, sẽ tạo cho người dùng này một đối tượng Session chuyên dụng (có thể hiểu là một vùng bộ nhớ trên máy chủ, lưu trữ dữ liệu trạng thái của người dùng đó như giỏ hàng, thông tin đăng nhập, v.v.) và lưu trữ lại, đồng thời phân bổ cho Session này một `SessionID` duy nhất.
+3. Máy chủ gửi `SessionID` này cho trình duyệt của người dùng thông qua chỉ thị `Set-Cookie` trong header phản hồi HTTP.
+4. Trình duyệt nhận được `SessionID`, sẽ lưu nó dưới dạng Cookie ở local. Khi người dùng duy trì trạng thái đăng nhập, mỗi lần gửi yêu cầu đến máy chủ đó, trình duyệt sẽ tự động đính kèm Cookie chứa `SessionID` này.
+5. Máy chủ nhận yêu cầu, lấy `SessionID` từ Cookie, có thể tìm thấy đối tượng Session đã lưu trước đó, từ đó biết đây là người dùng nào và trạng thái trước đó của họ.
 
-使用 Session 的时候需要注意下面几个点：
+Khi sử dụng Session, cần lưu ý một số điểm sau:
 
-- **客户端 Cookie 支持**：依赖 Session 的核心功能要确保用户浏览器开启了 Cookie。
-- **Session 过期管理**：合理设置 Session 的过期时间，平衡安全性和用户体验。
-- **Session ID 安全**：为包含 `SessionID` 的 Cookie 设置 `HttpOnly` 标志可以防止客户端脚本（如 JavaScript）窃取，设置 Secure 标志可以保证 `SessionID` 只在 HTTPS 连接下传输，增加安全性。
+- **Hỗ trợ Cookie phía client**: Chức năng cốt lõi phụ thuộc vào Session cần đảm bảo trình duyệt người dùng đã bật Cookie.
+- **Quản lý hết hạn Session**: Đặt thời gian hết hạn Session hợp lý, cân bằng giữa bảo mật và trải nghiệm người dùng.
+- **Bảo mật Session ID**: Đặt cờ `HttpOnly` cho Cookie chứa `SessionID` có thể ngăn script phía client (như JavaScript) đánh cắp, đặt cờ Secure có thể đảm bảo `SessionID` chỉ được truyền qua kết nối HTTPS, tăng cường bảo mật.
 
-Session 数据本身存储在服务器端。常见的存储方式有：
+Dữ liệu Session bản thân được lưu trữ ở phía máy chủ. Các phương thức lưu trữ phổ biến bao gồm:
 
-- **服务器内存**:实现简单，访问速度快，但服务器重启数据会丢失，且不利于多服务器间的负载均衡。这种方式适合简单且用户量不大的业务场景。
-- **数据库 (如 MySQL, PostgreSQL)**:数据持久化，但读写性能相对较低，一般不会使用这种方式。
-- **分布式缓存 (如 Redis)**:性能高，支持分布式部署，是目前大规模应用中非常主流的方案。
+- **Bộ nhớ máy chủ**: Triển khai đơn giản, tốc độ truy cập nhanh, nhưng dữ liệu sẽ mất khi máy chủ khởi động lại, và không có lợi cho cân bằng tải giữa nhiều máy chủ. Phương thức này phù hợp với các tình huống nghiệp vụ đơn giản có lượng người dùng không lớn.
+- **Cơ sở dữ liệu (như MySQL, PostgreSQL)**: Dữ liệu được lưu trữ bền vững, nhưng hiệu năng đọc ghi tương đối thấp, thường không dùng cách này.
+- **Bộ nhớ đệm phân tán (như Redis)**: Hiệu năng cao, hỗ trợ triển khai phân tán, là giải pháp rất phổ biến trong các ứng dụng quy mô lớn hiện nay.
 
-**方案二：当 Cookie 被禁用时：URL 重写 (URL Rewriting)**
+**Phương án 2: Khi Cookie bị tắt: URL Rewriting (Viết lại URL)**
 
-如果用户的浏览器禁用了 Cookie，或者某些情况下不便使用 Cookie，还有一种备选方案是 URL 重写。这种方式会将 `SessionID` 直接附加到 URL 的末尾，作为参数传递。例如：<http://www.example.com/page?sessionid=xxxxxx>。服务器端会解析 URL 中的 `sessionid` 参数来获取 `SessionID`，进而找到对应的 Session 数据。
+Nếu trình duyệt người dùng đã tắt Cookie, hoặc trong một số trường hợp không tiện dùng Cookie, còn có một phương án dự phòng là viết lại URL. Phương thức này sẽ gắn `SessionID` trực tiếp vào cuối URL, được truyền như một tham số. Ví dụ: <http://www.example.com/page?sessionid=xxxxxx>. Phía máy chủ sẽ phân tích tham số `sessionid` trong URL để lấy `SessionID`, từ đó tìm dữ liệu Session tương ứng.
 
-这种方法一般不会使用，存在以下缺点：
+Phương pháp này thường không được dùng, có các nhược điểm sau:
 
-- URL 会变长且不美观；
-- `SessionID` 暴露在 URL 中，安全性较低（容易被复制、分享或记录在日志中）；
-- 对搜索引擎优化 (SEO) 可能不友好。
+- URL sẽ dài hơn và không đẹp;
+- `SessionID` bị lộ trong URL, bảo mật thấp hơn (dễ bị sao chép, chia sẻ hoặc ghi vào log);
+- Có thể không thân thiện với SEO (Tối ưu hóa công cụ tìm kiếm).
 
-**方案三：Token-based 认证 (如 JWT - JSON Web Tokens)**
+**Phương án 3: Xác thực dựa trên Token (như JWT - JSON Web Tokens)**
 
-这是一种越来越流行的无状态认证方式，尤其适用于前后端分离的架构和微服务。
+Đây là một phương thức xác thực không trạng thái ngày càng phổ biến, đặc biệt phù hợp cho kiến trúc tách biệt front-end và back-end và microservices.
 
 ![ JWT 身份验证示意图](https://oss.javaguide.cn/github/javaguide/system-design/jwt/jwt-authentication%20process.png)
 
-以 JWT 为例（普通 Token 方案也可以），简化后的步骤如下
+Lấy JWT làm ví dụ (phương án Token thông thường cũng được), các bước đơn giản hóa như sau:
 
-1. 用户向服务器发送用户名、密码以及验证码用于登陆系统；
-2. 如果用户用户名、密码以及验证码校验正确的话，服务端会返回已经签名的 Token，也就是 JWT；
-3. 客户端收到 Token 后自己保存起来（比如浏览器的 `localStorage` ）；
-4. 用户以后每次向后端发请求都在 Header 中带上这个 JWT ；
-5. 服务端检查 JWT 并从中获取用户相关信息。
+1. Người dùng gửi tên người dùng, mật khẩu và mã xác minh lên máy chủ để đăng nhập hệ thống;
+2. Nếu tên người dùng, mật khẩu và mã xác minh của người dùng đều đúng, phía máy chủ sẽ trả về Token đã được ký, tức là JWT;
+3. Client nhận Token và tự lưu trữ (ví dụ `localStorage` của trình duyệt);
+4. Mỗi khi người dùng gửi yêu cầu đến backend sẽ đính kèm JWT này trong Header;
+5. Phía máy chủ kiểm tra JWT và lấy thông tin liên quan đến người dùng từ đó.
 
-JWT 详细介绍可以查看这两篇文章：
+Để biết giới thiệu chi tiết về JWT, có thể xem hai bài viết này:
 
-- [JWT 基础概念详解](https://javaguide.cn/system-design/security/jwt-intro.html)
-- [JWT 身份认证优缺点分析](https://javaguide.cn/system-design/security/advantages-and-disadvantages-of-jwt.html)
+- [Giải thích chi tiết các khái niệm cơ bản về JWT](https://javaguide.cn/system-design/security/jwt-intro.html)
+- [Phân tích ưu nhược điểm của xác thực JWT](https://javaguide.cn/system-design/security/advantages-and-disadvantages-of-jwt.html)
 
-总结来说，虽然 HTTP 本身是无状态的，但通过 Cookie + Session、URL 重写或 Token 等机制，我们能够有效地在 Web 应用中跟踪和管理用户状态。其中，**Cookie + Session 是最传统也最广泛使用的方式，而 Token-based 认证则在现代 Web 应用中越来越受欢迎。**
+Tóm lại, mặc dù HTTP bản thân không có trạng thái, nhưng thông qua các cơ chế như Cookie + Session, viết lại URL hoặc Token, chúng ta có thể theo dõi và quản lý trạng thái người dùng hiệu quả trong ứng dụng Web. Trong đó, **Cookie + Session là phương thức truyền thống và được sử dụng rộng rãi nhất, trong khi xác thực dựa trên Token ngày càng được ưa chuộng trong các ứng dụng Web hiện đại.**
 
-### URI 和 URL 的区别是什么?
+### Sự khác biệt giữa URI và URL là gì?
 
-- URI(Uniform Resource Identifier) 是统一资源标志符，可以唯一标识一个资源。
-- URL(Uniform Resource Locator) 是统一资源定位符，可以提供该资源的路径。它是一种具体的 URI，即 URL 可以用来标识一个资源，而且还指明了如何 locate 这个资源。
+- URI (Uniform Resource Identifier) là định danh tài nguyên thống nhất, có thể xác định duy nhất một tài nguyên.
+- URL (Uniform Resource Locator) là định vị tài nguyên thống nhất, có thể cung cấp đường dẫn của tài nguyên đó. Đây là một loại URI cụ thể, tức là URL có thể dùng để định danh một tài nguyên, và còn chỉ ra cách locate tài nguyên đó.
 
-URI 的作用像身份证号一样，URL 的作用更像家庭住址一样。URL 是一种具体的 URI，它不仅唯一标识资源，而且还提供了定位该资源的信息。
+Vai trò của URI giống như số chứng minh nhân dân, vai trò của URL giống như địa chỉ nhà hơn. URL là một loại URI cụ thể, nó không chỉ xác định duy nhất tài nguyên mà còn cung cấp thông tin để định vị tài nguyên đó.
 
-### Cookie 和 Session 有什么区别？
+### Cookie và Session có gì khác nhau?
 
-准确点来说，这个问题属于认证授权的范畴，你可以在 [认证授权基础概念详解](https://javaguide.cn/system-design/security/basis-of-authority-certification.html) 这篇文章中找到详细的答案。
+Nói chính xác hơn, câu hỏi này thuộc phạm vi xác thực và ủy quyền, bạn có thể tìm thấy câu trả lời chi tiết trong bài viết [Giải thích chi tiết các khái niệm cơ bản về xác thực và ủy quyền](https://javaguide.cn/system-design/security/basis-of-authority-certification.html) này.
 
-### ⭐️GET 和 POST 的区别
+### ⭐️Sự khác biệt giữa GET và POST
 
-这个问题在知乎上被讨论的挺火热的，地址：<https://www.zhihu.com/question/28586791> 。
+Câu hỏi này được thảo luận khá sôi nổi trên Zhihu, địa chỉ: <https://www.zhihu.com/question/28586791>.
 
-GET 和 POST 是 HTTP 协议中两种常用的请求方法，它们在不同的场景和目的下有不同的特点和用法。一般来说，可以从以下几个方面来区分二者（重点搞清两者在语义上的区别即可）：
+GET và POST là hai phương thức yêu cầu thường dùng trong giao thức HTTP, chúng có các đặc điểm và cách dùng khác nhau trong các tình huống và mục đích khác nhau. Nhìn chung, có thể phân biệt hai loại này từ các khía cạnh sau (trọng tâm là hiểu sự khác biệt về ngữ nghĩa giữa hai loại):
 
-- 语义（主要区别）：GET 通常用于获取或查询资源，而 POST 通常用于创建或修改资源。
-- 幂等：GET 请求是幂等的，即多次重复执行不会改变资源的状态，而 POST 请求是不幂等的，即每次执行可能会产生不同的结果或影响资源的状态。
-- 格式：GET 请求的参数通常放在 URL 中，形成查询字符串（querystring），而 POST 请求的参数通常放在请求体（body）中，可以有多种编码格式，如 application/x-www-form-urlencoded、multipart/form-data、application/json 等。GET 请求的 URL 长度受到浏览器和服务器的限制，而 POST 请求的 body 大小则没有明确的限制。不过，实际上 GET 请求也可以用 body 传输数据，只是并不推荐这样做，因为这样可能会导致一些兼容性或者语义上的问题。
-- 缓存：由于 GET 请求是幂等的，它可以被浏览器或其他中间节点（如代理、网关）缓存起来，以提高性能和效率。而 POST 请求则不适合被缓存，因为它可能有副作用，每次执行可能需要实时的响应。
-- 安全性：GET 请求和 POST 请求如果使用 HTTP 协议的话，那都不安全，因为 HTTP 协议本身是明文传输的，必须使用 HTTPS 协议来加密传输数据。另外，GET 请求相比 POST 请求更容易泄露敏感数据，因为 GET 请求的参数通常放在 URL 中。
+- Ngữ nghĩa (Sự khác biệt chính): GET thường dùng để lấy hoặc truy vấn tài nguyên, còn POST thường dùng để tạo hoặc sửa đổi tài nguyên.
+- Idempotent (Bất biến): Yêu cầu GET là idempotent, tức là thực thi nhiều lần sẽ không thay đổi trạng thái tài nguyên, còn yêu cầu POST không phải idempotent, tức là mỗi lần thực thi có thể tạo ra kết quả khác nhau hoặc ảnh hưởng đến trạng thái tài nguyên.
+- Định dạng: Tham số của yêu cầu GET thường được đặt trong URL, tạo thành chuỗi truy vấn (querystring), còn tham số của yêu cầu POST thường được đặt trong body yêu cầu, có thể có nhiều định dạng mã hóa như application/x-www-form-urlencoded, multipart/form-data, application/json, v.v. Độ dài URL của yêu cầu GET bị giới hạn bởi trình duyệt và máy chủ, còn kích thước body của yêu cầu POST không có giới hạn rõ ràng. Tuy nhiên, thực tế yêu cầu GET cũng có thể dùng body để truyền dữ liệu, chỉ là không được khuyến nghị làm vậy, vì điều này có thể gây ra một số vấn đề về tính tương thích hoặc ngữ nghĩa.
+- Bộ nhớ đệm: Vì yêu cầu GET là idempotent, nó có thể được trình duyệt hoặc các nút trung gian khác (như proxy, gateway) lưu vào bộ nhớ đệm để cải thiện hiệu năng và hiệu quả. Còn yêu cầu POST không phù hợp để lưu vào bộ nhớ đệm, vì nó có thể có tác dụng phụ, mỗi lần thực thi có thể cần phản hồi thời gian thực.
+- Bảo mật: Yêu cầu GET và yêu cầu POST nếu dùng giao thức HTTP đều không an toàn, vì bản thân giao thức HTTP là truyền văn bản thuần túy, phải dùng giao thức HTTPS để mã hóa truyền dữ liệu. Ngoài ra, yêu cầu GET so với yêu cầu POST dễ rò rỉ dữ liệu nhạy cảm hơn, vì tham số của yêu cầu GET thường được đặt trong URL.
 
-再次提示，重点搞清两者在语义上的区别即可，实际使用过程中，也是通过语义来区分使用 GET 还是 POST。不过，也有一些项目所有的请求都用 POST，这个并不是固定的，项目组达成共识即可。
+Nhắc lại, trọng tâm là hiểu sự khác biệt về ngữ nghĩa giữa hai loại, trong quá trình sử dụng thực tế, cũng dựa trên ngữ nghĩa để phân biệt dùng GET hay POST. Tuy nhiên, cũng có một số dự án dùng POST cho tất cả các yêu cầu, điều này không cố định, nhóm dự án đồng thuận là được.
 
 ## WebSocket
 
-### 什么是 WebSocket?
+### WebSocket là gì?
 
-WebSocket 是一种基于 TCP 连接的全双工通信协议，即客户端和服务器可以同时发送和接收数据。
+WebSocket là một giao thức giao tiếp song công đầy đủ dựa trên kết nối TCP, tức là client và máy chủ có thể đồng thời gửi và nhận dữ liệu.
 
-WebSocket 协议在 2008 年诞生，2011 年成为国际标准，几乎所有主流较新版本的浏览器都支持该协议。不过，WebSocket 不只能在基于浏览器的应用程序中使用，很多编程语言、框架和服务器都提供了 WebSocket 支持。
+Giao thức WebSocket ra đời năm 2008, trở thành tiêu chuẩn quốc tế năm 2011, hầu hết các trình duyệt phiên bản mới hơn chính thống đều hỗ trợ giao thức này. Tuy nhiên, WebSocket không chỉ có thể được dùng trong các ứng dụng dựa trên trình duyệt, nhiều ngôn ngữ lập trình, framework và máy chủ cũng cung cấp hỗ trợ WebSocket.
 
-WebSocket 协议本质上是应用层的协议，用于弥补 HTTP 协议在持久通信能力上的不足。客户端和服务器仅需一次握手，两者之间就直接可以创建持久性的连接，并进行双向数据传输。
+Bản chất của giao thức WebSocket là giao thức ở tầng ứng dụng, dùng để bù đắp sự thiếu sót của giao thức HTTP về khả năng giao tiếp bền vững. Client và máy chủ chỉ cần bắt tay một lần, giữa hai bên có thể tạo kết nối bền vững ngay lập tức, và thực hiện truyền dữ liệu hai chiều.
 
 ![Websocket 示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
 
-下面是 WebSocket 的常见应用场景：
+Dưới đây là các tình huống ứng dụng phổ biến của WebSocket:
 
-- 视频弹幕
-- 实时消息推送，详见[Web 实时消息推送详解](https://javaguide.cn/system-design/web-real-time-message-push.html)这篇文章
-- 实时游戏对战
-- 多用户协同编辑
-- 社交聊天
+- Barrage video
+- Đẩy tin nhắn thời gian thực, xem chi tiết bài viết [Giải thích chi tiết đẩy tin nhắn thời gian thực trên Web](https://javaguide.cn/system-design/web-real-time-message-push.html)
+- Game thời gian thực nhiều người chơi
+- Chỉnh sửa cộng tác nhiều người dùng
+- Chat mạng xã hội
 - ……
 
-### ⭐️WebSocket 和 HTTP 有什么区别？
+### ⭐️WebSocket và HTTP có gì khác nhau?
 
-WebSocket 和 HTTP 两者都是基于 TCP 的应用层协议，都可以在网络中传输数据。
+WebSocket và HTTP đều là giao thức tầng ứng dụng dựa trên TCP, đều có thể truyền dữ liệu trong mạng.
 
-下面是二者的主要区别：
+Dưới đây là những điểm khác biệt chính giữa hai loại:
 
-- WebSocket 是一种双向实时通信协议，而 HTTP 是一种单向通信协议。并且，HTTP 协议下的通信只能由客户端发起，服务器无法主动通知客户端。
-- WebSocket 使用 ws:// 或 wss://（使用 SSL/TLS 加密后的协议，类似于 HTTP 和 HTTPS 的关系） 作为协议前缀，HTTP 使用 http:// 或 https:// 作为协议前缀。
-- WebSocket 可以支持扩展，用户可以扩展协议，实现部分自定义的子协议，如支持压缩、加密等。
-- WebSocket 通信数据格式比较轻量，用于协议控制的数据包头部相对较小，网络开销小，而 HTTP 通信每次都要携带完整的头部，网络开销较大（HTTP/2.0 使用二进制帧进行数据传输，还支持头部压缩，减少了网络开销）。
+- WebSocket là giao thức giao tiếp thời gian thực hai chiều, trong khi HTTP là giao thức giao tiếp một chiều. Và trong giao tiếp giao thức HTTP chỉ có client mới có thể khởi tạo, máy chủ không thể chủ động thông báo cho client.
+- WebSocket sử dụng ws:// hoặc wss:// (giao thức sau khi mã hóa bằng SSL/TLS, tương tự như mối quan hệ giữa HTTP và HTTPS) làm tiền tố giao thức, HTTP sử dụng http:// hoặc https:// làm tiền tố giao thức.
+- WebSocket có thể hỗ trợ mở rộng, người dùng có thể mở rộng giao thức, triển khai một số giao thức con tùy chỉnh một phần như hỗ trợ nén, mã hóa, v.v.
+- Định dạng dữ liệu giao tiếp WebSocket khá nhẹ, phần đầu gói kiểm soát giao thức tương đối nhỏ, tải mạng nhỏ, còn mỗi giao tiếp HTTP đều phải mang header đầy đủ, tải mạng lớn hơn (HTTP/2.0 sử dụng khung nhị phân để truyền dữ liệu, hỗ trợ nén header, giảm tải mạng).
 
-### WebSocket 的工作过程是什么样的？
+### Quy trình làm việc của WebSocket là gì?
 
-WebSocket 的工作过程可以分为以下几个步骤：
+Quy trình làm việc của WebSocket có thể chia thành các bước sau:
 
-1. 客户端向服务器发送一个 HTTP 请求，请求头中包含 `Upgrade: websocket` 和 `Sec-WebSocket-Key` 等字段，表示要求升级协议为 WebSocket；
-2. 服务器收到这个请求后，会进行升级协议的操作，如果支持 WebSocket，它将回复一个 HTTP 101 状态码，响应头中包含 ，`Connection: Upgrade`和 `Sec-WebSocket-Accept: xxx` 等字段、表示成功升级到 WebSocket 协议。
-3. 客户端和服务器之间建立了一个 WebSocket 连接，可以进行双向的数据传输。数据以帧（frames）的形式进行传送，WebSocket 的每条消息可能会被切分成多个数据帧（最小单位）。发送端会将消息切割成多个帧发送给接收端，接收端接收消息帧，并将关联的帧重新组装成完整的消息。
-4. 客户端或服务器可以主动发送一个关闭帧，表示要断开连接。另一方收到后，也会回复一个关闭帧，然后双方关闭 TCP 连接。
+1. Client gửi một yêu cầu HTTP đến máy chủ, header yêu cầu chứa các trường như `Upgrade: websocket` và `Sec-WebSocket-Key`, biểu thị yêu cầu nâng cấp giao thức lên WebSocket;
+2. Máy chủ nhận yêu cầu này, sẽ thực hiện thao tác nâng cấp giao thức, nếu hỗ trợ WebSocket, sẽ phản hồi mã trạng thái HTTP 101, header phản hồi chứa `Connection: Upgrade` và `Sec-WebSocket-Accept: xxx`, v.v., biểu thị đã nâng cấp thành công sang giao thức WebSocket.
+3. Kết nối WebSocket được thiết lập giữa client và máy chủ, có thể truyền dữ liệu hai chiều. Dữ liệu được truyền dưới dạng frames (khung), mỗi tin nhắn WebSocket có thể bị cắt thành nhiều khung dữ liệu (đơn vị nhỏ nhất). Bên gửi sẽ cắt tin nhắn thành nhiều khung gửi cho bên nhận, bên nhận nhận các khung tin nhắn và lắp ráp lại các khung liên quan thành tin nhắn đầy đủ.
+4. Client hoặc máy chủ có thể chủ động gửi một khung đóng, biểu thị muốn ngắt kết nối. Sau khi bên kia nhận được, cũng sẽ phản hồi một khung đóng, sau đó hai bên đóng kết nối TCP.
 
-另外，建立 WebSocket 连接之后，通过心跳机制来保持 WebSocket 连接的稳定性和活跃性。
+Ngoài ra, sau khi thiết lập kết nối WebSocket, thông qua cơ chế heartbeat để duy trì sự ổn định và hoạt động của kết nối WebSocket.
 
-### ⭐️WebSocket 与短轮询、长轮询的区别
+### ⭐️Sự khác biệt giữa WebSocket và short polling, long polling
 
-这三种方式，都是为了解决“**客户端如何及时获取服务器最新数据，实现实时更新**”的问题。它们的实现方式和效率、实时性差异较大。
+Ba phương thức này đều nhằm giải quyết vấn đề "**làm thế nào để client kịp thời lấy dữ liệu mới nhất từ máy chủ, thực hiện cập nhật thời gian thực**". Phương thức triển khai và hiệu quả, sự khác biệt về tính thời gian thực của chúng khá lớn.
 
-**1.短轮询（Short Polling）**
+**1. Short Polling (Thăm dò ngắn)**
 
-- **原理**：客户端每隔固定时间（如 5 秒）发起一次 HTTP 请求，询问服务器是否有新数据。服务器收到请求后立即响应。
-- **优点**：实现简单，兼容性好，直接用常规 HTTP 请求即可。
-- **缺点**：
-  - **实时性一般**：消息可能在两次轮询间到达，用户需等到下次请求才知晓。
-  - **资源浪费大**：反复建立/关闭连接，且大多数请求收到的都是“无新消息”，极大增加服务器和网络压力。
+- **Nguyên lý**: Client cứ mỗi một khoảng thời gian cố định (như 5 giây) sẽ gửi một yêu cầu HTTP, hỏi máy chủ có dữ liệu mới không. Máy chủ nhận yêu cầu sẽ phản hồi ngay lập tức.
+- **Ưu điểm**: Triển khai đơn giản, khả năng tương thích tốt, dùng yêu cầu HTTP thông thường là được.
+- **Nhược điểm**:
+  - **Tính thời gian thực trung bình**: Tin nhắn có thể đến trong khoảng thời gian giữa hai lần thăm dò, người dùng cần đợi đến lần yêu cầu tiếp theo mới biết.
+  - **Lãng phí tài nguyên lớn**: Liên tục thiết lập/đóng kết nối, và hầu hết các yêu cầu nhận được đều là "không có tin nhắn mới", làm tăng đáng kể áp lực máy chủ và mạng.
 
-**2.长轮询（Long Polling）**
+**2. Long Polling (Thăm dò dài)**
 
-- **原理**：客户端发起请求后，若服务器暂时无新数据，则会保持连接，直到有新数据或超时才响应。客户端收到响应后立即发起下一次请求，实现“伪实时”。
-- **优点**：
-  - **实时性较好**：一旦有新数据可立即推送，无需等待下次定时请求。
-  - **空响应减少**：减少了无效的空响应，提升了效率。
-- **缺点**：
-  - **服务器资源占用高**：需长时间维护大量连接，消耗服务器线程/连接数。
-  - **资源浪费大**：每次响应后仍需重新建立连接，且依然基于 HTTP 单向请求-响应机制。
+- **Nguyên lý**: Client gửi yêu cầu, nếu máy chủ tạm thời không có dữ liệu mới, sẽ giữ kết nối, cho đến khi có dữ liệu mới hoặc hết thời gian mới phản hồi. Sau khi client nhận phản hồi sẽ ngay lập tức gửi yêu cầu tiếp theo, thực hiện "giả thời gian thực".
+- **Ưu điểm**:
+  - **Tính thời gian thực tốt hơn**: Một khi có dữ liệu mới có thể đẩy ngay, không cần đợi yêu cầu định kỳ tiếp theo.
+  - **Giảm phản hồi trống**: Giảm phản hồi rỗng không hiệu quả, cải thiện hiệu quả.
+- **Nhược điểm**:
+  - **Chiếm nhiều tài nguyên máy chủ**: Cần duy trì lâu dài nhiều kết nối, tiêu tốn luồng/số kết nối máy chủ.
+  - **Lãng phí tài nguyên lớn**: Vẫn cần thiết lập lại kết nối sau mỗi phản hồi, và vẫn dựa trên cơ chế yêu cầu-phản hồi một chiều HTTP.
 
 **3. WebSocket**
 
-- **原理**：客户端与服务器通过一次 HTTP Upgrade 握手后，建立一条持久的 TCP 连接。之后，双方可以随时、主动地发送数据，实现真正的全双工、低延迟通信。
-- **优点**：
-  - **实时性强**：数据可即时双向收发，延迟极低。
-  - **资源效率高**：连接持续，无需反复建立/关闭，减少资源消耗。
-  - **功能强大**：支持服务端主动推送消息、客户端主动发起通信。
-- **缺点**：
-  - **使用限制**：需要服务器和客户端都支持 WebSocket 协议。对连接管理有一定要求（如心跳保活、断线重连等）。
-  - **实现麻烦**：实现起来比短轮询和长轮询要更麻烦一些。
+- **Nguyên lý**: Client và máy chủ sau khi bắt tay HTTP Upgrade một lần, thiết lập một kết nối TCP bền vững. Sau đó, hai bên có thể bất cứ lúc nào, chủ động gửi dữ liệu, thực hiện giao tiếp song công đầy đủ, độ trễ thấp thực sự.
+- **Ưu điểm**:
+  - **Tính thời gian thực mạnh**: Dữ liệu có thể gửi nhận hai chiều ngay lập tức, độ trễ cực thấp.
+  - **Hiệu quả tài nguyên cao**: Kết nối duy trì liên tục, không cần thiết lập/đóng lại liên tục, giảm tiêu thụ tài nguyên.
+  - **Chức năng mạnh**: Hỗ trợ máy chủ chủ động đẩy tin nhắn, client chủ động khởi tạo giao tiếp.
+- **Nhược điểm**:
+  - **Giới hạn sử dụng**: Cần cả máy chủ và client đều hỗ trợ giao thức WebSocket. Có một số yêu cầu nhất định về quản lý kết nối (như heartbeat keepalive, tự động kết nối lại khi mất kết nối, v.v.).
+  - **Triển khai phức tạp hơn**: Triển khai phức tạp hơn so với short polling và long polling.
 
 ![Websocket 示意图](https://oss.javaguide.cn/github/javaguide/system-design/web-real-time-message-push/1460000042192394.png)
 
-### ⭐️SSE 与 WebSocket 有什么区别？
+### ⭐️SSE và WebSocket có gì khác nhau?
 
-SSE (Server-Sent Events) 和 WebSocket 都是用来实现服务器向浏览器实时推送消息的技术，让网页内容能自动更新，而不需要用户手动刷新。虽然目标相似，但它们在工作方式和适用场景上有几个关键区别：
+SSE (Server-Sent Events) và WebSocket đều là công nghệ để máy chủ đẩy tin nhắn thời gian thực đến trình duyệt, giúp nội dung trang web có thể tự động cập nhật mà không cần người dùng làm mới trang theo cách thủ công. Mặc dù mục tiêu tương tự, nhưng chúng có một số điểm khác biệt quan trọng về cách thức hoạt động và tình huống áp dụng:
 
-1. **通信方式:**
-   - **SSE:** **单向通信**。只有服务器能向客户端（浏览器）发送数据。客户端不能通过同一个连接向服务器发送数据（需要发起新的 HTTP 请求）。
-   - **WebSocket:** **双向通信 (全双工)**。客户端和服务器可以随时互相发送消息，实现真正的实时交互。
-2. **底层协议:**
-   - **SSE:** 基于**标准的 HTTP/HTTPS 协议**。它本质上是一个“长连接”的 HTTP 请求，服务器保持连接打开并持续发送事件流。不需要特殊的服务器或协议支持，现有的 HTTP 基础设施就能用。
-   - **WebSocket:** 使用**独立的 ws:// 或 wss:// 协议**。它需要通过一个特定的 HTTP "Upgrade" 请求来建立连接，并且服务器需要明确支持 WebSocket 协议来处理连接和消息帧。
-3. **实现复杂度和成本:**
-   - **SSE:** **实现相对简单**，主要在服务器端处理。浏览器端有标准的 EventSource API，使用方便。开发和维护成本较低。
-   - **WebSocket:** **稍微复杂一些**。需要服务器端专门处理 WebSocket 连接和协议，客户端也需要使用 WebSocket API。如果需要考虑兼容性、心跳、重连等，开发成本会更高。
-4. **断线重连:**
-   - **SSE:** **浏览器原生支持**。EventSource API 提供了自动断线重连的机制。
-   - **WebSocket:** **需要手动实现**。开发者需要自己编写逻辑来检测断线并进行重连尝试。
-5. **数据类型:**
-   - **SSE:** **主要设计用来传输文本** (UTF-8 编码)。如果需要传输二进制数据，需要先进行 Base64 等编码转换成文本。
-   - **WebSocket:** **原生支持传输文本和二进制数据**，无需额外编码。
+1. **Phương thức giao tiếp:**
+   - **SSE:** **Giao tiếp một chiều**. Chỉ có máy chủ có thể gửi dữ liệu đến client (trình duyệt). Client không thể gửi dữ liệu đến máy chủ thông qua cùng một kết nối (cần gửi yêu cầu HTTP mới).
+   - **WebSocket:** **Giao tiếp hai chiều (song công đầy đủ)**. Client và máy chủ có thể gửi tin nhắn cho nhau bất cứ lúc nào, thực hiện tương tác thời gian thực thực sự.
+2. **Giao thức tầng dưới:**
+   - **SSE:** Dựa trên **giao thức HTTP/HTTPS tiêu chuẩn**. Về bản chất đây là một yêu cầu HTTP "kết nối dài", máy chủ duy trì kết nối mở và liên tục gửi luồng sự kiện. Không cần hỗ trợ máy chủ hoặc giao thức đặc biệt, cơ sở hạ tầng HTTP hiện có là đủ.
+   - **WebSocket:** Sử dụng **giao thức ws:// hoặc wss:// độc lập**. Cần thiết lập kết nối thông qua yêu cầu HTTP "Upgrade" cụ thể, và máy chủ cần hỗ trợ giao thức WebSocket rõ ràng để xử lý kết nối và khung tin nhắn.
+3. **Độ phức tạp và chi phí triển khai:**
+   - **SSE:** **Triển khai tương đối đơn giản**, chủ yếu xử lý ở phía máy chủ. Phía trình duyệt có EventSource API tiêu chuẩn, tiện dùng. Chi phí phát triển và bảo trì thấp hơn.
+   - **WebSocket:** **Phức tạp hơn một chút**. Cần phía máy chủ xử lý đặc biệt kết nối WebSocket và giao thức, phía client cũng cần dùng WebSocket API. Nếu cần xem xét tính tương thích, heartbeat, kết nối lại, v.v., chi phí phát triển sẽ cao hơn.
+4. **Kết nối lại khi mất kết nối:**
+   - **SSE:** **Trình duyệt hỗ trợ native**. EventSource API cung cấp cơ chế tự động kết nối lại khi mất kết nối.
+   - **WebSocket:** **Cần triển khai thủ công**. Nhà phát triển cần tự viết logic để phát hiện mất kết nối và thực hiện thử kết nối lại.
+5. **Loại dữ liệu:**
+   - **SSE:** **Chủ yếu được thiết kế để truyền văn bản** (mã hóa UTF-8). Nếu cần truyền dữ liệu nhị phân, cần mã hóa trước thành văn bản như Base64, v.v.
+   - **WebSocket:** **Hỗ trợ native truyền dữ liệu văn bản và nhị phân**, không cần mã hóa thêm.
 
-为了提供更好的用户体验和利用其简单、高效、基于标准 HTTP 的特性，**Server-Sent Events (SSE) 是目前大型语言模型 API（如 OpenAI、DeepSeek 等）实现流式响应的常用甚至可以说是标准的技术选择**。
+Để cung cấp trải nghiệm người dùng tốt hơn và tận dụng tính đơn giản, hiệu quả, dựa trên HTTP tiêu chuẩn của nó, **Server-Sent Events (SSE) là lựa chọn công nghệ phổ biến thậm chí có thể nói là tiêu chuẩn hiện nay của API mô hình ngôn ngữ lớn (như OpenAI, DeepSeek, v.v.) để triển khai phản hồi streaming**.
 
-这里以 DeepSeek 为例，我们发送一个请求并打开浏览器控制台验证一下：
+Lấy DeepSeek làm ví dụ, hãy gửi một yêu cầu và mở console trình duyệt để xác minh:
 
 ![DeepSeek 响应标头](https://oss.javaguide.cn/github/javaguide/cs-basics/network/deepseek-sse.png)
 
 ![](https://oss.javaguide.cn/github/javaguide/cs-basics/network/deepseek-sse-eventstream.png)
 
-可以看到，响应头应里包含了 `text/event-stream`，说明使用的确实是 SSE。并且，响应数据也确实是持续分块传输。
+Có thể thấy, header phản hồi chứa `text/event-stream`, xác nhận rằng SSE đang được sử dụng. Và dữ liệu phản hồi đúng là được truyền theo từng đoạn liên tục.
 
 ## PING
 
-### PING 命令的作用是什么？
+### Tác dụng của lệnh PING là gì?
 
-PING 命令是一种常用的网络诊断工具，经常用来测试网络中主机之间的连通性和网络延迟。
+Lệnh PING là một công cụ chẩn đoán mạng thường dùng, thường được dùng để kiểm tra kết nối và độ trễ mạng giữa các host trong mạng.
 
-这里简单举一个例子，我们来 PING 一下百度。
+Đây là một ví dụ đơn giản, chúng ta PING Baidu.
 
 ```bash
 # 发送4个PING请求数据包到 www.baidu.com
@@ -478,67 +478,67 @@ PING www.a.shifen.com (14.119.104.189): 56 data bytes
 round-trip min/avg/max/stddev = 27.571/27.938/28.732/0.474 ms
 ```
 
-PING 命令的输出结果通常包括以下几部分信息：
+Kết quả đầu ra của lệnh PING thường bao gồm các phần thông tin sau:
 
-1. **ICMP Echo Request（请求报文）信息**：序列号、TTL（Time to Live）值。
-2. **目标主机的域名或 IP 地址**：输出结果的第一行。
-3. **往返时间（RTT，Round-Trip Time）**：从发送 ICMP Echo Request（请求报文）到接收到 ICMP Echo Reply（响应报文）的总时间，用来衡量网络连接的延迟。
-4. **统计结果（Statistics）**：包括发送的 ICMP 请求数据包数量、接收到的 ICMP 响应数据包数量、丢包率、往返时间（RTT）的最小、平均、最大和标准偏差值。
+1. **Thông tin ICMP Echo Request (Bản tin yêu cầu)**: Số thứ tự, giá trị TTL (Time to Live).
+2. **Tên miền hoặc địa chỉ IP của host đích**: Dòng đầu tiên của kết quả đầu ra.
+3. **Thời gian khứ hồi (RTT, Round-Trip Time)**: Tổng thời gian từ khi gửi ICMP Echo Request (bản tin yêu cầu) đến khi nhận ICMP Echo Reply (bản tin phản hồi), dùng để đo lường độ trễ kết nối mạng.
+4. **Kết quả thống kê (Statistics)**: Bao gồm số lượng gói dữ liệu ICMP yêu cầu được gửi, số lượng gói dữ liệu phản hồi ICMP được nhận, tỷ lệ mất gói, giá trị nhỏ nhất, trung bình, lớn nhất và độ lệch chuẩn của thời gian khứ hồi (RTT).
 
-如果 PING 对应的目标主机无法得到正确的响应，则表明这两个主机之间的连通性存在问题（有些主机或网络管理员可能禁用了对 ICMP 请求的回复，这样也会导致无法得到正确的响应）。如果往返时间（RTT）过高，则表明网络延迟过高。
+Nếu PING đến host đích tương ứng không nhận được phản hồi đúng, điều đó cho thấy kết nối giữa hai host này có vấn đề (một số host hoặc quản trị viên mạng có thể đã tắt tính năng phản hồi yêu cầu ICMP, điều này cũng có thể dẫn đến không nhận được phản hồi đúng). Nếu thời gian khứ hồi (RTT) quá cao, cho thấy độ trễ mạng quá cao.
 
-### PING 命令的工作原理是什么？
+### Nguyên lý hoạt động của lệnh PING là gì?
 
-PING 基于网络层的 **ICMP（Internet Control Message Protocol，互联网控制报文协议）**，其主要原理就是通过在网络上发送和接收 ICMP 报文实现的。
+PING dựa trên **ICMP (Internet Control Message Protocol - Giao thức thông báo kiểm soát Internet)** ở tầng mạng, nguyên lý chính là thực hiện thông qua việc gửi và nhận bản tin ICMP trên mạng.
 
-ICMP 报文中包含了类型字段，用于标识 ICMP 报文类型。ICMP 报文的类型有很多种，但大致可以分为两类：
+Bản tin ICMP chứa trường kiểu, dùng để xác định loại bản tin ICMP. Có nhiều loại bản tin ICMP, nhưng đại thể có thể chia thành hai loại:
 
-- **查询报文类型**：向目标主机发送请求并期望得到响应。
-- **差错报文类型**：向源主机发送错误信息，用于报告网络中的错误情况。
+- **Loại bản tin truy vấn**: Gửi yêu cầu đến host đích và mong đợi nhận được phản hồi.
+- **Loại bản tin lỗi**: Gửi thông tin lỗi đến host nguồn, dùng để báo cáo các tình huống lỗi trong mạng.
 
-PING 用到的 ICMP Echo Request（类型为 8 ） 和 ICMP Echo Reply（类型为 0） 属于查询报文类型 。
+ICMP Echo Request (kiểu 8) và ICMP Echo Reply (kiểu 0) được PING sử dụng thuộc loại bản tin truy vấn.
 
-- PING 命令会向目标主机发送 ICMP Echo Request。
-- 如果两个主机的连通性正常，目标主机会返回一个对应的 ICMP Echo Reply。
+- Lệnh PING sẽ gửi ICMP Echo Request đến host đích.
+- Nếu kết nối giữa hai host bình thường, host đích sẽ trả về một ICMP Echo Reply tương ứng.
 
 ## DNS
 
-### DNS 的作用是什么？
+### Tác dụng của DNS là gì?
 
-DNS（Domain Name System）域名管理系统，是当用户使用浏览器访问网址之后，使用的第一个重要协议。DNS 要解决的是**域名和 IP 地址的映射问题**。
+DNS (Domain Name System - Hệ thống tên miền) là giao thức quan trọng đầu tiên được dùng sau khi người dùng dùng trình duyệt truy cập địa chỉ web. DNS cần giải quyết **vấn đề ánh xạ giữa tên miền và địa chỉ IP**.
 
 ![DNS:域名系统](https://oss.javaguide.cn/github/javaguide/cs-basics/network/dns-overview.png)
 
-在一台电脑上，可能存在浏览器 DNS 缓存，操作系统 DNS 缓存，路由器 DNS 缓存。如果以上缓存都查询不到，那么 DNS 就闪亮登场了。
+Trên một máy tính, có thể tồn tại bộ nhớ đệm DNS của trình duyệt, bộ nhớ đệm DNS của hệ điều hành, bộ nhớ đệm DNS của router. Nếu tất cả các bộ nhớ đệm trên đều không tìm thấy, thì DNS sẽ được sử dụng.
 
-目前 DNS 的设计采用的是分布式、层次数据库结构，**DNS 是应用层协议，它可以在 UDP 或 TCP 协议之上运行，端口为 53** 。
+Hiện nay thiết kế của DNS sử dụng cấu trúc cơ sở dữ liệu phân tán, phân cấp, **DNS là giao thức tầng ứng dụng, có thể chạy trên giao thức UDP hoặc TCP, cổng 53**.
 
-### DNS 服务器有哪些？根服务器有多少个？
+### DNS có những máy chủ nào? Root server có bao nhiêu cái?
 
-DNS 服务器自底向上可以依次分为以下几个层级(所有 DNS 服务器都属于以下四个类别之一):
+Máy chủ DNS từ dưới lên trên có thể được phân chia thành các cấp độ sau (tất cả máy chủ DNS đều thuộc một trong bốn loại sau):
 
-- 根 DNS 服务器。根 DNS 服务器提供 TLD 服务器的 IP 地址。目前世界上只有 13 组根服务器，我国境内目前仍没有根服务器。
-- 顶级域 DNS 服务器（TLD 服务器）。顶级域是指域名的后缀，如`com`、`org`、`net`和`edu`等。国家也有自己的顶级域，如`uk`、`fr`和`ca`。TLD 服务器提供了权威 DNS 服务器的 IP 地址。
-- 权威 DNS 服务器。在因特网上具有公共可访问主机的每个组织机构必须提供公共可访问的 DNS 记录，这些记录将这些主机的名字映射为 IP 地址。
-- 本地 DNS 服务器。每个 ISP（互联网服务提供商）都有一个自己的本地 DNS 服务器。当主机发出 DNS 请求时，该请求被发往本地 DNS 服务器，它起着代理的作用，并将该请求转发到 DNS 层次结构中。严格说来，不属于 DNS 层级结构
+- Root DNS server. Root DNS server cung cấp địa chỉ IP của máy chủ TLD. Hiện tại trên thế giới chỉ có 13 nhóm root server, trong lãnh thổ Trung Quốc hiện vẫn chưa có root server.
+- Máy chủ DNS tên miền cấp cao nhất (máy chủ TLD). Tên miền cấp cao nhất là hậu tố của tên miền, như `com`, `org`, `net`, `edu`, v.v. Các quốc gia cũng có tên miền cấp cao nhất riêng, như `uk`, `fr`, `ca`. Máy chủ TLD cung cấp địa chỉ IP của máy chủ DNS có thẩm quyền.
+- Máy chủ DNS có thẩm quyền. Mỗi tổ chức có host có thể truy cập công khai trên Internet phải cung cấp bản ghi DNS có thể truy cập công khai, những bản ghi này ánh xạ tên của các host đó thành địa chỉ IP.
+- Máy chủ DNS cục bộ. Mỗi ISP (nhà cung cấp dịch vụ Internet) đều có máy chủ DNS cục bộ của riêng mình. Khi host gửi yêu cầu DNS, yêu cầu đó được gửi đến máy chủ DNS cục bộ, nó đóng vai trò như proxy, và chuyển tiếp yêu cầu đó vào cấu trúc phân cấp DNS. Nói chính xác, không thuộc cấu trúc phân cấp DNS.
 
-世界上并不是只有 13 台根服务器，这是很多人普遍的误解，网上很多文章也是这么写的。实际上，现在根服务器数量远远超过这个数量。最初确实是为 DNS 根服务器分配了 13 个 IP 地址，每个 IP 地址对应一个不同的根 DNS 服务器。然而，由于互联网的快速发展和增长，这个原始的架构变得不太适应当前的需求。为了提高 DNS 的可靠性、安全性和性能，目前这 13 个 IP 地址中的每一个都有多个服务器，截止到 2023 年底，所有根服务器之和达到了 1700 多台，未来还会继续增加。
+Trên thế giới không chỉ có 13 root server, đây là sự hiểu lầm phổ biến của nhiều người, nhiều bài viết trên mạng cũng viết như vậy. Thực ra, số lượng root server hiện nay vượt xa con số này. Ban đầu, 13 địa chỉ IP được phân bổ cho root server DNS, mỗi địa chỉ IP tương ứng với một root DNS server khác nhau. Tuy nhiên, do sự phát triển và tăng trưởng nhanh chóng của Internet, kiến trúc ban đầu này không còn phù hợp với nhu cầu hiện tại. Để cải thiện độ tin cậy, bảo mật và hiệu năng của DNS, hiện tại mỗi địa chỉ IP trong 13 địa chỉ này đều có nhiều máy chủ, tính đến cuối năm 2023, tổng số tất cả root server đã đạt hơn 1700 cái, và sẽ tiếp tục tăng trong tương lai.
 
-### ⭐️DNS 解析的过程是什么样的？
+### ⭐️Quy trình phân giải DNS là gì?
 
-整个过程的步骤比较多，我单独写了一篇文章详细介绍：[DNS 域名系统详解（应用层）](https://javaguide.cn/cs-basics/network/dns.html) 。
+Toàn bộ quy trình có khá nhiều bước, tôi đã viết riêng một bài viết để giới thiệu chi tiết: [Giải thích chi tiết hệ thống tên miền DNS (Tầng ứng dụng)](https://javaguide.cn/cs-basics/network/dns.html).
 
-### DNS 劫持了解吗？如何应对？
+### DNS hijacking là gì? Cách ứng phó?
 
-DNS 劫持是一种网络攻击，它通过修改 DNS 服务器的解析结果，使用户访问的域名指向错误的 IP 地址，从而导致用户无法访问正常的网站，或者被引导到恶意的网站。DNS 劫持有时也被称为 DNS 重定向、DNS 欺骗或 DNS 污染。
+DNS hijacking là một cuộc tấn công mạng, nó sửa đổi kết quả phân giải của máy chủ DNS để cho tên miền mà người dùng truy cập trỏ đến địa chỉ IP sai, từ đó khiến người dùng không thể truy cập trang web bình thường, hoặc bị dẫn đến trang web độc hại. DNS hijacking đôi khi còn được gọi là DNS redirect, DNS spoofing hoặc DNS pollution.
 
-## 参考
+## Tài liệu tham khảo
 
-- 《图解 HTTP》
-- 《计算机网络自顶向下方法》（第七版）
-- 详解 HTTP/2.0 及 HTTPS 协议：<https://juejin.cn/post/7034668672262242318>
-- HTTP 请求头字段大全| HTTP Request Headers：<https://www.flysnow.org/tools/table/http-request-headers/>
-- HTTP1、HTTP2、HTTP3：<https://juejin.cn/post/6855470356657307662>
-- 如何看待 HTTP/3 ？ - 车小胖的回答 - 知乎: <https://www.zhihu.com/question/302412059/answer/533223530>
+- "Giải thích HTTP bằng hình ảnh" (《图解 HTTP》)
+- "Mạng máy tính: Phương pháp từ trên xuống" (《计算机网络：自顶向下方法》) (Phiên bản thứ 7)
+- Phân tích chi tiết HTTP/2.0 và giao thức HTTPS: <https://juejin.cn/post/7034668672262242318>
+- Tổng hợp đầy đủ các trường header yêu cầu HTTP | HTTP Request Headers: <https://www.flysnow.org/tools/table/http-request-headers/>
+- HTTP1, HTTP2, HTTP3: <https://juejin.cn/post/6855470356657307662>
+- Cách nhìn nhận HTTP/3? - Trả lời của Che Xiaopang - Zhihu: <https://www.zhihu.com/question/302412059/answer/533223530>
 
 <!-- @include: @article-footer.snippet.md -->

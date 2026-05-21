@@ -1,29 +1,29 @@
 ---
-title: 剑指offer部分编程题
-description: 选编《剑指 Offer》常见编程题，给出递归与迭代等多种思路与示例，实现对高频题型的高效复盘。
+title: Một số bài lập trình trong Kiếm chỉ Offer
+description: Tuyển chọn các bài lập trình phổ biến trong "Kiếm chỉ Offer", đưa ra nhiều hướng giải quyết như đệ quy và vòng lặp cùng ví dụ minh họa, giúp ôn tập hiệu quả các dạng bài hay gặp.
 category: 计算机基础
 tag:
-  - 算法
+  - Thuật toán
 head:
   - - meta
     - name: keywords
       content: 剑指Offer,斐波那契,递归,迭代,链表,数组,面试题
 ---
 
-## 斐波那契数列
+## Dãy số Fibonacci
 
-**题目描述：**
+**Mô tả bài toán:**
 
-大家都知道斐波那契数列，现在要求输入一个整数 n，请你输出斐波那契数列的第 n 项。
+Mọi người đều biết dãy số Fibonacci. Bây giờ cho một số nguyên n, hãy xuất ra phần tử thứ n của dãy Fibonacci.
 n<=39
 
-**问题分析：**
+**Phân tích bài toán:**
 
-可以肯定的是这一题通过递归的方式是肯定能做出来，但是这样会有一个很大的问题，那就是递归大量的重复计算会导致内存溢出。另外可以使用迭代法，用 fn1 和 fn2 保存计算过程中的结果，并复用起来。下面我会把两个方法示例代码都给出来并给出两个方法的运行时间对比。
+Có thể chắc chắn rằng bài này dùng phương pháp đệ quy là hoàn toàn có thể giải được, nhưng sẽ có một vấn đề lớn là đệ quy tính toán lặp lại nhiều lần sẽ dẫn đến tràn bộ nhớ. Ngoài ra có thể dùng phương pháp lặp, dùng fn1 và fn2 để lưu kết quả trong quá trình tính toán và tái sử dụng. Dưới đây tôi sẽ đưa ra ví dụ code của cả hai phương pháp và so sánh thời gian chạy.
 
-**示例代码：**
+**Ví dụ code:**
 
-采用迭代法：
+Dùng phương pháp lặp:
 
 ```java
 int Fibonacci(int number) {
@@ -43,7 +43,7 @@ int Fibonacci(int number) {
 }
 ```
 
-采用递归：
+Dùng đệ quy:
 
 ```java
 public int Fibonacci(int n) {
@@ -58,30 +58,30 @@ public int Fibonacci(int n) {
 }
 ```
 
-## 跳台阶问题
+## Bài toán nhảy bậc thang
 
-**题目描述：**
+**Mô tả bài toán:**
 
-一只青蛙一次可以跳上 1 级台阶，也可以跳上 2 级。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+Một con ếch mỗi lần có thể nhảy lên 1 bậc thang hoặc 2 bậc. Tìm tổng số cách để con ếch nhảy lên một cầu thang n bậc.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-正常分析法：
+Phân tích thông thường:
 
-> a.如果两种跳法，1 阶或者 2 阶，那么假定第一次跳的是一阶，那么剩下的是 n-1 个台阶，跳法是 f(n-1);
-> b.假定第一次跳的是 2 阶，那么剩下的是 n-2 个台阶，跳法是 f(n-2)
-> c.由 a，b 假设可以得出总跳法为: f(n) = f(n-1) + f(n-2)
-> d.然后通过实际的情况可以得出：只有一阶的时候 f(1) = 1 ,只有两阶的时候可以有 f(2) = 2
+> a. Nếu có hai cách nhảy là 1 bậc hoặc 2 bậc, giả sử lần đầu nhảy 1 bậc, thì còn lại n-1 bậc, số cách là f(n-1);
+> b. Giả sử lần đầu nhảy 2 bậc, thì còn lại n-2 bậc, số cách là f(n-2)
+> c. Từ giả thiết a, b suy ra tổng số cách: f(n) = f(n-1) + f(n-2)
+> d. Từ thực tế: khi chỉ có 1 bậc thì f(1) = 1, khi chỉ có 2 bậc thì f(2) = 2
 
-找规律分析法：
+Phân tích tìm quy luật:
 
-> f(1) = 1, f(2) = 2, f(3) = 3, f(4) = 5， 可以总结出 f(n) = f(n-1) + f(n-2)的规律。但是为什么会出现这样的规律呢？假设现在 6 个台阶，我们可以从第 5 跳一步到 6，这样的话有多少种方案跳到 5 就有多少种方案跳到 6，另外我们也可以从 4 跳两步跳到 6，跳到 4 有多少种方案的话，就有多少种方案跳到 6，其他的不能从 3 跳到 6 什么的啦，所以最后就是 f(6) = f(5) + f(4)；这样子也很好理解变态跳台阶的问题了。
+> f(1) = 1, f(2) = 2, f(3) = 3, f(4) = 5, có thể tổng kết được quy luật f(n) = f(n-1) + f(n-2). Nhưng tại sao lại có quy luật như vậy? Giả sử có 6 bậc thang, chúng ta có thể nhảy một bước từ bậc 5 lên bậc 6, như vậy có bao nhiêu cách nhảy đến bậc 5 thì có bấy nhiêu cách nhảy đến bậc 6. Ngoài ra cũng có thể nhảy hai bước từ bậc 4 lên bậc 6, có bao nhiêu cách nhảy đến bậc 4 thì có bấy nhiêu cách nhảy đến bậc 6. Không thể nhảy từ bậc 3 lên bậc 6 hay gì đó nữa, nên cuối cùng f(6) = f(5) + f(4). Cách hiểu này cũng giúp hiểu dễ hơn bài toán nhảy bậc thang biến thể.
 
-**所以这道题其实就是斐波那契数列的问题。**
+**Vậy bài toán này thực ra là bài toán dãy số Fibonacci.**
 
-代码只需要在上一题的代码稍做修改即可。和上一题唯一不同的就是这一题的初始元素变为 1 2 3 5 8……而上一题为 1 1 2 3 5 ……。另外这一题也可以用递归做，但是递归效率太低，所以我这里只给出了迭代方式的代码。
+Code chỉ cần sửa đổi nhỏ từ code bài trước. Điểm khác nhau duy nhất với bài trước là dãy khởi đầu của bài này là 1 2 3 5 8... còn bài trước là 1 1 2 3 5.... Ngoài ra bài này cũng có thể dùng đệ quy, nhưng hiệu suất đệ quy quá thấp, nên tôi chỉ đưa ra code theo phương pháp lặp.
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 int jumpFloor(int number) {
@@ -104,26 +104,26 @@ int jumpFloor(int number) {
 }
 ```
 
-## 变态跳台阶问题
+## Bài toán nhảy bậc thang biến thể
 
-**题目描述：**
+**Mô tả bài toán:**
 
-一只青蛙一次可以跳上 1 级台阶，也可以跳上 2 级……它也可以跳上 n 级。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+Một con ếch mỗi lần có thể nhảy lên 1 bậc thang, 2 bậc... cũng có thể nhảy lên n bậc. Tìm tổng số cách để con ếch nhảy lên một cầu thang n bậc.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-假设 n>=2，第一步有 n 种跳法：跳 1 级、跳 2 级、到跳 n 级
-跳 1 级，剩下 n-1 级，则剩下跳法是 f(n-1)
-跳 2 级，剩下 n-2 级，则剩下跳法是 f(n-2)
+Giả sử n>=2, bước đầu có n cách nhảy: nhảy 1 bậc, nhảy 2 bậc, đến nhảy n bậc
+Nhảy 1 bậc, còn n-1 bậc, số cách còn lại là f(n-1)
+Nhảy 2 bậc, còn n-2 bậc, số cách còn lại là f(n-2)
 ……
-跳 n-1 级，剩下 1 级，则剩下跳法是 f(1)
-跳 n 级，剩下 0 级，则剩下跳法是 f(0)
-所以在 n>=2 的情况下：
+Nhảy n-1 bậc, còn 1 bậc, số cách còn lại là f(1)
+Nhảy n bậc, còn 0 bậc, số cách còn lại là f(0)
+Vậy khi n>=2:
 f(n)=f(n-1)+f(n-2)+...+f(1)
-因为 f(n-1)=f(n-2)+f(n-3)+...+f(1)
-所以 f(n)=2\*f(n-1) 又 f(1)=1,所以可得**f(n)=2^(number-1)**
+Vì f(n-1)=f(n-2)+f(n-3)+...+f(1)
+Nên f(n)=2\*f(n-1), lại có f(1)=1, suy ra **f(n)=2^(number-1)**
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 int JumpFloorII(int number) {
@@ -131,13 +131,13 @@ int JumpFloorII(int number) {
 }
 ```
 
-**补充：**
+**Bổ sung:**
 
-java 中有三种移位运算符：
+Trong Java có ba toán tử dịch bit:
 
-1. “<<” : **左移运算符**，等同于乘 2 的 n 次方
-2. “>>”: **右移运算符**，等同于除 2 的 n 次方
-3. “>>>” : **无符号右移运算符**，不管移动前最高位是 0 还是 1，右移后左侧产生的空位部分都以 0 来填充。与>>类似。
+1. "<<" : **Toán tử dịch trái**, tương đương với nhân với 2 mũ n
+2. ">>": **Toán tử dịch phải**, tương đương với chia cho 2 mũ n
+3. ">>>" : **Toán tử dịch phải không dấu**, bất kể bit cao nhất trước khi dịch là 0 hay 1, sau khi dịch phần trống bên trái đều được lấp bằng 0. Tương tự >> nhưng không xét dấu.
 
 ```java
 int a = 16;
@@ -145,21 +145,21 @@ int b = a << 2;//左移2，等同于16 * 2的2次方，也就是16 * 4
 int c = a >> 2;//右移2，等同于16 / 2的2次方，也就是16 / 4
 ```
 
-## 二维数组查找
+## Tìm kiếm trong mảng hai chiều
 
-**题目描述：**
+**Mô tả bài toán:**
 
-在一个二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+Trong một mảng hai chiều, mỗi hàng được sắp xếp theo thứ tự tăng dần từ trái sang phải, mỗi cột được sắp xếp theo thứ tự tăng dần từ trên xuống dưới. Hãy viết một hàm, nhận vào một mảng hai chiều như vậy và một số nguyên, xác định xem mảng có chứa số nguyên đó không.
 
-**问题解析：**
+**Phân tích bài toán:**
 
-这一道题还是比较简单的，我们需要考虑的是如何做，效率最快。这里有一种很好理解的思路：
+Bài này tương đối đơn giản, điều chúng ta cần suy nghĩ là làm thế nào để nhanh nhất. Dưới đây là một hướng suy nghĩ khá dễ hiểu:
 
-> 矩阵是有序的，从左下角来看，向上数字递减，向右数字递增，
-> 因此从左下角开始查找，当要查找数字比左下角数字大时。右移
-> 要查找数字比左下角数字小时，上移。这样找的速度最快。
+> Ma trận đã có thứ tự, nhìn từ góc dưới bên trái, số nhỏ hơn khi đi lên, số lớn hơn khi đi sang phải,
+> vì vậy bắt đầu tìm từ góc dưới bên trái, khi số cần tìm lớn hơn số ở góc dưới bên trái, dịch sang phải;
+> khi số cần tìm nhỏ hơn số ở góc dưới bên trái, dịch lên trên. Tìm kiếm theo cách này là nhanh nhất.
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 public boolean Find(int target, int [][] array) {
@@ -180,21 +180,21 @@ public boolean Find(int target, int [][] array) {
 }
 ```
 
-## 替换空格
+## Thay thế khoảng trắng
 
-**题目描述：**
+**Mô tả bài toán:**
 
-请实现一个函数，将一个字符串中的空格替换成“%20”。例如，当字符串为 We Are Happy.则经过替换之后的字符串为 We%20Are%20Happy。
+Hãy viết một hàm thay thế các khoảng trắng trong một chuỗi bằng "%20". Ví dụ, khi chuỗi là We Are Happy thì sau khi thay thế chuỗi trở thành We%20Are%20Happy.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-这道题不难，我们可以通过循环判断字符串的字符是否为空格，是的话就利用 append()方法添加追加“%20”，否则还是追加原字符。
+Bài này không khó, chúng ta có thể dùng vòng lặp kiểm tra từng ký tự trong chuỗi có phải khoảng trắng không, nếu có thì dùng phương thức append() để nối thêm "%20", ngược lại thì nối ký tự gốc.
 
-或者最简单的方法就是利用：replaceAll(String regex,String replacement)方法了，一行代码就可以解决。
+Hoặc cách đơn giản nhất là dùng: replaceAll(String regex,String replacement), một dòng code là giải quyết xong.
 
-**示例代码：**
+**Ví dụ code:**
 
-常规做法：
+Cách thông thường:
 
 ```java
 public String replaceSpace(StringBuffer str) {
@@ -211,34 +211,34 @@ public String replaceSpace(StringBuffer str) {
 }
 ```
 
-一行代码解决：
+Giải quyết bằng một dòng code:
 
 ```java
 public String replaceSpace(StringBuffer str) {
     //return str.toString().replaceAll(" ", "%20");
     //public String replaceAll(String regex,String replacement)
     //用给定的替换替换与给定的regular expression匹配的此字符串的每个子字符串。
-    //\ 转义字符. 如果你要使用 "\" 本身, 则应该使用 "\\". String类型中的空格用“\s”表示，所以我这里猜测"\\s"就是代表空格的意思
+    //\ 转义字符. 如果你要使用 "\" 本身, 则应该使用 "\\". String类型中的空格用"\s"表示，所以我这里猜测"\\s"就是代表空格的意思
     return str.toString().replaceAll("\\s", "%20");
 }
 ```
 
-## 数值的整数次方
+## Lũy thừa nguyên của một số
 
-**题目描述：**
+**Mô tả bài toán:**
 
-给定一个 double 类型的浮点数 base 和 int 类型的整数 exponent。求 base 的 exponent 次方。
+Cho một số thực dấu phẩy động kiểu double là base và một số nguyên kiểu int là exponent. Tính base mũ exponent.
 
-**问题解析：**
+**Phân tích bài toán:**
 
-这道题算是比较麻烦和难一点的一个了。我这里采用的是**二分幂**思想，当然也可以采用**快速幂**。
-更具剑指 offer 书中细节，该题的解题思路如下：1.当底数为 0 且指数<0 时，会出现对 0 求倒数的情况，需进行错误处理，设置一个全局变量； 2.判断底数是否等于 0，由于 base 为 double 型，所以不能直接用==判断 3.优化求幂函数（二分幂）。
-当 n 为偶数，a^n =（a^n/2）_（a^n/2）；
-当 n 为奇数，a^n = a^[(n-1)/2]_ a^[(n-1)/2] \* a。时间复杂度 O(logn)
+Bài này tương đối phức tạp và khó hơn một chút. Ở đây tôi dùng tư tưởng **chia đôi lũy thừa**, tất nhiên cũng có thể dùng **lũy thừa nhanh**.
+Theo chi tiết trong sách Kiếm chỉ Offer, hướng giải của bài toán này như sau: 1. Khi cơ số bằng 0 và số mũ < 0, sẽ xảy ra tình huống tính nghịch đảo của 0, cần xử lý lỗi, đặt một biến toàn cục; 2. Kiểm tra xem cơ số có bằng 0 không, vì base là kiểu double nên không thể dùng == trực tiếp để so sánh; 3. Tối ưu hàm tính lũy thừa (chia đôi).
+Khi n là số chẵn, a^n = (a^n/2)_(a^n/2);
+Khi n là số lẻ, a^n = a^[(n-1)/2] _ a^[(n-1)/2] \* a. Độ phức tạp thời gian O(logn)
 
-**时间复杂度**：O(logn)
+**Độ phức tạp thời gian**: O(logn)
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 public class Solution {
@@ -287,7 +287,7 @@ public class Solution {
 }
 ```
 
-当然这一题也可以采用笨方法：累乘。不过这种方法的时间复杂度为 O（n），这样没有前一种方法效率高。
+Tất nhiên bài này cũng có thể dùng cách đơn giản: nhân liên tiếp. Tuy nhiên độ phức tạp thời gian của cách này là O(n), không hiệu quả bằng cách trước.
 
 ```java
 // 使用累乘
@@ -303,20 +303,20 @@ public double powerAnother(double base, int exponent) {
 }
 ```
 
-## 调整数组顺序使奇数位于偶数前面
+## Sắp xếp số lẻ đứng trước số chẵn trong mảng
 
-**题目描述：**
+**Mô tả bài toán:**
 
-输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前半部分，所有的偶数位于位于数组的后半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。
+Nhập một mảng số nguyên, viết một hàm để điều chỉnh thứ tự các số trong mảng sao cho tất cả số lẻ nằm ở nửa đầu mảng, tất cả số chẵn nằm ở nửa sau mảng, và đảm bảo vị trí tương đối giữa các số lẻ và giữa các số chẵn không thay đổi.
 
-**问题解析：**
+**Phân tích bài toán:**
 
-这道题有挺多种解法的，给大家介绍一种我觉得挺好理解的方法：
-我们首先统计奇数的个数假设为 n,然后新建一个等长数组，然后通过循环判断原数组中的元素为偶数还是奇数。如果是则从数组下标 0 的元素开始，把该奇数添加到新数组；如果是偶数则从数组下标为 n 的元素开始把该偶数添加到新数组中。
+Bài này có khá nhiều cách giải, giới thiệu một cách tôi thấy khá dễ hiểu:
+Đầu tiên đếm số lượng số lẻ, giả sử là n, sau đó tạo một mảng mới cùng độ dài. Duyệt qua mảng gốc bằng vòng lặp, kiểm tra từng phần tử là số chẵn hay số lẻ. Nếu là số lẻ thì thêm vào mảng mới bắt đầu từ chỉ số 0; nếu là số chẵn thì thêm vào mảng mới bắt đầu từ chỉ số n.
 
-**示例代码：**
+**Ví dụ code:**
 
-时间复杂度为 O（n），空间复杂度为 O（n）的算法
+Thuật toán độ phức tạp thời gian O(n), không gian O(n)
 
 ```java
 public class Solution {
@@ -347,33 +347,33 @@ public class Solution {
 }
 ```
 
-## 链表中倒数第 k 个节点
+## Node thứ k từ cuối trong danh sách liên kết
 
-**题目描述：**
+**Mô tả bài toán:**
 
-输入一个链表，输出该链表中倒数第 k 个结点
+Nhập một danh sách liên kết, xuất ra node thứ k từ cuối của danh sách đó.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-**一句话概括：**
-两个指针一个指针 p1 先开始跑，指针 p1 跑到 k-1 个节点后，另一个节点 p2 开始跑，当 p1 跑到最后时，p2 所指的指针就是倒数第 k 个节点。
+**Tóm tắt một câu:**
+Dùng hai con trỏ, con trỏ p1 chạy trước, sau khi p1 chạy được k-1 node thì con trỏ p2 bắt đầu chạy. Khi p1 chạy đến cuối, con trỏ p2 đang chỉ đến chính là node thứ k từ cuối.
 
-**思想的简单理解：**
-前提假设：链表的结点个数(长度)为 n。
-规律一：要找到倒数第 k 个结点，需要向前走多少步呢？比如倒数第一个结点，需要走 n 步，那倒数第二个结点呢？很明显是向前走了 n-1 步，所以可以找到规律是找到倒数第 k 个结点，需要向前走 n-k+1 步。
+**Hiểu đơn giản về ý tưởng:**
+Giả thiết: số node trong danh sách liên kết (độ dài) là n.
+Quy luật 1: Để tìm node thứ k từ cuối cần đi về trước bao nhiêu bước? Ví dụ node cuối cùng (thứ 1 từ cuối) cần đi n bước, vậy node thứ 2 từ cuối thì sao? Rõ ràng là n-1 bước, nên quy luật là: tìm node thứ k từ cuối cần đi n-k+1 bước.
 
-**算法开始：**
+**Bắt đầu thuật toán:**
 
-1. 设两个都指向 head 的指针 p1 和 p2，当 p1 走了 k-1 步的时候，停下来。p2 之前一直不动。
-2. p1 的下一步是走第 k 步，这个时候，p2 开始一起动了。至于为什么 p2 这个时候动呢？看下面的分析。
-3. 当 p1 走到链表的尾部时，即 p1 走了 n 步。由于我们知道 p2 是在 p1 走了 k-1 步才开始动的，也就是说 p1 和 p2 永远差 k-1 步。所以当 p1 走了 n 步时，p2 走的应该是在 n-(k-1)步。即 p2 走了 n-k+1 步，此时巧妙的是 p2 正好指向的是规律一的倒数第 k 个结点处。
-   这样是不是很好理解了呢？
+1. Đặt hai con trỏ p1 và p2 đều trỏ vào head. Khi p1 đi được k-1 bước, dừng lại. p2 không di chuyển trong suốt thời gian đó.
+2. Bước tiếp theo của p1 là bước thứ k, lúc này p2 bắt đầu di chuyển cùng. Tại sao p2 di chuyển lúc này? Xem phân tích dưới.
+3. Khi p1 chạy đến cuối danh sách liên kết, tức là p1 đã đi n bước. Vì p2 bắt đầu di chuyển sau khi p1 đi k-1 bước, nghĩa là p1 và p2 luôn chênh nhau k-1 bước. Nên khi p1 đi n bước, p2 đã đi n-(k-1) bước. Tức là p2 đi n-k+1 bước, đây chính xác là vị trí node thứ k từ cuối theo quy luật 1.
+   Như vậy có dễ hiểu hơn không?
 
-**考察内容：**
+**Kiến thức kiểm tra:**
 
-链表+代码的鲁棒性
+Danh sách liên kết + Tính bền vững của code
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 /*
@@ -416,25 +416,25 @@ public class Solution {
 }
 ```
 
-## 反转链表
+## Đảo ngược danh sách liên kết
 
-**题目描述：**
+**Mô tả bài toán:**
 
-输入一个链表，反转链表后，输出链表的所有元素。
+Nhập một danh sách liên kết, sau khi đảo ngược, xuất tất cả các phần tử của danh sách.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-链表的很常规的一道题，这一道题思路不算难，但自己实现起来真的可能会感觉无从下手，我是参考了别人的代码。
-思路就是我们根据链表的特点，前一个节点指向下一个节点的特点，把后面的节点移到前面来。
-就比如下图：我们把 1 节点和 2 节点互换位置，然后再将 3 节点指向 2 节点，4 节点指向 3 节点，这样以来下面的链表就被反转了。
+Đây là một bài rất thông thường về danh sách liên kết. Ý tưởng không quá khó nhưng khi tự triển khai lại có thể cảm thấy không biết bắt đầu từ đâu. Tôi đã tham khảo code của người khác.
+Ý tưởng là dựa vào đặc điểm của danh sách liên kết, node trước trỏ đến node sau, chuyển node phía sau lên phía trước.
+Ví dụ như hình dưới: Chúng ta đổi chỗ node 1 và node 2, sau đó cho node 3 trỏ vào node 2, node 4 trỏ vào node 3, như vậy danh sách liên kết bên dưới sẽ được đảo ngược.
 
-![链表](https://oss.javaguide.cn/p3-juejin/844773c7300e4373922bb1a6ae2a55a3~tplv-k3u1fbpfcp-zoom-1.png)
+![Danh sách liên kết](https://oss.javaguide.cn/p3-juejin/844773c7300e4373922bb1a6ae2a55a3~tplv-k3u1fbpfcp-zoom-1.png)
 
-**考察内容：**
+**Kiến thức kiểm tra:**
 
-链表+代码的鲁棒性
+Danh sách liên kết + Tính bền vững của code
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 /*
@@ -465,29 +465,29 @@ public class Solution {
 }
 ```
 
-## 合并两个排序的链表
+## Hợp nhất hai danh sách liên kết đã sắp xếp
 
-**题目描述：**
+**Mô tả bài toán:**
 
-输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则。
+Nhập hai danh sách liên kết đơn tăng dần, xuất danh sách liên kết sau khi hợp nhất, yêu cầu danh sách hợp nhất phải thỏa mãn quy tắc không giảm.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-我们可以这样分析:
+Chúng ta có thể phân tích như sau:
 
-1. 假设我们有两个链表 A,B；
-2. A 的头节点 A1 的值与 B 的头结点 B1 的值比较，假设 A1 小，则 A1 为头节点；
-3. A2 再和 B1 比较，假设 B1 小,则，A1 指向 B1；
-4. A2 再和 B2 比较。。。。。。。
-   就这样循环往复就行了，应该还算好理解。
+1. Giả sử chúng ta có hai danh sách liên kết A, B;
+2. So sánh giá trị của node đầu A1 của A với giá trị của node đầu B1 của B, giả sử A1 nhỏ hơn thì A1 là node đầu;
+3. So sánh A2 với B1, giả sử B1 nhỏ hơn thì A1 trỏ đến B1;
+4. So sánh A2 với B2... và cứ như vậy lặp lại.
+   Như vậy thôi, nên cũng khá dễ hiểu.
 
-**考察内容：**
+**Kiến thức kiểm tra:**
 
-链表+代码的鲁棒性
+Danh sách liên kết + Tính bền vững của code
 
-**示例代码：**
+**Ví dụ code:**
 
-非递归版本：
+Phiên bản không đệ quy:
 
 ```java
 /*
@@ -546,7 +546,7 @@ public class Solution {
 }
 ```
 
-递归版本：
+Phiên bản đệ quy:
 
 ```java
 public ListNode Merge(ListNode list1,ListNode list2) {
@@ -566,28 +566,28 @@ public ListNode Merge(ListNode list1,ListNode list2) {
 }
 ```
 
-## 用两个栈实现队列
+## Dùng hai stack để triển khai queue
 
-**题目描述：**
+**Mô tả bài toán:**
 
-用两个栈来实现一个队列，完成队列的 Push 和 Pop 操作。 队列中的元素为 int 类型。
+Dùng hai stack để triển khai một queue, hoàn thành các thao tác Push và Pop của queue. Các phần tử trong queue có kiểu int.
 
-**问题分析：**
+**Phân tích bài toán:**
 
-先来回顾一下栈和队列的基本特点：
-**栈：**后进先出（LIFO）
-**队列：** 先进先出
-很明显我们需要根据 JDK 给我们提供的栈的一些基本方法来实现。先来看一下 Stack 类的一些基本方法：
+Trước tiên ôn lại đặc điểm cơ bản của stack và queue:
+**Stack:** Vào sau ra trước (LIFO)
+**Queue:** Vào trước ra trước
+Rõ ràng chúng ta cần dựa vào một số phương thức cơ bản của stack do JDK cung cấp để triển khai. Hãy xem một số phương thức thông dụng của lớp Stack:
 
-![Stack类的一些常见方法](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/5985000.jpg)
+![Một số phương thức thông dụng của lớp Stack](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/5985000.jpg)
 
-既然题目给了我们两个栈，我们可以这样考虑当 push 的时候将元素 push 进 stack1，pop 的时候我们先把 stack1 的元素 pop 到 stack2，然后再对 stack2 执行 pop 操作，这样就可以保证是先进先出的。（负[pop]负[pop]得正[先进先出]）
+Vì đề bài cho hai stack, chúng ta có thể nghĩ như sau: khi push thì push phần tử vào stack1; khi pop thì trước tiên pop tất cả phần tử từ stack1 sang stack2, sau đó thực hiện pop trên stack2. Như vậy có thể đảm bảo vào trước ra trước. (Âm [pop] nhân âm [pop] bằng dương [vào trước ra trước])
 
-**考察内容：**
+**Kiến thức kiểm tra:**
 
-队列+栈
+Queue + Stack
 
-示例代码：
+Ví dụ code:
 
 ```java
 //左程云的《程序员代码面试指南》的答案
@@ -619,44 +619,44 @@ public class Solution {
 }
 ```
 
-## 栈的压入,弹出序列
+## Chuỗi push và pop của stack
 
-**题目描述：**
+**Mô tả bài toán:**
 
-输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列 1,2,3,4,5 是某栈的压入顺序，序列 4，5,3,2,1 是该压栈序列对应的一个弹出序列，但 4,3,5,1,2 就不可能是该压栈序列的弹出序列。（注意：这两个序列的长度是相等的）
+Nhập hai chuỗi số nguyên, chuỗi thứ nhất biểu thị thứ tự push vào stack, hãy xác định xem chuỗi thứ hai có phải là thứ tự pop hợp lệ của stack đó không. Giả sử tất cả các số được push vào stack đều khác nhau. Ví dụ chuỗi 1,2,3,4,5 là thứ tự push vào một stack, chuỗi 4,5,3,2,1 là một thứ tự pop hợp lệ tương ứng, nhưng 4,3,5,1,2 không thể là thứ tự pop của chuỗi push đó. (Lưu ý: độ dài của hai chuỗi bằng nhau)
 
-**题目分析：**
+**Phân tích bài toán:**
 
-这道题想了半天没有思路，参考了 [Alias 的答案](https://www.nowcoder.com/questionTerminal/d77d11405cc7470d82554cb392585106)，他的思路写的也很详细应该很容易看懂。
+Bài này suy nghĩ mãi không ra hướng, đã tham khảo [đáp án của Alias](https://www.nowcoder.com/questionTerminal/d77d11405cc7470d82554cb392585106), hướng suy nghĩ của anh ấy được viết rất chi tiết, nên khá dễ hiểu.
 
-【思路】借用一个辅助的栈，遍历压栈顺序，先讲第一个放入栈中，这里是 1，然后判断栈顶元素是不是出栈顺序的第一个元素，这里是 4，很显然 1≠4，所以我们继续压栈，直到相等以后开始出栈，出栈一个元素，则将出栈顺序向后移动一位，直到不相等，这样循环等压栈顺序遍历完成，如果辅助栈还不为空，说明弹出序列不是该栈的弹出顺序。
+【Hướng giải】Dùng một stack phụ, duyệt qua thứ tự push, đầu tiên cho số đầu tiên vào stack phụ (ở đây là 1), sau đó kiểm tra xem phần tử trên đỉnh stack có bằng phần tử đầu tiên của thứ tự pop không (ở đây là 4). Rõ ràng 1 ≠ 4 nên tiếp tục push. Cứ như vậy cho đến khi bằng thì bắt đầu pop. Sau mỗi lần pop một phần tử, thứ tự pop tiến lên một vị trí, cho đến khi không bằng nữa thì tiếp tục push. Vòng lặp như vậy cho đến khi duyệt hết thứ tự push. Nếu stack phụ vẫn không rỗng, nghĩa là chuỗi pop không phải thứ tự pop của stack đó.
 
-举例：
+Ví dụ:
 
-入栈 1,2,3,4,5
+Push 1,2,3,4,5
 
-出栈 4,5,3,2,1
+Pop 4,5,3,2,1
 
-首先 1 入辅助栈，此时栈顶 1≠4，继续入栈 2
+Đầu tiên push 1 vào stack phụ, đỉnh stack là 1 ≠ 4, tiếp tục push 2
 
-此时栈顶 2≠4，继续入栈 3
+Đỉnh stack là 2 ≠ 4, tiếp tục push 3
 
-此时栈顶 3≠4，继续入栈 4
+Đỉnh stack là 3 ≠ 4, tiếp tục push 4
 
-此时栈顶 4 ＝ 4，出栈 4，弹出序列向后一位，此时为 5，,辅助栈里面是 1,2,3
+Đỉnh stack là 4 = 4, pop 4, thứ tự pop tiến lên một vị trí là 5, stack phụ là 1,2,3
 
-此时栈顶 3≠5，继续入栈 5
+Đỉnh stack là 3 ≠ 5, tiếp tục push 5
 
-此时栈顶 5=5，出栈 5,弹出序列向后一位，此时为 3，,辅助栈里面是 1,2,3
+Đỉnh stack là 5 = 5, pop 5, thứ tự pop tiến lên là 3, stack phụ là 1,2,3
 
 …….
-依次执行，最后辅助栈为空。如果不为空说明弹出序列不是该栈的弹出顺序。
+Thực hiện lần lượt, cuối cùng stack phụ rỗng. Nếu không rỗng thì chuỗi pop không phải thứ tự pop của stack đó.
 
-**考察内容：**
+**Kiến thức kiểm tra:**
 
-栈
+Stack
 
-**示例代码：**
+**Ví dụ code:**
 
 ```java
 import java.util.ArrayList;

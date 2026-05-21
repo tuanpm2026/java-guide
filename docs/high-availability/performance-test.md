@@ -1,251 +1,236 @@
 ---
-title: 性能测试入门
-description: 本文系统讲解性能测试核心知识，涵盖响应时间分位值（P90/P99/P999）、QPS/TPS、Little's Law 与曲棍球棒曲线、背压与自愈验证、性能测试分类（负载/压力/稳定性）、压测工具（JMeter/Gatling/ab）选型及性能优化策略。
-category: 高可用
+title: Nhập môn Performance Testing
+description: Bài này hệ thống giải thích kiến thức cốt lõi về performance testing, bao gồm response time percentile (P90/P99/P999), QPS/TPS, Little's Law và Hockey Stick Curve, back pressure và self-healing validation, phân loại performance testing (load/stress/stability), lựa chọn công cụ stress test (JMeter/Gatling/ab) và chiến lược performance optimization.
+category: High Availability
 icon: et-performance
 head:
   - - meta
     - name: keywords
-      content: 性能测试,压力测试,负载测试,QPS,TPS,RT响应时间,P99分位值,并发数,吞吐量,背压,利特尔法则,JMeter,Gatling,性能优化
+      content: performance testing,stress testing,load testing,QPS,TPS,RT response time,P99 percentile,concurrency,throughput,back pressure,Little's Law,JMeter,Gatling,performance optimization
 ---
 
-性能测试一般情况下都是由测试这个职位去做的，那还需要我们开发学这个干嘛呢？了解性能测试的指标、分类以及工具等知识有助于我们更好地去写出性能更好的程序，另外作为开发这个角色，如果你会性能测试的话，相信也会为你的履历加分不少。
+Performance testing thường do vai trò tester làm. Vậy developer học điều này để làm gì? Hiểu biết về metrics, phân loại và tool của performance testing giúp chúng ta viết code có hiệu năng tốt hơn. Ngoài ra, với vai trò developer, nếu bạn biết performance testing, chắc chắn cũng tăng điểm đáng kể cho hồ sơ của bạn.
 
-这篇文章是我会结合自己的实际经历以及在测试这里取的经所得，除此之外，我还借鉴了一些优秀书籍，希望对你有帮助。
+Bài này tôi kết hợp kinh nghiệm thực tế của bản thân và kiến thức học từ bộ phận testing, ngoài ra còn tham khảo một số sách tốt — hy vọng có ích cho bạn.
 
-## 不同角色看网站性能
+## Các role khác nhau nhìn về website performance
 
-### 用户
+### User
 
-当用户打开一个网站的时候，最关注的是什么？当然是 **网站响应速度的快慢**。比如我们点击了淘宝的主页，淘宝需要多久将首页的内容呈现在我的面前，我点击了提交订单按钮需要多久返回结果等等。
+Khi user mở một website, họ quan tâm nhất điều gì? Tất nhiên là **tốc độ response của website**. Ví dụ chúng ta click vào trang chủ Taobao, Taobao cần bao lâu để hiển thị nội dung trang chủ, click nút submit order cần bao lâu để trả kết quả, v.v.
 
-所以，用户在体验我们系统的时候往往根据你的响应速度的快慢来评判你的网站的性能。
+Vì vậy khi user trải nghiệm hệ thống, họ thường đánh giá hiệu năng website dựa trên tốc độ response của bạn.
 
-### 开发人员
+### Developer
 
-用户与开发人员都关注速度，这个速度实际上就是我们的系统 **处理用户请求的速度**。
+User và developer đều quan tâm đến tốc độ — tốc độ này thực ra là **tốc độ hệ thống xử lý request của user**.
 
-开发人员一般情况下很难直观的去评判自己网站的性能，我们往往会根据网站当前的架构以及基础设施情况给一个大概的值，比如：
+Developer thường khó đánh giá trực quan hiệu năng website của mình. Chúng ta thường đưa ra giá trị ước lượng dựa trên kiến trúc hiện tại và tình hình infrastructure, ví dụ:
 
-1. 项目架构是分布式的吗？
-2. 用到了缓存和消息队列没有？
-3. 高并发的业务有没有特殊处理？
-4. 数据库设计是否合理？
-5. 系统用到的算法是否还需要优化？
-6. 系统是否存在内存泄漏的问题？
-7. 项目使用的 Redis 缓存多大？服务器性能如何？用的是机械硬盘还是固态硬盘？
+1. Kiến trúc project có phải distributed không?
+2. Có dùng cache và message queue không?
+3. Business có high concurrency có xử lý đặc biệt không?
+4. Thiết kế database có hợp lý không?
+5. Algorithm trong hệ thống có cần tối ưu không?
+6. Hệ thống có vấn đề memory leak không?
+7. Redis cache project dùng có dung lượng bao nhiêu? Server performance thế nào? Dùng HDD hay SSD?
 8. ……
 
-### 测试人员
+### Tester
 
-测试人员一般会根据性能测试工具来测试，然后一般会做出一个表格。这个表格可能会涵盖下面这些重要的内容：
+Tester thường dùng performance testing tool để test, rồi thường tạo một bảng. Bảng này có thể bao gồm các nội dung quan trọng sau:
 
-1. 响应时间；
-2. 请求成功率；
-3. 吞吐量；
+1. Response time
+2. Request success rate
+3. Throughput
 4. ……
 
-### 运维人员
+### Ops
 
-运维人员会倾向于根据 **基础设施和资源的利用率** 来判断网站的性能，比如我们的服务器资源使用是否合理、数据库资源是否存在滥用的情况、当然，这是传统的运维人员，现在 Devops 火起来后，单纯干运维的很少了。我们这里暂且还保留有这个角色。
+Ops có xu hướng đánh giá hiệu năng website dựa trên **sử dụng infrastructure và resource utilization**, như server resource sử dụng có hợp lý không, có lạm dụng database resource không. Tất nhiên đây là traditional ops — sau khi DevOps nổi lên, ít người thuần ops hơn. Ở đây tạm giữ role này.
 
-## 性能测试需要注意的点
+## Các điểm cần chú ý trong Performance Testing
 
-几乎没有文章在讲性能测试的时候提到这个问题，大家都会讲如何去性能测试，有哪些性能测试指标这些东西。
+Hầu như không có bài nào khi nói về performance testing đề cập đến điều này. Mọi người đều nói cách performance test, có những performance testing metric nào.
 
-### 了解系统的业务场景
+### Hiểu business scenario của hệ thống
 
-**性能测试之前更需要你了解当前的系统的业务场景。** 对系统业务了解的不够深刻，我们很容易犯测试方向偏执的错误，从而导致我们忽略了对系统某些更需要性能测试的地方进行测试。
+**Trước performance testing cần bạn hiểu rõ business scenario của hệ thống hiện tại hơn.** Nếu không đủ hiểu business của hệ thống, chúng ta rất dễ mắc lỗi sai hướng khi test, từ đó bỏ qua việc test những nơi hệ thống thực sự cần performance testing hơn.
 
-比如我们的系统可以为用户提供发送邮件的功能，用户配置成功邮箱后只需输入相应的邮箱之后就能发送，系统每天大概能处理上万次发邮件的请求。很多人看到这个可能就直接开始使用相关工具测试邮箱发送接口，但是，发送邮件这个场景可能不是当前系统的性能瓶颈，这么多人用我们的系统发邮件，还可能有很多人一起发邮件，单单这个场景就这么人用，那用户管理可能才是性能瓶颈吧！
+Ví dụ hệ thống có thể cung cấp chức năng gửi email cho user. User cấu hình thành công mailbox thì chỉ cần nhập email tương ứng là có thể gửi. Hệ thống mỗi ngày có thể xử lý hàng chục nghìn request gửi email. Nhiều người thấy điều này có thể trực tiếp dùng công cụ test interface gửi email. Nhưng tình huống gửi email có thể không phải bottleneck performance của hệ thống hiện tại. Có nhiều người dùng hệ thống để gửi email, còn có nhiều người cùng gửi email, tình huống này đã có nhiều người dùng như vậy rồi — vậy user management mới có thể là bottleneck!
 
-### 历史数据非常有用
+### Historical data rất có ích
 
-当前系统所留下的历史数据非常重要，一般情况下，我们可以通过相应的些历史数据初步判定这个系统哪些接口调用的比较多、哪些服务承受的压力最大，这样的话，我们就可以针对这些地方进行更细致的性能测试与分析。
+Historical data mà hệ thống hiện tại để lại rất quan trọng. Thông thường qua một số historical data chúng ta có thể sơ bộ xác định interface nào được gọi nhiều nhất, service nào chịu áp lực lớn nhất. Như vậy có thể thực hiện performance testing và analysis chi tiết hơn tại những nơi đó.
 
-另外，这些地方也就像这个系统的一个短板一样，优化好了这些地方会为我们的系统带来质的提升。
+Ngoài ra, những nơi này cũng như điểm yếu của hệ thống — tối ưu tốt những nơi này sẽ mang lại cải thiện đáng kể cho hệ thống.
 
-## 常见性能指标
+## Các Performance Metric phổ biến
 
-性能指标是衡量系统性能的核心度量标准，理解各指标之间的关系对于性能分析至关重要。
+Performance metric là tiêu chuẩn đo lường cốt lõi của system performance. Hiểu mối quan hệ giữa các metric rất quan trọng cho performance analysis.
 
 ```mermaid
 flowchart LR
-    subgraph Input["输入参数"]
-        style Input fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        A["并发数<br/>Concurrency"]
+    subgraph Input["Input Parameters"]
+        A["Concurrency"]
     end
 
-    subgraph Process["处理过程"]
-        style Process fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        B["响应时间<br/>RT"]
+    subgraph Process["Processing"]
+        B["Response Time (RT)"]
     end
 
-    subgraph Output["输出指标"]
-        style Output fill:#F5F7FA,color:#333333,stroke:#005D7B,stroke-width:2px
-        C["QPS/TPS<br/>吞吐量"]
+    subgraph Output["Output Metrics"]
+        C["QPS/TPS Throughput"]
     end
 
-    A -->|"请求"| B
-    B -->|"计算"| C
+    A -->|"Request"| B
+    B -->|"Calculate"| C
 
-    D["QPS = 并发数 / RT"]
-
-    classDef core fill:#4CA497,color:#FFFFFF,stroke:none,rx:10,ry:10
-    classDef process fill:#00838F,color:#FFFFFF,stroke:none,rx:10,ry:10
-    classDef highlight fill:#E99151,color:#FFFFFF,stroke:none,rx:10,ry:10
-
-    class A core
-    class B process
-    class C,D highlight
-
-    linkStyle default stroke-width:2px,stroke:#333333,opacity:0.8
+    D["QPS = Concurrency / RT"]
 ```
 
-### 响应时间
+### Response Time (Thời gian phản hồi)
 
-**响应时间 RT（Response Time）** 是用户发出请求到收到系统处理结果所需的时间，包括网络传输、服务端处理与客户端渲染等环节。
+**Response Time (RT)** là thời gian từ khi user gửi request đến khi nhận kết quả hệ thống xử lý, bao gồm các giai đoạn như network transmission, server processing và client rendering.
 
-**响应时间指标（Latency Percentiles）**：生产环境中看平均 RT 毫无意义，必须监控 **P90、P99 和 P999** 分位值。例如 P99 = 500ms 意味着 99% 的请求在 500ms 内返回。那 1% 的长尾慢调用（可能由 Cache Miss、慢 SQL 或 GC STW 引起）在极高并发下会发生排队效应，瞬间打满网关或 RPC 框架的底层工作线程池，直接引发雪崩。大量超快响应会拉低平均值，掩盖致命的长尾问题，此为典型的 **"均值陷阱"**。
+**Response Time Metrics (Latency Percentiles)**: Trong production environment nhìn average RT không có ý nghĩa gì. Phải monitor **P90, P99 và P999** percentile. Ví dụ P99 = 500ms nghĩa là 99% request trả về trong 500ms. Còn 1% long-tail slow call (có thể do Cache Miss, slow SQL hay GC STW gây ra) trong high concurrency cực cao sẽ gây queuing effect, ngay lập tức fill đầy thread pool tầng dưới của gateway hay RPC framework, trực tiếp gây cascading failure. Lượng lớn response cực nhanh kéo thấp average, che giấu vấn đề long-tail chết người — đây là **"average trap"** điển hình.
 
-分位值参考标准如下：
+Tiêu chuẩn tham khảo percentile:
 
-| 分位值 | RT 范围（示例） | 说明                     |
-| ------ | --------------- | ------------------------ |
-| P90    | < 200ms         | 90% 的请求在此时间内返回 |
-| P99    | < 500ms         | 重点关注，长尾用户体感   |
-| P999   | < 1s            | 极端场景，易触发雪崩     |
+| Percentile | RT Range (example) | Mô tả                                          |
+| ---------- | ------------------ | ---------------------------------------------- |
+| P90        | < 200ms            | 90% request trả về trong thời gian này         |
+| P99        | < 500ms            | Trọng tâm cần chú ý, long-tail user experience |
+| P999       | < 1s               | Extreme scenario, dễ trigger cascading failure |
 
-> **失败模式**：当发生网络偶发抖动时，P999 RT 会急剧飙升。若上游缺乏超时截断机制（Timeout & Circuit Breaking），大量并发请求将被挂起，导致上游节点内存 OOM。
+> **Failure mode**: Khi xảy ra network occasional jitter, P999 RT sẽ tăng vọt đột ngột. Nếu upstream thiếu timeout truncation mechanism (Timeout & Circuit Breaking), lượng lớn concurrent request sẽ bị hang, dẫn đến upstream node OOM.
 
-### 并发数
+### Concurrency (Số lượng đồng thời)
 
-**并发数可以简单理解为系统能够同时供多少人访问使用，也就是说系统同时能处理的请求数量。**
+**Concurrency có thể hiểu đơn giản là hệ thống có thể phục vụ bao nhiêu người cùng lúc — tức số lượng request hệ thống có thể xử lý đồng thời.**
 
-并发数反应了系统的 **负载能力**。需要注意区分以下概念：
+Concurrency phản ánh **load capacity** của hệ thống. Cần phân biệt các khái niệm sau:
 
-- **并发用户数**：同时在线的用户数量。
-- **并发请求数**：同一时刻系统正在处理的请求数量。
-- **最大并发数**：系统能够承受的最大并发请求数，超过此值系统可能出现性能下降或崩溃。
+- **Concurrent users**: Số lượng user online cùng lúc.
+- **Concurrent requests**: Số request hệ thống đang xử lý tại cùng thời điểm.
+- **Max concurrency**: Số concurrent request tối đa hệ thống có thể chịu đựng. Vượt quá giá trị này hệ thống có thể giảm hiệu năng hoặc crash.
 
-### QPS 和 TPS
+### QPS và TPS
 
-- **QPS（Query Per Second）**：服务器每秒可执行的查询次数；
-- **TPS（Transaction Per Second）**：服务器每秒处理的事务数（一次完整业务操作）。
+- **QPS (Query Per Second)**: Số lần query server có thể thực thi mỗi giây.
+- **TPS (Transaction Per Second)**: Số transaction server xử lý mỗi giây (một thao tác business hoàn chỉnh).
 
-> QPS vs TPS：一次页面访问形成 1 个 TPS，但可能产生多次对服务器的请求（计入 QPS）。**TPS 偏向业务视角，QPS 偏向技术视角。**
+> QPS vs TPS: Một lần page access tạo ra 1 TPS nhưng có thể sinh ra nhiều request đến server (tính vào QPS). **TPS nghiêng về business perspective, QPS nghiêng về technical perspective.**
 
-### 吞吐量
+### Throughput (Thông lượng)
 
-**吞吐量** 指系统单位时间内处理的请求数量。TPS、QPS 是常用量化指标。
+**Throughput** là số lượng request hệ thống xử lý trên mỗi đơn vị thời gian. TPS, QPS là các chỉ số lượng hóa thường dùng.
 
-**Little's Law（利特尔法则）**：在系统未饱和的稳态下，`并发数 = QPS × RT`，亦即 `QPS = 并发数 / RT`。该公式仅在系统处于线性响应区间时成立。随着并发用户数持续增加，CPU 调度消耗、锁争用（Lock Contention）加剧，RT 会呈现 **指数级上升**，吞吐量达到拐点后急速下降，形成典型的 **"曲棍球棒曲线"（Hockey Stick Curve）**。下图直观展示「为什么不能用公式硬算」：拐点之后 QPS 不升反降，系统已进入非线性区。
+**Little's Law (Định luật Little)**: Trong steady state chưa bão hòa: `Concurrency = QPS × RT`, hay `QPS = Concurrency / RT`. Công thức chỉ valid khi hệ thống ở linear response range. Khi concurrent users tiếp tục tăng, CPU scheduling consumption và lock contention trở nên căng thẳng, RT tăng theo **hàm mũ**. Sau khi throughput đạt điểm uốn sẽ giảm mạnh, tạo thành **Hockey Stick Curve** điển hình. Hình dưới cho thấy trực quan "tại sao không thể tính cứng bằng công thức": Sau điểm uốn QPS không tăng mà còn giảm — hệ thống đã vào vùng phi tuyến.
 
 ```mermaid
 xychart-beta
-    title "QPS vs 并发数（曲棍球棒曲线）"
-    x-axis "并发数" [200, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+    title "QPS vs Concurrency (Hockey Stick Curve)"
+    x-axis "Concurrency" [200, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
     y-axis "QPS" 0 --> 5000
     line [1200, 2800, 4200, 4800, 5000, 4750, 3800, 2400, 1200]
 ```
 
-因此，绝不能仅靠公式推算生产容量，必须通过全链路压测验证真实极限。
+Do đó tuyệt đối không thể chỉ dựa vào công thức để ước tính production capacity — phải validate giới hạn thực sự qua full-link stress test.
 
-## 系统活跃度指标
+## System Activity Metrics
 
-### PV（Page View）
+### PV (Page View)
 
-**访问量**，即页面浏览量或点击量，衡量网站用户访问的网页数量；在一定统计周期内用户每打开或刷新一个页面就记录 1 次，多次打开或刷新同一页面则浏览量累计。PV 从网页打开的数量/刷新的次数的角度来统计的。
+**Lượt truy cập** — số lần page được xem hoặc click, đo lường số trang web user truy cập. Trong một statistical period nhất định, mỗi khi user mở hoặc refresh một page sẽ tính 1 lần. Mở hoặc refresh cùng page nhiều lần thì tích lũy page views. PV được tính từ số lần page được mở/refresh.
 
-### UV（Unique Visitor）
+### UV (Unique Visitor)
 
-**独立访客**，统计 1 天内访问某站点的用户数。1 天内相同访客多次访问网站，只计算为 1 个独立访客。UV 是从用户个体的角度来统计的。
+**Unique visitor** — thống kê số user truy cập một site trong 1 ngày. Trong 1 ngày cùng visitor truy cập website nhiều lần chỉ tính là 1 unique visitor. UV được tính từ góc độ individual user.
 
-### DAU（Daily Active User）
+### DAU (Daily Active User)
 
-**日活跃用户数量**，指一天内登录或使用产品的用户数（去重）。
+**Số lượng daily active user** — số user login hoặc sử dụng sản phẩm trong một ngày (deduplicated).
 
-### MAU（Monthly Active Users）
+### MAU (Monthly Active Users)
 
-**月活跃用户人数**，指一个月内登录或使用产品的用户数（去重）。
+**Số lượng monthly active user** — số user login hoặc sử dụng sản phẩm trong một tháng (deduplicated).
 
-### 实战计算示例
+### Ví dụ tính toán thực tế
 
-> **生产级容量评估**：绝不能用 DAU 乘以固定系数去估算峰值。真实峰值往往来自特定业务场景（如整点秒杀、大促开抢）。随着并发用户数（Virtual Users）持续增加，系统 CPU 调度消耗、锁争用加剧，RT 会呈现指数级上升，此时吞吐量会达到拐点并急速下降。必须通过 **全链路压测**（结合真实流量录制与回放，如 [GoReplay](https://goreplay.org/)）来摸底真实的吞吐量极限，而非纸上公式推算。
+> **Production-level capacity estimation**: Tuyệt đối không thể nhân DAU với hệ số cố định để ước tính peak value. Peak value thực tế thường đến từ tình huống business cụ thể (như flash sale đầu giờ, big event bắt đầu grab). Khi concurrent users (Virtual Users) tiếp tục tăng, CPU scheduling consumption và lock contention của hệ thống trở nên căng thẳng, RT tăng theo hàm mũ. Lúc này throughput sẽ đạt inflection point và giảm mạnh. Phải thông qua **full-link stress test** (kết hợp real traffic recording và replay, như [GoReplay](https://goreplay.org/)) để xác định giới hạn throughput thực sự, không phải dùng công thức trên giấy.
 
-## 性能测试分类
+## Phân loại Performance Testing
 
-| 测试类型       | 目的                       | 测试方法                                |
-| -------------- | -------------------------- | --------------------------------------- |
-| **性能测试**   | 验证系统性能是否满足预期   | 在已知性能指标下验证                    |
-| **负载测试**   | 找到系统的性能上限         | 逐步加压直到资源饱和                    |
-| **压力测试**   | 测试极限、背压与自愈能力   | 持续加压验证崩溃后行为（429/503、自愈） |
-| **稳定性测试** | 验证系统长时间运行的稳定性 | 模拟真实场景持续运行                    |
+| Loại test               | Mục đích                                               | Phương pháp test                                                         |
+| ----------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| **Performance testing** | Verify system performance có đáp ứng kỳ vọng không     | Verify dưới performance metric đã biết                                   |
+| **Load testing**        | Tìm performance upper limit của hệ thống               | Tăng dần áp lực đến khi resource bão hòa                                 |
+| **Stress testing**      | Test extreme, back pressure và self-healing capability | Tiếp tục tăng áp lực để verify hành vi sau crash (429/503, self-healing) |
+| **Stability testing**   | Verify hệ thống chạy ổn định trong thời gian dài       | Mô phỏng tình huống thực chạy liên tục                                   |
 
-**负载测试 vs 压力测试的水位边界**：二者区别在于「加压到哪里为止」。下图帮助建立直观水位线：负载测试在**资源饱和线**止步（找到上限）；压力测试继续加压**越过饱和线**，直到崩溃并验证背压与自愈。
+**Ranh giới water level giữa Load testing và Stress testing**: Sự khác biệt ở "tăng áp lực đến đâu thì dừng". Load testing dừng ở **resource saturation line** (tìm upper limit). Stress testing tiếp tục tăng áp lực **vượt qua saturation line** đến khi crash và verify back pressure và self-healing.
 
-### 性能测试
+### Performance Testing
 
-性能测试方法是通过测试工具模拟用户请求系统，目的主要是为了测试系统的性能是否满足要求。通俗地说，这种方法就是要在特定的运行条件下验证系统的能力状态。
+Phương pháp performance testing là dùng testing tool để mô phỏng user request hệ thống. Mục đích chủ yếu là test xem system performance có đáp ứng yêu cầu không. Nói đơn giản, phương pháp này là verify trạng thái năng lực của hệ thống trong điều kiện vận hành cụ thể.
 
-性能测试是你在 **对系统性能已经有了解的前提之后** 进行的，并且有明确的性能指标。
+Performance testing được thực hiện **sau khi bạn đã hiểu về system performance**, và có performance metric rõ ràng.
 
-### 负载测试
+### Load Testing
 
-对被测试的系统继续加大请求压力，直到服务器的某个资源已经达到饱和了，比如系统的缓存已经不够用了或者系统的响应时间已经不满足要求了。
+Tiếp tục tăng request pressure lên hệ thống được test cho đến khi một số resource của server đã đạt bão hòa — ví dụ cache của hệ thống không đủ dùng hoặc response time không đáp ứng yêu cầu nữa.
 
-**负载测试说白点就是测试系统的上限。**
+**Load testing nói thẳng ra là test upper limit của hệ thống.**
 
-### 压力测试
+### Stress Testing
 
-不去管系统资源的使用情况，对系统持续加大请求压力，**直到系统崩溃**。压力测试的核心目的不仅是寻找崩溃点，更是验证系统在过载状态下的 **背压（Backpressure）容错性**。当并发数超越承载极限时，必须验证系统能否主动阻断流量（如返回 HTTP 429 Too Many Requests、503 Service Unavailable），避免节点假死。同时，需验证在撤除越线流量后，系统是否能自动释放挂起的连接并恢复至正常吞吐能力（**自愈性**）。这种"崩溃后行为"的验证是混沌工程与高可用架构的最佳实践。
+Không quan tâm đến tình hình sử dụng resource của hệ thống, tiếp tục tăng request pressure lên hệ thống **cho đến khi hệ thống crash**. Mục tiêu cốt lõi của stress testing không chỉ là tìm crash point mà còn verify **back pressure (Backpressure) fault tolerance** của hệ thống khi bị overload. Khi concurrency vượt quá load limit, phải verify hệ thống có thể chủ động chặn traffic (như trả về HTTP 429 Too Many Requests, 503 Service Unavailable), tránh node freeze. Đồng thời cần verify sau khi loại bỏ traffic vượt ngưỡng, hệ thống có tự động release hung connection và phục hồi về throughput bình thường không (**self-healing**). Việc verify "behavior after crash" này là best practice của chaos engineering và HA architecture.
 
-### 稳定性测试
+### Stability Testing
 
-模拟真实场景，给系统一定压力，看看业务是否能稳定运行。稳定性测试通常需要运行较长时间（如 7×24 小时），观察系统是否存在 **内存泄漏、连接泄漏** 等问题。
+Mô phỏng tình huống thực, đặt một mức áp lực nhất định lên hệ thống, xem business có chạy ổn định không. Stability testing thường cần chạy trong thời gian dài (như 7×24 giờ), quan sát xem hệ thống có **memory leak, connection leak** hay không.
 
-## 常用性能测试工具
+## Các công cụ Performance Testing phổ biến
 
-### 后端常用
+### Thường dùng cho Backend
 
-既然系统设计涉及到系统性能方面的问题，那在面试的时候，面试官就很可能会问：**你是如何进行性能测试的？**
+Vì system design liên quan đến system performance, trong phỏng vấn phỏng vấn viên rất có thể sẽ hỏi: **Bạn thực hiện performance testing như thế nào?**
 
-推荐 4 个比较常用的性能测试工具：
+Khuyến nghị 4 công cụ performance testing khá phổ biến:
 
-| 工具           | 开发语言 | 特点                                  | 适用场景                 |
-| -------------- | -------- | ------------------------------------- | ------------------------ |
-| **JMeter**     | Java     | 功能全面，支持 GUI 和命令行，插件丰富 | 复杂场景测试、企业级应用 |
-| **Gatling**    | Scala    | 基于 Akka，代码驱动，报告美观         | 高并发场景、CI/CD 集成   |
-| **ab**         | C        | 轻量简单，Apache 自带                 | 快速接口测试、基准测试   |
-| **LoadRunner** | -        | 商业软件，功能强大                    | 企业级大规模测试         |
+| Tool           | Language | Đặc điểm                                                          | Tình huống áp dụng                               |
+| -------------- | -------- | ----------------------------------------------------------------- | ------------------------------------------------ |
+| **JMeter**     | Java     | Tính năng toàn diện, hỗ trợ GUI và command line, plugin phong phú | Test tình huống phức tạp, enterprise application |
+| **Gatling**    | Scala    | Dựa trên Akka, code-driven, report đẹp                            | High concurrency scenario, CI/CD integration     |
+| **ab**         | C        | Nhẹ và đơn giản, đi kèm Apache                                    | Quick interface test, benchmark test             |
+| **LoadRunner** | -        | Commercial software, tính năng mạnh                               | Enterprise large-scale test                      |
 
-没记错的话，除了 **LoadRunner** 其他几款性能测试工具都是开源免费的。
+Nếu không nhớ nhầm, trừ **LoadRunner**, các công cụ performance testing còn lại đều là open source miễn phí.
 
-**选型建议：**
+**Gợi ý lựa chọn:**
 
-- **快速验证**：使用 `ab` 或 `wrk` 进行简单的接口压测。
-- **复杂场景**：使用 `JMeter`，支持录制脚本、参数化、断言等功能。
-- **代码驱动**：使用 `Gatling`，适合开发人员，易于版本控制和 CI 集成。
+- **Quick verification**: Dùng `ab` hay `wrk` để stress test interface đơn giản.
+- **Complex scenarios**: Dùng `JMeter`, hỗ trợ record script, parameterization, assertion.
+- **Code-driven**: Dùng `Gatling`, phù hợp với developer, dễ version control và CI integration.
 
-### 前端常用
+### Thường dùng cho Frontend
 
-1. **Fiddler**：抓包工具，它可以修改请求的数据，甚至可以修改服务器返回的数据，功能非常强大，是 Web 调试的利器。
-2. **HttpWatch**：可用于录制 HTTP 请求信息的工具。
+1. **Fiddler**: Packet capture tool. Có thể modify request data, thậm chí modify data server trả về. Tính năng rất mạnh, là lợi khí Web debugging.
+2. **HttpWatch**: Tool có thể record HTTP request information.
 
-## 常见的性能优化策略
+## Các chiến lược Performance Optimization phổ biến
 
-性能优化之前我们需要对请求经历的各个环节进行分析，排查出可能出现性能瓶颈的地方，定位问题。
+Trước khi performance optimize cần phân tích các giai đoạn mà request đi qua, xác định các nơi có thể có performance bottleneck, định vị vấn đề.
 
-下面是一些性能优化时，我经常拿来自问的一些问题：
+Dưới đây là một số câu hỏi tự hỏi bản thân khi performance optimize mà tôi thường dùng:
 
-| 优化方向   | 检查项                                                   |
-| ---------- | -------------------------------------------------------- |
-| **缓存**   | 系统是否需要缓存？热点数据是否已缓存？                   |
-| **架构**   | 系统架构本身是不是就有问题？是否需要读写分离、分库分表？ |
-| **并发**   | 系统是否存在死锁的地方？锁的粒度是否合理？               |
-| **内存**   | 系统是否存在内存泄漏？GC 是否频繁？                      |
-| **数据库** | 数据库索引使用是否合理？是否存在慢 SQL？                 |
-| **算法**   | 核心算法的时间复杂度是否可以优化？                       |
-| **IO**     | 是否存在不必要的网络调用？是否可以批量操作？             |
-
-<!-- @include: @article-footer.snippet.md -->
+| Hướng tối ưu     | Checklist                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------- |
+| **Cache**        | Hệ thống có cần cache không? Hot data đã được cache chưa?                                           |
+| **Architecture** | Bản thân kiến trúc hệ thống có vấn đề không? Có cần read-write separation, database sharding không? |
+| **Concurrency**  | Hệ thống có deadlock không? Lock granularity có hợp lý không?                                       |
+| **Memory**       | Hệ thống có memory leak không? GC có frequent không?                                                |
+| **Database**     | Database index sử dụng có hợp lý không? Có slow SQL không?                                          |
+| **Algorithm**    | Time complexity của core algorithm có thể tối ưu không?                                             |
+| **IO**           | Có network call không cần thiết không? Có thể batch operation không?                                |

@@ -1,20 +1,20 @@
 ---
-title: 某培训机构盗我文章做成视频还上了B站热门
-description: 原创文章被培训机构盗用制作成B站视频的维权经历，揭露培训机构剽窃原创引流的套路，呼吁尊重原创内容。
-category: 走近作者
+title: Một bootcamp đánh cắp bài viết của tôi làm thành video rồi lên top Bilibili
+description: Kinh nghiệm bảo vệ quyền tác giả khi bài viết gốc bị bootcamp lấy để làm video Bilibili, vạch trần mánh khóe của bootcamp ăn cắp nội dung gốc để dẫn traffic, kêu gọi tôn trọng nội dung gốc.
+category: Giới thiệu tác giả
 tag:
-  - 杂谈
+  - Tản mạn
 ---
 
-时间回到 2021-02-25，我在刷哔哩哔哩的时候发现，哔哩哔哩某 UP 主（某培训机构），擅自将我在知乎的一个回答做成了视频。
+Quay ngược về 2021-02-25, khi đang lướt Bilibili tôi phát hiện một UP chủ nào đó (một bootcamp), đã tự ý biến một câu trả lời của tôi trên Zhihu thành video.
 
-原滋原味啊！我艹。甚至，连我开头的自我调侃还加上了！真的牛皮！
+Nguyên xi luôn! Cha ơi. Thậm chí, ngay cả câu tự chế giễu ở đầu của tôi họ cũng thêm vào! Thực sự kinh!
 
-你盗我原创，视频你用心做好点也行啊！至少也可以让这么优质的内容得到传播嘛！
+Mày ăn cắp nguyên tác của tao, ít nhất thì làm video cho đàng hoàng đi! Ít ra cũng để nội dung chất lượng như vậy được lan truyền chứ!
 
-结果，好家伙，视频做的像坨屎一样，配音也贼违和!
+Kết quả, trời ơi, video làm như cục phân, lồng tiếng cũng cực kỳ chướng tai!
 
-麻烦这个培训机构看到这篇文章之后可以考虑换一个人做类似恶心的事情哈！这人完全没脑子啊！
+Phiền bootcamp đó xem bài viết này xong thì cân nhắc đổi người làm chuyện buồn nôn như vậy nhé! Người này hoàn toàn không có não!
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/up-db6b9cf323930786fa2bec8b1e1bfaad732.png)
 
@@ -24,50 +24,50 @@ tag:
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/up-acc82a797bd01e27f5b7d5d327b32a21d4e.png)
 
-我随便找了一个视频看，发现也还是盗用别人的原创。
+Tôi tùy tiện xem một video khác, phát hiện cũng là ăn cắp original content của người khác.
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/up-48d0c5ab086265ae19b7396bc59de2c2daf.png)
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/up-366abf0656007ff96551064104e60740a41.png)
 
-其他的视频就不用多看了，是否还是剽窃别人的原创，原封不动地做成视频，大家心里应该有数。
+Các video còn lại không cần xem nhiều. Có phải cũng đều là đạo nhái original content của người khác, biến nguyên xi thành video hay không — mọi người nên tự hiểu.
 
-他们这样做的目的就是一个：**引流到自己的 QQ 群，然后忽悠你买课程。**
+Mục đích họ làm như vậy chỉ có một: **dẫn traffic vào QQ group của họ, rồi lừa bạn mua khóa học.**
 
-我并不认为是这完全都是培训机构的问题。培训机构的员工为了流量而做这种恶心的事情，也导致了现在这种事情被越来越频繁地发生。
+Tôi không cho rằng hoàn toàn là lỗi của bootcamp. Nhân viên bootcamp vì traffic mà làm chuyện buồn nôn như vậy, cũng dẫn đến những chuyện như thế này ngày càng xảy ra thường xuyên hơn.
 
-所以，你会发现，哔哩哔哩和知乎上有越来越多培训机构的小号，到处剽窃原创，盗发。
+Vì vậy bạn sẽ thấy, trên Bilibili và Zhihu ngày càng có nhiều tài khoản phụ của bootcamp, đạo nhái original content và đăng trộm khắp nơi.
 
-我身边很多原创号主的文章都经常被某些培训机构盗发。
+Nhiều người viết original content quanh tôi thường xuyên bị một số bootcamp đăng trộm.
 
-有时候真的会比较生气，毕竟你自己辛辛苦苦的原创，别人复制粘贴一下就白嫖了！
+Đôi khi thực sự rất tức giận — mình vất vả tạo ra nội dung gốc, người khác copy-paste một cái là ăn trắng!
 
-但是，我相信，这种靠剽窃别人原创来吸引流量的行为，终究只是跳梁小丑的行为罢了！
+Nhưng tôi tin rằng, hành vi dựa vào ăn cắp nội dung gốc của người khác để thu hút traffic, cuối cùng chỉ là trò đùa của kẻ tiểu nhân!
 
-只有那些用心输出内容的创作者，才能走的更远，更安稳！
+Chỉ những creator nào tâm huyết tạo ra nội dung mới có thể đi xa hơn, vững chắc hơn!
 
-后来，我在我的公众号上发了一篇名为[《好家伙！某培训机构盗我文章做成视频还上了热门》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247500005&idx=1&sn=7351e22619654492d3cf567bff9d87f0&chksm=cea18f2ef9d606384e0265b9318e004646c03b8a69f2801698d2f9e0e6bdfec0a1185ac3ab17&token=2146952532&lang=zh_CN&scene=21#wechat_redirect) 的文章，吐槽自己的原创被某机构白嫖。
+Sau đó, tôi đăng một bài trên Official Account tên [《Trời ơi! Một bootcamp ăn cắp bài viết của tôi làm thành video còn lên top!》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247500005&idx=1&sn=7351e22619654492d3cf567bff9d87f0&chksm=cea18f2ef9d606384e0265b9318e004646c03b8a69f2801698d2f9e0e6bdfec0a1185ac3ab17&token=2146952532&lang=zh_CN&scene=21#wechat_redirect), phàn nàn về việc original content của mình bị cơ sở nào đó ăn trắng.
 
-谁能想到，培训机构的人竟然找人来让我删文章了！讲真，这俩人是真的奇葩啊！
+Ai ngờ, người của bootcamp đó lại cử người đến nhờ tôi xóa bài! Thật tình, hai người đó thực sự kỳ quặc!
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/8f8ccafcf5b764a2289a9c276c30728d.png)
 
 ![](https://oss.javaguide.cn/javaguide/a0a4a45d7ec7b1a2622b2a38629e9b09.png)
 
-还让我格局大点？我去你丫的！明明就是我的原创，你自己不删，反而找人联系我删除！有脑子不？
+Còn bảo tôi "bao dung" hơn? Đi chỗ khác chơi! Rõ ràng là original content của tôi, mày không tự xóa, ngược lại còn nhờ người liên hệ tôi xóa! Có não không?
 
-其实，我这人是比较好说话的，现实生活中脾气也是出了名的好（前提是没有触犯到我的原则的情况）。
+Thực ra tôi là người dễ nói chuyện. Ngoài đời thực tính tình cũng nổi tiếng là tốt (tiền đề là khi chưa đụng chạm đến nguyên tắc của tôi).
 
-搞笑的是！他们在让我删文的同时，他们 B 站盗发的视频还都在，还在继续为他们引流。
+Cười chết được! Trong khi nhờ tôi xóa bài, video đăng trộm của họ trên Bilibili vẫn đang chạy, vẫn đang tiếp tục dẫn traffic cho họ.
 
 ![](https://oss.javaguide.cn/javaguide/86f659a93ce5b639526c8d2bd20b2fbe.png)
 
 ![](https://oss.javaguide.cn/github/javaguide/about-the-author/be6e0fd23146de3f6224b4d853c59ce7.png)
 
-如果他们把账号注销了，我或许还能考虑放一手。但是，文章是肯定不会删的。
+Nếu họ xóa tài khoản đi, tôi có thể cân nhắc bỏ qua. Nhưng bài viết thì chắc chắn không xóa.
 
-现在，看后续情况吧！我随时可以动用法律来维护自己的权益，只是看我想不想，毕竟也挺麻烦对吧！
+Bây giờ xem tình hình tiếp theo vậy! Tôi bất cứ lúc nào cũng có thể dùng pháp luật để bảo vệ quyền lợi của mình, chỉ là tùy tôi có muốn hay không — xét cho cùng cũng khá phiền phức phải không!
 
-大家不用担心，这都是小事，我女朋友就是学法律的，国内的某法学双一流学校。
+Mọi người đừng lo lắng, đây chỉ là chuyện nhỏ. Bạn gái tôi học luật, một trường luật double first-class trong nước.
 
-咱不怕事！凎！！！
+Tao không sợ ai! Hừm!!!

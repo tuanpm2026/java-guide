@@ -1,9 +1,9 @@
 ---
-title: SQL常见面试题总结（1）
-description: SQL常见面试题总结第一篇，涵盖SELECT检索数据、WHERE条件过滤、ORDER BY排序、DISTINCT去重、LIMIT分页等基础查询操作及牛客真题解析。
-category: 数据库
+title: Tổng hợp câu hỏi phỏng vấn SQL thường gặp (1)
+description: Phần đầu tiên của tổng hợp câu hỏi phỏng vấn SQL thường gặp, bao gồm các thao tác truy vấn cơ bản như SELECT truy xuất dữ liệu, lọc điều kiện WHERE, sắp xếp ORDER BY, loại trùng DISTINCT, phân trang LIMIT cùng phân tích đề thực tế từ Nowcoder.
+category: Cơ sở dữ liệu
 tag:
-  - 数据库基础
+  - Cơ bản về cơ sở dữ liệu
   - SQL
 head:
   - - meta
@@ -11,15 +11,15 @@ head:
       content: SQL面试题,SELECT查询,WHERE条件,ORDER BY排序,DISTINCT去重,LIMIT分页,SQL基础
 ---
 
-> 题目来源于：[牛客题霸 - SQL 必知必会](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=298)
+> Nguồn đề bài: [Nowcoder - SQL Cơ Bản](https://www.nowcoder.com/exam/oj?page=1&tab=SQL%E7%AF%87&topicId=298)
 
-## 检索数据
+## Truy xuất dữ liệu
 
-`SELECT` 用于从数据库中查询数据。
+`SELECT` dùng để truy vấn dữ liệu từ cơ sở dữ liệu.
 
-### 从 Customers 表中检索所有的 ID
+### Truy xuất tất cả ID từ bảng Customers
 
-现有表 `Customers` 如下：
+Bảng `Customers` hiện tại như sau:
 
 | cust_id |
 | ------- |
@@ -27,18 +27,18 @@ head:
 | B       |
 | C       |
 
-编写 SQL 语句，从 `Customers` 表中检索所有的 `cust_id`。
+Viết câu lệnh SQL để truy xuất tất cả `cust_id` từ bảng `Customers`.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT cust_id
 FROM Customers
 ```
 
-### 检索并列出已订购产品的清单
+### Truy xuất và liệt kê danh sách sản phẩm đã đặt hàng
 
-表 `OrderItems` 含有非空的列 `prod_id` 代表商品 id，包含了所有已订购的商品（有些已被订购多次）。
+Bảng `OrderItems` có cột `prod_id` không null đại diện cho id sản phẩm, chứa tất cả các sản phẩm đã được đặt hàng (một số đã được đặt nhiều lần).
 
 | prod_id |
 | ------- |
@@ -50,20 +50,20 @@ FROM Customers
 | a6      |
 | a7      |
 
-编写 SQL 语句，检索并列出所有已订购商品（`prod_id`）的去重后的清单。
+Viết câu lệnh SQL để truy xuất và liệt kê danh sách tất cả các sản phẩm đã đặt (`prod_id`) sau khi đã loại bỏ trùng lặp.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT DISTINCT prod_id
 FROM OrderItems
 ```
 
-知识点：`DISTINCT` 用于返回列中的唯一不同值。
+Kiến thức: `DISTINCT` dùng để trả về các giá trị duy nhất trong cột.
 
-### 检索所有列
+### Truy xuất tất cả cột
 
-现在有 `Customers` 表（表中含有列 `cust_id` 代表客户 id，`cust_name` 代表客户姓名）
+Bảng `Customers` hiện tại (bảng có cột `cust_id` đại diện cho id khách hàng, `cust_name` đại diện cho tên khách hàng)
 
 | cust_id | cust_name |
 | ------- | --------- |
@@ -75,22 +75,22 @@ FROM OrderItems
 | a6      | lee       |
 | a7      | hex       |
 
-需要编写 SQL 语句，检索所有列。
+Cần viết câu lệnh SQL để truy xuất tất cả các cột.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT cust_id, cust_name
 FROM Customers
 ```
 
-## 排序检索数据
+## Sắp xếp dữ liệu truy xuất
 
-`ORDER BY` 用于对结果集按照一个列或者多个列进行排序。默认按照升序对记录进行排序，如果需要按照降序对记录进行排序，可以使用 `DESC` 关键字。
+`ORDER BY` dùng để sắp xếp tập kết quả theo một hoặc nhiều cột. Mặc định sắp xếp theo thứ tự tăng dần. Nếu muốn sắp xếp theo thứ tự giảm dần, có thể sử dụng từ khóa `DESC`.
 
-### 检索顾客名称并且排序
+### Truy xuất tên khách hàng và sắp xếp
 
-有表 `Customers`，`cust_id` 代表客户 id，`cust_name` 代表客户姓名。
+Bảng `Customers`, `cust_id` đại diện cho id khách hàng, `cust_name` đại diện cho tên khách hàng.
 
 | cust_id | cust_name |
 | ------- | --------- |
@@ -102,9 +102,9 @@ FROM Customers
 | a6      | lee       |
 | a7      | hex       |
 
-从 `Customers` 中检索所有的顾客名称（`cust_name`），并按从 Z 到 A 的顺序显示结果。
+Truy xuất tất cả tên khách hàng (`cust_name`) từ `Customers` và hiển thị kết quả theo thứ tự từ Z đến A.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT cust_name
@@ -112,9 +112,9 @@ FROM Customers
 ORDER BY cust_name DESC
 ```
 
-### 对顾客 ID 和日期排序
+### Sắp xếp theo ID khách hàng và ngày
 
-有 `Orders` 表：
+Bảng `Orders`:
 
 | cust_id | order_num | order_date          |
 | ------- | --------- | ------------------- |
@@ -123,9 +123,9 @@ ORDER BY cust_name DESC
 | bob     | cccc      | 2021-01-10 12:00:00 |
 | dick    | dddd      | 2021-01-11 00:00:00 |
 
-编写 SQL 语句，从 `Orders` 表中检索顾客 ID（`cust_id`）和订单号（`order_num`），并先按顾客 ID 对结果进行排序，再按订单日期倒序排列。
+Viết câu lệnh SQL để truy xuất ID khách hàng (`cust_id`) và số đơn hàng (`order_num`) từ bảng `Orders`, trước tiên sắp xếp kết quả theo ID khách hàng, sau đó sắp xếp theo ngày đặt hàng giảm dần.
 
-答案：
+Đáp án:
 
 ```sql
 # 根据列名排序
@@ -135,11 +135,11 @@ FROM Orders
 ORDER BY cust_id,order_date DESC
 ```
 
-知识点：`order by` 对多列排序的时候，先排序的列放前面，后排序的列放后面。并且，不同的列可以有不同的排序规则。
+Kiến thức: Khi `order by` sắp xếp theo nhiều cột, cột sắp xếp trước đặt ở trước, cột sắp xếp sau đặt ở sau. Các cột khác nhau có thể có quy tắc sắp xếp khác nhau.
 
-### 按照数量和价格排序
+### Sắp xếp theo số lượng và giá cả
 
-假设有一个 `OrderItems` 表：
+Giả sử có bảng `OrderItems`:
 
 | quantity | item_price |
 | -------- | ---------- |
@@ -147,9 +147,9 @@ ORDER BY cust_id,order_date DESC
 | 10       | 1003       |
 | 2        | 500        |
 
-编写 SQL 语句，显示 `OrderItems` 表中的数量（`quantity`）和价格（`item_price`），并按数量由多到少、价格由高到低排序。
+Viết câu lệnh SQL để hiển thị số lượng (`quantity`) và giá cả (`item_price`) từ bảng `OrderItems`, sắp xếp theo số lượng từ nhiều đến ít, giá cả từ cao đến thấp.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT quantity, item_price
@@ -157,9 +157,9 @@ FROM OrderItems
 ORDER BY quantity DESC,item_price DESC
 ```
 
-### 检查 SQL 语句
+### Kiểm tra câu lệnh SQL
 
-有 `Vendors` 表：
+Bảng `Vendors`:
 
 | vend_name |
 | --------- |
@@ -167,7 +167,7 @@ ORDER BY quantity DESC,item_price DESC
 | 小龙坎    |
 | 大龙燚    |
 
-下面的 SQL 语句有问题吗？尝试将它改正确，使之能够正确运行，并且返回结果根据`vend_name` 逆序排列。
+Câu lệnh SQL dưới đây có vấn đề không? Hãy sửa lại cho đúng để trả về kết quả theo thứ tự ngược của `vend_name`.
 
 ```sql
 SELECT vend_name,
@@ -175,7 +175,7 @@ FROM Vendors
 ORDER vend_name DESC
 ```
 
-改正后：
+Sau khi sửa:
 
 ```sql
 SELECT vend_name
@@ -183,32 +183,32 @@ FROM Vendors
 ORDER BY vend_name DESC
 ```
 
-知识点：
+Kiến thức:
 
-- 逗号作用是用来隔开列与列之间的。
-- ORDER BY 是有 BY 的，需要撰写完整，且位置正确。
+- Dấu phẩy dùng để phân cách giữa các cột.
+- ORDER BY phải có BY, cần viết đầy đủ và đúng vị trí.
 
-## 过滤数据
+## Lọc dữ liệu
 
-`WHERE` 可以过滤返回的数据。
+`WHERE` có thể lọc dữ liệu trả về.
 
-下面的运算符可以在 `WHERE` 子句中使用：
+Các toán tử sau có thể được sử dụng trong mệnh đề `WHERE`:
 
-| 运算符  | 描述                                                         |
-| :------ | :----------------------------------------------------------- |
-| =       | 等于                                                         |
-| <>      | 不等于。 **注释：** 在 SQL 的一些版本中，该操作符可被写成 != |
-| >       | 大于                                                         |
-| <       | 小于                                                         |
-| >=      | 大于等于                                                     |
-| <=      | 小于等于                                                     |
-| BETWEEN | 在某个范围内                                                 |
-| LIKE    | 搜索某种模式                                                 |
-| IN      | 指定针对某个列的多个可能值                                   |
+| Toán tử | Mô tả                                                                                 |
+| :------ | :------------------------------------------------------------------------------------ |
+| =       | Bằng                                                                                  |
+| <>      | Không bằng. **Lưu ý:** Trong một số phiên bản SQL, toán tử này có thể được viết là != |
+| >       | Lớn hơn                                                                               |
+| <       | Nhỏ hơn                                                                               |
+| >=      | Lớn hơn hoặc bằng                                                                     |
+| <=      | Nhỏ hơn hoặc bằng                                                                     |
+| BETWEEN | Trong một phạm vi nhất định                                                           |
+| LIKE    | Tìm kiếm một mẫu nhất định                                                            |
+| IN      | Chỉ định nhiều giá trị có thể cho một cột                                             |
 
-### 返回固定价格的产品
+### Trả về sản phẩm với giá cố định
 
-有表 `Products`：
+Bảng `Products`:
 
 | prod_id | prod_name      | prod_price |
 | ------- | -------------- | ---------- |
@@ -216,9 +216,9 @@ ORDER BY vend_name DESC
 | a0019   | iphone13       | 600        |
 | b0018   | gucci t-shirts | 1000       |
 
-【问题】从 `Products` 表中检索产品 ID（`prod_id`）和产品名称（`prod_name`），只返回价格为 9.49 美元的产品。
+【Câu hỏi】Truy xuất ID sản phẩm (`prod_id`) và tên sản phẩm (`prod_name`) từ bảng `Products`, chỉ trả về các sản phẩm có giá 9.49 đô la.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_id, prod_name
@@ -226,9 +226,9 @@ FROM Products
 WHERE prod_price = 9.49
 ```
 
-### 返回更高价格的产品
+### Trả về sản phẩm có giá cao hơn
 
-有表 `Products`：
+Bảng `Products`:
 
 | prod_id | prod_name      | prod_price |
 | ------- | -------------- | ---------- |
@@ -236,9 +236,9 @@ WHERE prod_price = 9.49
 | a0019   | iphone13       | 600        |
 | b0019   | gucci t-shirts | 1000       |
 
-【问题】编写 SQL 语句，从 `Products` 表中检索产品 ID（`prod_id`）和产品名称（`prod_name`），只返回价格为 9 美元或更高的产品。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất ID sản phẩm (`prod_id`) và tên sản phẩm (`prod_name`) từ bảng `Products`, chỉ trả về các sản phẩm có giá từ 9 đô la trở lên.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_id, prod_name
@@ -246,9 +246,9 @@ FROM Products
 WHERE prod_price >= 9
 ```
 
-### 返回产品并且按照价格排序
+### Trả về sản phẩm và sắp xếp theo giá
 
-有表 `Products`：
+Bảng `Products`:
 
 | prod_id | prod_name | prod_price |
 | ------- | --------- | ---------- |
@@ -256,9 +256,9 @@ WHERE prod_price >= 9
 | a0019   | sockets   | 4          |
 | b0019   | coffee    | 15         |
 
-【问题】编写 SQL 语句，返回 `Products` 表中所有价格在 3 美元到 6 美元之间的产品的名称（`prod_name`）和价格（`prod_price`），然后按价格对结果进行排序。
+【Câu hỏi】Viết câu lệnh SQL để trả về tên (`prod_name`) và giá (`prod_price`) của tất cả sản phẩm trong bảng `Products` có giá từ 3 đến 6 đô la, sau đó sắp xếp kết quả theo giá.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_price
@@ -273,9 +273,9 @@ WHERE prod_price >= 3 AND prod_price <= 6
 ORDER BY prod_price
 ```
 
-### 返回更多的产品
+### Trả về nhiều sản phẩm hơn
 
-`OrderItems` 表含有：订单号 `order_num`，`quantity`产品数量
+Bảng `OrderItems` chứa: số đơn hàng `order_num`, số lượng sản phẩm `quantity`
 
 | order_num | quantity |
 | --------- | -------- |
@@ -287,9 +287,9 @@ ORDER BY prod_price
 | a2        | 19       |
 | a7        | 5        |
 
-【问题】从 `OrderItems` 表中检索出所有不同且不重复的订单号（`order_num`），其中每个订单都要包含 100 个或更多的产品。
+【Câu hỏi】Truy xuất tất cả các số đơn hàng (`order_num`) khác nhau và không trùng lặp từ bảng `OrderItems`, trong đó mỗi đơn hàng phải chứa 100 sản phẩm trở lên.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT order_num
@@ -298,13 +298,13 @@ GROUP BY order_num
 HAVING SUM(quantity) >= 100
 ```
 
-## 高级数据过滤
+## Lọc dữ liệu nâng cao
 
-`AND` 和 `OR` 运算符用于基于一个以上的条件对记录进行过滤，两者可以结合使用。`AND` 必须 2 个条件都成立，`OR`只要 2 个条件中的一个成立即可。
+Toán tử `AND` và `OR` dùng để lọc bản ghi dựa trên nhiều hơn một điều kiện, hai toán tử này có thể kết hợp với nhau. `AND` yêu cầu cả 2 điều kiện đều phải đúng, `OR` chỉ cần 1 trong 2 điều kiện đúng là được.
 
-### 检索供应商名称
+### Truy xuất tên nhà cung cấp
 
-`Vendors` 表有字段供应商名称（`vend_name`）、供应商国家（`vend_country`）、供应商州（`vend_state`）
+Bảng `Vendors` có các trường: tên nhà cung cấp (`vend_name`), quốc gia nhà cung cấp (`vend_country`), bang nhà cung cấp (`vend_state`)
 
 | vend_name | vend_country | vend_state |
 | --------- | ------------ | ---------- |
@@ -312,9 +312,9 @@ HAVING SUM(quantity) >= 100
 | vivo      | CNA          | shenzhen   |
 | huawei    | CNA          | xian       |
 
-【问题】编写 SQL 语句，从 `Vendors` 表中检索供应商名称（`vend_name`），仅返回加利福尼亚州的供应商（这需要按国家[USA]和州[CA]进行过滤，没准其他国家也存在一个 CA）
+【Câu hỏi】Viết câu lệnh SQL để truy xuất tên nhà cung cấp (`vend_name`) từ bảng `Vendors`, chỉ trả về các nhà cung cấp ở California (cần lọc theo quốc gia [USA] và bang [CA], vì các quốc gia khác cũng có thể có CA)
 
-答案：
+Đáp án:
 
 ```sql
 SELECT vend_name
@@ -322,9 +322,9 @@ FROM Vendors
 WHERE vend_country = 'USA' AND vend_state = 'CA'
 ```
 
-### 检索并列出已订购产品的清单
+### Truy xuất và liệt kê danh sách sản phẩm đã đặt hàng
 
-`OrderItems` 表包含了所有已订购的产品（有些已被订购多次）。
+Bảng `OrderItems` chứa tất cả các sản phẩm đã đặt hàng (một số đã được đặt nhiều lần).
 
 | prod_id | order_num | quantity |
 | ------- | --------- | -------- |
@@ -336,9 +336,9 @@ WHERE vend_country = 'USA' AND vend_state = 'CA'
 | BR02    | a2        | 19       |
 | BR017   | a7        | 5        |
 
-【问题】编写 SQL 语句，查找所有订购了数量至少 100 个的 `BR01`、`BR02` 或 `BR03` 的订单。你需要返回 `OrderItems` 表的订单号（`order_num`）、产品 ID（`prod_id`）和数量（`quantity`），并按产品 ID 和数量进行过滤。
+【Câu hỏi】Viết câu lệnh SQL để tìm tất cả các đơn hàng đã đặt ít nhất 100 sản phẩm `BR01`, `BR02` hoặc `BR03`. Bạn cần trả về số đơn hàng (`order_num`), ID sản phẩm (`prod_id`) và số lượng (`quantity`) từ bảng `OrderItems`, lọc theo ID sản phẩm và số lượng.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT order_num, prod_id, quantity
@@ -346,9 +346,9 @@ FROM OrderItems
 WHERE prod_id IN ('BR01', 'BR02', 'BR03') AND quantity >= 100
 ```
 
-### 返回所有价格在 3 美元到 6 美元之间的产品的名称和价格
+### Trả về tất cả sản phẩm có giá từ 3 đến 6 đô la cùng tên và giá
 
-有表 `Products`：
+Bảng `Products`:
 
 | prod_id | prod_name | prod_price |
 | ------- | --------- | ---------- |
@@ -356,9 +356,9 @@ WHERE prod_id IN ('BR01', 'BR02', 'BR03') AND quantity >= 100
 | a0019   | sockets   | 4          |
 | b0019   | coffee    | 15         |
 
-【问题】编写 SQL 语句，返回所有价格在 3 美元到 6 美元之间的产品的名称（`prod_name`）和价格（`prod_price`），使用 AND 操作符，然后按价格对结果进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL để trả về tên (`prod_name`) và giá (`prod_price`) của tất cả sản phẩm có giá từ 3 đến 6 đô la, sử dụng toán tử AND, sau đó sắp xếp kết quả theo giá tăng dần.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_price
@@ -367,9 +367,9 @@ WHERE prod_price >= 3 and prod_price <= 6
 ORDER BY prod_price
 ```
 
-### 检查 SQL 语句
+### Kiểm tra câu lệnh SQL
 
-供应商表 `Vendors` 有字段供应商名称 `vend_name`、供应商国家 `vend_country`、供应商省份 `vend_state`
+Bảng nhà cung cấp `Vendors` có các trường: tên nhà cung cấp `vend_name`, quốc gia nhà cung cấp `vend_country`, tỉnh/bang nhà cung cấp `vend_state`
 
 | vend_name | vend_country | vend_state |
 | --------- | ------------ | ---------- |
@@ -377,7 +377,7 @@ ORDER BY prod_price
 | vivo      | CNA          | shenzhen   |
 | huawei    | CNA          | xian       |
 
-【问题】修改正确下面 sql，使之正确返回。
+【Câu hỏi】Sửa SQL dưới đây để trả về kết quả đúng.
 
 ```sql
 SELECT vend_name
@@ -386,7 +386,7 @@ ORDER BY vend_name
 WHERE vend_country = 'USA' AND vend_state = 'CA';
 ```
 
-修改后：
+Sau khi sửa:
 
 ```sql
 SELECT vend_name
@@ -395,24 +395,24 @@ WHERE vend_country = 'USA' AND vend_state = 'CA'
 ORDER BY vend_name
 ```
 
-`ORDER BY` 语句必须放在 `WHERE` 之后。
+Mệnh đề `ORDER BY` phải đặt sau `WHERE`.
 
-## 用通配符进行过滤
+## Lọc bằng ký tự đại diện
 
-SQL 通配符必须与 `LIKE` 运算符一起使用
+Ký tự đại diện SQL phải được sử dụng cùng với toán tử `LIKE`
 
-在 SQL 中，可使用以下通配符：
+Trong SQL, có thể sử dụng các ký tự đại diện sau:
 
-| 通配符                           | 描述                       |
-| :------------------------------- | :------------------------- |
-| `%`                              | 代表零个或多个字符         |
-| `_`                              | 仅替代一个字符             |
-| `[charlist]`                     | 字符列中的任何单一字符     |
-| `[^charlist]` 或者 `[!charlist]` | 不在字符列中的任何单一字符 |
+| Ký tự đại diện                   | Mô tả                                         |
+| :------------------------------- | :-------------------------------------------- |
+| `%`                              | Đại diện cho không hoặc nhiều ký tự           |
+| `_`                              | Chỉ thay thế một ký tự                        |
+| `[charlist]`                     | Bất kỳ ký tự đơn nào trong danh sách          |
+| `[^charlist]` hoặc `[!charlist]` | Bất kỳ ký tự đơn nào không có trong danh sách |
 
-### 检索产品名称和描述（一）
+### Truy xuất tên và mô tả sản phẩm (I)
 
-`Products` 表如下：
+Bảng `Products`:
 
 | prod_name | prod_desc      |
 | --------- | -------------- |
@@ -422,9 +422,9 @@ SQL 通配符必须与 `LIKE` 运算符一起使用
 | c0019     | gucci toy      |
 | d0019     | lego toy       |
 
-【问题】编写 SQL 语句，从 `Products` 表中检索产品名称（`prod_name`）和描述（`prod_desc`），仅返回描述中包含 `toy` 一词的产品名称。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất tên sản phẩm (`prod_name`) và mô tả (`prod_desc`) từ bảng `Products`, chỉ trả về các sản phẩm có mô tả chứa từ `toy`.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_desc
@@ -432,9 +432,9 @@ FROM Products
 WHERE prod_desc LIKE '%toy%'
 ```
 
-### 检索产品名称和描述（二）
+### Truy xuất tên và mô tả sản phẩm (II)
 
-`Products` 表如下：
+Bảng `Products`:
 
 | prod_name | prod_desc      |
 | --------- | -------------- |
@@ -444,9 +444,9 @@ WHERE prod_desc LIKE '%toy%'
 | c0019     | gucci toy      |
 | d0019     | lego toy       |
 
-【问题】编写 SQL 语句，从 `Products` 表中检索产品名称（`prod_name`）和描述（`prod_desc`），仅返回描述中未出现 `toy` 一词的产品，最后按”产品名称“对结果进行排序。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất tên sản phẩm (`prod_name`) và mô tả (`prod_desc`) từ bảng `Products`, chỉ trả về các sản phẩm không có từ `toy` trong mô tả, cuối cùng sắp xếp kết quả theo "tên sản phẩm".
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_desc
@@ -455,9 +455,9 @@ WHERE prod_desc NOT LIKE '%toy%'
 ORDER BY prod_name
 ```
 
-### 检索产品名称和描述（三）
+### Truy xuất tên và mô tả sản phẩm (III)
 
-`Products` 表如下：
+Bảng `Products`:
 
 | prod_name | prod_desc        |
 | --------- | ---------------- |
@@ -467,9 +467,9 @@ ORDER BY prod_name
 | c0019     | gucci toy        |
 | d0019     | lego carrots toy |
 
-【问题】编写 SQL 语句，从 `Products` 表中检索产品名称（`prod_name`）和描述（`prod_desc`），仅返回描述中同时出现 `toy` 和 `carrots` 的产品。有好几种方法可以执行此操作，但对于这个挑战题，请使用 `AND` 和两个 `LIKE` 比较。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất tên sản phẩm (`prod_name`) và mô tả (`prod_desc`) từ bảng `Products`, chỉ trả về các sản phẩm có mô tả chứa cả `toy` và `carrots`. Có nhiều cách để thực hiện điều này, nhưng đối với thử thách này, hãy sử dụng `AND` và hai phép so sánh `LIKE`.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_desc
@@ -477,9 +477,9 @@ FROM Products
 WHERE prod_desc LIKE '%toy%' AND prod_desc LIKE "%carrots%"
 ```
 
-### 检索产品名称和描述（四）
+### Truy xuất tên và mô tả sản phẩm (IV)
 
-`Products` 表如下：
+Bảng `Products`:
 
 | prod_name | prod_desc        |
 | --------- | ---------------- |
@@ -489,9 +489,9 @@ WHERE prod_desc LIKE '%toy%' AND prod_desc LIKE "%carrots%"
 | c0019     | gucci toy        |
 | d0019     | lego toy carrots |
 
-【问题】编写 SQL 语句，从 Products 表中检索产品名称（prod_name）和描述（prod_desc），仅返回在描述中以**先后顺序**同时出现 toy 和 carrots 的产品。提示：只需要用带有三个 `%` 符号的 `LIKE` 即可。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất tên sản phẩm (prod_name) và mô tả (prod_desc) từ bảng Products, chỉ trả về các sản phẩm có mô tả chứa cả toy và carrots **theo thứ tự trước sau**. Gợi ý: Chỉ cần sử dụng `LIKE` với ba ký tự `%`.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_name, prod_desc
@@ -499,11 +499,11 @@ FROM Products
 WHERE prod_desc LIKE '%toy%carrots%'
 ```
 
-## 创建计算字段
+## Tạo trường tính toán
 
-### 别名
+### Bí danh (Alias)
 
-别名的常见用法是在检索出的结果中重命名表的列字段（为了符合特定的报表要求或客户需求）。有表 `Vendors` 代表供应商信息，`vend_id` 供应商 id、`vend_name` 供应商名称、`vend_address` 供应商地址、`vend_city` 供应商城市。
+Cách sử dụng phổ biến của bí danh là đổi tên các cột trong kết quả truy xuất (để phù hợp với yêu cầu báo cáo hoặc nhu cầu của khách hàng). Bảng `Vendors` đại diện cho thông tin nhà cung cấp, `vend_id` id nhà cung cấp, `vend_name` tên nhà cung cấp, `vend_address` địa chỉ nhà cung cấp, `vend_city` thành phố nhà cung cấp.
 
 | vend_id | vend_name     | vend_address | vend_city |
 | ------- | ------------- | ------------ | --------- |
@@ -512,9 +512,9 @@ WHERE prod_desc LIKE '%toy%carrots%'
 | a003    | aliyun cloud  | address3     | hangzhou  |
 | a003    | netease cloud | address4     | guangzhou |
 
-【问题】编写 SQL 语句，从 `Vendors` 表中检索 `vend_id`、`vend_name`、`vend_address` 和 `vend_city`，将 `vend_name` 重命名为 `vname`，将 `vend_city` 重命名为 `vcity`，将 `vend_address` 重命名为 `vaddress`，按供应商名称对结果进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL để truy xuất `vend_id`, `vend_name`, `vend_address` và `vend_city` từ bảng `Vendors`, đổi tên `vend_name` thành `vname`, `vend_city` thành `vcity`, `vend_address` thành `vaddress`, sắp xếp kết quả theo tên nhà cung cấp tăng dần.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT vend_id, vend_name AS vname, vend_address AS vaddress, vend_city AS vcity
@@ -526,28 +526,28 @@ FROM Vendors
 ORDER BY vname
 ```
 
-### 打折
+### Giảm giá
 
-我们的示例商店正在进行打折促销，所有产品均降价 10%。`Products` 表包含 `prod_id` 产品 id、`prod_price` 产品价格。
+Cửa hàng mẫu của chúng ta đang có chương trình giảm giá, tất cả sản phẩm giảm 10%. Bảng `Products` chứa `prod_id` id sản phẩm, `prod_price` giá sản phẩm.
 
-【问题】编写 SQL 语句，从 `Products` 表中返回 `prod_id`、`prod_price` 和 `sale_price`。`sale_price` 是一个包含促销价格的计算字段。提示：可以乘以 0.9，得到原价的 90%（即 10%的折扣）。
+【Câu hỏi】Viết câu lệnh SQL để trả về `prod_id`, `prod_price` và `sale_price` từ bảng `Products`. `sale_price` là trường tính toán chứa giá khuyến mãi. Gợi ý: nhân với 0.9 để được 90% giá gốc (tức là giảm 10%).
 
-答案：
+Đáp án:
 
 ```sql
 SELECT prod_id, prod_price, prod_price * 0.9 AS sale_price
 FROM Products
 ```
 
-注意：`sale_price` 是对计算结果的命名，而不是原有的列名。
+Lưu ý: `sale_price` là tên đặt cho kết quả tính toán, không phải tên cột gốc.
 
-## 使用函数处理数据
+## Sử dụng hàm xử lý dữ liệu
 
-### 顾客登录名
+### Tên đăng nhập khách hàng
 
-我们的商店已经上线了，正在创建顾客账户。所有用户都需要登录名，默认登录名是其名称和所在城市的组合。
+Cửa hàng của chúng ta đã đi vào hoạt động và đang tạo tài khoản khách hàng. Tất cả người dùng cần tên đăng nhập, tên đăng nhập mặc định là sự kết hợp giữa tên và thành phố nơi họ sống.
 
-给出 `Customers` 表 如下：
+Bảng `Customers`:
 
 | cust_id | cust_name | cust_contact | cust_city |
 | ------- | --------- | ------------ | --------- |
@@ -559,25 +559,25 @@ FROM Products
 | a6      | Lee Chen  | Lee Chen     | Oak Park  |
 | a7      | Hex Liu   | Hex Liu      | Oak Park  |
 
-【问题】编写 SQL 语句，返回顾客 ID（`cust_id`）、顾客名称（`cust_name`）和登录名（`user_login`），其中登录名全部为大写字母，并由顾客联系人的前两个字符（`cust_contact`）和其所在城市的前三个字符（`cust_city`）组成。提示：需要使用函数、拼接和别名。
+【Câu hỏi】Viết câu lệnh SQL để trả về ID khách hàng (`cust_id`), tên khách hàng (`cust_name`) và tên đăng nhập (`user_login`), trong đó tên đăng nhập toàn chữ hoa, được tạo từ hai ký tự đầu của thông tin liên lạc khách hàng (`cust_contact`) và ba ký tự đầu của thành phố (`cust_city`). Gợi ý: cần sử dụng hàm, nối chuỗi và bí danh.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT cust_id, cust_name, UPPER(CONCAT(SUBSTRING(cust_contact, 1, 2), SUBSTRING(cust_city, 1, 3))) AS user_login
 FROM Customers
 ```
 
-知识点：
+Kiến thức:
 
-- 截取函数`SUBSTRING()`：截取字符串，`substring(str ,n ,m)`（n 表示起始截取位置，m 表示要截取的字符个数）表示返回字符串 str 从第 n 个字符开始截取 m 个字符；
-- 拼接函数`CONCAT()`：将两个或多个字符串连接成一个字符串，select concat(A,B)：连接字符串 A 和 B。
+- Hàm cắt chuỗi `SUBSTRING()`: Cắt chuỗi, `substring(str ,n ,m)` (n là vị trí bắt đầu cắt, m là số ký tự cần cắt) trả về m ký tự từ vị trí n của chuỗi str;
+- Hàm nối chuỗi `CONCAT()`: Nối hai hoặc nhiều chuỗi thành một chuỗi, select concat(A,B): nối chuỗi A và B.
 
-- 大写函数 `UPPER()`：将指定字符串转换为大写。
+- Hàm chữ hoa `UPPER()`: Chuyển chuỗi đã chỉ định thành chữ hoa.
 
-### 返回 2020 年 1 月的所有订单的订单号和订单日期
+### Trả về số đơn hàng và ngày đặt hàng của tất cả đơn hàng tháng 1 năm 2020
 
-`Orders` 订单表如下：
+Bảng đơn hàng `Orders`:
 
 | order_num | order_date          |
 | --------- | ------------------- |
@@ -587,9 +587,9 @@ FROM Customers
 | a0004     | 2020-02-01 00:00:00 |
 | a0005     | 2020-03-01 00:00:00 |
 
-【问题】编写 SQL 语句，返回 2020 年 1 月的所有订单的订单号（`order_num`）和订单日期（`order_date`），并按订单日期升序排序
+【Câu hỏi】Viết câu lệnh SQL để trả về số đơn hàng (`order_num`) và ngày đặt hàng (`order_date`) của tất cả đơn hàng trong tháng 1 năm 2020, sắp xếp theo ngày đặt hàng tăng dần
 
-答案：
+Đáp án:
 
 ```sql
 SELECT order_num, order_date
@@ -598,7 +598,7 @@ WHERE month(order_date) = '01' AND YEAR(order_date) = '2020'
 ORDER BY order_date
 ```
 
-也可以用通配符来做：
+Cũng có thể dùng ký tự đại diện:
 
 ```sql
 SELECT order_num, order_date
@@ -607,47 +607,47 @@ WHERE order_date LIKE '2020-01%'
 ORDER BY order_date
 ```
 
-知识点：
+Kiến thức:
 
-- 日期格式：`YYYY-MM-DD`
-- 时间格式：`HH:MM:SS`
+- Định dạng ngày: `YYYY-MM-DD`
+- Định dạng thời gian: `HH:MM:SS`
 
-日期和时间处理相关的常用函数：
+Các hàm thường dùng liên quan đến xử lý ngày và thời gian:
 
-| 函 数           | 说 明                          |
-| --------------- | ------------------------------ |
-| `ADDDATE()`     | 增加一个日期（天、周等）       |
-| `ADDTIME()`     | 增加一个时间（时、分等）       |
-| `CURDATE()`     | 返回当前日期                   |
-| `CURTIME()`     | 返回当前时间                   |
-| `DATE()`        | 返回日期时间的日期部分         |
-| `DATEDIFF`      | 计算两个日期之差               |
-| `DATE_FORMAT()` | 返回一个格式化的日期或时间串   |
-| `DAY()`         | 返回一个日期的天数部分         |
-| `DAYOFWEEK()`   | 对于一个日期，返回对应的星期几 |
-| `HOUR()`        | 返回一个时间的小时部分         |
-| `MINUTE()`      | 返回一个时间的分钟部分         |
-| `MONTH()`       | 返回一个日期的月份部分         |
-| `NOW()`         | 返回当前日期和时间             |
-| `SECOND()`      | 返回一个时间的秒部分           |
-| `TIME()`        | 返回一个日期时间的时间部分     |
-| `YEAR()`        | 返回一个日期的年份部分         |
+| Hàm             | Mô tả                                          |
+| --------------- | ---------------------------------------------- |
+| `ADDDATE()`     | Thêm một khoảng thời gian (ngày, tuần...)      |
+| `ADDTIME()`     | Thêm một khoảng thời gian (giờ, phút...)       |
+| `CURDATE()`     | Trả về ngày hiện tại                           |
+| `CURTIME()`     | Trả về giờ hiện tại                            |
+| `DATE()`        | Trả về phần ngày của giá trị ngày-giờ          |
+| `DATEDIFF`      | Tính hiệu của hai ngày                         |
+| `DATE_FORMAT()` | Trả về chuỗi ngày hoặc thời gian đã định dạng  |
+| `DAY()`         | Trả về phần ngày của một ngày                  |
+| `DAYOFWEEK()`   | Trả về thứ trong tuần của một ngày             |
+| `HOUR()`        | Trả về phần giờ của một thời gian              |
+| `MINUTE()`      | Trả về phần phút của một thời gian             |
+| `MONTH()`       | Trả về phần tháng của một ngày                 |
+| `NOW()`         | Trả về ngày và thời gian hiện tại              |
+| `SECOND()`      | Trả về phần giây của một thời gian             |
+| `TIME()`        | Trả về phần thời gian của một giá trị ngày-giờ |
+| `YEAR()`        | Trả về phần năm của một ngày                   |
 
-## 汇总数据
+## Tổng hợp dữ liệu
 
-汇总数据相关的函数：
+Các hàm liên quan đến tổng hợp dữ liệu:
 
-| 函 数     | 说 明            |
-| --------- | ---------------- |
-| `AVG()`   | 返回某列的平均值 |
-| `COUNT()` | 返回某列的行数   |
-| `MAX()`   | 返回某列的最大值 |
-| `MIN()`   | 返回某列的最小值 |
-| `SUM()`   | 返回某列值之和   |
+| Hàm       | Mô tả                                 |
+| --------- | ------------------------------------- |
+| `AVG()`   | Trả về giá trị trung bình của một cột |
+| `COUNT()` | Trả về số hàng của một cột            |
+| `MAX()`   | Trả về giá trị lớn nhất của một cột   |
+| `MIN()`   | Trả về giá trị nhỏ nhất của một cột   |
+| `SUM()`   | Trả về tổng các giá trị của một cột   |
 
-### 确定已售出产品的总数
+### Xác định tổng số sản phẩm đã bán
 
-`OrderItems` 表代表售出的产品，`quantity` 代表售出商品数量。
+Bảng `OrderItems` đại diện cho các sản phẩm đã bán, `quantity` đại diện cho số lượng sản phẩm đã bán.
 
 | quantity |
 | -------- |
@@ -658,18 +658,18 @@ ORDER BY order_date
 | 2        |
 | 15       |
 
-【问题】编写 SQL 语句，确定已售出产品的总数。
+【Câu hỏi】Viết câu lệnh SQL để xác định tổng số sản phẩm đã bán.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT Sum(quantity) AS items_ordered
 FROM OrderItems
 ```
 
-### 确定已售出产品项 BR01 的总数
+### Xác định tổng số sản phẩm BR01 đã bán
 
-`OrderItems` 表代表售出的产品，`quantity` 代表售出商品数量，产品项为 `prod_id`。
+Bảng `OrderItems` đại diện cho các sản phẩm đã bán, `quantity` đại diện cho số lượng sản phẩm đã bán, id sản phẩm là `prod_id`.
 
 | quantity | prod_id |
 | -------- | ------- |
@@ -678,9 +678,9 @@ FROM OrderItems
 | 1000     | BR01    |
 | 10001    | BR010   |
 
-【问题】修改创建的语句，确定已售出产品项（`prod_id`）为"BR01"的总数。
+【Câu hỏi】Sửa câu lệnh đã tạo để xác định tổng số sản phẩm (`prod_id`) là "BR01" đã bán.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT Sum(quantity) AS items_ordered
@@ -688,9 +688,9 @@ FROM OrderItems
 WHERE prod_id = 'BR01'
 ```
 
-### 确定 Products 表中价格不超过 10 美元的最贵产品的价格
+### Xác định giá sản phẩm đắt nhất không vượt quá 10 đô la trong bảng Products
 
-`Products` 表如下，`prod_price` 代表商品的价格。
+Bảng `Products`, `prod_price` đại diện cho giá sản phẩm.
 
 | prod_price |
 | ---------- |
@@ -698,9 +698,9 @@ WHERE prod_id = 'BR01'
 | 600        |
 | 1000       |
 
-【问题】编写 SQL 语句，确定 `Products` 表中价格不超过 10 美元的最贵产品的价格（`prod_price`）。将计算所得的字段命名为 `max_price`。
+【Câu hỏi】Viết câu lệnh SQL để xác định giá (`prod_price`) của sản phẩm đắt nhất không vượt quá 10 đô la trong bảng `Products`. Đặt tên trường tính toán là `max_price`.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT Max(prod_price) AS max_price
@@ -708,30 +708,30 @@ FROM Products
 WHERE prod_price <= 10
 ```
 
-## 分组数据
+## Nhóm dữ liệu
 
-`GROUP BY`：
+`GROUP BY`:
 
-- `GROUP BY` 子句将记录分组到汇总行中。
-- `GROUP BY` 为每个组返回一个记录。
-- `GROUP BY` 通常还涉及聚合`COUNT`，`MAX`，`SUM`，`AVG` 等。
-- `GROUP BY` 可以按一列或多列进行分组。
-- `GROUP BY` 按分组字段进行排序后，`ORDER BY` 可以以汇总字段来进行排序。
+- Mệnh đề `GROUP BY` nhóm các bản ghi thành các hàng tổng hợp.
+- `GROUP BY` trả về một bản ghi cho mỗi nhóm.
+- `GROUP BY` thường liên quan đến các hàm tổng hợp `COUNT`, `MAX`, `SUM`, `AVG`, v.v.
+- `GROUP BY` có thể nhóm theo một hoặc nhiều cột.
+- Sau khi `GROUP BY` sắp xếp theo trường nhóm, `ORDER BY` có thể sắp xếp theo trường tổng hợp.
 
-`HAVING`：
+`HAVING`:
 
-- `HAVING` 用于对汇总的 `GROUP BY` 结果进行过滤。
-- `HAVING` 必须要与 `GROUP BY` 连用。
-- `WHERE` 和 `HAVING` 可以在相同的查询中。
+- `HAVING` dùng để lọc kết quả `GROUP BY` đã được tổng hợp.
+- `HAVING` phải được dùng cùng với `GROUP BY`.
+- `WHERE` và `HAVING` có thể được dùng trong cùng một truy vấn.
 
-`HAVING` vs `WHERE`：
+`HAVING` vs `WHERE`:
 
-- `WHERE`：过滤指定的行，后面不能加聚合函数（分组函数）。
-- `HAVING`：过滤分组，必须要与 `GROUP BY` 连用，不能单独使用。
+- `WHERE`: Lọc các hàng được chỉ định, không thể thêm hàm tổng hợp (hàm nhóm) sau.
+- `HAVING`: Lọc nhóm, phải dùng cùng với `GROUP BY`, không thể dùng độc lập.
 
-### 返回每个订单号各有多少行数
+### Trả về số hàng trong mỗi số đơn hàng
 
-`OrderItems` 表包含每个订单的每个产品
+Bảng `OrderItems` chứa mỗi sản phẩm của mỗi đơn hàng
 
 | order_num |
 | --------- |
@@ -741,9 +741,9 @@ WHERE prod_price <= 10
 | a004      |
 | a007      |
 
-【问题】编写 SQL 语句，返回每个订单号（`order_num`）各有多少行数（`order_lines`），并按 `order_lines` 对结果进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL để trả về số hàng (`order_lines`) của mỗi số đơn hàng (`order_num`), sắp xếp kết quả theo `order_lines` tăng dần.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT order_num, Count(order_num) AS order_lines
@@ -752,15 +752,15 @@ GROUP BY order_num
 ORDER BY order_lines
 ```
 
-知识点：
+Kiến thức:
 
-1. `count(*)`,`count(列名)`都可以，区别在于，`count(列名)`是统计非 NULL 的行数；
-2. `order by` 最后执行，所以可以使用列别名；
-3. 分组聚合一定不要忘记加上 `group by` ,不然只会有一行结果。
+1. `count(*)`, `count(tên cột)` đều được, sự khác biệt là `count(tên cột)` đếm số hàng không NULL;
+2. `order by` thực thi cuối cùng, vì vậy có thể sử dụng bí danh cột;
+3. Tổng hợp nhóm nhớ đừng quên thêm `group by`, nếu không sẽ chỉ có một hàng kết quả.
 
-### 每个供应商成本最低的产品
+### Sản phẩm có giá thấp nhất của mỗi nhà cung cấp
 
-有 `Products` 表，含有字段 `prod_price` 代表产品价格，`vend_id` 代表供应商 id
+Bảng `Products` có trường `prod_price` đại diện cho giá sản phẩm, `vend_id` đại diện cho id nhà cung cấp
 
 | vend_id | prod_price |
 | ------- | ---------- |
@@ -770,9 +770,9 @@ ORDER BY order_lines
 | b0019   | 6980       |
 | b0019   | 20         |
 
-【问题】编写 SQL 语句，返回名为 `cheapest_item` 的字段，该字段包含每个供应商成本最低的产品（使用 `Products` 表中的 `prod_price`），然后从最低成本到最高成本对结果进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL để trả về trường có tên `cheapest_item`, trường này chứa sản phẩm có giá thấp nhất của mỗi nhà cung cấp (sử dụng `prod_price` trong bảng `Products`), sau đó sắp xếp kết quả theo giá thấp nhất đến cao nhất.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT vend_id, Min(prod_price) AS cheapest_item
@@ -781,9 +781,9 @@ GROUP BY vend_id
 ORDER BY cheapest_item
 ```
 
-### 返回订单数量总和不小于 100 的所有订单的订单号
+### Trả về tất cả số đơn hàng có tổng số lượng không nhỏ hơn 100
 
-`OrderItems` 代表订单商品表，包括：订单号 `order_num` 和订单数量 `quantity`。
+Bảng `OrderItems` đại diện cho bảng hàng hóa đơn hàng, bao gồm: số đơn hàng `order_num` và số lượng đơn hàng `quantity`.
 
 | order_num | quantity |
 | --------- | -------- |
@@ -795,9 +795,9 @@ ORDER BY cheapest_item
 | a2        | 19       |
 | a7        | 5        |
 
-【问题】请编写 SQL 语句，返回订单数量总和不小于 100 的所有订单号，最后结果按照订单号升序排序。
+【Câu hỏi】Viết câu lệnh SQL để trả về tất cả số đơn hàng có tổng số lượng không nhỏ hơn 100, kết quả cuối cùng sắp xếp theo số đơn hàng tăng dần.
 
-答案：
+Đáp án:
 
 ```sql
 # 直接聚合
@@ -816,14 +816,14 @@ FROM (SELECT order_num, Sum(quantity) AS sum_num
 ORDER BY a.order_num
 ```
 
-知识点：
+Kiến thức:
 
-- `where`：过滤过滤指定的行，后面不能加聚合函数（分组函数）。
-- `having`：过滤分组，与 `group by` 连用，不能单独使用。
+- `where`: Lọc các hàng được chỉ định, không thể thêm hàm tổng hợp (hàm nhóm) sau.
+- `having`: Lọc nhóm, dùng cùng với `group by`, không thể dùng độc lập.
 
-### 计算总和
+### Tính tổng
 
-`OrderItems` 表代表订单信息，包括字段：订单号 `order_num` 和 `item_price` 商品售出价格、`quantity` 商品数量。
+Bảng `OrderItems` đại diện cho thông tin đơn hàng, bao gồm các trường: số đơn hàng `order_num`, giá bán hàng hóa `item_price`, số lượng hàng hóa `quantity`.
 
 | order_num | item_price | quantity |
 | --------- | ---------- | -------- |
@@ -835,11 +835,11 @@ ORDER BY a.order_num
 | a2        | 1          | 19       |
 | a7        | 7          | 5        |
 
-【问题】编写 SQL 语句，根据订单号聚合，返回订单总价不小于 1000 的所有订单号，最后的结果按订单号进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL, tổng hợp theo số đơn hàng, trả về tất cả số đơn hàng có tổng giá không nhỏ hơn 1000, kết quả cuối cùng sắp xếp theo số đơn hàng tăng dần.
 
-提示：总价 = item_price 乘以 quantity
+Gợi ý: Tổng giá = item_price nhân với quantity
 
-答案：
+Đáp án:
 
 ```sql
 SELECT order_num, Sum(item_price * quantity) AS total_price
@@ -849,9 +849,9 @@ HAVING total_price >= 1000
 ORDER BY order_num
 ```
 
-### 检查 SQL 语句
+### Kiểm tra câu lệnh SQL
 
-`OrderItems` 表含有 `order_num` 订单号
+Bảng `OrderItems` có `order_num` số đơn hàng
 
 | order_num |
 | --------- |
@@ -861,7 +861,7 @@ ORDER BY order_num
 | a004      |
 | a007      |
 
-【问题】将下面代码修改正确后执行
+【Câu hỏi】Sửa đoạn code dưới đây cho đúng rồi thực thi
 
 ```sql
 SELECT order_num, COUNT(*) AS items
@@ -871,7 +871,7 @@ HAVING COUNT(*) >= 3
 ORDER BY items, order_num;
 ```
 
-修改后：
+Sau khi sửa:
 
 ```sql
 SELECT order_num, COUNT(*) AS items
@@ -881,20 +881,20 @@ HAVING items >= 3
 ORDER BY items, order_num;
 ```
 
-## 使用子查询
+## Sử dụng truy vấn con
 
-子查询是嵌套在较大查询中的 SQL 查询，也称内部查询或内部选择，包含子查询的语句也称为外部查询或外部选择。简单来说，子查询就是指将一个 `SELECT` 查询（子查询）的结果作为另一个 SQL 语句（主查询）的数据来源或者判断条件。
+Truy vấn con là truy vấn SQL lồng trong truy vấn lớn hơn, còn được gọi là truy vấn nội hoặc lựa chọn nội, câu lệnh chứa truy vấn con cũng được gọi là truy vấn ngoại hay lựa chọn ngoại. Nói đơn giản, truy vấn con là việc sử dụng kết quả của một truy vấn `SELECT` (truy vấn con) làm nguồn dữ liệu hoặc điều kiện phán đoán cho một câu lệnh SQL khác (truy vấn chính).
 
-子查询可以嵌入 `SELECT`、`INSERT`、`UPDATE` 和 `DELETE` 语句中，也可以和 `=`、`<`、`>`、`IN`、`BETWEEN`、`EXISTS` 等运算符一起使用。
+Truy vấn con có thể được nhúng trong các câu lệnh `SELECT`, `INSERT`, `UPDATE` và `DELETE`, cũng có thể được dùng cùng với các toán tử `=`, `<`, `>`, `IN`, `BETWEEN`, `EXISTS`, v.v.
 
-子查询常用在 `WHERE` 子句和 `FROM` 子句后边：
+Truy vấn con thường được dùng trong mệnh đề `WHERE` và mệnh đề `FROM`:
 
-- 当用于 `WHERE` 子句时，根据不同的运算符，子查询可以返回单行单列、多行单列、单行多列数据。子查询就是要返回能够作为 WHERE 子句查询条件的值。
-- 当用于 `FROM` 子句时，一般返回多行多列数据，相当于返回一张临时表，这样才符合 `FROM` 后面是表的规则。这种做法能够实现多表联合查询。
+- Khi dùng trong mệnh đề `WHERE`, tùy theo toán tử khác nhau, truy vấn con có thể trả về dữ liệu một hàng một cột, nhiều hàng một cột, một hàng nhiều cột. Truy vấn con cần trả về giá trị có thể dùng làm điều kiện truy vấn WHERE.
+- Khi dùng trong mệnh đề `FROM`, thường trả về nhiều hàng nhiều cột, tương đương với việc trả về một bảng tạm thời, điều này phù hợp với quy tắc sau FROM phải là bảng. Cách làm này có thể thực hiện truy vấn kết hợp nhiều bảng.
 
-> 注意：MySQL 数据库从 4.1 版本才开始支持子查询，早期版本是不支持的。
+> Lưu ý: MySQL hỗ trợ truy vấn con từ phiên bản 4.1, các phiên bản trước đó không hỗ trợ.
 
-用于 `WHERE` 子句的子查询的基本语法如下：
+Cú pháp cơ bản của truy vấn con dùng trong mệnh đề `WHERE`:
 
 ```sql
 SELECT column_name [, column_name ]
@@ -905,10 +905,10 @@ FROM table1 [, table2 ]
 [WHERE])
 ```
 
-- 子查询需要放在括号`( )`内。
-- `operator` 表示用于 `WHERE` 子句的运算符，可以是比较运算符（如 `=`, `<`, `>`, `<>` 等）或逻辑运算符（如 `IN`, `NOT IN`, `EXISTS`, `NOT EXISTS` 等），具体根据需求来确定。
+- Truy vấn con cần được đặt trong dấu ngoặc `( )`.
+- `operator` đại diện cho toán tử dùng trong mệnh đề `WHERE`, có thể là toán tử so sánh (như `=`, `<`, `>`, `<>`, v.v.) hoặc toán tử logic (như `IN`, `NOT IN`, `EXISTS`, `NOT EXISTS`, v.v.), cụ thể tùy theo nhu cầu.
 
-用于 `FROM` 子句的子查询的基本语法如下：
+Cú pháp cơ bản của truy vấn con dùng trong mệnh đề `FROM`:
 
 ```sql
 SELECT column_name [, column_name ]
@@ -919,15 +919,15 @@ FROM (SELECT column_name [, column_name ]
 WHERE condition;
 ```
 
-- 用于 `FROM` 的子查询返回的结果相当于一张临时表，所以需要使用 AS 关键字为该临时表起一个名字。
-- 子查询需要放在括号 `( )` 内。
-- 可以指定多个临时表名，并使用 `JOIN` 语句连接这些表。
+- Truy vấn con dùng trong `FROM` trả về kết quả tương đương một bảng tạm thời, vì vậy cần dùng từ khóa AS để đặt tên cho bảng tạm thời đó.
+- Truy vấn con cần được đặt trong dấu ngoặc `( )`.
+- Có thể chỉ định nhiều tên bảng tạm thời và dùng câu lệnh `JOIN` để kết nối các bảng đó.
 
-### 返回购买价格为 10 美元或以上产品的顾客列表
+### Trả về danh sách khách hàng đã mua sản phẩm trị giá 10 đô la trở lên
 
-`OrderItems` 表示订单商品表，含有字段订单号：`order_num`、订单价格：`item_price`；`Orders` 表代表订单信息表，含有顾客 `id：cust_id` 和订单号：`order_num`
+Bảng `OrderItems` đại diện cho bảng hàng hóa đơn hàng, có các trường số đơn hàng `order_num`, giá đơn hàng `item_price`; bảng `Orders` đại diện cho bảng thông tin đơn hàng, có id khách hàng `cust_id` và số đơn hàng `order_num`
 
-`OrderItems` 表:
+Bảng `OrderItems`:
 
 | order_num | item_price |
 | --------- | ---------- |
@@ -939,7 +939,7 @@ WHERE condition;
 | a2        | 1          |
 | a7        | 7          |
 
-`Orders` 表：
+Bảng `Orders`:
 
 | order_num | cust_id |
 | --------- | ------- |
@@ -951,9 +951,9 @@ WHERE condition;
 | a2        | cust1   |
 | a7        | cust7   |
 
-【问题】使用子查询，返回购买价格为 10 美元或以上产品的顾客列表，结果无需排序。
+【Câu hỏi】Sử dụng truy vấn con để trả về danh sách khách hàng đã mua sản phẩm trị giá 10 đô la trở lên, kết quả không cần sắp xếp.
 
-答案：
+Đáp án:
 
 ```sql
 SELECT cust_id
@@ -963,11 +963,11 @@ WHERE order_num IN (SELECT DISTINCT order_num
     where item_price >= 10)
 ```
 
-### 确定哪些订单购买了 prod_id 为 BR01 的产品（一）
+### Xác định đơn hàng nào đã mua sản phẩm có prod_id là BR01 (I)
 
-表 `OrderItems` 代表订单商品信息表，`prod_id` 为产品 id；`Orders` 表代表订单表有 `cust_id` 代表顾客 id 和订单日期 `order_date`
+Bảng `OrderItems` đại diện cho bảng thông tin hàng hóa đơn hàng, `prod_id` là id sản phẩm; bảng `Orders` đại diện cho bảng đơn hàng có `cust_id` đại diện cho id khách hàng và ngày đặt hàng `order_date`
 
-`OrderItems` 表：
+Bảng `OrderItems`:
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -976,7 +976,7 @@ WHERE order_num IN (SELECT DISTINCT order_num
 | BR02    | a0003     |
 | BR02    | a0013     |
 
-`Orders` 表：
+Bảng `Orders`:
 
 | order_num | cust_id | order_date          |
 | --------- | ------- | ------------------- |
@@ -985,11 +985,11 @@ WHERE order_num IN (SELECT DISTINCT order_num
 | a0003     | cust1   | 2022-01-02 00:00:00 |
 | a0013     | cust2   | 2022-01-01 00:20:00 |
 
-【问题】
+【Câu hỏi】
 
-编写 SQL 语句，使用子查询来确定哪些订单（在 `OrderItems` 中）购买了 `prod_id` 为 "BR01" 的产品，然后从 `Orders` 表中返回每个产品对应的顾客 ID（`cust_id`）和订单日期（`order_date`），按订购日期对结果进行升序排序。
+Viết câu lệnh SQL, sử dụng truy vấn con để xác định đơn hàng nào (trong `OrderItems`) đã mua sản phẩm có `prod_id` là "BR01", sau đó trả về ID khách hàng (`cust_id`) và ngày đặt hàng (`order_date`) tương ứng với mỗi sản phẩm từ bảng `Orders`, sắp xếp kết quả theo ngày đặt hàng tăng dần.
 
-答案：
+Đáp án:
 
 ```sql
 # 写法 1：子查询
@@ -1008,11 +1008,11 @@ WHERE a.order_num = b.order_num AND a.prod_id = 'BR01'
 ORDER BY order_date
 ```
 
-### 返回购买 prod_id 为 BR01 的产品的所有顾客的电子邮件（一）
+### Trả về email của tất cả khách hàng đã mua sản phẩm có prod_id là BR01 (I)
 
-你想知道订购 BR01 产品的日期，有表 `OrderItems` 代表订单商品信息表，`prod_id` 为产品 id；`Orders` 表代表订单表有 `cust_id` 代表顾客 id 和订单日期 `order_date`；`Customers` 表含有 `cust_email` 顾客邮件和 `cust_id` 顾客 id
+Bạn muốn biết ngày đặt hàng sản phẩm BR01, bảng `OrderItems` đại diện cho bảng thông tin hàng hóa đơn hàng, `prod_id` là id sản phẩm; bảng `Orders` đại diện cho bảng đơn hàng có `cust_id` đại diện cho id khách hàng và ngày đặt hàng `order_date`; bảng `Customers` chứa `cust_email` email khách hàng và `cust_id` id khách hàng
 
-`OrderItems` 表：
+Bảng `OrderItems`:
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -1021,7 +1021,7 @@ ORDER BY order_date
 | BR02    | a0003     |
 | BR02    | a0013     |
 
-`Orders` 表：
+Bảng `Orders`:
 
 | order_num | cust_id | order_date          |
 | --------- | ------- | ------------------- |
@@ -1030,7 +1030,7 @@ ORDER BY order_date
 | a0003     | cust1   | 2022-01-02 00:00:00 |
 | a0013     | cust2   | 2022-01-01 00:20:00 |
 
-`Customers` 表代表顾客信息，`cust_id` 为顾客 id，`cust_email` 为顾客 email
+Bảng `Customers` đại diện cho thông tin khách hàng, `cust_id` là id khách hàng, `cust_email` là email khách hàng
 
 | cust_id | cust_email        |
 | ------- | ----------------- |
@@ -1038,11 +1038,11 @@ ORDER BY order_date
 | cust1   | <cust1@cust.com>  |
 | cust2   | <cust2@cust.com>  |
 
-【问题】返回购买 `prod_id` 为 `BR01` 的产品的所有顾客的电子邮件（`Customers` 表中的 `cust_email`），结果无需排序。
+【Câu hỏi】Trả về email (`cust_email` trong bảng `Customers`) của tất cả khách hàng đã mua sản phẩm có `prod_id` là `BR01`, kết quả không cần sắp xếp.
 
-提示：这涉及 `SELECT` 语句，最内层的从 `OrderItems` 表返回 `order_num`，中间的从 `Customers` 表返回 `cust_id`。
+Gợi ý: Liên quan đến câu lệnh `SELECT`, câu trong cùng trả về `order_num` từ bảng `OrderItems`, câu giữa trả về `cust_id` từ bảng `Customers`.
 
-答案：
+Đáp án:
 
 ```sql
 # 写法 1：子查询
@@ -1067,11 +1067,11 @@ FROM Orders a LEFT JOIN
 WHERE b.prod_id = 'BR01'
 ```
 
-### 返回每个顾客不同订单的总金额
+### Trả về tổng số tiền trong các đơn hàng khác nhau của mỗi khách hàng
 
-我们需要一个顾客 ID 列表，其中包含他们已订购的总金额。
+Chúng ta cần danh sách ID khách hàng cùng tổng số tiền họ đã đặt hàng.
 
-`OrderItems` 表代表订单信息，`OrderItems` 表有订单号：`order_num` 和商品售出价格：`item_price`、商品数量：`quantity`。
+Bảng `OrderItems` đại diện cho thông tin đơn hàng, bảng `OrderItems` có số đơn hàng `order_num`, giá bán hàng hóa `item_price`, số lượng hàng hóa `quantity`.
 
 | order_num | item_price | quantity |
 | --------- | ---------- | -------- |
@@ -1083,7 +1083,7 @@ WHERE b.prod_id = 'BR01'
 | a0003     | 1          | 19       |
 | a0003     | 7          | 5        |
 
-`Orders` 表订单号：`order_num`、顾客 id：`cust_id`
+Bảng `Orders`: số đơn hàng `order_num`, id khách hàng `cust_id`
 
 | order_num | cust_id |
 | --------- | ------- |
@@ -1092,11 +1092,11 @@ WHERE b.prod_id = 'BR01'
 | a0003     | cust1   |
 | a0013     | cust2   |
 
-【问题】
+【Câu hỏi】
 
-编写 SQL 语句，返回顾客 ID（`Orders` 表中的 `cust_id`），并使用子查询返回 `total_ordered` 以便返回每个顾客的订单总数，将结果按金额从大到小排序。
+Viết câu lệnh SQL để trả về ID khách hàng (`cust_id` trong bảng `Orders`), và sử dụng truy vấn con để trả về `total_ordered` nhằm trả về tổng số tiền đặt hàng của mỗi khách hàng, sắp xếp kết quả theo số tiền từ lớn đến nhỏ.
 
-答案：
+Đáp án:
 
 ```sql
 # 写法 1：子查询
@@ -1117,11 +1117,11 @@ GROUP BY cust_id
 ORDER BY total_ordered DESC
 ```
 
-关于写法一详细介绍可以参考： [issue#2402：写法 1 存在的错误以及修改方法](https://github.com/Snailclimb/JavaGuide/issues/2402)。
+Để biết thêm chi tiết về cách viết 1, xem: [issue#2402: Lỗi trong cách viết 1 và cách sửa](https://github.com/Snailclimb/JavaGuide/issues/2402).
 
-### 从 Products 表中检索所有的产品名称以及对应的销售总数
+### Truy xuất tất cả tên sản phẩm và tổng số lượng bán tương ứng từ bảng Products
 
-`Products` 表中检索所有的产品名称：`prod_name`、产品 id：`prod_id`
+Truy xuất tất cả tên sản phẩm `prod_name`, id sản phẩm `prod_id` trong bảng `Products`
 
 | prod_id | prod_name |
 | ------- | --------- |
@@ -1130,7 +1130,7 @@ ORDER BY total_ordered DESC
 | a0013   | coffee    |
 | a0003   | cola      |
 
-`OrderItems` 代表订单商品表，订单产品：`prod_id`、售出数量：`quantity`
+Bảng `OrderItems` đại diện cho bảng hàng hóa đơn hàng, sản phẩm đặt hàng `prod_id`, số lượng bán `quantity`
 
 | prod_id | quantity |
 | ------- | -------- |
@@ -1142,11 +1142,11 @@ ORDER BY total_ordered DESC
 | a0003   | 19       |
 | a0003   | 5        |
 
-【问题】
+【Câu hỏi】
 
-编写 SQL 语句，从 `Products` 表中检索所有的产品名称（`prod_name`），以及名为 `quant_sold` 的计算列，其中包含所售产品的总数（在 `OrderItems` 表上使用子查询和 `SUM(quantity)` 检索）。
+Viết câu lệnh SQL để truy xuất tất cả tên sản phẩm (`prod_name`) từ bảng `Products`, cùng với cột tính toán có tên `quant_sold`, chứa tổng số sản phẩm đã bán (sử dụng truy vấn con và `SUM(quantity)` trên bảng `OrderItems`).
 
-答案：
+Đáp án:
 
 ```sql
 # 写法 1：子查询
@@ -1165,13 +1165,13 @@ WHERE p.prod_id = o.prod_id
 GROUP BY p.prod_name（这里不能用 p.prod_id，会报错）
 ```
 
-## 连接表
+## Kết nối bảng
 
-JOIN 是“连接”的意思，顾名思义，SQL JOIN 子句用于将两个或者多个表联合起来进行查询。
+JOIN có nghĩa là "kết nối", mệnh đề SQL JOIN dùng để kết nối hai hoặc nhiều bảng để truy vấn.
 
-连接表时需要在每个表中选择一个字段，并对这些字段的值进行比较，值相同的两条记录将合并为一条。**连接表的本质就是将不同表的记录合并起来，形成一张新表。当然，这张新表只是临时的，它仅存在于本次查询期间**。
+Khi kết nối bảng, cần chọn một trường trong mỗi bảng và so sánh các giá trị của các trường đó, hai bản ghi có cùng giá trị sẽ được hợp nhất thành một. **Bản chất của việc kết nối bảng là hợp nhất các bản ghi từ các bảng khác nhau để tạo thành một bảng mới. Tất nhiên, bảng mới này chỉ là tạm thời, nó chỉ tồn tại trong thời gian truy vấn này**.
 
-使用 `JOIN` 连接两个表的基本语法如下：
+Cú pháp cơ bản để kết nối hai bảng với `JOIN`:
 
 ```sql
 SELECT table1.column1, table2.column2...
@@ -1180,11 +1180,11 @@ JOIN table2
 ON table1.common_column1 = table2.common_column2;
 ```
 
-`table1.common_column1 = table2.common_column2` 是连接条件，只有满足此条件的记录才会合并为一行。您可以使用多个运算符来连接表，例如 =、>、<、<>、<=、>=、!=、`between`、`like` 或者 `not`，但是最常见的是使用 =。
+`table1.common_column1 = table2.common_column2` là điều kiện kết nối, chỉ những bản ghi thỏa mãn điều kiện này mới được hợp nhất thành một hàng. Bạn có thể sử dụng nhiều toán tử để kết nối bảng, ví dụ =, >, <, <>, <=, >=, !=, `between`, `like` hoặc `not`, nhưng phổ biến nhất là sử dụng =.
 
-当两个表中有同名的字段时，为了帮助数据库引擎区分是哪个表的字段，在书写同名字段名时需要加上表名。当然，如果书写的字段名在两个表中是唯一的，也可以不使用以上格式，只写字段名即可。
+Khi hai bảng có các trường cùng tên, để giúp database engine phân biệt đó là trường của bảng nào, khi viết tên trường cùng tên cần thêm tên bảng vào trước. Tất nhiên, nếu tên trường là duy nhất trong cả hai bảng, cũng có thể không cần dùng định dạng trên, chỉ cần viết tên trường.
 
-另外，如果两张表的关联字段名相同，也可以使用 `USING`子句来代替 `ON`，举个例子：
+Ngoài ra, nếu tên trường liên kết của hai bảng giống nhau, cũng có thể dùng mệnh đề `USING` thay vì `ON`, ví dụ:
 
 ```sql
 # join....on
@@ -1202,31 +1202,31 @@ USING(cust_id)
 ORDER BY c.cust_name
 ```
 
-**`ON` 和 `WHERE` 的区别**：
+**Sự khác biệt giữa `ON` và `WHERE`**:
 
-- 连接表时，SQL 会根据连接条件生成一张新的临时表。`ON` 就是连接条件，它决定临时表的生成。
-- `WHERE` 是在临时表生成以后，再对临时表中的数据进行过滤，生成最终的结果集，这个时候已经没有 JOIN-ON 了。
+- Khi kết nối bảng, SQL sẽ tạo một bảng tạm thời mới dựa trên điều kiện kết nối. `ON` là điều kiện kết nối, nó quyết định việc tạo bảng tạm thời.
+- `WHERE` là sau khi bảng tạm thời được tạo, lọc dữ liệu trong bảng tạm thời để tạo tập kết quả cuối cùng, lúc này không còn JOIN-ON nữa.
 
-所以总结来说就是：**SQL 先根据 ON 生成一张临时表，然后再根据 WHERE 对临时表进行筛选**。
+Tóm lại: **SQL trước tiên tạo một bảng tạm thời dựa trên ON, sau đó lọc bảng tạm thời dựa trên WHERE**.
 
-SQL 允许在 `JOIN` 左边加上一些修饰性的关键词，从而形成不同类型的连接，如下表所示：
+SQL cho phép thêm một số từ khóa sửa đổi vào bên trái của `JOIN`, tạo thành các loại kết nối khác nhau như bảng dưới đây:
 
-| 连接类型                                 | 说明                                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------- |
-| INNER JOIN 内连接                        | （默认连接方式）只有当两个表都存在满足条件的记录时才会返回行。                                |
-| LEFT JOIN / LEFT OUTER JOIN 左(外)连接   | 返回左表中的所有行，即使右表中没有满足条件的行也是如此。                                      |
-| RIGHT JOIN / RIGHT OUTER JOIN 右(外)连接 | 返回右表中的所有行，即使左表中没有满足条件的行也是如此。                                      |
-| FULL JOIN / FULL OUTER JOIN 全(外)连接   | 只要其中有一个表存在满足条件的记录，就返回行。                                                |
-| SELF JOIN                                | 将一个表连接到自身，就像该表是两个表一样。为了区分两个表，在 SQL 语句中需要至少重命名一个表。 |
-| CROSS JOIN                               | 交叉连接，从两个或者多个连接表中返回记录集的笛卡尔积。                                        |
+| Loại kết nối                                 | Mô tả                                                                                                                               |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| INNER JOIN (kết nối trong)                   | (Cách kết nối mặc định) Chỉ trả về hàng khi cả hai bảng đều có bản ghi thỏa mãn điều kiện.                                          |
+| LEFT JOIN / LEFT OUTER JOIN (kết nối trái)   | Trả về tất cả hàng trong bảng trái, ngay cả khi bảng phải không có hàng nào thỏa mãn điều kiện.                                     |
+| RIGHT JOIN / RIGHT OUTER JOIN (kết nối phải) | Trả về tất cả hàng trong bảng phải, ngay cả khi bảng trái không có hàng nào thỏa mãn điều kiện.                                     |
+| FULL JOIN / FULL OUTER JOIN (kết nối đầy đủ) | Chỉ cần một trong các bảng có bản ghi thỏa mãn điều kiện là trả về hàng.                                                            |
+| SELF JOIN                                    | Kết nối một bảng với chính nó, như thể bảng đó là hai bảng. Để phân biệt hai bảng, cần đổi tên ít nhất một bảng trong câu lệnh SQL. |
+| CROSS JOIN                                   | Kết nối chéo, trả về tích Descartes của tập bản ghi từ hai hoặc nhiều bảng kết nối.                                                 |
 
-下图展示了 LEFT JOIN、RIGHT JOIN、INNER JOIN、OUTER JOIN 相关的 7 种用法。
+Hình dưới đây minh họa 7 cách sử dụng liên quan đến LEFT JOIN, RIGHT JOIN, INNER JOIN, OUTER JOIN.
 
 ![](https://oss.javaguide.cn/github/javaguide/csdn/d1794312b448516831369f869814ab39.png)
 
-如果不加任何修饰词，只写 `JOIN`，那么默认为 `INNER JOIN`
+Nếu không thêm bất kỳ từ khóa sửa đổi nào, chỉ viết `JOIN`, thì mặc định là `INNER JOIN`
 
-对于 `INNER JOIN` 来说，还有一种隐式的写法，称为 “**隐式内连接**”，也就是没有 `INNER JOIN` 关键字，使用 `WHERE` 语句实现内连接的功能
+Đối với `INNER JOIN`, còn có một cách viết ẩn, gọi là "**kết nối trong ẩn**", tức là không có từ khóa `INNER JOIN`, sử dụng câu lệnh `WHERE` để thực hiện chức năng kết nối trong
 
 ```sql
 # 隐式内连接
@@ -1243,9 +1243,9 @@ USING(cust_id)
 ORDER BY c.cust_name;
 ```
 
-### 返回顾客名称和相关订单号
+### Trả về tên khách hàng và số đơn hàng liên quan
 
-`Customers` 表有字段顾客名称 `cust_name`、顾客 id `cust_id`
+Bảng `Customers` có trường tên khách hàng `cust_name`, id khách hàng `cust_id`
 
 | cust_id  | cust_name |
 | -------- | --------- |
@@ -1256,7 +1256,7 @@ ORDER BY c.cust_name;
 | cust221  | an        |
 | cust2217 | hex       |
 
-`Orders` 订单信息表，含有字段 `order_num` 订单号、`cust_id` 顾客 id
+Bảng thông tin đơn hàng `Orders` có trường `order_num` số đơn hàng, `cust_id` id khách hàng
 
 | order_num | cust_id  |
 | --------- | -------- |
@@ -1267,9 +1267,9 @@ ORDER BY c.cust_name;
 | a5        | cust221  |
 | a7        | cust2217 |
 
-【问题】编写 SQL 语句，返回 `Customers` 表中的顾客名称（`cust_name`）和 `Orders` 表中的相关订单号（`order_num`），并按顾客名称再按订单号对结果进行升序排序。你可以尝试用两个不同的写法，一个使用简单的等连接语法，另外一个使用 INNER JOIN。
+【Câu hỏi】Viết câu lệnh SQL để trả về tên khách hàng (`cust_name`) trong bảng `Customers` và số đơn hàng liên quan (`order_num`) trong bảng `Orders`, sắp xếp kết quả theo tên khách hàng rồi theo số đơn hàng tăng dần. Bạn có thể thử hai cách viết khác nhau, một cách dùng cú pháp kết nối bằng đơn giản, một cách khác dùng INNER JOIN.
 
-答案：
+Đáp án:
 
 ```sql
 # 隐式内连接
@@ -1286,9 +1286,9 @@ USING(cust_id)
 ORDER BY c.cust_name,o.order_num;
 ```
 
-### 返回顾客名称和相关订单号以及每个订单的总价
+### Trả về tên khách hàng, số đơn hàng liên quan và tổng giá của mỗi đơn hàng
 
-`Customers` 表有字段，顾客名称：`cust_name`、顾客 id：`cust_id`
+Bảng `Customers` có các trường: tên khách hàng `cust_name`, id khách hàng `cust_id`
 
 | cust_id  | cust_name |
 | -------- | --------- |
@@ -1299,7 +1299,7 @@ ORDER BY c.cust_name,o.order_num;
 | cust221  | an        |
 | cust2217 | hex       |
 
-`Orders` 订单信息表，含有字段，订单号：`order_num`、顾客 id：`cust_id`
+Bảng thông tin đơn hàng `Orders` có các trường: số đơn hàng `order_num`, id khách hàng `cust_id`
 
 | order_num | cust_id  |
 | --------- | -------- |
@@ -1310,7 +1310,7 @@ ORDER BY c.cust_name,o.order_num;
 | a5        | cust221  |
 | a7        | cust2217 |
 
-`OrderItems` 表有字段，商品订单号：`order_num`、商品数量：`quantity`、商品价格：`item_price`
+Bảng `OrderItems` có các trường: số đơn hàng `order_num`, số lượng hàng hóa `quantity`, giá hàng hóa `item_price`
 
 | order_num | quantity | item_price |
 | --------- | -------- | ---------- |
@@ -1321,7 +1321,7 @@ ORDER BY c.cust_name,o.order_num;
 | a5        | 15       | 25         |
 | a7        | 7        | 7          |
 
-【问题】除了返回顾客名称和订单号，返回 `Customers` 表中的顾客名称（`cust_name`）和 `Orders` 表中的相关订单号（`order_num`），添加第三列 `OrderTotal`，其中包含每个订单的总价，并按顾客名称再按订单号对结果进行升序排序。
+【Câu hỏi】Ngoài việc trả về tên khách hàng và số đơn hàng, trả về tên khách hàng (`cust_name`) từ bảng `Customers` và số đơn hàng liên quan (`order_num`) từ bảng `Orders`, thêm cột thứ ba `OrderTotal` chứa tổng giá của mỗi đơn hàng, sắp xếp kết quả theo tên khách hàng rồi theo số đơn hàng tăng dần.
 
 ```sql
 # 简单的等连接语法
@@ -1332,7 +1332,7 @@ GROUP BY c.cust_name, o.order_num
 ORDER BY c.cust_name, o.order_num
 ```
 
-注意，可能有小伙伴会这样写：
+Lưu ý, có thể có bạn sẽ viết như sau:
 
 ```sql
 SELECT c.cust_name, o.order_num, SUM(quantity * item_price) AS OrderTotal
@@ -1342,17 +1342,17 @@ GROUP BY c.cust_name
 ORDER BY c.cust_name,o.order_num
 ```
 
-这是错误的！只对 `cust_name` 进行聚类确实符合题意，但是不符合 `GROUP BY` 的语法。
+Điều này là sai! Chỉ phân nhóm theo `cust_name` đúng là phù hợp với yêu cầu đề bài, nhưng không đúng cú pháp `GROUP BY`.
 
-select 语句中，如果没有 `GROUP BY` 语句，那么 `cust_name`、`order_num` 会返回若干个值，而 `sum(quantity * item_price)` 只返回一个值，通过 `group by` `cust_name` 可以让 `cust_name` 和 `sum(quantity * item_price)` 一一对应起来，或者说**聚类**，所以同样的，也要对 `order_num` 进行聚类。
+Trong câu lệnh select, nếu không có câu lệnh `GROUP BY`, thì `cust_name`, `order_num` sẽ trả về nhiều giá trị, còn `sum(quantity * item_price)` chỉ trả về một giá trị, thông qua `group by` `cust_name` có thể làm cho `cust_name` và `sum(quantity * item_price)` tương ứng một-một, hay nói cách khác là **phân nhóm**, vì vậy tương tự, cũng phải phân nhóm `order_num`.
 
-> **一句话，select 中的字段要么都聚类，要么都不聚类**
+> **Một câu tóm gọn: các trường trong select hoặc đều phân nhóm, hoặc đều không phân nhóm**
 
-### 确定哪些订单购买了 prod_id 为 BR01 的产品（二）
+### Xác định đơn hàng nào đã mua sản phẩm có prod_id là BR01 (II)
 
-表 `OrderItems` 代表订单商品信息表，`prod_id` 为产品 id；`Orders` 表代表订单表有 `cust_id` 代表顾客 id 和订单日期 `order_date`
+Bảng `OrderItems` đại diện cho bảng thông tin hàng hóa đơn hàng, `prod_id` là id sản phẩm; bảng `Orders` đại diện cho bảng đơn hàng có `cust_id` đại diện cho id khách hàng và ngày đặt hàng `order_date`
 
-`OrderItems` 表：
+Bảng `OrderItems`:
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -1361,7 +1361,7 @@ select 语句中，如果没有 `GROUP BY` 语句，那么 `cust_name`、`order_
 | BR02    | a0003     |
 | BR02    | a0013     |
 
-`Orders` 表：
+Bảng `Orders`:
 
 | order_num | cust_id | order_date          |
 | --------- | ------- | ------------------- |
@@ -1370,11 +1370,11 @@ select 语句中，如果没有 `GROUP BY` 语句，那么 `cust_name`、`order_
 | a0003     | cust1   | 2022-01-02 00:00:00 |
 | a0013     | cust2   | 2022-01-01 00:20:00 |
 
-【问题】
+【Câu hỏi】
 
-编写 SQL 语句，使用子查询来确定哪些订单（在 `OrderItems` 中）购买了 `prod_id` 为 "BR01" 的产品，然后从 `Orders` 表中返回每个产品对应的顾客 ID（`cust_id`）和订单日期（`order_date`），按订购日期对结果进行升序排序。
+Viết câu lệnh SQL, sử dụng truy vấn con để xác định đơn hàng nào (trong `OrderItems`) đã mua sản phẩm có `prod_id` là "BR01", sau đó trả về ID khách hàng (`cust_id`) và ngày đặt hàng (`order_date`) tương ứng với mỗi sản phẩm từ bảng `Orders`, sắp xếp kết quả theo ngày đặt hàng tăng dần.
 
-提示：这一次使用连接和简单的等连接语法。
+Gợi ý: Lần này sử dụng kết nối và cú pháp kết nối bằng đơn giản.
 
 ```sql
 # 写法 1：子查询
@@ -1401,11 +1401,11 @@ WHERE OrderItems.prod_id = 'BR01'
 ORDER BY order_date
 ```
 
-### 返回购买 prod_id 为 BR01 的产品的所有顾客的电子邮件（二）
+### Trả về email của tất cả khách hàng đã mua sản phẩm có prod_id là BR01 (II)
 
-有表 `OrderItems` 代表订单商品信息表，`prod_id` 为产品 id；`Orders` 表代表订单表有 `cust_id` 代表顾客 id 和订单日期 `order_date`；`Customers` 表含有 `cust_email` 顾客邮件和 cust_id 顾客 id
+Bảng `OrderItems` đại diện cho bảng thông tin hàng hóa đơn hàng, `prod_id` là id sản phẩm; bảng `Orders` đại diện cho bảng đơn hàng có `cust_id` đại diện cho id khách hàng và ngày đặt hàng `order_date`; bảng `Customers` chứa `cust_email` email khách hàng và cust_id id khách hàng
 
-`OrderItems` 表：
+Bảng `OrderItems`:
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -1414,7 +1414,7 @@ ORDER BY order_date
 | BR02    | a0003     |
 | BR02    | a0013     |
 
-`Orders` 表：
+Bảng `Orders`:
 
 | order_num | cust_id | order_date          |
 | --------- | ------- | ------------------- |
@@ -1423,7 +1423,7 @@ ORDER BY order_date
 | a0003     | cust1   | 2022-01-02 00:00:00 |
 | a0013     | cust2   | 2022-01-01 00:20:00 |
 
-`Customers` 表代表顾客信息，`cust_id` 为顾客 id，`cust_email` 为顾客 email
+Bảng `Customers` đại diện cho thông tin khách hàng, `cust_id` là id khách hàng, `cust_email` là email khách hàng
 
 | cust_id | cust_email        |
 | ------- | ----------------- |
@@ -1431,9 +1431,9 @@ ORDER BY order_date
 | cust1   | <cust1@cust.com>  |
 | cust2   | <cust2@cust.com>  |
 
-【问题】返回购买 `prod_id` 为 BR01 的产品的所有顾客的电子邮件（`Customers` 表中的 `cust_email`），结果无需排序。
+【Câu hỏi】Trả về email (`cust_email` trong bảng `Customers`) của tất cả khách hàng đã mua sản phẩm có `prod_id` là BR01, kết quả không cần sắp xếp.
 
-提示：涉及到 `SELECT` 语句，最内层的从 `OrderItems` 表返回 `order_num`，中间的从 `Customers` 表返回 `cust_id`，但是必须使用 INNER JOIN 语法。
+Gợi ý: Liên quan đến câu lệnh `SELECT`, câu trong cùng trả về `order_num` từ bảng `OrderItems`, câu giữa trả về `cust_id` từ bảng `Customers`, nhưng phải sử dụng cú pháp INNER JOIN.
 
 ```sql
 SELECT cust_email
@@ -1443,9 +1443,9 @@ INNER JOIN OrderItems using(order_num)
 WHERE OrderItems.prod_id = 'BR01'
 ```
 
-### 确定最佳顾客的另一种方式（二）
+### Xác định khách hàng tốt nhất theo cách khác (II)
 
-`OrderItems` 表代表订单信息，确定最佳顾客的另一种方式是看他们花了多少钱，`OrderItems` 表有订单号 `order_num` 和 `item_price` 商品售出价格、`quantity` 商品数量
+Bảng `OrderItems` đại diện cho thông tin đơn hàng, một cách khác để xác định khách hàng tốt nhất là xem họ đã chi tiêu bao nhiêu, bảng `OrderItems` có số đơn hàng `order_num`, giá bán hàng hóa `item_price`, số lượng hàng hóa `quantity`
 
 | order_num | item_price | quantity |
 | --------- | ---------- | -------- |
@@ -1457,7 +1457,7 @@ WHERE OrderItems.prod_id = 'BR01'
 | a2        | 1          | 19       |
 | a7        | 7          | 5        |
 
-`Orders` 表含有字段 `order_num` 订单号、`cust_id` 顾客 id
+Bảng `Orders` có trường `order_num` số đơn hàng, `cust_id` id khách hàng
 
 | order_num | cust_id  |
 | --------- | -------- |
@@ -1468,7 +1468,7 @@ WHERE OrderItems.prod_id = 'BR01'
 | a5        | cust221  |
 | a7        | cust2217 |
 
-顾客表 `Customers` 有字段 `cust_id` 客户 id、`cust_name` 客户姓名
+Bảng `Customers` có trường `cust_id` id khách hàng, `cust_name` tên khách hàng
 
 | cust_id  | cust_name |
 | -------- | --------- |
@@ -1479,9 +1479,9 @@ WHERE OrderItems.prod_id = 'BR01'
 | cust221  | an        |
 | cust2217 | hex       |
 
-【问题】编写 SQL 语句，返回订单总价不小于 1000 的客户名称和总额（`OrderItems` 表中的 `order_num`）。
+【Câu hỏi】Viết câu lệnh SQL để trả về tên khách hàng và tổng số tiền (`order_num` trong bảng `OrderItems`) của các đơn hàng có tổng giá không nhỏ hơn 1000.
 
-提示：需要计算总和（`item_price` 乘以 `quantity`）。按总额对结果进行排序，请使用 `INNER JOIN`语法。
+Gợi ý: Cần tính tổng (`item_price` nhân `quantity`). Sắp xếp kết quả theo tổng số tiền, sử dụng cú pháp `INNER JOIN`.
 
 ```sql
 SELECT cust_name, SUM(item_price * quantity) AS total_price
@@ -1493,11 +1493,11 @@ HAVING total_price >= 1000
 ORDER BY total_price
 ```
 
-## 创建高级连接
+## Tạo kết nối nâng cao
 
-### 检索每个顾客的名称和所有的订单号（一）
+### Truy xuất tên và tất cả số đơn hàng của mỗi khách hàng (I)
 
-`Customers` 表代表顾客信息含有顾客 id `cust_id` 和 顾客名称 `cust_name`
+Bảng `Customers` đại diện cho thông tin khách hàng, có id khách hàng `cust_id` và tên khách hàng `cust_name`
 
 | cust_id  | cust_name |
 | -------- | --------- |
@@ -1508,7 +1508,7 @@ ORDER BY total_price
 | cust221  | an        |
 | cust2217 | hex       |
 
-`Orders` 表代表订单信息含有订单号 `order_num` 和顾客 id `cust_id`
+Bảng `Orders` đại diện cho thông tin đơn hàng, có số đơn hàng `order_num` và id khách hàng `cust_id`
 
 | order_num | cust_id  |
 | --------- | -------- |
@@ -1519,7 +1519,7 @@ ORDER BY total_price
 | a5        | cust221  |
 | a7        | cust2217 |
 
-【问题】使用 INNER JOIN 编写 SQL 语句，检索每个顾客的名称（`Customers` 表中的 `cust_name`）和所有的订单号（`Orders` 表中的 `order_num`），最后根据顾客姓名 `cust_name` 升序返回。
+【Câu hỏi】Sử dụng INNER JOIN để viết câu lệnh SQL, truy xuất tên (`cust_name` trong bảng `Customers`) và tất cả số đơn hàng (`order_num` trong bảng `Orders`) của mỗi khách hàng, cuối cùng trả về theo thứ tự tên khách hàng `cust_name` tăng dần.
 
 ```sql
 SELECT cust_name, order_num
@@ -1529,9 +1529,9 @@ USING(cust_id)
 ORDER BY cust_name
 ```
 
-### 检索每个顾客的名称和所有的订单号（二）
+### Truy xuất tên và tất cả số đơn hàng của mỗi khách hàng (II)
 
-`Orders` 表代表订单信息含有订单号 `order_num` 和顾客 id `cust_id`
+Bảng `Orders` đại diện cho thông tin đơn hàng, có số đơn hàng `order_num` và id khách hàng `cust_id`
 
 | order_num | cust_id  |
 | --------- | -------- |
@@ -1542,7 +1542,7 @@ ORDER BY cust_name
 | a5        | cust221  |
 | a7        | cust2217 |
 
-`Customers` 表代表顾客信息含有顾客 id `cust_id` 和 顾客名称 `cust_name`
+Bảng `Customers` đại diện cho thông tin khách hàng, có id khách hàng `cust_id` và tên khách hàng `cust_name`
 
 | cust_id  | cust_name |
 | -------- | --------- |
@@ -1554,7 +1554,7 @@ ORDER BY cust_name
 | cust2217 | hex       |
 | cust40   | ace       |
 
-【问题】检索每个顾客的名称（`Customers` 表中的 `cust_name`）和所有的订单号（Orders 表中的 `order_num`），列出所有的顾客，即使他们没有下过订单。最后根据顾客姓名 `cust_name` 升序返回。
+【Câu hỏi】Truy xuất tên (`cust_name` trong bảng `Customers`) và tất cả số đơn hàng (trong bảng Orders `order_num`) của mỗi khách hàng, liệt kê tất cả khách hàng, kể cả những khách hàng chưa đặt hàng. Cuối cùng trả về theo thứ tự tên khách hàng `cust_name` tăng dần.
 
 ```sql
 SELECT cust_name, order_num
@@ -1564,9 +1564,9 @@ USING(cust_id)
 ORDER BY cust_name
 ```
 
-### 返回产品名称和与之相关的订单号
+### Trả về tên sản phẩm và số đơn hàng liên quan
 
-`Products` 表为产品信息表含有字段 `prod_id` 产品 id、`prod_name` 产品名称
+Bảng `Products` là bảng thông tin sản phẩm có trường `prod_id` id sản phẩm, `prod_name` tên sản phẩm
 
 | prod_id | prod_name |
 | ------- | --------- |
@@ -1576,7 +1576,7 @@ ORDER BY cust_name
 | a0003   | cola      |
 | a0023   | soda      |
 
-`OrderItems` 表为订单信息表含有字段 `order_num` 订单号和产品 id `prod_id`
+Bảng `OrderItems` là bảng thông tin đơn hàng có trường `order_num` số đơn hàng và id sản phẩm `prod_id`
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -1588,7 +1588,7 @@ ORDER BY cust_name
 | a0003   | a19       |
 | a0003   | a5        |
 
-【问题】使用外连接（left join、 right join、full join）联结 `Products` 表和 `OrderItems` 表，返回产品名称（`prod_name`）和与之相关的订单号（`order_num`）的列表，并按照产品名称升序排序。
+【Câu hỏi】Sử dụng kết nối ngoài (left join, right join, full join) để kết nối bảng `Products` và bảng `OrderItems`, trả về danh sách tên sản phẩm (`prod_name`) và số đơn hàng liên quan (`order_num`), sắp xếp theo tên sản phẩm tăng dần.
 
 ```sql
 SELECT prod_name, order_num
@@ -1598,9 +1598,9 @@ USING(prod_id)
 ORDER BY prod_name
 ```
 
-### 返回产品名称和每一项产品的总订单数
+### Trả về tên sản phẩm và tổng số đơn hàng của mỗi sản phẩm
 
-`Products` 表为产品信息表含有字段 `prod_id` 产品 id、`prod_name` 产品名称
+Bảng `Products` là bảng thông tin sản phẩm có trường `prod_id` id sản phẩm, `prod_name` tên sản phẩm
 
 | prod_id | prod_name |
 | ------- | --------- |
@@ -1610,7 +1610,7 @@ ORDER BY prod_name
 | a0003   | cola      |
 | a0023   | soda      |
 
-`OrderItems` 表为订单信息表含有字段 `order_num` 订单号和产品 id `prod_id`
+Bảng `OrderItems` là bảng thông tin đơn hàng có trường `order_num` số đơn hàng và id sản phẩm `prod_id`
 
 | prod_id | order_num |
 | ------- | --------- |
@@ -1622,9 +1622,9 @@ ORDER BY prod_name
 | a0003   | a19       |
 | a0003   | a5        |
 
-【问题】
+【Câu hỏi】
 
-使用 OUTER JOIN 联结 `Products` 表和 `OrderItems` 表，返回产品名称（`prod_name`）和每一项产品的总订单数（不是订单号），并按产品名称升序排序。
+Sử dụng OUTER JOIN để kết nối bảng `Products` và bảng `OrderItems`, trả về tên sản phẩm (`prod_name`) và tổng số đơn hàng của mỗi sản phẩm (không phải số đơn hàng), sắp xếp theo tên sản phẩm tăng dần.
 
 ```sql
 SELECT prod_name, COUNT(order_num) AS orders
@@ -1635,9 +1635,9 @@ GROUP BY prod_name
 ORDER BY prod_name
 ```
 
-### 列出供应商及其可供产品的数量
+### Liệt kê nhà cung cấp và số lượng sản phẩm có thể cung cấp
 
-有 `Vendors` 表含有 `vend_id` （供应商 id）
+Bảng `Vendors` có `vend_id` (id nhà cung cấp)
 
 | vend_id |
 | ------- |
@@ -1646,7 +1646,7 @@ ORDER BY prod_name
 | a0003   |
 | a0010   |
 
-有 `Products` 表含有 `vend_id`（供应商 id）和 prod_id（供应产品 id）
+Bảng `Products` có `vend_id` (id nhà cung cấp) và prod_id (id sản phẩm cung cấp)
 
 | vend_id | prod_id              |
 | ------- | -------------------- |
@@ -1656,9 +1656,9 @@ ORDER BY prod_name
 | a0003   | prod_id_vivo phone   |
 | a0010   | prod_id_huawei phone |
 
-【问题】列出供应商（`Vendors` 表中的 `vend_id`）及其可供产品的数量，包括没有产品的供应商。你需要使用 OUTER JOIN 和 COUNT()聚合函数来计算 `Products` 表中每种产品的数量，最后根据 vend_id 升序排序。
+【Câu hỏi】Liệt kê nhà cung cấp (`vend_id` trong bảng `Vendors`) và số lượng sản phẩm có thể cung cấp, bao gồm cả nhà cung cấp không có sản phẩm. Bạn cần sử dụng OUTER JOIN và hàm tổng hợp COUNT() để tính số lượng mỗi loại sản phẩm trong bảng `Products`, cuối cùng sắp xếp theo vend_id tăng dần.
 
-注意：`vend_id` 列会显示在多个表中，因此在每次引用它时都需要完全限定它。
+Lưu ý: Cột `vend_id` sẽ xuất hiện trong nhiều bảng, vì vậy mỗi khi tham chiếu đến nó cần đủ điều kiện đầy đủ.
 
 ```sql
 SELECT v.vend_id, COUNT(prod_id) AS prod_id
@@ -1669,17 +1669,17 @@ GROUP BY v.vend_id
 ORDER BY v.vend_id
 ```
 
-## 组合查询
+## Truy vấn kết hợp
 
-`UNION` 运算符将两个或更多查询的结果组合起来，并生成一个结果集，其中包含来自 `UNION` 中参与查询的提取行。
+Toán tử `UNION` kết hợp kết quả của hai hoặc nhiều truy vấn và tạo ra một tập kết quả chứa các hàng được trích xuất từ các truy vấn tham gia trong `UNION`.
 
-`UNION` 基本规则：
+Quy tắc cơ bản của `UNION`:
 
-- 所有查询的列数和列顺序必须相同。
-- 每个查询中涉及表的列的数据类型必须相同或兼容。
-- 通常返回的列名取自第一个查询。
+- Tất cả các truy vấn phải có cùng số cột và thứ tự cột.
+- Kiểu dữ liệu của các cột trong mỗi truy vấn phải giống nhau hoặc tương thích.
+- Thông thường tên cột được trả về lấy từ truy vấn đầu tiên.
 
-默认地，`UNION` 操作符选取不同的值。如果允许重复的值，请使用 `UNION ALL`。
+Mặc định, toán tử `UNION` chọn các giá trị khác nhau. Nếu cho phép các giá trị trùng lặp, hãy sử dụng `UNION ALL`.
 
 ```sql
 SELECT column_name(s) FROM table1
@@ -1687,16 +1687,16 @@ UNION ALL
 SELECT column_name(s) FROM table2;
 ```
 
-`UNION` 结果集中的列名总是等于 `UNION` 中第一个 `SELECT` 语句中的列名。
+Tên cột trong tập kết quả `UNION` luôn bằng tên cột trong câu lệnh `SELECT` đầu tiên trong `UNION`.
 
-`JOIN` vs `UNION`：
+`JOIN` vs `UNION`:
 
-- `JOIN` 中连接表的列可能不同，但在 `UNION` 中，所有查询的列数和列顺序必须相同。
-- `UNION` 将查询之后的行放在一起（垂直放置），但 `JOIN` 将查询之后的列放在一起（水平放置），即它构成一个笛卡尔积。
+- Trong `JOIN` các cột của bảng kết nối có thể khác nhau, nhưng trong `UNION`, tất cả các truy vấn phải có cùng số cột và thứ tự cột.
+- `UNION` đặt các hàng sau khi truy vấn lại với nhau (đặt dọc), nhưng `JOIN` đặt các cột sau khi truy vấn lại với nhau (đặt ngang), tức là nó tạo thành tích Descartes.
 
-### 将两个 SELECT 语句结合起来（一）
+### Kết hợp hai câu lệnh SELECT (I)
 
-表 `OrderItems` 包含订单产品信息，字段 `prod_id` 代表产品 id、`quantity` 代表产品数量
+Bảng `OrderItems` chứa thông tin sản phẩm đặt hàng, trường `prod_id` đại diện cho id sản phẩm, `quantity` đại diện cho số lượng sản phẩm
 
 | prod_id | quantity |
 | ------- | -------- |
@@ -1709,7 +1709,7 @@ SELECT column_name(s) FROM table2;
 | a0003   | 5        |
 | BNBG    | 10002    |
 
-【问题】将两个 `SELECT` 语句结合起来，以便从 `OrderItems` 表中检索产品 id（`prod_id`）和 `quantity`。其中，一个 `SELECT` 语句过滤数量为 100 的行，另一个 `SELECT` 语句过滤 id 以 BNBG 开头的产品，最后按产品 id 对结果进行升序排序。
+【Câu hỏi】Kết hợp hai câu lệnh `SELECT` để truy xuất id sản phẩm (`prod_id`) và `quantity` từ bảng `OrderItems`. Trong đó, một câu lệnh `SELECT` lọc các hàng có số lượng 100, câu lệnh `SELECT` kia lọc các sản phẩm có id bắt đầu bằng BNBG, cuối cùng sắp xếp kết quả theo id sản phẩm tăng dần.
 
 ```sql
 SELECT prod_id, quantity
@@ -1721,9 +1721,9 @@ FROM OrderItems
 WHERE prod_id LIKE 'BNBG%'
 ```
 
-### 将两个 SELECT 语句结合起来（二）
+### Kết hợp hai câu lệnh SELECT (II)
 
-表 `OrderItems` 包含订单产品信息，字段 `prod_id` 代表产品 id、`quantity` 代表产品数量。
+Bảng `OrderItems` chứa thông tin sản phẩm đặt hàng, trường `prod_id` đại diện cho id sản phẩm, `quantity` đại diện cho số lượng sản phẩm.
 
 | prod_id | quantity |
 | ------- | -------- |
@@ -1736,11 +1736,11 @@ WHERE prod_id LIKE 'BNBG%'
 | a0003   | 5        |
 | BNBG    | 10002    |
 
-【问题】将两个 `SELECT` 语句结合起来，以便从 `OrderItems` 表中检索产品 id（`prod_id`）和 `quantity`。其中，一个 `SELECT` 语句过滤数量为 100 的行，另一个 `SELECT` 语句过滤 id 以 BNBG 开头的产品，最后按产品 id 对结果进行升序排序。 注意：**这次仅使用单个 SELECT 语句。**
+【Câu hỏi】Kết hợp hai câu lệnh `SELECT` để truy xuất id sản phẩm (`prod_id`) và `quantity` từ bảng `OrderItems`. Trong đó, một câu lệnh `SELECT` lọc các hàng có số lượng 100, câu lệnh `SELECT` kia lọc các sản phẩm có id bắt đầu bằng BNBG, cuối cùng sắp xếp kết quả theo id sản phẩm tăng dần. Lưu ý: **lần này chỉ sử dụng một câu lệnh SELECT.**
 
-答案：
+Đáp án:
 
-要求只用一条 select 语句，那就用 `or` 不用 `union` 了。
+Yêu cầu chỉ dùng một câu select, thì dùng `or` thay vì `union`.
 
 ```sql
 SELECT prod_id, quantity
@@ -1748,9 +1748,9 @@ FROM OrderItems
 WHERE quantity = 100 OR prod_id LIKE 'BNBG%'
 ```
 
-### 组合 Products 表中的产品名称和 Customers 表中的顾客名称
+### Kết hợp tên sản phẩm từ bảng Products và tên khách hàng từ bảng Customers
 
-`Products` 表含有字段 `prod_name` 代表产品名称
+Bảng `Products` có trường `prod_name` đại diện cho tên sản phẩm
 
 | prod_name |
 | --------- |
@@ -1759,7 +1759,7 @@ WHERE quantity = 100 OR prod_id LIKE 'BNBG%'
 | ring      |
 | umbrella  |
 
-Customers 表代表顾客信息，cust_name 代表顾客名称
+Bảng Customers đại diện cho thông tin khách hàng, cust_name đại diện cho tên khách hàng
 
 | cust_name |
 | --------- |
@@ -1771,7 +1771,7 @@ Customers 表代表顾客信息，cust_name 代表顾客名称
 | lee       |
 | hex       |
 
-【问题】编写 SQL 语句，组合 `Products` 表中的产品名称（`prod_name`）和 `Customers` 表中的顾客名称（`cust_name`）并返回，然后按产品名称对结果进行升序排序。
+【Câu hỏi】Viết câu lệnh SQL để kết hợp tên sản phẩm (`prod_name`) từ bảng `Products` và tên khách hàng (`cust_name`) từ bảng `Customers` và trả về, sau đó sắp xếp kết quả theo tên sản phẩm tăng dần.
 
 ```sql
 # UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
@@ -1783,9 +1783,9 @@ FROM Customers
 ORDER BY prod_name
 ```
 
-### 检查 SQL 语句
+### Kiểm tra câu lệnh SQL
 
-表 `Customers` 含有字段 `cust_name` 顾客名、`cust_contact` 顾客联系方式、`cust_state` 顾客州、`cust_email` 顾客 `email`
+Bảng `Customers` có các trường `cust_name` tên khách hàng, `cust_contact` thông tin liên lạc khách hàng, `cust_state` bang khách hàng, `cust_email` email khách hàng
 
 | cust_name | cust_contact | cust_state | cust_email        |
 | --------- | ------------ | ---------- | ----------------- |
@@ -1793,7 +1793,7 @@ ORDER BY prod_name
 | cust1     | 8695193      | MI         | <cust1@cust.com>  |
 | cust2     | 8695194      | IL         | <cust2@cust.com>  |
 
-【问题】修正下面错误的 SQL
+【Câu hỏi】Sửa SQL lỗi dưới đây
 
 ```sql
 SELECT cust_name, cust_contact, cust_email
@@ -1806,7 +1806,7 @@ FROM Customers
 WHERE cust_state = 'IL'ORDER BY cust_name;
 ```
 
-修正后：
+Sau khi sửa:
 
 ```sql
 SELECT cust_name, cust_contact, cust_email
@@ -1819,9 +1819,9 @@ WHERE cust_state = 'IL'
 ORDER BY cust_name;
 ```
 
-使用 `union` 组合查询时，只能使用一条 `order by` 字句，他必须位于最后一条 `select` 语句之后
+Khi sử dụng `union` để kết hợp truy vấn, chỉ có thể dùng một mệnh đề `order by`, nó phải nằm sau câu lệnh `select` cuối cùng
 
-或者直接用 `or` 来做：
+Hoặc dùng `or` trực tiếp:
 
 ```sql
 SELECT cust_name, cust_contact, cust_email

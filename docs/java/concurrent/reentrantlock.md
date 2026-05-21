@@ -1,32 +1,32 @@
 ---
-title: 从ReentrantLock的实现看AQS的原理及应用
-description: ReentrantLock与AQS原理深度解析：详解ReentrantLock可重入锁实现、公平锁与非公平锁区别、基于AQS的加锁解锁流程、与synchronized性能对比。
+title: Tìm hiểu nguyên lý AQS qua cách triển khai ReentrantLock
+description: Phân tích chuyên sâu về nguyên lý ReentrantLock và AQS：giải thích chi tiết cách triển khai khóa có thể nhập lại ReentrantLock, sự khác biệt giữa khóa công bằng và khóa không công bằng, quy trình khóa/mở khóa dựa trên AQS, và so sánh hiệu năng với synchronized.
 category: Java
 tag:
-  - Java并发
+  - Java Concurrent
 head:
   - - meta
     - name: keywords
       content: ReentrantLock,AQS,公平锁,非公平锁,可重入锁,lock unlock,ReentrantLock原理,synchronized对比
 ---
 
-> 本文转载自：<https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html>
+> Bài viết này được dịch từ: <https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html>
 >
-> 作者：美团技术团队
+> Tác giả: Đội kỹ thuật Meituan
 
-Java 中的大部分同步类（Semaphore、ReentrantLock 等）都是基于 AbstractQueuedSynchronizer（简称为 AQS）实现的。AQS 是一种提供了原子式管理同步状态、阻塞和唤醒线程功能以及队列模型的简单框架。
+Phần lớn các lớp đồng bộ hóa trong Java (Semaphore, ReentrantLock, v.v.) đều được triển khai dựa trên AbstractQueuedSynchronizer (gọi tắt là AQS). AQS là một framework đơn giản cung cấp chức năng quản lý trạng thái đồng bộ hóa theo kiểu nguyên tử, chặn và đánh thức luồng cũng như mô hình hàng đợi.
 
-本文会从应用层逐渐深入到原理层，并通过 ReentrantLock 的基本特性和 ReentrantLock 与 AQS 的关联，来深入解读 AQS 相关独占锁的知识点，同时采取问答的模式来帮助大家理解 AQS。由于篇幅原因，本篇文章主要阐述 AQS 中独占锁的逻辑和 Sync Queue，不讲述包含共享锁和 Condition Queue 的部分（本篇文章核心为 AQS 原理剖析，只是简单介绍了 ReentrantLock，感兴趣同学可以阅读一下 ReentrantLock 的源码）。
+Bài viết này sẽ đi từ tầng ứng dụng đến tầng nguyên lý, và thông qua các đặc tính cơ bản của ReentrantLock cũng như mối liên hệ giữa ReentrantLock và AQS, chúng tôi sẽ phân tích sâu các kiến thức về khóa độc quyền trong AQS, đồng thời sử dụng hình thức hỏi đáp để giúp mọi người hiểu AQS. Do giới hạn độ dài, bài viết này chủ yếu trình bày logic khóa độc quyền trong AQS và Sync Queue, không đề cập đến phần chứa khóa chia sẻ và Condition Queue (trọng tâm của bài viết là phân tích nguyên lý AQS, chỉ giới thiệu sơ qua về ReentrantLock, các bạn quan tâm có thể đọc thêm mã nguồn ReentrantLock).
 
 ## 1 ReentrantLock
 
-### 1.1 ReentrantLock 特性概览
+### 1.1 Tổng quan tính năng của ReentrantLock
 
-ReentrantLock 意思为可重入锁，指的是一个线程能够对一个临界资源重复加锁。为了帮助大家更好地理解 ReentrantLock 的特性，我们先将 ReentrantLock 跟常用的 Synchronized 进行比较，其特性如下（蓝色部分为本篇文章主要剖析的点）：
+ReentrantLock có nghĩa là khóa có thể nhập lại, tức là một luồng có thể khóa lặp lại một tài nguyên quan trọng. Để giúp mọi người hiểu rõ hơn về tính năng của ReentrantLock, chúng ta hãy so sánh ReentrantLock với Synchronized thường dùng, các tính năng của chúng như sau (phần màu xanh là các điểm chính sẽ được phân tích trong bài viết này):
 
 ![](https://p0.meituan.net/travelcube/412d294ff5535bbcddc0d979b2a339e6102264.png)
 
-下面通过伪代码，进行更加直观的比较：
+Dưới đây là so sánh trực quan hơn thông qua pseudocode:
 
 ```java
 // **************************Synchronized的使用方式**************************
@@ -60,11 +60,11 @@ public void test () throw Exception {
 }
 ```
 
-### 1.2 ReentrantLock 与 AQS 的关联
+### 1.2 Mối liên hệ giữa ReentrantLock và AQS
 
-通过上文我们已经了解，ReentrantLock 支持公平锁和非公平锁（关于公平锁和非公平锁的原理分析，可参考《[不可不说的 Java“锁”事](https://mp.weixin.qq.com/s?__biz=MjM5NjQ5MTI5OA==&mid=2651749434&idx=3&sn=5ffa63ad47fe166f2f1a9f604ed10091&chksm=bd12a5778a652c61509d9e718ab086ff27ad8768586ea9b38c3dcf9e017a8e49bcae3df9bcc8&scene=38#wechat_redirect)》），并且 ReentrantLock 的底层就是由 AQS 来实现的。那么 ReentrantLock 是如何通过公平锁和非公平锁与 AQS 关联起来呢？ 我们着重从这两者的加锁过程来理解一下它们与 AQS 之间的关系（加锁过程中与 AQS 的关联比较明显，解锁流程后续会介绍）。
+Qua nội dung trên, chúng ta đã biết rằng ReentrantLock hỗ trợ khóa công bằng và khóa không công bằng (để biết phân tích nguyên lý về khóa công bằng và khóa không công bằng, có thể tham khảo 《[不可不说的 Java"锁"事](https://mp.weixin.qq.com/s?__biz=MjM5NjQ5MTI5OA==&mid=2651749434&idx=3&sn=5ffa63ad47fe166f2f1a9f604ed10091&chksm=bd12a5778a652c61509d9e718ab086ff27ad8768586ea9b38c3dcf9e017a8e49bcae3df9bcc8&scene=38#wechat_redirect)》), và bên dưới ReentrantLock được triển khai bởi AQS. Vậy ReentrantLock liên kết với AQS thông qua khóa công bằng và khóa không công bằng như thế nào? Chúng ta hãy tập trung vào quy trình khóa của hai loại này để hiểu mối liên hệ của chúng với AQS (mối liên hệ với AQS trong quá trình khóa khá rõ ràng, quy trình mở khóa sẽ được giới thiệu sau).
 
-非公平锁源码中的加锁流程如下：
+Quy trình khóa trong mã nguồn khóa không công bằng như sau:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock#NonfairSync
@@ -82,24 +82,24 @@ static final class NonfairSync extends Sync {
 }
 ```
 
-这块代码的含义为：
+Ý nghĩa của đoạn code này là:
 
-- 若通过 CAS 设置变量 State（同步状态）成功，也就是获取锁成功，则将当前线程设置为独占线程。
-- 若通过 CAS 设置变量 State（同步状态）失败，也就是获取锁失败，则进入 Acquire 方法进行后续处理。
+- Nếu đặt biến State (trạng thái đồng bộ) thành công qua CAS, tức là lấy khóa thành công, thì đặt luồng hiện tại làm luồng độc quyền.
+- Nếu đặt biến State (trạng thái đồng bộ) thất bại qua CAS, tức là lấy khóa thất bại, thì vào phương thức Acquire để xử lý tiếp theo.
 
-第一步很好理解，但第二步获取锁失败后，后续的处理策略是怎么样的呢？这块可能会有以下思考：
+Bước đầu tiên dễ hiểu, nhưng sau khi lấy khóa thất bại ở bước thứ hai, chiến lược xử lý tiếp theo là gì? Có thể có các suy nghĩ sau:
 
-- 某个线程获取锁失败的后续流程是什么呢？有以下两种可能：
+- Quy trình tiếp theo sau khi một luồng lấy khóa thất bại là gì? Có hai khả năng sau:
 
-(1) 将当前线程获锁结果设置为失败，获取锁流程结束。这种设计会极大降低系统的并发度，并不满足我们实际的需求。所以就需要下面这种流程，也就是 AQS 框架的处理流程。
+(1) Đặt kết quả lấy khóa của luồng hiện tại là thất bại, kết thúc quy trình lấy khóa. Thiết kế này sẽ làm giảm đáng kể mức độ đồng thời của hệ thống, không đáp ứng nhu cầu thực tế của chúng ta. Vì vậy cần đến quy trình sau, đó là quy trình xử lý của framework AQS.
 
-(2) 存在某种排队等候机制，线程继续等待，仍然保留获取锁的可能，获取锁流程仍在继续。
+(2) Tồn tại một cơ chế xếp hàng chờ đợi nhất định, luồng tiếp tục chờ, vẫn giữ khả năng lấy khóa, quy trình lấy khóa vẫn tiếp tục.
 
-- 对于问题 1 的第二种情况，既然说到了排队等候机制，那么就一定会有某种队列形成，这样的队列是什么数据结构呢？
-- 处于排队等候机制中的线程，什么时候可以有机会获取锁呢？
-- 如果处于排队等候机制中的线程一直无法获取锁，还是需要一直等待吗，还是有别的策略来解决这一问题？
+- Đối với trường hợp thứ hai của câu hỏi 1, đã nói đến cơ chế xếp hàng chờ đợi, chắc chắn sẽ có một loại hàng đợi nào đó được tạo thành, hàng đợi như vậy có cấu trúc dữ liệu là gì?
+- Luồng đang trong cơ chế xếp hàng chờ đợi, khi nào có cơ hội lấy được khóa?
+- Nếu luồng đang trong cơ chế xếp hàng chờ đợi mà không thể lấy được khóa, có cần tiếp tục chờ không, hay có chiến lược khác để giải quyết vấn đề này?
 
-带着非公平锁的这些问题，再看下公平锁源码中获锁的方式：
+Với những câu hỏi về khóa không công bằng này, hãy xem cách lấy khóa trong mã nguồn khóa công bằng:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock#FairSync
@@ -113,75 +113,75 @@ static final class FairSync extends Sync {
 }
 ```
 
-看到这块代码，我们可能会存在这种疑问：Lock 函数通过 Acquire 方法进行加锁，但是具体是如何加锁的呢？
+Nhìn vào đoạn code này, chúng ta có thể có thắc mắc này: Hàm Lock thực hiện khóa thông qua phương thức Acquire, nhưng cụ thể khóa như thế nào?
 
-结合公平锁和非公平锁的加锁流程，虽然流程上有一定的不同，但是都调用了 Acquire 方法，而 Acquire 方法是 FairSync 和 UnfairSync 的父类 AQS 中的核心方法。
+Kết hợp quy trình khóa của khóa công bằng và khóa không công bằng, mặc dù quy trình có một số khác biệt nhất định, nhưng cả hai đều gọi phương thức Acquire, và phương thức Acquire là phương thức cốt lõi trong lớp cha AQS của FairSync và UnfairSync.
 
-对于上边提到的问题，其实在 ReentrantLock 类源码中都无法解答，而这些问题的答案，都是位于 Acquire 方法所在的类 AbstractQueuedSynchronizer 中，也就是本文的核心——AQS。下面我们会对 AQS 以及 ReentrantLock 和 AQS 的关联做详细介绍（相关问题答案会在 2.3.5 小节中解答）。
+Đối với những vấn đề đã đề cập ở trên, thực ra trong mã nguồn lớp ReentrantLock đều không thể giải đáp được, và câu trả lời cho những vấn đề này đều nằm trong lớp AbstractQueuedSynchronizer nơi phương thức Acquire tồn tại, đó là trọng tâm của bài viết này — AQS. Tiếp theo chúng ta sẽ giới thiệu chi tiết về AQS cũng như mối liên hệ giữa ReentrantLock và AQS (câu trả lời cho các vấn đề liên quan sẽ được giải đáp trong phần 2.3.5).
 
 ## 2 AQS
 
-首先，我们通过下面的架构图来整体了解一下 AQS 框架：
+Trước tiên, hãy hiểu tổng quan về framework AQS qua sơ đồ kiến trúc dưới đây:
 
 ![](https://p1.meituan.net/travelcube/82077ccf14127a87b77cefd1ccf562d3253591.png)
 
-- 上图中有颜色的为 Method，无颜色的为 Attribution。
-- 总的来说，AQS 框架共分为五层，自上而下由浅入深，从 AQS 对外暴露的 API 到底层基础数据。
-- 当有自定义同步器接入时，只需重写第一层所需要的部分方法即可，不需要关注底层具体的实现流程。当自定义同步器进行加锁或者解锁操作时，先经过第一层的 API 进入 AQS 内部方法，然后经过第二层进行锁的获取，接着对于获取锁失败的流程，进入第三层和第四层的等待队列处理，而这些处理方式均依赖于第五层的基础数据提供层。
+- Trong hình trên, các phần có màu là Method, không có màu là Attribution.
+- Nói chung, framework AQS được chia thành năm tầng, từ trên xuống dưới từ nông đến sâu, từ API mà AQS cung cấp ra bên ngoài đến dữ liệu nền tảng bên dưới cùng.
+- Khi có bộ đồng bộ tùy chỉnh tiếp nhận, chỉ cần viết lại một phần phương thức cần thiết ở tầng đầu tiên, không cần quan tâm đến quy trình triển khai cụ thể ở tầng dưới. Khi bộ đồng bộ tùy chỉnh thực hiện thao tác khóa hoặc mở khóa, trước tiên sẽ đi qua API ở tầng đầu tiên để vào phương thức nội bộ AQS, sau đó đi qua tầng thứ hai để lấy khóa; tiếp theo đối với quy trình lấy khóa thất bại, sẽ vào xử lý hàng đợi chờ ở tầng thứ ba và tầng thứ tư, và các phương thức xử lý này đều phụ thuộc vào tầng cung cấp dữ liệu cơ sở thứ năm.
 
-下面我们会从整体到细节，从流程到方法逐一剖析 AQS 框架，主要分析过程如下：
+Tiếp theo chúng ta sẽ phân tích từng phần framework AQS từ tổng thể đến chi tiết, từ quy trình đến phương thức, quy trình phân tích chính như sau:
 
 ![](https://p1.meituan.net/travelcube/d2f7f7fffdc30d85d17b44266c3ab05323338.png)
 
-### 2.1 原理概览
+### 2.1 Tổng quan nguyên lý
 
-AQS 核心思想是，如果被请求的共享资源空闲，那么就将当前请求资源的线程设置为有效的工作线程，将共享资源设置为锁定状态；如果共享资源被占用，就需要一定的阻塞等待唤醒机制来保证锁分配。这个机制主要用的是 CLH 队列的变体实现的，将暂时获取不到锁的线程加入到队列中。
+Ý tưởng cốt lõi của AQS là: nếu tài nguyên chia sẻ được yêu cầu đang rảnh, thì đặt luồng đang yêu cầu tài nguyên hiện tại làm luồng làm việc hiệu quả, đặt tài nguyên chia sẻ ở trạng thái khóa; nếu tài nguyên chia sẻ đang bị chiếm, cần một cơ chế chặn và đánh thức nhất định để đảm bảo phân bổ khóa. Cơ chế này chủ yếu được triển khai bằng biến thể của hàng đợi CLH, thêm luồng tạm thời không lấy được khóa vào hàng đợi.
 
-CLH：Craig、Landin and Hagersten 队列，是单向链表，AQS 中的队列是 CLH 变体的虚拟双向队列（FIFO），AQS 是通过将每条请求共享资源的线程封装成一个节点来实现锁的分配。
+CLH: Hàng đợi Craig, Landin và Hagersten, là danh sách liên kết một chiều. Hàng đợi trong AQS là hàng đợi hai chiều ảo biến thể CLH (FIFO), AQS thực hiện phân bổ khóa bằng cách đóng gói mỗi luồng yêu cầu tài nguyên chia sẻ vào một nút.
 
-主要原理图如下：
+Sơ đồ nguyên lý chính như sau:
 
 ![](https://p0.meituan.net/travelcube/7132e4cef44c26f62835b197b239147b18062.png)
 
-AQS 使用一个 Volatile 的 int 类型的成员变量来表示同步状态，通过内置的 FIFO 队列来完成资源获取的排队工作，通过 CAS 完成对 State 值的修改。
+AQS sử dụng một biến thành viên kiểu int Volatile để biểu diễn trạng thái đồng bộ, thông qua hàng đợi FIFO tích hợp để hoàn thành công việc xếp hàng lấy tài nguyên, thông qua CAS để hoàn thành việc sửa đổi giá trị State.
 
-#### 2.1.1 AQS 数据结构
+#### 2.1.1 Cấu trúc dữ liệu AQS
 
-先来看下 AQS 中最基本的数据结构——Node，Node 即为上面 CLH 变体队列中的节点。
+Trước tiên hãy xem cấu trúc dữ liệu cơ bản nhất trong AQS — Node, Node chính là nút trong hàng đợi biến thể CLH ở trên.
 
 ![](https://p1.meituan.net/travelcube/960271cf2b5c8a185eed23e98b72c75538637.png)
 
-解释一下几个方法和属性值的含义：
+Giải thích ý nghĩa của một số phương thức và giá trị thuộc tính:
 
-| 方法和属性值 | 含义                                                                                             |
-| :----------- | :----------------------------------------------------------------------------------------------- |
-| waitStatus   | 当前节点在队列中的状态                                                                           |
-| thread       | 表示处于该节点的线程                                                                             |
-| prev         | 前驱指针                                                                                         |
-| predecessor  | 返回前驱节点，没有的话抛出 npe                                                                   |
-| nextWaiter   | 指向下一个处于 CONDITION 状态的节点（由于本篇文章不讲述 Condition Queue 队列，这个指针不多介绍） |
-| next         | 后继指针                                                                                         |
+| Phương thức và giá trị thuộc tính | Ý nghĩa                                                                                                                                              |
+| :-------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| waitStatus                        | Trạng thái của nút hiện tại trong hàng đợi                                                                                                           |
+| thread                            | Biểu diễn luồng ở nút đó                                                                                                                             |
+| prev                              | Con trỏ đến nút trước                                                                                                                                |
+| predecessor                       | Trả về nút trước, nếu không có sẽ ném ra npe                                                                                                         |
+| nextWaiter                        | Trỏ đến nút tiếp theo ở trạng thái CONDITION (vì bài viết này không đề cập đến hàng đợi Condition Queue, con trỏ này sẽ không được giới thiệu nhiều) |
+| next                              | Con trỏ đến nút sau                                                                                                                                  |
 
-线程两种锁的模式：
+Hai chế độ khóa của luồng:
 
-| 模式      | 含义                           |
-| :-------- | :----------------------------- |
-| SHARED    | 表示线程以共享的模式等待锁     |
-| EXCLUSIVE | 表示线程正在以独占的方式等待锁 |
+| Chế độ    | Ý nghĩa                                           |
+| :-------- | :------------------------------------------------ |
+| SHARED    | Biểu diễn luồng đang chờ khóa theo chế độ chia sẻ |
+| EXCLUSIVE | Biểu diễn luồng đang chờ khóa theo cách độc quyền |
 
-waitStatus 有下面几个枚举值：
+waitStatus có các giá trị enum sau:
 
-| 枚举      | 含义                                             |
-| :-------- | :----------------------------------------------- |
-| 0         | 当一个 Node 被初始化的时候的默认值               |
-| CANCELLED | 为 1，表示线程获取锁的请求已经取消了             |
-| CONDITION | 为-2，表示节点在等待队列中，节点线程等待唤醒     |
-| PROPAGATE | 为-3，当前线程处在 SHARED 情况下，该字段才会使用 |
-| SIGNAL    | 为-1，表示线程已经准备好了，就等资源释放了       |
+| Enum      | Ý nghĩa                                                                         |
+| :-------- | :------------------------------------------------------------------------------ |
+| 0         | Giá trị mặc định khi một Node được khởi tạo                                     |
+| CANCELLED | Là 1, biểu thị yêu cầu lấy khóa của luồng đã bị hủy                             |
+| CONDITION | Là -2, biểu thị nút đang ở trong hàng đợi chờ, luồng nút đang chờ đánh thức     |
+| PROPAGATE | Là -3, trường này chỉ được dùng khi luồng hiện tại đang trong tình huống SHARED |
+| SIGNAL    | Là -1, biểu thị luồng đã sẵn sàng, chỉ chờ tài nguyên được giải phóng           |
 
-#### 2.1.2 同步状态 State
+#### 2.1.2 Trạng thái đồng bộ State
 
-在了解数据结构后，接下来了解一下 AQS 的同步状态——State。AQS 中维护了一个名为 state 的字段，意为同步状态，是由 Volatile 修饰的，用于展示当前临界资源的获锁情况。
+Sau khi tìm hiểu cấu trúc dữ liệu, tiếp theo hãy tìm hiểu về trạng thái đồng bộ của AQS — State. AQS duy trì một trường có tên là state, nghĩa là trạng thái đồng bộ, được sửa đổi bởi Volatile, dùng để hiển thị tình trạng lấy khóa của tài nguyên quan trọng hiện tại.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -189,43 +189,43 @@ waitStatus 有下面几个枚举值：
 private volatile int state;
 ```
 
-下面提供了几个访问这个字段的方法：
+Dưới đây là một số phương thức để truy cập trường này:
 
-| 方法名                                                             | 描述                    |
-| :----------------------------------------------------------------- | :---------------------- |
-| protected final int getState()                                     | 获取 State 的值         |
-| protected final void setState(int newState)                        | 设置 State 的值         |
-| protected final boolean compareAndSetState(int expect, int update) | 使用 CAS 方式更新 State |
+| Tên phương thức                                                    | Mô tả                        |
+| :----------------------------------------------------------------- | :--------------------------- |
+| protected final int getState()                                     | Lấy giá trị State            |
+| protected final void setState(int newState)                        | Đặt giá trị State            |
+| protected final boolean compareAndSetState(int expect, int update) | Cập nhật State theo cách CAS |
 
-这几个方法都是 Final 修饰的，说明子类中无法重写它们。我们可以通过修改 State 字段表示的同步状态来实现多线程的独占模式和共享模式（加锁过程）。
+Các phương thức này đều được sửa đổi bởi Final, có nghĩa là lớp con không thể ghi đè chúng. Chúng ta có thể thực hiện chế độ độc quyền và chế độ chia sẻ đa luồng (quy trình khóa) bằng cách sửa đổi trạng thái đồng bộ được biểu diễn bởi trường State.
 
 ![](https://p0.meituan.net/travelcube/27605d483e8935da683a93be015713f331378.png)
 
 ![](https://p0.meituan.net/travelcube/3f1e1a44f5b7d77000ba4f9476189b2e32806.png)
 
-对于我们自定义的同步工具，需要自定义获取同步状态和释放状态的方式，也就是 AQS 架构图中的第一层：API 层。
+Đối với công cụ đồng bộ tùy chỉnh của chúng ta, cần tùy chỉnh cách lấy và giải phóng trạng thái đồng bộ, đó là tầng đầu tiên trong sơ đồ kiến trúc AQS: tầng API.
 
-### 2.2 AQS 重要方法与 ReentrantLock 的关联
+### 2.2 Các phương thức quan trọng của AQS và mối liên hệ với ReentrantLock
 
-从架构图中可以得知，AQS 提供了大量用于自定义同步器实现的 Protected 方法。自定义同步器实现的相关方法也只是为了通过修改 State 字段来实现多线程的独占模式或者共享模式。自定义同步器需要实现以下方法（ReentrantLock 需要实现的方法如下，并不是全部）：
+Từ sơ đồ kiến trúc có thể biết, AQS cung cấp nhiều phương thức Protected để tùy chỉnh việc triển khai bộ đồng bộ. Các phương thức liên quan đến triển khai bộ đồng bộ tùy chỉnh cũng chỉ là để thực hiện chế độ độc quyền hoặc chế độ chia sẻ đa luồng bằng cách sửa đổi trường State. Bộ đồng bộ tùy chỉnh cần triển khai các phương thức sau (các phương thức ReentrantLock cần triển khai như sau, không phải tất cả):
 
-| 方法名                                      | 描述                                                                                                                   |
-| :------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------- |
-| protected boolean isHeldExclusively()       | 该线程是否正在独占资源。只有用到 Condition 才需要去实现它。                                                            |
-| protected boolean tryAcquire(int arg)       | 独占方式。arg 为获取锁的次数，尝试获取资源，成功则返回 True，失败则返回 False。                                        |
-| protected boolean tryRelease(int arg)       | 独占方式。arg 为释放锁的次数，尝试释放资源，成功则返回 True，失败则返回 False。                                        |
-| protected int tryAcquireShared(int arg)     | 共享方式。arg 为获取锁的次数，尝试获取资源。负数表示失败；0 表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。 |
-| protected boolean tryReleaseShared(int arg) | 共享方式。arg 为释放锁的次数，尝试释放资源，如果释放后允许唤醒后续等待结点返回 True，否则返回 False。                  |
+| Tên phương thức                             | Mô tả                                                                                                                                                                                           |
+| :------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| protected boolean isHeldExclusively()       | Liệu luồng này có đang độc chiếm tài nguyên không. Chỉ cần triển khai khi dùng Condition.                                                                                                       |
+| protected boolean tryAcquire(int arg)       | Chế độ độc quyền. arg là số lần lấy khóa, thử lấy tài nguyên, thành công trả về True, thất bại trả về False.                                                                                    |
+| protected boolean tryRelease(int arg)       | Chế độ độc quyền. arg là số lần giải phóng khóa, thử giải phóng tài nguyên, thành công trả về True, thất bại trả về False.                                                                      |
+| protected int tryAcquireShared(int arg)     | Chế độ chia sẻ. arg là số lần lấy khóa, thử lấy tài nguyên. Số âm biểu thị thất bại; 0 biểu thị thành công nhưng không còn tài nguyên khả dụng; số dương biểu thị thành công và còn tài nguyên. |
+| protected boolean tryReleaseShared(int arg) | Chế độ chia sẻ. arg là số lần giải phóng khóa, thử giải phóng tài nguyên, nếu sau khi giải phóng cho phép đánh thức nút chờ tiếp theo trả về True, ngược lại trả về False.                      |
 
-一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 tryAcquire-tryRelease、tryAcquireShared-tryReleaseShared 中的一种即可。AQS 也支持自定义同步器同时实现独占和共享两种方式，如 ReentrantReadWriteLock。ReentrantLock 是独占锁，所以实现了 tryAcquire-tryRelease。
+Thông thường, bộ đồng bộ tùy chỉnh hoặc là chế độ độc quyền, hoặc là chế độ chia sẻ, và chúng chỉ cần triển khai một trong hai tryAcquire-tryRelease hoặc tryAcquireShared-tryReleaseShared. AQS cũng hỗ trợ bộ đồng bộ tùy chỉnh đồng thời triển khai cả hai chế độ độc quyền và chia sẻ, như ReentrantReadWriteLock. ReentrantLock là khóa độc quyền, nên đã triển khai tryAcquire-tryRelease.
 
-以非公平锁为例，这里主要阐述一下非公平锁与 AQS 之间方法的关联之处，具体每一处核心方法的作用会在文章后面详细进行阐述。
+Lấy khóa không công bằng làm ví dụ, ở đây chủ yếu trình bày mối liên hệ giữa các phương thức của khóa không công bằng và AQS, vai trò cụ thể của từng phương thức cốt lõi sẽ được giới thiệu chi tiết ở phần sau của bài viết.
 
 ![](https://p1.meituan.net/travelcube/b8b53a70984668bc68653efe9531573e78636.png)
 
-> 🐛 修正（参见：[issue#1761](https://github.com/Snailclimb/JavaGuide/issues/1761)）: 图中的一处小错误，(AQS)CAS 修改共享资源 State 成功之后应该是获取锁成功(非公平锁)。
+> Sửa lỗi (xem: [issue#1761](https://github.com/Snailclimb/JavaGuide/issues/1761)): Có một lỗi nhỏ trong hình, sau khi (AQS) CAS sửa đổi trạng thái tài nguyên chia sẻ State thành công thì nên là lấy khóa thành công (khóa không công bằng).
 >
-> 对应的源码如下：
+> Mã nguồn tương ứng như sau:
 >
 > ```java
 > final boolean nonfairTryAcquire(int acquires) {
@@ -248,33 +248,33 @@ private volatile int state;
 >      }
 > ```
 
-为了帮助大家理解 ReentrantLock 和 AQS 之间方法的交互过程，以非公平锁为例，我们将加锁和解锁的交互流程单独拎出来强调一下，以便于对后续内容的理解。
+Để giúp mọi người hiểu quy trình tương tác giữa các phương thức ReentrantLock và AQS, lấy khóa không công bằng làm ví dụ, chúng ta hãy tách riêng quy trình tương tác giữa khóa và mở khóa để nhấn mạnh, nhằm hiểu nội dung tiếp theo.
 
 ![](https://p1.meituan.net/travelcube/7aadb272069d871bdee8bf3a218eed8136919.png)
 
-加锁：
+Khóa:
 
-- 通过 ReentrantLock 的加锁方法 Lock 进行加锁操作。
-- 会调用到内部类 Sync 的 Lock 方法，由于 Sync#lock 是抽象方法，根据 ReentrantLock 初始化选择的公平锁和非公平锁，执行相关内部类的 Lock 方法，本质上都会执行 AQS 的 Acquire 方法。
-- AQS 的 Acquire 方法会执行 tryAcquire 方法，但是由于 tryAcquire 需要自定义同步器实现，因此执行了 ReentrantLock 中的 tryAcquire 方法，由于 ReentrantLock 是通过公平锁和非公平锁内部类实现的 tryAcquire 方法，因此会根据锁类型不同，执行不同的 tryAcquire。
-- tryAcquire 是获取锁逻辑，获取失败后，会执行框架 AQS 的后续逻辑，跟 ReentrantLock 自定义同步器无关。
+- Thực hiện thao tác khóa thông qua phương thức khóa Lock của ReentrantLock.
+- Sẽ gọi phương thức Lock của lớp nội bộ Sync, vì Sync#lock là phương thức abstract, tùy theo loại khóa công bằng và khóa không công bằng mà ReentrantLock khởi tạo chọn, thực thi phương thức Lock của lớp nội bộ tương ứng, về bản chất đều sẽ thực thi phương thức Acquire của AQS.
+- Phương thức Acquire của AQS sẽ thực thi phương thức tryAcquire, nhưng vì tryAcquire cần bộ đồng bộ tùy chỉnh triển khai, nên sẽ thực thi phương thức tryAcquire trong ReentrantLock. Vì ReentrantLock được triển khai thông qua phương thức tryAcquire của lớp nội bộ khóa công bằng và khóa không công bằng, nên sẽ thực thi tryAcquire khác nhau tùy theo loại khóa.
+- tryAcquire là logic lấy khóa, sau khi lấy thất bại, sẽ thực thi logic tiếp theo của framework AQS, không liên quan đến bộ đồng bộ tùy chỉnh ReentrantLock.
 
-解锁：
+Mở khóa:
 
-- 通过 ReentrantLock 的解锁方法 Unlock 进行解锁。
-- Unlock 会调用内部类 Sync 的 Release 方法，该方法继承于 AQS。
-- Release 中会调用 tryRelease 方法，tryRelease 需要自定义同步器实现，tryRelease 只在 ReentrantLock 中的 Sync 实现，因此可以看出，释放锁的过程，并不区分是否为公平锁。
-- 释放成功后，所有处理由 AQS 框架完成，与自定义同步器无关。
+- Thực hiện mở khóa thông qua phương thức mở khóa Unlock của ReentrantLock.
+- Unlock sẽ gọi phương thức Release của lớp nội bộ Sync, phương thức này kế thừa từ AQS.
+- Release sẽ gọi phương thức tryRelease, tryRelease cần bộ đồng bộ tùy chỉnh triển khai, tryRelease chỉ được triển khai trong Sync của ReentrantLock, vì vậy có thể thấy, quy trình giải phóng khóa không phân biệt là khóa công bằng hay không công bằng.
+- Sau khi giải phóng thành công, tất cả quá trình xử lý đều do framework AQS hoàn thành, không liên quan đến bộ đồng bộ tùy chỉnh.
 
-通过上面的描述，大概可以总结出 ReentrantLock 加锁解锁时 API 层核心方法的映射关系。
+Qua mô tả trên, có thể tóm tắt sơ bộ mối quan hệ ánh xạ của các phương thức cốt lõi ở tầng API khi ReentrantLock khóa và mở khóa.
 
 ![](https://p0.meituan.net/travelcube/f30c631c8ebbf820d3e8fcb6eee3c0ef18748.png)
 
-## 3 通过 ReentrantLock 理解 AQS
+## 3 Hiểu AQS qua ReentrantLock
 
-ReentrantLock 中公平锁和非公平锁在底层是相同的，这里以非公平锁为例进行分析。
+Khóa công bằng và khóa không công bằng trong ReentrantLock giống nhau ở tầng dưới, ở đây lấy khóa không công bằng làm ví dụ để phân tích.
 
-在非公平锁中，有一段这样的代码：
+Trong khóa không công bằng, có đoạn code sau:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock
@@ -291,7 +291,7 @@ static final class NonfairSync extends Sync {
 }
 ```
 
-看一下这个 Acquire 是怎么写的：
+Hãy xem Acquire này được viết như thế nào:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -302,7 +302,7 @@ public final void acquire(int arg) {
 }
 ```
 
-再看一下 tryAcquire 方法：
+Rồi xem phương thức tryAcquire:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -312,17 +312,17 @@ protected boolean tryAcquire(int arg) {
 }
 ```
 
-可以看出，这里只是 AQS 的简单实现，具体获取锁的实现方法是由各自的公平锁和非公平锁单独实现的（以 ReentrantLock 为例）。如果该方法返回了 True，则说明当前线程获取锁成功，就不用往后执行了；如果获取失败，就需要加入到等待队列中。下面会详细解释线程是何时以及怎样被加入进等待队列中的。
+Có thể thấy, đây chỉ là triển khai đơn giản của AQS, phương thức triển khai cụ thể để lấy khóa được triển khai riêng bởi khóa công bằng và khóa không công bằng (lấy ReentrantLock làm ví dụ). Nếu phương thức này trả về True, có nghĩa là luồng hiện tại lấy khóa thành công, không cần thực thi tiếp; nếu lấy thất bại, cần thêm vào hàng đợi chờ. Dưới đây sẽ giải thích chi tiết khi nào và cách nào luồng được thêm vào hàng đợi chờ.
 
-### 3.1 线程加入等待队列
+### 3.1 Thêm luồng vào hàng đợi chờ
 
-#### 3.1.1 加入队列的时机
+#### 3.1.1 Thời điểm thêm vào hàng đợi
 
-当执行 Acquire(1)时，会通过 tryAcquire 获取锁。在这种情况下，如果获取锁失败，就会调用 addWaiter 加入到等待队列中去。
+Khi thực thi Acquire(1), sẽ lấy khóa thông qua tryAcquire. Trong trường hợp này, nếu lấy khóa thất bại, sẽ gọi addWaiter để thêm vào hàng đợi chờ.
 
-#### 3.1.2 如何加入队列
+#### 3.1.2 Cách thêm vào hàng đợi
 
-获取锁失败后，会执行 addWaiter(Node.EXCLUSIVE)加入等待队列，具体实现方法如下：
+Sau khi lấy khóa thất bại, sẽ thực thi addWaiter(Node.EXCLUSIVE) để thêm vào hàng đợi chờ, phương thức triển khai cụ thể như sau:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -346,12 +346,12 @@ private final boolean compareAndSetTail(Node expect, Node update) {
 }
 ```
 
-主要的流程如下：
+Quy trình chính như sau:
 
-- 通过当前的线程和锁模式新建一个节点。
-- Pred 指针指向尾节点 Tail。
-- 将 New 中 Node 的 Prev 指针指向 Pred。
-- 通过 compareAndSetTail 方法，完成尾节点的设置。这个方法主要是对 tailOffset 和 Expect 进行比较，如果 tailOffset 的 Node 和 Expect 的 Node 地址是相同的，那么设置 Tail 的值为 Update 的值。
+- Tạo một nút mới dựa trên luồng hiện tại và chế độ khóa.
+- Con trỏ Pred trỏ đến nút đuôi Tail.
+- Đặt con trỏ Prev của Node mới trỏ đến Pred.
+- Thông qua phương thức compareAndSetTail để hoàn thành việc đặt nút đuôi. Phương thức này chủ yếu so sánh tailOffset và Expect, nếu Node của tailOffset và Node của Expect có cùng địa chỉ, thì đặt giá trị Tail thành giá trị Update.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -369,9 +369,9 @@ static {
 }
 ```
 
-从 AQS 的静态代码块可以看出，都是获取一个对象的属性相对于该对象在内存当中的偏移量，这样我们就可以根据这个偏移量在对象内存当中找到这个属性。tailOffset 指的是 tail 对应的偏移量，所以这个时候会将 new 出来的 Node 置为当前队列的尾节点。同时，由于是双向链表，也需要将前一个节点指向尾节点。
+Từ khối code static của AQS có thể thấy, tất cả đều là lấy độ lệch tương đối của một thuộc tính đối tượng so với đối tượng đó trong bộ nhớ, để chúng ta có thể tìm thấy thuộc tính này trong bộ nhớ đối tượng dựa trên độ lệch này. tailOffset là độ lệch tương ứng của tail, vì vậy lúc này sẽ đặt Node mới tạo làm nút đuôi của hàng đợi hiện tại. Đồng thời, vì là danh sách liên kết hai chiều, cũng cần để nút trước đó trỏ đến nút đuôi.
 
-- 如果 Pred 指针是 Null（说明等待队列中没有元素），或者当前 Pred 指针和 Tail 指向的位置不同（说明被别的线程已经修改），就需要看一下 Enq 的方法。
+- Nếu con trỏ Pred là Null (có nghĩa là không có phần tử trong hàng đợi chờ), hoặc vị trí con trỏ Pred hiện tại và Tail khác nhau (có nghĩa là đã bị luồng khác sửa đổi), cần xem phương thức Enq.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -393,19 +393,19 @@ private Node enq(final Node node) {
 }
 ```
 
-如果没有被初始化，需要进行初始化一个头结点出来。但请注意，初始化的头结点并不是当前线程节点，而是调用了无参构造函数的节点。如果经历了初始化或者并发导致队列中有元素，则与之前的方法相同。其实，addWaiter 就是一个在双端链表添加尾节点的操作，需要注意的是，双端链表的头结点是一个无参构造函数的头结点。
+Nếu chưa được khởi tạo, cần khởi tạo một nút đầu. Nhưng hãy lưu ý, nút đầu được khởi tạo không phải là nút luồng hiện tại, mà là nút gọi constructor không tham số. Nếu đã trải qua khởi tạo hoặc đồng thời dẫn đến có phần tử trong hàng đợi, thì cách xử lý giống với phương thức trước. Thực ra, addWaiter là thao tác thêm nút đuôi trong danh sách liên kết hai đầu, cần lưu ý rằng nút đầu của danh sách liên kết hai đầu là nút đầu gọi constructor không tham số.
 
-总结一下，线程获取锁的时候，过程大体如下：
+Tóm lại, khi luồng lấy khóa, quy trình đại thể như sau:
 
-1、当没有线程获取到锁时，线程 1 获取锁成功。
+1. Khi không có luồng nào lấy được khóa, luồng 1 lấy khóa thành công.
 
-2、线程 2 申请锁，但是锁被线程 1 占有。
+2. Luồng 2 yêu cầu khóa, nhưng khóa đang bị luồng 1 chiếm.
 
 ![img](https://p0.meituan.net/travelcube/e9e385c3c68f62c67c8d62ab0adb613921117.png)
 
-3、如果再有线程要获取锁，依次在队列中往后排队即可。
+3. Nếu có thêm luồng muốn lấy khóa, chỉ cần xếp hàng sau trong hàng đợi là được.
 
-回到上边的代码，hasQueuedPredecessors 是公平锁加锁时判断等待队列中是否存在有效节点的方法。如果返回 False，说明当前线程可以争取共享资源；如果返回 True，说明队列中存在有效节点，当前线程必须加入到等待队列中。
+Quay lại code ở trên, hasQueuedPredecessors là phương thức khóa công bằng dùng để phán xét xem có nút hiệu lực nào trong hàng đợi chờ không khi thực hiện khóa. Nếu trả về False, có nghĩa là luồng hiện tại có thể tranh giành tài nguyên chia sẻ; nếu trả về True, có nghĩa là hàng đợi có nút hiệu lực, luồng hiện tại phải thêm vào hàng đợi chờ.
 
 ```java
 // java.util.concurrent.locks.ReentrantLock
@@ -421,9 +421,9 @@ public final boolean hasQueuedPredecessors() {
 }
 ```
 
-看到这里，我们理解一下 h != t && ((s = h.next) == null || s.thread != Thread.currentThread());为什么要判断的头结点的下一个节点？第一个节点储存的数据是什么？
+Nhìn vào đây, chúng ta hãy hiểu tại sao `h != t && ((s = h.next) == null || s.thread != Thread.currentThread())` phải phán xét nút tiếp theo của nút đầu? Nút đầu tiên lưu trữ dữ liệu gì?
 
-> 双向链表中，第一个节点为虚节点，其实并不存储任何信息，只是占位。真正的第一个有数据的节点，是在第二个节点开始的。当 h != t 时：如果(s = h.next) == null，等待队列正在有线程进行初始化，但只是进行到了 Tail 指向 Head，没有将 Head 指向 Tail，此时队列中有元素，需要返回 True（这块具体见下边代码分析）。 如果(s = h.next) != null，说明此时队列中至少有一个有效节点。如果此时 s.thread == Thread.currentThread()，说明等待队列的第一个有效节点中的线程与当前线程相同，那么当前线程是可以获取资源的；如果 s.thread != Thread.currentThread()，说明等待队列的第一个有效节点线程与当前线程不同，当前线程必须加入进等待队列。
+> Trong danh sách liên kết hai chiều, nút đầu tiên là nút ảo, thực ra không lưu trữ bất kỳ thông tin nào, chỉ chiếm chỗ. Nút đầu tiên thực sự có dữ liệu bắt đầu từ nút thứ hai. Khi h != t: nếu (s = h.next) == null, hàng đợi chờ đang có luồng đang khởi tạo, nhưng chỉ tiến hành đến bước Tail trỏ đến Head, chưa đặt Head trỏ đến Tail, lúc này trong hàng đợi có phần tử, cần trả về True (xem chi tiết ở phân tích code bên dưới). Nếu (s = h.next) != null, có nghĩa là lúc này trong hàng đợi có ít nhất một nút hiệu lực. Nếu lúc này s.thread == Thread.currentThread(), có nghĩa là luồng trong nút hiệu lực đầu tiên của hàng đợi chờ giống với luồng hiện tại, thì luồng hiện tại có thể lấy tài nguyên; nếu s.thread != Thread.currentThread(), có nghĩa là luồng của nút hiệu lực đầu tiên trong hàng đợi chờ khác với luồng hiện tại, luồng hiện tại phải thêm vào hàng đợi chờ.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer#enq
@@ -440,11 +440,11 @@ if (t == null) { // Must initialize
 }
 ```
 
-节点入队不是原子操作，所以会出现短暂的 head != tail，此时 Tail 指向最后一个节点，而且 Tail 指向 Head。如果 Head 没有指向 Tail（可见 5、6、7 行），这种情况下也需要将相关线程加入队列中。所以这块代码是为了解决极端情况下的并发问题。
+Thao tác vào hàng đợi của nút không phải là thao tác nguyên tử, vì vậy sẽ xuất hiện tình trạng head != tail tạm thời, lúc này Tail trỏ đến nút cuối cùng và Tail trỏ đến Head. Nếu Head không trỏ đến Tail (xem dòng 5, 6, 7), trong trường hợp này cũng cần thêm luồng liên quan vào hàng đợi. Vì vậy đoạn code này là để giải quyết vấn đề đồng thời trong các tình huống cực đoan.
 
-#### 3.1.3 等待队列中线程出队列时机
+#### 3.1.3 Thời điểm luồng ra khỏi hàng đợi chờ
 
-回到最初的源码：
+Quay lại mã nguồn ban đầu:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -455,11 +455,11 @@ public final void acquire(int arg) {
 }
 ```
 
-上文解释了 addWaiter 方法，这个方法其实就是把对应的线程以 Node 的数据结构形式加入到双端队列里，返回的是一个包含该线程的 Node。而这个 Node 会作为参数，进入到 acquireQueued 方法中。acquireQueued 方法可以对排队中的线程进行“获锁”操作。
+Văn bản trên đã giải thích phương thức addWaiter, phương thức này thực ra là thêm luồng tương ứng vào trong danh sách liên kết hai đầu theo dạng cấu trúc dữ liệu Node, và trả về một Node chứa luồng đó. Node này sẽ được dùng làm tham số để vào phương thức acquireQueued. Phương thức acquireQueued có thể thực hiện thao tác "lấy khóa" đối với luồng đang xếp hàng.
 
-总的来说，一个线程获取锁失败了，被放入等待队列，acquireQueued 会把放入队列中的线程不断去获取锁，直到获取成功或者不再需要获取（中断）。
+Tóm lại, một luồng lấy khóa thất bại, được đưa vào hàng đợi chờ, acquireQueued sẽ liên tục thử lấy khóa cho luồng trong hàng đợi, cho đến khi lấy thành công hoặc không còn cần lấy (bị ngắt).
 
-下面我们从“何时出队列？”和“如何出队列？”两个方向来分析一下 acquireQueued 源码：
+Dưới đây chúng ta sẽ phân tích mã nguồn acquireQueued từ hai hướng "khi nào ra khỏi hàng đợi?" và "cách ra khỏi hàng đợi như thế nào?":
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -493,7 +493,7 @@ final boolean acquireQueued(final Node node, int arg) {
 }
 ```
 
-注：setHead 方法是把当前节点置为虚节点，但并没有修改 waitStatus，因为它是一直需要用的数据。
+Lưu ý: phương thức setHead là đặt nút hiện tại thành nút ảo, nhưng không sửa đổi waitStatus, vì nó là dữ liệu cần dùng liên tục.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -528,7 +528,7 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 }
 ```
 
-parkAndCheckInterrupt 主要用于挂起当前线程，阻塞调用栈，返回当前线程的中断状态。
+parkAndCheckInterrupt chủ yếu dùng để treo luồng hiện tại, chặn call stack, trả về trạng thái ngắt của luồng hiện tại.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -539,22 +539,22 @@ private final boolean parkAndCheckInterrupt() {
 }
 ```
 
-上述方法的流程图如下：
+Sơ đồ quy trình của các phương thức trên như sau:
 
 ![](https://p0.meituan.net/travelcube/c124b76dcbefb9bdc778458064703d1135485.png)
 
-从上图可以看出，跳出当前循环的条件是当“前置节点是头结点，且当前线程获取锁成功”。为了防止因死循环导致 CPU 资源被浪费，我们会判断前置节点的状态来决定是否要将当前线程挂起，具体挂起流程用流程图表示如下（shouldParkAfterFailedAcquire 流程）：
+Từ hình trên có thể thấy, điều kiện để thoát khỏi vòng lặp hiện tại là khi "nút trước là nút đầu và luồng hiện tại lấy khóa thành công". Để tránh vòng lặp vô hạn gây lãng phí tài nguyên CPU, chúng ta sẽ phán xét trạng thái của nút trước để quyết định có treo luồng hiện tại hay không. Quy trình treo cụ thể được biểu diễn bằng sơ đồ quy trình như sau (quy trình shouldParkAfterFailedAcquire):
 
 ![](https://p0.meituan.net/travelcube/9af16e2481ad85f38ca322a225ae737535740.png)
 
-从队列中释放节点的疑虑打消了，那么又有新问题了：
+Thắc mắc về việc giải phóng nút khỏi hàng đợi đã được giải đáp, nhưng lại có vấn đề mới:
 
-- shouldParkAfterFailedAcquire 中取消节点是怎么生成的呢？什么时候会把一个节点的 waitStatus 设置为-1？
-- 是在什么时间释放节点通知到被挂起的线程呢？
+- shouldParkAfterFailedAcquire trong trạng thái nút bị hủy được tạo ra như thế nào? Khi nào sẽ đặt waitStatus của một nút thành -1?
+- Lúc nào giải phóng nút và thông báo cho luồng bị treo?
 
-### 3.2 CANCELLED 状态节点生成
+### 3.2 Tạo nút trạng thái CANCELLED
 
-acquireQueued 方法中的 Finally 代码：
+Code Finally trong phương thức acquireQueued:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -578,7 +578,7 @@ final boolean acquireQueued(final Node node, int arg) {
 }
 ```
 
-通过 cancelAcquire 方法，将 Node 的状态标记为 CANCELLED。接下来，我们逐行来分析这个方法的原理：
+Thông qua phương thức cancelAcquire, đánh dấu trạng thái Node là CANCELLED. Tiếp theo, chúng ta phân tích từng dòng nguyên lý của phương thức này:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -619,34 +619,34 @@ private void cancelAcquire(Node node) {
 }
 ```
 
-当前的流程：
+Quy trình hiện tại:
 
-- 获取当前节点的前驱节点，如果前驱节点的状态是 CANCELLED，那就一直往前遍历，找到第一个 waitStatus <= 0 的节点，将找到的 Pred 节点和当前 Node 关联，将当前 Node 设置为 CANCELLED。
-- 根据当前节点的位置，考虑以下三种情况：
+- Lấy nút trước của nút hiện tại, nếu trạng thái nút trước là CANCELLED, thì tiếp tục duyệt về phía trước, tìm nút Pred đầu tiên có waitStatus <= 0, liên kết nút Pred tìm thấy với nút hiện tại Node, đặt nút hiện tại Node thành CANCELLED.
+- Tùy theo vị trí của nút hiện tại, xem xét ba trường hợp sau:
 
-(1) 当前节点是尾节点。
+(1) Nút hiện tại là nút đuôi.
 
-(2) 当前节点是 Head 的后继节点。
+(2) Nút hiện tại là nút kế tiếp của Head.
 
-(3) 当前节点不是 Head 的后继节点，也不是尾节点。
+(3) Nút hiện tại không phải là nút kế tiếp của Head, cũng không phải nút đuôi.
 
-根据上述第二条，我们来分析每一种情况的流程。
+Dựa trên điều kiện thứ hai ở trên, hãy phân tích quy trình của từng trường hợp.
 
-当前节点是尾节点。
+Nút hiện tại là nút đuôi.
 
 ![](https://p1.meituan.net/travelcube/b845211ced57561c24f79d56194949e822049.png)
 
-当前节点是 Head 的后继节点。
+Nút hiện tại là nút kế tiếp của Head.
 
 ![](https://p1.meituan.net/travelcube/ab89bfec875846e5028a4f8fead32b7117975.png)
 
-当前节点不是 Head 的后继节点，也不是尾节点。
+Nút hiện tại không phải là nút kế tiếp của Head, cũng không phải nút đuôi.
 
 ![](https://p0.meituan.net/travelcube/45d0d9e4a6897eddadc4397cf53d6cd522452.png)
 
-通过上面的流程，我们对于 CANCELLED 节点状态的产生和变化已经有了大致的了解，但是为什么所有的变化都是对 Next 指针进行了操作，而没有对 Prev 指针进行操作呢？什么情况下会对 Prev 指针进行操作？
+Qua quy trình trên, chúng ta đã hiểu sơ bộ về việc tạo và thay đổi trạng thái nút CANCELLED. Nhưng tại sao tất cả các thay đổi đều thao tác trên con trỏ Next, mà không thao tác trên con trỏ Prev? Trong trường hợp nào sẽ thao tác trên con trỏ Prev?
 
-> 执行 cancelAcquire 的时候，当前节点的前置节点可能已经从队列中出去了（已经执行过 Try 代码块中的 shouldParkAfterFailedAcquire 方法了），如果此时修改 Prev 指针，有可能会导致 Prev 指向另一个已经移除队列的 Node，因此这块变化 Prev 指针不安全。 shouldParkAfterFailedAcquire 方法中，会执行下面的代码，其实就是在处理 Prev 指针。shouldParkAfterFailedAcquire 是获取锁失败的情况下才会执行，进入该方法后，说明共享资源已被获取，当前节点之前的节点都不会出现变化，因此这个时候变更 Prev 指针比较安全。
+> Khi thực thi cancelAcquire, nút trước của nút hiện tại có thể đã ra khỏi hàng đợi (đã thực thi phương thức shouldParkAfterFailedAcquire trong khối Try code rồi). Nếu lúc này sửa đổi con trỏ Prev, có thể dẫn đến Prev trỏ đến một Node khác đã bị xóa khỏi hàng đợi, vì vậy thay đổi con trỏ Prev lúc này không an toàn. Trong phương thức shouldParkAfterFailedAcquire, code dưới đây sẽ được thực thi, thực ra đó là xử lý con trỏ Prev. shouldParkAfterFailedAcquire chỉ được thực thi khi lấy khóa thất bại, sau khi vào phương thức đó, có nghĩa là tài nguyên chia sẻ đã được lấy, các nút trước nút hiện tại sẽ không thay đổi, vì vậy việc thay đổi con trỏ Prev lúc này tương đối an toàn.
 >
 > ```java
 > do {
@@ -654,9 +654,9 @@ private void cancelAcquire(Node node) {
 > } while (pred.waitStatus > 0);
 > ```
 
-### 3.3 如何解锁
+### 3.3 Cách mở khóa
 
-我们已经剖析了加锁过程中的基本流程，接下来再对解锁的基本流程进行分析。由于 ReentrantLock 在解锁的时候，并不区分公平锁和非公平锁，所以我们直接看解锁的源码：
+Chúng ta đã phân tích quy trình cơ bản trong quá trình khóa, tiếp theo hãy phân tích quy trình cơ bản của mở khóa. Vì ReentrantLock khi mở khóa không phân biệt khóa công bằng và không công bằng, nên chúng ta xem thẳng mã nguồn mở khóa:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock
@@ -666,7 +666,7 @@ public void unlock() {
 }
 ```
 
-可以看到，本质释放锁的地方，是通过框架来完成的。
+Có thể thấy, về bản chất, nơi giải phóng khóa được hoàn thành bởi framework.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -682,7 +682,7 @@ public final boolean release(int arg) {
 }
 ```
 
-在 ReentrantLock 里面的公平锁和非公平锁的父类 Sync 定义了可重入锁的释放锁机制。
+Trong lớp cha Sync của khóa công bằng và không công bằng trong ReentrantLock, cơ chế giải phóng khóa có thể nhập lại được định nghĩa.
 
 ```java
 // java.util.concurrent.locks.ReentrantLock.Sync
@@ -705,7 +705,7 @@ protected final boolean tryRelease(int releases) {
 }
 ```
 
-我们来解释下述源码：
+Hãy giải thích mã nguồn dưới đây:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -724,15 +724,15 @@ public final boolean release(int arg) {
 }
 ```
 
-这里的判断条件为什么是 h != null && h.waitStatus != 0？
+Tại sao điều kiện phán xét ở đây là h != null && h.waitStatus != 0?
 
-> h == null Head 还没初始化。初始情况下，head == null，第一个节点入队，Head 会被初始化一个虚拟节点。所以说，这里如果还没来得及入队，就会出现 head == null 的情况。
+> h == null Head chưa được khởi tạo. Trong trường hợp ban đầu, head == null, nút đầu tiên vào hàng đợi, Head sẽ được khởi tạo thành một nút ảo. Vì vậy, nếu chưa kịp vào hàng đợi, sẽ xuất hiện tình huống head == null.
 >
-> h != null && waitStatus == 0 表明后继节点对应的线程仍在运行中，不需要唤醒。
+> h != null && waitStatus == 0 biểu thị luồng tương ứng với nút kế tiếp vẫn đang chạy, không cần đánh thức.
 >
-> h != null && waitStatus < 0 表明后继节点可能被阻塞了，需要唤醒。
+> h != null && waitStatus < 0 biểu thị luồng tương ứng với nút kế tiếp có thể đang bị chặn, cần đánh thức.
 
-再看一下 unparkSuccessor 方法：
+Hãy xem thêm phương thức unparkSuccessor:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -758,9 +758,9 @@ private void unparkSuccessor(Node node) {
 }
 ```
 
-为什么要从后往前找第一个非 Cancelled 的节点呢？原因如下。
+Tại sao phải tìm nút đầu tiên không phải Cancelled từ sau về trước? Lý do như sau.
 
-之前的 addWaiter 方法：
+Phương thức addWaiter trước đó:
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -781,13 +781,13 @@ private Node addWaiter(Node mode) {
 }
 ```
 
-我们从这里可以看到，节点入队并不是原子操作，也就是说，node.prev = pred; compareAndSetTail(pred, node) 这两个地方可以看作 Tail 入队的原子操作，但是此时 pred.next = node;还没执行，如果这个时候执行了 unparkSuccessor 方法，就没办法从前往后找了，所以需要从后往前找。还有一点原因，在产生 CANCELLED 状态节点的时候，先断开的是 Next 指针，Prev 指针并未断开，因此也是必须要从后往前遍历才能够遍历完全部的 Node。
+Từ đây có thể thấy, thao tác vào hàng đợi của nút không phải là thao tác nguyên tử, tức là `node.prev = pred; compareAndSetTail(pred, node)` ở hai chỗ này có thể được xem là thao tác nguyên tử của việc Tail vào hàng đợi, nhưng lúc này `pred.next = node;` chưa được thực thi. Nếu lúc này thực thi phương thức unparkSuccessor, thì không thể tìm từ trước về sau, vì vậy cần tìm từ sau về trước. Còn một lý do nữa là, khi tạo nút trạng thái CANCELLED, con trỏ Next bị ngắt trước, con trỏ Prev không bị ngắt, vì vậy cũng phải duyệt từ sau về trước mới có thể duyệt đầy đủ tất cả các Node.
 
-综上所述，如果是从前往后找，由于极端情况下入队的非原子操作和 CANCELLED 节点产生过程中断开 Next 指针的操作，可能会导致无法遍历所有的节点。所以，唤醒对应的线程后，对应的线程就会继续往下执行。继续执行 acquireQueued 方法以后，中断如何处理？
+Tóm lại, nếu tìm từ trước về sau, do thao tác vào hàng đợi không nguyên tử trong các tình huống cực đoan và thao tác ngắt con trỏ Next trong quá trình tạo nút CANCELLED, có thể dẫn đến không thể duyệt tất cả các nút. Vì vậy, sau khi đánh thức luồng tương ứng, luồng tương ứng sẽ tiếp tục thực thi tiếp. Sau khi tiếp tục thực thi phương thức acquireQueued, ngắt được xử lý như thế nào?
 
-### 3.4 中断恢复后的执行流程
+### 3.4 Quy trình thực thi sau khi khôi phục từ ngắt
 
-唤醒后，会执行 return Thread.interrupted();，这个函数返回的是当前执行线程的中断状态，并清除。
+Sau khi đánh thức, sẽ thực thi `return Thread.interrupted();`, hàm này trả về trạng thái ngắt của luồng đang thực thi hiện tại và xóa nó.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -798,7 +798,7 @@ private final boolean parkAndCheckInterrupt() {
 }
 ```
 
-再回到 acquireQueued 代码，当 parkAndCheckInterrupt 返回 True 或者 False 的时候，interrupted 的值不同，但都会执行下次循环。如果这个时候获取锁成功，就会把当前 interrupted 返回。
+Quay lại code acquireQueued, khi parkAndCheckInterrupt trả về True hoặc False, giá trị của interrupted khác nhau, nhưng đều sẽ thực thi vòng lặp tiếp theo. Nếu lúc này lấy khóa thành công, sẽ trả về interrupted hiện tại.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -825,7 +825,7 @@ final boolean acquireQueued(final Node node, int arg) {
 }
 ```
 
-如果 acquireQueued 为 True，就会执行 selfInterrupt 方法。
+Nếu acquireQueued là True, sẽ thực thi phương thức selfInterrupt.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -835,44 +835,44 @@ static void selfInterrupt() {
 }
 ```
 
-该方法其实是为了中断线程。但为什么获取了锁以后还要中断线程呢？这部分属于 Java 提供的协作式中断知识内容，感兴趣同学可以查阅一下。这里简单介绍一下：
+Phương thức này thực ra là để ngắt luồng. Nhưng tại sao sau khi lấy được khóa vẫn phải ngắt luồng? Phần này thuộc kiến thức ngắt hợp tác do Java cung cấp, các bạn quan tâm có thể tìm hiểu. Ở đây giới thiệu sơ qua:
 
-1. 当中断线程被唤醒时，并不知道被唤醒的原因，可能是当前线程在等待中被中断，也可能是释放了锁以后被唤醒。因此我们通过 Thread.interrupted()方法检查中断标记（该方法返回了当前线程的中断状态，并将当前线程的中断标识设置为 False），并记录下来，如果发现该线程被中断过，就再中断一次。
-2. 线程在等待资源的过程中被唤醒，唤醒后还是会不断地去尝试获取锁，直到抢到锁为止。也就是说，在整个流程中，并不响应中断，只是记录中断记录。最后抢到锁返回了，那么如果被中断过的话，就需要补充一次中断。
+1. Khi luồng bị ngắt được đánh thức, không biết lý do bị đánh thức, có thể là luồng hiện tại đang chờ bị ngắt, cũng có thể là bị đánh thức sau khi giải phóng khóa. Vì vậy chúng ta kiểm tra đánh dấu ngắt thông qua phương thức Thread.interrupted() (phương thức này trả về trạng thái ngắt của luồng thực thi hiện tại và đặt đánh dấu ngắt của luồng hiện tại thành False), và ghi lại. Nếu phát hiện luồng đã bị ngắt, thì ngắt lại một lần nữa.
+2. Luồng bị đánh thức trong quá trình chờ tài nguyên, sau khi đánh thức sẽ tiếp tục cố gắng lấy khóa, cho đến khi lấy được khóa. Tức là trong toàn bộ quy trình, không phản hồi ngắt, chỉ ghi lại bản ghi ngắt. Cuối cùng lấy được khóa và trả về, nếu đã bị ngắt, cần bổ sung thêm một lần ngắt.
 
-这里的处理方式主要是运用线程池中基本运作单元 Worder 中的 runWorker，通过 Thread.interrupted()进行额外的判断处理，感兴趣的同学可以看下 ThreadPoolExecutor 源码。
+Cách xử lý ở đây chủ yếu sử dụng runWorker trong đơn vị hoạt động cơ bản Worker trong thread pool, phán xét bổ sung thông qua Thread.interrupted(), các bạn quan tâm có thể xem mã nguồn ThreadPoolExecutor.
 
-### 3.5 小结
+### 3.5 Tóm tắt nhỏ
 
-我们在 1.3 小节中提出了一些问题，现在来回答一下。
+Chúng ta đã đặt ra một số câu hỏi ở phần 1.3, bây giờ hãy trả lời.
 
-> Q：某个线程获取锁失败的后续流程是什么呢？
+> H: Quy trình tiếp theo sau khi một luồng lấy khóa thất bại là gì?
 >
-> A：存在某种排队等候机制，线程继续等待，仍然保留获取锁的可能，获取锁流程仍在继续。
+> Đ: Tồn tại một cơ chế xếp hàng chờ đợi nhất định, luồng tiếp tục chờ, vẫn giữ khả năng lấy khóa, quy trình lấy khóa vẫn tiếp tục.
 >
-> Q：既然说到了排队等候机制，那么就一定会有某种队列形成，这样的队列是什么数据结构呢？
+> H: Đã nói đến cơ chế xếp hàng chờ đợi, chắc chắn sẽ có một loại hàng đợi nào đó được tạo thành, hàng đợi như vậy có cấu trúc dữ liệu là gì?
 >
-> A：是 CLH 变体的 FIFO 双端队列。
+> Đ: Là hàng đợi hai đầu FIFO biến thể CLH.
 >
-> Q：处于排队等候机制中的线程，什么时候可以有机会获取锁呢？
+> H: Luồng đang trong cơ chế xếp hàng chờ đợi, khi nào có cơ hội lấy được khóa?
 >
-> A：可以详细看下 2.3.1.3 小节。
+> Đ: Có thể xem chi tiết ở phần 2.3.1.3.
 >
-> Q：如果处于排队等候机制中的线程一直无法获取锁，需要一直等待么？还是有别的策略来解决这一问题？
+> H: Nếu luồng đang trong cơ chế xếp hàng chờ đợi mà không thể lấy được khóa, có cần tiếp tục chờ không? Hay có chiến lược khác để giải quyết vấn đề này?
 >
-> A：线程所在节点的状态会变成取消状态，取消状态的节点会从队列中释放，具体可见 2.3.2 小节。
+> Đ: Trạng thái của nút nơi luồng đang ở sẽ chuyển thành trạng thái hủy, nút trạng thái hủy sẽ được giải phóng khỏi hàng đợi, xem chi tiết ở phần 2.3.2.
 >
-> Q：Lock 函数通过 Acquire 方法进行加锁，但是具体是如何加锁的呢？
+> H: Hàm Lock thực hiện khóa thông qua phương thức Acquire, nhưng cụ thể khóa như thế nào?
 >
-> A：AQS 的 Acquire 会调用 tryAcquire 方法，tryAcquire 由各个自定义同步器实现，通过 tryAcquire 完成加锁过程。
+> Đ: Acquire của AQS sẽ gọi phương thức tryAcquire, tryAcquire được triển khai bởi mỗi bộ đồng bộ tùy chỉnh, hoàn thành quá trình khóa thông qua tryAcquire.
 
-## 4 AQS 应用
+## 4 Ứng dụng AQS
 
-### 4.1 ReentrantLock 的可重入应用
+### 4.1 Ứng dụng tính năng nhập lại của ReentrantLock
 
-ReentrantLock 的可重入性是 AQS 很好的应用之一，在了解完上述知识点以后，我们很容易得知 ReentrantLock 实现可重入的方法。在 ReentrantLock 里面，不管是公平锁还是非公平锁，都有一段逻辑。
+Tính năng nhập lại của ReentrantLock là một trong những ứng dụng tốt của AQS. Sau khi tìm hiểu các kiến thức trên, chúng ta dễ dàng biết phương thức ReentrantLock triển khai tính năng nhập lại. Trong ReentrantLock, dù là khóa công bằng hay không công bằng, đều có một đoạn logic.
 
-公平锁：
+Khóa công bằng:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock.FairSync#tryAcquire
@@ -892,7 +892,7 @@ else if (current == getExclusiveOwnerThread()) {
 }
 ```
 
-非公平锁：
+Khóa không công bằng:
 
 ```java
 // java.util.concurrent.locks.ReentrantLock.Sync#nonfairTryAcquire
@@ -912,7 +912,7 @@ else if (current == getExclusiveOwnerThread()) {
 }
 ```
 
-从上面这两段都可以看到，有一个同步状态 State 来控制整体可重入的情况。State 是 Volatile 修饰的，用于保证一定的可见性和有序性。
+Từ hai đoạn trên có thể thấy, có một trạng thái đồng bộ State để kiểm soát tình huống nhập lại tổng thể. State được sửa đổi bởi Volatile, dùng để đảm bảo một mức độ khả năng hiển thị và thứ tự nhất định.
 
 ```java
 // java.util.concurrent.locks.AbstractQueuedSynchronizer
@@ -920,27 +920,27 @@ else if (current == getExclusiveOwnerThread()) {
 private volatile int state;
 ```
 
-接下来看 State 这个字段主要的过程：
+Tiếp theo hãy xem quy trình chính của trường State:
 
-1. State 初始化的时候为 0，表示没有任何线程持有锁。
-2. 当有线程持有该锁时，值就会在原来的基础上+1，同一个线程多次获得锁是，就会多次+1，这里就是可重入的概念。
-3. 解锁也是对这个字段-1，一直到 0，此线程对锁释放。
+1. State được khởi tạo là 0, biểu thị không có luồng nào giữ khóa.
+2. Khi có luồng giữ khóa đó, giá trị sẽ tăng thêm 1 so với ban đầu, cùng một luồng lấy khóa nhiều lần sẽ cộng thêm 1 nhiều lần, đây là khái niệm nhập lại.
+3. Mở khóa cũng là trừ 1 trường này, cho đến khi đạt 0, luồng này giải phóng khóa.
 
-### 4.2 JUC 中的应用场景
+### 4.2 Tình huống ứng dụng trong JUC
 
-除了上边 ReentrantLock 的可重入性的应用，AQS 作为并发编程的框架，为很多其他同步工具提供了良好的解决方案。下面列出了 JUC 中的几种同步工具，大体介绍一下 AQS 的应用场景：
+Ngoài ứng dụng tính năng nhập lại của ReentrantLock ở trên, AQS với tư cách là framework cho lập trình đồng thời, cung cấp giải pháp tốt cho nhiều công cụ đồng bộ hóa khác. Dưới đây liệt kê một số công cụ đồng bộ trong JUC, giới thiệu sơ qua về tình huống ứng dụng AQS:
 
-| 同步工具               | 同步工具与 AQS 的关联                                                                                                                                       |
-| :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ReentrantLock          | 使用 AQS 保存锁重复持有的次数。当一个线程获取锁时，ReentrantLock 记录当前获得锁的线程标识，用于检测是否重复获取，以及错误线程试图解锁操作时异常情况的处理。 |
-| Semaphore              | 使用 AQS 同步状态来保存信号量的当前计数。tryRelease 会增加计数，acquireShared 会减少计数。                                                                  |
-| CountDownLatch         | 使用 AQS 同步状态来表示计数。计数为 0 时，所有的 Acquire 操作（CountDownLatch 的 await 方法）才可以通过。                                                   |
-| ReentrantReadWriteLock | 使用 AQS 同步状态中的 16 位保存写锁持有的次数，剩下的 16 位用于保存读锁的持有次数。                                                                         |
-| ThreadPoolExecutor     | Worker 利用 AQS 同步状态实现对独占线程变量的设置（tryAcquire 和 tryRelease）。                                                                              |
+| Công cụ đồng bộ        | Mối liên hệ giữa công cụ đồng bộ và AQS                                                                                                                                                                             |
+| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ReentrantLock          | Dùng AQS để lưu số lần giữ khóa lặp. Khi một luồng lấy khóa, ReentrantLock ghi lại định danh luồng đang giữ khóa, dùng để phát hiện có lấy lặp không, và xử lý tình huống bất thường khi luồng sai cố gắng mở khóa. |
+| Semaphore              | Dùng trạng thái đồng bộ AQS để lưu số đếm hiện tại của semaphore. tryRelease sẽ tăng số đếm, acquireShared sẽ giảm số đếm.                                                                                          |
+| CountDownLatch         | Dùng trạng thái đồng bộ AQS để biểu diễn số đếm. Khi số đếm là 0, tất cả thao tác Acquire (phương thức await của CountDownLatch) mới có thể đi qua.                                                                 |
+| ReentrantReadWriteLock | Dùng 16 bit trong trạng thái đồng bộ AQS để lưu số lần giữ khóa ghi, 16 bit còn lại để lưu số lần giữ khóa đọc.                                                                                                     |
+| ThreadPoolExecutor     | Worker sử dụng trạng thái đồng bộ AQS để thiết lập biến luồng độc quyền (tryAcquire và tryRelease).                                                                                                                 |
 
-### 4.3 自定义同步工具
+### 4.3 Công cụ đồng bộ tùy chỉnh
 
-了解 AQS 基本原理以后，按照上面所说的 AQS 知识点，自己实现一个同步工具。
+Sau khi tìm hiểu nguyên lý cơ bản của AQS, dựa theo các kiến thức AQS đã đề cập ở trên, hãy tự triển khai một công cụ đồng bộ.
 
 ```java
 public class LeeLock  {
@@ -975,7 +975,7 @@ public class LeeLock  {
 }
 ```
 
-通过我们自己定义的 Lock 完成一定的同步功能。
+Thực hiện một số chức năng đồng bộ hóa nhất định thông qua Lock mà chúng ta tự định nghĩa.
 
 ```java
 public class LeeMain {
@@ -1012,16 +1012,16 @@ public class LeeMain {
 }
 ```
 
-上述代码每次运行结果都会是 20000。通过简单的几行代码就能实现同步功能，这就是 AQS 的强大之处。
+Kết quả của mỗi lần chạy code trên đều là 20000. Chỉ với vài dòng code đơn giản có thể thực hiện chức năng đồng bộ hóa, đây là sức mạnh của AQS.
 
-## 5 总结
+## 5 Tổng kết
 
-我们日常开发中使用并发的场景太多，但是对并发内部的基本框架原理了解的人却不多。由于篇幅原因，本文仅介绍了可重入锁 ReentrantLock 的原理和 AQS 原理，希望能够成为大家了解 AQS 和 ReentrantLock 等同步器的“敲门砖”。
+Chúng ta sử dụng đồng thời trong công việc hàng ngày quá nhiều, nhưng những người hiểu rõ framework nguyên lý cơ bản bên trong đồng thời lại không nhiều. Do giới hạn độ dài, bài viết này chỉ giới thiệu nguyên lý của khóa có thể nhập lại ReentrantLock và nguyên lý AQS, hy vọng có thể trở thành "bước khởi đầu" để mọi người tìm hiểu về AQS và các bộ đồng bộ như ReentrantLock.
 
-## 参考资料
+## Tài liệu tham khảo
 
 - Lea D. The java. util. concurrent synchronizer framework\[J]. Science of Computer Programming, 2005, 58(3): 293-309.
 - 《Java 并发编程实战》
-- [不可不说的 Java“锁”事](https://tech.meituan.com/2018/11/15/java-lock.html)
+- [不可不说的 Java"锁"事](https://tech.meituan.com/2018/11/15/java-lock.html)
 
 <!-- @include: @article-footer.snippet.md -->
