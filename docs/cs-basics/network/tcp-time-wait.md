@@ -1,142 +1,142 @@
 ---
-title: TCP TIME_WAIT 详解：为什么要等、会不会出问题、能不能复用？
-description: 深入分析 TCP TIME_WAIT 状态的两个存在原因（最后 ACK 补救机会 + 防旧包混入新连接），大量 TIME_WAIT 的危害边界与粗略估算，tcp_tw_reuse 的正确使用姿势，以及 TIME_WAIT 与 CLOSE_WAIT 的区分与线上排查思路。
-category: 计算机基础
+title: Giải thích chi tiết TCP TIME_WAIT：Tại sao phải đợi, có gây vấn đề không, có thể tái sử dụng không?
+description: Phân tích sâu hai lý do tồn tại của trạng thái TCP TIME_WAIT (cơ hội cứu vãn ACK cuối + ngăn gói cũ lẫn vào kết nối mới), ngưỡng nguy hiểm và ước tính khi TIME_WAIT tích lũy nhiều, cách sử dụng đúng tcp_tw_reuse, cũng như cách phân biệt TIME_WAIT với CLOSE_WAIT và hướng dẫn troubleshoot trên môi trường production.
+category: Kiến thức cơ bản máy tính
 tag:
-  - 计算机网络
+  - Mạng máy tính
 head:
   - - meta
     - name: keywords
       content: TCP,TIME_WAIT,CLOSE_WAIT,2MSL,tcp_tw_reuse,tcp_tw_recycle,四次挥手,端口耗尽,连接复用,MSL,PAWS
 ---
 
-TCP 四次挥手的最后一步，主动关闭方发完 ACK 后不是立刻关闭，而是进入 `TIME_WAIT` 状态，默认要等上 60 秒。
+Bước cuối cùng trong quá trình đóng kết nối TCP 4 bước bắt tay, sau khi bên chủ động đóng gửi ACK xong không đóng ngay lập tức, mà chuyển sang trạng thái `TIME_WAIT`, mặc định phải đợi 60 giây.
 
-这 60 秒经常被误解：有人觉得是浪费资源，有人想着用内核参数强行关掉，有人把 `CLOSE_WAIT` 和 `TIME_WAIT` 混着排查。
+60 giây này thường bị hiểu nhầm: có người cho rằng đây là lãng phí tài nguyên, có người muốn tắt cưỡng bức bằng tham số kernel, có người nhầm lẫn khi troubleshoot giữa `CLOSE_WAIT` và `TIME_WAIT`.
 
-这篇文章回答线上最常见的几个问题：
+Bài viết này trả lời những câu hỏi phổ biến nhất trên môi trường production:
 
-1. `TIME_WAIT` 到底在等什么？
-2. `TIME_WAIT` 大量堆积会不会真的出问题？
-3. `tcp_tw_reuse` 能不能随便开？
-4. `TIME_WAIT` 和 `CLOSE_WAIT` 怎么区分？
+1. `TIME_WAIT` đang đợi cái gì?
+2. Khi `TIME_WAIT` tích lũy nhiều, liệu có thực sự gây ra vấn đề không?
+3. `tcp_tw_reuse` có thể bật tùy tiện không?
+4. Làm thế nào để phân biệt `TIME_WAIT` và `CLOSE_WAIT`?
 
-## TIME_WAIT 不只是“等一会儿再关”
+## TIME_WAIT không chỉ đơn giản là "đợi thêm một chút rồi đóng"
 
-ACK 都已经发出去了，为什么还要占着端口等几十秒？
+ACK đã được gửi rồi, tại sao vẫn phải giữ cổng thêm vài chục giây?
 
-主动关闭方发出最后一个 ACK 后，不会立刻释放连接，而是进入 `TIME_WAIT`。RFC 9293 的连接状态图里也能看到，`TIME_WAIT` 会在 2MSL 超时后删除 TCB，并进入 `CLOSED`。
+Sau khi bên chủ động đóng gửi ACK cuối cùng, không giải phóng kết nối ngay, mà chuyển sang `TIME_WAIT`. Trong sơ đồ trạng thái kết nối của RFC 9293 cũng có thể thấy, `TIME_WAIT` sẽ xóa TCB sau timeout 2MSL và chuyển sang `CLOSED`.
 
-这里要注意一个细节：不是“谁收到 FIN 谁就一定进入 TIME_WAIT”。被动关闭方收到 FIN 后，通常会先进入 `CLOSE_WAIT`，等待本端应用处理完剩余数据并调用 `close()` 或 `shutdown()`。更常见的情况是，主动关闭方收到对端最后的 FIN，并回复最后一个 ACK 后，进入 `TIME_WAIT`。
+Cần lưu ý một chi tiết: không phải "ai nhận FIN thì người đó vào TIME_WAIT". Bên bị động đóng sau khi nhận FIN, thường sẽ chuyển vào `CLOSE_WAIT` trước, chờ ứng dụng xử lý xong dữ liệu còn lại rồi gọi `close()` hoặc `shutdown()`. Trường hợp phổ biến hơn là bên chủ động đóng nhận FIN cuối cùng từ đối phương, trả lại ACK cuối cùng, rồi chuyển vào `TIME_WAIT`.
 
-**谁主动关闭连接，谁就更容易进入 TIME_WAIT。** 比如客户端主动断开 HTTP 短连接，`TIME_WAIT` 往往出现在客户端；如果服务端主动断开连接，服务端也可能堆出大量 `TIME_WAIT`。
+**Bên nào chủ động đóng kết nối, bên đó dễ bị vào TIME_WAIT hơn.** Ví dụ, client chủ động ngắt kết nối HTTP ngắn, `TIME_WAIT` thường xuất hiện ở phía client; nếu server chủ động ngắt kết nối, server cũng có thể tích lũy nhiều `TIME_WAIT`.
 
-看起来像是多等了一会儿，实际上是在解决两个问题。
+Trông có vẻ chỉ đợi thêm một lúc, nhưng thực ra đang giải quyết hai vấn đề.
 
-## 第一个原因：让最后一个 ACK 有补救机会
+## Lý do thứ nhất: Cho ACK cuối cùng cơ hội được cứu vãn
 
-主动关闭方发送最后一个 ACK 后，如果这个 ACK 在网络中丢了，被动关闭方会以为自己的 FIN 没被确认，于是重发 FIN。主动关闭方还在 `TIME_WAIT` 里，就能再次回复 ACK；如果它已经进入 `CLOSED`，就可能回 RST，让对端感知为异常关闭或连接被重置。
+Sau khi bên chủ động đóng gửi ACK cuối cùng, nếu ACK này bị mất trong mạng, bên bị động đóng sẽ nghĩ FIN của mình chưa được xác nhận, nên sẽ gửi lại FIN. Nếu bên chủ động đóng vẫn còn trong `TIME_WAIT`, có thể trả lại ACK lần nữa; nếu đã chuyển sang `CLOSED`, có thể sẽ trả RST, khiến đối phương cảm nhận như là đóng bất thường hoặc kết nối bị reset.
 
 ```mermaid
 sequenceDiagram
-  participant A as 主动关闭方
-  participant B as 被动关闭方
+  participant A as Bên chủ động đóng
+  participant B as Bên bị động đóng
 
   B->>A: FIN
-  A-->>B: ACK 丢失
-  Note over A: A 进入 TIME_WAIT<br/>没有立刻释放连接
-  B->>A: 重传 FIN
-  A-->>B: 再次 ACK
-  Note over B: B 收到 ACK 后进入 CLOSED
+  A-->>B: ACK bị mất
+  Note over A: A vào TIME_WAIT<br/>không giải phóng kết nối ngay
+  B->>A: Gửi lại FIN
+  A-->>B: ACK lần nữa
+  Note over B: B nhận ACK rồi chuyển sang CLOSED
 ```
 
-**MSL（Maximum Segment Lifetime）** 是报文段在网络中的最大生存时间。2MSL 不是一次请求-响应的最大 RTT，而是一个保守等待窗口：既给最后 ACK 丢失后的 FIN 重传留出处理机会，也尽量保证旧连接中的延迟报文从网络中消失。
+**MSL (Maximum Segment Lifetime)** là thời gian tồn tại tối đa của một segment trong mạng. 2MSL không phải là RTT tối đa của một cặp request-response, mà là cửa sổ đợi thận trọng: vừa để lại cơ hội xử lý khi FIN được gửi lại do ACK cuối bị mất, vừa đảm bảo các gói tin trễ từ kết nối cũ biến mất khỏi mạng.
 
-需要注意，RFC 里的 MSL 是协议层概念，具体系统实现可能不同。Linux 常见实现中，`TIME_WAIT` 保留时间通常是 60 秒。还有一个常见误区：`tcp_fin_timeout` 控制的是 orphaned connection 的 `FIN_WAIT_2` 超时，不是 `TIME_WAIT`。想缓解 `TIME_WAIT` 带来的端口压力，优先看连接复用、端口范围、主动关闭方和 `tcp_tw_reuse` 条件，而不是试图用 `tcp_fin_timeout` 缩短 `TIME_WAIT`。
+Cần lưu ý, MSL trong RFC là khái niệm ở tầng giao thức, các hệ thống cụ thể có thể triển khai khác nhau. Trong các triển khai Linux phổ biến, thời gian giữ `TIME_WAIT` thường là 60 giây. Còn một điều hiểu nhầm phổ biến: `tcp_fin_timeout` kiểm soát timeout `FIN_WAIT_2` của orphaned connection, không phải `TIME_WAIT`. Để giảm áp lực cổng do `TIME_WAIT` gây ra, hãy ưu tiên xem xét tái sử dụng kết nối, phạm vi cổng, bên chủ động đóng và điều kiện `tcp_tw_reuse`, thay vì cố dùng `tcp_fin_timeout` để rút ngắn `TIME_WAIT`.
 
-## 第二个原因：别让旧连接的包混进新连接
+## Lý do thứ hai: Không để gói tin cũ lẫn vào kết nối mới
 
-TCP 连接靠四元组定位：源 IP、源端口、目的 IP、目的端口。如果旧连接刚关闭，立刻用同一个四元组建立新连接，旧连接里延迟到达的数据包可能刚好落在新连接接收窗口里，被当成新连接的数据处理。
+Kết nối TCP được định danh bằng bộ tứ: IP nguồn, cổng nguồn, IP đích, cổng đích. Nếu kết nối cũ vừa đóng, ngay lập tức tạo kết nối mới với cùng bộ tứ đó, các gói tin trễ từ kết nối cũ có thể rơi đúng vào cửa sổ nhận của kết nối mới, bị xử lý như dữ liệu của kết nối mới.
 
-举个例子：
+Ví dụ:
 
 ```text
-旧连接：client:50000 -> server:443
-服务端发出的 SEQ=301 数据包在网络里绕了一圈，迟迟没到。
+Kết nối cũ: client:50000 -> server:443
+Gói tin SEQ=301 do server gửi đi lạc trong mạng, chưa đến.
 
-旧连接关闭后，客户端很快复用了同一个源端口：
-新连接：client:50000 -> server:443
+Sau khi kết nối cũ đóng, client nhanh chóng tái sử dụng cổng nguồn đó:
+Kết nối mới: client:50000 -> server:443
 
-这时旧的 SEQ=301 抵达客户端。
-如果它刚好落在新连接接收窗口里，就有可能被误收。
+Lúc này SEQ=301 cũ đến client.
+Nếu nó rơi đúng vào cửa sổ nhận của kết nối mới, có thể bị nhận nhầm.
 ```
 
-TCP 序列号空间是 0 到 2^32 - 1，会按模 2^32 回绕，所以不能只靠序列号永久区分新老报文。实际系统还有时间戳、PAWS（Protection Against Wrapped Sequences）、随机 ISN 等保护，但它们不是“完全替代 TIME_WAIT”的万能方案。RFC 1337 也讨论过旧重复报文导致的 TIME_WAIT 风险。
+Không gian số thứ tự TCP là 0 đến 2^32 - 1, sẽ wrap around theo modulo 2^32, nên không thể chỉ dựa vào số thứ tự để phân biệt gói mới và gói cũ mãi mãi. Các hệ thống thực tế còn có timestamp, PAWS (Protection Against Wrapped Sequences), ISN ngẫu nhiên, v.v. để bảo vệ, nhưng chúng không phải là giải pháp vạn năng "thay thế hoàn toàn TIME_WAIT". RFC 1337 cũng thảo luận về rủi ro TIME_WAIT do gói tin cũ trùng lặp gây ra.
 
-## 大量 TIME_WAIT 到底有没有问题？
+## TIME_WAIT tích lũy nhiều có thực sự gây vấn đề không?
 
-`TIME_WAIT` 本身是正常状态。真正的问题通常出现在主动关闭方短时间内创建大量到同一个目标 IP + 目标端口的连接，导致本地临时端口被占住。
+`TIME_WAIT` bản thân là trạng thái bình thường. Vấn đề thực sự thường xảy ra khi bên chủ động đóng trong thời gian ngắn tạo ra nhiều kết nối đến cùng một IP đích + cổng đích, khiến các cổng tạm thời cục bộ bị chiếm hết.
 
-Linux 本地临时端口范围可通过 `net.ipv4.ip_local_port_range` 查看和调整。上游内核文档里的默认范围是 `32768 60999`，实际环境以本机输出为准：
+Phạm vi cổng tạm thời cục bộ trên Linux có thể xem và điều chỉnh qua `net.ipv4.ip_local_port_range`. Phạm vi mặc định theo tài liệu kernel upstream là `32768 60999`, thực tế cần kiểm tra trên máy:
 
 ```bash
 cat /proc/sys/net/ipv4/ip_local_port_range
 ```
 
-如果客户端短时间内反复连接同一个目标 IP + 目标端口，旧连接又都停在 `TIME_WAIT`，本地可用临时端口可能被占满，导致新连接无法分配源端口，常见报错如：
+Nếu client trong thời gian ngắn liên tục kết nối đến cùng IP đích + cổng đích, và các kết nối cũ đều đang ở `TIME_WAIT`, cổng tạm thời cục bộ có thể bị chiếm hết, dẫn đến không thể cấp phát cổng nguồn cho kết nối mới, lỗi thường thấy là:
 
 ```text
 Cannot assign requested address
 ```
 
-可以按这个思路判断：
+Có thể phán đoán theo hướng sau:
 
-- **如果服务端上看到很多 TIME_WAIT**：先看是不是服务端主动关闭了连接，比如服务端主动断开短连接、网关主动关闭上游连接、连接池主动淘汰连接。
-- **如果客户端或网关上看到很多 TIME_WAIT**：重点看是否存在短连接风暴、连接池未复用、HTTP keep-alive 没打开、上游频繁断连。
+- **Nếu thấy nhiều TIME_WAIT trên server**: Trước tiên xem server có chủ động đóng kết nối không, ví dụ server chủ động ngắt kết nối ngắn, gateway chủ động đóng kết nối upstream, connection pool chủ động loại bỏ kết nối.
+- **Nếu thấy nhiều TIME_WAIT trên client hoặc gateway**: Tập trung xem có bùng nổ kết nối ngắn không, connection pool có được tái sử dụng không, HTTP keep-alive có bật không, upstream có thường xuyên ngắt kết nối không.
 
-还可以做一个粗略估算：
+Có thể ước tính thô:
 
 ```text
-同一目标 IP:Port 的短连接上限 ≈ 可用临时端口数 / TIME_WAIT 保留时间
+Giới hạn kết nối ngắn đến cùng IP:Port ≈ Số cổng tạm thời / Thời gian giữ TIME_WAIT
 ```
 
-比如默认端口范围 `32768~60999`，大约 2.8 万个端口。如果 `TIME_WAIT` 保留约 60 秒，那么同一目标 IP:Port 上持续新建短连接的上限大约是数百 QPS 量级。实际结果还会受到连接复用、端口保留、NAT、内核策略和不同远端四元组复用规则影响，不能只看 `TIME_WAIT` 总数就下结论。
+Ví dụ phạm vi cổng mặc định `32768~60999`, khoảng 2.8 vạn cổng. Nếu `TIME_WAIT` giữ khoảng 60 giây, thì giới hạn tạo kết nối ngắn liên tục đến cùng IP:Port khoảng vài trăm QPS. Kết quả thực tế còn bị ảnh hưởng bởi tái sử dụng kết nối, giữ cổng, NAT, chính sách kernel và quy tắc tái sử dụng bộ tứ khác nhau, không thể chỉ nhìn tổng số `TIME_WAIT` mà kết luận.
 
-## 为什么不建议随便开 tcp_tw_reuse？
+## Tại sao không nên bật tcp_tw_reuse tùy tiện?
 
-`tcp_tw_reuse` 允许在协议认为安全的条件下，为新的主动连接复用 `TIME_WAIT` socket。它看起来像是缓解端口压力的捷径，但这类参数改变的是 TCP 对旧连接报文的等待策略，不能当成通用开关。
+`tcp_tw_reuse` cho phép tái sử dụng `TIME_WAIT` socket cho kết nối mới chủ động khi giao thức cho là an toàn. Trông có vẻ là lối tắt giảm áp lực cổng, nhưng loại tham số này thay đổi chiến lược đợi gói tin cũ của TCP, không thể dùng như công tắc thông thường.
 
-这里要分三层看：
+Cần xem xét ba tầng:
 
-1. **它依赖时间戳等条件判断“新报文是否足够新”**。时间戳可以过滤一部分旧报文，但不是所有异常都能覆盖。RFC 1337 重点讨论过 `TIME_WAIT` 状态被旧 RST 等报文提前终止的风险。旧数据段如果落入新连接可接受窗口，可能造成新旧数据混淆；旧 ACK 的影响则依赖序列号、窗口和实现细节，不宜和旧 RST 直接并列成同一种断连风险。
-2. **当前上游 Linux 文档中，`tcp_tw_reuse` 可取 0/1/2，默认值为 2**，表示仅允许 loopback 流量复用；`1` 才是全局开启。但旧版内核文档、发行版 man page 或历史资料可能仍写作“默认关闭”，实际机器必须以 `sysctl net.ipv4.tcp_tw_reuse` 为准。内核文档也明确提示，不要在没有专家建议或明确需求时修改。
-3. **不要把 `tcp_tw_reuse` 和已经废弃的 `tcp_tw_recycle` 搞混**。`tcp_tw_recycle` 在 NAT 环境下会导致时间戳冲突，大量连接被异常丢弃，Linux 4.12 之后已经被移除。网上很多老文章仍然会建议同时打开 `tcp_tw_reuse` 和 `tcp_tw_recycle`，这类配置不要照搬。
+1. **Nó phụ thuộc vào timestamp và các điều kiện khác để đánh giá "gói tin mới có đủ mới không"**. Timestamp có thể lọc một phần gói tin cũ, nhưng không bao phủ được tất cả các trường hợp bất thường. RFC 1337 thảo luận kỹ về rủi ro trạng thái `TIME_WAIT` bị kết thúc sớm bởi RST cũ và các gói tin tương tự. Nếu segment dữ liệu cũ rơi vào cửa sổ chấp nhận của kết nối mới, có thể gây nhầm lẫn dữ liệu mới cũ; ảnh hưởng của ACK cũ phụ thuộc vào số thứ tự, cửa sổ và chi tiết triển khai, không nên xếp cùng rủi ro ngắt kết nối với RST cũ.
+2. **Trong tài liệu Linux upstream hiện tại, `tcp_tw_reuse` có thể nhận giá trị 0/1/2, giá trị mặc định là 2**, nghĩa là chỉ cho phép lưu lượng loopback tái sử dụng; `1` mới là bật toàn cục. Nhưng tài liệu kernel cũ, man page của các distro hoặc tài liệu lịch sử có thể vẫn ghi "mặc định tắt", thực tế phải kiểm tra `sysctl net.ipv4.tcp_tw_reuse` trên máy. Tài liệu kernel cũng cảnh báo rõ, không nên sửa đổi nếu không có tư vấn chuyên gia hoặc nhu cầu rõ ràng.
+3. **Đừng nhầm `tcp_tw_reuse` với `tcp_tw_recycle` đã bị deprecated**. `tcp_tw_recycle` trong môi trường NAT sẽ gây xung đột timestamp, nhiều kết nối bị drop bất thường, và đã bị gỡ bỏ từ Linux 4.12 trở đi. Nhiều bài viết cũ vẫn khuyến nghị bật cả `tcp_tw_reuse` và `tcp_tw_recycle`, loại cấu hình này không nên sao chép.
 
-一句话：`tcp_tw_reuse` 可以讨论，但必须结合 Linux 版本、是否 loopback、是否经过 NAT、是否启用时间戳、是否真的存在端口耗尽来判断。能在应用层解决的，优先在应用层解决。
+Nói ngắn gọn: `tcp_tw_reuse` có thể thảo luận, nhưng phải kết hợp phiên bản Linux, có phải loopback không, có qua NAT không, có bật timestamp không, có thực sự bị cạn kiệt cổng không để phán đoán. Những gì có thể giải quyết ở tầng ứng dụng, hãy ưu tiên giải quyết ở tầng ứng dụng.
 
-## TIME_WAIT 和 CLOSE_WAIT：一个正常等待，一个更像应用没收尾
+## TIME_WAIT và CLOSE_WAIT: Một cái đợi bình thường, một cái giống như ứng dụng chưa dọn dẹp xong
 
-排查连接状态时，`CLOSE_WAIT` 通常比 `TIME_WAIT` 更值得警惕。
+Khi troubleshoot trạng thái kết nối, `CLOSE_WAIT` thường đáng lo ngại hơn `TIME_WAIT`.
 
-收到对端 FIN 后，本端内核会回 ACK，然后进入 `CLOSE_WAIT`，等待应用处理完剩余数据并调用 `close()` 或 `shutdown()`。在 Java 服务里，`CLOSE_WAIT` 堆积经常和连接没有正确关闭有关。比如手写 Socket、HTTP 客户端响应体没有 close、异常分支提前 return、连接池连接没有归还，都可能让内核已经 ACK 了对端 FIN，但应用迟迟不调用 close。
+Sau khi nhận FIN từ đối phương, kernel phía mình sẽ trả ACK, rồi chuyển sang `CLOSE_WAIT`, chờ ứng dụng xử lý xong dữ liệu còn lại rồi gọi `close()` hoặc `shutdown()`. Trong Java service, `CLOSE_WAIT` tích lũy thường liên quan đến kết nối không được đóng đúng cách. Ví dụ, viết Socket thủ công, HTTP client không close response body, nhánh exception return sớm, connection pool không trả lại kết nối, đều có thể khiến kernel đã ACK FIN của đối phương nhưng ứng dụng mãi không gọi close.
 
-可以先按这个思路判断：
+Có thể phán đoán theo hướng này trước:
 
-- **TIME_WAIT**：主动关闭方在等 2MSL，通常是协议设计的一部分。
-- **CLOSE_WAIT**：被动关闭方已经知道对端不发了，但本端应用还没关闭 socket。大量堆积时，优先怀疑应用代码没释放连接、线程卡住、连接池归还异常、读写流程没有走到 finally。
+- **TIME_WAIT**: Bên chủ động đóng đang đợi 2MSL, thường là một phần thiết kế giao thức.
+- **CLOSE_WAIT**: Bên bị động đóng đã biết đối phương không gửi nữa, nhưng ứng dụng phía mình vẫn chưa đóng socket. Khi tích lũy nhiều, ưu tiên nghi ngờ code ứng dụng không giải phóng kết nối, thread bị block, connection pool归还 bất thường, luồng đọc/ghi không đến finally.
 
-| 状态       | 常见出现方 | 含义                                | 排查方向                                          |
-| ---------- | ---------- | ----------------------------------- | ------------------------------------------------- |
-| TIME_WAIT  | 主动关闭方 | 等最后 ACK 重传机会，也等旧报文消失 | 短连接、连接池、keep-alive、端口范围              |
-| CLOSE_WAIT | 被动关闭方 | 对端已关闭，本端应用还没 close      | 代码是否释放 socket、线程是否卡住、连接池是否泄漏 |
+| Trạng thái | Bên thường xuất hiện | Ý nghĩa                                              | Hướng troubleshoot                                                                          |
+| ---------- | -------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| TIME_WAIT  | Bên chủ động đóng    | Đợi cơ hội gửi lại ACK cuối, đợi gói tin cũ biến mất | Kết nối ngắn, connection pool, keep-alive, phạm vi cổng                                     |
+| CLOSE_WAIT | Bên bị động đóng     | Đối phương đã đóng, ứng dụng phía mình chưa close    | Code có giải phóng socket không, thread có bị block không, connection pool có bị leak không |
 
-## 排查时别只盯着数量，要先看谁在主动关闭
+## Khi troubleshoot đừng chỉ nhìn số lượng, hãy xem ai đang chủ động đóng trước
 
-![TIME_WAIT 与 CLOSE_WAIT 排查流程](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-time-wait-close-wait-troubleshooting-flowchart.png)
+![Quy trình troubleshoot TIME_WAIT và CLOSE_WAIT](https://oss.javaguide.cn/github/javaguide/cs-basics/network/tcp-time-wait-close-wait-troubleshooting-flowchart.png)
 
-看到大量 `TIME_WAIT` 或 `CLOSE_WAIT`，可以先用下面几条命令定位方向：
+Khi thấy nhiều `TIME_WAIT` hoặc `CLOSE_WAIT`, có thể dùng một số lệnh sau để xác định hướng:
 
-`ss` 是 Linux 上 `iproute2` 提供的命令，macOS 默认没有。如果你的开发环境是 macOS，可以用 `netstat` 和 `lsof` 替代。
+`ss` là lệnh do `iproute2` cung cấp trên Linux, macOS mặc định không có. Nếu môi trường phát triển của bạn là macOS, có thể dùng `netstat` và `lsof` thay thế.
 
 ```bash
 # Linux：查看各 TCP 状态数量
@@ -163,30 +163,30 @@ ss -ltn
 
 ![macOS：查看各 TCP 状态数量和 TIME-WAIT 主要集中在哪些远端](https://oss.javaguide.cn/github/javaguide/cs-basics/network/macos-check-tcp-state-count-and-time-wait-remote-distribution.png)
 
-命令背后的判断：
+Cách phán đoán từ lệnh:
 
-- **TIME_WAIT 集中在某个远端服务**：检查是否短连接太多、HTTP 连接复用没生效、连接池配置过小、连接池被频繁销毁，或者对端频繁主动断开。
-- **CLOSE_WAIT 集中在某个本地进程**：优先查应用代码，尤其是异常分支有没有关闭响应体、socket 或连接对象。
-- **LISTEN socket 的 Recv-Q 长时间接近 Send-Q**：重点排查 accept queue 堆积，看看应用 accept 是否及时、线程池是否卡住、backlog 配置是否过小。
-- 如果是网关、代理、爬虫、压测客户端，`TIME_WAIT` 更常见；如果是 Java 服务端内部依赖调用泄漏，`CLOSE_WAIT` 更常见。
+- **TIME_WAIT tập trung ở một dịch vụ đích**: Kiểm tra có quá nhiều kết nối ngắn không, HTTP connection reuse có hoạt động không, cấu hình connection pool có quá nhỏ không, connection pool có bị destroy thường xuyên không, hoặc đối phương có thường xuyên chủ động ngắt kết nối không.
+- **CLOSE_WAIT tập trung ở một process cục bộ**: Ưu tiên kiểm tra code ứng dụng, đặc biệt là nhánh exception có đóng response body, socket hoặc connection object không.
+- **Recv-Q của LISTEN socket gần bằng Send-Q trong thời gian dài**: Tập trung troubleshoot accept queue bị tắc nghẽn, xem ứng dụng có accept kịp thời không, thread pool có bị block không, backlog có cấu hình quá nhỏ không.
+- Nếu là gateway, proxy, crawler, client stress test, `TIME_WAIT` phổ biến hơn; nếu là Java service rò rỉ kết nối dependency nội bộ, `CLOSE_WAIT` phổ biến hơn.
 
-## 克制的优化建议
+## Khuyến nghị tối ưu hóa có kiểm soát
 
-按优先级排查：
+Troubleshoot theo thứ tự ưu tiên:
 
-1. **优先减少不必要的短连接**：开启 HTTP keep-alive，复用连接池。
-2. **确认谁在主动关闭连接**：服务端、客户端、网关、连接池都有可能成为主动关闭方。
-3. **检查应用侧资源释放**：尤其是 HTTP 响应体、Socket、数据库连接、连接池连接归还。
-4. **扩大本地端口范围**：在客户端短连接确实很高、且存在端口耗尽证据时，再考虑调整 `ip_local_port_range`。
-5. **最后才看内核参数**：`tcp_tw_reuse`、`tcp_abort_on_overflow`、`tcp_syncookies` 都要结合 Linux 版本、业务连接模型、是否经过 NAT、是否被攻击、是否有真实观测数据来判断，不建议直接照抄网上配置。
+1. **Ưu tiên giảm kết nối ngắn không cần thiết**: Bật HTTP keep-alive, tái sử dụng connection pool.
+2. **Xác định ai đang chủ động đóng kết nối**: Server, client, gateway, connection pool đều có thể là bên chủ động đóng.
+3. **Kiểm tra giải phóng tài nguyên phía ứng dụng**: Đặc biệt là HTTP response body, Socket, database connection, việc trả lại connection pool connection.
+4. **Mở rộng phạm vi cổng cục bộ**: Chỉ xem xét điều chỉnh `ip_local_port_range` khi client thực sự có kết nối ngắn rất nhiều và có bằng chứng cạn kiệt cổng.
+5. **Cuối cùng mới xem tham số kernel**: `tcp_tw_reuse`, `tcp_abort_on_overflow`, `tcp_syncookies` đều phải kết hợp phiên bản Linux, mô hình kết nối business, có qua NAT không, có bị tấn công không, có dữ liệu quan sát thực tế không để phán đoán, không nên sao chép cấu hình từ mạng.
 
-`TIME_WAIT` 多，不一定是故障；`CLOSE_WAIT` 多，通常要先看代码。这两个状态看起来都像“连接没关干净”，但问题方向完全不同。
+`TIME_WAIT` nhiều, chưa chắc là sự cố; `CLOSE_WAIT` nhiều, thường cần xem code trước. Hai trạng thái này trông đều giống "kết nối chưa đóng sạch", nhưng hướng xử lý vấn đề hoàn toàn khác nhau.
 
-## 参考
+## Tham khảo
 
 - RFC 9293: Transmission Control Protocol (TCP)：<https://www.rfc-editor.org/rfc/rfc9293>
 - RFC 1337: TIME-WAIT Assassination Hazards in TCP：<https://www.rfc-editor.org/rfc/rfc1337>
-- Linux 内核 ip-sysctl 文档：<https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt>
-- SoByte - 为什么 TCP 需要 TIME_WAIT 状态：<https://www.sobyte.net/post/2022-10/tcp-time-wait/>
+- Linux kernel ip-sysctl documentation：<https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt>
+- SoByte - Tại sao TCP cần trạng thái TIME_WAIT：<https://www.sobyte.net/post/2022-10/tcp-time-wait/>
 
 <!-- @include: @article-footer.snippet.md -->

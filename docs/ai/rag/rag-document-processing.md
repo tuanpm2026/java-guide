@@ -1,113 +1,113 @@
 ---
-title: RAG 文档处理与切分策略：从解析、清洗、Chunking 到多模态内容处理
-description: 深入解析 RAG 文档进入索引前的完整链路，涵盖文件解析、清洗、结构化、Chunking 策略、语义丢失处理、分层校验与多模态内容处理等工程化实践。
-category: AI 应用开发
+title: Xử lý tài liệu và chiến lược cắt RAG：Từ phân tích, làm sạch, Chunking đến xử lý nội dung đa phương thức
+description: Phân tích chuyên sâu toàn bộ chuỗi xử lý tài liệu RAG trước khi vào chỉ mục, bao gồm phân tích file, làm sạch, cấu trúc hóa, chiến lược Chunking, xử lý mất ngữ nghĩa, kiểm tra phân tầng và xử lý nội dung đa phương thức.
+category: Phát triển ứng dụng AI
 head:
   - - meta
     - name: keywords
       content: RAG,文档解析,切分,PDF解析,多模态RAG,语义丢失,表格处理,OCR,CLIP,结构化,知识库
 ---
 
-> **术语约定**：本文中 "Chunking" 与“切分”、"Embedding" 与“嵌入”、"Chunk" 与“块” 含义相同，统一使用中文表述以保持可读性。
+> **Quy ước thuật ngữ**: Trong bài này "Chunking" và "cắt", "Embedding" và "nhúng", "Chunk" và "khối" có cùng nghĩa, thống nhất dùng thuật ngữ để duy trì khả năng đọc.
 
-很多团队第一次搭 RAG 系统时，都会经历一个特别有意思的阶段：买最贵的向量数据库、调最牛的 embedding 模型、上线之后发现答案还是一塌糊涂。
+Nhiều team lần đầu xây hệ thống RAG đều sẽ trải qua một giai đoạn rất thú vị: mua vector database đắt nhất, điều chỉnh mô hình embedding tốt nhất, sau khi lên production phát hiện câu trả lời vẫn một mớ hỗn độn.
 
-根因往往不在检索环节，而在更上游——文档根本没有被正确解析，切分的时候把表格列拆散了，Chunk 把条件和结论切成两半，页眉页脚被当成正文入了索引。
+Nguyên nhân gốc rễ thường không phải ở khâu truy vấn, mà ở thượng nguồn hơn — tài liệu hoàn toàn không được phân tích đúng, khi cắt đã tách rời các cột bảng, Chunk cắt điều kiện và kết luận thành hai nửa, header và footer trang được đưa vào chỉ mục như văn bản chính.
 
-换句话说：**RAG 的瓶颈通常不在检索层，而在文档进入索引之前的那段管线。**
+Nói cách khác: **Điểm nghẽn của RAG thường không phải ở tầng truy vấn, mà ở đoạn pipeline trước khi tài liệu vào chỉ mục.**
 
-这个问题在 PDF 多栏布局、Word 标题层级、Excel 字段关联、扫描件 OCR 等场景下尤其突出。很多团队以为换了更强的 embedding 模型就能解决，实际上只是让错误表达得更稳定而已。
+Vấn đề này đặc biệt nổi bật trong các kịch bản như PDF đa cột, cấp tiêu đề Word, liên kết trường Excel, OCR tài liệu quét. Nhiều team nghĩ đổi mô hình embedding mạnh hơn sẽ giải quyết được, thực ra chỉ là làm cho lỗi được biểu đạt ổn định hơn mà thôi.
 
-这篇文章就把这条管线从头到尾拆开来看。接近 1w 字，建议收藏，主要覆盖这几块：
+Bài viết này sẽ phân tích pipeline này từ đầu đến cuối. Gần 1 vạn chữ, khuyên nên lưu lại, chủ yếu bao gồm mấy phần này:
 
-1. 文档从上传到入库的完整链路和每个环节的坑；
-2. 各种 Chunking 策略的适用场景和实测数据；
-3. 语义丢失为什么发生以及怎么应对；
-4. 表格和多栏这类结构丢失问题；
-5. 分层校验怎么做；
-6. 图片表格图表怎么变成可检索内容。
+1. Toàn bộ chuỗi từ khi tài liệu được tải lên đến khi vào cơ sở dữ liệu và các điểm bẫy ở từng khâu;
+2. Kịch bản áp dụng và dữ liệu thực đo của các chiến lược Chunking khác nhau;
+3. Tại sao mất ngữ nghĩa xảy ra và làm thế nào ứng phó;
+4. Vấn đề mất cấu trúc như bảng và đa cột;
+5. Kiểm tra phân tầng làm như thế nào;
+6. Hình ảnh, bảng, biểu đồ làm thế nào trở thành nội dung có thể truy vấn.
 
-## 文档从上传到入库要经过哪些环节？
+## Tài liệu từ khi tải lên đến khi vào cơ sở dữ liệu phải trải qua những khâu nào?
 
-在说具体策略之前，先把链路画清楚。文档从上传到进入向量库，中间要经过至少六个环节：
+Trước khi nói chiến lược cụ thể, hãy vẽ rõ chuỗi liên kết trước. Tài liệu từ khi tải lên đến khi vào vector database, ở giữa phải trải qua ít nhất sáu khâu:
 
-![RAG 文档处理总链路：上传前半段决定了后半段效果上限](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-overall-link.png)
+![Tổng chuỗi xử lý tài liệu RAG: nửa đầu trước khi tải lên quyết định giới hạn trên hiệu quả nửa sau](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-overall-link.png)
 
-这张图里有个容易忽略的点：质量校验不应该只发生在入库之后。在 Chunking 阶段做完采样校验，能提前发现问题，避免把低质量数据大批量写入向量库。
+Trong hình này có một điểm dễ bỏ qua: kiểm tra chất lượng không nên chỉ xảy ra sau khi vào cơ sở dữ liệu. Thực hiện kiểm tra lấy mẫu ở giai đoạn Chunking có thể phát hiện vấn đề sớm, tránh ghi hàng loạt dữ liệu chất lượng thấp vào vector database.
 
-> 注：本图简化展示了 Chunking 阶段的校验，完整的分层校验策略见后文“如何设计分层校验策略”章节，涵盖格式校验、解析校验和 Chunking 校验三层。
+> Lưu ý: Hình này hiển thị đơn giản hóa kiểm tra ở giai đoạn Chunking, chiến lược kiểm tra phân tầng hoàn chỉnh xem phần "Làm thế nào thiết kế chiến lược kiểm tra phân tầng" ở sau, bao gồm ba tầng kiểm tra định dạng, kiểm tra phân tích và kiểm tra Chunking.
 
-每个环节的核心风险：
+Rủi ro cốt lõi của từng khâu:
 
-| 环节        | 典型问题                           | 最终影响                   |
-| ----------- | ---------------------------------- | -------------------------- |
-| 文件上传    | 格式伪造、大小超限、编码混乱       | 解析器崩溃或静默失败       |
-| 格式校验    | 扩展名和实际 MIME 类型不符         | 选错解析器                 |
-| Layout 解析 | PDF 多栏、表格合并单元格、页眉页脚 | 结构丢失、上下文错位       |
-| 清洗去噪    | 乱码、特殊字符、重复空行、目录残留 | 噪声入索引、Embedding 失真 |
-| Chunking    | 语义截断、上下文断裂、块太大或太小 | 召回不准、答案残缺         |
-| Metadata    | 没保存来源、页码、版本、权限       | 无法过滤、无法引用         |
-| 入库        | 向量维度不一致、Token 超限         | 检索失败、索引损坏         |
+| Khâu                | Vấn đề điển hình                                                    | Ảnh hưởng cuối cùng                            |
+| ------------------- | ------------------------------------------------------------------- | ---------------------------------------------- |
+| Tải file lên        | Giả mạo định dạng, kích thước vượt giới hạn, encoding hỗn loạn      | Parser crash hoặc thất bại lặng lẽ             |
+| Kiểm tra định dạng  | Tên extension và MIME type thực tế không khớp                       | Chọn nhầm parser                               |
+| Phân tích Layout    | PDF đa cột, ô bảng merge, header footer                             | Mất cấu trúc, ngữ cảnh bị sai lệch             |
+| Làm sạch loại nhiễu | Ký tự loạn, ký tự đặc biệt, dòng trắng trùng lặp, mục lục còn lại   | Nhiễu vào chỉ mục, Embedding bị méo            |
+| Chunking            | Cắt đứt ngữ nghĩa, ngữ cảnh bị gián đoạn, block quá to hoặc quá nhỏ | Thu hồi không chính xác, câu trả lời thiếu sót |
+| Metadata            | Không lưu nguồn, số trang, version, quyền                           | Không thể lọc, không thể trích dẫn             |
+| Vào cơ sở dữ liệu   | Chiều vector không nhất quán, Token vượt giới hạn                   | Truy vấn thất bại, chỉ mục hỏng                |
 
-很多团队把精力放在换哪个 embedding 模型上面，但实际上如果数据在这一步就已经坏掉了，换模型只会让损坏更稳定。
+Nhiều team đặt công sức vào việc đổi mô hình embedding nào, nhưng thực ra nếu dữ liệu ở bước này đã hỏng rồi, đổi mô hình chỉ làm cho hỏng ổn định hơn.
 
-## 如何选择合适的 Chunking 策略？
+## Làm sao chọn chiến lược Chunking phù hợp?
 
-![如何选择合适的切分策略？](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-chunking-strategy.png)
+![Làm sao chọn chiến lược cắt phù hợp?](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-chunking-strategy.png)
 
-### 固定长度切分：够用但不完美
+### Cắt độ dài cố định: Đủ dùng nhưng không hoàn hảo
 
-最朴素的做法是按字符数或 Token 数硬切。比如每 1000 个 Token 切一块，相邻块之间重叠 200 Token。
+Cách làm thô nhất là cắt cứng theo số ký tự hoặc số Token. Ví dụ mỗi 1000 Token cắt một block, các block liền kề overlap 200 Token.
 
-这种方式实现简单、行为可预测，在短文档和 FAQ 类场景下效果不差。但它的硬伤也很明显：它不懂什么是段落、什么是表格、什么是代码块。
+Cách này triển khai đơn giản, hành vi có thể dự đoán, trong tài liệu ngắn và kịch bản FAQ hiệu quả không tệ. Nhưng điểm yếu cứng của nó cũng rất rõ: nó không hiểu đoạn văn là gì, bảng là gì, code block là gì.
 
-在实际测试中，固定 512-token 切分与递归切分的差距其实很小——大约只有 2 个百分点。对于快速验证 RAG 可行性的场景，这个差距可能不值得引入额外的复杂度。
+Trong thực đo, sự chênh lệch giữa cắt cố định 512-token và cắt đệ quy thực ra rất nhỏ — chỉ khoảng 2 điểm phần trăm. Đối với kịch bản xác minh nhanh tính khả thi RAG, khoảng cách này có thể không đáng để thêm độ phức tạp.
 
-举个例子，一段政策文档里写着：
+Ví dụ, trong một tài liệu chính sách viết:
 
-> “除以下情况外，均可申请七天无理由退货：（一）定制商品；（二）鲜活易腐商品；（三）在线下载的数字化商品...”
+> "Trừ các trường hợp sau đây, đều có thể đăng ký hoàn trả không lý do trong bảy ngày: (i) Hàng tùy chỉnh; (ii) Hàng tươi sống dễ hỏng; (iii) Hàng hóa kỹ thuật số được tải xuống trực tuyến..."
 
-如果这个列表刚好跨在 1000 Token 的边界上，前一块可能只有“除以下情况外，均可申请七天无理由退货”，后一块只有“（一）定制商品...”。单独看哪个都不完整，模型很容易断章取义。
+Nếu danh sách này vừa vặn nằm trên ranh giới 1000 Token, block trước có thể chỉ có "Trừ các trường hợp sau đây, đều có thể đăng ký hoàn trả không lý do trong bảy ngày", block sau chỉ có "(i) Hàng tùy chỉnh...". Nhìn riêng lẻ cái nào cũng không đầy đủ, model rất dễ hiểu sai ý.
 
-所以固定长度只适合当基线用，不适合当终点。
+Vì vậy cắt độ dài cố định chỉ phù hợp làm baseline, không phù hợp làm điểm kết.
 
-### 递归字符切分：保留层级结构
+### Cắt ký tự đệ quy: Giữ cấu trúc phân cấp
 
-递归切分（Recursive Character Splitting）的思路很直觉：先按换行符把段落拆开，段落太大就按句号切，句子还是太长就按空格切，逐层往下，直到每个块都小于目标大小。说白了就是在模拟人读书的方式——先看章节，再看段落，再看句子。
+Cách suy nghĩ của Recursive Character Splitting (cắt ký tự đệ quy) rất trực quan: trước tiên tách đoạn văn bằng ký tự xuống dòng, đoạn văn quá lớn thì cắt bằng dấu chấm, câu vẫn quá dài thì cắt bằng khoảng trắng, từng tầng xuống dưới, cho đến khi mỗi block đều nhỏ hơn kích thước mục tiêu. Nói trắng ra là mô phỏng cách người đọc sách — xem chương trước, rồi xem đoạn, rồi xem câu.
 
-你的文档如果有标题但不一定每级都有内容，或者段落长短不一，这种不规则结构用递归切分就很合适。技术博客、产品手册、研究报告都属于这个类型。
+Nếu tài liệu của bạn có tiêu đề nhưng không nhất thiết mỗi cấp đều có nội dung, hoặc đoạn văn dài ngắn không đều, cấu trúc không đều đặn này dùng cắt đệ quy rất phù hợp. Blog kỹ thuật, sổ tay sản phẩm, báo cáo nghiên cứu đều thuộc loại này.
 
-LangChain 的 `RecursiveCharacterTextSplitter` 是这种思路的典型实现。对于 Python 代码这类结构化内容，使用约 100 Token 的块大小和约 15 Token 的重叠，能在上下文精度和召回率之间取得不错的平衡。注意：此参数针对代码文档优化，通用文本文档建议使用 400-512 Token。
+`RecursiveCharacterTextSplitter` của LangChain là triển khai điển hình của cách suy nghĩ này. Đối với nội dung có cấu trúc như code Python, dùng block size khoảng 100 Token và overlap khoảng 15 Token có thể đạt cân bằng tốt giữa độ chính xác ngữ cảnh và recall rate. Chú ý: tham số này được tối ưu cho tài liệu code, tài liệu văn bản phổ quát khuyến nghị dùng 400-512 Token.
 
-### 语义切分：按意义分，但有代价
+### Cắt ngữ nghĩa: Cắt theo ý nghĩa, nhưng có chi phí
 
-语义切分走得更远：不按字符或层级切，而是用 embedding 模型判断句子之间的语义相似度，把意思相近的句子聚成一组。
+Cắt ngữ nghĩa đi xa hơn: không cắt theo ký tự hoặc phân cấp, mà dùng mô hình embedding phán đoán độ tương tự ngữ nghĩa giữa các câu, gom những câu có ý nghĩa gần nhau thành một nhóm.
 
-但 Guide 踩过这个坑——语义切分特别容易产生超小块。某次评测中，语义切分产生的片段平均只有 43 Token，这么小的块上下文严重不足，拿去检索基本就是废的。
+Nhưng Guide đã từng dẫm vào cái bẫy này — cắt ngữ nghĩa đặc biệt dễ tạo ra block siêu nhỏ. Trong một đánh giá, các đoạn mà cắt ngữ nghĩa tạo ra trung bình chỉ có 43 Token, block nhỏ thế này ngữ cảnh nghiêm trọng không đủ, mang đi truy vấn cơ bản là vô dụng.
 
-还有个成本问题：它需要额外的 embedding 调用来计算句子相似度，文档量一大，账单就很可观。实际测试下来，语义切分的性能对阈值和最小块大小参数极为敏感。设置合理的 min_chunk_size（如 200-400 Token）可以避免超小片段问题，调优后效果会好很多。
+Còn có vấn đề chi phí: nó cần thêm lần gọi embedding để tính độ tương tự câu, lượng tài liệu một lớn, hóa đơn rất đáng kể. Thực đo cho thấy hiệu năng cắt ngữ nghĩa cực kỳ nhạy cảm với tham số threshold và min chunk size. Đặt min_chunk_size hợp lý (ví dụ 200-400 Token) có thể tránh vấn đề đoạn siêu nhỏ, sau khi tinh chỉnh hiệu quả sẽ tốt hơn nhiều.
 
-### 按文档结构切：天然语义边界
+### Cắt theo cấu trúc tài liệu: Ranh giới ngữ nghĩa tự nhiên
 
-如果你的文档本身有清晰的结构，按结构切反而是最靠谱的。NVIDIA 做过一组测试，Page-Level Chunking（按页面切分）在金融报告和法律文档上表现最好，平均准确率达到 0.648，方差也最低。道理很简单：当页面边界本身就是文档作者设定的语义边界时，不要强行拆散它。
+Nếu tài liệu của bạn có cấu trúc rõ ràng, cắt theo cấu trúc lại là đáng tin nhất. NVIDIA đã làm một nhóm thực đo, Page-Level Chunking (cắt theo trang) trên báo cáo tài chính và tài liệu pháp lý có hiệu quả tốt nhất, độ chính xác trung bình đạt 0.648, phương sai cũng thấp nhất. Lý do đơn giản: khi ranh giới trang bản thân là ranh giới ngữ nghĩa mà tác giả tài liệu đặt ra, đừng cưỡng bức tách ra.
 
-不过别盲目迷信页面级切分。这个优势相对于 Token 切分其实只有 0.3-4.5 个百分点，而且在 FinanceBench 数据集上，1024-token 切分反而比页面级更优（0.579 vs 0.566）。NVIDIA 测试的文档类型（金融报告、法律文档）是分页本身就携带语义的场景——如果你的 PDF 是 Word 随便导出的那种，页面级切分不会带来额外收益。另外，查询类型也影响最优策略：事实型查询适合 256-512 Token 的小块，分析型查询适合 1024+ Token 或页面级切分。
+Tuy nhiên đừng mù quáng mê tín cắt theo trang. Ưu thế này so với cắt Token thực ra chỉ có 0.3-4.5 điểm phần trăm, và trên dataset FinanceBench, cắt 1024-token lại tốt hơn cấp trang (0.579 vs 0.566). Loại tài liệu NVIDIA test (báo cáo tài chính, tài liệu pháp lý) là kịch bản phân trang bản thân mang ngữ nghĩa — nếu PDF của bạn là loại Word xuất ra tùy tiện, cắt cấp trang sẽ không mang lại thêm lợi ích. Ngoài ra loại truy vấn cũng ảnh hưởng đến chiến lược tối ưu: truy vấn fact phù hợp block nhỏ 256-512 Token, truy vấn phân tích phù hợp cắt 1024+ Token hoặc cấp trang.
 
-不同文档类型对应的推荐切分方式，Guide 整理了一张表供参考：
+Phương thức cắt khuyến nghị tương ứng với các loại tài liệu khác nhau, Guide đã tổng hợp một bảng để tham khảo:
 
-| 文档类型 | 推荐切分方式                  | 实现工具                          |
-| -------- | ----------------------------- | --------------------------------- |
-| Markdown | 按标题层级（H1/H2/H3）切      | `MarkdownHeaderTextSplitter`      |
-| HTML     | 按标签层级切（h1~h6、p、div） | `HTMLHeaderTextSplitter`          |
-| PDF      | 按页或章节切                  | `chunk_by_title`、`chunk_by_page` |
-| 代码     | 按函数、类、包切              | `PythonCodeTextSplitter`          |
-| 论文     | 按章节、段落、表格切          | Layout-aware Parser               |
+| Loại tài liệu | Phương thức cắt khuyến nghị      | Công cụ triển khai                |
+| ------------- | -------------------------------- | --------------------------------- |
+| Markdown      | Cắt theo cấp tiêu đề (H1/H2/H3)  | `MarkdownHeaderTextSplitter`      |
+| HTML          | Cắt theo cấp thẻ (h1~h6, p, div) | `HTMLHeaderTextSplitter`          |
+| PDF           | Cắt theo trang hoặc chương       | `chunk_by_title`, `chunk_by_page` |
+| Code          | Cắt theo hàm, class, package     | `PythonCodeTextSplitter`          |
+| Bài báo       | Cắt theo chương, đoạn, bảng      | Layout-aware Parser               |
 
-### Parent-Child Chunk：召回和上下文的折中
+### Parent-Child Chunk: Sự thỏa hiệp giữa thu hồi và ngữ cảnh
 
-做 RAG 的人迟早会遇到一个矛盾：小块召回准但上下文残缺，大块保留完整但召回噪声大。你想召回精确就得切小块，但切小了模型只看到局部，回答就容易断章取义。
+Người làm RAG sớm muộn sẽ gặp một mâu thuẫn: block nhỏ thu hồi chính xác nhưng ngữ cảnh thiếu sót, block lớn giữ nguyên vẹn nhưng nhiễu thu hồi lớn. Bạn muốn thu hồi chính xác phải cắt block nhỏ, nhưng cắt nhỏ model chỉ thấy cục bộ, trả lời dễ hiểu sai ý.
 
-Parent-Child Chunk 就是解决这个矛盾的。具体做法是先把文档切成 300 Token 左右的小块用于向量检索，然后每个小块都挂载到一个 1200 Token 的父段落上。检索时先命中小块，再把对应父段落放入上下文。这样既保证了召回精度，又保留了必要的上下文。
+Parent-Child Chunk chính là để giải quyết mâu thuẫn này. Cách làm cụ thể là trước tiên cắt tài liệu thành block nhỏ khoảng 300 Token dùng cho vector search, rồi mỗi block nhỏ được gắn vào một đoạn cha 1200 Token. Khi truy vấn trước tiên đánh trúng block nhỏ, rồi đưa đoạn cha tương ứng vào ngữ cảnh. Như vậy vừa đảm bảo độ chính xác thu hồi, vừa giữ lại ngữ cảnh cần thiết.
 
 ```mermaid
 flowchart TB
@@ -130,73 +130,73 @@ flowchart TB
     linkStyle default stroke-width:2px,stroke:#333333,opacity:0.8
 ```
 
-这种模式在长文档、教程、政策解读、故障手册等场景下效果明显。缺点是索引存储量会增加（每个子 Chunk 都要关联父 Chunk），检索时多一次关联查询。
+Mô hình này trong tài liệu dài, tutorial, giải thích chính sách, sổ tay xử lý sự cố và các kịch bản khác hiệu quả rõ ràng. Nhược điểm là lượng lưu trữ chỉ mục sẽ tăng (mỗi Chunk con đều phải liên kết Chunk cha), khi truy vấn thêm một lần query liên kết.
 
-### 重叠控制：边界问题的解法
+### Kiểm soát overlap: Giải pháp cho vấn đề ranh giới
 
-不管用哪种切分策略，块边界都是个麻烦。连续两页讲的是同一件事，上一页结尾和下一页开头被页码硬切开了，检索时两块都缺一半。
+Dù dùng chiến lược cắt nào, ranh giới block đều là rắc rối. Hai trang liên tiếp nói cùng một việc, cuối trang trước và đầu trang sau bị số trang cắt cứng, khi truy vấn cả hai block đều thiếu một nửa.
 
-重叠（Overlap）是应对这个问题的标准手段，但重叠也不是越大越好。太小了边界处语义断裂，太大了重复内容过多，浪费向量空间还增加检索噪声。Guide 的经验是把它当成一个需要手动调的参数，而不是一个固定值。
+Overlap (trùng lặp) là phương tiện tiêu chuẩn để đối phó vấn đề này, nhưng overlap cũng không phải càng lớn càng tốt. Quá nhỏ thì ranh giới ngữ nghĩa bị gián đoạn, quá lớn thì nội dung trùng lặp quá nhiều, lãng phí không gian vector còn tăng nhiễu truy vấn. Kinh nghiệm của Guide là coi nó như tham số cần điều chỉnh thủ công, không phải một giá trị cố định.
 
-有实际测试表明，按逻辑主题边界对齐的自适应切分可以取得不错的效果——准确率达到 87%，而固定大小基线为 50%，差距在统计上显著（p = 0.001）。但这种自适应方案实现复杂，不是所有团队都有精力做。
+Có thực đo cho thấy, cắt thích ứng căn chỉnh theo ranh giới chủ đề logic có thể đạt hiệu quả tốt — độ chính xác đạt 87%, trong khi baseline kích thước cố định là 50%, khoảng cách có ý nghĩa thống kê (p = 0.001). Nhưng phương án thích ứng này triển khai phức tạp, không phải team nào cũng có sức làm.
 
-比较务实的经验值如下：通用文本用 512 Token 的块大小加 50-100 Token 的重叠，基本够用；代码文档别硬套 Token 数，按函数和类的边界切更靠谱；法规合同按条、款、项结构切，优先保留法律效力单元；表格密集的文档，表格单独作为一块，绝不能跨块切分。
+Giá trị kinh nghiệm thực tế hơn như sau: văn bản phổ quát dùng block size 512 Token cộng overlap 50-100 Token, cơ bản đủ dùng; tài liệu code đừng áp dụng cứng số Token, cắt theo ranh giới hàm và class ổn định hơn; pháp lý hợp đồng cắt theo cấu trúc điều, khoản, mục, ưu tiên giữ nguyên đơn vị hiệu lực pháp lý; tài liệu có nhiều bảng dày đặc, bảng riêng là một block, tuyệt đối không thể cắt qua block.
 
-## 什么是语义丢失，为什么会发生？
+## Mất ngữ nghĩa là gì, tại sao xảy ra?
 
-![什么是语义丢失？本质上是上下文依赖关系被切碎了](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-semantic-loss.png)
+![Mất ngữ nghĩa là gì? Về bản chất là mối quan hệ phụ thuộc ngữ cảnh bị cắt vụn](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-semantic-loss.png)
 
-语义丢失是 RAG 系统里一个容易被忽视但影响巨大的问题。简单说就是：原始文档里的关键信息，在解析、清洗、切分、入库的过程中被削弱或丢失了。
+Mất ngữ nghĩa là vấn đề dễ bị bỏ qua nhưng ảnh hưởng lớn trong hệ thống RAG. Nói đơn giản là: thông tin then chốt trong tài liệu gốc, trong quá trình phân tích, làm sạch, cắt, vào cơ sở dữ liệu bị suy yếu hoặc mất đi.
 
-### 语义丢失的典型场景
+### Các kịch bản điển hình của mất ngữ nghĩa
 
-**第一种：结构截断。** 一个完整的业务逻辑被拆到两个 Chunk 里。第一个 Chunk 讲“申请条件”，第二个 Chunk 讲“审批流程”，但中间那个关键条件“如果满足 X，则需要额外提供 Y 材料”被切在边界上，成了两个 Chunk 都有的“残缺信息”。
+**Kịch bản thứ nhất: Cắt đứt cấu trúc.** Một logic nghiệp vụ hoàn chỉnh bị tách ra hai Chunk. Chunk đầu nói "điều kiện đăng ký", Chunk thứ hai nói "quy trình phê duyệt", nhưng điều kiện then chốt ở giữa "nếu thỏa mãn X, cần cung cấp thêm tài liệu Y" bị cắt ở ranh giới, trở thành "thông tin còn thiếu" mà cả hai Chunk đều có.
 
-**第二种：上下文蒸发。** Chunk 只保留了文本内容，但丢失了它在文档里的位置信息。模型读到“在过去三年中...”时不知道这是在讲“某供应商的风险评估”还是“某客户的历史交易”，因为这些背景在切分时被丢了。
+**Kịch bản thứ hai: Bay hơi ngữ cảnh.** Chunk chỉ giữ lại nội dung văn bản, nhưng mất đi thông tin vị trí của nó trong tài liệu. Khi model đọc đến "trong ba năm qua..." không biết đang nói về "đánh giá rủi ro của nhà cung cấp nào đó" hay "giao dịch lịch sử của khách hàng nào đó", vì bối cảnh này đã bị mất khi cắt.
 
-**第三种：表格结构破坏。** 一个多行多列的表格被解析成混乱的文本，列与列之间的语义关系（谁是主键、谁是从属、谁是数值）完全丢失。
+**Kịch bản thứ ba: Phá hủy cấu trúc bảng.** Một bảng nhiều hàng nhiều cột bị phân tích thành văn bản lộn xộn, mối quan hệ ngữ nghĩa giữa cột và cột (ai là primary key, ai là thuộc tính, ai là giá trị số) hoàn toàn mất đi.
 
-**第四种：专有名词变形。** 文档里写的是“SSO 单点登录”，切分后变成了“SSO 单点...”，embedding 时专有名词被截断，检索时根本匹配不到。
+**Kịch bản thứ tư: Biến dạng danh từ riêng.** Tài liệu viết là "SSO đăng nhập một lần", sau khi cắt trở thành "SSO đăng nhập...", khi embedding danh từ riêng bị cắt đứt, khi truy vấn hoàn toàn không khớp được.
 
-### 语义丢失的本质
+### Bản chất của mất ngữ nghĩa
 
-说到底，语义丢失就是切分破坏了原始文本的上下文依赖关系，而 Embedding 模型只能看到切分后的局部窗口。
+Nói cho cùng, mất ngữ nghĩa chính là cắt phá vỡ mối quan hệ phụ thuộc ngữ cảnh của văn bản gốc, trong khi mô hình Embedding chỉ có thể nhìn thấy cửa sổ cục bộ sau khi cắt.
 
-Transformer 的注意力机制虽然能处理长距离依赖，但每个 Token 最终只能“看到”它所在 Chunk 内的上下文。如果关键信息跨越了 Chunk 边界，模型就没有足够的信息来正确理解它。
+Cơ chế attention của Transformer dù có thể xử lý phụ thuộc xa, nhưng mỗi Token cuối cùng chỉ có thể "nhìn thấy" ngữ cảnh trong Chunk của nó. Nếu thông tin then chốt vượt qua ranh giới Chunk, model sẽ không có đủ thông tin để hiểu đúng nó.
 
-这也解释了为什么 Page-Level Chunking 在某些场景下反而比精细切分效果更好——当页面本身就是语义单元时，按页面切反而保留了更多的原始上下文。
+Điều này cũng giải thích tại sao Page-Level Chunking trong một số kịch bản lại có hiệu quả tốt hơn cắt tinh tế — khi trang bản thân chính là đơn vị ngữ nghĩa, cắt theo trang lại giữ lại nhiều ngữ cảnh gốc hơn.
 
-### 应对策略
+### Chiến lược ứng phó
 
-最直接的做法是增加语义入口。不要只索引正文，给每个 Chunk 生成摘要和问题变体一起入索引。用户问“钱怎么退”，文档写的是“退款申请路径”，这两个表达不在同一个语义空间，但都指向同一个答案。给 Chunk 生成多角度的摘要或问题，就能显著增加命中概率。
+Cách làm trực tiếp nhất là tăng đầu vào ngữ nghĩa. Đừng chỉ đưa văn bản chính vào chỉ mục, tạo tóm tắt và biến thể câu hỏi cho mỗi Chunk cùng đưa vào chỉ mục. Người dùng hỏi "tiền hoàn trả như thế nào", tài liệu viết là "đường dẫn đăng ký hoàn tiền", hai cách diễn đạt này không trong cùng một không gian ngữ nghĩa, nhưng đều chỉ về cùng một câu trả lời. Tạo tóm tắt hoặc câu hỏi đa góc độ cho Chunk có thể tăng đáng kể xác suất đánh trúng.
 
-另一个被低估的手段是保留层级元数据。在 Metadata 里记录章节路径、父子标题、段落编号等信息，检索时可以按层级过滤，生成时也能补回上下文。这块成本低但收益大，很多团队却忽略了。
+Một biện pháp bị đánh giá thấp là giữ lại metadata phân cấp. Ghi lại đường dẫn chương, tiêu đề cha con, số đoạn văn và các thông tin khác trong Metadata, khi truy vấn có thể lọc theo phân cấp, khi tạo cũng có thể bổ sung lại ngữ cảnh. Phần này chi phí thấp nhưng lợi ích lớn, nhiều team lại bỏ qua.
 
-如果预算允许，可以试试 Late Chunking。这是一种比较新的做法：先把完整文档通过 Transformer 编码一次，让每个 Token 的 embedding 都包含全文注意力，然后再在 embedding 空间做切分和池化。好处是每个 Chunk 的向量都保留了完整的文档上下文，缺点是计算成本高，适合文档量不大但对精度要求极高的场景。
+Nếu ngân sách cho phép, có thể thử Late Chunking. Đây là cách làm tương đối mới: trước tiên mã hóa tài liệu đầy đủ qua Transformer một lần, để embedding của mỗi Token đều chứa attention toàn văn, rồi mới làm cắt và pooling trong không gian embedding. Ưu điểm là vector của mỗi Chunk đều giữ lại ngữ cảnh tài liệu đầy đủ, nhược điểm là chi phí tính toán cao, phù hợp với kịch bản lượng tài liệu không lớn nhưng yêu cầu độ chính xác cực cao.
 
-还有一种思路是用另一个 LLM 来分析文档结构，让它告诉你该怎么切（Contextual Chunking）。这种方式成本也高，但对复杂文档结构（比如嵌套表格、混合图文）的处理能力确实更强。
+Còn một cách suy nghĩ là dùng LLM khác để phân tích cấu trúc tài liệu, để nó cho bạn biết nên cắt như thế nào (Contextual Chunking). Cách này chi phí cũng cao, nhưng khả năng xử lý cấu trúc tài liệu phức tạp (ví dụ bảng lồng nhau, hỗn hợp hình ảnh văn bản) thực sự mạnh hơn.
 
-## 如何处理结构丢失问题？
+## Làm thế nào xử lý vấn đề mất cấu trúc?
 
-![结构丢失问题：不同格式，坑完全不一样](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-structure-loss.png)
+![Vấn đề mất cấu trúc: định dạng khác nhau, điểm bẫy hoàn toàn khác nhau](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-structure-loss.png)
 
-结构丢失是语义丢失的一个子集，但它的场景更具体，影响也更直接。
+Mất cấu trúc là một tập con của mất ngữ nghĩa, nhưng kịch bản của nó cụ thể hơn, ảnh hưởng cũng trực tiếp hơn.
 
-### PDF 多栏布局
+### PDF đa cột
 
-PDF 是最麻烦的格式之一。很多 PDF 的正文是双栏甚至多栏排版的，但底层文本流可能是混乱的——第一栏的第三段后面可能跟着第三栏的第一段，解析时如果按物理顺序读，就会得到一堆乱码。Guide 踩过不少坑：有一次处理一份双栏的技术白皮书，解析出来的文本顺序完全错乱，把左栏的结论拼到了右栏的论据前面，检索出来的答案牛头不对马嘴。
+PDF là một trong những định dạng phức tạp nhất. Nhiều PDF có văn bản chính dàn hai cột hay nhiều cột, nhưng luồng văn bản nền có thể lộn xộn — đoạn thứ ba của cột một có thể theo sau đoạn đầu tiên của cột ba, nếu đọc theo thứ tự vật lý khi phân tích sẽ thu được một đống lộn xộn. Guide đã dẫm vào không ít bẫy: có lần xử lý một bản trắng kỹ thuật đôi cột, văn bản phân tích ra thứ tự hoàn toàn sai, ghép kết luận của cột trái vào trước luận cứ của cột phải, kết quả truy vấn ra câu trả lời không ăn khớp.
 
-最靠谱的做法是用 Layout-Aware Parser，这类解析器会识别文本的物理位置（x、y 坐标）、字体大小、段落间距，从而推断出真实的阅读顺序。LlamaParse、Docling、Marker-PDF 都支持这个能力。
+Cách làm đáng tin nhất là dùng Layout-Aware Parser, loại parser này sẽ nhận dạng vị trí vật lý (tọa độ x, y), kích thước font, khoảng cách đoạn của văn bản, từ đó suy ra thứ tự đọc thực sự. LlamaParse, Docling, Marker-PDF đều hỗ trợ khả năng này.
 
-对于特别重要的文档，Guide 建议做一轮多版本解析对比——同一个 PDF 用两种解析器跑一遍，检查输出的一致性。如果两份输出差异很大，说明解析结果不可靠，应该降级处理或标记为需要人工审核。这个方法虽然费点时间，但能避免把乱序文本悄悄塞进知识库。
+Đối với tài liệu đặc biệt quan trọng, Guide khuyến nghị làm một vòng so sánh phân tích nhiều phiên bản — cùng một PDF chạy hai parser xem một lần, kiểm tra tính nhất quán của đầu ra. Nếu hai đầu ra khác biệt lớn, có nghĩa là kết quả phân tích không đáng tin, nên hạ cấp xử lý hoặc đánh dấu cần kiểm tra thủ công. Phương pháp này dù tốn thêm thời gian, nhưng có thể tránh đưa văn bản sai thứ tự lặng lẽ vào cơ sở tri thức.
 
-还有一个容易翻车的场景：财务报表里的合并单元格。跨列的表头、跨行的数值项，如果只按文本流解析，结构会完全乱掉。这类文档别硬撑，直接上专门的表格提取工具（如 Docling 的 TableFormer 模块）。
+Còn có một kịch bản dễ lật: ô merge trong báo cáo tài chính. Tiêu đề bảng trải dài cột, mục giá trị trải hàng, nếu chỉ phân tích theo luồng văn bản, cấu trúc sẽ hoàn toàn lộn xộn. Loại tài liệu này đừng cố chịu đựng, trực tiếp dùng công cụ trích xuất bảng chuyên dụng (ví dụ module TableFormer của Docling).
 
-### Word 标题层级
+### Cấp tiêu đề Word
 
-Word 文档的结构通常靠标题样式体现（Heading 1、Heading 2、正文）。但很多文档的标题样式被滥用——有人用加大字体的普通段落当标题，有人把正文套成了 Heading 3。Guide 见过一个更离谱的：整篇文档全用 Heading 1，解析出来层级信息完全没法用。
+Cấu trúc tài liệu Word thường được thể hiện qua style tiêu đề (Heading 1, Heading 2, văn bản chính). Nhưng nhiều tài liệu style tiêu đề bị lạm dụng — có người dùng đoạn văn thường phóng to chữ làm tiêu đề, có người đặt văn bản chính thành Heading 3. Guide đã thấy một cái buồn cười hơn: cả bài tài liệu dùng Heading 1 toàn bộ, thông tin cấp bậc phân tích ra hoàn toàn không dùng được.
 
-如果直接按纯文本切分，标题层级会全部丢失。所以必须用 `python-docx` 读取文档的样式信息，按样式层级重建文档树，然后按标题层级切分，保证每个 Chunk 都知道自己属于哪个章节。切分之后把章节路径写入 Metadata，供检索和生成时使用。
+Nếu cắt theo văn bản thuần trực tiếp, cấp bậc tiêu đề sẽ hoàn toàn mất đi. Vì vậy phải dùng `python-docx` đọc thông tin style của tài liệu, theo cấp bậc style xây dựng lại cây tài liệu, rồi cắt theo cấp bậc tiêu đề, đảm bảo mỗi Chunk đều biết mình thuộc chương nào. Sau khi cắt ghi đường dẫn chương vào Metadata, dùng cho truy vấn và tạo kết quả.
 
 ```python
 # 读取 Word 文档并保留标题层级
@@ -232,37 +232,37 @@ def extract_sections(doc_path):
         }
 ```
 
-### Excel 字段关联
+### Liên kết trường Excel
 
-Excel 表格是结构化数据，但它的结构往往藏在单元格的合并、颜色、公式里，而不是文本本身。
+Bảng tính Excel là dữ liệu có cấu trúc, nhưng cấu trúc của nó thường ẩn trong merge ô, màu sắc, công thức, chứ không phải trong văn bản.
 
-一个常见的错误是把 Excel 当作文本文件来处理——按行读取，每个单元格独立入索引。这样做会丢失列与列之间的关联关系。
+Một lỗi phổ biến là xử lý Excel như file văn bản — đọc theo hàng, mỗi ô độc lập đưa vào chỉ mục. Làm như vậy sẽ mất đi mối quan hệ liên kết giữa cột và cột.
 
-正确的做法取决于 Excel 的用途：
+Cách làm đúng phụ thuộc vào mục đích sử dụng Excel:
 
-- 数据表格（财务报表、统计报表）：按行或按数据区域提取为结构化 JSON，每行作为一条记录。
-- 配置表格（参数表、映射表）：把表头和值配对提取，保留字段名。
-- 混合文档（既有说明文字又有表格）：文字部分按段落处理，表格部分按结构化数据处理。
+- Bảng dữ liệu (báo cáo tài chính, báo cáo thống kê): Trích xuất theo hàng hoặc theo vùng dữ liệu thành JSON có cấu trúc, mỗi hàng là một bản ghi.
+- Bảng cấu hình (bảng tham số, bảng mapping): Trích xuất ghép cặp tiêu đề và giá trị, giữ lại tên trường.
+- Tài liệu hỗn hợp (vừa có văn bản mô tả vừa có bảng): Phần văn bản xử lý theo đoạn, phần bảng xử lý theo dữ liệu có cấu trúc.
 
-### 扫描件的 OCR 质量
+### Chất lượng OCR của tài liệu quét
 
-扫描件的处理更复杂。纸质文档通过 OCR 转成数字文本，质量取决于扫描分辨率、字体、纸张背景等多个因素。Guide 的实战经验是：只要涉及扫描件，就一定要预期 OCR 会出错。
+Xử lý tài liệu quét phức tạp hơn. Tài liệu giấy qua OCR chuyển thành văn bản kỹ thuật số, chất lượng phụ thuộc vào nhiều yếu tố như độ phân giải scan, font chữ, màu nền giấy. Kinh nghiệm thực chiến của Guide là: chỉ cần liên quan đến tài liệu quét, nhất định phải dự kiến OCR sẽ có lỗi.
 
-最常见的坑有三个。字符错识别，数字 0 和字母 O 混淆、中文繁简体混淆，这在产品编号和身份证号里特别要命。行错位，表格线识别不准导致行列错位，财务报表一旦错位整张表就废了。段落合并，不同段落的文本被合成一段，上下文全乱。
+Có ba điểm bẫy phổ biến nhất. Nhận dạng nhầm ký tự, số 0 và chữ O lẫn lộn, chữ Hán phồn/giản thể lẫn lộn, điều này đặc biệt chết người trong mã sản phẩm và số CMND. Sai lệch hàng, đường kẻ bảng nhận dạng không chính xác dẫn đến hàng cột sai lệch, báo cáo tài chính một khi sai lệch cả tờ là hỏng. Merge đoạn văn, văn bản các đoạn khác nhau bị gộp thành một đoạn, ngữ cảnh toàn loạn.
 
-所以引擎选择很关键。一定要用支持神经网络的 OCR 引擎（如 Tesseract 4.x+、Google Document AI、AWS Textract），传统的光学字符识别基本可以淘汰了。对于关键文档，Guide 会启用双 OCR 引擎交叉校验——两个引擎的结果对不上的地方，基本就是识别错误的。另外，对数值密集型文档（如财务报表）还得增加一层数值一致性校验，比如列求和是否对得上总计。
+Vì vậy lựa chọn engine rất quan trọng. Nhất định phải dùng OCR engine hỗ trợ neural network (như Tesseract 4.x+, Google Document AI, AWS Textract), nhận dạng quang học truyền thống cơ bản có thể loại bỏ rồi. Đối với tài liệu quan trọng, Guide sẽ bật cross-validation hai OCR engine — chỗ nào kết quả của hai engine không khớp, cơ bản là nơi có lỗi nhận dạng. Ngoài ra với tài liệu dày đặc giá trị số (như báo cáo tài chính) còn phải thêm một tầng kiểm tra nhất quán giá trị số, ví dụ tổng cộng theo cột có khớp tổng cộng không.
 
-## 如何设计分层校验策略？
+## Làm thế nào thiết kế chiến lược kiểm tra phân tầng?
 
-![分层校验策略：没有质检的管线，不是生产级管线](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-hierarchical-verification-strategy.png)
+![Chiến lược kiểm tra phân tầng: Pipeline không có kiểm tra chất lượng không phải pipeline cấp production](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-hierarchical-verification-strategy.png)
 
-不是所有文档都能成功解析，也不是所有解析结果都能用。RAG 管线必须有降级处理机制，否则低质量数据会污染整个知识库。
+Không phải tất cả tài liệu đều có thể phân tích thành công, cũng không phải tất cả kết quả phân tích đều có thể dùng. Pipeline RAG phải có cơ chế xử lý hạ cấp, nếu không dữ liệu chất lượng thấp sẽ làm ô nhiễm toàn bộ cơ sở tri thức.
 
-### 校验分层
+### Phân tầng kiểm tra
 
-Guide 建议把校验拆成三道关卡，每道管不同的事。
+Guide khuyến nghị tách kiểm tra thành ba cửa ải, mỗi cửa quản việc khác nhau.
 
-先是格式校验。文件上传后立刻检查扩展名、MIME 类型、文件大小。这一层解决的是“恶意上传”和“参数错误”问题，拦截成本最低，效果最快。
+Đầu tiên là kiểm tra định dạng. Ngay sau khi file được tải lên kiểm tra extension, MIME type, kích thước file. Tầng này giải quyết vấn đề "tải lên độc hại" và "tham số lỗi", chặn chi phí thấp nhất, hiệu quả nhanh nhất.
 
 ```java
 public class DocumentValidationException extends RuntimeException {
@@ -281,7 +281,7 @@ public class DocumentValidationException extends RuntimeException {
 }
 ```
 
-接下来是解析校验。解析完成后检查是否成功提取了内容、内容长度是否在合理范围内、是否有明显的乱码。
+Tiếp theo là kiểm tra phân tích. Sau khi phân tích hoàn thành kiểm tra đã trích xuất được nội dung chưa, độ dài nội dung có trong phạm vi hợp lý không, có ký tự loạn rõ ràng không.
 
 ```java
 public class ParseResultValidator {
@@ -320,7 +320,7 @@ public class ParseResultValidator {
 }
 ```
 
-最后一道是 Chunking 校验。切分完成后抽样检查 Chunk 质量：块大小分布是否合理、边界是否在合理位置、是否有明显的截断问题。
+Cửa ải cuối cùng là kiểm tra Chunking. Sau khi cắt xong lấy mẫu kiểm tra chất lượng Chunk: phân phối kích thước block có hợp lý không, ranh giới có ở vị trí hợp lý không, có vấn đề cắt đứt rõ ràng không.
 
 ```java
 public class ChunkingQualityReport {
@@ -356,32 +356,32 @@ public class ChunkingQualityReport {
 }
 ```
 
-### 降级处理策略
+### Chiến lược xử lý hạ cấp
 
-| 校验失败类型  | 处理策略                                  |
-| ------------- | ----------------------------------------- |
-| 空文件        | 拒绝入库，记录异常日志，通知上传者        |
-| 格式不支持    | 拒绝入库，建议转换格式                    |
-| 解析失败      | 进入人工处理队列，或使用备用解析器重试    |
-| 乱码率高      | 尝试 OCR 或格式转换，仍失败则降级为纯文本 |
-| Chunking 异常 | 改用固定长度切分作为兜底方案              |
-| 部分解析成功  | 提取可解析部分入库，对不可解析部分打标签  |
+| Loại thất bại kiểm tra        | Chiến lược xử lý                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| File rỗng                     | Từ chối nhập cơ sở dữ liệu, ghi nhật ký ngoại lệ, thông báo người tải lên              |
+| Định dạng không hỗ trợ        | Từ chối nhập cơ sở dữ liệu, đề xuất chuyển đổi định dạng                               |
+| Phân tích thất bại            | Vào hàng đợi xử lý thủ công, hoặc retry với parser dự phòng                            |
+| Tỷ lệ ký tự loạn cao          | Thử OCR hoặc chuyển đổi định dạng, vẫn thất bại thì hạ cấp xuống văn bản thuần         |
+| Chunking bất thường           | Đổi sang cắt độ dài cố định làm dự phòng                                               |
+| Phân tích thành công một phần | Trích xuất phần có thể phân tích vào cơ sở dữ liệu, đánh nhãn phần không thể phân tích |
 
-降级不是放弃，而是让尽可能多的有效数据进入知识库。一份 100 页的 PDF，解析失败 10 页，总比全部拒绝强。
+Hạ cấp không phải từ bỏ, mà là để càng nhiều dữ liệu có hiệu lực vào cơ sở tri thức càng tốt. Một PDF 100 trang, phân tích thất bại 10 trang, vẫn tốt hơn từ chối toàn bộ.
 
-## 如何处理多模态内容？
+## Làm thế nào xử lý nội dung đa phương thức?
 
-传统 RAG 只处理文本，但真实世界的文档里还有大量图片、表格、图表。如果这些内容被忽略，知识库就是不完整的。
+RAG truyền thống chỉ xử lý văn bản, nhưng trong tài liệu thế giới thực có rất nhiều hình ảnh, bảng, biểu đồ. Nếu những nội dung này bị bỏ qua, cơ sở tri thức sẽ không đầy đủ.
 
-### 图片内容：三种处理路径
+### Nội dung hình ảnh: Ba đường xử lý
 
-图片在文档里的作用有两类：信息载体（截图、流程图、照片）和装饰性内容（页眉、logo、水印）。处理策略完全不同。
+Vai trò của hình ảnh trong tài liệu có hai loại: phương tiện thông tin (screenshot, flowchart, ảnh chụp) và nội dung trang trí (header, logo, watermark). Chiến lược xử lý hoàn toàn khác nhau.
 
-一种做法是用 CLIP 向量化 + 原始图片回传。用 CLIP 模型把图片转成向量，和文本向量一起存入向量库。检索时如果命中图片向量，就从对象存储里拉取原始图片，编码成 base64 塞给多模态 LLM（如 GPT-4o）做理解。好处是图片和文本在同一个语义空间里检索，坏处是 CLIP 擅长自然图片，对截图和图表的理解能力有限。Guide 实测下来，企业文档里大量截图和仪表盘，CLIP 基本搞不定。
+Một cách làm là CLIP vector hóa + truyền lại hình ảnh gốc. Dùng mô hình CLIP chuyển hình ảnh thành vector, lưu cùng với vector văn bản vào vector database. Khi truy vấn nếu đánh trúng vector hình ảnh, kéo hình ảnh gốc từ object storage, encode thành base64 đưa vào multimodal LLM (như GPT-4o) để hiểu. Ưu điểm là hình ảnh và văn bản trong cùng một không gian ngữ nghĩa để truy vấn, nhược điểm là CLIP giỏi hình ảnh tự nhiên, khả năng hiểu screenshot và biểu đồ có hạn. Thực đo của Guide cho thấy, lượng lớn screenshot và dashboard trong tài liệu doanh nghiệp, CLIP cơ bản không xử lý được.
 
-另一种思路是用 MLLM 描述 + 文本检索。不用 CLIP 向量化图片，而是用多模态大模型（如 GPT-4o、Qwen-VL）生成图片的文本描述，把描述文本和原始图片一起存储。检索时直接匹配文本，命中后再用原始图片做生成增强。这套方案更实用——很多企业文档里的图片是截图、流程图、仪表盘，CLIP 很难理解，但 MLLM 能生成准确的描述。
+Một cách suy nghĩ khác là mô tả MLLM + text search. Không dùng CLIP vector hóa hình ảnh, mà dùng multimodal large model (như GPT-4o, Qwen-VL) tạo mô tả văn bản cho hình ảnh, lưu cùng hình ảnh gốc. Khi truy vấn trực tiếp khớp văn bản, sau khi đánh trúng dùng hình ảnh gốc để tăng cường tạo kết quả. Phương án này thực dụng hơn — nhiều hình ảnh trong tài liệu doanh nghiệp là screenshot, flowchart, dashboard, CLIP rất khó hiểu, nhưng MLLM có thể tạo mô tả chính xác.
 
-还有个更工程化的方案是多向量索引（Multi-Vector Retriever），这是 LangChain 主推的做法：先用 MLLM 生成图片的结构化摘要（如"This is a flowchart showing the order processing pipeline..."），摘要入文本向量索引，原图存在 docstore 里。检索时先命中摘要，再通过 doc_id 关联拉取原图，把原图 base64 编码后一起塞给多模态 LLM 生成。
+Còn có một phương án kỹ thuật hơn là Multi-Vector Retriever, đây là cách làm LangChain đẩy mạnh: trước tiên dùng MLLM tạo tóm tắt có cấu trúc cho hình ảnh (ví dụ "This is a flowchart showing the order processing pipeline..."), tóm tắt vào text vector index, hình ảnh gốc lưu trong docstore. Khi truy vấn trước đánh trúng tóm tắt, rồi thông qua doc_id liên kết kéo hình ảnh gốc, encode hình ảnh gốc thành base64 sau đó đưa vào multimodal LLM để tạo kết quả.
 
 ```python
 # LangChain 多向量检索示例
@@ -403,11 +403,11 @@ retriever = MultiVectorRetriever(
 # 注意：InMemoryByteStore 仅用于演示，生产环境应替换为持久化存储（如 Redis、MongoDB、S3 等）
 ```
 
-### 表格内容：结构化抽取是核心
+### Nội dung bảng: Trích xuất có cấu trúc là cốt lõi
 
-表格是 RAG 里的老大难问题。传统 PDF 解析会把表格转成混乱的文本，列与列之间的关系完全丢失。
+Bảng là vấn đề cũ khó của RAG. Phân tích PDF truyền thống sẽ chuyển bảng thành văn bản lộn xộn, mối quan hệ giữa cột và cột hoàn toàn mất đi.
 
-最基础的做法是表格解析 + Markdown 化。用专门的表格解析工具（LlamaParse、Docling、TableFormer）提取表格结构，转成 Markdown 表格格式。Markdown 表格至少保留了行列关系，LLM 能更好地理解。
+Cách làm cơ bản nhất là phân tích bảng + Markdown hóa. Dùng công cụ phân tích bảng chuyên dụng (LlamaParse, Docling, TableFormer) trích xuất cấu trúc bảng, chuyển thành định dạng bảng Markdown. Bảng Markdown ít nhất giữ lại mối quan hệ hàng cột, LLM có thể hiểu tốt hơn.
 
 ```markdown
 | 产品名称 | Q1 销量 | Q2 销量 | 环比增长 |
@@ -416,7 +416,7 @@ retriever = MultiVectorRetriever(
 | 手机 B   | 8,000   | 7,500   | -6.25%   |
 ```
 
-如果表格是数值型的（比如财务报表），转成结构化 JSON 格式更利于数值检索和计算。可以用自然语言查询表格内容："Which product had the highest growth in Q2?"
+Nếu bảng là loại giá trị số (ví dụ báo cáo tài chính), chuyển thành định dạng JSON có cấu trúc có lợi hơn cho truy vấn và tính toán giá trị số. Có thể dùng truy vấn ngôn ngữ tự nhiên để query nội dung bảng: "Which product had the highest growth in Q2?"
 
 ```json
 {
@@ -429,25 +429,25 @@ retriever = MultiVectorRetriever(
 }
 ```
 
-更进一步的思路是上下文感知的表格描述。普通的表格描述是"This is a table showing sales data..."，但这种描述丢失了表格的业务背景。上下文感知的方式是先识别表格所在的章节和主题，再用这些背景信息丰富表格描述。Guide 的经验是，表格描述的质量直接决定检索命中率，值得花时间做好。
+Cách suy nghĩ đi xa hơn là mô tả bảng nhận biết ngữ cảnh. Mô tả bảng thông thường là "This is a table showing sales data...", nhưng loại mô tả này mất đi bối cảnh nghiệp vụ của bảng. Cách nhận biết ngữ cảnh là trước tiên nhận dạng chương và chủ đề nơi bảng tọa lạc, rồi dùng những thông tin bối cảnh này làm phong phú mô tả bảng. Kinh nghiệm của Guide là, chất lượng mô tả bảng trực tiếp quyết định tỷ lệ đánh trúng truy vấn, đáng dành thời gian làm tốt.
 
-比如同样是销售数据表，在“华东区年度总结”章节下的描述应该是：
+Ví dụ cùng một bảng dữ liệu bán hàng, mô tả dưới chương "Tổng kết năm khu vực Hoa Đông" nên là:
 
-> “华东区 2024 年度各产品线销量汇总表，展示了手机 A 和手机 B 在 Q1/Q2 的销售数据及环比增长率，用于分析产品市场表现和制定下季度策略。”
+> "Bảng tổng hợp doanh số từng dòng sản phẩm khu vực Hoa Đông năm 2024, hiển thị dữ liệu bán hàng Q1/Q2 của Điện thoại A và Điện thoại B cùng tỷ lệ tăng trưởng so sánh, dùng để phân tích hiệu quả thị trường sản phẩm và xây dựng chiến lược quý tiếp theo."
 
-两种描述的检索命中率差异很大。
+Tỷ lệ đánh trúng truy vấn của hai loại mô tả chênh lệch rất lớn.
 
-### 图表内容：Caption 和上下文同样重要
+### Nội dung biểu đồ: Caption và ngữ cảnh cũng quan trọng
 
-图表（折线图、柱状图、饼图、流程图）比普通图片更复杂，因为它们往往有标题、坐标轴标签、图例等元信息。
+Biểu đồ (đường, cột, pie, flowchart) phức tạp hơn hình ảnh thông thường, vì chúng thường có tiêu đề, nhãn trục, chú thích và các siêu dữ liệu khác.
 
-处理图表的要点：
+Điểm mấu chốt xử lý biểu đồ:
 
-1. 提取完整的图表元信息。标题、坐标轴标签、图例、单位、数据来源，少了这些信息模型很难理解图表在说什么。
-2. 生成描述性 caption。不是"Revenue chart"，而是“折线图展示 2020-2024 年公司季度营收趋势，Q4 2024 营收达到峰值 12.5 亿元”。
-3. 识别图表与其他内容的关系。图表通常是为说明某个论点服务的，它的上文和下图往往包含关键解读。
+1. Trích xuất siêu dữ liệu biểu đồ đầy đủ. Tiêu đề, nhãn trục, chú thích, đơn vị, nguồn dữ liệu — thiếu những thông tin này model rất khó hiểu biểu đồ đang nói gì.
+2. Tạo caption mô tả. Không phải "Revenue chart", mà là "Biểu đồ đường hiển thị xu hướng doanh thu hàng quý công ty từ 2020-2024, doanh thu Q4 2024 đạt đỉnh 12.5 tỷ".
+3. Nhận dạng mối quan hệ giữa biểu đồ và nội dung khác. Biểu đồ thường phục vụ để minh họa cho một luận điểm, văn bản trên và dưới thường chứa diễn giải then chốt.
 
-### 完整的多模态 RAG 链路
+### Chuỗi RAG đa phương thức hoàn chỉnh
 
 ```mermaid
 flowchart LR
@@ -499,35 +499,35 @@ flowchart LR
     linkStyle default stroke-width:2px,stroke:#333333,opacity:0.8
 ```
 
-这套链路的思路是：摘要用于检索，原文用于生成。向量索引里存的是结构化摘要（或描述），而原始的多模态内容存在 docstore 里，检索命中的时候再取出来交给多模态 LLM 综合。
+Cách suy nghĩ của chuỗi này là: tóm tắt dùng để truy vấn, văn bản gốc dùng để tạo kết quả. Trong vector index lưu tóm tắt có cấu trúc (hoặc mô tả), còn nội dung đa phương thức gốc lưu trong docstore, khi truy vấn đánh trúng mới lấy ra đưa cho multimodal LLM để tổng hợp.
 
-## 如何从零搭建文档处理管线？
+## Làm thế nào xây từ đầu pipeline xử lý tài liệu?
 
-![如何从零搭一套企业级文档处理管线？](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-build-enterprise-document-processing-pipeline-from-scratch.png)
+![Làm thế nào xây từ đầu một pipeline xử lý tài liệu cấp enterprise?](https://oss.javaguide.cn/github/javaguide/ai/rag/rag-document-processing-build-enterprise-document-processing-pipeline-from-scratch.png)
 
-如果你要从零搭一套企业级 RAG 的文档处理管线，Guide 的建议是分步走，别想着一步到位。
+Nếu bạn muốn xây từ đầu một pipeline xử lý tài liệu RAG cấp enterprise, đề xuất của Guide là đi từng bước, đừng nghĩ một bước đến nơi.
 
-先把文本类文档（Markdown、HTML、TXT）走通，让它能稳定跑完解析、切分、索引、入库全流程。这一步重点验证：解析器能否正确提取标题层级、Chunk 大小分布是否符合预期、Metadata 是否完整。文本链路不稳就急着上 PDF，后面全是坑。
+Trước tiên chạy thông tài liệu text (Markdown, HTML, TXT), để nó chạy ổn định qua toàn bộ quy trình phân tích, cắt, chỉ mục, nhập cơ sở dữ liệu. Bước này trọng tâm xác minh: parser có thể trích xuất đúng cấp bậc tiêu đề không, phân phối kích thước Chunk có như kỳ vọng không, Metadata có đầy đủ không. Chuỗi text chưa ổn đã vội lên PDF, sau này toàn là bẫy.
 
-文本稳了之后再攻坚 PDF。PDF 是企业文档的主力格式，表格、图表、多栏是重灾区。建议引入 Layout-Aware Parser（LlamaParse 或 Docling），先在少量文档上验证表格和图片提取质量，再逐步扩大覆盖范围。Guide 的血泪教训：千万别拿全量 PDF 直接上生产，先拿 10 份样本跑通再说。
+Sau khi text ổn rồi mới tấn công PDF. PDF là định dạng chủ lực của tài liệu doanh nghiệp, bảng, biểu đồ, đa cột là vùng thảm họa. Khuyến nghị đưa vào Layout-Aware Parser (LlamaParse hoặc Docling), trước tiên xác minh chất lượng trích xuất bảng và hình ảnh trên số lượng tài liệu nhỏ, rồi dần mở rộng phạm vi bao phủ. Bài học xương máu của Guide: tuyệt đối đừng đem toàn bộ PDF lên production trực tiếp, trước tiên chạy thông 10 mẫu rồi nói.
 
-当文本链路稳定后，再引入图片和表格的多模态处理。优先级看业务场景——如果文档里图片和表格占比高（比如财务报告、产品手册），就要优先做；如果主要是文字类文档，可以延后。
+Sau khi chuỗi text ổn định, mới đưa vào xử lý đa phương thức cho hình ảnh và bảng. Thứ tự ưu tiên xem kịch bản nghiệp vụ — nếu tỷ lệ hình ảnh và bảng trong tài liệu cao (ví dụ báo cáo tài chính, sổ tay sản phẩm), thì cần làm ưu tiên; nếu chủ yếu là tài liệu chữ, có thể hoãn lại.
 
-最后一步是质量闭环，也是最容易被砍掉的环节。在入库前增加抽样质检：用一批真实用户 Query 定期跑召回，对比解析前后的内容保真度，持续迭代解析器和切分策略。没有质检的管线上生产，等于给知识库喂垃圾。
+Bước cuối cùng là vòng khép kín chất lượng, cũng là khâu dễ bị cắt bỏ nhất. Trước khi nhập cơ sở dữ liệu thêm kiểm tra lấy mẫu: dùng một loạt Query thực tế của người dùng chạy thu hồi định kỳ, so sánh độ trung thực nội dung trước và sau phân tích, liên tục lặp lại parser và chiến lược cắt. Pipeline không có kiểm tra chất lượng lên production tương đương cho cơ sở tri thức ăn rác.
 
-## 总结
+## Tóm tắt
 
-RAG 文档处理不是一个“调参数”的问题，而是一个系统工程。每个环节都有自己独特的挑战：
+Xử lý tài liệu RAG không phải vấn đề "điều chỉnh tham số", mà là kỹ thuật hệ thống. Mỗi khâu đều có thách thức đặc thù riêng:
 
-- 解析层：要理解文档结构，Layout-Aware 是基础能力。
-- 清洗层：要去噪但不丢信息，乱码和重复内容是主要敌人。
-- Chunking 层：要找到语义完整性和召回精度的平衡点，没有万能值，只有场景适配。
-- Metadata 层：要保存足够多的上下文信息，来源、版本、权限、层级路径都是检索和生成的硬约束。
-- 多模态层：图片和表格是信息的重要载体，不能简单跳过，需要专门的抽取和描述策略。
+- Tầng phân tích: Cần hiểu cấu trúc tài liệu, Layout-Aware là khả năng cơ bản.
+- Tầng làm sạch: Cần loại nhiễu nhưng không mất thông tin, ký tự loạn và nội dung trùng lặp là kẻ thù chính.
+- Tầng Chunking: Cần tìm điểm cân bằng giữa tính toàn vẹn ngữ nghĩa và độ chính xác thu hồi, không có giá trị vạn năng, chỉ có thích ứng kịch bản.
+- Tầng Metadata: Cần lưu đủ thông tin ngữ cảnh, nguồn, version, quyền, đường dẫn phân cấp đều là ràng buộc cứng của truy vấn và tạo kết quả.
+- Tầng đa phương thức: Hình ảnh và bảng là phương tiện quan trọng của thông tin, không thể đơn giản bỏ qua, cần chiến lược trích xuất và mô tả chuyên dụng.
 
-最后记住一句话：**RAG 的上限由数据质量决定，下限由检索策略决定**。把数据处理管线做到位，比换一百个 embedding 模型都管用。
+Cuối cùng nhớ một câu: **Giới hạn trên của RAG do chất lượng dữ liệu quyết định, giới hạn dưới do chiến lược truy vấn quyết định**. Làm tốt pipeline xử lý dữ liệu còn hiệu quả hơn đổi một trăm mô hình embedding.
 
-## 参考资料
+## Tài liệu tham khảo
 
 - [Databricks: Mastering Chunking Strategies for RAG](https://community.databricks.com/t5/technical-blog/the-ultimate-guide-to-chunking-strategies-for-rag-applications/ba-p/113089)
 - [Firecrawl: Best Chunking Strategies for RAG in 2026](https://www.firecrawl.dev/blog/best-chunking-strategies-rag)

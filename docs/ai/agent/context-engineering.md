@@ -1,7 +1,7 @@
 ---
 title: Hướng dẫn thực hành Context Engineering：Phương pháp kỹ thuật giúp Agent ít phạm sai lầm hơn
 description: Phân tích chuyên sâu các khái niệm cốt lõi của Context Engineering, bao gồm sắp xếp quy tắc tĩnh, gắn kết thông tin động, giảm cấp ngân sách Token, chiến lược tải theo nhu cầu và lưu trữ ngữ cảnh cho tác vụ dài hạn, giúp lập trình viên xây dựng hệ thống cung cấp ngữ cảnh Agent với tỷ lệ tín hiệu/nhiễu cao.
-category: AI 应用开发
+category: Phát triển ứng dụng AI
 head:
   - - meta
     - name: keywords
@@ -98,35 +98,35 @@ Một thực hành kỹ thuật điển hình:
 
 **Memory**
 
-记忆系统分短期和长期。短期记忆一般是 Session 内的滑动窗口，长期记忆通常是核心事实提取后写入向量数据库，后续按需检索。
+Hệ thống bộ nhớ chia thành ngắn hạn và dài hạn. Bộ nhớ ngắn hạn thường là cửa sổ trượt trong Session, bộ nhớ dài hạn thường là sau khi trích xuất sự kiện cốt lõi thì ghi vào cơ sở dữ liệu vector, sau đó truy xuất theo nhu cầu.
 
 **RAG & Tools**
 
-RAG 负责检索外部文档，把相关内容塞进上下文；Tools 负责把可调用工具的描述、参数格式、调用结果挂载进去。
+RAG chịu trách nhiệm truy xuất tài liệu bên ngoài, nhét nội dung liên quan vào ngữ cảnh; Tools chịu trách nhiệm gắn mô tả công cụ có thể gọi, định dạng tham số, kết quả gọi vào trong đó.
 
-RAG 可以看作 Context Engineering 的一种实现。它回答的是：检索什么、怎么检索、结果怎么放进上下文。
+RAG có thể xem là một triển khai của Context Engineering. Nó trả lời: truy xuất gì, truy xuất như thế nào, kết quả đặt vào ngữ cảnh như thế nào.
 
 **Structured Output**
 
-结构化输出也属于上下文的一部分，比如 JSON Schema、function call 的返回结构。
+Đầu ra có cấu trúc cũng thuộc về một phần của ngữ cảnh, ví dụ như JSON Schema, cấu trúc trả về của function call.
 
-它会影响下游系统怎么解析，也会影响后续 Agent 链路怎么衔接。很多人写 Agent 时会忽略这块，最后解析阶段一堆脏活。
+Nó ảnh hưởng đến cách hệ thống xuôi dòng parse, cũng ảnh hưởng đến cách kết nối chuỗi Agent tiếp theo. Nhiều người khi viết Agent thường bỏ qua phần này, cuối cùng giai đoạn parse đầy những việc bẩn.
 
-**Token 优化**
+**Token Optimization (Tối ưu hóa Token)**
 
-摘要压缩、历史剔除、Context Caching 都属于这里，目标很简单：保留信息完整度，同时控制 Token 消耗。
+Nén tóm tắt, loại bỏ lịch sử, Context Caching đều thuộc về đây, mục tiêu rất đơn giản: bảo toàn tính toàn vẹn thông tin, đồng thời kiểm soát tiêu thụ Token.
 
-![上下文窗口（Context Window）= LLM 的工作记忆](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
+![Cửa sổ ngữ cảnh (Context Window) = Bộ nhớ làm việc của LLM](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-context-window.png)
 
-## Context Engineering 怎么落地
+## Triển khai thực tế Context Engineering
 
-### 先把静态规则写清楚
+### Trước tiên viết rõ các quy tắc tĩnh
 
-静态规则可以理解成 Agent 的“出厂设置”。
+Quy tắc tĩnh có thể hiểu là “cài đặt xuất xưởng” của Agent.
 
-现在比较常见的做法，是用结构化 Markdown 写系统提示词。不要把所有东西揉成一大段，而是拆成角色、目标、约束、执行流、输出格式。
+Cách làm phổ biến hiện nay là dùng Markdown có cấu trúc để viết system prompt. Đừng nhồi tất cả vào một đoạn lớn, mà hãy tách ra thành vai trò, mục tiêu, ràng buộc, luồng thực thi, định dạng đầu ra.
 
-比如一个故障排查 Agent，可以这样写：
+Ví dụ một Agent chẩn đoán sự cố, có thể viết như sau:
 
 ```markdown
 ## 角色

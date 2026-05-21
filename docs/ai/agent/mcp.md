@@ -224,8 +224,6 @@ sequenceDiagram
 
 ### MCP sử dụng giao thức giao tiếp nào?
 
-MCP 用的是 JSON-RPC 2.0，选它的原因挺实在的：
-
 MCP áp dụng **JSON-RPC 2.0** làm giao thức giao tiếp tầng ứng dụng, lý do như sau:
 
 | Ưu điểm                | Giải thích                                                                                                                                                                                                                                                                                          |
@@ -260,7 +258,7 @@ MCP áp dụng **JSON-RPC 2.0** làm giao thức giao tiếp tầng ứng dụng
 }
 ```
 
-和 RESTful 对比：JSON-RPC 更偏“操作”而不是“资源”，没有 HTTP 状态码、缓存那套东西，天然适合内部通信和工具调用。
+So sánh với RESTful: JSON-RPC nghiêng về “thao tác” hơn là “tài nguyên”, không có HTTP status code hay cơ chế cache, tự nhiên phù hợp cho giao tiếp nội bộ và tool calling.
 
 | Chiều so sánh          | HTTP (RESTful)                         | JSON-RPC                         |
 | ---------------------- | -------------------------------------- | -------------------------------- |

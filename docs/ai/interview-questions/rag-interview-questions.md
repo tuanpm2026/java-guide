@@ -1,239 +1,239 @@
 ---
-title: RAG 面试题总结
-description: 系统整理 RAG 高频面试题，覆盖 RAG 基础、Embedding、向量数据库、Chunk 策略、文档处理、Hybrid Search、Query Rewrite、Rerank、GraphRAG、知识库更新与 RAG 评测等核心考点，并附对应参考文章。
+title: Tổng hợp câu hỏi phỏng vấn RAG
+description: Tổng hợp có hệ thống các câu hỏi phỏng vấn RAG tần suất cao, bao gồm kiến thức cơ bản RAG, Embedding, cơ sở dữ liệu vector, chiến lược Chunk, xử lý tài liệu, Hybrid Search, Query Rewrite, Rerank, GraphRAG, cập nhật knowledge base và đánh giá RAG, kèm bài viết tham khảo tương ứng.
 category: AI
 tag:
-  - RAG面试
-  - 向量数据库
-  - AI面试
+  - Phỏng vấn RAG
+  - Cơ sở dữ liệu vector
+  - Phỏng vấn AI
 head:
   - - meta
     - name: keywords
       content: RAG面试题,RAG面试,检索增强生成面试题,Embedding面试题,向量数据库面试题,GraphRAG面试题,RAG优化面试题,Chunk面试题,Hybrid Search面试题,Rerank面试题
 ---
 
-RAG 是 AI 应用开发里最容易被低估的模块。
+RAG là module dễ bị đánh giá thấp nhất trong phát triển ứng dụng AI.
 
-很多人以为 RAG 就是“文档切块 -> 转向量 -> 存向量库 -> 检索 -> 拼 Prompt”。Demo 阶段这么理解没问题，但一到真实业务，问题马上变复杂：文档解析不干净、Chunk 切碎了语义、Embedding 模型选错、召回结果不准、权限过滤漏了、知识库更新后旧版本还在、模型拿到证据却没有正确回答。
+Nhiều người nghĩ RAG chỉ là "cắt tài liệu -> chuyển vector -> lưu vào vector store -> truy xuất -> ghép Prompt". Hiểu như vậy ở giai đoạn Demo thì ổn, nhưng khi vào nghiệp vụ thực tế, vấn đề ngay lập tức trở nên phức tạp: phân tích tài liệu không sạch, Chunk cắt vỡ ngữ nghĩa, chọn nhầm mô hình Embedding, kết quả truy xuất không chính xác, bỏ sót bộ lọc quyền, tài liệu cập nhật nhưng phiên bản cũ vẫn còn, mô hình nhận được bằng chứng nhưng không trả lời đúng.
 
-所以，RAG 面试真正考的不是“你会不会接向量数据库”，而是：**你能不能把一个检索增强生成系统拆成可定位、可优化、可评测、可更新的工程链路。**
+Do đó, điều phỏng vấn RAG thực sự kiểm tra không phải là "bạn có biết kết nối cơ sở dữ liệu vector không", mà là: **bạn có thể chia nhỏ một hệ thống tăng cường truy xuất thành một pipeline kỹ thuật có thể định vị, tối ưu, đánh giá và cập nhật hay không.**
 
-这份 RAG 面试题根据 AI 专栏现有文章整理。建议你用下面这条主线复习：
+Bộ câu hỏi phỏng vấn RAG này được tổng hợp dựa trên các bài viết hiện có trong chuyên mục AI. Khuyến nghị bạn ôn tập theo lộ trình chính sau:
 
-1. 先理解 RAG 解决什么问题，以及它和微调、长上下文、传统搜索的区别。
-2. 再理解 Embedding、相似度、ANN 索引和向量数据库选型。
-3. 接着理解文档处理、Chunk 策略、元数据和权限过滤。
-4. 然后掌握 Hybrid Search、Query Rewrite、Rerank、上下文压缩等优化手段。
-5. 最后补上 GraphRAG、知识库更新和评测闭环。
+1. Đầu tiên hiểu RAG giải quyết vấn đề gì, và sự khác biệt giữa nó với fine-tuning, long context, tìm kiếm truyền thống.
+2. Tiếp theo hiểu Embedding, độ tương đồng, chỉ mục ANN và lựa chọn cơ sở dữ liệu vector.
+3. Sau đó hiểu xử lý tài liệu, chiến lược Chunk, metadata và bộ lọc quyền.
+4. Tiếp theo nắm vững Hybrid Search, Query Rewrite, Rerank, nén ngữ cảnh và các phương pháp tối ưu khác.
+5. Cuối cùng bổ sung GraphRAG, cập nhật knowledge base và vòng lặp đánh giá.
 
-## 面试官真正想考什么
+## Phỏng vấn viên thực sự muốn kiểm tra gì
 
-RAG 题通常会从概念开始，但很快会追到排查和优化。你可以按下面几个层次准备。
+Câu hỏi RAG thường bắt đầu từ khái niệm, nhưng sẽ nhanh chóng đi sâu vào chẩn đoán và tối ưu. Bạn có thể chuẩn bị theo các cấp độ sau.
 
-| 考察方向         | 面试官想确认什么                                  | 常见扣分点                      |
-| ---------------- | ------------------------------------------------- | ------------------------------- |
-| RAG 基础         | 你是否知道 RAG 解决知识更新、私有数据和可溯源问题 | 只说“降低幻觉”，讲不出链路      |
-| Embedding 和索引 | 你是否理解向量检索的近似性和成本取舍              | 把向量数据库当普通数据库        |
-| 文档处理         | 你是否知道召回质量从文档进入系统前就开始决定      | 只调 TopK，不看解析和 Chunk     |
-| 检索优化         | 你是否能定位召回不准、排序不准、上下文噪声问题    | 遇到效果差只改 Prompt           |
-| GraphRAG         | 你是否理解多跳关系和全局问题为什么难              | 认为 GraphRAG 一定比向量 RAG 好 |
-| 更新与评测       | 你是否能维护长期运行的知识库                      | 没有版本、灰度、回滚和评测意识  |
+| Hướng kiểm tra       | Phỏng vấn viên muốn xác nhận gì                                                                          | Điểm trừ phổ biến                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Cơ bản RAG           | Bạn có biết RAG giải quyết vấn đề cập nhật kiến thức, dữ liệu riêng tư và khả năng truy xuất nguồn không | Chỉ nói "giảm ảo giác", không nói được pipeline                    |
+| Embedding và chỉ mục | Bạn có hiểu tính gần đúng và sự đánh đổi chi phí của truy xuất vector không                              | Coi cơ sở dữ liệu vector như database thông thường                 |
+| Xử lý tài liệu       | Bạn có biết chất lượng truy xuất được quyết định trước khi tài liệu vào hệ thống không                   | Chỉ điều chỉnh TopK, không xem phân tích và Chunk                  |
+| Tối ưu truy xuất     | Bạn có thể định vị vấn đề truy xuất không chính xác, sắp xếp không đúng, nhiễu ngữ cảnh không            | Khi hiệu quả kém chỉ sửa Prompt                                    |
+| GraphRAG             | Bạn có hiểu tại sao quan hệ multi-hop và câu hỏi toàn cục khó không                                      | Cho rằng GraphRAG nhất định tốt hơn vector RAG                     |
+| Cập nhật và đánh giá | Bạn có thể duy trì knowledge base chạy lâu dài không                                                     | Không có ý thức về phiên bản, triển khai dần, rollback và đánh giá |
 
-回答 RAG 题时，尽量把问题拆成“数据进入索引前、检索召回时、上下文注入时、模型生成后、线上持续更新”几个阶段。这样面试官会更容易感受到你的系统化思维。
+Khi trả lời câu hỏi RAG, hãy cố gắng chia vấn đề thành các giai đoạn "trước khi dữ liệu vào chỉ mục, khi truy xuất, khi chèn ngữ cảnh, sau khi mô hình tạo sinh, cập nhật liên tục trực tuyến". Như vậy phỏng vấn viên sẽ dễ cảm nhận hơn tư duy hệ thống của bạn.
 
-## RAG 基础
+## Cơ bản RAG
 
-参考文章：[《万字详解 RAG 基础概念》](../rag/rag-basis.md)
+Bài viết tham khảo: [《Giải thích toàn diện kiến thức cơ bản RAG》](../rag/rag-basis.md)
 
-这一组题是 RAG 面试的入口。重点要讲清楚 RAG 的价值和边界：它不是让模型突然变聪明，而是给模型提供外部证据，让回答更可引用、可审计、可更新。
+Nhóm câu hỏi này là điểm vào của phỏng vấn RAG. Trọng tâm là giải thích rõ giá trị và giới hạn của RAG: nó không làm mô hình đột ngột thông minh hơn, mà cung cấp bằng chứng bên ngoài cho mô hình, giúp câu trả lời có thể trích dẫn, kiểm toán và cập nhật.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- RAG 主要解决大模型知识过时、缺少私有数据、回答不可溯源等问题。
-- 传统搜索返回文档列表，RAG 返回基于证据综合后的答案。
-- RAG 和微调不是替代关系。知识频繁变化、需要引用来源时优先 RAG；要固定风格、格式或能力倾向时再考虑微调。
-- 长上下文适合少量材料深度分析，但企业级知识库仍然需要检索来控制成本、权限和噪声。
-- RAG 不能彻底消灭幻觉。检索错、证据不足、上下文噪声、模型不遵循证据，都会导致错误答案。
+- RAG chủ yếu giải quyết các vấn đề: kiến thức mô hình lỗi thời, thiếu dữ liệu riêng tư, câu trả lời không thể truy xuất nguồn.
+- Tìm kiếm truyền thống trả về danh sách tài liệu, RAG trả về câu trả lời được tổng hợp dựa trên bằng chứng.
+- RAG và fine-tuning không phải quan hệ thay thế. Khi kiến thức thay đổi thường xuyên, cần trích dẫn nguồn thì ưu tiên RAG; khi cần cố định phong cách, định dạng hoặc xu hướng năng lực thì mới xem xét fine-tuning.
+- Long context phù hợp để phân tích sâu ít tài liệu, nhưng knowledge base doanh nghiệp vẫn cần truy xuất để kiểm soát chi phí, quyền và nhiễu.
+- RAG không thể loại bỏ hoàn toàn ảo giác. Truy xuất sai, bằng chứng không đủ, nhiễu ngữ cảnh, mô hình không tuân theo bằng chứng đều có thể dẫn đến câu trả lời sai.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 什么是 RAG？为什么需要 RAG？
-- RAG 和传统搜索引擎有什么区别？
-- RAG 和微调怎么选？什么时候用 RAG，什么时候微调，什么时候两者结合？
-- RAG 系统中 Embedding 模型怎么选？为什么？
-- 余弦相似度、内积和欧氏距离有什么区别？
-- RAG 的幻觉问题怎么解决？RAG 一定不会产生幻觉吗？
-- 什么是 Lost in the Middle 问题？怎么应对？
-- 长上下文窗口是否会取代 RAG？
-- RAG 系统的评估指标有哪些？
-- RAG 的优势和局限性是什么？
-- 什么场景适合用 RAG？什么场景不适合？
+- RAG là gì? Tại sao cần RAG?
+- Sự khác biệt giữa RAG và công cụ tìm kiếm truyền thống là gì?
+- Nên chọn RAG hay fine-tuning? Khi nào dùng RAG, khi nào fine-tuning, khi nào kết hợp cả hai?
+- Trong hệ thống RAG, cách chọn mô hình Embedding như thế nào? Tại sao?
+- Sự khác biệt giữa cosine similarity, inner product và Euclidean distance là gì?
+- Vấn đề ảo giác trong RAG được giải quyết như thế nào? RAG có nhất định không tạo ra ảo giác không?
+- Vấn đề Lost in the Middle là gì? Cách ứng phó?
+- Long context window có thay thế được RAG không?
+- Các chỉ số đánh giá của hệ thống RAG là gì?
+- Ưu điểm và hạn chế của RAG là gì?
+- Tình huống nào phù hợp dùng RAG? Tình huống nào không phù hợp?
 
-一个更完整的回答方式是：RAG 的价值在于把模型回答绑定到可检索证据上，但它的上限由检索质量决定。如果正确证据没有被召回，后面的 Prompt 写得再漂亮也救不回来。
+Cách trả lời hoàn chỉnh hơn là: Giá trị của RAG nằm ở việc gắn kết câu trả lời của mô hình với bằng chứng có thể truy xuất, nhưng giới hạn trên của nó được quyết định bởi chất lượng truy xuất. Nếu bằng chứng đúng không được truy xuất, dù Prompt sau viết hay đến đâu cũng không cứu được.
 
-## 向量数据库与索引
+## Cơ sở dữ liệu vector và chỉ mục
 
-参考文章：[《万字详解 RAG 向量索引算法和向量数据库》](../rag/rag-vector-store.md)
+Bài viết tham khảo: [《Giải thích toàn diện thuật toán chỉ mục vector và cơ sở dữ liệu vector trong RAG》](../rag/rag-vector-store.md)
 
-这一组题会考到一些底层概念，但面试官通常不是让你推公式，而是看你是否理解向量检索的取舍：速度、召回率、内存、构建成本、过滤能力和运维复杂度。
+Nhóm câu hỏi này sẽ kiểm tra một số khái niệm nền tảng, nhưng phỏng vấn viên thường không yêu cầu bạn tính công thức, mà xem bạn có hiểu sự đánh đổi của truy xuất vector không: tốc độ, tỷ lệ thu hồi, bộ nhớ, chi phí xây dựng, khả năng lọc và độ phức tạp vận hành.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- Embedding 把文本映射到语义向量空间，相似文本在空间中距离更近。
-- ANN 近似检索牺牲一部分精确性，换取更高查询性能，这是大规模向量检索的常见取舍。
-- Flat 适合小规模和评测基准，HNSW 查询快但内存成本高，IVFFLAT 更节省资源但依赖聚类和参数调优。
-- PostgreSQL + pgvector 适合中小规模和已有 PostgreSQL 技术栈，专业向量数据库更适合大规模、高并发、复杂检索场景。
-- 向量检索经常要和元数据过滤、权限过滤、关键词检索结合，不能只看相似度。
+- Embedding ánh xạ văn bản vào không gian vector ngữ nghĩa, văn bản tương tự có khoảng cách gần hơn trong không gian.
+- Truy xuất xấp xỉ ANN đánh đổi một phần độ chính xác để đổi lấy hiệu suất truy vấn cao hơn, đây là sự đánh đổi phổ biến trong truy xuất vector quy mô lớn.
+- Flat phù hợp cho quy mô nhỏ và benchmark, HNSW truy vấn nhanh nhưng chi phí bộ nhớ cao, IVFFLAT tiết kiệm tài nguyên hơn nhưng phụ thuộc vào phân cụm và điều chỉnh tham số.
+- PostgreSQL + pgvector phù hợp cho quy mô vừa và nhỏ và tech stack PostgreSQL có sẵn, cơ sở dữ liệu vector chuyên dụng phù hợp hơn cho quy mô lớn, concurrency cao, tình huống truy xuất phức tạp.
+- Truy xuất vector thường phải kết hợp với lọc metadata, lọc quyền, truy xuất từ khóa, không thể chỉ nhìn vào độ tương đồng.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 什么是 Embedding？为什么需要把文本转成向量？
-- RAG 场景为什么需要向量数据库？
-- ANN 算法为什么可以接受不是 100% 精确的结果？
-- 有哪些向量索引算法？各自优缺点是什么？
-- Flat、HNSW、IVFFLAT、IVF-PQ 分别适合什么场景？
-- HNSW 和 IVFFLAT 有什么区别？
-- HNSW 的 `ef_search` 参数怎么调？调大和调小分别会怎样？
-- 向量数据库和传统数据库最核心的区别是什么？
-- 如果向量数据从 100 万增长到 1 亿，架构上需要做什么调整？
-- 为什么选择 PostgreSQL + pgvector？什么时候应该换专业向量数据库？
+- Embedding là gì? Tại sao cần chuyển văn bản thành vector?
+- Tại sao cần cơ sở dữ liệu vector trong bối cảnh RAG?
+- Tại sao thuật toán ANN có thể chấp nhận kết quả không chính xác 100%?
+- Có những thuật toán chỉ mục vector nào? Ưu nhược điểm của từng loại?
+- Flat, HNSW, IVFFLAT, IVF-PQ phù hợp với tình huống nào?
+- Sự khác biệt giữa HNSW và IVFFLAT là gì?
+- Tham số `ef_search` của HNSW điều chỉnh như thế nào? Tăng và giảm sẽ có kết quả gì?
+- Sự khác biệt cốt lõi nhất giữa cơ sở dữ liệu vector và cơ sở dữ liệu truyền thống là gì?
+- Nếu dữ liệu vector tăng từ 1 triệu lên 100 triệu, kiến trúc cần điều chỉnh gì?
+- Tại sao chọn PostgreSQL + pgvector? Khi nào nên chuyển sang cơ sở dữ liệu vector chuyên dụng?
 
-如果被问“向量数据库怎么选”，不要只报产品名。更好的回答是先问规模、延迟、过滤条件、运维能力、云服务偏好、数据安全要求，再给方案。技术选型不是榜单投票，而是约束匹配。
+Nếu được hỏi "cách chọn cơ sở dữ liệu vector", đừng chỉ liệt kê tên sản phẩm. Câu trả lời tốt hơn là trước tiên hỏi về quy mô, độ trễ, điều kiện lọc, khả năng vận hành, sở thích dịch vụ cloud, yêu cầu bảo mật dữ liệu, rồi mới đưa ra giải pháp. Lựa chọn kỹ thuật không phải bình chọn bảng xếp hạng, mà là khớp ràng buộc.
 
-## 文档处理与 Chunk 策略
+## Xử lý tài liệu và chiến lược Chunk
 
-参考文章：[《RAG 文档处理与切分策略：从解析、清洗、Chunking 到多模态内容处理》](../rag/rag-document-processing.md)
+Bài viết tham khảo: [《Chiến lược xử lý và phân chia tài liệu RAG: từ phân tích, làm sạch, Chunking đến xử lý nội dung đa phương thức》](../rag/rag-document-processing.md)
 
-很多 RAG 问题的根源不在模型，也不在向量库，而在文档处理。垃圾内容进索引，后面检索出来的也只是高相似度垃圾。
+Nguồn gốc của nhiều vấn đề RAG không phải ở mô hình, cũng không phải ở vector store, mà ở xử lý tài liệu. Nội dung rác vào chỉ mục, truy xuất sau đó cũng chỉ là rác có độ tương đồng cao.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 文档处理管线通常包括解析、清洗、结构化、切分、元数据补全、Embedding、入库和校验。
-- Chunk 切分不能只按固定长度切。标题层级、段落语义、表格、代码块、FAQ、章节边界都要考虑。
-- Chunk 太大，召回不精准且上下文成本高；Chunk 太小，语义不完整，容易丢失上下文。
-- Overlap 可以缓解切分边界问题，但过大容易引入重复内容和检索噪声。
-- 元数据很关键，包括来源、标题、页码、更新时间、权限范围、文档版本和业务标签。
+- Pipeline xử lý tài liệu thường bao gồm: phân tích, làm sạch, cấu trúc hóa, phân chia, bổ sung metadata, Embedding, nhập cơ sở dữ liệu và xác minh.
+- Phân chia Chunk không thể chỉ theo độ dài cố định. Cần xem xét cấp độ tiêu đề, ngữ nghĩa đoạn văn, bảng, khối code, FAQ, ranh giới chương.
+- Chunk quá lớn: truy xuất không chính xác và chi phí ngữ cảnh cao; Chunk quá nhỏ: ngữ nghĩa không hoàn chỉnh, dễ mất ngữ cảnh.
+- Overlap có thể giảm thiểu vấn đề ranh giới phân chia, nhưng quá lớn dễ đưa vào nội dung trùng lặp và nhiễu truy xuất.
+- Metadata rất quan trọng, bao gồm nguồn, tiêu đề, số trang, thời gian cập nhật, phạm vi quyền, phiên bản tài liệu và nhãn nghiệp vụ.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- RAG 文档处理管线通常包含哪些步骤？
-- 文档解析、清洗、结构化分别解决什么问题？
-- Chunk 切分为什么不能只按固定长度切？
-- Chunk 大小、Overlap、语义边界应该怎么取舍？
-- 表格、代码块、图片、多模态内容进入 RAG 前怎么处理？
-- 文档处理阶段如何保留标题层级、页码、来源和权限元数据？
-- Chunk 质量差会带来哪些召回和生成问题？
-- 如何从零搭建一套企业级文档处理管线？
+- Pipeline xử lý tài liệu RAG thường bao gồm những bước nào?
+- Phân tích, làm sạch, cấu trúc hóa tài liệu giải quyết vấn đề gì?
+- Tại sao phân chia Chunk không thể chỉ theo độ dài cố định?
+- Kích thước Chunk, Overlap, ranh giới ngữ nghĩa cần đánh đổi như thế nào?
+- Bảng, khối code, hình ảnh, nội dung đa phương thức được xử lý như thế nào trước khi vào RAG?
+- Giai đoạn xử lý tài liệu làm thế nào để giữ lại cấp độ tiêu đề, số trang, nguồn và metadata quyền?
+- Chất lượng Chunk kém sẽ gây ra vấn đề gì trong truy xuất và tạo sinh?
+- Cách xây dựng từ đầu một pipeline xử lý tài liệu cấp doanh nghiệp?
 
-面试里如果问“Chunk 怎么切”，建议不要直接说固定 500 字或 1000 字。更稳的回答是：先根据文档类型和问答粒度确定基本范围；优先按标题、段落、语义边界切；对表格、代码、FAQ 做特殊处理；保留父级标题和元数据；最后通过检索评测验证 Chunk 策略，而不是凭感觉调参数。
+Trong phỏng vấn nếu được hỏi "cắt Chunk như thế nào", khuyến nghị không nói trực tiếp là cố định 500 hay 1000 ký tự. Câu trả lời ổn định hơn là: Trước tiên xác định phạm vi cơ bản theo loại tài liệu và độ chi tiết hỏi đáp; ưu tiên cắt theo tiêu đề, đoạn văn, ranh giới ngữ nghĩa; xử lý đặc biệt cho bảng, code, FAQ; giữ lại tiêu đề cấp trên và metadata; cuối cùng xác minh chiến lược Chunk qua đánh giá truy xuất, thay vì điều chỉnh tham số theo cảm giác.
 
-## RAG 检索优化
+## Tối ưu truy xuất RAG
 
-参考文章：[《万字详解 RAG 优化：从召回、重排到上下文工程的系统调优》](../rag/rag-optimization.md)
+Bài viết tham khảo: [《Giải thích toàn diện tối ưu RAG: từ thu hồi, xếp hạng lại đến kỹ thuật kỹ thuật ngữ cảnh》](../rag/rag-optimization.md)
 
-这一组题最能体现实战经验。RAG 效果差时，不要一上来就改 Prompt。先判断问题发生在哪一段：没有召回正确证据、召回了但排得太后、放进上下文的内容太吵、模型没有正确使用证据，还是评测样本不稳定。
+Nhóm câu hỏi này thể hiện rõ nhất kinh nghiệm thực chiến. Khi hiệu quả RAG kém, đừng vội sửa Prompt. Trước tiên xác định vấn đề xảy ra ở đoạn nào: không thu hồi được bằng chứng đúng, thu hồi được nhưng xếp hạng quá thấp, nội dung đưa vào ngữ cảnh quá nhiễu, mô hình không sử dụng bằng chứng đúng cách, hay mẫu đánh giá không ổn định.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- Hybrid Search 结合关键词检索和向量检索，适合专业术语、编号、实体名、语义表达混杂的场景。
-- Query Rewrite 解决用户问题表达不规范、口语化、多意图、缩写和上下文省略问题。
-- Rerank 负责在候选结果里重新排序，解决向量相似度不等于答案相关性的问题。
-- 上下文压缩可以降低噪声和成本，但压缩错误会丢失关键证据。
-- RAG 优化必须基于失败样本集，不能只拿几条主观案例反复调。
+- Hybrid Search kết hợp truy xuất từ khóa và truy xuất vector, phù hợp với tình huống có thuật ngữ chuyên ngành, số hiệu, tên thực thể, biểu đạt ngữ nghĩa hỗn hợp.
+- Query Rewrite giải quyết vấn đề câu hỏi người dùng không chuẩn, thông thường, đa ý định, viết tắt và lược bỏ ngữ cảnh.
+- Rerank chịu trách nhiệm sắp xếp lại trong danh sách ứng viên, giải quyết vấn đề độ tương đồng vector không bằng độ liên quan câu trả lời.
+- Nén ngữ cảnh có thể giảm nhiễu và chi phí, nhưng nén sai sẽ mất bằng chứng quan trọng.
+- Tối ưu RAG phải dựa trên tập mẫu thất bại, không thể chỉ dùng vài trường hợp chủ quan để điều chỉnh liên tục.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- RAG 召回率低应该怎么排查？
-- Chunk 策略、Metadata、Hybrid Search、Query Rewrite、Rerank 分别解决什么问题？
-- Hybrid Search 是什么？BM25 和向量检索怎么融合？
-- Query Rewrite、HyDE、Self-Query 分别适合什么场景？
-- Rerank 解决什么问题？为什么不能只依赖向量相似度排序？
-- 上下文压缩有什么价值？什么时候会伤害答案质量？
-- RAG 优化为什么必须先建立失败样本集？
-- 线上 RAG 出现“答非所问”，应该按什么路径定位？
+- Tỷ lệ thu hồi RAG thấp cần chẩn đoán như thế nào?
+- Chiến lược Chunk, Metadata, Hybrid Search, Query Rewrite, Rerank giải quyết vấn đề gì?
+- Hybrid Search là gì? BM25 và truy xuất vector được hợp nhất như thế nào?
+- Query Rewrite, HyDE, Self-Query phù hợp với tình huống nào?
+- Rerank giải quyết vấn đề gì? Tại sao không thể chỉ dựa vào sắp xếp theo độ tương đồng vector?
+- Nén ngữ cảnh có giá trị gì? Khi nào sẽ làm tổn hại chất lượng câu trả lời?
+- Tại sao tối ưu RAG phải xây dựng tập mẫu thất bại trước?
+- RAG trực tuyến xuất hiện "trả lời lạc đề", cần định vị theo con đường nào?
 
-推荐的排查顺序是：先看正确文档是否进入候选池，再看排序位置是否靠前，再看上下文是否被截断或污染，最后看模型是否忠实使用证据。这样能避免把检索问题误判成 Prompt 问题。
+Thứ tự chẩn đoán được khuyến nghị là: Trước tiên xem tài liệu đúng có vào pool ứng viên không, rồi xem vị trí xếp hạng có cao không, rồi xem ngữ cảnh có bị cắt bớt hay bị ô nhiễm không, cuối cùng xem mô hình có trung thực sử dụng bằng chứng không. Như vậy tránh được việc nhầm lẫn vấn đề truy xuất thành vấn đề Prompt.
 
 ## GraphRAG
 
-参考文章：[《万字详解 GraphRAG：为什么只靠向量检索撑不起复杂知识问答》](../rag/graphrag.md)
+Bài viết tham khảo: [《Giải thích toàn diện GraphRAG: Tại sao chỉ dựa vào truy xuất vector không đủ cho hỏi đáp kiến thức phức tạp》](../rag/graphrag.md)
 
-GraphRAG 题通常出现在更深入的面试里。它不是标准 RAG 的银弹，而是用图结构补足向量检索在实体关系、多跳推理和全局性问题上的短板。
+Câu hỏi GraphRAG thường xuất hiện trong các phỏng vấn sâu hơn. Nó không phải viên đạn bạc cho RAG tiêu chuẩn, mà dùng cấu trúc đồ thị để bù đắp điểm yếu của truy xuất vector trong quan hệ thực thể, suy luận multi-hop và câu hỏi toàn cục.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 标准向量 RAG 擅长局部相似内容召回，但不擅长跨文档关系、多跳推理和全局总结。
-- GraphRAG 会抽取实体和关系，构建知识图谱，再通过局部检索、全局检索或社区摘要回答复杂问题。
-- 社区摘要可以帮助回答全局问题，但构建和更新成本很高，也可能引入摘要偏差。
-- GraphRAG 的权限过滤比文档级过滤更复杂，因为节点、边、邻居和摘要都可能带来信息泄露。
-- 成熟系统往往不是纯 GraphRAG，而是根据问题类型在关键词检索、向量检索、多向量、图检索之间动态路由。
+- Vector RAG tiêu chuẩn giỏi thu hồi nội dung tương tự cục bộ, nhưng không giỏi quan hệ xuyên tài liệu, suy luận multi-hop và tóm tắt toàn cục.
+- GraphRAG sẽ trích xuất thực thể và quan hệ, xây dựng knowledge graph, sau đó trả lời câu hỏi phức tạp qua truy xuất cục bộ, truy xuất toàn cục hoặc tóm tắt cộng đồng.
+- Tóm tắt cộng đồng có thể giúp trả lời câu hỏi toàn cục, nhưng chi phí xây dựng và cập nhật rất cao, cũng có thể đưa vào độ lệch tóm tắt.
+- Lọc quyền trong GraphRAG phức tạp hơn lọc cấp tài liệu, vì node, cạnh, lân cận và tóm tắt đều có thể gây rò rỉ thông tin.
+- Hệ thống trưởng thành thường không phải GraphRAG thuần túy, mà định tuyến động giữa truy xuất từ khóa, truy xuất vector, multi-vector, truy xuất đồ thị dựa trên loại câu hỏi.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- GraphRAG 解决什么问题？和标准向量 RAG 有什么区别？
-- 为什么说 Chunk 是信息孤岛？
-- 向量相似度为什么不擅长多跳推理？
-- GraphRAG 中实体、关系、社区发现分别是什么？
-- 全局检索和局部检索有什么区别？
-- GraphRAG 的社区摘要有什么价值？它的成本在哪里？
-- GraphRAG 如何做权限过滤？
-- 什么场景适合 GraphRAG？什么场景不适合？
-- 成熟系统为什么通常不是纯 GraphRAG，而是混合路由架构？
+- GraphRAG giải quyết vấn đề gì? Khác gì so với vector RAG tiêu chuẩn?
+- Tại sao nói Chunk là ốc đảo thông tin?
+- Tại sao độ tương đồng vector không giỏi suy luận multi-hop?
+- Thực thể, quan hệ, phát hiện cộng đồng trong GraphRAG là gì?
+- Truy xuất toàn cục và truy xuất cục bộ khác nhau như thế nào?
+- Tóm tắt cộng đồng trong GraphRAG có giá trị gì? Chi phí của nó ở đâu?
+- GraphRAG làm lọc quyền như thế nào?
+- Tình huống nào phù hợp với GraphRAG? Tình huống nào không phù hợp?
+- Tại sao hệ thống trưởng thành thường không phải GraphRAG thuần túy mà là kiến trúc định tuyến hỗn hợp?
 
-如果被问“要不要上 GraphRAG”，不要默认回答要。更稳的判断是：如果业务问题大量涉及跨文档关系、组织网络、实体关联、多跳推理和全局总结，可以评估 GraphRAG；如果只是 FAQ、产品文档、政策查询，标准 RAG 加检索优化通常更划算。
+Nếu được hỏi "có nên dùng GraphRAG không", đừng mặc định trả lời có. Phán đoán ổn định hơn là: Nếu vấn đề nghiệp vụ liên quan nhiều đến quan hệ xuyên tài liệu, mạng lưới tổ chức, liên kết thực thể, suy luận multi-hop và tóm tắt toàn cục, có thể đánh giá GraphRAG; Nếu chỉ là FAQ, tài liệu sản phẩm, truy vấn chính sách, RAG tiêu chuẩn kết hợp tối ưu truy xuất thường hiệu quả hơn.
 
-## 知识库更新与评测
+## Cập nhật knowledge base và đánh giá
 
-参考文章：[《RAG 知识库文档如何更新：增量更新、版本控制、去重与全量重建》](../rag/rag-knowledge-update.md)、[《AI 应用评测体系：从 Golden Set 构建到线上灰度闭环》](../llm-basis/llm-evaluation.md)
+Bài viết tham khảo: [《Cách cập nhật tài liệu knowledge base RAG: cập nhật gia tăng, kiểm soát phiên bản, loại bỏ trùng lặp và xây dựng lại toàn bộ》](../rag/rag-knowledge-update.md)、[《Hệ thống đánh giá ứng dụng AI: từ xây dựng Golden Set đến vòng lặp triển khai dần trực tuyến》](../llm-basis/llm-evaluation.md)
 
-RAG 上生产后，最容易被忽视的是“长期维护”。文档会更新，Embedding 模型会升级，Chunk 策略会调整，权限会变化，业务问题分布也会变。没有更新和评测机制，RAG 很快就会从“知识库问答”变成“旧知识随机复读”。
+Sau khi RAG lên sản xuất, điều dễ bị bỏ qua nhất là "bảo trì dài hạn". Tài liệu sẽ cập nhật, mô hình Embedding sẽ nâng cấp, chiến lược Chunk sẽ điều chỉnh, quyền sẽ thay đổi, phân phối câu hỏi nghiệp vụ cũng sẽ thay đổi. Không có cơ chế cập nhật và đánh giá, RAG sẽ nhanh chóng biến từ "hỏi đáp knowledge base" thành "đọc lại kiến thức cũ ngẫu nhiên".
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 知识库更新要处理新增、修改、删除、版本、去重、权限、灰度和回滚。
-- Embedding 模型升级通常意味着向量空间变化，旧向量和新向量混用会带来检索质量问题。
-- Chunk 策略变更可能影响所有历史切片，通常需要全量重建。
-- RAG 评测要分检索指标和生成指标。检索差和生成差，优化方向完全不同。
-- 线上失败样本要回流到评测集，形成持续改进闭环。
+- Cập nhật knowledge base cần xử lý thêm mới, sửa đổi, xóa, phiên bản, loại bỏ trùng lặp, quyền, triển khai dần và rollback.
+- Nâng cấp mô hình Embedding thường có nghĩa là không gian vector thay đổi, dùng lẫn vector cũ và mới sẽ gây vấn đề chất lượng truy xuất.
+- Thay đổi chiến lược Chunk có thể ảnh hưởng đến tất cả các phân mảnh lịch sử, thường cần xây dựng lại toàn bộ.
+- Đánh giá RAG cần chia chỉ số truy xuất và chỉ số tạo sinh. Truy xuất kém và tạo sinh kém có hướng tối ưu hoàn toàn khác nhau.
+- Mẫu thất bại trực tuyến cần được đưa trở lại tập đánh giá để tạo vòng lặp cải tiến liên tục.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- RAG 知识库为什么不能只新增不删除？
-- 增量更新和全量重建怎么选？
-- Embedding 模型升级后，为什么通常需要重建索引？
-- Chunk 策略变更会影响哪些历史数据？
-- 如何避免同一文档多个版本同时被召回？
-- 知识库更新如何做灰度、回滚和审计？
-- RAG 评测为什么要分检索质量和生成质量？
-- MRR、NDCG、Recall@K、Context Precision、Faithfulness 分别衡量什么？
+- Tại sao knowledge base RAG không thể chỉ thêm mới mà không xóa?
+- Nên chọn cập nhật gia tăng hay xây dựng lại toàn bộ?
+- Sau khi nâng cấp mô hình Embedding, tại sao thường cần xây dựng lại chỉ mục?
+- Thay đổi chiến lược Chunk sẽ ảnh hưởng đến dữ liệu lịch sử nào?
+- Làm thế nào để tránh nhiều phiên bản của cùng một tài liệu được thu hồi đồng thời?
+- Cập nhật knowledge base làm triển khai dần, rollback và kiểm toán như thế nào?
+- Tại sao đánh giá RAG cần chia chất lượng truy xuất và chất lượng tạo sinh?
+- MRR, NDCG, Recall@K, Context Precision, Faithfulness đo lường gì?
 
-回答更新题时，可以用“数据版本 + 索引版本 + 灰度发布 + 指标监控 + 快速回滚”这条线。这样比只说“定时同步文档”更像生产系统。
+Khi trả lời câu hỏi cập nhật, có thể dùng mạch "phiên bản dữ liệu + phiên bản chỉ mục + triển khai dần + giám sát chỉ số + rollback nhanh". Như vậy trông giống hệ thống sản xuất hơn là chỉ nói "đồng bộ tài liệu định kỳ".
 
-## 排查框架
+## Khung chẩn đoán
 
-RAG 效果差，可以按下面路径排查：
+Khi hiệu quả RAG kém, có thể chẩn đoán theo con đường sau:
 
-1. 问题理解：用户问题是否口语化、缩写、多意图、需要多跳推理。
-2. 文档处理：原始文档是否解析正确，Chunk 是否保留语义和元数据。
-3. 召回阶段：正确证据是否进入候选池，召回池是否足够大。
-4. 排序阶段：正确证据是否排在前面，是否需要 Rerank。
-5. 上下文阶段：证据是否被截断、重复、污染，是否存在 Lost in the Middle。
-6. 生成阶段：模型是否忠实基于证据回答，是否需要引用和拒答策略。
-7. 评测阶段：是否有稳定样本集，是否能复现问题。
+1. Hiểu câu hỏi: Câu hỏi người dùng có thông thường, viết tắt, đa ý định, cần suy luận multi-hop không.
+2. Xử lý tài liệu: Tài liệu gốc có phân tích đúng không, Chunk có giữ ngữ nghĩa và metadata không.
+3. Giai đoạn thu hồi: Bằng chứng đúng có vào pool ứng viên không, pool thu hồi có đủ lớn không.
+4. Giai đoạn sắp xếp: Bằng chứng đúng có được xếp hàng đầu không, có cần Rerank không.
+5. Giai đoạn ngữ cảnh: Bằng chứng có bị cắt bớt, trùng lặp, ô nhiễm không, có tồn tại Lost in the Middle không.
+6. Giai đoạn tạo sinh: Mô hình có trung thực trả lời dựa trên bằng chứng không, có cần chiến lược trích dẫn và từ chối trả lời không.
+7. Giai đoạn đánh giá: Có tập mẫu ổn định không, có thể tái hiện vấn đề không.
 
-这个框架非常适合面试，因为它能把 RAG 从“一个链路”拆成“多个可诊断模块”。
+Khung này rất phù hợp để phỏng vấn, vì nó có thể chia RAG từ "một pipeline" thành "nhiều module có thể chẩn đoán".
 
-## 常见扣分点
+## Điểm trừ phổ biến
 
-- 把 RAG 简化成向量数据库接入。
-- 只关注 TopK，不关注文档解析、Chunk、元数据和权限。
-- 效果差时只改 Prompt，不看检索和排序。
-- 认为向量相似度高就等于答案相关。
-- 认为 GraphRAG 一定优于标准 RAG，不考虑成本和适用场景。
-- 没有知识库版本管理、灰度、回滚和评测闭环。
+- Đơn giản hóa RAG thành kết nối cơ sở dữ liệu vector.
+- Chỉ quan tâm đến TopK, không quan tâm đến phân tích tài liệu, Chunk, metadata và quyền.
+- Khi hiệu quả kém chỉ sửa Prompt, không xem truy xuất và sắp xếp.
+- Cho rằng độ tương đồng vector cao bằng với câu trả lời liên quan.
+- Cho rằng GraphRAG nhất định tốt hơn RAG tiêu chuẩn, không xem xét chi phí và tình huống áp dụng.
+- Không có quản lý phiên bản knowledge base, triển khai dần, rollback và vòng lặp đánh giá.
 
-## 复习建议
+## Khuyến nghị ôn tập
 
-建议按“基础概念 -> 向量索引 -> 文档处理 -> 检索优化 -> GraphRAG -> 更新与评测”的顺序复习。
+Khuyến nghị ôn tập theo thứ tự "Khái niệm cơ bản -> Chỉ mục vector -> Xử lý tài liệu -> Tối ưu truy xuất -> GraphRAG -> Cập nhật và đánh giá".
 
-复习时要始终记住一句话：**RAG 的核心能力不是生成，而是把正确证据稳定、低成本、可治理地送到模型面前。** 如果你能围绕这句话展开，RAG 面试基本不会跑偏。
+Khi ôn tập hãy luôn nhớ một câu: **Năng lực cốt lõi của RAG không phải tạo sinh, mà là đưa bằng chứng đúng đến trước mô hình một cách ổn định, chi phí thấp, có quản trị.** Nếu bạn có thể triển khai xung quanh câu này, phỏng vấn RAG cơ bản sẽ không đi lạc hướng.

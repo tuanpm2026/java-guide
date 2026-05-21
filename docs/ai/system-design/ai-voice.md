@@ -1,7 +1,7 @@
 ---
-title: AI 语音技术详解：从 ASR、TTS 到实时语音 Agent 的工程化落地
-description: 深入拆解 AI 语音系统底层链路，涵盖音频采集、VAD、ASR、LLM、TTS、流式播放、打断处理、低延迟优化以及云端 API、本地模型、端云混合选型。
-category: AI 应用开发
+title: Công nghệ giọng nói AI: Từ ASR, TTS đến triển khai thực tế Voice Agent
+description: Phân tích chuyên sâu hệ thống giọng nói AI, bao gồm thu âm, VAD, ASR, LLM, TTS, phát streaming, xử lý ngắt lời, tối ưu độ trễ và lựa chọn API đám mây, mô hình cục bộ, kết hợp.
+category: Phát triển ứng dụng AI
 head:
   - - meta
     - name: keywords
@@ -10,92 +10,92 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-大家好，我是 Guide。
+Xin chào mọi người, mình là Guide.
 
-很多开发者第一次做 AI 语音应用时，都会有一个很朴素的想法：用户说话，转成文字，丢给大模型，再把回答播出来。
+Nhiều developer lần đầu làm ứng dụng giọng nói AI đều có một ý tưởng rất đơn giản: người dùng nói, chuyển thành text, đưa vào mô hình lớn, rồi đọc lại câu trả lời.
 
-听起来就是三段调用：**ASR -> LLM -> TTS**。
+Nghe có vẻ chỉ là ba bước gọi API: **ASR -> LLM -> TTS**.
 
-真推到生产环境，问题马上来了：用户还没说完，系统已经误判结束；用户想打断，AI 还在自顾自朗读；会议室里有空调声和键盘声，ASR 开始胡乱转写；网络稍微抖一下，下行音频就卡成一段一段；看起来模型很聪明，真正说话时却像慢半拍的电话客服。
+Nhưng khi đẩy lên môi trường production, vấn đề ngay lập tức xuất hiện: người dùng chưa nói xong, hệ thống đã phán đoán nhầm là kết thúc; người dùng muốn ngắt lời, AI vẫn tự đọc tiếp; phòng họp có tiếng điều hòa và bàn phím, ASR bắt đầu nhận dạng lung tung; mạng hơi giật, âm thanh downstream bị đứt từng đoạn; trông mô hình rất thông minh, nhưng khi nói chuyện thực tế lại như nhân viên tổng đài phản ứng chậm.
 
-AI 语音系统最折磨人的地方就在这里：**它不是把文本 Agent 接上麦克风和扬声器这么简单，而是一套实时音频工程、语音模型、对话状态和端云协同共同组成的系统**。
+Điều phức tạp nhất của hệ thống giọng nói AI nằm ở đây: **đây không đơn giản là gắn mic và loa cho text Agent, mà là một hệ thống gồm xử lý audio thời gian thực, mô hình giọng nói, trạng thái hội thoại và phối hợp đầu cuối-đám mây cùng nhau**.
 
-本文接近 2w 字，建议收藏，通过本文你将搞懂：
+Bài viết này gần 20.000 chữ, khuyên bạn nên bookmark, qua bài này bạn sẽ hiểu được:
 
-1. ASR、TTS、VAD 的核心原理，以及云端 API 和本地模型该怎么选。
-2. 实时语音交互的核心难点：延迟、打断、噪声、上下文和端侧能力各自卡在哪里。
-3. 从 interview-guide 项目看基础版语音 Agent 是怎么一步步实现的。
-4. WebRTC 在端侧音频处理中的实际作用和配置选择。
-5. 状态机设计、打断处理、成本控制等生产级落地要点。
-6. 语音 Agent 的后续演进方向。
+1. Nguyên lý cốt lõi của ASR, TTS, VAD, cách lựa chọn giữa API đám mây và mô hình cục bộ.
+2. Những khó khăn cốt lõi của tương tác giọng nói thời gian thực: độ trễ, ngắt lời, tiếng ồn, context và khả năng phía client đều vướng mắc ở đâu.
+3. Cách triển khai Voice Agent cơ bản từng bước qua dự án interview-guide.
+4. Vai trò thực tế và lựa chọn cấu hình của WebRTC trong xử lý audio phía client.
+5. Các điểm quan trọng khi triển khai production: thiết kế state machine, xử lý ngắt lời, kiểm soát chi phí.
+6. Hướng phát triển tiếp theo của Voice Agent.
 
-## 术语说明
+## Giải thích thuật ngữ
 
-为避免阅读时产生困惑，本文涉及的核心术语做如下说明：
+Để tránh nhầm lẫn khi đọc, các thuật ngữ cốt lõi trong bài được giải thích như sau:
 
-- **端侧** = 客户端（浏览器/App），指用户设备上的前端代码
-- **Barge-in** = 打断/插话打断，即用户在大模型响应过程中主动中断 AI 说话
-- **增量结果** = 流式输出 = partial results，指 ASR 实时返回的识别中间结果
-- **级联方案** = ASR + LLM + TTS 分阶段串联的架构
-- **原生 Realtime API** = Speech-to-Speech，端到端多模态模型，直接音频进、音频出
+- **Phía client** = client (browser/App), chỉ code frontend trên thiết bị người dùng
+- **Barge-in** = ngắt lời/chen vào, tức là người dùng chủ động ngắt AI đang nói trong quá trình mô hình phản hồi
+- **Kết quả tăng dần** = output streaming = partial results, chỉ kết quả nhận dạng trung gian mà ASR trả về theo thời gian thực
+- **Giải pháp cascade** = kiến trúc ASR + LLM + TTS nối tiếp theo từng giai đoạn
+- **Realtime API native** = Speech-to-Speech, mô hình đa phương thức end-to-end, nhận audio vào và xuất audio ra
 
-## AI 语音系统到底解决了什么问题？
+## Hệ thống giọng nói AI thực sự giải quyết vấn đề gì?
 
-在说技术之前，先搞清楚我们到底在解决什么问题。
+Trước khi nói về kỹ thuật, hãy làm rõ chúng ta đang giải quyết vấn đề gì.
 
-语音 Agent 的本质目标是**让机器能像人一样自然地对话**。这听起来简单，但和文字对话相比，语音多了几个维度：
+Mục tiêu cốt lõi của Voice Agent là **cho phép máy móc đối thoại tự nhiên như con người**. Nghe có vẻ đơn giản, nhưng so với đối thoại văn bản, giọng nói có thêm nhiều chiều:
 
-- **实时性**：用户说话的时候，系统就得开始工作，不能等用户说完再反应。
-- **多模态信息**：语气、停顿、情绪，这些在文字里都丢了。
-- **打断能力**：人说话可以互相插嘴，机器也得支持。
-- **端到端延迟**：文字聊天慢 1 秒用户还能忍，语音慢 1 秒就感觉对方“没反应”。
+- **Thời gian thực**: khi người dùng nói, hệ thống phải bắt đầu làm việc ngay, không thể đợi người dùng nói xong mới phản ứng.
+- **Thông tin đa phương thức**: giọng điệu, ngừng nghỉ, cảm xúc - những thứ này đều bị mất trong văn bản.
+- **Khả năng ngắt lời**: người nói có thể ngắt nhau, máy cũng phải hỗ trợ điều này.
+- **Độ trễ end-to-end**: chat văn bản chậm 1 giây người dùng còn chịu được, giọng nói chậm 1 giây sẽ cảm thấy đối phương "không phản hồi".
 
-市面上常见的语音交互有两类：
+Trên thị trường có hai loại tương tác giọng nói phổ biến:
 
-1. **传统语音助手**：Siri、小爱同学、车载语音。你说“打开空调”，它执行固定命令。本质是个语音版的菜单系统。
-2. **大模型语音 Agent**：能理解开放问题、调用工具、持续多轮对话。你问“帮我看看上周那个接口超时是怎么回事”，它需要理解意图、检索上下文、生成回答、还要用语音和你来回确认。
+1. **Trợ lý giọng nói truyền thống**: Siri, tiểu Ai, giọng nói xe hơi. Bạn nói "bật điều hòa", nó thực thi lệnh cố định. Về bản chất là hệ thống menu dạng giọng nói.
+2. **Voice Agent mô hình lớn**: có thể hiểu câu hỏi mở, gọi công cụ, tiếp tục đa vòng hội thoại. Bạn hỏi "giúp tôi xem API timeout tuần trước là sao", nó cần hiểu ý định, tìm context, tạo câu trả lời, và xác nhận qua lại với bạn bằng giọng nói.
 
-这两者的底层逻辑完全不同。本文主要讨论后者，也就是大模型语音 Agent 的工程化落地。
+Logic cơ bản của hai loại này hoàn toàn khác nhau. Bài này chủ yếu thảo luận về loại sau, tức triển khai thực tế của Voice Agent mô hình lớn.
 
-## 语音识别（ASR）是怎么把声音变成文字的？
+## ASR chuyển đổi âm thanh thành văn bản như thế nào?
 
-ASR（Automatic Speech Recognition）看起来就是“音频进、文字出”，但背后至少包含三个判断：
+ASR (Automatic Speech Recognition) trông có vẻ chỉ là "audio vào, text ra", nhưng phía sau có ít nhất ba quá trình phán đoán:
 
-1. 这段音频说的是什么字。
-2. 这些字怎么切分成词和句子。
-3. 标点、数字、英文、技术名词怎么规范化。
+1. Đoạn audio này nói những chữ gì.
+2. Những chữ đó cắt thành từ và câu thế nào.
+3. Dấu câu, số, tiếng Anh, thuật ngữ kỹ thuật được chuẩn hóa thế nào.
 
-比如用户说“帮我查一下 Java 21 的虚拟线程”，ASR 要同时识别中文、英文、数字和技术词。如果识别成“加瓦二十一的虚拟线程”，后面的 LLM 再强也得先猜半天。
+Ví dụ người dùng nói "giúp tôi tra Java 21 virtual thread", ASR phải đồng thời nhận dạng tiếng Trung, tiếng Anh, số và từ kỹ thuật. Nếu nhận dạng sai, LLM phía sau dù mạnh đến đâu cũng phải đoán một lúc.
 
-### ASR 的三条技术路线
+### Ba hướng kỹ thuật của ASR
 
-| 类型         | 代表方案                                                                                                                           | 优势                                                                  | 短板                                                             | 适合场景                       |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------ |
-| 云端 API     | OpenAI Transcription（gpt-4o-transcribe、whisper-1、gpt-4o-transcribe-diarize）、Azure Speech、Google Speech、Deepgram、阿里云 ASR | 接入快，语言覆盖广，运维成本低                                        | 成本、网络延迟、数据合规受限                                     | 客服、会议转写、轻量语音助手   |
-| 开源通用模型 | Whisper、faster-whisper、Whisper.cpp、FunASR                                                                                       | 可本地部署，可控性强，支持私有化；faster-whisper 内置 Silero VAD 过滤 | 实时性要自己做工程优化；Whisper turbo 未针对翻译训练，翻译效果差 | 私有化转写、离线字幕、企业内网 |
-| 领域定制模型 | 金融、医疗、车载专用 ASR                                                                                                           | 专有名词和口音适配更好                                                | 数据准备和训练成本高                                             | 高频垂直场景、强业务词表       |
+| Loại                     | Giải pháp tiêu biểu                                                                                                                      | Ưu điểm                                                                                     | Nhược điểm                                                                                    | Phù hợp cho                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| API đám mây              | OpenAI Transcription (gpt-4o-transcribe, whisper-1, gpt-4o-transcribe-diarize), Azure Speech, Google Speech, Deepgram, Alibaba Cloud ASR | Tích hợp nhanh, hỗ trợ nhiều ngôn ngữ, chi phí vận hành thấp                                | Chi phí, độ trễ mạng, hạn chế tuân thủ dữ liệu                                                | Dịch vụ khách hàng, chuyển đổi cuộc họp, trợ lý giọng nói nhẹ |
+| Mô hình nguồn mở         | Whisper, faster-whisper, Whisper.cpp, FunASR                                                                                             | Có thể triển khai cục bộ, kiểm soát tốt, hỗ trợ private; faster-whisper tích hợp Silero VAD | Cần tự tối ưu kỹ thuật cho thời gian thực; Whisper turbo không được huấn luyện cho dịch thuật | Chuyển đổi private, phụ đề offline, intranet doanh nghiệp     |
+| Mô hình domain tùy chỉnh | ASR chuyên dụng cho tài chính, y tế, xe hơi                                                                                              | Thích nghi tốt hơn với từ chuyên ngành và giọng địa phương                                  | Chi phí chuẩn bị dữ liệu và huấn luyện cao                                                    | Các use case dọc tần suất cao, từ điển nghiệp vụ mạnh         |
 
-**补充说明**：
+**Ghi chú bổ sung**:
 
-- OpenAI 的 `gpt-4o-transcribe-diarize` 支持说话人标签，适合会议转写等多人场景；注意：不支持 Realtime API、不支持 prompt 上下文、音频块上限 1400 秒（~23分钟）。如不需要说话人标签，优先使用 `gpt-4o-transcribe` 或 `whisper-1`
-- Whisper turbo（large-v3-turbo）是 large-v3 的推理优化版，速度快但**未针对翻译任务训练**，执行 `--task translate` 时会输出原始语言而非英语，需要翻译时请用 medium 或 large
+- `gpt-4o-transcribe-diarize` của OpenAI hỗ trợ nhãn người nói, phù hợp cho các tình huống nhiều người như chuyển đổi cuộc họp; lưu ý: không hỗ trợ Realtime API, không hỗ trợ context prompt, giới hạn audio block 1400 giây (~23 phút). Nếu không cần nhãn người nói, ưu tiên dùng `gpt-4o-transcribe` hoặc `whisper-1`
+- Whisper turbo (large-v3-turbo) là phiên bản tối ưu inference của large-v3, nhanh hơn nhưng **không được huấn luyện cho tác vụ dịch thuật**, khi thực thi `--task translate` sẽ output ngôn ngữ gốc chứ không phải tiếng Anh, cần dịch thuật hãy dùng medium hoặc large
 
-**选型建议**：如果你的核心需求是“实时对话”，不要只看离线 WER（Word Error Rate，词错误率）。你更应该关注：
+**Khuyến nghị lựa chọn**: Nếu nhu cầu cốt lõi của bạn là "hội thoại thời gian thực", đừng chỉ nhìn vào WER offline (Word Error Rate, tỷ lệ lỗi từ). Bạn nên quan tâm hơn đến:
 
-- **首段延迟**：用户说完到看到第一个字的时间
-- **增量结果稳定性**：能不能实时看到识别进度
-- **端点检测准确率**：能不能准确判断用户说完了
-- **噪声环境表现**：远场、多人说话时准不准
-- **热词能力**：能不能识别你的业务专属词汇
+- **Độ trễ đoạn đầu**: thời gian từ khi người dùng nói xong đến khi thấy ký tự đầu tiên
+- **Ổn định kết quả tăng dần**: có thể xem tiến độ nhận dạng theo thời gian thực không
+- **Độ chính xác phát hiện endpoint**: có thể phán đoán chính xác người dùng đã nói xong chưa
+- **Hiệu suất trong môi trường nhiễu**: xa mic, nhiều người nói có chính xác không
+- **Khả năng hot word**: có thể nhận dạng từ vựng nghiệp vụ riêng của bạn không
 
-### 流式 ASR 和非流式 ASR 的区别
+### Sự khác biệt giữa ASR streaming và không streaming
 
-做实时对话必须用流式 ASR。区别在于：
+Làm hội thoại thời gian thực bắt buộc phải dùng ASR streaming. Sự khác biệt là:
 
-- **非流式 ASR**：等用户说完一段话，再整段识别。延迟 = 说话时长 + 识别时间。
-- **流式 ASR**：边说边识别，用户话音刚落就能拿到结果。延迟 ≈ 端点检测时间 + 实时识别时间。
+- **ASR không streaming**: đợi người dùng nói xong một đoạn, rồi nhận dạng cả đoạn. Độ trễ = thời gian nói + thời gian nhận dạng.
+- **ASR streaming**: nhận dạng trong khi nói, ngay khi người dùng vừa dứt lời đã có kết quả. Độ trễ ≈ thời gian phát hiện endpoint + thời gian nhận dạng thời gian thực.
 
-interview-guide 项目用的是**阿里云 DashScope 的 qwen3-asr-flash-realtime**，这是一个服务端 VAD 驱动的流式 ASR：
+Dự án interview-guide dùng **qwen3-asr-flash-realtime của Alibaba Cloud DashScope**, đây là ASR streaming được điều khiển bởi server-side VAD:
 
 ```java
 // QwenAsrService.java
@@ -108,39 +108,39 @@ OmniRealtimeConfig config = OmniRealtimeConfig.builder()
     .build();
 ```
 
-服务端 VAD 的好处是**不用客户端做复杂的语音活动检测**，但代价是你要等 400ms 静音才判定用户说完。实际体验中这 400ms 挺明显的，所以很多方案会改成客户端 VAD 先触发、前端先提交，等服务端确认。
+Lợi ích của server-side VAD là **client không cần làm phát hiện hoạt động giọng nói phức tạp**, nhưng cái giá phải trả là bạn phải đợi 400ms im lặng mới phán đoán người dùng nói xong. Trong trải nghiệm thực tế, 400ms này khá rõ ràng, vì vậy nhiều giải pháp chuyển sang dùng client VAD trigger trước, frontend submit trước, rồi đợi server xác nhận.
 
-## 语音合成（TTS）是怎么把文字变成声音的？
+## TTS chuyển đổi văn bản thành âm thanh như thế nào?
 
-TTS（Text To Speech）负责把模型回复合成音频。它看起来是输出层，但其实很影响用户对整个 Agent 的感知。
+TTS (Text To Speech) chịu trách nhiệm tổng hợp audio từ câu trả lời của mô hình. Trông có vẻ là lớp output, nhưng thực ra ảnh hưởng rất lớn đến cảm nhận của người dùng về toàn bộ Agent.
 
-同一句“我帮你查一下”，不同 TTS 的差异可能体现在：
+Cùng một câu "để tôi xem giúp bạn", sự khác biệt giữa các TTS khác nhau có thể thể hiện ở:
 
-- 首包音频要等多久
-- 音色是否自然，长句是否喘得像真人
-- 数字、代码、英文缩写是否读得准确
-- 是否支持情绪、语速、停顿、音高控制
+- Đợi bao lâu mới có audio chunk đầu tiên
+- Giọng có tự nhiên không, câu dài có thở như người thật không
+- Đọc số, code, từ viết tắt tiếng Anh có chính xác không
+- Có hỗ trợ kiểm soát cảm xúc, tốc độ, ngừng nghỉ, cao độ không
 
-### TTS 的技术演进
+### Sự phát triển kỹ thuật của TTS
 
-传统 TTS 分好几步走：
+TTS truyền thống gồm nhiều bước:
 
 ```
 文本规范化 -> 文本分析 -> 声学模型 -> 声码器 -> 波形输出
 ```
 
-现在主流的端到端模型（比如 VALL-E、Fish Speech、CosyVoice）把这个链路压缩了，效果也更好。但对实时语音 Agent 来说，**单句音质不是最关键的，流式可播放性才是**。
+Các mô hình end-to-end chủ đạo hiện nay (như VALL-E, Fish Speech, CosyVoice) đã nén chuỗi pipeline này lại, hiệu quả cũng tốt hơn. Nhưng với Voice Agent thời gian thực, **chất lượng âm thanh từng câu không phải quan trọng nhất, khả năng phát được dạng streaming mới là chính**.
 
-如果你必须等整段文字生成完才能合成，用户体感会非常慢。如果能按短句甚至 token 流式合成，首包体验会好很多。
+Nếu bạn phải đợi toàn bộ văn bản được tạo xong mới có thể tổng hợp, cảm nhận của người dùng sẽ rất chậm. Nếu có thể tổng hợp streaming theo từng câu ngắn hoặc thậm chí theo token, trải nghiệm chunk đầu tiên sẽ tốt hơn nhiều.
 
-### 实时 TTS 的两条路线
+### Hai hướng cho TTS thời gian thực
 
-| 类型         | 代表方案                                                            | 特点                   |
-| ------------ | ------------------------------------------------------------------- | ---------------------- |
-| 云端实时 TTS | OpenAI Speech、阿里云 qwen-tts-realtime、Azure TTS、ElevenLabs      | 流式输出，支持实时合成 |
-| 本地 TTS     | piper1-gpl（GPL-3.0 ⚠️ 原 Piper 已归档）、Fish Speech（Apache 2.0） | 可控性强，适合离线场景 |
+| Loại                       | Giải pháp tiêu biểu                                                         | Đặc điểm                                         |
+| -------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------ |
+| TTS thời gian thực đám mây | OpenAI Speech, Alibaba Cloud qwen-tts-realtime, Azure TTS, ElevenLabs       | Output streaming, hỗ trợ tổng hợp thời gian thực |
+| TTS cục bộ                 | piper1-gpl (GPL-3.0 ⚠️ Piper gốc đã được archive), Fish Speech (Apache 2.0) | Kiểm soát tốt, phù hợp offline                   |
 
-interview-guide 用的也是阿里云的 qwen-tts-realtime，通过 WebSocket 实时合成：
+interview-guide cũng dùng qwen-tts-realtime của Alibaba Cloud, tổng hợp thời gian thực qua WebSocket:
 
 ```java
 // QwenTtsService.java
@@ -158,35 +158,35 @@ qwenTtsRealtime.appendText(text);
 qwenTtsRealtime.commit();
 ```
 
-每次合成都会建立新的 WebSocket 连接，接收 `response.audio.delta` 事件，把音频块拼接起来。
+Mỗi lần tổng hợp sẽ thiết lập kết nối WebSocket mới, nhận sự kiện `response.audio.delta`, ghép các audio chunk lại.
 
-## VAD 为什么是语音系统的「隐形守门人」？
+## Tại sao VAD là "người gác cổng vô hình" của hệ thống giọng nói?
 
-VAD（Voice Activity Detection，语音活动检测）这个组件经常被忽略，但它对体验影响极大。
+Component VAD (Voice Activity Detection - Phát hiện hoạt động giọng nói) thường bị bỏ qua, nhưng ảnh hưởng của nó đến trải nghiệm rất lớn.
 
-VAD 的任务不是识别内容，而是判断：
+Nhiệm vụ của VAD không phải nhận dạng nội dung, mà là phán đoán:
 
-- 用户开始说话了吗？
-- 用户说完了吗？
-- 当前声音是人声、背景噪声、音乐，还是系统自己播放的声音？
+- Người dùng đã bắt đầu nói chưa?
+- Người dùng đã nói xong chưa?
+- Âm thanh hiện tại là giọng người, tiếng ồn nền, âm nhạc, hay âm thanh hệ thống đang phát?
 
-这件事看似简单，实际非常难。因为真实用户说话不是朗读新闻稿：
+Việc này tưởng đơn giản, thực ra rất khó. Vì người dùng thật sự nói chuyện không phải đọc tin tức:
 
-- 句中会停顿：“这个问题……我想问一下……”
-- 会有短反馈：“嗯”“对”“不是”
-- 会边想边说，音量忽大忽小
-- 旁边可能有人说话，扬声器里也可能正在播放 AI 的声音
+- Giữa câu sẽ ngừng: "Vấn đề này... tôi muốn hỏi một chút..."
+- Sẽ có phản hồi ngắn: "Ừ", "Đúng", "Không phải"
+- Vừa nghĩ vừa nói, âm lượng lúc to lúc nhỏ
+- Bên cạnh có thể có người nói chuyện, loa cũng đang phát âm thanh AI
 
-**端侧 VAD 还是服务端 VAD？**
+**Client VAD hay Server-side VAD?**
 
-| 类型       | 代表方案                                      | 优势                     | 短板                                                    |
-| ---------- | --------------------------------------------- | ------------------------ | ------------------------------------------------------- |
-| 端侧 VAD   | WebRTC VAD、Silero VAD ⚠️、@ricky0123/vad-web | 响应快，不消耗服务端资源 | 需要在客户端部署模型；Silero 召回率约 86%，短语音检测弱 |
-| 服务端 VAD | DashScope ASR 内置、Whisper ASR 内置          | 不用管客户端             | 增加服务端负载，有网络延迟                              |
+| Loại            | Giải pháp tiêu biểu                           | Ưu điểm                                          | Nhược điểm                                                                        |
+| --------------- | --------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Client VAD      | WebRTC VAD, Silero VAD ⚠️, @ricky0123/vad-web | Phản hồi nhanh, không tiêu thụ tài nguyên server | Cần triển khai mô hình ở client; Silero recall ~86%, phát hiện giọng nói ngắn yếu |
+| Server-side VAD | Tích hợp sẵn trong DashScope ASR, Whisper ASR | Không cần quan tâm client                        | Tăng tải server, có độ trễ mạng                                                   |
 
-> ⚠️ **Silero VAD 局限**：采用保守策略以降低误报，代价是召回率约 86%，短语音（<1 秒如"嗯""对""不是"）检测能力明显下降。在语音 Agent 场景中，用户的短反馈和打断信号可能被漏检。如果打断响应性是核心指标，建议评估两级 VAD 方案或使用更平衡的检测器。
+> ⚠️ **Hạn chế của Silero VAD**: áp dụng chiến lược bảo thủ để giảm false positive, cái giá là recall ~86%, khả năng phát hiện giọng nói ngắn (<1 giây như "ừ", "đúng", "không phải") giảm đáng kể. Trong Voice Agent, tín hiệu phản hồi ngắn và ngắt lời của người dùng có thể bị bỏ sót. Nếu độ phản hồi ngắt lời là chỉ số cốt lõi, hãy xem xét giải pháp VAD hai tầng hoặc dùng detector cân bằng hơn.
 
-interview-guide 前端用的是 **@ricky0123/vad-web**，这是一个基于 ONNX 的端侧 VAD：
+Frontend của interview-guide dùng **@ricky0123/vad-web**, đây là client VAD dựa trên ONNX:
 
 ```typescript
 // AudioRecorder.tsx
@@ -203,81 +203,81 @@ const vadInstance = await window.vad.MicVAD.new({
 });
 ```
 
-**高频踩坑点**：端侧 VAD 触发 `onSpeechEnd` 后，不要以为用户真的说完了。最好再等 300-500ms 静音确认，避免把用户中途停顿当成结束。
+**Điểm dễ mắc lỗi tần suất cao**: sau khi client VAD trigger `onSpeechEnd`, đừng nghĩ người dùng đã thực sự nói xong. Tốt nhất đợi thêm 300-500ms im lặng để xác nhận, tránh nhầm lẫn khoảng ngừng giữa câu của người dùng thành kết thúc.
 
-我的建议是：**VAD 不要只当开关用，它应该输出一组对话控制信号**。比如：
+Khuyến nghị của tôi: **VAD không nên chỉ dùng như công tắc, nó nên output một tập tín hiệu điều khiển hội thoại**. Ví dụ:
 
-- `speech_start`：用户开始说话
-- `speech_end`：用户说完了（带置信度）
-- `maybe_barge_in`：可能是用户在打断
-- `noise_only`：只有噪声，没人说话
+- `speech_start`: người dùng bắt đầu nói
+- `speech_end`: người dùng nói xong (kèm độ tin cậy)
+- `maybe_barge_in`: có thể người dùng đang ngắt lời
+- `noise_only`: chỉ có tiếng ồn, không ai nói
 
-## 一次完整的语音对话是怎么跑起来的？
+## Một cuộc hội thoại giọng nói hoàn chỉnh chạy như thế nào?
 
-先把完整链路拆解清楚，后面讲细节才有上下文。
+Hãy phân tích rõ toàn bộ pipeline trước, phần sau mới có context để đi vào chi tiết.
 
-一次语音 Agent 对话大概经过这些步骤：
+Một vòng hội thoại Voice Agent đại khái trải qua những bước này:
 
-1. 音频采集：麦克风采集原始音频
-2. 前处理：AEC 消回声、NS 降噪、AGC 增益
-3. VAD 检测：判断用户是否在说话，是否说完
-4. 音频上传：把处理后的音频发到服务端
-5. ASR 转写：把音频转成文字（流式输出增量结果）
-6. 上下文组装：拼接系统指令、历史对话、工具定义
-7. LLM 推理：理解意图、生成回复、必要时调用工具
-8. TTS 合成：把回复文字转成音频（流式输出音频块）
-9. 音频下行：客户端边收边播
-10. 状态回写：记录本次对话，为下一轮准备上下文
+1. Thu âm: mic thu âm raw audio
+2. Tiền xử lý: AEC khử echo, NS khử nhiễu, AGC điều chỉnh gain
+3. Phát hiện VAD: phán đoán người dùng có đang nói không, có nói xong không
+4. Upload audio: gửi audio đã xử lý lên server
+5. ASR chuyển đổi: chuyển audio thành văn bản (output tăng dần dạng streaming)
+6. Lắp ghép context: ghép system instruction, lịch sử hội thoại, định nghĩa công cụ
+7. LLM inference: hiểu ý định, tạo câu trả lời, gọi công cụ khi cần
+8. TTS tổng hợp: chuyển văn bản câu trả lời thành audio (output audio chunk dạng streaming)
+9. Downstream audio: client nhận và phát đồng thời
+10. Ghi lại trạng thái: ghi lại hội thoại lần này, chuẩn bị context cho vòng tiếp theo
 
-**高频盲区**：实时语音不是等用户说完才开始工作的。
+**Điểm mù tần suất cao**: giọng nói thời gian thực không phải đợi người dùng nói xong mới bắt đầu làm việc.
 
-优秀的系统会尽量把可以提前做的事提前做：
+Hệ thống tốt sẽ cố làm trước những gì có thể làm trước:
 
-- 用户刚开始说话时，先加载会话状态和工具定义
-- ASR 出现稳定前缀后，提前做意图预判
-- LLM 输出第一个短句时，TTS 立刻开始合成
-- 工具调用较慢时，先播一句自然的过渡语
+- Khi người dùng vừa bắt đầu nói, load trạng thái phiên và định nghĩa công cụ trước
+- Sau khi ASR có tiền tố ổn định, phán đoán ý định trước
+- Khi LLM output câu ngắn đầu tiên, TTS bắt đầu tổng hợp ngay
+- Khi gọi công cụ chậm, phát một câu chuyển tiếp tự nhiên trước
 
-核心做法是**用并行和流式把等待时间藏起来**。
+Cách làm cốt lõi là **dùng parallel và streaming để ẩn thời gian chờ**.
 
-## 实时语音为什么比文字对话难这么多？
+## Tại sao giọng nói thời gian thực khó hơn đối thoại văn bản nhiều vậy?
 
-这是本文的核心问题。让我拆成五个维度来讲。
+Đây là câu hỏi cốt lõi của bài. Hãy phân tích thành năm chiều.
 
-### 难点一：延迟预算非常紧
+### Khó khăn 1: Ngân sách độ trễ rất chặt
 
-文本聊天慢 1 秒，用户通常还能忍。语音对话慢 1 秒，用户会明显感觉对方“没反应”。
+Chat văn bản chậm 1 giây, người dùng thường còn chịu được. Hội thoại giọng nói chậm 1 giây, người dùng sẽ rõ ràng cảm thấy đối phương "không phản hồi".
 
-一轮语音交互的延迟来自这些环节：
+Độ trễ của một vòng tương tác giọng nói đến từ những khâu này:
 
-| 环节         | 常见耗时                            | 优化方向                       |
-| ------------ | ----------------------------------- | ------------------------------ |
-| 采集与编码   | 音频帧大小、浏览器缓冲              | 小帧采集，减少无意义缓冲       |
-| VAD 端点检测 | 等待静音确认用户说完                | 动态静音阈值，短句快速提交     |
-| ASR          | 音频上传、解码、增量转写稳定        | 流式 ASR，热词，端侧预处理     |
-| LLM          | 首 token 延迟、工具调用、上下文过长 | Prompt 缓存，短回复，异步工具  |
-| TTS          | 首包合成、长句切分、声码器推理      | 句子级流式合成，预热音色       |
-| 播放         | 网络抖动、解码、播放器缓冲          | WebRTC jitter buffer，边收边播 |
+| Khâu                   | Thời gian thông thường                               | Hướng tối ưu                                    |
+| ---------------------- | ---------------------------------------------------- | ----------------------------------------------- |
+| Thu âm và mã hóa       | Kích thước audio frame, buffer browser               | Frame nhỏ, giảm buffer vô nghĩa                 |
+| Phát hiện endpoint VAD | Đợi im lặng xác nhận người dùng nói xong             | Ngưỡng im lặng động, submit câu ngắn nhanh      |
+| ASR                    | Upload audio, decode, ổn định transcription tăng dần | Streaming ASR, hot word, tiền xử lý phía client |
+| LLM                    | Độ trễ token đầu, gọi công cụ, context quá dài       | Prompt cache, câu trả lời ngắn, async tool      |
+| TTS                    | Tổng hợp chunk đầu, cắt câu dài, inference vocoder   | Tổng hợp streaming cấp câu, warm up giọng       |
+| Phát                   | Jitter mạng, decode, buffer player                   | WebRTC jitter buffer, nhận và phát đồng thời    |
 
-如果每段都多 200ms，整轮对话马上就变成“慢半拍”。
+Nếu mỗi đoạn thêm 200ms, cả vòng hội thoại ngay lập tức thành "chậm nửa nhịp".
 
-所以实时语音优化的目标不是让某一个组件跑到理论上限，而是**端到端 P95/P99 延迟稳定**。用户感受到的是整条链路，不是某个模型的 benchmark。
+Vì vậy mục tiêu tối ưu giọng nói thời gian thực không phải là đẩy một component nào đó đến giới hạn lý thuyết, mà là **độ trễ P95/P99 end-to-end ổn định**. Người dùng cảm nhận là cả pipeline, không phải benchmark của một mô hình nào đó.
 
-### 难点二：打断处理不是暂停按钮
+### Khó khăn 2: Xử lý ngắt lời không phải nút tạm dừng
 
-语音 Agent 必须支持 **Barge-in（插话打断）**。
+Voice Agent bắt buộc phải hỗ trợ **Barge-in (chen vào ngắt lời)**.
 
-用户说“等一下，不是这个意思”，系统需要同时做几件事：
+Người dùng nói "đợi đã, không phải ý này", hệ thống cần đồng thời làm nhiều việc:
 
-1. 识别出这是用户在说话，而不是背景噪声或扬声器回声
-2. 立即停止本地播放队列，不能继续把旧回答播完
-3. 取消服务端仍在生成的 LLM 和 TTS 流
-4. 把已经播放、未播放、被打断的内容写进对话状态
-5. 用新的用户音频开启下一轮理解
+1. Nhận ra đây là người dùng đang nói, không phải tiếng ồn nền hay echo loa
+2. Lập tức dừng hàng đợi phát âm cục bộ, không thể tiếp tục phát hết câu trả lời cũ
+3. Hủy luồng LLM và TTS đang sinh trên server
+4. Ghi nội dung đã phát, chưa phát, bị ngắt vào trạng thái hội thoại
+5. Mở vòng hiểu tiếp theo với audio mới của người dùng
 
-很多系统打断失败，不是因为 VAD 不准，而是**状态机没设计好**。比如播放器停了，但服务端 TTS 还在推流；LLM 停了，但历史里已经把未播出的回答记成了“已说过”。
+Nhiều hệ thống ngắt lời thất bại, không phải vì VAD không chính xác, mà vì **state machine thiết kế không tốt**. Ví dụ player đã dừng, nhưng TTS server vẫn đang stream; LLM đã dừng, nhưng lịch sử đã ghi câu trả lời chưa phát là "đã nói rồi".
 
-interview-guide 的做法是：
+Cách làm của interview-guide:
 
 ```typescript
 // VoiceInterviewPage.tsx
@@ -292,24 +292,24 @@ const handleAudioData = (audioData: string) => {
 };
 ```
 
-前端通过 `isAiSpeakingRef` 标记 AI 是否在说话，说话时停发音频。后端收到 `control` 消息取消生成。
+Frontend dùng `isAiSpeakingRef` đánh dấu AI có đang nói không, khi đang nói thì ngừng gửi audio. Backend nhận message `control` để hủy sinh.
 
-### 难点三：噪声环境比测试环境复杂太多
+### Khó khăn 3: Môi trường nhiễu phức tạp hơn môi trường test nhiều
 
-语音 Demo 往往在安静办公室里跑，生产环境可能是：
+Voice Demo thường chạy trong văn phòng yên tĩnh, nhưng môi trường production có thể là:
 
-- 车内、工厂、商场、地铁站
-- 远场麦克风，用户离设备两三米
-- 多人同时说话
-- 用户开着外放，AI 的声音又被麦克风收回去
+- Trong xe, nhà máy, trung tâm thương mại, ga tàu điện ngầm
+- Mic xa, người dùng cách thiết bị hai ba mét
+- Nhiều người nói cùng lúc
+- Người dùng bật ngoài, âm thanh AI lại bị mic thu vào
 
-这会影响整条链路：
+Điều này ảnh hưởng đến cả pipeline:
 
-- VAD 把噪声当成人声，导致误触发
-- ASR 把背景人声转成文本，污染用户意图
-- TTS 播放被麦克风采集，造成自我打断
+- VAD nhầm tiếng ồn với giọng người, gây trigger sai
+- ASR chuyển giọng nói nền thành văn bản, làm nhiễu ý định người dùng
+- TTS phát bị mic thu, gây tự ngắt lời
 
-interview-guide 前端通过 `getUserMedia` 配置了三板斧：
+Frontend interview-guide đã cấu hình "ba bảo bối" qua `getUserMedia`:
 
 ```typescript
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -322,24 +322,24 @@ const stream = await navigator.mediaDevices.getUserMedia({
 });
 ```
 
-这三个参数能解决一部分问题，但**不能迷信它们**。WebRTC 的 AEC 在强回声场景下效果有限，NS 可能把用户声音也削掉一截。如果你要做硬件或 App 方案，端侧音频前处理会变成非常现实的工程投入。
+Ba tham số này có thể giải quyết một phần vấn đề, nhưng **đừng quá tin vào chúng**. AEC của WebRTC có hiệu quả hạn chế trong tình huống echo mạnh, NS có thể cắt bớt cả giọng người dùng. Nếu bạn làm giải pháp hardware hoặc App, tiền xử lý audio phía client sẽ trở thành khoản đầu tư kỹ thuật rất thực tế.
 
-### 难点四：上下文不只是文字历史
+### Khó khăn 4: Context không chỉ là lịch sử văn bản
 
-文本 Agent 的上下文主要是消息历史。语音 Agent 的上下文更多：
+Context của text Agent chủ yếu là lịch sử message. Context của Voice Agent nhiều hơn:
 
-- 当前用户是否正在说话
-- 上一段回答播放到了哪里
-- 用户是正常提问，还是正在打断
-- ASR 的增量文本是否稳定
-- 用户语气是疑问、否定、犹豫，还是不耐烦
-- 当前是否有工具调用正在执行
+- Người dùng hiện tại có đang nói không
+- Câu trả lời lần trước phát đến đâu rồi
+- Người dùng đang hỏi bình thường hay đang ngắt lời
+- ASR text tăng dần có ổn định không
+- Giọng điệu người dùng là nghi vấn, phủ định, do dự hay thiếu kiên nhẫn
+- Có tool call nào đang thực thi không
 
-如果只把最终 ASR 文本喂给 LLM，很多信息会丢掉。
+Nếu chỉ feed text ASR cuối cùng cho LLM, nhiều thông tin sẽ bị mất.
 
-比如用户说“不是……我是说上个月那笔订单”，文本里能看到纠正，但看不到他是在打断 AI；系统如果不知道上一段回答播到哪里，就很难知道用户在否定哪一句。
+Ví dụ người dùng nói "không phải... ý tôi là đơn hàng tháng trước đó", trong văn bản có thể thấy sự sửa chữa, nhưng không thấy anh ta đang ngắt AI; nếu hệ thống không biết câu trả lời lần trước phát đến đâu, rất khó biết người dùng đang phủ định câu nào.
 
-interview-guide 用 WebSocket 消息类型区分了不同状态：
+interview-guide dùng kiểu message WebSocket để phân biệt các trạng thái khác nhau:
 
 ```typescript
 // voiceInterview.ts
@@ -362,13 +362,13 @@ export interface WebSocketControlMessage {
 }
 ```
 
-前端根据 `isFinal` 判断用户是否真的说完了，避免把用户中途停顿当成确认。
+Frontend dựa vào `isFinal` để phán đoán người dùng có thực sự nói xong không, tránh nhầm khoảng ngừng giữa chừng của người dùng thành xác nhận.
 
-### 难点五：回声导致的误打断
+### Khó khăn 5: Tự ngắt lời do echo
 
-还有一个高频踩坑点：**AI 播放的声音被麦克风采集后，VAD 或 ASR 会误判为用户说话，导致 AI 自我打断**。
+Còn một điểm dễ mắc lỗi tần suất cao: **âm thanh AI đang phát bị mic thu vào, VAD hoặc ASR sẽ phán đoán nhầm là người dùng đang nói, khiến AI tự ngắt lời**.
 
-interview-guide 的当前做法是：
+Cách làm hiện tại của interview-guide:
 
 ```typescript
 if (isAiSpeakingRef.current) {
@@ -376,32 +376,32 @@ if (isAiSpeakingRef.current) {
 }
 ```
 
-这种”静默丢弃”的方案确实避免了自我打断，但代价是**用户在 AI 说话期间的真正打断也被屏蔽了**。
+Giải pháp "loại bỏ im lặng" này xác thực tránh được tự ngắt lời, nhưng cái giá là **tín hiệu ngắt lời thực sự của người dùng trong khi AI nói cũng bị chặn**.
 
-更精细的方案：
+Giải pháp tinh tế hơn:
 
-- AI 说话时继续接收音频，但不发到 ASR
-- 在 AEC 处理后的音频上运行端侧 VAD，而非原始麦克风音频
-- 用能量阈值区分用户人声（通常 > -20dB）和回声残余
+- Khi AI nói tiếp tục nhận audio, nhưng không gửi đến ASR
+- Chạy client VAD trên audio sau khi AEC xử lý, không phải raw audio mic
+- Dùng ngưỡng năng lượng để phân biệt giọng người dùng (thường > -20dB) và echo residual
 
-### 难点六：端侧能力决定体验下限
+### Khó khăn 6: Khả năng phía client quyết định mức tối thiểu trải nghiệm
 
-很多团队把所有能力都放云端，结果在弱网环境下体验崩得很快。
+Nhiều team đặt tất cả năng lực lên cloud, kết quả là trải nghiệm sụp đổ nhanh trong môi trường mạng yếu.
 
-端侧至少应该承担这些职责：
+Phía client ít nhất phải đảm nhận những trách nhiệm này:
 
-- 麦克风采集和音频前处理
-- VAD 或轻量打断检测
-- 播放缓冲和取消播放
-- 网络断开时的提示和重连
+- Thu âm mic và tiền xử lý audio
+- VAD hoặc phát hiện ngắt lời nhẹ
+- Buffer phát và hủy phát
+- Thông báo và kết nối lại khi mạng gián đoạn
 
-云端模型决定上限，端侧工程决定下限。这句话在语音系统里尤其明显。
+Mô hình cloud quyết định mức tối đa, kỹ thuật phía client quyết định mức tối thiểu. Câu này đặc biệt rõ ràng trong hệ thống giọng nói.
 
-## 从 interview-guide 看基础版语音 Agent 是怎么实现的？
+## Nhìn qua interview-guide: Voice Agent cơ bản được triển khai như thế nào?
 
-说了这么多概念，来点实际的。我以 interview-guide 项目为例，讲解一个最基础的语音面试 Agent 是怎么跑起来的。
+Đã nói nhiều khái niệm, giờ đến phần thực tế. Tôi lấy dự án interview-guide làm ví dụ, giải thích cách một Voice Agent phỏng vấn cơ bản nhất chạy được.
 
-### 整体架构
+### Kiến trúc tổng thể
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -429,11 +429,11 @@ if (isAiSpeakingRef.current) {
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 前端：音频采集与 VAD
+### Frontend: Thu âm và VAD
 
-前端的核心是 `AudioRecorder` 组件。它做了这么几件事：
+Phần cốt lõi frontend là component `AudioRecorder`. Nó làm những việc sau:
 
-**第一步，获取麦克风权限并配置音频参数：**
+**Bước 1, lấy quyền mic và cấu hình tham số audio:**
 
 ```typescript
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -446,7 +446,7 @@ const stream = await navigator.mediaDevices.getUserMedia({
 });
 ```
 
-**第二步，初始化端侧 VAD：**
+**Bước 2, khởi tạo client VAD:**
 
 ```typescript
 const vadInstance = await window.vad.MicVAD.new({
@@ -461,9 +461,9 @@ const vadInstance = await window.vad.MicVAD.new({
 await vadInstance.start();
 ```
 
-**第三步，使用 AudioWorklet 做音频分块采集：**
+**Bước 3, dùng AudioWorklet để thu âm theo chunk:**
 
-VAD 的 `onSpeechEnd` 只是告诉你用户可能说完了，真正的音频还是要分块发送给服务端。interview-guide 的实现是：
+`onSpeechEnd` của VAD chỉ cho bạn biết người dùng có thể đã nói xong, audio thực tế vẫn cần gửi theo chunk cho server. Cách triển khai của interview-guide:
 
 ```typescript
 await audioContext.audioWorklet.addModule("/audio-worklet/pcm-processor.js");
@@ -482,19 +482,19 @@ workletNode.connect(gainNode);
 gainNode.connect(audioContext.destination);
 ```
 
-`pcm-processor.js` 运行在音频渲染线程中，负责把浏览器输入的 Float32 音频重采样成 16kHz、Int16 PCM，并按 200ms 一块通过 `postMessage` 交回主线程。相比已经废弃的 `ScriptProcessorNode`，`AudioWorkletNode` 不会把音频处理压在 UI 主线程上，延迟和卡顿风险更低。
+`pcm-processor.js` chạy trong audio rendering thread, chịu trách nhiệm resample audio Float32 từ browser thành 16kHz, Int16 PCM, và gửi về main thread qua `postMessage` theo từng block 200ms. So với `ScriptProcessorNode` đã deprecated, `AudioWorkletNode` không áp xử lý audio lên UI main thread, nguy cơ độ trễ và giật giảm hơn.
 
-这里有个设计选择：**为什么不等 VAD 触发 `onSpeechEnd` 再发音频？**
+Có một lựa chọn thiết kế ở đây: **tại sao không đợi VAD trigger `onSpeechEnd` rồi mới gửi audio?**
 
-因为 VAD 检测有延迟，等它确认用户说完了再开始发音频，会白白多等 400-600ms。更好的做法是**持续分块发送**，VAD 触发 `onSpeechEnd` 只是告诉后端“这一段说完了，可以提交给 LLM 了”。
+Vì phát hiện VAD có độ trễ, đợi nó xác nhận người dùng nói xong rồi mới bắt đầu gửi audio, sẽ thêm tổng cộng 400-600ms trống. Cách tốt hơn là **liên tục gửi theo chunk**, VAD trigger `onSpeechEnd` chỉ để báo cho backend "đoạn này nói xong rồi, có thể submit cho LLM".
 
-不过，interview-guide 的语音面试不是“检测到静音就自动提交”，而是**ASR 持续转写、用户手动点击提交**。这样可以避免候选人中途停顿时被系统抢答，也能解决“后面的话覆盖前面的回答”的体验问题：前端只把 ASR 结果作为回答草稿，真正进入下一轮面试由 `submit` 控制消息决定。
+Tuy nhiên, phỏng vấn giọng nói của interview-guide không phải "phát hiện im lặng là tự động submit", mà là **ASR liên tục transcribe, người dùng bấm nút submit thủ công**. Cách này tránh được hệ thống "cướp lời" khi ứng viên ngừng nửa chừng, cũng giải quyết vấn đề trải nghiệm "câu sau ghi đè câu trước": frontend chỉ dùng kết quả ASR làm bản nháp câu trả lời, thực sự vào vòng phỏng vấn tiếp theo được quyết định bởi control message `submit`.
 
-### 前端：音频播放
+### Frontend: Phát audio
 
-interview-guide 用了两种音频播放模式：
+interview-guide dùng hai chế độ phát audio:
 
-**模式一：HTMLAudioElement（简单场景）：**
+**Chế độ 1: HTMLAudioElement (tình huống đơn giản):**
 
 ```typescript
 // VoiceInterviewPage.tsx
@@ -514,7 +514,7 @@ const onAudioResponse = (audioData: string, text: string) => {
 };
 ```
 
-**模式二：AudioContext 分块播放（更精细控制）：**
+**Chế độ 2: AudioContext phát theo chunk (kiểm soát tinh tế hơn):**
 
 ```typescript
 // 分块处理
@@ -561,15 +561,15 @@ const playNextChunk = () => {
 };
 ```
 
-分块播放的好处是**能更快开始播放**，不用等完整音频文件加载完。但代价是实现复杂度更高，要自己管理队列和状态。
+Lợi ích của phát theo chunk là **có thể bắt đầu phát nhanh hơn**, không cần đợi toàn bộ file audio tải xong. Nhưng cái giá là độ phức tạp triển khai cao hơn, phải tự quản lý hàng đợi và trạng thái.
 
-新版实现里，服务端还会在所有 TTS 分片发送完成后额外推一个 `audio_complete` 控制消息。这样前端不再依赖某个音频分片必须带 `isLast=true`，即使某一句 TTS 合成失败，也能在已成功分片播放完后正确结束“面试官正在说话”的状态。
+Trong implementation mới, server còn push thêm một control message `audio_complete` sau khi tất cả TTS fragment được gửi xong. Như vậy frontend không còn phụ thuộc vào TTS fragment cuối phải có `isLast=true`, kể cả khi một câu TTS tổng hợp thất bại, cũng có thể kết thúc đúng trạng thái "giám khảo đang nói" sau khi các fragment thành công phát xong.
 
-> ⚠️ **注意**：浏览器要求 AudioContext 必须在用户交互后创建或恢复（autoplay policy）。如果在页面加载时创建 AudioContext，大多数浏览器会将其置于 `suspended` 状态。建议在用户点击"开始面试"按钮时调用 `audioContext.resume()` 确保播放正常。
+> ⚠️ **Lưu ý**: Browser yêu cầu AudioContext phải được tạo hoặc resume sau tương tác người dùng (autoplay policy). Nếu tạo AudioContext khi page load, hầu hết browser sẽ đặt nó ở trạng thái `suspended`. Khuyến nghị gọi `audioContext.resume()` khi người dùng bấm nút "Bắt đầu phỏng vấn" để đảm bảo phát bình thường.
 
-### 后端：WebSocket 会话管理
+### Backend: Quản lý phiên WebSocket
 
-后端通过 `VoiceInterviewWebSocketHandler` 管理会话生命周期：
+Backend quản lý vòng đời phiên qua `VoiceInterviewWebSocketHandler`:
 
 ```java
 // VoiceInterviewWebSocketHandler.java
@@ -593,19 +593,19 @@ public class VoiceInterviewWebSocketHandler {
 }
 ```
 
-interview-guide 的会话状态机：
+State machine phiên của interview-guide:
 
-| 状态        | 含义                           | 可转换到          |
-| ----------- | ------------------------------ | ----------------- |
-| IN_PROGRESS | 面试进行中                     | PAUSED, COMPLETED |
-| PAUSED      | 暂停（用户离开页面或主动暂停） | IN_PROGRESS       |
-| COMPLETED   | 面试结束                       | -                 |
+| Trạng thái  | Ý nghĩa                                                | Có thể chuyển sang |
+| ----------- | ------------------------------------------------------ | ------------------ |
+| IN_PROGRESS | Phỏng vấn đang tiến hành                               | PAUSED, COMPLETED  |
+| PAUSED      | Tạm dừng (người dùng rời trang hoặc chủ động tạm dừng) | IN_PROGRESS        |
+| COMPLETED   | Phỏng vấn kết thúc                                     | -                  |
 
-暂停/恢复机制很有用。比如用户接电话、切换标签页，可以暂停面试，回来后无缝继续。
+Cơ chế tạm dừng/tiếp tục rất hữu ích. Ví dụ người dùng nghe điện thoại, chuyển tab, có thể tạm dừng phỏng vấn, quay lại tiếp tục liền mạch.
 
-### 后端：ASR 服务
+### Backend: ASR service
 
-后端的 ASR 服务封装了阿里云 DashScope 的接口：
+ASR service backend đóng gói interface DashScope của Alibaba Cloud:
 
 ```java
 // QwenAsrService.java
@@ -641,9 +641,9 @@ public void sendAudio(String sessionId, byte[] audioData) {
 }
 ```
 
-这一步很关键。早期版本里，前端 WebSocket 一连上就允许用户点麦克风，但 DashScope ASR 的会话还没完全 ready，导致“第一题能说、第二题录不到”这类问题。现在后端在 `updateSession` 完成后才发送 `asr_ready`，前端在此之前禁用麦克风；如果 10 秒后仍未 ready，后端会自动重连 ASR，并推送 `asr_reconnecting` 给前端。
+Bước này rất quan trọng. Trong phiên bản trước, WebSocket frontend kết nối xong cho phép người dùng bấm mic ngay, nhưng phiên DashScope ASR chưa hoàn toàn sẵn sàng, gây ra vấn đề như "câu đầu nói được, câu hai không thu được". Bây giờ backend chỉ gửi `asr_ready` sau khi `updateSession` hoàn thành, frontend tắt mic trước đó; nếu sau 10 giây vẫn chưa ready, backend sẽ tự động kết nối lại ASR và push `asr_reconnecting` cho frontend.
 
-服务端返回识别结果时，Handler 会把增量文字推送给前端：
+Khi server trả về kết quả nhận dạng, Handler push text tăng dần cho frontend:
 
 ```java
 // WebSocket 推送增量文字
@@ -654,7 +654,7 @@ websocket.sendMessage(new WebSocketSubtitleMessage(
 ));
 ```
 
-### 后端：TTS 服务
+### Backend: TTS service
 
 ```java
 // QwenTtsService.java
@@ -682,7 +682,7 @@ public byte[] synthesize(String text) {
 }
 ```
 
-Handler 拿到 PCM 数据后，转成 WAV 推送给前端：
+Sau khi Handler lấy được dữ liệu PCM, chuyển thành WAV push cho frontend:
 
 ```java
 // LLM 每输出一个完整句子，就提交给并发 TTS 队列
@@ -696,19 +696,19 @@ chunkEmitter.finish();
 chunkEmitter.awaitCompletion();
 ```
 
-这里的重点不是“把整段回复一次性合成完”，而是**LLM 边生成句子，TTS 边合成，前端边播放**。后端用 `max-concurrent-tts-per-session` 控制单会话并发 TTS 数量，用 `tts-timeout-seconds` 避免某一句卡住整轮播放；如果所有句子级 TTS 都失败，再退回整段文本合成兜底。
+Điểm mấu chốt ở đây không phải "tổng hợp toàn bộ câu trả lời một lần", mà là **LLM vừa sinh câu, TTS vừa tổng hợp, frontend vừa phát**. Backend dùng `max-concurrent-tts-per-session` kiểm soát số TTS đồng thời mỗi phiên, dùng `tts-timeout-seconds` tránh một câu nào đó chặn cả vòng phát; nếu tất cả TTS cấp câu đều thất bại, lùi về tổng hợp toàn bộ văn bản để backup.
 
-## 怎么让语音 Agent 支持打断？
+## Làm thế nào để Voice Agent hỗ trợ ngắt lời?
 
-打断是语音 Agent 的高频难点。让我专门讲清楚。
+Ngắt lời là điểm khó tần suất cao của Voice Agent. Hãy giải thích rõ ràng.
 
-### 打断的三层含义
+### Ba tầng ý nghĩa của ngắt lời
 
-1. **播放层打断**：用户说话时，停止当前音频播放
-2. **生成层打断**：取消服务端正在生成的 LLM 和 TTS
-3. **上下文层打断**：正确记录已播放和未播放的内容
+1. **Tầng phát**: khi người dùng nói, dừng phát audio hiện tại
+2. **Tầng sinh**: hủy LLM và TTS đang sinh trên server
+3. **Tầng context**: ghi lại chính xác nội dung đã phát và chưa phát
 
-interview-guide 的打断逻辑：
+Logic ngắt lời của interview-guide:
 
 ```typescript
 // 前端：检测到用户说话时停止播放
@@ -732,41 +732,41 @@ const finishAiPlayback = () => {
 };
 ```
 
-关键设计是：打断不是“暂停”，而是“取消”。已播放的内容记为“已说”，未播放的内容不记。
+Thiết kế then chốt là: ngắt lời không phải "tạm dừng", mà là "hủy bỏ". Nội dung đã phát được ghi là "đã nói", nội dung chưa phát không được ghi.
 
-### 状态机视角的打断
+### Ngắt lời từ góc độ state machine
 
-从状态机角度看，打断是一个几乎可以从任何状态进入的控制事件：
+Nhìn từ góc độ state machine, ngắt lời là một sự kiện điều khiển có thể vào từ gần như bất kỳ trạng thái nào:
 
-| 当前状态     | 用户打断     | 正确响应                       |
-| ------------ | ------------ | ------------------------------ |
-| listening    | 用户插话     | 丢弃当前音频，重新开始识别     |
-| thinking     | 用户补充     | 取消当前推理，用新输入重新触发 |
-| speaking     | 用户插话     | 停止播放，清空队列             |
-| tool_calling | 用户说“算了” | 取消工具调用，或停止后续播报   |
+| Trạng thái hiện tại | Người dùng ngắt lời   | Phản hồi đúng                                     |
+| ------------------- | --------------------- | ------------------------------------------------- |
+| listening           | Người dùng chen vào   | Loại bỏ audio hiện tại, bắt đầu nhận dạng lại     |
+| thinking            | Người dùng bổ sung    | Hủy inference hiện tại, trigger lại với input mới |
+| speaking            | Người dùng chen vào   | Dừng phát, xóa hàng đợi                           |
+| tool_calling        | Người dùng nói "thôi" | Hủy gọi công cụ, hoặc dừng thông báo tiếp theo    |
 
-如果你的系统没有清晰的取消语义，很快就会出现“AI 一边听新问题，一边还在播旧答案”的混乱体验。
+Nếu hệ thống không có ngữ nghĩa hủy rõ ràng, rất nhanh sẽ xuất hiện trải nghiệm lộn xộn "AI vừa nghe câu hỏi mới, vừa đang phát câu trả lời cũ".
 
-## 浏览器音频捕获与前处理在语音系统中扮演什么角色？
+## Browser audio capture và tiền xử lý đóng vai trò gì trong hệ thống giọng nói?
 
-很多文章把 WebRTC 当成“浏览器音视频通话的标准”，讲得很抽象。更准确的说法是：浏览器提供了一套**音频捕获和前处理**能力，语音 Agent 场景主要用的是 `getUserMedia` API。
+Nhiều bài viết coi WebRTC như "tiêu chuẩn cho cuộc gọi audio-video trên browser", giải thích rất trừu tượng. Nói chính xác hơn là: browser cung cấp một bộ khả năng **thu âm và tiền xử lý audio**, Voice Agent chủ yếu dùng `getUserMedia` API.
 
-**重要区分**：
+**Phân biệt quan trọng**:
 
-- **Media Capture and Streams API**（`getUserMedia`）：负责从麦克风采集音频，可以配置 AEC/NS/AGC 等前处理。这是 interview-guide 实际使用的。
-- **WebRTC 协议**（RTCPeerConnection）：负责端到端的实时传输，包含 ICE、DTLS-SRTP、RTP 等协议。如果你用 OpenAI Realtime API（WebRTC 模式）或 Azure Voice Live，才需要这套东西。
+- **Media Capture and Streams API** (`getUserMedia`): chịu trách nhiệm thu âm từ mic, có thể cấu hình tiền xử lý AEC/NS/AGC. Đây là thứ interview-guide thực sự sử dụng.
+- **WebRTC protocol** (RTCPeerConnection): chịu trách nhiệm truyền tải thời gian thực end-to-end, bao gồm ICE, DTLS-SRTP, RTP và các protocol khác. Bạn mới cần cái này nếu dùng OpenAI Realtime API (chế độ WebRTC) hoặc Azure Voice Live.
 
-interview-guide 的音频通路是：
+Pipeline audio của interview-guide là:
 
 ```
 getUserMedia → AudioWorklet → Base64 编码 → WebSocket 发送
 ```
 
-这套通路的传输层是 **WebSocket（TCP）**，不是 WebRTC 的 **RTP（UDP）**。WebSocket 保证顺序但可能有 TCP 重传延迟；WebRTC 的 UDP 传输更快但丢包不重传。
+Tầng truyền tải của pipeline này là **WebSocket (TCP)**, không phải **RTP (UDP)** của WebRTC. WebSocket đảm bảo thứ tự nhưng có thể có độ trễ TCP retransmission; UDP của WebRTC nhanh hơn nhưng mất gói không retransmit.
 
-### 浏览器音频前处理管线
+### Pipeline tiền xử lý audio của browser
 
-在语音 Agent 场景下，你主要用到浏览器音频前处理的这些能力：
+Trong Voice Agent, bạn chủ yếu dùng những khả năng tiền xử lý audio browser này:
 
 ```
 麦克风输入
@@ -795,9 +795,9 @@ getUserMedia → AudioWorklet → Base64 编码 → WebSocket 发送
 编码输出
 ```
 
-### getUserMedia 的配置选择
+### Lựa chọn cấu hình getUserMedia
 
-interview-guide 用的是最基础的 `getUserMedia` 配置：
+interview-guide dùng cấu hình `getUserMedia` cơ bản nhất:
 
 ```typescript
 navigator.mediaDevices.getUserMedia({
@@ -810,100 +810,100 @@ navigator.mediaDevices.getUserMedia({
 });
 ```
 
-但这不是唯一选择，不同场景有不同权衡：
+Nhưng đây không phải lựa chọn duy nhất, các tình huống khác nhau có sự đánh đổi khác nhau:
 
-| 参数             | true                             | false                          | 建议                                 |
-| ---------------- | -------------------------------- | ------------------------------ | ------------------------------------ |
-| echoCancellation | 消除扬声器回声，但会损失部分音质 | 保留原始音质，但需要自己做 AEC | 开                                   |
-| noiseSuppression | 压低噪声，但可能把用户声音也削掉 | 需要自己做 NS                  | 环境嘈杂时开，安静时关               |
-| autoGainControl  | 自动调整音量到合适范围           | 依赖麦克风原始音量             | 开                                   |
-| sampleRate       | 越高音质越好，但数据量越大       | 16kHz 对 ASR 够用              | ASR 用 16kHz，TTS 输出可能需要 24kHz |
+| Tham số          | true                                                 | false                                           | Khuyến nghị                                 |
+| ---------------- | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------- |
+| echoCancellation | Khử echo loa, nhưng mất một phần chất lượng âm       | Giữ nguyên chất lượng âm, nhưng phải tự làm AEC | Bật                                         |
+| noiseSuppression | Giảm nhiễu, nhưng có thể cắt bớt giọng người dùng    | Phải tự làm NS                                  | Bật khi môi trường ồn, tắt khi yên tĩnh     |
+| autoGainControl  | Tự điều chỉnh âm lượng về mức phù hợp                | Phụ thuộc âm lượng mic gốc                      | Bật                                         |
+| sampleRate       | Càng cao chất lượng càng tốt, nhưng dữ liệu càng lớn | 16kHz đủ cho ASR                                | ASR dùng 16kHz, output TTS có thể cần 24kHz |
 
-**一个高频踩坑点**：WebRTC 的 AEC 能力在不同浏览器、不同设备上差异很大。Chrome 桌面版效果不错，但 Safari 和移动端可能大打折扣。如果你做的是生产级应用，建议**在多种设备和浏览器上测试 AEC 效果**。
+**Một điểm dễ mắc lỗi tần suất cao**: khả năng AEC của WebRTC khác nhau đáng kể trên các browser và thiết bị khác nhau. Phiên bản desktop Chrome hiệu quả tốt, nhưng Safari và mobile có thể kém xa. Nếu bạn làm ứng dụng production, khuyến nghị **test hiệu quả AEC trên nhiều thiết bị và browser**.
 
-### WebRTC 的局限性
+### Hạn chế của WebRTC
 
-WebRTC 适合浏览器场景，但如果你做的是 App 或硬件方案，它就不一定适用了。
+WebRTC phù hợp cho tình huống browser, nhưng nếu bạn làm App hoặc giải pháp hardware, nó không nhất thiết phù hợp.
 
-移动端 native 开发可以用：
+Mobile native development có thể dùng:
 
-- **iOS**：AVAudioEngine + 系统内置的音频处理
-- **Android**：AudioRecord + Oboe/AAudio，或者用 Google 的 WebRTC 库
+- **iOS**: AVAudioEngine + xử lý audio tích hợp hệ thống
+- **Android**: AudioRecord + Oboe/AAudio, hoặc dùng thư viện WebRTC của Google
 
-硬件场景（智能音箱、车载）通常需要专门的 DSP 芯片做前端处理，WebRTC 的软件方案满足不了延迟和功耗要求。
+Tình huống hardware (loa thông minh, xe hơi) thường cần chip DSP chuyên dụng cho tiền xử lý frontend, giải pháp software của WebRTC không đáp ứng được yêu cầu về độ trễ và tiêu thụ điện.
 
-## 级联链路和原生实时模型各有什么优劣？
+## Pipeline cascade và mô hình realtime native có ưu nhược điểm gì?
 
-这是选型时的核心问题。
+Đây là câu hỏi cốt lõi khi lựa chọn.
 
-### 方案一：级联式 ASR + LLM + TTS
+### Giải pháp 1: ASR + LLM + TTS cascade
 
 ```
 音频 -> VAD -> 流式 ASR -> LLM -> 流式 TTS -> 音频
 ```
 
-优点：
+Ưu điểm:
 
-- ASR 文本可以落库、审计、纠错
-- LLM 输入输出都是文本，方便复用现有 Agent 框架
-- TTS 可以独立替换音色和供应商
-- 每个组件都能单独压测和优化
+- Text ASR có thể lưu DB, audit, sửa lỗi
+- Input/output LLM đều là text, dễ tái sử dụng framework Agent hiện có
+- TTS có thể thay thế độc lập giọng và nhà cung cấp
+- Mỗi component có thể load test và tối ưu riêng
 
-缺点：
+Nhược điểm:
 
-- 每层都有延迟
-- ASR 错误会传导到 LLM
-- 文本中间层会丢失语气、停顿、情绪
-- 打断要跨 ASR、LLM、TTS、播放器统一取消
+- Mỗi tầng đều có độ trễ
+- Lỗi ASR truyền xuống LLM
+- Tầng trung gian văn bản mất giọng điệu, ngừng nghỉ, cảm xúc
+- Ngắt lời cần hủy đồng nhất qua ASR, LLM, TTS, player
 
-interview-guide 就是这套方案。它适合的场景：企业知识问答、客服工单、需要合规审计的业务系统。
+interview-guide dùng giải pháp này. Phù hợp cho: hỏi đáp kiến thức doanh nghiệp, ticket dịch vụ khách hàng, hệ thống nghiệp vụ cần audit tuân thủ.
 
-### 方案二：原生 Realtime Speech-to-Speech
+### Giải pháp 2: Realtime Speech-to-Speech native
 
 ```
 音频 -> 原生多模态模型 -> 音频
 ```
 
-代表方案：OpenAI Realtime API、Gemini Live API、阿里通义 Qwen-Omni。
+Giải pháp tiêu biểu: OpenAI Realtime API, Gemini Live API, Alibaba Tongyi Qwen-Omni.
 
-优点：
+Ưu điểm:
 
-- 更低的端到端延迟
-- 语气、停顿、情绪等副语言信息保留更多
-- 可以统一处理音频输入、文本事件、工具调用
+- Độ trễ end-to-end thấp hơn
+- Giữ lại nhiều thông tin cạnh ngôn ngữ như giọng điệu, ngừng nghỉ, cảm xúc
+- Có thể xử lý đồng nhất audio input, text event, gọi công cụ
 
-缺点：
+Nhược điểm:
 
-- 中间过程更黑盒，问题定位更依赖供应商日志
-- 文本审计和话术控制需要额外设计
-- 成本模型可能按音频 token 或时长计费
-- 如果业务强依赖私有化部署，供应商 API 未必满足要求
+- Quá trình trung gian hộp đen hơn, định vị vấn đề phụ thuộc log nhà cung cấp nhiều hơn
+- Audit văn bản và kiểm soát kịch bản cần thiết kế thêm
+- Mô hình chi phí có thể tính theo audio token hoặc thời lượng
+- Nếu nghiệp vụ phụ thuộc mạnh vào private deployment, API nhà cung cấp chưa chắc đáp ứng
 
-**连接方式选择**：
+**Lựa chọn phương thức kết nối**:
 
-OpenAI Realtime API 支持三种连接方式：
+OpenAI Realtime API hỗ trợ ba phương thức kết nối:
 
-| 连接方式  | 适用场景                                          |
-| --------- | ------------------------------------------------- |
-| WebRTC    | 浏览器和移动端应用，有更好的 NAT 穿透和抗抖动能力 |
-| WebSocket | 服务端到服务端的中间件场景，低延迟且可控          |
-| SIP       | VoIP 电话系统集成，适合呼叫中心、电话客服场景     |
+| Phương thức kết nối | Phù hợp với                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| WebRTC              | Ứng dụng browser và mobile, khả năng NAT traversal và chống jitter tốt hơn                |
+| WebSocket           | Tình huống middleware server-to-server, độ trễ thấp và kiểm soát được                     |
+| SIP                 | Tích hợp hệ thống điện thoại VoIP, phù hợp call center, dịch vụ khách hàng qua điện thoại |
 
-### 我的建议
+### Khuyến nghị của tôi
 
-高频、强实时、强自然感的语音产品，优先评估原生 Realtime API。强合规、强审计、强可控的业务场景，级联链路更稳。
+Sản phẩm giọng nói tần suất cao, thời gian thực mạnh, cảm giác tự nhiên mạnh, ưu tiên đánh giá Realtime API native. Tình huống nghiệp vụ tuân thủ mạnh, audit mạnh, kiểm soát mạnh, pipeline cascade ổn định hơn.
 
-**不要第一天就做端云混合**。先把一条链路跑通，再逐步替换。
+**Đừng làm end-cloud hybrid ngay từ ngày đầu**. Hãy chạy thông một pipeline trước, rồi dần dần thay thế.
 
-## 怎么在生产环境中优化语音系统？
+## Làm thế nào để tối ưu hệ thống giọng nói trong production?
 
-讲几个实战抓手。
+Nói về một số điểm tối ưu thực chiến.
 
-### 1. 缩短音频帧和提交粒度
+### 1. Giảm audio frame và độ phân giải submit
 
-实时音频通常按 10ms、20ms、30ms 分帧。帧太大延迟高，帧太小网络开销大。
+Audio thời gian thực thường chia frame 10ms, 20ms, 30ms. Frame quá lớn độ trễ cao, frame quá nhỏ overhead mạng lớn.
 
-interview-guide 的选择是 **200ms 分块**：
+Lựa chọn của interview-guide là **chunk 200ms**:
 
 ```typescript
 // pcm-processor.js
@@ -911,53 +911,53 @@ this.targetSampleRate = 16000;
 this.samplesPerChunk = 3200; // 200ms at 16kHz
 ```
 
-这意味着用户说完一句话，最快 400-600ms 后服务端才能开始识别。这个延迟能接受，但如果要做得更好，可以：
+Điều này có nghĩa là sau khi người dùng nói xong một câu, nhanh nhất 400-600ms sau server mới có thể bắt đầu nhận dạng. Độ trễ này có thể chấp nhận, nhưng nếu muốn tốt hơn, có thể:
 
-- 减小分块到 100ms
-- 前端先发一小段让 ASR“热启动”
-- 用服务端 VAD 的增量结果做流式 LLM 输入
+- Giảm chunk xuống 100ms
+- Frontend gửi một đoạn nhỏ trước để ASR "khởi động nóng"
+- Dùng kết quả tăng dần của server-side VAD làm input streaming cho LLM
 
-### 2. 让 LLM 先说短句
+### 2. Cho LLM nói câu ngắn trước
 
-语音回复不是写文章。用户不需要一上来听 500 字完整答案。
+Câu trả lời giọng nói không phải viết bài. Người dùng không cần nghe đầy đủ 500 chữ ngay từ đầu.
 
-更好的策略：
+Chiến lược tốt hơn:
 
-- 先输出确认语：“我看一下”
-- 工具调用期间播过渡语：“正在查最近一次订单”
-- 查到结果后再给结论
-- 长解释拆成多句，每句都能独立合成
+- Output câu xác nhận trước: "Để tôi xem"
+- Phát câu chuyển tiếp trong lúc gọi công cụ: "Đang tra đơn hàng gần nhất"
+- Đưa kết luận sau khi tra xong
+- Giải thích dài cắt thành nhiều câu, mỗi câu có thể tổng hợp độc lập
 
-### 3. TTS 按语义边界切分
+### 3. TTS cắt theo ranh giới ngữ nghĩa
 
-TTS 切分太碎听起来断断续续；切分太长首包延迟高。
+TTS cắt quá vụn nghe đứt gãy; cắt quá dài độ trễ chunk đầu cao.
 
-建议按优先级切：
+Khuyến nghị cắt theo thứ tự ưu tiên:
 
-1. 句号、问号、感叹号
-2. 分号、冒号
-3. 较长逗号短语
-4. 超长句强制切分
+1. Dấu chấm, chấm hỏi, chấm than
+2. Chấm phẩy, dấu hai chấm
+3. Cụm từ dấu phẩy dài
+4. Câu quá dài buộc phải cắt
 
-同时要避免把数字、英文缩写、代码名切坏。比如"GPT-4o-mini-tts"不能被随便拆成几段读。
+Đồng thời tránh cắt hỏng số, từ viết tắt tiếng Anh, tên code. Ví dụ "GPT-4o-mini-tts" không thể bị cắt tùy tiện thành mấy đoạn đọc.
 
-interview-guide 当前采用的就是这个思路：LLM 流式输出过程中，只要检测到一个完整句子，就立刻提交给 `OrderedTtsChunkEmitter` 做句子级 TTS。前端收到 `audio_chunk` 后立即入队播放，收到 `audio_complete` 后再等待播放队列自然清空。这样首段语音不需要等整段回答生成和合成结束。
+interview-guide hiện tại áp dụng ý tưởng này: trong quá trình LLM streaming output, chỉ cần phát hiện một câu hoàn chỉnh, lập tức submit cho `OrderedTtsChunkEmitter` để làm TTS cấp câu. Frontend nhận được `audio_chunk` thì vào hàng đợi phát ngay, nhận được `audio_complete` thì đợi hàng đợi phát tự nhiên hết. Như vậy âm thanh đoạn đầu không cần đợi toàn bộ câu trả lời sinh và tổng hợp xong.
 
-### 4. 控制上下文长度
+### 4. Kiểm soát độ dài context
 
-语音 Agent 很容易把所有转写、工具结果、播放状态都塞进上下文。短期看没事，长会话里会导致延迟和成本一起上涨。
+Voice Agent rất dễ nhồi tất cả transcription, kết quả công cụ, trạng thái phát vào context. Ngắn hạn không sao, trong hội thoại dài sẽ khiến độ trễ và chi phí cùng tăng.
 
-建议把上下文分成三层：
+Khuyến nghị chia context thành ba tầng:
 
-- **短期原文**：最近几轮完整转写和回答
-- **会话摘要**：用户目标、已确认事实、未完成事项
-- **事件状态**：当前播放进度、是否被打断、工具调用结果
+- **Văn bản gốc ngắn hạn**: transcription và câu trả lời đầy đủ vài vòng gần nhất
+- **Tóm tắt phiên**: mục tiêu người dùng, sự thật đã xác nhận, việc chưa hoàn thành
+- **Trạng thái sự kiện**: tiến độ phát hiện tại, có bị ngắt không, kết quả gọi công cụ
 
-LLM 不需要知道每个音频帧发生了什么，它需要知道和当前决策相关的高信噪比状态。
+LLM không cần biết mọi audio frame xảy ra gì, nó cần biết trạng thái tỷ lệ tín hiệu-nhiễu cao liên quan đến quyết định hiện tại.
 
-### 5. 全链路可观测
+### 5. Observability toàn pipeline
 
-interview-guide 用 Redis 做会话状态缓存：
+interview-guide dùng Redis làm cache trạng thái phiên:
 
 ```java
 // VoiceInterviewService.java
@@ -970,108 +970,108 @@ private void cacheSession(VoiceInterviewSessionEntity session) {
 }
 ```
 
-生产环境还要记录：
+Môi trường production còn cần ghi lại:
 
-- 上行音频时长
-- 有效人声时长
-- ASR token 或分钟数
-- LLM 输入输出 token
-- TTS 字符数、音频秒数、被打断秒数
-- 每轮端到端延迟和取消次数
+- Thời lượng audio upstream
+- Thời lượng giọng người hữu ích
+- ASR token hoặc số phút
+- Input/output token LLM
+- Số ký tự TTS, số giây audio, số giây bị ngắt
+- Độ trễ end-to-end và số lần hủy mỗi vòng
 
-没有这些指标，语音 Agent 的成本会很难收敛。
+Không có những chỉ số này, chi phí Voice Agent rất khó hội tụ.
 
-## 语音 Agent 还能怎么演进？
+## Voice Agent có thể phát triển như thế nào?
 
-interview-guide 是最基础版本，还有很多可以优化的地方。
+interview-guide là phiên bản cơ bản nhất, còn nhiều chỗ có thể tối ưu.
 
-### 端云混合
+### End-cloud hybrid
 
-目前 interview-guide 基本是“云端为主”的设计。进阶方向是把更多能力下沉到端侧：
+Hiện tại interview-guide về cơ bản là thiết kế "lấy cloud là chính". Hướng nâng cao là đưa nhiều khả năng hơn xuống phía client:
 
-| 环节 | 当前                  | 演进方向                         |
-| ---- | --------------------- | -------------------------------- |
-| VAD  | 端侧 VAD + 服务端 VAD | 纯端侧 VAD，减少服务端压力       |
-| ASR  | 纯云端                | 简单命令放端侧，复杂识别放云端   |
-| LLM  | 纯云端                | 小模型端侧兜底，断网可用         |
-| TTS  | 纯云端                | 固定提示音放端侧，自然对话放云端 |
+| Khâu | Hiện tại                     | Hướng phát triển                                            |
+| ---- | ---------------------------- | ----------------------------------------------------------- |
+| VAD  | Client VAD + Server-side VAD | Thuần client VAD, giảm tải server                           |
+| ASR  | Thuần cloud                  | Lệnh đơn giản ở client, nhận dạng phức tạp ở cloud          |
+| LLM  | Thuần cloud                  | Model nhỏ backup ở client, dùng được khi mất mạng           |
+| TTS  | Thuần cloud                  | Âm thanh gợi ý cố định ở client, hội thoại tự nhiên ở cloud |
 
-端云混合的核心是**把实时性强、隐私敏感、断网要兜底的能力尽量放端侧**。
+Cốt lõi của end-cloud hybrid là **đặt tối đa các khả năng thời gian thực mạnh, nhạy cảm với privacy, cần backup khi mất mạng ở phía client**.
 
-### 本地模型部署
+### Triển khai mô hình cục bộ
 
-如果你对数据合规有要求，可以考虑本地部署 ASR 和 TTS：
+Nếu bạn có yêu cầu về tuân thủ dữ liệu, có thể xem xét triển khai cục bộ ASR và TTS:
 
-- **ASR**：faster-whisper、FunASR、SenseVoice
-- **TTS**：piper1-gpl（原 Piper 已归档）、Fish Speech、CosyVoice
+- **ASR**: faster-whisper, FunASR, SenseVoice
+- **TTS**: piper1-gpl (Piper gốc đã được archive), Fish Speech, CosyVoice
 
-**注意**：原 Piper 仓库（rhasspy/piper）已于 2025 年 10 月归档，开发已迁移到 [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)。但需注意两点：（1）piper1-gpl 采用 GPL-3.0 许可证，商业项目使用时需评估开源合规要求；（2）该项目目前正在招募新的维护者，长期支持存在不确定性。如果许可证不兼容，可考虑 Fish Speech（Apache 2.0）或 CosyVoice 等替代方案。
+**Lưu ý**: repo Piper gốc (rhasspy/piper) đã được archive vào tháng 10 năm 2025, phát triển đã chuyển sang [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl). Nhưng cần chú ý hai điểm: (1) piper1-gpl dùng giấy phép GPL-3.0, khi sử dụng trong dự án thương mại cần đánh giá yêu cầu tuân thủ open source; (2) dự án hiện đang tuyển người bảo trì mới, hỗ trợ dài hạn còn bất định. Nếu giấy phép không tương thích, có thể xem xét Fish Speech (Apache 2.0) hoặc CosyVoice và các giải pháp thay thế khác.
 
-本地部署的优势是可控、可离线。劣势是**工程成本高**：GPU/内存/并发容量要自己压测，流式推理、模型热加载、显存回收都要自己做。
+Ưu điểm của triển khai cục bộ là kiểm soát được, offline được. Nhược điểm là **chi phí kỹ thuật cao**: GPU/memory/capacity concurrent phải tự load test, streaming inference, model hot loading, thu hồi VRAM đều phải tự làm.
 
-### 原生 Realtime API
+### Realtime API native
 
-如果你觉得级联链路的延迟和体验不够好，可以评估原生 Realtime API：
+Nếu bạn thấy độ trễ và trải nghiệm của pipeline cascade không đủ tốt, có thể đánh giá Realtime API native:
 
-- OpenAI **gpt-realtime**（2025年8月GA，支持MCP/图像/SIP）
+- OpenAI **gpt-realtime** (GA tháng 8 năm 2025, hỗ trợ MCP/hình ảnh/SIP)
 - Gemini Live API
-- 阿里通义 Qwen-Omni
+- Alibaba Tongyi Qwen-Omni
 
-这些 API 把 ASR、LLM、TTS 融合成一个统一的多模态模型，理论上延迟更低、体验更自然。但代价是**更黑盒、更贵、更难调试**。
+Các API này hợp nhất ASR, LLM, TTS thành một mô hình đa phương thức thống nhất, lý thuyết độ trễ thấp hơn, trải nghiệm tự nhiên hơn. Nhưng cái giá là **hộp đen hơn, đắt hơn, khó debug hơn**.
 
-OpenAI Realtime API 已正式GA，推出了专用模型 **gpt-realtime**，在复杂指令遵循、工具调用、自然表达语音方面有显著提升。同时新增三大能力：
+OpenAI Realtime API đã chính thức GA, ra mắt model chuyên dụng **gpt-realtime**, cải thiện đáng kể trong tuân thủ instruction phức tạp, gọi công cụ, biểu đạt giọng nói tự nhiên. Đồng thời bổ sung ba khả năng mới:
 
-1. **远程 MCP 服务器支持**，可像级联方案一样调用外部工具；
-2. **图像输入支持**，模型可结合用户看到的屏幕内容进行对话；
-3. **SIP 电话集成**，支持与传统电话网络连接。
+1. **Hỗ trợ remote MCP server**, có thể gọi công cụ bên ngoài như giải pháp cascade;
+2. **Hỗ trợ image input**, mô hình có thể kết hợp nội dung màn hình người dùng đang xem để hội thoại;
+3. **Tích hợp điện thoại SIP**, hỗ trợ kết nối với mạng điện thoại truyền thống.
 
-定价方面，gpt-realtime 比 preview 版本降价 20%（输入 $32/1M token，输出 $64/1M token）。
+Về giá, gpt-realtime giảm giá 20% so với phiên bản preview (input $32/1M token, output $64/1M token).
 
-### 打断体验优化
+### Tối ưu trải nghiệm ngắt lời
 
-目前 interview-guide 的打断是“静默丢弃”：AI 说话时用户的声音直接不发。这种方式简单，但体验不够自然。
+Hiện tại ngắt lời của interview-guide là "loại bỏ im lặng": âm thanh người dùng trong khi AI nói bị bỏ hoàn toàn. Cách này đơn giản, nhưng trải nghiệm chưa đủ tự nhiên.
 
-更好的做法：
+Cách làm tốt hơn:
 
-- AI 说话时继续接收音频，但不发到 ASR
-- 检测到用户声音后，先降低 AI 播放音量（渐变而不是突然停止）
-- 打断后保留已播放内容的上下文
+- Khi AI nói tiếp tục nhận audio, nhưng không gửi đến ASR
+- Sau khi phát hiện giọng người dùng, giảm dần âm lượng AI (fade out thay vì dừng đột ngột)
+- Giữ lại context nội dung đã phát sau khi ngắt lời
 
-### 多模态扩展
+### Mở rộng đa phương thức
 
-interview-guide 目前只有语音。可以扩展成：
+Hiện tại interview-guide chỉ có giọng nói. Có thể mở rộng thành:
 
-- **语音 + 屏幕共享**：面试官可以看到候选人的 IDE
-- **语音 + 摄像头**：看候选人的表情和肢体语言
-- **语音 + 白板**：一起画架构图
+- **Giọng nói + chia sẻ màn hình**: giám khảo có thể xem IDE của ứng viên
+- **Giọng nói + camera**: xem biểu cảm và ngôn ngữ cơ thể ứng viên
+- **Giọng nói + bảng trắng**: cùng vẽ sơ đồ kiến trúc
 
-这些多模态能力需要更复杂的流管理和状态同步。
+Những khả năng đa phương thức này cần quản lý stream và đồng bộ trạng thái phức tạp hơn.
 
-## 面试里怎么回答 AI 语音系统问题？
+## Trả lời câu hỏi về hệ thống giọng nói AI trong phỏng vấn như thế nào?
 
-如果面试官问：“你怎么设计一个实时语音 Agent？”
+Nếu giám khảo hỏi: "Bạn thiết kế một Voice Agent thời gian thực như thế nào?"
 
-可以按这个思路回答：
+Có thể trả lời theo hướng này:
 
-1. **先拆链路**：客户端采集音频，VAD 判断说话边界，ASR 流式转写，LLM 做意图理解和工具调用，TTS 流式合成，客户端边收边播。
-2. **再讲难点**：实时语音核心难点是端到端延迟、用户打断、噪声环境、上下文状态和端云协同。
-3. **再讲状态机**：需要管理 listening、thinking、speaking、interrupted 等状态，打断时要取消播放、取消生成，并处理已播放和未播放上下文。
-4. **最后讲选型**：云端 API 上线快，本地模型可控但工程成本高，端云混合适合生产，实时体验强的场景可以评估 Speech-to-Speech API。
+1. **Trước tiên phân tích pipeline**: client thu audio, VAD phán đoán ranh giới nói, ASR streaming transcription, LLM hiểu ý định và gọi công cụ, TTS streaming synthesis, client nhận và phát đồng thời.
+2. **Sau đó nói khó khăn**: khó khăn cốt lõi của giọng nói thời gian thực là độ trễ end-to-end, ngắt lời người dùng, môi trường nhiễu, trạng thái context và phối hợp end-cloud.
+3. **Tiếp theo nói state machine**: cần quản lý các trạng thái listening, thinking, speaking, interrupted, khi ngắt lời phải hủy phát, hủy sinh, và xử lý context đã phát và chưa phát.
+4. **Cuối cùng nói lựa chọn**: API đám mây ra mắt nhanh, model cục bộ kiểm soát được nhưng chi phí kỹ thuật cao, end-cloud hybrid phù hợp production, tình huống trải nghiệm thời gian thực mạnh có thể đánh giá Speech-to-Speech API.
 
-一句话总结：
+Tóm gọn một câu:
 
-**AI 语音 Agent 的核心不是“语音识别 + 大模型 + 语音合成”，而是围绕实时音频流构建一套可取消、可观测、可降级的对话系统。**
+**Cốt lõi của Voice Agent AI không phải là "nhận dạng giọng nói + mô hình lớn + tổng hợp giọng nói", mà là xây dựng một hệ thống hội thoại có thể hủy, có thể quan sát, có thể degradation xung quanh luồng audio thời gian thực.**
 
-## 总结
+## Tổng kết
 
-AI 语音技术看起来是 ASR、TTS、VAD 几个模块的拼接，真正落地时考验的是系统工程能力。
+Công nghệ giọng nói AI trông có vẻ là ghép nối vài module ASR, TTS, VAD, nhưng khi thực sự triển khai, thử thách là khả năng kỹ thuật hệ thống.
 
-核心要点回顾：
+Điểm cốt lõi cần nhớ:
 
-1. **底层链路**：实时语音 Agent 至少包含采集、前处理、VAD、ASR、LLM、工具调用、TTS、流式播放和状态回写。
-2. **实时难点**：延迟、打断、噪声、上下文和端侧能力是最容易把 Demo 打回原形的五个因素。
-3. **架构选择**：级联式 ASR + LLM + TTS 可控、易审计；原生 Speech-to-Speech 延迟低、体验自然；端云混合是生产里常见折中。
-4. **工程重点**：一定要设计状态机、取消语义、播放确认、全链路 trace 和成本指标。
-5. **选型原则**：先用云端能力跑通闭环，再基于成本、合规、延迟和私有化需求逐步替换本地模型或端侧能力。
+1. **Pipeline cơ bản**: Voice Agent thời gian thực ít nhất bao gồm thu âm, tiền xử lý, VAD, ASR, LLM, gọi công cụ, TTS, phát streaming và ghi lại trạng thái.
+2. **Khó khăn thời gian thực**: độ trễ, ngắt lời, nhiễu, context và khả năng phía client là năm yếu tố dễ đưa Demo trở về điểm xuất phát nhất.
+3. **Lựa chọn kiến trúc**: ASR + LLM + TTS cascade kiểm soát được, dễ audit; Speech-to-Speech native độ trễ thấp, trải nghiệm tự nhiên; end-cloud hybrid là sự thỏa hiệp phổ biến trong production.
+4. **Trọng tâm kỹ thuật**: nhất định phải thiết kế state machine, ngữ nghĩa hủy, xác nhận phát, trace toàn pipeline và chỉ số chi phí.
+5. **Nguyên tắc lựa chọn**: dùng khả năng cloud chạy thông vòng lặp trước, sau đó dần dần thay thế model cục bộ hoặc khả năng phía client dựa trên chi phí, tuân thủ, độ trễ và nhu cầu private.
 
-总结一下：**语音 Agent 的用户体验不是模型一个人决定的，而是整条实时链路共同决定的**。模型负责聪明，工程负责不掉链子。两者缺一不可。
+Tóm lại: **trải nghiệm người dùng của Voice Agent không phải do model một mình quyết định, mà do cả pipeline thời gian thực cùng quyết định**. Model chịu trách nhiệm thông minh, kỹ thuật chịu trách nhiệm không xảy ra sự cố. Thiếu một trong hai đều không được.

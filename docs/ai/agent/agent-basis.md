@@ -45,32 +45,32 @@ Từ "phản hồi thụ động" ban đầu đến "trí tuệ thể hiện" tr
 
 **Từ góc độ chủ thể quyết định:**
 
-**2023 年底，大家开始重视编排。**
+**Cuối năm 2023, mọi người bắt đầu chú trọng đến việc điều phối.**
 
-ReAct 这种推理框架逐渐被接受，多智能体协作也开始被讨论。Coze、Dify 这类平台把开发门槛降了下来，用 DAG（有向无环图）来约束执行流程，避免 AutoGPT 那种完全放飞的自治方式。
+Framework suy luận như ReAct dần được chấp nhận, cộng tác đa tác nhân cũng bắt đầu được thảo luận. Các nền tảng như Coze, Dify giảm thấp rào cản phát triển, dùng DAG (Directed Acyclic Graph — Đồ thị có hướng không chu trình) để ràng buộc luồng thực thi, tránh cách tự trị hoàn toàn phóng khoáng như AutoGPT.
 
-**2024 年底，标准化和多模态开始变重要。**
+**Cuối năm 2024, chuẩn hóa và đa phương thức bắt đầu trở nên quan trọng.**
 
-MCP 协议出现，解决工具接入碎片化的问题。Computer Use 让 Agent 可以操作图形界面。Cursor 这类 AI 编程工具也把 "Vibe Coding" 带火了。
+Giao thức MCP xuất hiện, giải quyết vấn đề phân mảnh tích hợp công cụ. Computer Use cho phép Agent thao tác giao diện đồ họa. Các công cụ lập trình AI như Cursor cũng đưa “Vibe Coding” vào xu hướng.
 
-**2025 年，Agent 开始往常驻自治方向走。**
+**Năm 2025, Agent bắt đầu tiến về hướng tự trị thường trực.**
 
-Agent Skills、Heartbeat 这类机制成熟后，Agent 可以在后台长时间运行，也开始强调本地数据主权。
+Sau khi các cơ chế như Agent Skills, Heartbeat trưởng thành, Agent có thể chạy nền trong thời gian dài, và bắt đầu nhấn mạnh chủ quyền dữ liệu cục bộ.
 
-再往后看，几个方向会继续推进：内建记忆、预测能力，以及从数字世界扩展到物理机器人。
+Nhìn xa hơn, một vài hướng sẽ tiếp tục tiến: bộ nhớ tích hợp sẵn, khả năng dự đoán, và mở rộng từ thế giới số sang robot vật lý.
 
-不过这个阶段划分，别看得太死。真实产品经常同时具备多个阶段的特征。比较明显的分水岭还是 2023 年中，之前 AI 基本只能“说”，之后才开始逐渐能“做”。
+Tuy nhiên, phân chia giai đoạn này đừng nhìn quá cứng nhắc. Sản phẩm thực thường đồng thời có đặc trưng của nhiều giai đoạn. Mốc phân chia rõ ràng nhất vẫn là giữa năm 2023, trước đó AI cơ bản chỉ có thể “nói”, sau đó mới dần dần có thể “làm”.
 
-### Agent、传统编程和 Workflow 区别？
+### Sự khác biệt giữa Agent, Lập trình truyền thống và Workflow là gì?
 
-很多人第一次接触 Agent，会把它和自动化脚本、Workflow 混在一起。
+Nhiều người lần đầu tiếp xúc với Agent sẽ nhầm lẫn nó với script tự động hóa, Workflow.
 
-其实可以先看一个最简单的区别：
+Thực ra có thể nhìn vào sự khác biệt đơn giản nhất trước:
 
 ```text
-传统编程：程序员写代码 → 执行结果
-Workflow：产品画流程图 → 执行结果
-Agent：用户说意图 → AI 决策 → 动态执行
+Lập trình truyền thống: Lập trình viên viết code → Kết quả thực thi
+Workflow: Sản phẩm vẽ sơ đồ quy trình → Kết quả thực thi
+Agent: Người dùng nói ý định → AI ra quyết định → Thực thi động
 ```
 
 Tóm tắt một câu: **Lập trình truyền thống và Workflow đều là con người đưa ra quyết định, thiết kế trước toàn bộ logic, còn Agent là AI đưa ra quyết định**.

@@ -1,7 +1,7 @@
 ---
-title: AI 编程必备 Skills 推荐：TDD、代码审查与网页自动化实战
-description: 实战分享 6 个 AI 编程 Skills 工具，覆盖 TDD 开发流程、代码审查、UI 设计、网页自动化与 Skill 开发，让 AI 编程 Agent 真正成为生产力利器。
-category: AI 编程实战
+title: Giới thiệu Skills thiết yếu cho lập trình AI: TDD, Code Review và tự động hóa web thực chiến
+description: Chia sẻ thực chiến 6 công cụ Skills lập trình AI, bao gồm quy trình phát triển TDD, code review, thiết kế UI, tự động hóa web và phát triển Skill, giúp AI coding Agent thực sự trở thành công cụ tăng năng suất.
+category: Thực chiến lập trình AI
 head:
   - - meta
     - name: keywords
@@ -10,253 +10,253 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-之前写了篇[万字详解 Agent Skills](/ai/agent/skills.html)，聊了 Skills 是什么、怎么用、和 Prompt / MCP 有什么区别。这篇不聊概念，直接分享 6 个我日常在用的 Skills，覆盖开发流程、代码审查、UI 设计、网页操作这些场景：
+Trước đây tôi đã viết một bài [giải thích toàn diện Agent Skills](/ai/agent/skills.html), nói về Skills là gì, dùng như thế nào, và khác Prompt / MCP ở điểm nào. Bài này không nói khái niệm, trực tiếp chia sẻ 6 Skills tôi sử dụng hàng ngày, bao gồm các tình huống phát triển, code review, thiết kế UI, thao tác web:
 
-- 让 AI 自动遵循 TDD 流程，先写测试再写实现
-- 一键生成符合行业标准的设计系统
-- 对代码进行多维度专业审查（SOLID、安全性、性能）
-- 解决 AI 聊太久会”失忆”的上下文腐化问题
-- 给 AI 加上完整的网页浏览和自动化操作能力
+- Để AI tự động tuân theo quy trình TDD, viết test trước rồi mới viết implementation
+- Tạo design system đạt tiêu chuẩn ngành bằng một click
+- Review code đa chiều chuyên nghiệp (SOLID, bảo mật, hiệu năng)
+- Giải quyết vấn đề "mất trí nhớ" ngữ cảnh bị suy giảm sau khi AI chat quá lâu
+- Trang bị cho AI khả năng duyệt web và tự động hóa thao tác đầy đủ
 
-下面一个个来看。
+Dưới đây xem từng cái một.
 
 ## Superpowers
 
-Superpowers 是一个专为 AI 编程 Agent（Claude Code、Cursor 等）设计的软件开发工作流框架，把 TDD、Code Review、Spec-Driven、Git Worktree、子 Agent 协作等实践封装成 Skills。内置的核心技能如下：
+Superpowers là một framework quy trình phát triển phần mềm được thiết kế dành riêng cho AI coding Agent (Claude Code, Cursor, v.v.), đóng gói TDD, Code Review, Spec-Driven, Git Worktree, cộng tác sub-Agent và các thực hành khác thành Skills. Các kỹ năng cốt lõi tích hợp sẵn như sau:
 
-| 技能名称                           | 触发方式                       | 核心功能                                                                                       |
-| ---------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **brainstorming**                  | 命令 `/superpowers:brainstorm` | 通过苏格拉底式提问帮你理清需求，输出设计文档                                                   |
-| **using-git-worktrees**            | 自动（设计确定后）             | 创建隔离的 Git worktree 分支，避免影响主分支                                                   |
-| **writing-plans**                  | 自动（设计确定后）             | 将设计拆解成可执行的小任务（每个任务 2-5 分钟），包含文件路径、代码片段和验证步骤              |
-| **executing-plans**                | 自动（执行计划时可选）         | 批量执行任务计划，适合逻辑简单、重复性高的任务                                                 |
-| **test-driven-development**        | 自动（代码实现阶段）           | 强制红-绿-重构循环，所有代码必须先写测试才能写实现                                             |
-| **subagent-driven-development**    | 自动（执行计划时可选）         | 为每个任务派发一个全新的子代理，完成后自动进行两阶段审查（先检查是否符合设计，再评估代码质量） |
-| **code-review**                    | 自动（任务完成后）             | 双阶段代码审查，代码完成后质量把关                                                             |
-| **systematic-debugging**           | 需要时触发                     | 系统化除错，分四个阶段调查根因                                                                 |
-| **verification-before-completion** | 自动（宣称完成时）             | 强制验证，没有证据不能说完成                                                                   |
+| Tên kỹ năng                        | Cách kích hoạt                           | Chức năng cốt lõi                                                                                                                                                    |
+| ---------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **brainstorming**                  | Lệnh `/superpowers:brainstorm`           | Giúp bạn làm rõ yêu cầu qua hỏi đáp kiểu Socrates, xuất tài liệu thiết kế                                                                                            |
+| **using-git-worktrees**            | Tự động (sau khi thiết kế xong)          | Tạo nhánh git worktree cô lập, tránh ảnh hưởng nhánh chính                                                                                                           |
+| **writing-plans**                  | Tự động (sau khi thiết kế xong)          | Phân tách thiết kế thành các nhiệm vụ nhỏ có thể thực thi (mỗi nhiệm vụ 2-5 phút), bao gồm đường dẫn file, code snippet và các bước xác minh                         |
+| **executing-plans**                | Tự động (tùy chọn khi thực thi kế hoạch) | Thực thi hàng loạt kế hoạch nhiệm vụ, phù hợp với các nhiệm vụ lặp lại nhiều, logic đơn giản                                                                         |
+| **test-driven-development**        | Tự động (giai đoạn triển khai code)      | Bắt buộc vòng lặp đỏ-xanh-tái cấu trúc, tất cả code phải viết test trước rồi mới viết implementation                                                                 |
+| **subagent-driven-development**    | Tự động (tùy chọn khi thực thi kế hoạch) | Phân công một sub-agent mới cho mỗi nhiệm vụ, sau khi hoàn thành tự động review hai giai đoạn (trước kiểm tra có phù hợp với thiết kế, sau đánh giá chất lượng code) |
+| **code-review**                    | Tự động (sau khi nhiệm vụ hoàn thành)    | Review code hai giai đoạn, kiểm soát chất lượng sau khi code hoàn thành                                                                                              |
+| **systematic-debugging**           | Kích hoạt khi cần                        | Debug hệ thống hóa, điều tra nguyên nhân gốc rễ bốn giai đoạn                                                                                                        |
+| **verification-before-completion** | Tự động (khi tuyên bố hoàn thành)        | Xác minh bắt buộc, không có bằng chứng không thể nói hoàn thành                                                                                                      |
 
-这些技能不是孤立存在的，它们会串联成一条完整的工作流。
+Những kỹ năng này không tồn tại độc lập, chúng sẽ được nối thành một quy trình làm việc hoàn chỉnh.
 
-目前 Superpowers 支持 Claude Code、Cursor、Codex、OpenCode 等主流 AI 编码平台，安装后即可自动启用。这里以 Claude Code 为例说明。
+Hiện tại Superpowers hỗ trợ Claude Code, Cursor, Codex, OpenCode và các nền tảng AI coding chính, sau khi cài đặt có thể tự động kích hoạt. Đây lấy Claude Code làm ví dụ.
 
-如果你本机没有安装 Claude Code 的话，只需要运行下面这行命令安装即可（Node.js 18+）：
+Nếu máy bạn chưa cài Claude Code, chỉ cần chạy lệnh sau để cài đặt (Node.js 18+):
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-在 Claude Code 中，首先要注册插件市场：
+Trong Claude Code, trước tiên cần đăng ký plugin marketplace:
 
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
 ```
 
-然后从这个插件市场安装插件：
+Rồi cài đặt plugin từ plugin marketplace này:
 
 ```
 /plugin install superpowers@superpowers-marketplace
 ```
 
-一共有三个下载选项：
+Có ba tùy chọn tải xuống:
 
-![Superpowers 下载](https://oss.javaguide.cn/github/javaguide/ai/superpowers/superpowers-download.png)
+![Tải xuống Superpowers](https://oss.javaguide.cn/github/javaguide/ai/superpowers/superpowers-download.png)
 
-| **选项**                                             | **作用范围**                                                |
-| ---------------------------------------------------- | ----------------------------------------------------------- |
-| **Install for you (user scope)**                     | **全局生效**。你在电脑上任何地方开启 Claude Code 都能调用。 |
-| **Install for all collaborators (project scope)**    | **项目成员共有**。配置会写入项目文件，同事拉代码后也能用。  |
-| **Install for you, in this repo only (local scope)** | **仅限当前文件夹**。换个目录就没了。                        |
+| **Tùy chọn**                                         | **Phạm vi áp dụng**                                                                                        |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Install for you (user scope)**                     | **Có hiệu lực toàn cục**. Bạn mở Claude Code ở bất kỳ đâu trên máy đều có thể gọi.                         |
+| **Install for all collaborators (project scope)**    | **Chung cho thành viên dự án**. Cấu hình sẽ ghi vào file dự án, đồng nghiệp pull code xong cũng dùng được. |
+| **Install for you, in this repo only (local scope)** | **Chỉ trong thư mục hiện tại**. Chuyển thư mục khác là mất.                                                |
 
-这里推荐选择 **User Scope** 全局安装。因为 Superpowers 的“技能”是通用的，无论你写 Java 业务还是 Python 脚本，这套方法论在大多数场景下都能用。全局安装后，你随时都能唤起这些能力，不用每个项目都折腾一遍。
+Ở đây khuyến nghị chọn **User Scope** cài đặt toàn cục. Vì "kỹ năng" của Superpowers là thông dụng, dù bạn viết nghiệp vụ Java hay script Python, bộ phương pháp luận này đều có thể dùng trong hầu hết các tình huống. Sau khi cài đặt toàn cục, bạn có thể gọi những năng lực này bất cứ lúc nào, không cần mày mò từng dự án.
 
-安装完成后，在 Claude Code 中输入 `/plugin` 或 `/plugin list`，如果看到 Superpowers 出现在列表中，就说明安装成功了。
+Sau khi cài đặt xong, nhập `/plugin` hoặc `/plugin list` trong Claude Code, nếu thấy Superpowers xuất hiện trong danh sách thì nghĩa là cài đặt thành công.
 
-项目地址：**https://github.com/obra/superpowers**
+Địa chỉ dự án: **https://github.com/obra/superpowers**
 
 ## Everything Claude Code
 
-很多人把 Claude Code 当聊天框用。有位开发者在 8 小时内用它做完一个产品，拿了 Anthropic 黑客松冠军。
+Nhiều người dùng Claude Code như hộp chat. Có một nhà phát triển đã dùng nó để hoàn thành một sản phẩm trong 8 giờ, giành chức vô địch hackathon của Anthropic.
 
-他把这套配置集开源了出来，在 Github 上已经斩获接近 4w Star：Everything Claude Code。
+Anh ta đã mã nguồn mở bộ cấu hình này, trên Github đã đạt gần 4 vạn Star: Everything Claude Code.
 
-它把开发流程拆解成多个组件，让 AI 在不同角色间分工协作：
+Nó phân tách quy trình phát triển thành nhiều component, để AI phân công cộng tác ở các vai trò khác nhau:
 
-| 组件类型     | 作用说明                                             |
-| ------------ | ---------------------------------------------------- |
-| **Agents**   | 分工的子智能体，比如规划、架构、TDD、代码审查        |
-| **Skills**   | 封装好的工作流，像 TDD 方法论、后端开发经验          |
-| **Hooks**    | 自动执行的任务，改完代码自动检查有没有遗留的调试日志 |
-| **Rules**    | 全局生效的开发规范                                   |
-| **Commands** | 斜杠命令，`/tdd` 跑测试、`/code-review` 审查代码     |
+| Loại component | Mô tả chức năng                                                                        |
+| -------------- | -------------------------------------------------------------------------------------- |
+| **Agents**     | Sub-agent phân công, ví dụ lập kế hoạch, kiến trúc, TDD, code review                   |
+| **Skills**     | Workflow được đóng gói, như phương pháp luận TDD, kinh nghiệm phát triển backend       |
+| **Hooks**      | Nhiệm vụ tự động thực thi, sau khi sửa code tự động kiểm tra có để lại debug log không |
+| **Rules**      | Quy chuẩn phát triển có hiệu lực toàn cục                                              |
+| **Commands**   | Slash command, `/tdd` chạy test, `/code-review` review code                            |
 
-在实战测试中，这套方案让功能开发速度提升了 65%。代码审查出的问题减少了 75%，PR 的平均问题数从 12 个降到了 3 个。
+Trong thử nghiệm thực chiến, bộ giải pháp này giúp tốc độ phát triển tính năng tăng 65%. Số vấn đề được phát hiện trong code review giảm 75%, số vấn đề trung bình trong PR giảm từ 12 xuống còn 3.
 
-但它解决的一个更实际痛点是：**上下文腐化**。
+Nhưng vấn đề thực tế hơn mà nó giải quyết là: **ngữ cảnh bị suy giảm**.
 
-AI 聊太久会“失忆”，输出质量下降。这套配置让 AI 始终在清晰的角色框架内工作，保持稳定输出。每个 Agent 只负责自己擅长的领域，不会越界；每个 Skill 都有明确的触发条件和执行步骤，不会乱来。
+AI chat quá lâu sẽ "mất trí nhớ", chất lượng đầu ra giảm. Bộ cấu hình này giúp AI luôn làm việc trong khung vai trò rõ ràng, duy trì đầu ra ổn định. Mỗi Agent chỉ chịu trách nhiệm lĩnh vực mình giỏi, không vượt ranh giới; mỗi Skill đều có điều kiện kích hoạt và các bước thực thi rõ ràng, không làm lộn xộn.
 
-项目地址：**https://github.com/affaan-m/everything-claude-code**
+Địa chỉ dự án: **https://github.com/affaan-m/everything-claude-code**
 
 ## UI UX Pro Max
 
-这是一个专为 AI 编程 Agent（Claude Code、Cursor、Windsurf 等）设计的专业 UI/UX 设计智能 Skill。
+Đây là Skill thiết kế UI/UX thông minh chuyên nghiệp được thiết kế dành riêng cho AI coding Agent (Claude Code, Cursor, Windsurf, v.v.).
 
-它的核心能力是**一键生成完整的设计系统**（Design System），根据产品类型和行业特性自动给出设计决策。
+Năng lực cốt lõi của nó là **tạo design system hoàn chỉnh bằng một click** (Design System), tự động đưa ra quyết định thiết kế dựa trên loại sản phẩm và đặc tính ngành.
 
-v2.0 新增了 **Design System Generator**，能根据你的产品类型、行业特性、目标用户，在几秒内自动输出一套完整的设计系统。
+v2.0 bổ sung **Design System Generator**, có thể tự động xuất một bộ design system hoàn chỉnh trong vài giây dựa trên loại sản phẩm, đặc tính ngành, đối tượng mục tiêu.
 
-该技能内置的设计知识库：
+Cơ sở kiến thức thiết kế tích hợp sẵn của kỹ năng này:
 
-| 资源类型       | 数量   | 说明                                                                             |
-| -------------- | ------ | -------------------------------------------------------------------------------- |
-| **UI 风格**    | 67 种  | Glassmorphism、Neumorphism、Bento Grid、AI-Native UI 等                          |
-| **行业色板**   | 161 个 | 每个行业都有专属配色方案，全部带色值说明                                         |
-| **字体搭配**   | 57 种  | 精选字体组合，附带 Google Fonts 链接                                             |
-| **推理规则**   | 161 条 | 行业特定的设计系统生成规则                                                       |
-| **UX 准则**    | 99 条  | 最佳实践、反模式和可访问性规则                                                   |
-| **支持技术栈** | 13 种  | React/Next.js + shadcn/ui、Vue/Nuxt、Tailwind、SwiftUI、Flutter、React Native 等 |
+| Loại tài nguyên       | Số lượng | Mô tả                                                                               |
+| --------------------- | -------- | ----------------------------------------------------------------------------------- |
+| **Phong cách UI**     | 67 loại  | Glassmorphism, Neumorphism, Bento Grid, AI-Native UI, v.v.                          |
+| **Bảng màu ngành**    | 161 cái  | Mỗi ngành có phương án màu sắc riêng, tất cả kèm giải thích giá trị màu             |
+| **Phối chữ**          | 57 loại  | Tổ hợp font được tuyển chọn, kèm link Google Fonts                                  |
+| **Quy tắc suy luận**  | 161 điều | Quy tắc tạo design system đặc thù ngành                                             |
+| **Nguyên tắc UX**     | 99 điều  | Best practice, anti-pattern và quy tắc accessibility                                |
+| **Tech stack hỗ trợ** | 13 loại  | React/Next.js + shadcn/ui, Vue/Nuxt, Tailwind, SwiftUI, Flutter, React Native, v.v. |
 
-**它是如何工作的？**
+**Nó hoạt động như thế nào?**
 
-当你输入“帮我做一个美容 SPA 的落地页”时，它不会随便给你一套紫色渐变，而是会推理出：这是健康养生行业 → 推荐柔和的 Soft UI 风格 → 配色用淡粉 + 鼠尾草绿 + 金色点缀 → 字体选优雅的 Cormorant Garamond，同时还会列出该行业应该避免的反模式（比如不要用 AI 感十足的紫粉渐变）。
+Khi bạn nhập "giúp tôi làm landing page cho spa làm đẹp", nó sẽ không tùy tiện đưa cho bạn một bộ gradient tím, mà sẽ suy luận ra: đây là ngành sức khỏe dưỡng sinh → đề xuất phong cách Soft UI nhẹ nhàng → phối màu hồng nhạt + xanh xô thơm + điểm nhấn vàng → font chọn Cormorant Garamond thanh lịch, đồng thời liệt kê anti-pattern mà ngành đó nên tránh (ví dụ không dùng gradient tím hồng đậm chất AI).
 
-安装方式非常简单：
+Cách cài đặt rất đơn giản:
 
-**Claude Code（推荐）**：
+**Claude Code (khuyến nghị)**:
 
 ```
 /plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
 /plugin install ui-ux-pro-max@ui-ux-pro-max-skill
 ```
 
-**Cursor / Windsurf / Continue 等**：使用官方 CLI
+**Cursor / Windsurf / Continue, v.v.**: Dùng CLI chính thức
 
 ```bash
 npm install -g uipro-cli
-uipro init --ai claude      # 或 cursor、windsurf 等
+uipro init --ai claude      # hoặc cursor, windsurf, v.v.
 ```
 
-安装后，只需自然语言描述你的 UI 需求，技能会自动激活：
+Sau khi cài đặt, chỉ cần mô tả yêu cầu UI bằng ngôn ngữ tự nhiên, kỹ năng sẽ tự động kích hoạt:
 
 ```
-帮我做一个 SaaS 产品的落地页
-设计一个医疗分析仪表盘
-做一个深色主题的金融 App
+Giúp tôi làm landing page cho sản phẩm SaaS
+Thiết kế dashboard phân tích y tế
+Làm app tài chính dark theme
 ```
 
-它还会自动生成 Pre-delivery Checklist，确保没有 emoji 当图标、hover 状态完整、reduced-motion 被尊重等专业细节。
+Nó còn tự động tạo Pre-delivery Checklist, đảm bảo các chi tiết chuyên nghiệp như không dùng emoji làm icon, trạng thái hover đầy đủ, reduced-motion được tôn trọng, v.v.
 
-项目地址：**https://github.com/nextlevelbuilder/ui-ux-pro-max-skill**
+Địa chỉ dự án: **https://github.com/nextlevelbuilder/ui-ux-pro-max-skill**
 
-如果你觉得 UI UX Pro Max 太重，只需要一个轻量的前端设计指导，可以试试 Anthropic 官方的 **frontend-design** Skill。它专注于避免 AI 生成的“千篇一律”美学——拒绝 Inter/Roboto 等泛滥字体，拒绝紫白渐变这类套路配色，鼓励大胆的排版和非常规布局。没有 UI UX Pro Max 那么完整的设计知识库，但胜在轻量，适合对设计要求不那么复杂的场景。
+Nếu bạn cảm thấy UI UX Pro Max quá nặng, chỉ cần hướng dẫn thiết kế frontend nhẹ nhàng, có thể thử **frontend-design** Skill chính thức của Anthropic. Nó tập trung vào việc tránh thẩm mỹ "đơn điệu" do AI tạo ra — từ chối font phổ biến như Inter/Roboto, từ chối phối màu sáo mòn như gradient tím trắng, khuyến khích typography táo bạo và bố cục phi thông thường. Không có cơ sở kiến thức thiết kế đầy đủ như UI UX Pro Max, nhưng ưu điểm là nhẹ nhàng, phù hợp với các tình huống không có yêu cầu thiết kế phức tạp.
 
 ## sanyuan-skills
 
-这是一个面向生产环境的 Claude Code 技能集合，它把资深工程师的代码审查经验封装成 Skill，让 AI 从多个专业维度对代码进行审查。
+Đây là bộ kỹ năng Claude Code hướng môi trường sản xuất, đóng gói kinh nghiệm code review của kỹ sư kỳ cựu thành Skill, để AI review code từ nhiều chiều chuyên nghiệp.
 
-该集合目前包含三个核心技能：
+Bộ collection hiện chứa ba kỹ năng cốt lõi:
 
-| 技能名称               | 核心功能                                                                      | 适用场景                     |
-| ---------------------- | ----------------------------------------------------------------------------- | ---------------------------- |
-| **Code Review Expert** | 资深工程师级别的代码审查，覆盖 SOLID 原则、安全性、性能、错误处理、边界条件等 | 代码提交前的质量把关         |
-| **Sigma**              | 基于 Bloom's 2-Sigma 掌握学习理论的 1 对 1 AI 导师，采用苏格拉底式提问        | 学习新技术、深入理解某个概念 |
-| **Skill Forge**        | 元技能，用于创建高质量 Skill，内置 12 种经过实战检验的技术                    | 想自己开发 Skill 时的起点    |
+| Tên kỹ năng            | Chức năng cốt lõi                                                                                           | Tình huống áp dụng                         |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| **Code Review Expert** | Code review cấp kỹ sư kỳ cựu, bao gồm nguyên tắc SOLID, bảo mật, hiệu năng, xử lý lỗi, điều kiện biên, v.v. | Kiểm soát chất lượng trước khi submit code |
+| **Sigma**              | Gia sư AI 1-1 dựa trên lý thuyết học thành thạo 2-Sigma của Bloom, dùng hỏi đáp kiểu Socrates               | Học công nghệ mới, hiểu sâu một khái niệm  |
+| **Skill Forge**        | Meta-skill, dùng để tạo Skill chất lượng cao, tích hợp sẵn 12 kỹ thuật đã được kiểm chứng qua thực chiến    | Điểm khởi đầu khi muốn tự phát triển Skill |
 
-**Code Review Expert 的审查维度：**
+**Các chiều review của Code Review Expert:**
 
-- **SOLID 原则**：单一职责、开闭原则、里氏替换等
-- **安全性**：SQL 注入、XSS、敏感信息泄露等
-- **性能**：算法复杂度、内存泄漏、不必要的循环等
-- **错误处理**：异常捕获、边界条件、空值处理等
-- **代码质量**：命名规范、注释、可读性等
+- **Nguyên tắc SOLID**: Single Responsibility, Open/Closed, Liskov Substitution, v.v.
+- **Bảo mật**: SQL injection, XSS, rò rỉ thông tin nhạy cảm, v.v.
+- **Hiệu năng**: Độ phức tạp thuật toán, memory leak, vòng lặp không cần thiết, v.v.
+- **Xử lý lỗi**: Bắt exception, điều kiện biên, xử lý null, v.v.
+- **Chất lượng code**: Quy chuẩn đặt tên, comment, khả năng đọc hiểu, v.v.
 
-使用 npx 命令安装：
+Cài đặt bằng lệnh npx:
 
 ```bash
-# 安装代码审查专家
+# Cài đặt chuyên gia code review
 npx skills add sanyuan0704/sanyuan-skills --path skills/code-review-expert
 
-# 安装 Sigma 导师
+# Cài đặt gia sư Sigma
 npx skills add sanyuan0704/sanyuan-skills --path skills/sigma
 
-# 安装 Skill Forge
+# Cài đặt Skill Forge
 npx skills add sanyuan0704/sanyuan-skills --path skills/skill-forge
 ```
 
-安装后，在 Claude Code 中直接调用：
+Sau khi cài đặt, gọi trực tiếp trong Claude Code:
 
 ```
-/code-review-expert    # 审查当前 git 变更
-/sigma <主题>          # 启动学习辅导，如 /sigma React Hooks
-/skill-forge           # 创建新技能
+/code-review-expert    # Review git changes hiện tại
+/sigma <chủ đề>        # Bắt đầu hỗ trợ học, như /sigma React Hooks
+/skill-forge           # Tạo kỹ năng mới
 ```
 
-项目地址：**https://github.com/sanyuan0704/sanyuan-skills**
+Địa chỉ dự án: **https://github.com/sanyuan0704/sanyuan-skills**
 
 ## Web Access
 
-Claude Code 自带 WebSearch 和 WebFetch，但缺少编排策略和浏览器自动化能力。这个 Skill 补上了这块——让 Claude Code 能自主浏览网页、操作动态页面，并且跨会话积累站点经验。
+Claude Code có sẵn WebSearch và WebFetch, nhưng thiếu chiến lược biên soạn và khả năng tự động hóa trình duyệt. Skill này bổ sung phần đó — giúp Claude Code có thể tự duyệt web, thao tác trang động, và tích lũy kinh nghiệm trang web xuyên phiên.
 
-| 能力               | 说明                                                                      |
-| ------------------ | ------------------------------------------------------------------------- |
-| **自动工具选择**   | 根据场景自动选择 WebSearch / WebFetch / curl / Jina / CDP，可自由组合     |
-| **CDP 浏览器操作** | 直连日常使用的 Chrome，自然携带登录态；支持动态页面、交互操作、视频帧捕获 |
-| **并行分治**       | 派发子 Agent 并行处理多个目标，共享一个 Proxy，Tab 级隔离                 |
-| **站点经验积累**   | 按域名存储操作经验（URL 规律、平台特征、已知坑点），跨会话复用            |
-| **媒体提取**       | 直接从 DOM 提取图片/视频 URL，或截取任意时间点的视频帧并分析              |
+| Năng lực                       | Mô tả                                                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tự động chọn công cụ**       | Tự động chọn WebSearch / WebFetch / curl / Jina / CDP theo tình huống, có thể kết hợp tự do                                                    |
+| **Thao tác trình duyệt CDP**   | Kết nối trực tiếp Chrome đang dùng hàng ngày, tự nhiên mang theo trạng thái đăng nhập; hỗ trợ trang động, thao tác tương tác, chụp frame video |
+| **Xử lý song song phân chia**  | Phân công sub-Agent xử lý nhiều mục tiêu song song, chia sẻ một Proxy, cô lập ở cấp Tab                                                        |
+| **Tích lũy kinh nghiệm trang** | Lưu trữ kinh nghiệm thao tác theo tên miền (quy luật URL, đặc điểm nền tảng, điểm đã biết), tái sử dụng xuyên phiên                            |
+| **Trích xuất media**           | Trích xuất trực tiếp URL ảnh/video từ DOM, hoặc chụp và phân tích frame video tại thời điểm bất kỳ                                             |
 
-v2.4.1 将脚本从 bash 迁移到了 Node.js，支持 Windows / Linux / macOS。还新增了 DOM 边界穿透能力，能处理 Shadow DOM、iframe 等选择器无法到达的元素。
+v2.4.1 đã migrate script từ bash sang Node.js, hỗ trợ Windows / Linux / macOS. Còn bổ sung khả năng xuyên DOM boundary, có thể xử lý Shadow DOM, iframe và các element mà selector không thể đến được.
 
-安装方式：
+Cách cài đặt:
 
 ```bash
 git clone https://github.com/eze-is/web-access ~/.claude/skills/web-access
 ```
 
-前提条件：Node.js 22+，Chrome 需开启远程调试（在 `chrome://inspect/#remote-debugging` 中勾选"Allow remote debugging for this browser instance"）。
+Điều kiện tiên quyết: Node.js 22+, Chrome cần bật remote debugging (trong `chrome://inspect/#remote-debugging` tích "Allow remote debugging for this browser instance").
 
-安装后可以直接用自然语言驱动：
+Sau khi cài đặt có thể dùng ngôn ngữ tự nhiên để điều khiển trực tiếp:
 
 ```
-搜索一下 xxx 的最新进展
-帮我去小红书搜一下 xxx 的账号
-同时调研这 5 个产品网站，给我一个对比总结
+Tìm kiếm những tiến triển mới nhất về xxx
+Giúp tôi tìm tài khoản xxx trên Xiaohongshu
+Đồng thời nghiên cứu 5 trang web sản phẩm này, cho tôi một bản tóm tắt so sánh
 ```
 
-项目地址：**https://github.com/eze-is/web-access**
+Địa chỉ dự án: **https://github.com/eze-is/web-access**
 
 ## skill-creator
 
-这是 Anthropic 官方 Skills 仓库中的一个元技能，专门用于**创建、修改和优化 Skill**。
+Đây là một meta-skill trong kho Skills chính thức của Anthropic, chuyên dùng để **tạo, sửa đổi và tối ưu Skill**.
 
-它提供了一套 Skill 开发工作流：
+Nó cung cấp một quy trình phát triển Skill:
 
-| 阶段              | 工作内容                                               |
-| ----------------- | ------------------------------------------------------ |
-| **意图捕获**      | 理解你想让 Skill 做什么，明确边界和目标                |
-| **起草 SKILL.md** | 编写 Skill 的核心指令文件，包含 frontmatter 和指令内容 |
-| **测试验证**      | 创建测试用例，运行对比实验（有 Skill vs 无 Skill）     |
-| **迭代优化**      | 根据测试反馈持续改进指令                               |
-| **描述优化**      | 优化 Skill 的 description，提高触发准确性              |
+| Giai đoạn             | Nội dung công việc                                                           |
+| --------------------- | ---------------------------------------------------------------------------- |
+| **Nắm bắt ý định**    | Hiểu bạn muốn Skill làm gì, xác định rõ ranh giới và mục tiêu                |
+| **Soạn SKILL.md**     | Viết file chỉ thị cốt lõi của Skill, bao gồm frontmatter và nội dung chỉ thị |
+| **Kiểm thử xác minh** | Tạo test case, chạy thử nghiệm so sánh (có Skill vs không có Skill)          |
+| **Lặp tối ưu**        | Cải thiện liên tục chỉ thị dựa trên phản hồi kiểm thử                        |
+| **Tối ưu mô tả**      | Tối ưu description của Skill, cải thiện độ chính xác kích hoạt               |
 
-它还内置了**评估系统**：生成可视化评测报告，对比“使用 Skill”和“不使用 Skill”的输出差异，支持多轮迭代优化。
+Nó còn tích hợp **hệ thống đánh giá**: tạo báo cáo đánh giá trực quan, so sánh sự khác biệt đầu ra giữa "dùng Skill" và "không dùng Skill", hỗ trợ lặp tối ưu nhiều vòng.
 
-适合想给团队做专属 Skill 的开发者作为起点。
+Phù hợp cho các nhà phát triển muốn tạo Skill chuyên dụng cho nhóm làm điểm khởi đầu.
 
-项目地址：**https://github.com/anthropics/skills/tree/main/skills/skill-creator**
+Địa chỉ dự án: **https://github.com/anthropics/skills/tree/main/skills/skill-creator**
 
-## 总结
+## Tổng kết
 
-按场景整理一下，方便按需选择：
+Tổng hợp theo tình huống để tiện chọn theo nhu cầu:
 
-| 场景               | 推荐 Skill                      | 一句话说明                               |
-| ------------------ | ------------------------------- | ---------------------------------------- |
-| **完整开发流程**   | Superpowers                     | TDD + Code Review + 自动计划，装完直接用 |
-| **多角色协作**     | Everything Claude Code          | 子 Agent 分工，解决上下文腐化            |
-| **UI 设计**        | UI UX Pro Max / frontend-design | 前者完整设计系统，后者轻量设计指导       |
-| **代码审查**       | sanyuan-skills                  | SOLID + 安全 + 性能多维度审查            |
-| **网页浏览与操作** | Web Access                      | CDP 浏览器自动化 + 站点经验积累          |
-| **自制 Skill**     | skill-creator                   | Anthropic 官方的 Skill 开发工具          |
+| Tình huống                      | Skill đề xuất                   | Giải thích ngắn gọn                                                      |
+| ------------------------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| **Quy trình phát triển đầy đủ** | Superpowers                     | TDD + Code Review + kế hoạch tự động, cài xong dùng ngay                 |
+| **Cộng tác nhiều vai trò**      | Everything Claude Code          | Sub-Agent phân công, giải quyết ngữ cảnh bị suy giảm                     |
+| **Thiết kế UI**                 | UI UX Pro Max / frontend-design | Cái trước design system hoàn chỉnh, cái sau hướng dẫn thiết kế nhẹ nhàng |
+| **Code review**                 | sanyuan-skills                  | SOLID + bảo mật + đa chiều hiệu năng                                     |
+| **Duyệt và thao tác web**       | Web Access                      | CDP tự động hóa trình duyệt + tích lũy kinh nghiệm trang                 |
+| **Tự tạo Skill**                | skill-creator                   | Công cụ phát triển Skill chính thức của Anthropic                        |
 
-不需要全装，根据日常场景挑几个就行。刚开始接触的话，建议从 **Superpowers** 和 **sanyuan-skills** 入手——前者管开发流程，后者管代码质量，覆盖了最常见的开发需求。
+Không cần cài tất cả, chọn vài cái theo tình huống hàng ngày là đủ. Nếu mới bắt đầu tiếp xúc, khuyến nghị bắt đầu từ **Superpowers** và **sanyuan-skills** — cái trước quản lý quy trình phát triển, cái sau quản lý chất lượng code, bao gồm nhu cầu phát triển phổ biến nhất.

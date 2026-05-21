@@ -1,183 +1,183 @@
 ---
-title: 大模型基础面试题总结
-description: 系统整理大模型/LLM 高频面试题，覆盖 Token、上下文窗口、采样参数、API 调用、流式输出、结构化输出、Function Calling、MCP、AI 应用评测等核心考点，并附对应参考文章。
+title: Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn
+description: Tổng hợp có hệ thống các câu hỏi phỏng vấn mô hình lớn/LLM tần suất cao, bao gồm Token, cửa sổ ngữ cảnh, tham số lấy mẫu, gọi API, đầu ra streaming, đầu ra có cấu trúc, Function Calling, MCP, đánh giá ứng dụng AI và các điểm kiểm tra cốt lõi khác, kèm bài viết tham khảo tương ứng.
 category: AI
 tag:
-  - 大模型面试
-  - LLM面试
-  - AI面试
+  - Phỏng vấn mô hình lớn
+  - Phỏng vấn LLM
+  - Phỏng vấn AI
 head:
   - - meta
     - name: keywords
       content: 大模型面试题,LLM面试题,大模型面试,LLM面试,Token面试题,上下文窗口面试题,Function Calling面试题,结构化输出面试题,AI应用评测面试题
 ---
 
-很多同学准备大模型面试时，第一反应是去背 Transformer、Attention、RLHF 这些词。不是说这些不重要，但对大部分后端转 AI 应用开发、AI 工程应用岗位来说，面试官更关心的是另一件事：
+Khi nhiều bạn chuẩn bị phỏng vấn mô hình lớn, phản ứng đầu tiên là đi học thuộc Transformer, Attention, RLHF và các từ khóa này. Không phải những thứ này không quan trọng, nhưng với hầu hết các vị trí backend chuyển AI application dev, AI engineering application, điều phỏng vấn viên quan tâm hơn là một việc khác:
 
-**你是不是真的理解大模型调用链路里的工程约束。**
+**Bạn có thực sự hiểu các ràng buộc kỹ thuật trong chain gọi mô hình lớn không.**
 
-比如 Token 为什么会影响成本和延迟？上下文窗口为什么不是越大越好？Temperature 为什么会影响结构化输出稳定性？Function Calling 为什么不能让模型直接执行真实业务操作？这些问题看起来基础，答不好就会暴露一个信号：你可能只是调过 API，还没有把大模型当作生产系统里的一个不稳定外部依赖来治理。
+Ví dụ Token tại sao ảnh hưởng chi phí và độ trễ? Cửa sổ ngữ cảnh tại sao không phải càng lớn càng tốt? Temperature tại sao ảnh hưởng ổn định đầu ra có cấu trúc? Function Calling tại sao không thể để mô hình trực tiếp thực thi thao tác nghiệp vụ thực tế? Những câu hỏi này trông có vẻ cơ bản, trả lời không tốt sẽ lộ ra một tín hiệu: bạn có thể chỉ đã gọi API, nhưng chưa coi mô hình lớn như một dependency bên ngoài không ổn định trong hệ thống sản xuất để quản trị.
 
-这份大模型基础面试题主要根据 AI 专栏现有文章整理。它不是让你机械背题，而是帮你建立一条复习主线：
+Bộ câu hỏi phỏng vấn cơ bản mô hình lớn này chủ yếu được tổng hợp dựa trên các bài viết hiện có trong chuyên mục AI. Nó không phải để bạn học thuộc máy móc, mà giúp bạn xây dựng một mạch ôn tập:
 
-1. 先理解 **Token、上下文窗口、采样参数**，知道模型为什么会不稳定。
-2. 再理解 **API 调用工程**，知道一次模型调用在生产里要经过哪些治理环节。
-3. 接着理解 **结构化输出与工具调用**，知道怎么让模型输出能被程序消费。
-4. 最后理解 **AI 应用评测**，知道怎么判断你的 AI 应用到底有没有变好。
+1. Trước tiên hiểu **Token, cửa sổ ngữ cảnh, tham số lấy mẫu**, biết mô hình tại sao không ổn định.
+2. Rồi hiểu **kỹ thuật gọi API**, biết một lần gọi mô hình trong sản xuất cần trải qua những khâu quản trị nào.
+3. Tiếp theo hiểu **đầu ra có cấu trúc và gọi công cụ**, biết cách để đầu ra mô hình có thể được chương trình tiêu thụ.
+4. Cuối cùng hiểu **đánh giá ứng dụng AI**, biết cách phán đoán ứng dụng AI của bạn có tốt hơn thực sự không.
 
-## 面试官真正想考什么
+## Phỏng vấn viên thực sự muốn kiểm tra gì
 
-大模型基础题表面上问概念，实际考的是工程判断。你可以按下面这张表来理解。
+Câu hỏi cơ bản mô hình lớn bề ngoài hỏi khái niệm, thực tế kiểm tra phán đoán kỹ thuật. Bạn có thể hiểu theo bảng sau.
 
-| 考察方向       | 面试官想确认什么                         | 常见扣分点                               |
-| -------------- | ---------------------------------------- | ---------------------------------------- |
-| Token 和上下文 | 你是否理解成本、延迟、窗口限制和信息取舍 | 只说 Token 是“词元”，讲不出工程影响      |
-| 采样参数       | 你是否知道如何在创造性和稳定性之间取舍   | 把 Temperature 说成越高越聪明            |
-| API 调用链路   | 你是否具备把模型接入生产系统的经验       | 只说调用 HTTP 接口，忽略重试、限流、幂等 |
-| 结构化输出     | 你是否知道自然语言约束不等于工程契约     | 认为“请返回 JSON”就足够可靠              |
-| 评测闭环       | 你是否能验证效果，而不是凭感觉调 Prompt  | 只看公开 benchmark，不做业务 Golden Set  |
+| Hướng kiểm tra     | Phỏng vấn viên muốn xác nhận gì                                            | Điểm trừ phổ biến                                                    |
+| ------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Token và ngữ cảnh  | Bạn có hiểu chi phí, độ trễ, giới hạn cửa sổ và đánh đổi thông tin không   | Chỉ nói Token là "từ đơn vị", không nói ảnh hưởng kỹ thuật           |
+| Tham số lấy mẫu    | Bạn có biết cách đánh đổi giữa sáng tạo và ổn định không                   | Nói Temperature càng cao càng thông minh                             |
+| Chain gọi API      | Bạn có kinh nghiệm tích hợp mô hình vào hệ thống sản xuất không            | Chỉ nói gọi HTTP interface, bỏ qua retry, rate limiting, idempotency |
+| Đầu ra có cấu trúc | Bạn có biết ràng buộc ngôn ngữ tự nhiên không bằng contract kỹ thuật không | Cho rằng "hãy trả về JSON" là đủ đáng tin                            |
+| Vòng lặp đánh giá  | Bạn có thể xác minh hiệu quả, không điều chỉnh Prompt theo cảm giác không  | Chỉ xem public benchmark, không làm Golden Set nghiệp vụ             |
 
-一个不错的回答通常不是定义式的，而是“概念 + 问题 + 工程解法”。例如问 Token，你可以先解释 Token 是模型处理文本的基本单位，再补一句：Token 直接影响上下文容量、推理成本、响应延迟和截断风险，所以生产系统里要做预算估算、历史消息压缩、RAG 证据筛选和最大输出限制。
+Một câu trả lời không tệ thường không phải dạng định nghĩa, mà là "khái niệm + vấn đề + giải pháp kỹ thuật". Ví dụ hỏi Token, bạn có thể trước tiên giải thích Token là đơn vị cơ bản để mô hình xử lý văn bản, rồi bổ sung: Token ảnh hưởng trực tiếp đến dung lượng ngữ cảnh, chi phí suy luận, độ trễ phản hồi và rủi ro cắt xén, vì vậy trong hệ thống sản xuất cần làm ước tính ngân sách, nén tin nhắn lịch sử, lọc bằng chứng RAG và giới hạn đầu ra tối đa.
 
-这就比单纯背定义强很多。
+Như vậy mạnh hơn nhiều so với chỉ học thuộc định nghĩa.
 
-## LLM 运行机制
+## Cơ chế hoạt động LLM
 
-参考文章：[《LLM 运行机制：Token、上下文窗口与采样参数怎么影响输出》](../llm-basis/llm-operation-mechanism.md)
+Bài viết tham khảo: [《Cơ chế hoạt động LLM: Token, cửa sổ ngữ cảnh và tham số lấy mẫu ảnh hưởng đầu ra như thế nào》](../llm-basis/llm-operation-mechanism.md)
 
-这一组题是大模型面试的地基。不要只记术语，要重点理解这些概念如何影响真实系统的稳定性、成本和答案质量。
+Nhóm câu hỏi này là nền tảng của phỏng vấn mô hình lớn. Đừng chỉ nhớ thuật ngữ, hãy chú trọng hiểu những khái niệm này ảnh hưởng ổn định, chi phí và chất lượng câu trả lời của hệ thống thực tế như thế nào.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- Token 不是字符，也不是中文里的“字”。不同语言、符号、代码片段的切分方式不同，因此同样长度的中文、英文、代码，Token 消耗可能差很多。
-- 上下文窗口不是无限记忆。窗口越大，成本、延迟、噪声、Lost in the Middle 风险都会增加。
-- Temperature、Top-P、Top-K 控制的是采样分布，不是模型“智商”。生产环境通常更关注稳定性和可复现性。
-- 幻觉不是单靠某个参数就能消灭的。更可靠的做法是 RAG、工具调用、引用来源、输出校验和评测闭环一起做。
+- Token không phải ký tự, cũng không phải "chữ" trong tiếng Trung. Cách cắt của các ngôn ngữ, ký hiệu, đoạn code khác nhau, vì vậy tiếng Trung, tiếng Anh, code cùng độ dài có thể tiêu thụ Token rất khác nhau.
+- Cửa sổ ngữ cảnh không phải bộ nhớ vô hạn. Cửa sổ càng lớn, chi phí, độ trễ, nhiễu, rủi ro Lost in the Middle đều tăng.
+- Temperature, Top-P, Top-K kiểm soát phân phối lấy mẫu, không phải "IQ" của mô hình. Môi trường sản xuất thường chú trọng hơn vào ổn định và khả năng tái hiện.
+- Ảo giác không thể loại bỏ chỉ dựa vào một tham số. Cách đáng tin cậy hơn là kết hợp cùng nhau RAG, gọi công cụ, trích dẫn nguồn, xác minh đầu ra và vòng lặp đánh giá.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- Token 是什么？为什么中文、英文、代码消耗的 Token 不一样？
-- 上下文窗口是什么？上下文窗口越大，效果一定越好吗？
-- 什么是 Lost in the Middle 问题？长上下文场景下怎么缓解？
-- Temperature、Top-P、Top-K 分别控制什么？生产环境怎么设置更稳？
-- 为什么 Temperature 设置为 0，模型输出仍然可能不完全一致？
-- 大模型为什么会产生幻觉？常见缓解方案有哪些？
-- Token 预算怎么估算？输入、输出、历史消息、RAG 证据如何取舍？
-- 长上下文窗口会不会取代 RAG？二者分别适合什么场景？
+- Token là gì? Tại sao tiếng Trung, tiếng Anh, code tiêu thụ Token khác nhau?
+- Cửa sổ ngữ cảnh là gì? Cửa sổ ngữ cảnh càng lớn hiệu quả nhất định càng tốt không?
+- Vấn đề Lost in the Middle là gì? Tình huống ngữ cảnh dài giảm thiểu như thế nào?
+- Temperature, Top-P, Top-K lần lượt kiểm soát gì? Môi trường sản xuất thiết lập ổn định hơn như thế nào?
+- Tại sao Temperature đặt bằng 0, đầu ra mô hình vẫn có thể không hoàn toàn nhất quán?
+- Mô hình lớn tại sao tạo ra ảo giác? Có những giải pháp giảm thiểu phổ biến nào?
+- Ngân sách Token ước tính như thế nào? Đầu vào, đầu ra, tin nhắn lịch sử, bằng chứng RAG đánh đổi như thế nào?
+- Cửa sổ ngữ cảnh dài có thay thế được RAG không? Hai loại lần lượt phù hợp với tình huống nào?
 
-面试追问通常会落到场景上。比如“你们的客服机器人历史会话太长怎么办？”这时不要只说“做摘要”，更完整的回答是：先区分必须保留的业务状态、最近对话、用户画像和可丢弃闲聊；再做 Token 预算；超过阈值时对历史消息做结构化摘要；RAG 证据只放最相关片段；最后通过评测集验证压缩后是否影响关键问题回答。
+Câu hỏi theo dõi thường rơi vào tình huống cụ thể. Ví dụ "lịch sử hội thoại chatbot khách hàng của bạn quá dài thì sao?" Lúc này đừng chỉ nói "làm tóm tắt", câu trả lời hoàn chỉnh hơn là: Trước tiên phân biệt trạng thái nghiệp vụ phải giữ, hội thoại gần đây, hồ sơ người dùng và chat nhàn rỗi có thể bỏ; rồi làm ngân sách Token; vượt quá ngưỡng thì làm tóm tắt có cấu trúc cho tin nhắn lịch sử; bằng chứng RAG chỉ đặt đoạn liên quan nhất; cuối cùng xác minh qua tập đánh giá xem sau khi nén có ảnh hưởng câu trả lời câu hỏi quan trọng không.
 
-![Token 化过程示例](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-token-process.png)
+![Ví dụ quá trình tokenize](https://oss.javaguide.cn/github/javaguide/ai/llm/llm-token-process.png)
 
-## API 调用工程
+## Kỹ thuật gọi API
 
-参考文章：[《大模型 API 调用工程实践：流式输出、重试、限流与结构化返回》](../llm-basis/llm-api-engineering.md)
+Bài viết tham khảo: [《Thực hành kỹ thuật gọi API mô hình lớn: đầu ra streaming, retry, rate limiting và trả về có cấu trúc》](../llm-basis/llm-api-engineering.md)
 
-这一组题考的是你有没有把模型当作生产依赖来治理。大模型 API 和普通 HTTP API 很像，但又更麻烦：它慢、贵、不稳定、输出不可完全控，还可能被供应商限流。
+Nhóm câu hỏi này kiểm tra bạn có coi mô hình như dependency sản xuất để quản trị không. Gọi API mô hình lớn rất giống HTTP API thông thường, nhưng còn phức tạp hơn: chậm, đắt, không ổn định, đầu ra không thể kiểm soát hoàn toàn, còn có thể bị nhà cung cấp rate limit.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 一次模型调用不只是“发请求拿结果”，而是一条完整链路：请求校验、Prompt 组装、上下文注入、模型路由、限流、超时、重试、流式返回、结构化解析、日志和评测。
-- Streaming 主要改善首字体验，不等于减少总耗时，也不等于降低 Token 成本。
-- 重试必须和幂等绑定。没有幂等设计，重试可能造成重复扣费、重复落库、重复执行工具。
-- 限流不能只看 QPS，还要看 RPM、TPM、并发数、上下文大小、最大输出和租户预算。
+- Một lần gọi mô hình không chỉ là "gửi request nhận kết quả", mà là một chain hoàn chỉnh: xác minh request, lắp ráp Prompt, chèn ngữ cảnh, định tuyến mô hình, rate limiting, timeout, retry, trả về streaming, phân tích có cấu trúc, log và đánh giá.
+- Streaming chủ yếu cải thiện trải nghiệm ký tự đầu tiên, không bằng giảm tổng thời gian, cũng không bằng giảm chi phí Token.
+- Retry phải gắn kết với idempotency. Không có thiết kế idempotency, retry có thể gây trừ phí trùng lặp, ghi database trùng lặp, thực thi công cụ trùng lặp.
+- Rate limiting không thể chỉ nhìn QPS, còn phải nhìn RPM, TPM, số concurrency, kích thước ngữ cảnh, đầu ra tối đa và ngân sách tenant.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 大模型 API 调用的完整链路是什么？
-- Streaming 为什么能改善用户体验？它能减少总耗时和 Token 成本吗？
-- SSE、WebSocket、HTTP Chunked 在流式输出场景下怎么选？
-- 哪些大模型 API 错误可以重试？哪些错误不能重试？
-- 为什么大模型调用必须做幂等？
-- 大模型限流为什么不能只按 QPS 做？
-- 模型网关通常要承担哪些能力？
-- AI 应用的调用日志里至少要记录哪些字段？
+- Chain hoàn chỉnh của gọi API mô hình lớn là gì?
+- Streaming tại sao có thể cải thiện trải nghiệm người dùng? Nó có thể giảm tổng thời gian và chi phí Token không?
+- SSE, WebSocket, HTTP Chunked trong tình huống đầu ra streaming chọn như thế nào?
+- Lỗi API mô hình lớn nào có thể retry? Lỗi nào không thể retry?
+- Tại sao gọi mô hình lớn phải làm idempotency?
+- Rate limiting mô hình lớn tại sao không thể chỉ làm theo QPS?
+- Model gateway thường cần đảm nhận những năng lực gì?
+- Log gọi ứng dụng AI ít nhất phải ghi những trường nào?
 
-一个比较稳的回答方式是先讲“链路”，再讲“治理”。例如回答“为什么需要模型网关”，可以这样展开：模型网关把供应商差异、模型路由、fallback、限流、熔断、Token 预算、成本归因和观测统一起来，避免业务代码直接耦合某个模型供应商。业务只关心能力，网关负责稳定性和成本。
+Cách trả lời khá ổn định là trước tiên nói "chain", rồi nói "quản trị". Ví dụ trả lời "tại sao cần model gateway", có thể triển khai như sau: model gateway tập trung hóa sự khác biệt nhà cung cấp, định tuyến mô hình, fallback, rate limiting, circuit breaker, ngân sách Token, quy nhân chi phí và quan sát, tránh code nghiệp vụ kết nối trực tiếp với nhà cung cấp mô hình nào đó. Nghiệp vụ chỉ quan tâm đến năng lực, gateway chịu trách nhiệm ổn định và chi phí.
 
-## 结构化输出与工具调用
+## Đầu ra có cấu trúc và gọi công cụ
 
-参考文章：[《大模型结构化输出：从 JSON 契约到 Function Calling 落地》](../llm-basis/structured-output-function-calling.md)
+Bài viết tham khảo: [《Đầu ra có cấu trúc mô hình lớn: từ contract JSON đến triển khai Function Calling》](../llm-basis/structured-output-function-calling.md)
 
-这一组题是 AI 应用开发的高频追问点。因为只要模型输出要进业务系统，就绕不开结构化输出、Schema 校验和工具调用安全。
+Nhóm câu hỏi này là điểm hỏi thêm tần suất cao của phát triển ứng dụng AI. Vì chỉ cần đầu ra mô hình vào hệ thống nghiệp vụ, là không thể tránh đầu ra có cấu trúc, xác minh Schema và bảo mật gọi công cụ.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- “请返回 JSON”只是自然语言提示，不是强约束。模型可能多输出解释、漏字段、类型错误、枚举乱写。
-- JSON Mode 主要保证合法 JSON，Structured Outputs 更关注是否符合 Schema，但服务端仍然必须校验。
-- Function Calling 的本质是让模型生成工具调用意图，真正执行权在业务系统。
-- MCP 解决的是工具如何标准化接入宿主，Function Calling 解决的是模型如何表达调用意图，它们不在同一层。
-- 工具调用必须做参数校验、权限校验、二次确认、幂等、审计和超时控制。
+- "Hãy trả về JSON" chỉ là gợi ý ngôn ngữ tự nhiên, không phải ràng buộc cứng. Mô hình có thể xuất thêm giải thích, thiếu trường, lỗi kiểu dữ liệu, viết tùy tiện enum.
+- JSON Mode chủ yếu đảm bảo JSON hợp lệ, Structured Outputs chú trọng hơn vào có phù hợp Schema không, nhưng server vẫn phải xác minh.
+- Bản chất của Function Calling là để mô hình tạo sinh ý định gọi công cụ, quyền thực thi thực sự ở hệ thống nghiệp vụ.
+- MCP giải quyết công cụ làm thế nào để được kết nối chuẩn hóa vào host, Function Calling giải quyết mô hình làm thế nào để biểu đạt ý định gọi, chúng không ở cùng một lớp.
+- Gọi công cụ phải làm xác minh tham số, xác minh quyền, xác nhận lần hai, idempotency, kiểm toán và kiểm soát timeout.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 为什么只写“请返回 JSON”不可靠？
-- JSON Mode 和 Structured Outputs 有什么区别？
-- JSON Schema 在大模型应用里解决什么问题？
-- Function Calling 的完整链路是什么？
-- Function Calling 和 MCP 有什么区别？
-- MCP Tool 和普通 HTTP API 有什么关系？
-- Agent Skill 和 Function Calling 是一回事吗？
-- 结构化输出失败后怎么处理？
-- 工具调用为什么必须做安全治理？
-- 面试里怎么一句话概括结构化输出？
+- Tại sao chỉ viết "hãy trả về JSON" không đáng tin?
+- JSON Mode và Structured Outputs có gì khác nhau?
+- JSON Schema trong ứng dụng mô hình lớn giải quyết vấn đề gì?
+- Chain hoàn chỉnh của Function Calling là gì?
+- Function Calling và MCP có gì khác nhau?
+- MCP Tool và HTTP API thông thường có quan hệ gì?
+- Agent Skill và Function Calling có phải là một không?
+- Sau khi đầu ra có cấu trúc thất bại xử lý như thế nào?
+- Tại sao gọi công cụ phải làm quản trị bảo mật?
+- Trong phỏng vấn tóm tắt đầu ra có cấu trúc bằng một câu như thế nào?
 
-这类题最容易答得太抽象。建议始终带一个业务例子：比如“退款工具调用”。模型可以生成 `refundOrder(orderId, amount, reason)` 的调用参数，但后端必须确认当前用户是否有权限、订单是否属于本人、金额是否可退、是否已经退过、是否需要二次确认。模型只能提出意图，不能绕过业务规则。
+Loại câu hỏi này dễ trả lời quá trừu tượng. Khuyến nghị luôn mang theo một ví dụ nghiệp vụ: ví dụ "gọi công cụ hoàn tiền". Mô hình có thể tạo sinh tham số gọi `refundOrder(orderId, amount, reason)`, nhưng backend phải xác nhận người dùng hiện tại có quyền không, đơn hàng có thuộc về người này không, số tiền có thể hoàn không, đã hoàn chưa, có cần xác nhận lần hai không. Mô hình chỉ có thể đề xuất ý định, không thể bỏ qua quy tắc nghiệp vụ.
 
-## AI 应用评测
+## Đánh giá ứng dụng AI
 
-参考文章：[《AI 应用评测体系：从 Golden Set 构建到线上灰度闭环》](../llm-basis/llm-evaluation.md)
+Bài viết tham khảo: [《Hệ thống đánh giá ứng dụng AI: từ xây dựng Golden Set đến vòng lặp grayscale trực tuyến》](../llm-basis/llm-evaluation.md)
 
-很多候选人会调 Prompt，但说不清“怎么证明调得更好了”。这就是评测题的价值。面试官问评测，通常是在判断你有没有生产意识。
+Nhiều ứng viên biết điều chỉnh Prompt, nhưng không nói được "cách chứng minh điều chỉnh tốt hơn". Đây là giá trị của câu hỏi đánh giá. Phỏng vấn viên hỏi đánh giá, thường đang phán đoán bạn có ý thức sản xuất không.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 公开 benchmark 只能粗略判断模型通用能力，不能代表你的业务数据分布。
-- Golden Set 的价值不在数量，而在分布。正常路径、边缘场景、对抗样本、高权重失败都要覆盖。
-- LLM-as-Judge 可以提高评测效率，但有位置偏差、冗长偏差、同源偏差和推理能力边界，不能完全替代人工。
-- RAG 和 Agent 都要分段评测。只看最终答案，很难定位问题来自检索、生成、工具调用还是执行轨迹。
+- Public benchmark chỉ có thể phán đoán sơ bộ năng lực chung của mô hình, không thể đại diện cho phân phối dữ liệu nghiệp vụ của bạn.
+- Giá trị của Golden Set không ở số lượng, mà ở phân phối. Đường dẫn thông thường, tình huống biên, mẫu đối nghịch, thất bại có trọng số cao đều phải bao gồm.
+- LLM-as-Judge có thể cải thiện hiệu suất đánh giá, nhưng có độ lệch vị trí, độ lệch dài dòng, độ lệch đồng nguồn và giới hạn năng lực suy luận, không thể hoàn toàn thay thế thủ công.
+- RAG và Agent đều phải đánh giá theo đoạn. Chỉ xem câu trả lời cuối cùng, rất khó định vị vấn đề đến từ truy xuất, tạo sinh, gọi công cụ hay quỹ đạo thực thi.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 为什么不能只靠公开 benchmark 评估 AI 应用质量？
-- Golden Set 应该怎么构建？冷启动阶段没有生产日志怎么办？
-- LLM-as-Judge 有哪些主要偏差？怎么缓解？
-- RAG 评测为什么必须分检索和生成两段？
-- Agent 评测为什么比普通问答和 RAG 更复杂？
-- 离线评测、Trace 回放、线上灰度分别解决什么问题？
-- CI 里的 AI 评测如何平衡速度和覆盖度？
-- 如果 LLM-as-Judge 和人工评测结果不一致，应该怎么处理？
+- Tại sao không thể chỉ dựa vào public benchmark để đánh giá chất lượng ứng dụng AI?
+- Golden Set nên xây dựng như thế nào? Giai đoạn cold start chưa có log sản xuất thì sao?
+- LLM-as-Judge có những độ lệch chính nào? Giảm thiểu như thế nào?
+- Tại sao đánh giá RAG phải chia hai đoạn truy xuất và tạo sinh?
+- Tại sao đánh giá Agent phức tạp hơn hỏi đáp thông thường và RAG?
+- Đánh giá offline, Trace playback, grayscale trực tuyến lần lượt giải quyết vấn đề gì?
+- Đánh giá AI trong CI làm thế nào để cân bằng tốc độ và độ phủ?
+- Nếu kết quả đánh giá LLM-as-Judge và đánh giá thủ công không nhất quán, nên xử lý như thế nào?
 
-回答评测题时，尽量形成闭环：先有 Golden Set 做离线回归，再用 Trace 回放覆盖真实线上路径，最后通过灰度和线上采样验证真实用户分布。没有这条链路，优化基本靠感觉。
+Khi trả lời câu hỏi đánh giá, hãy cố gắng tạo thành vòng lặp kín: Trước tiên có Golden Set để hồi quy offline, rồi dùng Trace playback để bao gồm đường dẫn trực tuyến thực tế, cuối cùng xác minh phân phối người dùng thực tế qua grayscale và lấy mẫu trực tuyến. Không có chain này, tối ưu hóa về cơ bản dựa vào cảm giác.
 
-## 答题框架
+## Khung trả lời câu hỏi
 
-大模型基础题可以套用一个简单框架：
+Câu hỏi cơ bản mô hình lớn có thể áp dụng một framework đơn giản:
 
-1. 先解释概念：用一句话说清楚它是什么。
-2. 再说明影响：它会影响质量、成本、延迟、稳定性还是安全。
-3. 接着给工程做法：生产里如何配置、校验、降级或观测。
-4. 最后补充边界：在哪些场景下会失效，或者需要和其他方案组合。
+1. Trước tiên giải thích khái niệm: Dùng một câu nói rõ nó là gì.
+2. Rồi nêu ảnh hưởng: Nó ảnh hưởng chất lượng, chi phí, độ trễ, ổn định hay bảo mật.
+3. Tiếp theo đưa ra cách làm kỹ thuật: Trong sản xuất cấu hình, xác minh, xuống cấp hoặc quan sát như thế nào.
+4. Cuối cùng bổ sung ranh giới: Tình huống nào sẽ thất bại, hoặc cần kết hợp với giải pháp khác.
 
-比如问“长上下文会不会取代 RAG”，可以这样答：
+Ví dụ hỏi "ngữ cảnh dài có thay thế được RAG không", có thể trả lời như sau:
 
-长上下文能提升单次输入容量，适合少量文档的深度分析，但它不能完全取代 RAG。企业知识库通常有海量文档、权限隔离、频繁更新、成本控制和引用溯源要求，不可能每次把所有内容塞进窗口。更现实的做法是用 RAG 做候选证据筛选，再把少量高质量上下文交给长上下文模型处理。
+Ngữ cảnh dài có thể nâng cao dung lượng đầu vào đơn lần, phù hợp để phân tích sâu ít tài liệu, nhưng nó không thể hoàn toàn thay thế RAG. Knowledge base doanh nghiệp thường có lượng lớn tài liệu, cách ly quyền, cập nhật thường xuyên, kiểm soát chi phí và yêu cầu truy xuất nguồn, không thể mỗi lần nhét tất cả nội dung vào cửa sổ. Cách làm thực tế hơn là dùng RAG để lọc bằng chứng ứng viên, rồi giao ít ngữ cảnh chất lượng cao cho mô hình ngữ cảnh dài xử lý.
 
-## 常见扣分点
+## Điểm trừ phổ biến
 
-- 只背定义，不讲工程影响。
-- 把大模型 API 当普通 HTTP 接口，没有限流、重试、幂等、观测意识。
-- 认为结构化输出等于“让模型返回 JSON”，忽略 Schema 和服务端校验。
-- 认为 Function Calling 是模型直接执行函数，忽略业务系统的执行权和安全边界。
-- 只看模型排行榜，不知道 Golden Set、Trace 回放和线上灰度。
+- Chỉ học thuộc định nghĩa, không nói ảnh hưởng kỹ thuật.
+- Coi API mô hình lớn như interface HTTP thông thường, không có ý thức rate limiting, retry, idempotency, quan sát.
+- Cho rằng đầu ra có cấu trúc bằng "để mô hình trả về JSON", bỏ qua Schema và xác minh server.
+- Cho rằng Function Calling là mô hình trực tiếp thực thi hàm, bỏ qua quyền thực thi của hệ thống nghiệp vụ và ranh giới bảo mật.
+- Chỉ xem bảng xếp hạng mô hình, không biết Golden Set, Trace playback và grayscale trực tuyến.
 
-## 复习建议
+## Khuyến nghị ôn tập
 
-如果时间有限，建议按这个顺序复习：
+Nếu thời gian có hạn, khuyến nghị ôn tập theo thứ tự này:
 
-1. 先看 Token、上下文窗口、采样参数，建立基础认知。
-2. 再看 API 调用工程，理解从 Demo 到生产的差距。
-3. 接着看结构化输出和 Function Calling，这是 AI 应用开发的高频追问点。
-4. 最后看评测体系，尤其是 Golden Set、LLM-as-Judge、Trace 回放。
+1. Trước tiên xem Token, cửa sổ ngữ cảnh, tham số lấy mẫu, xây dựng nhận thức cơ bản.
+2. Rồi xem kỹ thuật gọi API, hiểu khoảng cách từ Demo đến sản xuất.
+3. Tiếp theo xem đầu ra có cấu trúc và Function Calling, đây là điểm hỏi thêm tần suất cao của phát triển ứng dụng AI.
+4. Cuối cùng xem hệ thống đánh giá, đặc biệt là Golden Set, LLM-as-Judge, Trace playback.
 
-复习时不要只问自己“这个概念是什么”，还要继续追问三句：生产里会出什么问题？怎么定位？怎么治理？能答到这个层次，大模型基础面试基本就稳了。
+Khi ôn tập đừng chỉ hỏi mình "khái niệm này là gì", hãy tiếp tục hỏi thêm ba câu: Trong sản xuất sẽ xảy ra vấn đề gì? Cách định vị? Cách quản trị? Trả lời được đến cấp độ này, phỏng vấn cơ bản mô hình lớn cơ bản đã ổn định rồi.

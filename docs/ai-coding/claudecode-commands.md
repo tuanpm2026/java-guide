@@ -1,7 +1,7 @@
 ---
-title: Claude Code 核心命令详解：simplify、review、loop、batch
-description: 深入解析 Claude Code 核心命令，涵盖 /simplify、/review、/loop、/batch 等实用命令的使用方法与实战技巧。
-category: AI 编程技巧
+title: Giải thích chi tiết các lệnh cốt lõi của Claude Code: simplify, review, loop, batch
+description: Phân tích chuyên sâu các lệnh cốt lõi của Claude Code, bao gồm phương thức sử dụng và kỹ thuật thực chiến của /simplify, /review, /loop, /batch và các lệnh thực dụng khác.
+category: Kỹ thuật lập trình AI
 head:
   - - meta
     - name: keywords
@@ -10,56 +10,56 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-说实话，Claude Code 里有些命令我用了一次就离不开了，但问身边朋友知道的人反而不多。这个系列文章就来聊聊这些被严重低估的命令——`/simplify`、`/review`、`/loop`、`/batch`。
+Thật ra, có một số lệnh trong Claude Code mà tôi dùng một lần rồi không thể thiếu được, nhưng khi hỏi bạn bè xung quanh thì không nhiều người biết. Loạt bài này sẽ nói về những lệnh bị đánh giá thấp nghiêm trọng — `/simplify`, `/review`, `/loop`, `/batch`.
 
-这些命令你知道有就行了，不用硬背。打个斜杠 `/` 就出来了，比你吭哧吭哧打字快多了。
+Những lệnh này bạn chỉ cần biết là có thôi, không cần học thuộc lòng. Gõ dấu gạch chéo `/` là ra ngay, nhanh hơn nhiều so với gõ chữ.
 
-> **版本说明**：本文基于 2026 年 5 月 Claude Code 官方 Commands 文档和当前客户端行为整理。Claude Code 命令更新很快，最终以 `/help`、`/` 命令列表和官方 Commands 页面为准。
+> **Ghi chú phiên bản**: Bài này được tổng hợp dựa trên tài liệu Commands chính thức của Claude Code tháng 5 năm 2026 và hành vi client hiện tại. Các lệnh Claude Code cập nhật rất nhanh, cuối cùng hãy tham khảo `/help`, danh sách lệnh `/` và trang Commands chính thức.
 
-## 先理清 Claude Code 的命令体系
+## Hiểu hệ thống lệnh của Claude Code trước
 
-Claude Code 里 `/` 开头的东西，来源有两层：
+Những thứ bắt đầu bằng `/` trong Claude Code, có hai tầng nguồn gốc:
 
-- **Commands（硬编码命令）**——`/clear`、`/compact`、`/model`、`/cost`、`/help`、`/review` 等。逻辑写死在 CLI 代码里，直接与终端交互，不涉及 AI 推理，执行速度快且不消耗 Token。
-- **Bundled Skills（捆绑技能）**——`/simplify`、`/batch`、`/debug`、`/loop`、`/claude-api`。本质是基于 Prompt 的能力：调用时，Claude 会载入特定的 Markdown 指令集到上下文，然后调动子代理（Sub-agents）执行多步工作流。
+- **Commands (lệnh cứng hóa)** — `/clear`, `/compact`, `/model`, `/cost`, `/help`, `/review` và các lệnh khác. Logic được viết cứng trong mã CLI, tương tác trực tiếp với terminal, không liên quan đến suy luận AI, tốc độ thực thi nhanh và không tiêu thụ Token.
+- **Bundled Skills (kỹ năng tích hợp sẵn)** — `/simplify`, `/batch`, `/debug`, `/loop`, `/claude-api`. Về bản chất là khả năng dựa trên Prompt: khi gọi, Claude sẽ tải một bộ hướng dẫn Markdown cụ thể vào context, rồi điều phối các sub-agent (Sub-agents) để thực thi workflow nhiều bước.
 
-> **注意**：`/review` 是内置 PR review 命令，不是 bundled skill；深度多 Agent 审查应使用 `/ultrareview`。
+> **Lưu ý**: `/review` là lệnh PR review tích hợp sẵn, không phải bundled skill; để xem xét đa Agent chuyên sâu nên dùng `/ultrareview`.
 
-下面详细介绍这几个实用的内置能力。
+Dưới đây giới thiệu chi tiết về những khả năng tích hợp thực dụng này.
 
-## /simplify：代码简化与重构
+## /simplify: Đơn giản hóa và tái cấu trúc code
 
-`/simplify` 做的事很简单：审查你刚写的代码，找出隐藏的问题，然后直接帮你改掉。现在官方文档已把 `/simplify` 列为 bundled skill。
+`/simplify` làm một việc rất đơn giản: xem xét code bạn vừa viết, tìm ra các vấn đề ẩn, rồi trực tiếp giúp bạn sửa. Hiện tại tài liệu chính thức đã liệt kê `/simplify` là bundled skill.
 
-### 工作机制：三步走
+### Cơ chế hoạt động: Ba bước
 
-**第一步：确定审查范围。** 通常围绕最近变更文件工作；不带参数时，它跑 `git diff` 拿增量变更；如果工作区没有未提交的修改，它会自动审查最近一次 commit。指定具体类名时（比如 `/simplify MarketDataService`），它会读取整个文件做全量审查。具体范围以当前 Claude Code 版本行为为准。
+**Bước 1: Xác định phạm vi xem xét.** Thường làm việc xung quanh các file thay đổi gần đây; khi không có tham số, nó chạy `git diff` để lấy thay đổi tăng dần; nếu workspace không có sửa đổi chưa commit, nó sẽ tự động xem xét commit gần nhất. Khi chỉ định tên class cụ thể (ví dụ `/simplify MarketDataService`), nó sẽ đọc toàn bộ file để xem xét toàn diện. Phạm vi cụ thể dựa trên hành vi của phiên bản Claude Code hiện tại.
 
-**第二步：并行启动三个审查 Agent。** 不是串行地逐条检查，而是同时派出三个"审查员"，各自带着不同的视角去读同一份 diff：
+**Bước 2: Song song khởi động ba Agent xem xét.** Không phải kiểm tra tuần tự từng mục mà đồng thời phái ra ba "người xem xét", mỗi người mang góc nhìn khác nhau đọc cùng một diff:
 
 ```mermaid
 flowchart TB
-    Diff["git diff<br/>完整差异"] --> A1["Agent 1: Code Reuse<br/>看有没有重复造轮子"]
-    Diff --> A2["Agent 2: Code Quality<br/>看设计有没有问题"]
-    Diff --> A3["Agent 3: Efficiency<br/>看跑起来会不会卡"]
-    A1 --> Fix["Phase 3: 汇总发现<br/>直接修复"]
+    Diff["git diff<br/>完整差異"] --> A1["Agent 1: Code Reuse<br/>看有沒有重複造輪子"]
+    Diff --> A2["Agent 2: Code Quality<br/>看設計有沒有問題"]
+    Diff --> A3["Agent 3: Efficiency<br/>看跑起來會不會卡"]
+    A1 --> Fix["Phase 3: 彙總發現<br/>直接修復"]
     A2 --> Fix
     A3 --> Fix
 ```
 
-三个 Agent 各管一摊：
+Ba Agent mỗi người phụ trách một mảng:
 
-- **Code Reuse Agent**：看你的代码是不是在重复造轮子。比如你手写了一个 `requireNonBlank()`，它会在项目里搜一圈，发现已经有一个 `InputValidator.requireNonBlank()` 做了同样的事。
-- **Code Quality Agent**：看代码设计有没有问题。比如同一个字符串硬编码写了三遍、两个方法长得几乎一样、一个类既管认证又管发邮件——该拆没拆、该抽象没抽象的地方，它都会指出来。
-- **Efficiency Agent**：看代码跑起来会不会有性能问题。比如循环里反复创建同一对象，单线程场景非要用 `ConcurrentHashMap`、该用缓存的结果每次都重新算。
+- **Code Reuse Agent**: Xem code của bạn có đang phát minh lại bánh xe không. Ví dụ bạn tự viết một `requireNonBlank()`, nó sẽ tìm trong dự án và phát hiện đã có một `InputValidator.requireNonBlank()` làm điều tương tự.
+- **Code Quality Agent**: Xem thiết kế code có vấn đề không. Ví dụ cùng một chuỗi hardcode viết ba lần, hai method gần như giống hệt nhau, một class vừa quản lý xác thực vừa gửi email — những chỗ cần tách mà không tách, cần trừu tượng mà không trừu tượng, nó đều chỉ ra.
+- **Efficiency Agent**: Xem code khi chạy có vấn đề hiệu suất không. Ví dụ tạo cùng một object liên tục trong vòng lặp, dùng `ConcurrentHashMap` trong tình huống đơn luồng, kết quả đáng ra nên cache thì mỗi lần đều tính lại.
 
-**第三步：汇总并修复。** 三个 Agent 各自报告发现，Claude Code 会自动判断哪些是真问题、哪些是误报，然后直接动手改代码。
+**Bước 3: Tổng hợp và sửa.** Ba Agent mỗi người báo cáo phát hiện, Claude Code sẽ tự động đánh giá cái nào là vấn đề thật, cái nào là false positive, rồi trực tiếp sửa code.
 
-> ⚠️ **风险提示**：`/simplify` 会应用修复，但仍建议通过 diff、测试和 review 复核，尤其是涉及事务、安全、并发的改动。它是 prompt-based skill，可能误判。
+> ⚠️ **Cảnh báo rủi ro**: `/simplify` sẽ áp dụng các sửa chữa, nhưng vẫn khuyến nghị kiểm tra lại qua diff, test và review, đặc biệt là các thay đổi liên quan đến transaction, bảo mật, concurrency. Đây là prompt-based skill, có thể đánh giá sai.
 
-### 指定关注方向
+### Chỉ định hướng chú ý
 
-也可以给它指定关注方向：
+Cũng có thể chỉ định hướng chú ý cho nó:
 
 ```bash
 /simplify thread safety
@@ -68,19 +68,19 @@ flowchart TB
 /simplify MarketDataService
 ```
 
-在你已经知道哪块大概有问题、想让 AI 帮你精确定位的时候，这个功能很实用。
+Khi bạn đã biết khu vực nào đại khái có vấn đề và muốn AI giúp định vị chính xác, tính năng này rất hữu ích.
 
-### 实战案例：Spring 事务失效
+### Case thực chiến: Spring transaction không hoạt động
 
-有一次我写了一个用户认证模块，自测通过就准备提交了。习惯性地先跑了一遍 `/simplify`，它直接帮我找到了 6 个潜在问题，经过确认，确实都是实际存在的问题。
+Có lần tôi viết một module xác thực người dùng, tự test xong chuẩn bị commit. Theo thói quen chạy một lần `/simplify` trước, nó trực tiếp giúp tôi tìm ra 6 vấn đề tiềm ẩn, sau khi xác nhận thì đúng là tất cả đều là vấn đề thực tế.
 
-![直接运行 /simplify 命令](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-command-run.png)
+![Trực tiếp chạy lệnh /simplify](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-command-run.png)
 
-![扫描到的问题](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-issues-found.png)
+![Các vấn đề được quét ra](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-issues-found.png)
 
-最值得说的是一个 **Spring 事务失效** 的问题。三个 Agent 中有两个独立地从不同角度捕获到了同一个 Bug。
+Đáng nói nhất là một vấn đề **Spring transaction không hoạt động**. Trong ba Agent, có hai Agent độc lập từ các góc độ khác nhau đều bắt được cùng một Bug.
 
-问题代码是这样的——`WatchlistService` 里，外层方法获取 Redis 分布式锁做 double-check，内部调一个 `protected` 方法执行数据库写入：
+Code vấn đề như sau — trong `WatchlistService`, method ngoài lấy lock phân tán Redis để double-check, bên trong gọi một method `protected` để thực hiện ghi database:
 
 ```java
 public void initializeDefaultWatchlist(Long userId) {
@@ -97,17 +97,17 @@ protected void doInitializeDefaultWatchlist(Long userId) {
 }
 ```
 
-代码结构看起来合理：外层管锁和幂等，内层管事务。但 `@Transactional` 写在这实际上**完全不起作用**——因为 Spring AOP 基于动态代理，同一个类内部的直接调用会绕过代理，注解根本不会被拦截到。
+Cấu trúc code trông hợp lý: bên ngoài quản lý lock và idempotency, bên trong quản lý transaction. Nhưng `@Transactional` viết ở đây thực tế **hoàn toàn không có tác dụng** — vì Spring AOP dựa trên dynamic proxy, lời gọi trực tiếp trong cùng class sẽ bỏ qua proxy, annotation không được intercepted.
 
-这意味着如果 `saveBatch` 中途抛异常，`save` 已经提交的分组记录不会回滚，数据库里会出现一个没有股票的空壳分组。
+Điều này có nghĩa là nếu `saveBatch` ném exception ở giữa chừng, record group đã được commit bởi `save` sẽ không được rollback, database sẽ xuất hiện một group rỗng không có cổ phiếu.
 
-> **前提条件**：在 Spring 默认代理式 AOP 下，同类内部直接调用会绕过代理，`@Transactional` 不会生效；如果使用 AspectJ weaving 或通过代理对象调用，结论不同。
+> **Điều kiện tiên quyết**: Trong Spring proxy-style AOP mặc định, lời gọi trực tiếp trong cùng class sẽ bỏ qua proxy, `@Transactional` sẽ không có hiệu lực; nếu dùng AspectJ weaving hoặc gọi qua proxy object, kết luận sẽ khác.
 
-- **Code Quality Agent** 标记了自调用导致 `@Transactional` 失效，评为高严重性。
-- **Efficiency Agent** 排除了锁 TTL 不足的可能，精准定位事务失效是根因。
-- **Code Reuse Agent** 确认手写的分布式锁没有可复用替代，实现合理。
+- **Code Quality Agent** đánh dấu việc self-call làm `@Transactional` mất hiệu lực, đánh giá là mức độ cao.
+- **Efficiency Agent** loại trừ khả năng lock TTL không đủ, xác định chính xác transaction không hoạt động là nguyên nhân gốc rễ.
+- **Code Reuse Agent** xác nhận distributed lock tự viết không có thay thế có thể tái sử dụng, triển khai hợp lý.
 
-`/simplify` 给出的修复方案是把声明式事务换成**编程式事务**，用 `TransactionTemplate` 直接控制事务边界。其他修复方式包括：把事务方法移动到另一个 Spring Bean、通过代理对象调用、调整事务边界到外层 public 方法。
+Phương án sửa mà `/simplify` đưa ra là chuyển declarative transaction sang **programmatic transaction**, dùng `TransactionTemplate` để trực tiếp kiểm soát ranh giới transaction. Các cách sửa khác bao gồm: chuyển transaction method sang một Spring Bean khác, gọi qua proxy object, điều chỉnh ranh giới transaction lên method public bên ngoài.
 
 ```java
 @RequiredArgsConstructor
@@ -124,428 +124,428 @@ public class WatchlistService {
 }
 ```
 
-![开启优化](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-optimization-start.png)
+![Bắt đầu tối ưu hóa](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-optimization-start.png)
 
-![所有修改完成](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-all-fixes-done.png)
+![Tất cả sửa đổi hoàn tất](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-all-fixes-done.png)
 
-这次扫描还发现了另外 5 个问题，涵盖代码复用、安全性和效率：
+Lần quét này còn phát hiện thêm 5 vấn đề khác, bao gồm tái sử dụng code, bảo mật và hiệu quả:
 
-| 发现                                                                                       | Agent                | 修复方式                                              |
-| ------------------------------------------------------------------------------------------ | -------------------- | ----------------------------------------------------- |
-| 两个 Controller 各自定义了 `requireNonBlank()`，和已有的 `InputValidator` 重复             | Reuse                | 删除私有方法，改用 `InputValidator.requireNonBlank()` |
-| 异常处理器的 regex 每次 `replaceAll` 都重新编译，且字符类不含 `+/=`，base64 token 会漏脱敏 | Quality + Efficiency | 提取为 `static final Pattern`，扩展字符类覆盖 base64  |
-| 用 `ConcurrentHashMap` + `@Scheduled` 手动清理 30 秒过期的 Ticket                          | Efficiency           | 替换为项目已有的 Caffeine 缓存（自带 TTL 淘汰）       |
-| `@Bean` 方法里的局部 `Map` 用了 `ConcurrentHashMap`                                        | Efficiency           | 改为 `HashMap`（单线程填充，不需要并发安全）          |
-| 注释笔误："兖底" 应为 "兜底"                                                               | Quality              | 修正                                                  |
+| Phát hiện                                                                                                                                  | Agent                | Cách sửa                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------------------------------------ |
+| Hai Controller mỗi cái định nghĩa `requireNonBlank()` riêng, trùng với `InputValidator` đã có                                              | Reuse                | Xóa method riêng, dùng `InputValidator.requireNonBlank()`                      |
+| regex của exception handler mỗi lần `replaceAll` đều biên dịch lại, và class ký tự không chứa `+/=`, token base64 sẽ bị bỏ sót khi ẩn danh | Quality + Efficiency | Trích xuất thành `static final Pattern`, mở rộng class ký tự để bao phủ base64 |
+| Dùng `ConcurrentHashMap` + `@Scheduled` để thủ công dọn dẹp Ticket hết hạn 30 giây                                                         | Efficiency           | Thay bằng Caffeine cache đã có trong dự án (tích hợp TTL eviction)             |
+| Biến cục bộ `Map` trong method `@Bean` dùng `ConcurrentHashMap`                                                                            | Efficiency           | Đổi thành `HashMap` (đơn luồng điền, không cần thread-safe)                    |
+| Lỗi chú thích: "兖底" nên là "兜底"                                                                                                        | Quality              | Sửa                                                                            |
 
-最终结果：5 个文件修改，净减少 38 行代码，修复 6 个问题，编译一次通过。
+Kết quả cuối cùng: 5 file sửa đổi, giảm ròng 38 dòng code, sửa 6 vấn đề, biên dịch một lần thành công.
 
-### 实战案例：指定模块审查
+### Case thực chiến: Xem xét module cụ thể
 
-`/simplify` 还可以指定具体的类或模块做深度审查：
+`/simplify` còn có thể chỉ định class hoặc module cụ thể để xem xét chuyên sâu:
 
-![直接审查具体的类](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-class-review.png)
+![Trực tiếp xem xét class cụ thể](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/simplify-class-review.png)
 
 ```bash
 /simplify MarketDataService
 ```
 
-我对项目的行情数据服务 `MarketDataService`（约 570 行）跑了一次专项审查。这个类聚合多个数据源，提供 Caffeine 本地缓存 + Redis 分布式缓存 + 熔断降级。三个 Agent 找到了 8 个问题，其中有两个高严重性的：
+Tôi chạy một lần xem xét chuyên biệt trên `MarketDataService` (khoảng 570 dòng) của dự án, service dữ liệu thị trường này. Class này tổng hợp nhiều nguồn dữ liệu, cung cấp Caffeine local cache + Redis distributed cache + circuit breaker fallback. Ba Agent tìm ra 8 vấn đề, trong đó có hai vấn đề mức độ cao:
 
-**Bug：`year` 周期被静默降级为 `month`。** `normalizePeriod` 方法里有一个 switch：
+**Bug: Chu kỳ `year` bị âm thầm hạ cấp xuống `month`.** Trong method `normalizePeriod` có một switch:
 
 ```java
 case "year", "yearly", "y" -> "month";  // Bug！应该是 "year"
 ```
 
-其他周期都正确映射（`day → "day"`、`week → "week"`、`month → "month"`），唯独 `year` 被映射到了 `month`。调用方请求年度 K 线，实际拿到的是月度 K 线，没有任何报错或提示。
+Tất cả các chu kỳ khác đều được ánh xạ đúng (`day → "day"`, `week → "week"`, `month → "month"`), duy nhất `year` bị ánh xạ sang `month`. Caller yêu cầu K-line hàng năm, thực tế nhận được K-line hàng tháng, không có bất kỳ lỗi hay thông báo nào.
 
-### 适合的场景
+### Tình huống phù hợp
 
-**适合的：**
+**Phù hợp với:**
 
-- 提交 PR 前的自审——尤其是涉及多文件重构的变更，让三个 Agent 并行扫一遍，成本很低但收益可能很高。
-- 重构后的质量检查——刚做完一次大范围代码整理，用来确认没有引入新的设计问题。
-- Code Review 的辅助工具——帮你发现那些需要领域知识才能识别的问题。
+- Tự xem xét trước khi commit PR — đặc biệt là các thay đổi liên quan đến refactoring nhiều file, để ba Agent song song quét một lần, chi phí thấp nhưng lợi ích có thể rất cao.
+- Kiểm tra chất lượng sau refactoring — vừa hoàn thành một lần dọn dẹp code quy mô lớn, dùng để xác nhận không đưa vào vấn đề thiết kế mới.
+- Công cụ hỗ trợ Code Review — giúp bạn phát hiện những vấn đề cần kiến thức domain mới có thể nhận ra.
 
-**不太适合的：**
+**Không phù hợp lắm với:**
 
-- 全项目代码审计——不带参数时基于 `git diff` 工作，只审查增量变更。
-- 风格统一——花括号放哪一行，用 tab 还是空格，那是 formatter 的活。
-- 安全审计——专业的安全审查需要 SAST 工具。
+- Kiểm toán code toàn dự án — khi không có tham số, làm việc dựa trên `git diff`, chỉ xem xét thay đổi tăng dần.
+- Thống nhất phong cách — dấu ngoặc nhọn đặt dòng nào, dùng tab hay space, đó là việc của formatter.
+- Kiểm toán bảo mật — xem xét bảo mật chuyên nghiệp cần công cụ SAST.
 
-**与传统工具的核心差异：** 传统规则型工具默认更擅长发现通用代码味道；框架语义类问题往往需要专项规则或语义分析。`/simplify` 的优势在于它能**结合上下文推理**，理解框架语义。
+**Sự khác biệt cốt lõi với công cụ truyền thống:** Công cụ dựa trên quy tắc truyền thống mặc định giỏi hơn trong việc phát hiện code smell chung; vấn đề ngữ nghĩa framework thường cần quy tắc chuyên biệt hoặc phân tích ngữ nghĩa. Lợi thế của `/simplify` là nó có thể **suy luận kết hợp context**, hiểu ngữ nghĩa framework.
 
-## /review：代码审查
+## /review: Xem xét code
 
-> **前置说明**：`/review` 是本地 PR review 命令，用于审查当前分支或指定 PR；如果要讲深度多 Agent 审查，应使用 `/ultrareview`；安全审查应使用 `/security-review`。
+> **Ghi chú tiên quyết**: `/review` là lệnh PR review cục bộ, dùng để xem xét branch hiện tại hoặc PR được chỉ định; nếu muốn xem xét đa Agent chuyên sâu, nên dùng `/ultrareview`; xem xét bảo mật nên dùng `/security-review`.
 
-`/review` 和 `/simplify` 定位完全不同：`/simplify` 是自动清理工，找到问题直接改；`/review` 是资深审查员，找到问题列出来给你看，你自己决定改不改。
+`/review` và `/simplify` có định vị hoàn toàn khác nhau: `/simplify` là người dọn dẹp tự động, tìm thấy vấn đề thì sửa ngay; `/review` là người xem xét kỳ cựu, tìm thấy vấn đề thì liệt kê ra cho bạn xem, bạn tự quyết định có sửa không.
 
-简单说，`/simplify` 关注**可复用性、代码质量和效率**，偏重清理与改进；`/review` 关注**代码有没有写错**，偏重正确性审查。
+Nói đơn giản, `/simplify` tập trung vào **khả năng tái sử dụng, chất lượng code và hiệu quả**, thiên về dọn dẹp và cải thiện; `/review` tập trung vào **code có viết sai không**, thiên về xem xét tính đúng đắn.
 
-### 工作机制
+### Cơ chế hoạt động
 
-执行 `/review` 时，Claude Code 会做三件事：
+Khi thực thi `/review`, Claude Code sẽ làm ba việc:
 
-**第一步：拿到变更。** 它先跑 `git diff` 拿增量变更，或者根据你指定的 PR 读取远程变更。
+**Bước 1: Lấy thay đổi.** Nó chạy `git diff` trước để lấy thay đổi tăng dần, hoặc đọc thay đổi remote dựa trên PR bạn chỉ định.
 
-**第二步：并行分析。** Claude Code 并行审查变更，结合置信度过滤来减少误报。
+**Bước 2: Phân tích song song.** Claude Code song song xem xét các thay đổi, kết hợp lọc độ tin cậy để giảm false positive.
 
-**第三步：输出分级报告。** 最后你会拿到一份分级的问题清单（Critical / High / Medium / Low），每个问题带具体行号、原因和修复建议。
+**Bước 3: Xuất báo cáo phân cấp.** Cuối cùng bạn sẽ nhận được một danh sách vấn đề phân cấp (Critical / High / Medium / Low), mỗi vấn đề kèm số dòng cụ thể, lý do và gợi ý sửa.
 
-### 怎么用
-
-```bash
-/review              # 审查当前分支对应 PR，或本地 PR 语境
-/review 123          # 审查指定 PR
-```
-
-文件级审查建议写成自然语言：比如"review src/auth/login.service.ts"。
-
-审查完发现问题后，你可以直接说"修复所有 Critical 问题"，Claude 会根据审查建议自动改。
-
-### /review、/security-review、/ultrareview 怎么选
-
-| 命令               | 适合场景                                   | 重点                            |
-| ------------------ | ------------------------------------------ | ------------------------------- |
-| `/review`          | 日常 PR / 本地变更审查                     | 正确性、边界条件、潜在 Bug      |
-| `/security-review` | 登录、支付、权限、上传、Webhook 等敏感模块 | 注入、鉴权、数据泄露、权限绕过  |
-| `/ultrareview`     | 重要 PR 上线前，想做更深一层审查           | 云端沙箱、多 Agent、深度 Review |
-
-我的建议：普通 PR 用 `/review`，涉及安全边界的改动额外跑 `/security-review`，核心链路或大版本上线前再考虑 `/ultrareview`。
-
-### /review 和 /simplify 怎么选
-
-|        | `/simplify`                  | `/review`                              |
-| ------ | ---------------------------- | -------------------------------------- |
-| 目标   | 消除技术债、提升可读性       | 确保正确性、发现 Bug                   |
-| 做什么 | 等效变换（重构）             | 逻辑诊断（分析）                       |
-| 结果   | 直接改代码                   | 列出问题和建议                         |
-| 关注点 | 嵌套过深、变量命名、冗余逻辑 | 安全漏洞、性能瓶颈、边界条件、逻辑错误 |
-
-选 `/simplify`：代码能跑但涉及可复用性、代码质量或效率问题、刚写完原型想快速重构、想删掉冗余代码省 Token。
-
-选 `/review`：不确定代码有没有 Bug、上线前做最后把关、涉及安全或资金的关键模块、想看资深工程师会对你的代码提什么意见。
-
-**最推荐的用法是先 `/review` 后 `/simplify`——先确保逻辑正确，再清理代码。**
-
-### 实战案例
-
-有一次我写了一个用户认证模块，自测通过就准备提交了。顺手跑了一遍 `/review`，它标出了三个问题：
-
-**Critical：密码重置接口没做速率限制。** 攻击者可以无限次调用重置接口轰炸用户邮箱。这个我自己测试的时候根本想不到——测试环境只有我一个用户，哪来的速率限制需求。
-
-**High：Token 过期时间从配置读取但没兜底。** 配置项没设的话，过期时间会变成 0，意味着 Token 一生成就过期。`/review` 建议加一个 `Math.max(config.tokenExpiry, 3600)` 做保底。
-
-**Medium：日志里把 userId 明文打印了。** 虽然不算敏感信息，但在合规要求严格的场景下还是脱敏比较好。
-
-三个问题，两个和安全性相关。如果不跑 `/review`，前两个问题直接上生产。
-
-### 注意事项
-
-**它不替你做决定。** 和 `/simplify` 不同，`/review` 默认不改代码，只给建议。涉及安全的关键代码，这种"先看再动"的模式更让人放心。
-
-**它依赖 CLAUDE.md。** 如果你没有在 `CLAUDE.md` 里写规范，`/review` 就只能做通用审查。把项目的编码规范、技术选型偏好、安全要求写进去，输出质量会高很多。
-
-**它不是 SonarQube。** SonarQube 基于规则匹配，`/review` 能理解框架语义——它知道 Spring 代理是怎么工作的，知道 `@Transactional` 在类内部自调用时会失效。这是它比传统静态分析工具强的地方。
-
-## /loop：定时任务与自主迭代
-
-这是 Claude Code 之父认为最强大的两个命令之一，他多次分享推荐。
-
-![Claude Code 推荐使用 loop 命令](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-father-loop.png)
-
-`/loop` 可以帮你定时跑任务，也可以帮你反复试错直到把活干完。
-
-### 解决了什么问题
-
-日常开发里有两类事特别烦人：
-
-- 第一类是需要反复做的事。比如每隔半小时检查一下有没有新的 PR 需要处理、每天早上跑一遍测试看看有没有挂掉的。这些事不难，但总忘。
-- 第二类是需要反复试错的事。比如修复一个牵扯多个模块的 Bug，把整个项目从 CommonJS 迁移到 ESM。这种任务的特点是：一次做不完，中间会出错，出错了要改，改完再验证。
-
-`/loop` 把这两类事都接过去了。
-
-### 三种调度方案怎么选
-
-Claude Code 不止 `/loop` 这一种定时机制，它实际上有三套调度方案：
-
-|                  | **Cloud 任务**     | **Desktop 任务** | **/loop**                                                                                                     |
-| ---------------- | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------- |
-| 运行位置         | Anthropic 云端     | 你的机器         | 你的机器                                                                                                      |
-| 需要开机吗       | 不需要             | 需要             | 需要                                                                                                          |
-| 需要打开会话吗   | 不需要             | 不需要           | **需要**                                                                                                      |
-| 重启后还在吗     | 在                 | 在               | 会话级；关闭期间不会执行；使用 `--resume` / `--continue` 恢复同一会话时，7 天内未过期的 recurring task 可恢复 |
-| 能访问本地文件吗 | 不能（重新 clone） | 能               | 能                                                                                                            |
-| MCP 服务器       | 每个任务单独配置   | 配置文件和连接器 | 继承当前会话                                                                                                  |
-| 最小间隔         | 1 小时             | 1 分钟           | 1 分钟                                                                                                        |
-
-一句话选型：**要可靠、不想管机器 → Cloud 任务；要读本地文件 → Desktop 任务；临时轮询、快速用一下 → `/loop`。**
-
-### 两种工作模式
-
-**模式一：定时调度（Cron 模式）**
-
-告诉它"干什么"和"隔多久干一次"，到点它自己跑：
+### Cách dùng
 
 ```bash
-/loop 30m /review              # 每 30 分钟跑一次代码审查
-/loop 1h "跑一遍单元测试，看看有没有失败的"  # 每小时检查测试
-/loop 5m "检查 GitHub 上开放的 PR 状态"    # 每 5 分钟看 PR 动态
+/review              # Xem xét PR tương ứng với branch hiện tại, hoặc ngữ cảnh PR cục bộ
+/review 123          # Xem xét PR được chỉ định
 ```
 
-间隔写法有三种：
+Xem xét cấp độ file nên viết bằng ngôn ngữ tự nhiên: ví dụ "review src/auth/login.service.ts".
 
-| 写法        | 示例                               | 效果                                                                                                          |
-| ----------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 间隔在前    | `/loop 30m 检查构建状态`           | 每 30 分钟                                                                                                    |
-| "every"在后 | `/loop 检查构建状态 every 2 hours` | 每 2 小时                                                                                                     |
-| 不写间隔    | `/loop 检查构建状态`               | Claude 动态选择下一次执行间隔（通常 1 分钟到 1 小时）；Bedrock/Vertex AI/Microsoft Foundry 场景下固定 10 分钟 |
+Sau khi xem xét xong và phát hiện vấn đề, bạn có thể trực tiếp nói "sửa tất cả vấn đề Critical", Claude sẽ tự động sửa dựa trên gợi ý xem xét.
 
-**模式二：自主迭代（Agentic Loop）**
+### Chọn /review, /security-review hay /ultrareview
 
-这个模式下 `/loop` 不再是定时器，而是"自动试错引擎"。你给它一个目标，它自己规划、执行、验证、修正，循环往复。它适合把"执行—观察—修正—再执行"这类循环交给 Claude，但要写清完成标准、最大尝试次数和停止条件：
+| Lệnh               | Phù hợp với tình huống                                                | Trọng tâm                                        |
+| ------------------ | --------------------------------------------------------------------- | ------------------------------------------------ |
+| `/review`          | PR thường ngày / xem xét thay đổi cục bộ                              | Tính đúng đắn, điều kiện biên, Bug tiềm ẩn       |
+| `/security-review` | Module nhạy cảm như đăng nhập, thanh toán, quyền, upload, Webhook     | Injection, xác thực, rò rỉ dữ liệu, bypass quyền |
+| `/ultrareview`     | Trước khi PR quan trọng lên production, muốn xem xét sâu hơn một tầng | Sandbox cloud, đa Agent, Deep Review             |
+
+Gợi ý của tôi: PR thường dùng `/review`, thay đổi liên quan đến biên giới bảo mật chạy thêm `/security-review`, trước khi lên production core path hoặc phiên bản lớn mới cân nhắc `/ultrareview`.
+
+### Chọn /review hay /simplify
+
+|            | `/simplify`                                    | `/review`                                                      |
+| ---------- | ---------------------------------------------- | -------------------------------------------------------------- |
+| Mục tiêu   | Loại bỏ technical debt, nâng cao khả năng đọc  | Đảm bảo tính đúng đắn, phát hiện Bug                           |
+| Làm gì     | Biến đổi tương đương (refactor)                | Chẩn đoán logic (phân tích)                                    |
+| Kết quả    | Trực tiếp sửa code                             | Liệt kê vấn đề và gợi ý                                        |
+| Điểm chú ý | Lồng nhau quá sâu, đặt tên biến, logic dư thừa | Lỗ hổng bảo mật, nút thắt hiệu suất, điều kiện biên, lỗi logic |
+
+Chọn `/simplify`: Code chạy được nhưng liên quan đến vấn đề tái sử dụng, chất lượng code hay hiệu quả, vừa viết xong prototype muốn refactor nhanh, muốn xóa code dư thừa để tiết kiệm Token.
+
+Chọn `/review`: Không chắc code có Bug không, kiểm tra lần cuối trước khi lên production, module quan trọng liên quan đến bảo mật hoặc tài chính, muốn xem kỹ sư kỳ cựu sẽ có ý kiến gì về code của bạn.
+
+**Cách dùng được khuyến nghị nhất là `/review` trước rồi `/simplify` sau — đảm bảo logic đúng trước, rồi mới dọn dẹp code.**
+
+### Case thực chiến
+
+Có lần tôi viết một module xác thực người dùng, tự test xong chuẩn bị commit. Tiện tay chạy một lần `/review`, nó đánh dấu ba vấn đề:
+
+**Critical: Interface reset mật khẩu không có rate limit.** Kẻ tấn công có thể gọi interface reset vô hạn để tấn công bombarding email người dùng. Điều này khi tự test thì hoàn toàn không nghĩ đến — môi trường test chỉ có một mình tôi, lấy đâu ra nhu cầu rate limit.
+
+**High: Thời gian hết hạn Token đọc từ config nhưng không có fallback.** Nếu config item không được đặt, thời gian hết hạn sẽ thành 0, nghĩa là Token vừa tạo xong đã hết hạn. `/review` gợi ý thêm `Math.max(config.tokenExpiry, 3600)` để bảo vệ tối thiểu.
+
+**Medium: Log in ra userId dạng plaintext.** Tuy không hẳn là thông tin nhạy cảm, nhưng trong tình huống yêu cầu compliance nghiêm ngặt vẫn nên ẩn danh tốt hơn.
+
+Ba vấn đề, hai cái liên quan đến bảo mật. Nếu không chạy `/review`, hai vấn đề đầu sẽ đi thẳng lên production.
+
+### Lưu ý
+
+**Nó không quyết định thay bạn.** Khác với `/simplify`, `/review` mặc định không sửa code, chỉ đưa ra gợi ý. Với code quan trọng liên quan đến bảo mật, kiểu "xem trước rồi mới động" này cho người ta an tâm hơn.
+
+**Nó phụ thuộc vào CLAUDE.md.** Nếu bạn không viết quy chuẩn trong `CLAUDE.md`, `/review` chỉ có thể làm xem xét chung. Viết quy chuẩn code, ưu tiên lựa chọn công nghệ, yêu cầu bảo mật của dự án vào đó, chất lượng đầu ra sẽ cao hơn nhiều.
+
+**Nó không phải là SonarQube.** SonarQube dựa trên khớp quy tắc, `/review` có thể hiểu ngữ nghĩa framework — nó biết Spring proxy hoạt động như thế nào, biết `@Transactional` sẽ mất hiệu lực khi self-call trong cùng class. Đây là điểm mạnh hơn so với công cụ static analysis truyền thống.
+
+## /loop: Task định kỳ và lặp tự chủ
+
+Đây là một trong hai lệnh mạnh nhất mà cha đẻ Claude Code cho là vậy, ông ấy đã nhiều lần chia sẻ và giới thiệu.
+
+![Claude Code giới thiệu sử dụng lệnh loop](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-father-loop.png)
+
+`/loop` có thể giúp bạn chạy task định kỳ, cũng có thể giúp bạn thử đi thử lại cho đến khi hoàn thành việc.
+
+### Giải quyết vấn đề gì
+
+Trong phát triển hàng ngày có hai loại việc đặc biệt phiền não:
+
+- Loại đầu là việc cần làm lặp đi lặp lại. Ví dụ mỗi nửa tiếng kiểm tra xem có PR mới cần xử lý không, mỗi sáng chạy một lần test xem có cái nào hỏng không. Những việc này không khó, nhưng hay quên.
+- Loại hai là việc cần thử đi thử lại. Ví dụ sửa một Bug liên quan đến nhiều module, chuyển toàn bộ dự án từ CommonJS sang ESM. Đặc điểm của loại task này là: một lần không xong, giữa chừng sẽ có lỗi, có lỗi phải sửa, sửa xong phải xác minh lại.
+
+`/loop` tiếp nhận cả hai loại việc này.
+
+### Chọn phương án lập lịch nào trong ba phương án
+
+Claude Code không chỉ có `/loop` là cơ chế định kỳ duy nhất, thực ra nó có ba bộ phương án lập lịch:
+
+|                                   | **Cloud Task**               | **Desktop Task**           | **/loop**                                                                                                                                                      |
+| --------------------------------- | ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chạy ở đâu                        | Cloud Anthropic              | Máy của bạn                | Máy của bạn                                                                                                                                                    |
+| Cần bật máy không                 | Không cần                    | Cần                        | Cần                                                                                                                                                            |
+| Cần mở session không              | Không cần                    | Không cần                  | **Cần**                                                                                                                                                        |
+| Còn sau khi restart không         | Còn                          | Còn                        | Cấp session; không thực thi trong lúc đóng; khi phục hồi cùng session bằng `--resume` / `--continue`, recurring task chưa hết hạn trong 7 ngày có thể phục hồi |
+| Có thể truy cập file cục bộ không | Không thể (clone lại)        | Có                         | Có                                                                                                                                                             |
+| MCP server                        | Cấu hình riêng cho từng task | File cấu hình và connector | Kế thừa session hiện tại                                                                                                                                       |
+| Khoảng cách tối thiểu             | 1 giờ                        | 1 phút                     | 1 phút                                                                                                                                                         |
+
+Một câu chọn lựa: **Muốn đáng tin, không muốn quản lý máy → Cloud Task; muốn đọc file cục bộ → Desktop Task; polling tạm thời, dùng nhanh → `/loop`.**
+
+### Hai chế độ làm việc
+
+**Chế độ 1: Lập lịch định kỳ (Cron mode)**
+
+Nói với nó "làm gì" và "bao lâu làm một lần", đến giờ nó tự chạy:
 
 ```bash
-/loop "修复 auth 模块里所有失败的单元测试，直到全部通过"
-/loop "把 src/legacy 下所有组件迁移到 Tailwind CSS，确保页面渲染正常"
-/loop "实现支付宝支付模块，补上单元测试，确保全部通过"
+/loop 30m /review              # Mỗi 30 phút chạy một lần xem xét code
+/loop 1h "跑一遍單元測試，看看有沒有失敗的"  # Mỗi giờ kiểm tra test
+/loop 5m "檢查 GitHub 上開放的 PR 狀態"    # Mỗi 5 phút xem trạng thái PR
 ```
 
-普通模式下 Claude 写完代码就交给你了，报错你得自己贴回去。`/loop` 模式下，它自己读报错、自己改、自己重跑测试，全程不用你盯着。
+Có ba cách viết khoảng cách:
 
-### 五个实际场景
+| Cách viết              | Ví dụ                              | Hiệu quả                                                                                                                                        |
+| ---------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Khoảng cách ở đầu      | `/loop 30m 檢查構建狀態`           | Mỗi 30 phút                                                                                                                                     |
+| "every" ở sau          | `/loop 檢查構建狀態 every 2 hours` | Mỗi 2 giờ                                                                                                                                       |
+| Không viết khoảng cách | `/loop 檢查構建狀態`               | Claude động态 chọn khoảng cách thực thi tiếp theo (thường 1 phút đến 1 giờ); trong kịch bản Bedrock/Vertex AI/Microsoft Foundry cố định 10 phút |
 
-**1. 自动监控 PR 状态。** 每 5 分钟拉一次开放的 PR，检查有没有冲突、能不能安全合并、生成摘要。
+**Chế độ 2: Lặp tự chủ (Agentic Loop)**
+
+Trong chế độ này `/loop` không còn là timer nữa mà là "engine thử sai tự động". Bạn cho nó một mục tiêu, nó tự lên kế hoạch, thực thi, xác minh, sửa chính, lặp đi lặp lại. Phù hợp để giao chu trình "thực thi—quan sát—sửa chính—thực thi lại" cho Claude, nhưng cần viết rõ tiêu chuẩn hoàn thành, số lần thử tối đa và điều kiện dừng:
 
 ```bash
-/loop 5m "用 gh 命令检查开放 PR 的状态，标记有冲突的和可以安全合并的"
+/loop "修復 auth 模塊裡所有失敗的單元測試，直到全部通過"
+/loop "把 src/legacy 下所有組件遷移到 Tailwind CSS，確保頁面渲染正常"
+/loop "實現支付寶支付模塊，補上單元測試，確保全部通過"
 ```
 
-**2. 自动测试看门狗。** 定时跑测试，发现了失败的测试就尝试修。多人协作的项目里特别实用——别人合进来的代码可能悄悄搞挂了你的模块。
+Ở chế độ thường, Claude viết xong code thì giao cho bạn, lỗi bạn phải tự dán lại. Ở chế độ `/loop`, nó tự đọc lỗi, tự sửa, tự chạy lại test, toàn bộ không cần bạn theo dõi.
+
+### Năm tình huống thực tế
+
+**1. Tự động monitor trạng thái PR.** Mỗi 5 phút lấy PR đang mở một lần, kiểm tra có conflict không, có thể merge an toàn không, tạo tóm tắt.
 
 ```bash
-/loop 2h "运行测试套件，发现失败的就修复"
+/loop 5m "用 gh 命令檢查開放 PR 的狀態，標記有沖突的和可以安全合並的"
 ```
 
-**3. 定时同步项目文档。** 改了代码忘了改文档，这是开发者最常犯的错。每 2 小时让 `/loop` 扫一遍代码变更，自动把改动同步到用户文档里。
+**2. Watchdog test tự động.** Chạy test định kỳ, phát hiện test thất bại thì thử sửa. Đặc biệt hữu ích trong dự án nhiều người hợp tác — code người khác merge vào có thể âm thầm làm hỏng module của bạn.
 
 ```bash
-/loop 2h "检查最近的代码变更，更新对应的公开文档"
+/loop 2h "運行測試套件，發現失敗的就修復"
 ```
 
-**4. 大规模技术迁移。** 比如把整个项目从 CommonJS 迁到 ESM，几十个文件，中间一定会有报错。`/loop` 能自己处理这些错误，一个文件一个文件地改过去。
+**3. Đồng bộ tài liệu dự án định kỳ.** Sửa code quên sửa tài liệu, đây là lỗi lập trình viên hay mắc nhất. Mỗi 2 giờ để `/loop` quét thay đổi code, tự động đồng bộ thay đổi vào tài liệu người dùng.
 
 ```bash
-/loop "把项目里所有 CommonJS 的 require/module.exports 改成 ESM 的 import/export，确保测试全部通过"
+/loop 2h "檢查最近的代碼變更，更新對應的公開文檔"
 ```
 
-**5. 批量拉起自动化任务。** 可以写一个自定义命令文件，把所有定时任务列在里面。项目启动时跑一条命令就能把所有自动化任务一起拉起来。
-
-### 怎么管理任务
-
-直接用自然语言跟 Claude 说就行：
+**4. Di chuyển công nghệ quy mô lớn.** Ví dụ chuyển toàn bộ dự án từ CommonJS sang ESM, hàng chục file, chắc chắn sẽ có lỗi ở giữa. `/loop` có thể tự xử lý các lỗi này, sửa từng file một.
 
 ```bash
-我现在有哪些定时任务？
-停掉那个检查部署的任务
+/loop "把項目裡所有 CommonJS 的 require/module.exports 改成 ESM 的 import/export，確保測試全部通過"
 ```
 
-底层靠三个工具干活：
+**5. Khởi động hàng loạt task tự động.** Có thể viết một file lệnh tùy chỉnh, liệt kê tất cả task định kỳ bên trong. Khi khởi động dự án chạy một lệnh là có thể kéo tất cả task tự động lên cùng một lúc.
 
-| 工具         | 干什么                                                |
-| ------------ | ----------------------------------------------------- |
-| `CronCreate` | 创建任务，接收 cron 表达式、要执行的 prompt、是否循环 |
-| `CronList`   | 列出所有在跑的任务，显示 ID、调度时间、prompt         |
-| `CronDelete` | 按 ID 删任务                                          |
+### Cách quản lý task
 
-### 运行机制细节
-
-**空闲时才触发。** 调度器每秒检查一次有没有到期任务，但只在 Claude 空闲时才触发。如果你正在跟它对话，任务会排队等当前这轮结束再跑。
-
-**有抖动机制。** 防止所有用户任务在同一时刻砸向 API。循环任务最多延迟周期的 10%，上限 15 分钟。若任务间隔小于 1 小时，最多延迟半个 interval。需要精确触发的话，建议避开 `:00` 和 `:30`。
-
-**任务有保质期。** 循环任务创建 **7 天后**自动过期，会最后执行一次然后自行删除。需要更长周期的，用 Cloud 或 Desktop 的定时任务。
-
-### 注意事项
-
-- **Token 消耗不低。** 特别是自主迭代模式，指令尽量具体，完成标准要明确。
-- **只在当前会话有效。** 关掉终端或退出 Claude Code，关闭期间不会执行，也不会补跑。它不是 CI/CD 的替代品。
-- **建议加上限。** 目标一直达不到它会一直跑。在指令里加一句"最多尝试 10 次"之类的约束。
-- **写清停止条件。** 包括最多尝试次数和验收标准（测试全部通过/CI green/无 lint error）。
-- **失败时先汇报。** 限制写操作，避免无限修改。涉及关键路径的改动建议先 commit 再跑 `/loop`，方便回滚。
-- **7 天限制。** 循环任务创建 7 天后自动过期，dynamic loop 也适用此限制。需要更长周期用 Routines 或 Desktop scheduled tasks。
-
-## /debug：Claude Code 自己出问题时先跑它
-
-`/debug` 不是帮你 debug 业务代码，而是帮你排查 Claude Code 会话本身的问题。
-
-比如 MCP 连接异常、工具调用失败、命令卡住、权限规则没生效、插件加载异常，这类问题别急着重启，先跑：
+Nói chuyện trực tiếp với Claude bằng ngôn ngữ tự nhiên là được:
 
 ```bash
-/debug MCP 连接一直失败
-/debug 为什么工具调用被拒绝
-/debug Claude Code 卡住不动
+我現在有哪些定時任務？
+停掉那個檢查部署的任務
 ```
 
-它会开启当前会话的 debug log，并结合日志分析问题。
+Bên dưới dùng ba công cụ để làm việc:
 
-> **注意**：如果你不是用 `claude --debug` 启动的，`/debug` 只能从执行之后开始捕获日志，之前的错误可能看不到。
+| Công cụ      | Làm gì                                                                 |
+| ------------ | ---------------------------------------------------------------------- |
+| `CronCreate` | Tạo task, nhận cron expression, prompt cần thực thi, có lặp không      |
+| `CronList`   | Liệt kê tất cả task đang chạy, hiển thị ID, thời gian lập lịch, prompt |
+| `CronDelete` | Xóa task theo ID                                                       |
 
-## /batch：多任务并行编排
+### Chi tiết cơ chế vận hành
 
-`/batch` 的核心本质是多任务并行编排器，它的强大之处在于它能将一个复杂的"大需求"**自动拆解并并行执行**。
+**Chỉ trigger khi rảnh.** Scheduler kiểm tra mỗi giây có task đến hạn không, nhưng chỉ trigger khi Claude rảnh. Nếu bạn đang trò chuyện với nó, task sẽ xếp hàng đợi lượt trò chuyện hiện tại kết thúc mới chạy.
 
-- **任务拆解 (Task Decomposition)：** 当你说一个大任务或者多条需求的时候，Claude 并没有胡乱开始，而是将其逻辑拆分成独立的 **Unit（工作单元）**。
-- **并行工作 (Parallel Workers)：** Claude 会同时启动多个后台 Agent，分别处理不同的功能模块。
-- **独立工作区 (Independent Worktrees)：** 为了防止多个 Agent 同时修改代码导致冲突，Claude 为每个 Worker 创建了独立的 **Git Worktree**。这意味着它们在物理隔离的环境中修改代码，互不干扰。
+**Có cơ chế jitter.** Ngăn tất cả task của người dùng đổ xuống API cùng một lúc. Task lặp có thể trễ tối đa 10% chu kỳ, giới hạn trên 15 phút. Nếu khoảng cách task nhỏ hơn 1 giờ, trễ tối đa nửa interval. Nếu cần trigger chính xác, nên tránh `:00` và `:30`.
 
-**使用方法很简单**：
+**Task có hạn sử dụng.** Task lặp tự động hết hạn sau **7 ngày** kể từ khi tạo, sẽ thực thi một lần cuối rồi tự xóa. Cần chu kỳ dài hơn thì dùng Cloud hoặc Desktop scheduled task.
+
+### Lưu ý
+
+- **Tiêu thụ Token không thấp.** Đặc biệt là chế độ lặp tự chủ, hướng dẫn phải càng cụ thể càng tốt, tiêu chuẩn hoàn thành phải rõ ràng.
+- **Chỉ có hiệu lực trong session hiện tại.** Đóng terminal hoặc thoát Claude Code, trong lúc đóng sẽ không thực thi, cũng không bù chạy. Nó không phải là thay thế cho CI/CD.
+- **Nên thêm giới hạn.** Nếu mục tiêu mãi không đạt được nó sẽ chạy mãi. Thêm một câu "tối đa thử 10 lần" trong hướng dẫn.
+- **Viết rõ điều kiện dừng.** Bao gồm số lần thử tối đa và tiêu chuẩn nghiệm thu (test tất cả pass/CI green/không có lint error).
+- **Báo cáo trước khi thất bại.** Giới hạn thao tác ghi, tránh sửa đổi vô hạn. Các thay đổi liên quan đến path quan trọng nên commit trước rồi mới chạy `/loop`, tiện cho việc rollback.
+- **Giới hạn 7 ngày.** Task lặp tự động hết hạn sau 7 ngày kể từ khi tạo, giới hạn này cũng áp dụng cho dynamic loop. Cần chu kỳ dài hơn dùng Routines hoặc Desktop scheduled tasks.
+
+## /debug: Chạy trước khi Claude Code bản thân có vấn đề
+
+`/debug` không phải giúp bạn debug code nghiệp vụ, mà giúp bạn kiểm tra sự cố của bản thân session Claude Code.
+
+Ví dụ kết nối MCP bất thường, gọi tool thất bại, lệnh bị treo, quy tắc quyền không có hiệu lực, plugin tải bất thường, kiểu vấn đề này đừng vội restart, hãy chạy trước:
 
 ```bash
-/batch  1、移除自选股界面，直接通过分析界面来管理，每一行股票的最右侧展示选项，支持删除和分组。
-  2、自选股提取一个组件、K线展示和讨论室都单独提取一个组件出来。
-  3、优化提示词管理，例如支持删除和重命名。
-  4、历史记录目前支持10条记录，这块的设计优化一下。
+/debug MCP 連接一直失敗
+/debug 為什麼工具調用被拒絕
+/debug Claude Code 卡住不動
 ```
 
-Claude 收到后会先给出拆分计划（通常 5～30 个 unit），经确认后在隔离 worktree 中并行执行，每个单元通常产出独立 PR。
+Nó sẽ bật debug log cho session hiện tại và phân tích vấn đề kết hợp với log.
 
-![Claude Code 运行 /batch 命令](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-batch-run.png)
+> **Lưu ý**: Nếu bạn không khởi động bằng `claude --debug`, `/debug` chỉ có thể bắt log từ sau khi thực thi, lỗi trước đó có thể không thấy được.
 
-每个 Worker 完成后，主进程会检查每个单元的改动，最终产出多个独立 PR（而非合并成一个大的 PR）。
+## /batch: Điều phối nhiều task song song
 
-> ⚠️ **风险提示**：`/batch` 适合边界清晰、模块相对独立的大任务；不适合强耦合核心链路一次性大改。共享文件（如 package.json、路由表、公共类型、数据库迁移脚本）容易冲突。使用前建议先 commit 干净工作区。
+Bản chất cốt lõi của `/batch` là bộ điều phối nhiều task song song, sức mạnh của nó nằm ở chỗ nó có thể **tự động phân tách và thực thi song song** một "yêu cầu lớn" phức tạp.
 
-![Claude Code 合并改动](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-batch-create-pr.png)
+- **Phân tách task (Task Decomposition):** Khi bạn nói một task lớn hay nhiều yêu cầu, Claude không bắt đầu bừa bãi mà chia logic thành các **Unit (đơn vị công việc)** độc lập.
+- **Làm việc song song (Parallel Workers):** Claude sẽ đồng thời khởi động nhiều Agent nền, xử lý các module chức năng khác nhau.
+- **Workspace độc lập (Independent Worktrees):** Để ngăn nhiều Agent cùng sửa code gây conflict, Claude tạo **Git Worktree** độc lập cho mỗi Worker. Điều này có nghĩa là chúng sửa code trong môi trường cách ly vật lý, không ảnh hưởng lẫn nhau.
 
-**你可以理解为：** 你请了三个外包程序员（Worker）为三个不同的房间干活，现在项目经理（Main Agent）发现那三个房间的门锁有点问题，于是他亲自去每个房间把写好的代码拷贝出来，最后交到你手里。
+**Cách dùng rất đơn giản**:
 
-## 几个容易被忽略的辅助命令
+```bash
+/batch  1、移除自選股界面，直接通過分析界面來管理，每一行股票的最右側展示選項，支持刪除和分組。
+  2、自選股提取一個組件、K線展示和討論室都單獨提取一個組件出來。
+  3、優化提示詞管理，例如支持刪除和重命名。
+  4、歷史記錄目前支持10條記錄，這塊的設計優化一下。
+```
 
-上面几个命令负责干活，但真正用顺手之后，你还会频繁用到这些辅助命令。
+Sau khi Claude nhận được sẽ đưa ra kế hoạch phân tách trước (thường 5~30 unit), sau khi xác nhận sẽ thực thi song song trong worktree cách ly, mỗi unit thường tạo ra PR độc lập.
 
-| 命令               | 作用                      | 我一般什么时候用                     |
-| ------------------ | ------------------------- | ------------------------------------ |
-| `/diff`            | 查看 Claude 到底改了什么  | 每次 `/simplify`、`/batch` 后必看    |
-| `/context`         | 查看上下文占用            | 长任务开始变慢、变飘时先看           |
-| `/compact`         | 总结并压缩上下文          | 长会话继续推进前用                   |
-| `/debug`           | 排查 Claude Code 会话问题 | MCP、工具调用、权限异常时用          |
-| `/permissions`     | 管理工具权限              | 跑 `/loop`、`/batch` 前先检查        |
-| `/statusline`      | 配置状态栏                | 想常驻看模型、目录、上下文、成本时用 |
-| `/usage` / `/cost` | 查看用量和成本            | 长任务前后看消耗                     |
+![Claude Code chạy lệnh /batch](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-batch-run.png)
 
-### 别忽略上下文管理：/context 和 /compact
+Sau khi mỗi Worker hoàn thành, tiến trình chính sẽ kiểm tra thay đổi của mỗi unit, cuối cùng tạo ra nhiều PR độc lập (thay vì gộp thành một PR lớn).
 
-长任务跑久了，Claude Code 不一定是"能力变差"，很多时候是上下文被塞得太满了。
+> ⚠️ **Cảnh báo rủi ro**: `/batch` phù hợp với task lớn có ranh giới rõ ràng, module tương đối độc lập; không phù hợp với thay đổi lớn một lần cho core path có coupling mạnh. File dùng chung (như package.json, bảng route, type chung, script migrate database) dễ bị conflict. Khuyến nghị commit workspace sạch trước khi dùng.
 
-先看：
+![Claude Code merge thay đổi](https://oss.javaguide.cn/github/javaguide/ai/coding/claudecode/claudecode-batch-create-pr.png)
+
+**Bạn có thể hiểu là:** Bạn thuê ba lập trình viên thuê ngoài (Worker) làm việc ở ba phòng khác nhau, bây giờ project manager (Main Agent) phát hiện khóa cửa ba phòng đó có vấn đề, nên ông ấy tự đến từng phòng sao chép code đã viết ra, cuối cùng giao cho bạn.
+
+## Một số lệnh hỗ trợ dễ bị bỏ qua
+
+Mấy lệnh trên phụ trách làm việc, nhưng khi thực sự dùng quen rồi, bạn còn thường xuyên dùng đến các lệnh hỗ trợ này.
+
+| Lệnh               | Tác dụng                           | Tôi thường dùng khi nào                                     |
+| ------------------ | ---------------------------------- | ----------------------------------------------------------- |
+| `/diff`            | Xem Claude đã sửa gì thực sự       | Sau mỗi lần `/simplify`, `/batch` phải xem                  |
+| `/context`         | Xem mức sử dụng context            | Khi task dài bắt đầu chậm, bắt đầu trôi nổi thì xem trước   |
+| `/compact`         | Tóm tắt và nén context             | Dùng trước khi tiếp tục đẩy session dài                     |
+| `/debug`           | Kiểm tra sự cố session Claude Code | Khi MCP, gọi tool, quyền bất thường dùng                    |
+| `/permissions`     | Quản lý quyền tool                 | Kiểm tra trước khi chạy `/loop`, `/batch`                   |
+| `/statusline`      | Cấu hình thanh trạng thái          | Khi muốn thường trực xem model, directory, context, chi phí |
+| `/usage` / `/cost` | Xem lượng sử dụng và chi phí       | Xem tiêu thụ trước và sau task dài                          |
+
+### Đừng bỏ qua quản lý context: /context và /compact
+
+Task dài chạy lâu, Claude Code không nhất thiết là "năng lực giảm sút", nhiều khi là context bị nhét đầy quá.
+
+Xem trước:
 
 ```bash
 /context
 ```
 
-它会展示当前上下文使用情况，告诉你是不是工具输出、历史对话、规则文件把窗口挤爆了。
+Nó sẽ hiển thị tình trạng sử dụng context hiện tại, cho biết tool output, lịch sử trò chuyện, file quy tắc có làm tràn cửa sổ không.
 
-如果任务已经聊了很久，但还想继续推进，可以用：
+Nếu task đã trò chuyện rất lâu nhưng vẫn muốn tiếp tục đẩy, có thể dùng:
 
 ```bash
-/compact 只保留当前重构目标、已完成改动、剩余 TODO、关键约束
+/compact 只保留當前重構目標、已完成改動、剩余 TODO、關鍵約束
 ```
 
-`/compact` 会总结当前会话，释放一部分上下文。大任务中途做一次 compact，但一定要给它明确的保留范围，不要只裸跑 `/compact`。
+`/compact` sẽ tóm tắt session hiện tại, giải phóng một phần context. Làm một lần compact giữa task lớn, nhưng nhất định phải cho nó phạm vi bảo toàn rõ ràng, đừng chỉ chạy trần `/compact`.
 
-### 别把权限全放开：/permissions 要会用
+### Đừng mở tất cả quyền: /permissions phải biết dùng
 
-Claude Code 能读文件、改文件、跑命令，能力很强，但权限不能无脑全开。
+Claude Code có thể đọc file, sửa file, chạy lệnh, năng lực rất mạnh, nhưng quyền không thể mở bừa bãi.
 
-建议先跑：
+Khuyến nghị chạy trước:
 
 ```bash
 /permissions
 ```
 
-把高风险命令设成 ask 或 deny，比如删除文件、执行部署脚本、操作生产数据库、推送远程分支这类动作。尤其是你要跑 `/loop` 或 `/batch` 时，更应该先收紧权限。
+Đặt các lệnh rủi ro cao thành ask hoặc deny, ví dụ xóa file, thực thi script deploy, thao tác database production, push remote branch kiểu hành động này. Đặc biệt khi bạn sắp chạy `/loop` hoặc `/batch`, càng nên siết chặt quyền trước.
 
-让 AI 自动干活可以，但别让它自动闯祸。
+Để AI tự động làm việc được, nhưng đừng để nó tự động gây họa.
 
-### 让用户养成"看 diff 再信 AI"的习惯
+### Hình thành thói quen "xem diff trước khi tin AI"
 
-Claude 改完代码后，不要只看它的总结，直接跑：
+Sau khi Claude sửa xong code, đừng chỉ xem tóm tắt của nó, hãy trực tiếp chạy:
 
 ```bash
 /diff
 ```
 
-它会打开交互式 diff viewer，看当前工作区到底被改了哪些文件、哪些行。尤其是 `/simplify`、`/batch` 这类会直接动代码的命令，跑完之后先看 diff，再决定要不要继续。
+Nó sẽ mở interactive diff viewer, xem workspace hiện tại thực sự đã sửa những file nào, những dòng nào. Đặc biệt với các lệnh trực tiếp động vào code như `/simplify`, `/batch`, sau khi chạy xong xem diff trước, rồi mới quyết định có tiếp tục không.
 
-## 真正高频的不是命令本身，而是组合
+## Không phải bản thân lệnh mà là tổ hợp mới thực sự tần suất cao
 
-上面讲了 `/simplify`、`/review`、`/loop`、`/batch`，但真正用顺手之后，你会发现这些命令是可以组合成一个完整工作流的：
+Ở trên đã nói về `/simplify`, `/review`, `/loop`, `/batch`, nhưng khi thực sự dùng quen rồi, bạn sẽ thấy những lệnh này có thể tổ hợp thành một workflow hoàn chỉnh:
 
-- `/batch` 负责拆任务
-- `/loop` 负责反复执行和验证
-- `/simplify` 负责清理技术债
-- `/review` 负责正确性把关
-- `/security-review` 负责安全兜底
-- `/diff` 负责人工验货
-- `/context` + `/compact` 负责上下文续命
+- `/batch` phụ trách phân tách task
+- `/loop` phụ trách thực thi lặp và xác minh
+- `/simplify` phụ trách dọn dẹp technical debt
+- `/review` phụ trách kiểm soát tính đúng đắn
+- `/security-review` phụ trách bảo đảm bảo mật
+- `/diff` phụ trách kiểm tra thủ công
+- `/context` + `/compact` phụ trách duy trì context
 
-一个更稳的工作流是这样的：
+Một workflow ổn định hơn là như này:
 
-1. `/context` 先看上下文是否健康
-2. `/permissions` 检查权限设置是否合理
-3. `/batch` 把大需求拆成多个独立任务
-4. `/loop` 处理需要反复验证的复杂任务
-5. `/simplify` 清理冗余代码和技术债
-6. `/review` 做正确性审查
-7. 涉及登录、支付、权限、上传、Webhook 等敏感模块，再跑 `/security-review`
-8. `/diff` 人工确认改动
-9. 最后跑测试、提交 PR
+1. `/context` xem trước context có healthy không
+2. `/permissions` kiểm tra cài đặt quyền có hợp lý không
+3. `/batch` phân tách yêu cầu lớn thành nhiều task độc lập
+4. `/loop` xử lý task phức tạp cần xác minh lặp đi lặp lại
+5. `/simplify` dọn dẹp code dư thừa và technical debt
+6. `/review` làm xem xét tính đúng đắn
+7. Liên quan đến module nhạy cảm như đăng nhập, thanh toán, quyền, upload, Webhook, chạy thêm `/security-review`
+8. `/diff` xác nhận thay đổi thủ công
+9. Cuối cùng chạy test, submit PR
 
-这一套走下来，能显著减少机械操作，但关键节点仍要看计划、看 diff、跑测试、做最终 review。
+Qua một vòng này, có thể giảm đáng kể các thao tác cơ học, nhưng các nút quan trọng vẫn cần xem kế hoạch, xem diff, chạy test, làm final review.
 
-## 附录：Claude Code 接入国内模型
+## Phụ lục: Kết nối Claude Code với model nội địa
 
-CClaude Code 强在它的工具链和执行力，但 Claude 官方模型太贵，加上现在 Claude 太容易封号。我们可以使用国内的 MiniMax 或 GLM 作为它的底层大模型。它们都采用了标准的 **OpenAI 兼容接口**，接入过程非常丝滑。
+Claude Code mạnh ở toolchain và khả năng thực thi, nhưng model chính thức của Claude quá đắt, thêm vào đó Claude hiện nay dễ bị khóa tài khoản. Chúng ta có thể dùng MiniMax hoặc GLM nội địa làm model nền. Cả hai đều dùng **OpenAI compatible interface** chuẩn, quá trình kết nối rất suôn sẻ.
 
-### 1. 获取 API Key
+### 1. Lấy API Key
 
-- MiniMax 开放平台：**https://platform.minimaxi.com/user-center/basic-information/interface-key**
-- GLM 开放平台：**https://www.bigmodel.cn/usercenter/proj-mgmt/apikeys**
+- Nền tảng mở MiniMax: **https://platform.minimaxi.com/user-center/basic-information/interface-key**
+- Nền tảng mở GLM: **https://www.bigmodel.cn/usercenter/proj-mgmt/apikeys**
 
-![MiniMax Key 获取](https://oss.javaguide.cn/github/javaguide/ai/coding/minimax-key.png)
+![Lấy MiniMax Key](https://oss.javaguide.cn/github/javaguide/ai/coding/minimax-key.png)
 
-![GLM Key 获取](https://oss.javaguide.cn/github/javaguide/ai/coding/glm-key.png)
+![Lấy GLM Key](https://oss.javaguide.cn/github/javaguide/ai/coding/glm-key.png)
 
-### 2. 推荐使用 CC Switch
+### 2. Khuyến nghị dùng CC Switch
 
-强烈推荐安装 **CC Switch**，这是一个专门管理 Claude Code 模型切换的小工具，支持管理 Skills、MCP 和提示词。
+Rất khuyến nghị cài đặt **CC Switch**, đây là một công cụ nhỏ chuyên quản lý chuyển đổi model Claude Code, hỗ trợ quản lý Skills, MCP và prompt.
 
-项目地址：**https://github.com/farion1231/cc-switch**
+Địa chỉ dự án: **https://github.com/farion1231/cc-switch**
 
-![CC Switch 主界面](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-main-interface.png)
+![Giao diện chính CC Switch](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-main-interface.png)
 
-启动 CC Switch，点击右上角 **"+"** ，选择预设的 MiniMax/GLM 供应商，填写 API Key，选择模型，添加即可。
+Khởi động CC Switch, click **"+"** góc trên bên phải, chọn nhà cung cấp MiniMax/GLM được định sẵn, điền API Key, chọn model, thêm vào là xong.
 
-![CC Switch 配置 MiniMax/GLM API Key](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-add-provider.png)
+![CC Switch cấu hình MiniMax/GLM API Key](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-add-provider.png)
 
-![CC Switch 配置模型](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-model-config.png)
+![CC Switch cấu hình model](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-model-config.png)
 
-### 3. 验证是否生效
+### 3. Xác minh có hiệu lực không
 
-在任意目录下输入 `claude` 命令即可启动 Claude Code，选择 **信任此文件夹 (Trust This Folder)**。
+Nhập lệnh `claude` trong bất kỳ directory nào để khởi động Claude Code, chọn **Tin tưởng thư mục này (Trust This Folder)**.
 
-![验证是否生效](https://oss.javaguide.cn/github/javaguide/ai/coding/claude-code-trust-folder.png)
+![Xác minh có hiệu lực không](https://oss.javaguide.cn/github/javaguide/ai/coding/claude-code-trust-folder.png)
 
-### 4. 接入验证清单
+### 4. Checklist xác minh kết nối
 
-MiniMax / GLM 接入不是"能对话"就算成功，Claude Code 的关键是工具调用。建议验证以下核心功能：
+MiniMax / GLM kết nối không phải "có thể trò chuyện" là thành công, điều quan trọng của Claude Code là gọi tool. Khuyến nghị xác minh các tính năng core sau:
 
-- [ ] 是否能稳定 stream 输出
-- [ ] 是否能调用 Bash / Read / Edit / Write
-- [ ] 是否能跑 subagent
-- [ ] 是否能处理长上下文和压缩
-- [ ] 是否支持 MCP 工具调用
-- [ ] 是否能完成真实项目的「改代码 → 跑测试 → 修复」闭环
+- [ ] Có thể stream output ổn định không
+- [ ] Có thể gọi Bash / Read / Edit / Write không
+- [ ] Có thể chạy subagent không
+- [ ] Có thể xử lý long context và nén không
+- [ ] Có hỗ trợ gọi MCP tool không
+- [ ] Có thể hoàn thành vòng lặp "sửa code → chạy test → sửa lỗi" của dự án thực không

@@ -30,7 +30,7 @@ Trước khi bắt đầu, hãy lướt qua nhanh toàn bộ quy trình:
 
 Mọi thứ bắt đầu — mở trình duyệt, nhập URL vào thanh địa chỉ, nhấn Enter. Vậy URL là gì? Truy cập URL có tác dụng gì?
 
-打开浏览器，在地址栏输入 URL 并回车。浏览器做的第一件事不是发请求，而是解析 URL 并检查是否可以直接使用本地缓存。
+Mở trình duyệt, nhập URL vào thanh địa chỉ và nhấn Enter. Việc đầu tiên trình duyệt làm không phải là gửi request, mà là parse URL và kiểm tra xem có thể sử dụng trực tiếp cache cục bộ không.
 
 URL (Uniform Resource Locators — Định vị tài nguyên thống nhất) là công cụ định vị mọi tài nguyên trên mạng. Mỗi file tương ứng với một URL, giống như đường dẫn địa chỉ. Về lý thuyết, tài nguyên file và URL là quan hệ một-một. Thực tế cũng có ngoại lệ, ví dụ một số URL trỏ đến file đã được chuyển hướng sang vị trí khác, dẫn đến nhiều URL trỏ đến cùng một file.
 
@@ -45,19 +45,12 @@ URL (Uniform Resource Locators — Định vị tài nguyên thống nhất) là
 5. **Tham số**: Tham số là các thông tin kèm theo trong URL khi trình duyệt gửi request đến server. Server sẽ trích xuất các tham số này khi parse request. Tham số có dạng key-value `key=value`, các cặp key-value phân tách bằng `&`. Ý nghĩa cụ thể của tham số liên quan đến phương thức thao tác request cụ thể.
 6. **Anchor (Điểm neo)**: Anchor đúng như tên gọi, là một điểm neo trên trang được truy cập. Hầu hết các trang cần truy cập đều dài hơn một trang; nếu chỉ định anchor, khi hiển thị trang web phía client sẽ định vị đến vị trí anchor, tương đương một bookmark nhỏ. Đáng chú ý là trong URL, anchor bắt đầu bằng `#` và **không** được gửi như một phần của request đến server.
 
-7. **协议**（Scheme）：URL 的前缀表示采用的协议，最常见的是 `http` 和 `https`，也有文件传输的 `ftp:` 等。
-8. **域名**（Host）：访问目标的通用名，也可以直接使用 IP 地址。域名本质上是 IP 地址的可读版本。
-9. **端口**（Port）：紧跟域名后面，用冒号隔开。HTTP 默认 80，HTTPS 默认 443，如果使用默认端口可以省略。
-10. **资源路径**（Path）：从第一个 `/` 开始，表示服务器上的资源位置。早期设计中路径对应服务器上的物理文件，现在通常是后端路由映射的虚拟路径。
-11. **查询参数**（Query）：`?` 之后的部分，采用 `key=value` 键值对形式，多个参数用 `&` 隔开。服务器解析请求时会提取这些参数。
-12. **锚点**（Fragment）：`#` 之后的部分，用于定位到页面内的某个位置。锚点**不会**作为请求的一部分发送给服务端，仅由浏览器本地处理。
-
 Sau khi nhập URL, nhân vật chính đầu tiên xuất hiện — DNS server phân giải tên miền. DNS (Domain Name System — Hệ thống tên miền) giải quyết vấn đề **ánh xạ tên miền và địa chỉ IP**. Vì tên miền chỉ là cái tên dễ nhớ của địa chỉ web, còn địa chỉ thực sự tồn tại của web là địa chỉ IP.
 
 Xem thêm: [Giải thích chi tiết DNS — Hệ thống tên miền](https://javaguide.cn/cs-basics/network/dns.html)
 
-1. **强缓存**：检查 `Cache-Control`（如 `max-age`）或 `Expires` 头，判断缓存是否仍在有效期内。如果有效，直接使用缓存，跳过后续所有网络请求。
-2. **协商缓存**：强缓存未命中时，浏览器向服务器发送验证请求（携带 `If-Modified-Since` 或 `If-None-Match`），服务器判断资源是否变化。如果未变化，返回 `304 Not Modified`，浏览器继续使用本地缓存；如果已变化，返回 `200 OK` 和新资源。
+1. **Strong cache (Cache mạnh)**: Kiểm tra header `Cache-Control` (ví dụ `max-age`) hoặc `Expires`, xác định cache có còn trong thời hạn hiệu lực không. Nếu còn hiệu lực, sử dụng trực tiếp cache, bỏ qua tất cả các network request phía sau.
+2. **Negotiation cache (Cache thương lượng)**: Khi strong cache miss, trình duyệt gửi validation request đến server (mang theo `If-Modified-Since` hoặc `If-None-Match`), server xác định tài nguyên có thay đổi không. Nếu không thay đổi, trả về `304 Not Modified`, trình duyệt tiếp tục dùng cache cục bộ; nếu đã thay đổi, trả về `200 OK` và tài nguyên mới.
 
 Sau khi dùng DNS lấy được địa chỉ IP của host đích, trình duyệt có thể gửi HTTP message đến địa chỉ IP đích để request tài nguyên cần thiết. Ở đây, tùy thuộc vào trang web đích, request message có thể dùng giao thức HTTP hoặc HTTPS có tính bảo mật cao hơn.
 

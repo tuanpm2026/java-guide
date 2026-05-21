@@ -1,7 +1,7 @@
 ---
-title: AI 应用系统设计：从 Prompt Demo 到生产级架构
-description: 深入拆解生产级 AI 应用系统设计，覆盖 Prompt 管理、模型网关、RAG、Memory、Tool、异步任务、可观测、评测、安全合规与 Java 后端落地方案。
-category: AI 应用开发
+title: Thiết kế hệ thống ứng dụng AI：Từ Prompt Demo đến kiến trúc cấp sản xuất
+description: Phân tích chuyên sâu thiết kế hệ thống ứng dụng AI cấp sản xuất, bao gồm quản lý Prompt, model gateway, RAG, Memory, Tool, tác vụ bất đồng bộ, khả năng quan sát, đánh giá, tuân thủ bảo mật và giải pháp triển khai backend Java.
+category: Phát triển ứng dụng AI
 head:
   - - meta
     - name: keywords
@@ -10,50 +10,50 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-大家好，我是 Guide。
+Xin chào mọi người, tôi là Guide.
 
-很多团队做 AI 应用时，第一天都很兴奋：写一个 Prompt，调一下大模型 API，页面上很快就能跑出一个“智能客服”“知识库问答”或者“报告生成助手”。
+Nhiều team khi làm ứng dụng AI, ngày đầu tiên đều rất hào hứng: viết một Prompt, gọi API của model lớn, trên giao diện nhanh chóng chạy được "chatbot thông minh", "hỏi đáp cơ sở tri thức" hay "trợ lý tạo báo cáo".
 
-然后进入第二周，问题开始冒出来：同一个问题今天答对、明天答偏；用户没有权限的资料被检索进上下文；Prompt 改了一行，线上效果突然变差却回滚不了；模型调用超时，前端一直转圈；Token 账单飙升，没人知道钱花在哪；出了事故，只能从一堆日志里猜当时模型到底看到了什么。
+Rồi bước vào tuần thứ hai, vấn đề bắt đầu nảy sinh: cùng một câu hỏi hôm nay trả lời đúng, ngày mai lại trả lời lệch; tài liệu mà người dùng không có quyền truy cập lại được đưa vào ngữ cảnh; sửa một dòng Prompt, hiệu quả trên môi trường production đột ngột giảm nhưng không thể rollback; gọi model bị timeout, frontend cứ quay vòng; hóa đơn Token tăng vọt, không ai biết tiền chạy đi đâu; xảy ra sự cố, chỉ có thể ngồi đoán từ đống log xem lúc đó model đã nhìn thấy gì.
 
-分水岭就在这里：**Prompt Demo 证明的是模型能回答，生产系统要证明的是系统能长期、稳定、可控地回答**。
+Ranh giới chính là ở đây: **Prompt Demo chứng minh model có thể trả lời, còn hệ thống production cần chứng minh hệ thống có thể trả lời ổn định, lâu dài và có kiểm soát**.
 
-本文接近 1.5w 字，建议收藏，通过本文你将搞懂：
+Bài viết này gần 1.5 vạn chữ, khuyên bạn nên lưu lại. Qua bài này bạn sẽ hiểu được:
 
-1. **Prompt Demo 和生产系统差距为什么巨大**：稳定性、权限、成本、观测、评测和数据治理分别卡在哪里。
-2. **生产级 AI 应用应该怎么分层**：入口层、业务编排、模型网关、Prompt/Context、RAG、Memory、Tool、异步任务、评测观测如何协作。
-3. **同步、流式、异步三种交互模式怎么选**：不要把所有请求都做成“等模型返回”。
-4. **模型网关、工具权限、RAG 与 Memory 的关键设计**：让 AI 应用从“能跑”变成“可管”。
-5. **Java 后端如何落地**：模块拆分、核心表设计、服务接口和面试回答思路。
+1. **Tại sao khoảng cách giữa Prompt Demo và hệ thống production lại lớn đến vậy**: Độ ổn định, phân quyền, chi phí, quan sát, đánh giá và quản trị dữ liệu bị nghẽn ở đâu.
+2. **Ứng dụng AI cấp production nên phân tầng như thế nào**: Tầng đầu vào, điều phối nghiệp vụ, model gateway, Prompt/Context, RAG, Memory, Tool, tác vụ bất đồng bộ, đánh giá quan sát phối hợp như thế nào.
+3. **Làm sao chọn giữa ba chế độ tương tác: đồng bộ, streaming, bất đồng bộ**: Đừng làm tất cả request thành "chờ model trả về".
+4. **Các thiết kế then chốt của model gateway, quyền hạn tool, RAG và Memory**: Giúp ứng dụng AI từ "chạy được" thành "có thể quản lý".
+5. **Triển khai backend Java như thế nào**: Phân chia module, thiết kế bảng cốt lõi, giao diện dịch vụ và cách trả lời phỏng vấn.
 
-## Demo 架构为什么扛不住生产流量
+## Tại sao kiến trúc Demo không chịu được tải production
 
-先看一个最常见的 Demo：
+Hãy nhìn vào một Demo phổ biến nhất:
 
 ```text
 前端输入问题 -> 后端拼 Prompt -> 调用模型 API -> 返回答案
 ```
 
-这条链路能演示产品想法，但它缺了生产系统最关键的 6 件事。
+Chuỗi liên kết này có thể demo ý tưởng sản phẩm, nhưng nó thiếu 6 điều quan trọng nhất của hệ thống production.
 
-| 维度     | Prompt Demo                | 生产级架构                                                   |
-| -------- | -------------------------- | ------------------------------------------------------------ |
-| 稳定性   | 单模型、单调用，失败就报错 | 多模型路由、重试、fallback、熔断、降级响应                   |
-| 权限     | 默认用户能问什么就查什么   | 检索前权限过滤，工具调用按用户和租户鉴权                     |
-| 成本     | 只看一次调用能不能成功     | Token 预算、模型分层、缓存、成本归因和限额                   |
-| 可观测   | 记录用户问题和最终答案     | 记录 Prompt、检索片段、工具调用、模型输出、Token、延迟、错误 |
-| 评测     | 靠人工试几条样例           | 固定评测集、线上抽样、LLM-as-Judge、人工复核闭环             |
-| 数据治理 | 文档直接入库，日志随便存   | PII 脱敏、数据留存、审计、版本化、删除和授权链路             |
+| Chiều kích        | Prompt Demo                                             | Kiến trúc cấp production                                                           |
+| ----------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Độ ổn định        | Một model, một lần gọi, thất bại thì báo lỗi            | Định tuyến đa model, retry, fallback, circuit breaker, degraded response           |
+| Phân quyền        | Người dùng mặc định hỏi gì thì tìm cái đó               | Lọc quyền trước khi truy vấn, gọi tool xác thực theo người dùng và tenant          |
+| Chi phí           | Chỉ xem lần gọi có thành công không                     | Token budget, phân tầng model, cache, quy trách nhiệm chi phí và giới hạn          |
+| Khả năng quan sát | Ghi lại câu hỏi của người dùng và câu trả lời cuối cùng | Ghi lại Prompt, đoạn trích, gọi tool, đầu ra model, Token, độ trễ, lỗi             |
+| Đánh giá          | Dựa vào kiểm tra thủ công vài mẫu                       | Bộ đánh giá cố định, lấy mẫu online, LLM-as-Judge, vòng phản hồi kiểm tra thủ công |
+| Quản trị dữ liệu  | Tài liệu nhập thẳng vào cơ sở dữ liệu, log lưu tùy tiện | Ẩn danh hóa PII, lưu giữ dữ liệu, kiểm toán, versioning, quy trình xóa và ủy quyền |
 
-你看到这里可能会想：这不就是给原来的接口多包几层吗？
+Đọc đến đây bạn có thể nghĩ: Chẳng phải chỉ là thêm vài lớp bọc ngoài interface cũ thôi sao?
 
-不只是多包几层。AI 应用的复杂度来自一个很特殊的事实：**核心决策逻辑有一部分交给了概率模型**。传统后端里的 if-else 逻辑虽然也会出错，但你能定位到具体代码行；LLM 出错时，原因可能是 Prompt 版本、上下文顺序、检索噪声、工具描述、模型采样、权限过滤、输出解析中的任何一环。
+Không chỉ thêm vài lớp bọc. Độ phức tạp của ứng dụng AI đến từ một thực tế rất đặc biệt: **một phần logic quyết định cốt lõi được giao cho probabilistic model**. Logic if-else trong backend truyền thống dù có lỗi, bạn vẫn có thể định vị được dòng code cụ thể; khi LLM mắc lỗi, nguyên nhân có thể nằm ở bất kỳ khâu nào trong Prompt version, thứ tự ngữ cảnh, nhiễu truy vấn, mô tả tool, sampling của model, lọc quyền, phân tích đầu ra.
 
-所以，生产级 AI 架构要做的事，是把模型周边的输入、执行、输出和反馈全部工程化。
+Vì vậy, những gì kiến trúc AI cấp production cần làm là kỹ thuật hóa toàn bộ đầu vào, thực thi, đầu ra và phản hồi xung quanh model.
 
-## 生产级 AI 应用的标准分层架构
+## Kiến trúc phân tầng chuẩn của ứng dụng AI cấp production
 
-Guide 更推荐把 AI 应用拆成 9 层。不同公司命名会有差异，但职责边界大体一致。
+Guide đề xuất chia ứng dụng AI thành 9 tầng. Các công ty khác nhau có thể đặt tên khác nhau, nhưng ranh giới trách nhiệm về cơ bản là như nhau.
 
 ```mermaid
 flowchart LR
@@ -83,17 +83,17 @@ flowchart LR
     linkStyle default stroke-width:2px,stroke:#333333,opacity:0.8
 ```
 
-### 入口层：把用户请求变成可治理的任务
+### Tầng đầu vào: Biến request của người dùng thành tác vụ có thể quản trị
 
-入口层不能只当 Controller 用。它至少要做这些事：
+Tầng đầu vào không thể chỉ dùng như một Controller. Nó ít nhất phải làm những việc sau:
 
-- 认证鉴权：确认用户、租户、角色、数据范围。
-- 请求标准化：把 Web、App、API、Webhook、定时任务统一成内部任务模型。
-- 限流与防刷：按用户、租户、模型能力和业务场景限流。
-- 幂等控制：异步任务、工具调用、支付类操作必须有幂等键。
-- 敏感内容预处理：PII 脱敏、恶意输入检测、Prompt 注入初筛。
+- Xác thực và ủy quyền: Xác nhận người dùng, tenant, vai trò, phạm vi dữ liệu.
+- Chuẩn hóa request: Thống nhất Web, App, API, Webhook, tác vụ định kỳ thành model tác vụ nội bộ.
+- Rate limiting và chống spam: Giới hạn tốc độ theo người dùng, tenant, khả năng model và kịch bản nghiệp vụ.
+- Kiểm soát idempotency: Tác vụ bất đồng bộ, gọi tool, thao tác thanh toán phải có idempotency key.
+- Tiền xử lý nội dung nhạy cảm: Ẩn danh hóa PII, phát hiện đầu vào độc hại, sơ bộ lọc Prompt injection.
 
-入口层的关键产物不是一个字符串，而是一个结构化请求：
+Sản phẩm then chốt của tầng đầu vào không phải là một chuỗi ký tự, mà là một structured request:
 
 ```java
 public record AiRequest(
@@ -108,109 +108,109 @@ public record AiRequest(
 }
 ```
 
-### 业务编排层：决定这次请求怎么跑
+### Tầng điều phối nghiệp vụ: Quyết định cách chạy request lần này
 
-业务编排层相当于 AI 应用的大脑外壳，负责判断：
+Tầng điều phối nghiệp vụ tương đương với vỏ ngoài não bộ của ứng dụng AI, chịu trách nhiệm phán đoán:
 
-- 这次是普通问答、RAG 问答、Agent 多步任务，还是批处理任务？
-- 需要哪些上下文：历史会话、用户画像、知识库、实时业务数据？
-- 是否允许调用工具？哪些工具需要二次确认？
-- 应该走同步、流式，还是异步？
-- 输出要不要进入评测、人工审核或后处理？
+- Lần này là hỏi đáp thông thường, hỏi đáp RAG, tác vụ đa bước Agent, hay tác vụ xử lý hàng loạt?
+- Cần những ngữ cảnh nào: lịch sử hội thoại, hồ sơ người dùng, cơ sở tri thức, dữ liệu nghiệp vụ thời gian thực?
+- Có cho phép gọi tool không? Tool nào cần xác nhận lần hai?
+- Nên chạy đồng bộ, streaming, hay bất đồng bộ?
+- Đầu ra có cần đưa vào đánh giá, kiểm tra thủ công hay hậu xử lý không?
 
-这层别把所有逻辑都塞进一个“超级 Prompt”。能确定的规则用代码，无法穷举的语言理解交给模型。边界清楚，系统才容易排查。
+Tầng này đừng nhồi nhét tất cả logic vào một "super Prompt". Các quy tắc có thể xác định dùng code, còn việc hiểu ngôn ngữ không thể liệt kê đầy đủ thì giao cho model. Ranh giới rõ ràng, hệ thống mới dễ debug.
 
-### 模型网关：把模型调用变成基础设施
+### Model gateway: Biến việc gọi model thành hạ tầng cơ sở
 
-模型网关负责统一接入 OpenAI、Anthropic、Google Gemini、私有化模型、Embedding 模型、Rerank 模型等供应商能力。它隐藏不同 API 的差异，对上提供稳定接口。
+Model gateway chịu trách nhiệm kết nối thống nhất các nhà cung cấp như OpenAI, Anthropic, Google Gemini, model riêng tư, Embedding model, Rerank model. Nó ẩn đi sự khác biệt giữa các API khác nhau, cung cấp giao diện ổn định cho phía trên.
 
-模型网关的核心能力包括：
+Các khả năng cốt lõi của model gateway bao gồm:
 
-- 多模型路由：按场景、成本、延迟、语言、上下文长度和成功率选择模型。
-- fallback：主模型失败、超时、限额不足时切到备用模型。
-- 限流与熔断：避免供应商异常拖垮业务线程池。
-- Token 预算：估算输入输出 Token，超预算时压缩上下文或降级模型。
-- 成本归因：按租户、用户、场景、Prompt 版本记录成本。
-- 统一观测：记录模型请求、响应、错误、TTFT、总延迟、Token usage。
+- Định tuyến đa model: Chọn model theo kịch bản, chi phí, độ trễ, ngôn ngữ, độ dài ngữ cảnh và tỷ lệ thành công.
+- Fallback: Khi model chính thất bại, timeout, hoặc hết hạn mức thì chuyển sang model dự phòng.
+- Rate limiting và circuit breaker: Tránh để sự cố nhà cung cấp kéo sập thread pool của nghiệp vụ.
+- Token budget: Ước tính Token đầu vào đầu ra, khi vượt ngân sách thì nén ngữ cảnh hoặc hạ cấp model.
+- Quy trách nhiệm chi phí: Ghi lại chi phí theo tenant, người dùng, kịch bản, Prompt version.
+- Quan sát thống nhất: Ghi lại request model, response, lỗi, TTFT, tổng độ trễ, Token usage.
 
-OpenAI、Anthropic、Google 等官方文档都在持续更新模型、工具、流式、评测和成本相关能力。涉及具体模型名、上下文窗口和价格时，建议在系统配置里动态维护，并标注“以官方文档最新展示为准”，不要写死在业务代码里。
+Tài liệu chính thức của OpenAI, Anthropic, Google liên tục cập nhật các khả năng liên quan đến model, tool, streaming, đánh giá và chi phí. Khi liên quan đến tên model cụ thể, cửa sổ ngữ cảnh và giá cả, khuyến nghị duy trì động trong cấu hình hệ thống và ghi chú "theo tài liệu chính thức mới nhất", không nên hardcode trong code nghiệp vụ.
 
-### Prompt 与 Context 管理：不要把 Prompt 当代码里的字符串
+### Quản lý Prompt và Context: Đừng coi Prompt như chuỗi ký tự trong code
 
-Prompt 在生产环境里应该被当成一种可版本化配置，不能散落成代码里的多行字符串。
+Trong môi trường production, Prompt nên được coi như một cấu hình có thể versioning, không thể rải rác thành các chuỗi nhiều dòng trong code.
 
-它至少需要支持：
+Ít nhất cần hỗ trợ:
 
-- 模板版本：每次修改生成新版本，旧版本可回放。
-- 变量注入：业务变量、用户输入、检索结果、工具结果分区注入。
-- 灰度发布：按租户、用户比例、场景开关选择 Prompt 版本。
-- 快速回滚：线上效果变差时能切回稳定版本。
-- 审计记录：谁在什么时间改了什么，为什么改。
-- 运行时绑定：每次请求记录使用的 Prompt 名称、版本和变量摘要。
+- Template version: Mỗi lần sửa tạo ra version mới, version cũ có thể phát lại.
+- Tiêm biến: Biến nghiệp vụ, đầu vào người dùng, kết quả truy vấn, kết quả tool tiêm theo khu vực.
+- Phát hành gray: Chọn Prompt version theo tenant, tỷ lệ người dùng, switch kịch bản.
+- Rollback nhanh: Khi hiệu quả trên production giảm có thể chuyển lại version ổn định.
+- Ghi nhật ký kiểm toán: Ai thay đổi gì vào lúc nào, tại sao thay đổi.
+- Ràng buộc runtime: Mỗi request ghi lại tên Prompt, version và tóm tắt biến đã sử dụng.
 
-一个很实用的规则：**Prompt 变更必须像代码变更一样可追踪，但发布频率可以比代码更高**。
+Một quy tắc rất thực tế: **Thay đổi Prompt phải có thể theo dõi như thay đổi code, nhưng tần suất phát hành có thể cao hơn code**.
 
-Langfuse 官方文档把 Prompt Management、Tracing、Evaluation 放在同一套 LLM 工程平台里，本质原因也在这里：Prompt 不只影响生成文本，它会影响检索、工具调用、成本和评测结果。
+Tài liệu chính thức của Langfuse đặt Prompt Management, Tracing, Evaluation trong cùng một nền tảng kỹ thuật LLM, lý do cốt lõi cũng chính là điều này: Prompt không chỉ ảnh hưởng đến văn bản được tạo ra, nó còn ảnh hưởng đến truy vấn, gọi tool, chi phí và kết quả đánh giá.
 
-### RAG、Memory、Tool：三类上下文不要混在一起
+### RAG, Memory, Tool: Ba loại ngữ cảnh không được trộn lẫn
 
-很多 AI 系统越做越乱，是因为把所有信息都叫“上下文”。
+Nhiều hệ thống AI càng làm càng rối là vì gọi tất cả thông tin là "ngữ cảnh".
 
-Guide 建议把它拆开：
+Guide đề nghị tách chúng ra:
 
-| 类型   | 存什么                                       | 生命周期         | 核心风险                               |
-| ------ | -------------------------------------------- | ---------------- | -------------------------------------- |
-| RAG    | 企业文档、产品手册、制度、代码文档、工单知识 | 由知识库更新决定 | 检索不到、越权召回、过期文档、引用错配 |
-| Memory | 用户偏好、历史决策、长期画像、任务经验       | 随用户和会话演化 | 错误记忆固化、隐私泄露、过时记忆干扰   |
-| Tool   | 查询订单、创建工单、发邮件、改配置、查数据库 | 运行时按需调用   | 参数错误、权限越界、敏感操作误执行     |
+| Loại   | Lưu gì                                                                              | Vòng đời                              | Rủi ro cốt lõi                                                            |
+| ------ | ----------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------- |
+| RAG    | Tài liệu doanh nghiệp, sổ tay sản phẩm, quy định, tài liệu code, kiến thức ticket   | Do cập nhật cơ sở tri thức quyết định | Không truy vấn được, thu hồi vượt quyền, tài liệu hết hạn, sai tham chiếu |
+| Memory | Sở thích người dùng, quyết định lịch sử, hồ sơ dài hạn, kinh nghiệm tác vụ          | Tiến hóa theo người dùng và phiên     | Ký ức sai bị cố định, rò rỉ riêng tư, ký ức lỗi thời gây nhiễu            |
+| Tool   | Truy vấn đơn hàng, tạo ticket, gửi email, thay đổi cấu hình, truy vấn cơ sở dữ liệu | Gọi theo nhu cầu tại runtime          | Tham số sai, vượt quyền, thực thi nhầm thao tác nhạy cảm                  |
 
-三者底层都可能用向量检索、结构化存储和重排，但服务目标完全不同。RAG 提供共享知识源，Memory 提供个性化背景，Tool 连接真实业务系统。
+Cả ba đều có thể sử dụng vector retrieval, structured storage và rerank, nhưng mục tiêu dịch vụ hoàn toàn khác nhau. RAG cung cấp nguồn tri thức chia sẻ, Memory cung cấp bối cảnh cá nhân hóa, Tool kết nối hệ thống nghiệp vụ thực tế.
 
-**高频盲区：不要把 Memory 当成个人版 RAG 随便塞。** 记忆一旦写错，后续每轮都会被污染。生产环境里，Memory 写入通常要异步执行，并经过 Schema 校验、置信度过滤、过期策略和人工审核入口。
+**Điểm mù thường gặp: Đừng coi Memory như phiên bản cá nhân của RAG rồi nhồi nhét tùy tiện.** Một khi ký ức được ghi sai, mọi vòng tiếp theo đều bị ô nhiễm. Trong môi trường production, việc ghi Memory thường phải thực thi bất đồng bộ, và phải qua kiểm tra Schema, lọc mức độ tin cậy, chính sách hết hạn và cổng kiểm tra thủ công.
 
-## 同步、流式、异步三种交互模式怎么选
+## Làm sao chọn giữa ba chế độ tương tác: đồng bộ, streaming, bất đồng bộ
 
-AI 应用不是所有请求都适合 HTTP 同步等待。交互模式选错，用户体验和系统稳定性都会被拖垮。
+Không phải tất cả request của ứng dụng AI đều phù hợp với HTTP đồng bộ chờ đợi. Chọn sai chế độ tương tác, cả trải nghiệm người dùng lẫn độ ổn định hệ thống đều bị kéo sập.
 
-| 模式     | 适合场景                                   | 优势                         | 风险                           | 后端设计要点                         |
-| -------- | ------------------------------------------ | ---------------------------- | ------------------------------ | ------------------------------------ |
-| 同步请求 | 短问答、分类、抽取、低延迟小任务           | 实现简单，调用链清晰         | 超时敏感，容易占满线程         | 设置短超时、快速失败、结果缓存       |
-| 流式响应 | 聊天、长答案、代码生成、语音前置文本       | 首字体验好，用户感知等待更短 | 中途失败处理复杂，前端状态更多 | SSE/WebSocket、TTFT 监控、可取消生成 |
-| 异步任务 | 报告生成、批量评测、长文档分析、多工具任务 | 可排队、可重试、可恢复       | 任务状态和通知链路复杂         | 任务表、队列、进度事件、幂等和补偿   |
+| Chế độ             | Kịch bản phù hợp                                                        | Ưu điểm                                                         | Rủi ro                                                               | Điểm thiết kế backend                                            |
+| ------------------ | ----------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Request đồng bộ    | Hỏi đáp ngắn, phân loại, trích xuất, tác vụ nhỏ độ trễ thấp             | Triển khai đơn giản, call chain rõ ràng                         | Nhạy cảm với timeout, dễ chiếm đầy thread                            | Đặt timeout ngắn, fail fast, cache kết quả                       |
+| Response streaming | Chat, câu trả lời dài, tạo code, văn bản giọng nói                      | Trải nghiệm ký tự đầu tốt, người dùng cảm nhận chờ đợi ngắn hơn | Xử lý thất bại giữa chừng phức tạp, frontend có nhiều trạng thái hơn | SSE/WebSocket, theo dõi TTFT, có thể hủy generation              |
+| Tác vụ bất đồng bộ | Tạo báo cáo, đánh giá hàng loạt, phân tích tài liệu dài, tác vụ đa tool | Có thể xếp hàng, có thể retry, có thể khôi phục                 | Trạng thái tác vụ và chuỗi thông báo phức tạp                        | Bảng tác vụ, hàng đợi, sự kiện tiến trình, idempotency và bù đắp |
 
-Guide 的倾向性建议：
+Xu hướng đề xuất của Guide:
 
-- **能在 3 秒内稳定完成的任务**，优先同步。
-- **用户需要立刻看到模型开始输出的任务**，优先流式。
-- **依赖长文档、多轮工具调用或批量处理的任务**，必须异步。
+- **Tác vụ có thể hoàn thành ổn định trong 3 giây**, ưu tiên đồng bộ.
+- **Tác vụ mà người dùng cần xem model bắt đầu đầu ra ngay lập tức**, ưu tiên streaming.
+- **Tác vụ phụ thuộc vào tài liệu dài, nhiều vòng gọi tool hoặc xử lý hàng loạt**, bắt buộc bất đồng bộ.
 
-别为了“看起来像 ChatGPT”把所有接口都做成流式。比如标签分类、风险评分、路由决策这类内部调用，流式没有太大收益，反而会增加链路复杂度。
+Đừng làm tất cả interface thành streaming chỉ vì "trông giống ChatGPT". Ví dụ các lần gọi nội bộ như phân loại nhãn, chấm điểm rủi ro, quyết định routing, streaming không có nhiều lợi ích, mà còn tăng thêm độ phức tạp của chuỗi liên kết.
 
-## Prompt 管理：从模板字符串到版本系统
+## Quản lý Prompt: Từ template string đến hệ thống version
 
-生产级 Prompt 管理可以按 5 个对象建模：
+Quản lý Prompt cấp production có thể mô hình hóa theo 5 đối tượng:
 
-- `prompt_template`：Prompt 基本信息，例如名称、场景、类型、状态。
-- `prompt_version`：具体内容、变量定义、模型参数、创建人、变更说明。
-- `prompt_release`：某个版本发布到哪个环境、哪些租户、多少流量。
-- `prompt_run`：每次调用绑定的 Prompt 版本、变量摘要和模型输出。
-- `prompt_eval_result`：某个 Prompt 版本在评测集上的结果。
+- `prompt_template`: Thông tin cơ bản về Prompt, ví dụ tên, kịch bản, loại, trạng thái.
+- `prompt_version`: Nội dung cụ thể, định nghĩa biến, tham số model, người tạo, mô tả thay đổi.
+- `prompt_release`: Version nào được phát hành đến môi trường nào, tenant nào, bao nhiêu lưu lượng.
+- `prompt_run`: Prompt version, tóm tắt biến và đầu ra model được ràng buộc với mỗi lần gọi.
+- `prompt_eval_result`: Kết quả của một Prompt version trên bộ đánh giá.
 
-核心表可以这样设计：
+Bảng cốt lõi có thể thiết kế như sau:
 
-| 表名                 | 关键字段                                                                            | 作用                       |
-| -------------------- | ----------------------------------------------------------------------------------- | -------------------------- |
-| `ai_prompt_template` | `id`、`name`、`scene_code`、`type`、`status`                                        | 管理 Prompt 逻辑名称       |
-| `ai_prompt_version`  | `id`、`template_id`、`version_no`、`content`、`variables_schema`、`model_config`    | 保存可回放的 Prompt 内容   |
-| `ai_prompt_release`  | `id`、`template_id`、`version_id`、`env`、`traffic_ratio`、`tenant_scope`           | 控制灰度和回滚             |
-| `ai_prompt_run`      | `id`、`request_id`、`version_id`、`variables_hash`、`input_tokens`、`output_tokens` | 连接线上请求与 Prompt 版本 |
+| Tên bảng             | Trường chính                                                                        | Mục đích                                  |
+| -------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------- |
+| `ai_prompt_template` | `id`, `name`, `scene_code`, `type`, `status`                                        | Quản lý tên logic Prompt                  |
+| `ai_prompt_version`  | `id`, `template_id`, `version_no`, `content`, `variables_schema`, `model_config`    | Lưu nội dung Prompt có thể phát lại       |
+| `ai_prompt_release`  | `id`, `template_id`, `version_id`, `env`, `traffic_ratio`, `tenant_scope`           | Kiểm soát gray và rollback                |
+| `ai_prompt_run`      | `id`, `request_id`, `version_id`, `variables_hash`, `input_tokens`, `output_tokens` | Kết nối request online với Prompt version |
 
-变量注入时要避免两个坑：
+Khi tiêm biến cần tránh hai cạm bẫy:
 
-1. **变量未经清洗直接拼接**：用户输入、工具结果、检索片段都可能携带注入指令。应该用明确的分区标签和转义策略隔离。
-2. **Prompt 版本和代码版本脱节**：Prompt 里新增了变量，代码没传，线上直接生成空上下文。建议 `variables_schema` 做运行时校验。
+1. **Biến không được làm sạch trực tiếp nối chuỗi**: Đầu vào người dùng, kết quả tool, đoạn trích đều có thể mang lệnh injection. Nên dùng thẻ phân vùng rõ ràng và chiến lược escape để cô lập.
+2. **Prompt version và code version bị lệch pha**: Prompt thêm biến mới, code không truyền, trên production trực tiếp tạo ra ngữ cảnh trống. Khuyến nghị `variables_schema` thực hiện kiểm tra tại runtime.
 
-一个最小接口示例：
+Một ví dụ interface tối giản:
 
 ```java
 public interface PromptService {
@@ -223,63 +223,63 @@ public interface PromptService {
 }
 ```
 
-## 模型网关：多模型路由、fallback 与成本控制
+## Model gateway: Định tuyến đa model, fallback và kiểm soát chi phí
 
-模型网关最容易被低估。很多团队一开始直接在业务代码里调用某个供应商 SDK，等到要换模型、做灰度、查成本时才发现处处耦合。
+Model gateway thường bị đánh giá thấp nhất. Nhiều team lúc đầu gọi trực tiếp SDK của một nhà cung cấp trong code nghiệp vụ, đến khi muốn đổi model, làm gray, kiểm tra chi phí mới phát hiện ra chỗ nào cũng bị coupling.
 
-### 模型网关策略对比
+### So sánh chiến lược model gateway
 
-| 策略         | 核心逻辑                               | 适合场景                         | 风险                             |
-| ------------ | -------------------------------------- | -------------------------------- | -------------------------------- |
-| 固定模型     | 某个场景固定调用一个模型               | 早期系统、低复杂度任务           | 成本和稳定性受单供应商影响       |
-| 成本优先路由 | 默认走低成本模型，失败或低置信度再升级 | 分类、摘要、轻量问答             | 低成本模型误判会传导到下游       |
-| 质量优先路由 | 高价值请求优先走高能力模型             | 法务、金融、医疗辅助、复杂 Agent | 成本高，需要预算控制             |
-| 延迟优先路由 | 按 P95/P99 延迟和可用区选择模型        | 实时聊天、语音、在线客服         | 可能牺牲复杂推理质量             |
-| 多模型投票   | 多模型并行生成，再由评审器选择         | 高风险内容、关键报告             | 成本和延迟都高                   |
-| fallback 链  | 主模型失败后切备用模型                 | 大多数生产系统                   | 备用模型能力差异会影响输出一致性 |
+| Chiến lược                    | Logic cốt lõi                                                              | Kịch bản phù hợp                                          | Rủi ro                                                               |
+| ----------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
+| Model cố định                 | Một kịch bản cố định gọi một model                                         | Hệ thống giai đoạn đầu, tác vụ độ phức tạp thấp           | Chi phí và độ ổn định bị ảnh hưởng bởi một nhà cung cấp              |
+| Định tuyến ưu tiên chi phí    | Mặc định đi model chi phí thấp, thất bại hoặc confidence thấp thì nâng cấp | Phân loại, tóm tắt, hỏi đáp nhẹ                           | Model chi phí thấp phán đoán sai truyền xuống hạ lưu                 |
+| Định tuyến ưu tiên chất lượng | Request giá trị cao ưu tiên đi model có năng lực cao                       | Pháp lý, tài chính, hỗ trợ y tế, Agent phức tạp           | Chi phí cao, cần kiểm soát ngân sách                                 |
+| Định tuyến ưu tiên độ trễ     | Chọn model theo độ trễ P95/P99 và availability zone                        | Chat thời gian thực, giọng nói, dịch vụ khách hàng online | Có thể hy sinh chất lượng suy luận phức tạp                          |
+| Bỏ phiếu đa model             | Đa model tạo song song, rồi do bộ đánh giá chọn                            | Nội dung rủi ro cao, báo cáo quan trọng                   | Chi phí và độ trễ đều cao                                            |
+| Chuỗi fallback                | Khi model chính thất bại chuyển sang model dự phòng                        | Hầu hết hệ thống production                               | Sự khác biệt năng lực model dự phòng ảnh hưởng tính nhất quán đầu ra |
 
-### Token 预算怎么做
+### Làm Token budget như thế nào
 
-模型网关至少要在调用前做一次预算：
+Model gateway ít nhất phải thực hiện một lần dự toán trước khi gọi:
 
 ```text
 预计输入 Token = System Prompt + 用户输入 + 历史消息 + RAG 片段 + Memory + Tool Schema
 预计总 Token = 预计输入 Token + 最大输出 Token
 ```
 
-如果超预算，别直接截断字符串。更稳的降级顺序是：
+Nếu vượt ngân sách, đừng trực tiếp cắt chuỗi. Thứ tự hạ cấp ổn định hơn là:
 
-1. 删除低相关 RAG 片段。
-2. 压缩早期历史消息。
-3. 减少工具 Schema，只保留候选工具。
-4. 降低最大输出长度。
-5. 切换长上下文模型。
-6. 拒绝执行并提示用户缩小范围。
+1. Xóa đoạn RAG có liên quan thấp.
+2. Nén tin nhắn lịch sử sớm.
+3. Giảm Tool Schema, chỉ giữ tool ứng viên.
+4. Giảm độ dài đầu ra tối đa.
+5. Chuyển sang model ngữ cảnh dài.
+6. Từ chối thực thi và nhắc người dùng thu hẹp phạm vi.
 
-OpenTelemetry 的 GenAI 语义约定已经覆盖模型名、输入 Token、输出 Token、响应状态等字段。无论你用 Langfuse、LangSmith，还是自建观测平台，都建议尽量向这类通用字段靠拢，后续迁移和统一监控会轻松很多。
+Quy ước ngữ nghĩa GenAI của OpenTelemetry đã bao gồm các trường như tên model, input Token, output Token, trạng thái response. Dù bạn dùng Langfuse, LangSmith hay tự xây nền tảng quan sát, đều khuyến nghị cố gắng căn chỉnh với các trường chung này, việc di chuyển và theo dõi thống nhất về sau sẽ dễ dàng hơn nhiều.
 
-## 工具调用与权限：让模型只提出动作，系统决定能不能做
+## Gọi tool và phân quyền: Để model chỉ đề xuất hành động, hệ thống quyết định có thể làm không
 
-Tool Calling 很容易让人产生错觉：模型返回了一个函数名和参数，系统执行就行。
+Tool Calling rất dễ gây ra ảo giác: model trả về tên hàm và tham số, hệ thống thực thi là xong.
 
-这在生产环境很危险。
+Điều này rất nguy hiểm trong môi trường production.
 
-更稳的心智模型是：**模型只能提出“想调用什么工具”，真正执行前必须经过系统校验**。
+Mô hình tư duy ổn định hơn là: **Model chỉ có thể đề xuất "muốn gọi tool nào", trước khi thực sự thực thi phải qua kiểm tra của hệ thống**.
 
-工具运行时至少要包含 6 道关：
+Tool runtime ít nhất phải bao gồm 6 cửa ải:
 
-| 环节     | 作用                                                   |
-| -------- | ------------------------------------------------------ |
-| 工具注册 | 声明工具名称、描述、参数 Schema、权限标签、风险等级    |
-| 工具检索 | 从大量工具中选出当前任务相关的少数工具，避免上下文膨胀 |
-| 参数校验 | 用 JSON Schema 或强类型对象校验必填、格式、枚举、范围  |
-| 权限校验 | 按用户、租户、角色、资源 ID 做后端鉴权                 |
-| 二次确认 | 删除、支付、发送消息、改配置等敏感操作必须让用户确认   |
-| 审计日志 | 记录模型建议、最终参数、执行人、执行结果和回滚信息     |
+| Khâu              | Mục đích                                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------- |
+| Đăng ký tool      | Khai báo tên tool, mô tả, tham số Schema, nhãn quyền, mức độ rủi ro                                   |
+| Truy vấn tool     | Chọn ra số ít tool liên quan đến tác vụ hiện tại từ nhiều tool, tránh phình ngữ cảnh                  |
+| Kiểm tra tham số  | Dùng JSON Schema hoặc strongly-typed object kiểm tra bắt buộc, định dạng, enum, phạm vi               |
+| Kiểm tra quyền    | Xác thực backend theo người dùng, tenant, vai trò, resource ID                                        |
+| Xác nhận lần hai  | Xóa, thanh toán, gửi tin nhắn, thay đổi cấu hình và các thao tác nhạy cảm phải để người dùng xác nhận |
+| Nhật ký kiểm toán | Ghi lại đề xuất model, tham số cuối cùng, người thực thi, kết quả thực thi và thông tin rollback      |
 
-Anthropic 和 OpenAI 的官方工具调用文档都强调工具定义、参数结构和调用处理。落到工程里，再补一条硬规则：**别让模型替你做权限判断**。
+Tài liệu gọi tool chính thức của Anthropic và OpenAI đều nhấn mạnh định nghĩa tool, cấu trúc tham số và xử lý lần gọi. Khi đưa vào kỹ thuật, thêm một quy tắc cứng: **Đừng để model thay bạn phán đoán quyền hạn**.
 
-工具接口可以这样定义：
+Interface tool có thể định nghĩa như sau:
 
 ```java
 public interface AiTool {
@@ -290,7 +290,7 @@ public interface AiTool {
 }
 ```
 
-工具定义里要有风险等级：
+Định nghĩa tool cần có mức độ rủi ro:
 
 ```java
 public enum ToolRiskLevel {
@@ -300,130 +300,130 @@ public enum ToolRiskLevel {
 }
 ```
 
-对于 `WRITE_HIGH_RISK`，编排层必须把工具调用转换成“待确认动作”，不能直接执行。
+Đối với `WRITE_HIGH_RISK`, tầng điều phối phải chuyển đổi lần gọi tool thành "hành động chờ xác nhận", không thể thực thi trực tiếp.
 
-## RAG 与 Memory：共享知识和个性化记忆怎么协作
+## RAG và Memory: Tri thức chia sẻ và ký ức cá nhân hóa phối hợp như thế nào
 
-RAG 和 Memory 都会把外部信息塞进上下文，但它们的治理方式不同。
+Cả RAG và Memory đều nhét thông tin bên ngoài vào ngữ cảnh, nhưng cách quản trị chúng khác nhau.
 
-### 一次请求里的协作顺序
+### Thứ tự phối hợp trong một request
 
-推荐顺序如下：
+Thứ tự khuyến nghị như sau:
 
-1. 入口层确认用户身份和权限范围。
-2. Memory 服务检索用户相关偏好和长期事实。
-3. RAG 服务在权限范围内检索共享知识库。
-4. Context 管理层对两类结果分别去重、过滤、压缩。
-5. 编排层把 Memory 放进“用户背景”区域，把 RAG 放进“证据资料”区域。
-6. 模型输出时要求区分“基于资料的事实”和“基于用户偏好的表达方式”。
+1. Tầng đầu vào xác nhận danh tính người dùng và phạm vi quyền.
+2. Dịch vụ Memory truy vấn sở thích và sự kiện dài hạn liên quan đến người dùng.
+3. Dịch vụ RAG truy vấn cơ sở tri thức chia sẻ trong phạm vi quyền.
+4. Tầng quản lý Context loại bỏ trùng lặp, lọc, nén hai loại kết quả riêng biệt.
+5. Tầng điều phối đặt Memory vào khu vực "bối cảnh người dùng", đặt RAG vào khu vực "tài liệu bằng chứng".
+6. Khi model đầu ra yêu cầu phân biệt "sự kiện dựa trên tài liệu" và "cách diễn đạt dựa trên sở thích người dùng".
 
-这套顺序主要是为了避免上下文污染。
+Thứ tự này chủ yếu để tránh ô nhiễm ngữ cảnh.
 
-### 怎么避免上下文污染
+### Làm sao tránh ô nhiễm ngữ cảnh
 
-| 污染类型        | 典型表现                             | 防护方式                                    |
-| --------------- | ------------------------------------ | ------------------------------------------- |
-| RAG 噪声污染    | 检索到无关文档，模型被带偏           | Hybrid Search、Rerank、Top-N 压缩、引用校验 |
-| 权限污染        | 用户拿到无权访问的文档片段           | 检索前 ACL 过滤，租户隔离，审计召回结果     |
-| Memory 错误固化 | 用户一次临时说法被当成长期偏好       | 写入置信度、过期时间、用户可编辑、人工复核  |
-| 新旧事实冲突    | 旧版本制度和新版本制度同时进入上下文 | 版本字段、时间过滤、冲突检测                |
-| Prompt 注入污染 | 文档里写着“忽略前面规则”             | 文档内容分区、指令优先级、注入检测          |
+| Loại ô nhiễm             | Biểu hiện điển hình                                              | Cách phòng vệ                                                                             |
+| ------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Ô nhiễm nhiễu RAG        | Truy vấn được tài liệu không liên quan, model bị dẫn lệch        | Hybrid Search, Rerank, nén Top-N, kiểm tra tham chiếu                                     |
+| Ô nhiễm quyền            | Người dùng nhận được đoạn tài liệu không có quyền truy cập       | Lọc ACL trước truy vấn, cô lập tenant, kiểm toán kết quả thu hồi                          |
+| Cố định sai ký ức        | Một lần nói tạm thời của người dùng được coi là sở thích dài hạn | Mức độ tin cậy ghi vào, thời gian hết hạn, người dùng có thể chỉnh sửa, kiểm tra thủ công |
+| Xung đột sự kiện mới cũ  | Quy định phiên bản cũ và phiên bản mới đồng thời đi vào ngữ cảnh | Trường version, lọc thời gian, phát hiện xung đột                                         |
+| Ô nhiễm Prompt injection | Tài liệu viết "bỏ qua các quy tắc trước"                         | Phân vùng nội dung tài liệu, ưu tiên lệnh, phát hiện injection                            |
 
-Guide 的经验是：RAG 和 Memory 的结果不要直接拼成一段“背景资料”。要给模型清晰标注来源、时间、权限和可信度。模型看到的上下文越有结构，越不容易把“用户偏好”“公司制度”“工具结果”混成一类信息。
+Kinh nghiệm của Guide là: Kết quả RAG và Memory không nên trực tiếp ghép thành một đoạn "tài liệu nền". Phải đánh dấu rõ ràng nguồn gốc, thời gian, quyền hạn và độ tin cậy cho model. Ngữ cảnh model nhìn thấy càng có cấu trúc, càng ít có khả năng trộn "sở thích người dùng", "quy định công ty", "kết quả tool" thành một loại thông tin.
 
-## 可观测与评测：没有回放，就没有优化
+## Khả năng quan sát và đánh giá: Không có phát lại thì không có tối ưu hóa
 
-AI 应用排查问题时，最怕只看到最终答案。
+Khi debug ứng dụng AI, điều đáng sợ nhất là chỉ nhìn thấy câu trả lời cuối cùng.
 
-一次完整请求至少要记录这些数据：
+Một request hoàn chỉnh ít nhất phải ghi lại các dữ liệu sau:
 
-| 类别   | 建议记录                                                |
-| ------ | ------------------------------------------------------- |
-| Prompt | 模板名、版本、变量摘要、最终渲染后的消息结构            |
-| 检索   | Query、召回片段、分数、来源、权限过滤结果、Rerank 排名  |
-| Memory | 命中的记忆、记忆来源、更新时间、置信度                  |
-| Tool   | 工具名称、参数、权限结果、执行耗时、返回摘要、错误      |
-| 模型   | 供应商、模型名、采样参数、输入输出 Token、finish reason |
-| 延迟   | 入口耗时、检索耗时、模型 TTFT、总耗时、工具耗时         |
-| 成本   | 输入成本、输出成本、缓存命中、按租户和场景归因          |
-| 结果   | 最终答案、结构化解析结果、用户反馈、评测分数            |
+| Loại     | Khuyến nghị ghi lại                                                                      |
+| -------- | ---------------------------------------------------------------------------------------- |
+| Prompt   | Tên template, version, tóm tắt biến, cấu trúc tin nhắn sau khi render cuối cùng          |
+| Truy vấn | Query, đoạn thu hồi, điểm, nguồn, kết quả lọc quyền, thứ hạng Rerank                     |
+| Memory   | Ký ức được đánh trúng, nguồn ký ức, thời gian cập nhật, mức độ tin cậy                   |
+| Tool     | Tên tool, tham số, kết quả quyền, thời gian thực thi, tóm tắt trả về, lỗi                |
+| Model    | Nhà cung cấp, tên model, tham số sampling, input/output Token, finish reason             |
+| Độ trễ   | Thời gian đầu vào, thời gian truy vấn, TTFT model, tổng thời gian, thời gian tool        |
+| Chi phí  | Chi phí đầu vào, chi phí đầu ra, cache hit, quy trách nhiệm theo tenant và kịch bản      |
+| Kết quả  | Câu trả lời cuối cùng, kết quả phân tích có cấu trúc, phản hồi người dùng, điểm đánh giá |
 
-Langfuse、LangSmith 和 OpenTelemetry 的官方文档都把 tracing、datasets、evaluators、token usage、latency 作为 LLM 应用观测的重要对象。工具可以不同，但你要抓的信号大体相同。
+Tài liệu chính thức của Langfuse, LangSmith và OpenTelemetry đều đặt tracing, datasets, evaluators, token usage, latency là đối tượng quan sát quan trọng của ứng dụng LLM. Tool có thể khác nhau, nhưng tín hiệu bạn cần nắm bắt về cơ bản là giống nhau.
 
-### 评测应该怎么做
+### Đánh giá nên làm như thế nào
 
-评测别只问“答案好不好”。要拆成链路指标：
+Đánh giá đừng chỉ hỏi "câu trả lời có tốt không". Phải tách thành chỉ số chuỗi liên kết:
 
-- **Context Recall**：正确证据有没有被召回。
-- **Context Precision**：放进上下文的片段有多少是有用的。
-- **Faithfulness**：答案是否忠于给定证据。
-- **Answer Relevancy**：答案是否回应了用户问题。
-- **Tool Success Rate**：工具调用是否成功完成。
-- **Format Valid Rate**：结构化输出是否能被解析。
-- **Cost per Success**：每次成功回答的平均成本。
+- **Context Recall**: Bằng chứng đúng có được thu hồi không.
+- **Context Precision**: Bao nhiêu đoạn được đưa vào ngữ cảnh thực sự hữu ích.
+- **Faithfulness**: Câu trả lời có trung thành với bằng chứng đã cho không.
+- **Answer Relevancy**: Câu trả lời có phản hồi câu hỏi của người dùng không.
+- **Tool Success Rate**: Gọi tool có hoàn thành thành công không.
+- **Format Valid Rate**: Đầu ra có cấu trúc có thể phân tích không.
+- **Cost per Success**: Chi phí trung bình mỗi lần trả lời thành công.
 
-LLM-as-Judge 可以用于自动评测，但不能当唯一裁判。它适合做大规模初筛、回归对比和线上抽样，关键业务仍要保留人工复核、规则校验和用户反馈。
+LLM-as-Judge có thể dùng cho đánh giá tự động, nhưng không thể là trọng tài duy nhất. Nó phù hợp để sàng lọc ban đầu quy mô lớn, so sánh hồi quy và lấy mẫu online, nghiệp vụ quan trọng vẫn phải giữ lại kiểm tra thủ công, kiểm tra quy tắc và phản hồi người dùng.
 
-一个实用闭环是：
+Một vòng lặp khép kín thực tế là:
 
 ```text
 线上失败样本 -> 进入数据集 -> 固定版本回放 -> 定位 Prompt/RAG/Tool/模型问题 -> 灰度新策略 -> 对比指标 -> 再发布
 ```
 
-没有回放，就只能靠感觉调 Prompt。靠感觉调出来的系统，线上很难稳住。
+Không có phát lại thì chỉ có thể điều chỉnh Prompt theo cảm tính. Hệ thống điều chỉnh theo cảm tính rất khó ổn định trên production.
 
-## 安全与合规：AI 应用的风险入口更多
+## Bảo mật và tuân thủ: Ứng dụng AI có nhiều điểm rủi ro hơn
 
-AI 应用的安全面比传统 CRUD 系统更宽。因为用户输入、检索文档、工具返回、历史记忆都可能影响模型行为。
+Bề mặt bảo mật của ứng dụng AI rộng hơn hệ thống CRUD truyền thống. Vì đầu vào người dùng, tài liệu truy vấn, trả về của tool, ký ức lịch sử đều có thể ảnh hưởng đến hành vi model.
 
-### 必做安全项
+### Các hạng mục bảo mật bắt buộc làm
 
-| 风险             | 说明                                             | 处理建议                                 |
-| ---------------- | ------------------------------------------------ | ---------------------------------------- |
-| PII 泄露         | 日志、Prompt、评测集里包含手机号、身份证、邮箱等 | 入库前脱敏，敏感字段加密，最小化留存     |
-| 权限绕过         | 检索或工具调用绕过业务 ACL                       | 检索前过滤，工具执行前二次鉴权           |
-| Prompt 注入      | 用户或文档诱导模型忽略系统规则                   | 内容分区、指令优先级、注入检测、拒答策略 |
-| 数据留存失控     | 模型请求和观测日志保存过久                       | 按租户和场景配置留存周期                 |
-| 训练数据风险     | 把用户敏感数据用于微调或评测                     | 明确授权、脱敏、隔离、可删除             |
-| 高风险动作误执行 | 模型误调用删除、支付、发信等工具                 | 风险分级、二次确认、审计和补偿           |
+| Rủi ro                             | Giải thích                                                        | Đề xuất xử lý                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Rò rỉ PII                          | Log, Prompt, bộ đánh giá chứa số điện thoại, CMND, email          | Ẩn danh hóa trước khi nhập cơ sở dữ liệu, mã hóa trường nhạy cảm, tối thiểu hóa lưu giữ |
+| Vượt quyền                         | Truy vấn hoặc gọi tool vượt ACL nghiệp vụ                         | Lọc trước truy vấn, xác thực lần hai trước khi thực thi tool                            |
+| Prompt injection                   | Người dùng hoặc tài liệu dụ model bỏ qua quy tắc hệ thống         | Phân vùng nội dung, ưu tiên lệnh, phát hiện injection, chiến lược từ chối trả lời       |
+| Mất kiểm soát lưu giữ dữ liệu      | Request model và log quan sát được lưu quá lâu                    | Cấu hình chu kỳ lưu giữ theo tenant và kịch bản                                         |
+| Rủi ro dữ liệu huấn luyện          | Dùng dữ liệu nhạy cảm của người dùng để fine-tuning hoặc đánh giá | Ủy quyền rõ ràng, ẩn danh hóa, cô lập, có thể xóa                                       |
+| Thực thi nhầm hành động rủi ro cao | Model nhầm gọi tool xóa, thanh toán, gửi thư                      | Phân cấp rủi ro, xác nhận lần hai, kiểm toán và bù đắp                                  |
 
-这里有个容易忽略的细节：**安全策略不能只写在 Prompt 里**。Prompt 可以提醒模型“不要泄露隐私”，但权限过滤、脱敏、审计、确认流必须由代码和基础设施强制执行。
+Có một chi tiết dễ bỏ qua: **Chiến lược bảo mật không thể chỉ viết trong Prompt**. Prompt có thể nhắc model "không tiết lộ thông tin riêng tư", nhưng lọc quyền, ẩn danh hóa, kiểm toán, quy trình xác nhận phải được code và hạ tầng thực thi bắt buộc.
 
-## Java 后端落地建议
+## Đề xuất triển khai backend Java
 
-如果用 Java 做生产级 AI 应用，Guide 建议按“领域能力”拆模块，别按供应商 SDK 拆模块。
+Nếu dùng Java để làm ứng dụng AI cấp production, Guide khuyến nghị phân module theo "năng lực miền", đừng phân module theo SDK nhà cung cấp.
 
-### 模块拆分
+### Phân chia module
 
-| 模块               | 职责                                             |
-| ------------------ | ------------------------------------------------ |
-| `ai-api`           | 对外 REST/SSE/WebSocket 接口，请求鉴权和协议适配 |
-| `ai-orchestrator`  | 业务编排、交互模式选择、任务状态机               |
-| `ai-prompt`        | Prompt 模板、版本、灰度、渲染、回滚              |
-| `ai-context`       | 上下文组装、Token 预算、历史压缩、上下文分区     |
-| `ai-gateway`       | 模型路由、fallback、限流、熔断、成本统计         |
-| `ai-rag`           | 知识库检索、权限过滤、Rerank、引用管理           |
-| `ai-memory`        | 用户记忆写入、检索、冲突处理、过期策略           |
-| `ai-tool`          | 工具注册、参数校验、执行、二次确认、审计         |
-| `ai-eval`          | 数据集、评测任务、LLM-as-Judge、人工反馈         |
-| `ai-observability` | Trace、指标、日志、成本、告警                    |
+| Module             | Trách nhiệm                                                                     |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `ai-api`           | Interface REST/SSE/WebSocket đối ngoại, xác thực request và thích ứng giao thức |
+| `ai-orchestrator`  | Điều phối nghiệp vụ, lựa chọn chế độ tương tác, state machine tác vụ            |
+| `ai-prompt`        | Template Prompt, version, gray, render, rollback                                |
+| `ai-context`       | Lắp ráp ngữ cảnh, Token budget, nén lịch sử, phân vùng ngữ cảnh                 |
+| `ai-gateway`       | Định tuyến model, fallback, rate limiting, circuit breaker, thống kê chi phí    |
+| `ai-rag`           | Truy vấn cơ sở tri thức, lọc quyền, Rerank, quản lý tham chiếu                  |
+| `ai-memory`        | Ghi ký ức người dùng, truy vấn, xử lý xung đột, chính sách hết hạn              |
+| `ai-tool`          | Đăng ký tool, kiểm tra tham số, thực thi, xác nhận lần hai, kiểm toán           |
+| `ai-eval`          | Bộ dữ liệu, tác vụ đánh giá, LLM-as-Judge, phản hồi thủ công                    |
+| `ai-observability` | Trace, chỉ số, log, chi phí, cảnh báo                                           |
 
-### 核心表设计
+### Thiết kế bảng cốt lõi
 
-| 表名               | 作用                                                     |
-| ------------------ | -------------------------------------------------------- |
-| `ai_request_trace` | 一次 AI 请求的主 Trace，记录用户、租户、场景、状态、耗时 |
-| `ai_model_call`    | 模型调用明细，记录模型、参数、Token、TTFT、错误          |
-| `ai_context_item`  | 上下文条目，记录来源类型、来源 ID、Token、注入位置       |
-| `ai_rag_chunk_hit` | RAG 召回明细，记录分数、排名、文档权限、引用信息         |
-| `ai_memory_item`   | 长期记忆条目，记录用户、内容、置信度、过期时间、状态     |
-| `ai_tool_call`     | 工具调用明细，记录工具、参数摘要、权限结果、执行结果     |
-| `ai_eval_dataset`  | 评测集元信息                                             |
-| `ai_eval_case`     | 评测样本，包含输入、期望行为、标签                       |
-| `ai_eval_run`      | 某次评测任务                                             |
-| `ai_eval_result`   | 单条样本评测结果                                         |
+| Tên bảng           | Mục đích                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| `ai_request_trace` | Trace chính của một AI request, ghi lại người dùng, tenant, kịch bản, trạng thái, thời gian    |
+| `ai_model_call`    | Chi tiết gọi model, ghi lại model, tham số, Token, TTFT, lỗi                                   |
+| `ai_context_item`  | Mục ngữ cảnh, ghi lại loại nguồn, source ID, Token, vị trí tiêm                                |
+| `ai_rag_chunk_hit` | Chi tiết thu hồi RAG, ghi lại điểm, thứ hạng, quyền tài liệu, thông tin tham chiếu             |
+| `ai_memory_item`   | Mục ký ức dài hạn, ghi lại người dùng, nội dung, mức độ tin cậy, thời gian hết hạn, trạng thái |
+| `ai_tool_call`     | Chi tiết gọi tool, ghi lại tool, tóm tắt tham số, kết quả quyền, kết quả thực thi              |
+| `ai_eval_dataset`  | Siêu dữ liệu bộ đánh giá                                                                       |
+| `ai_eval_case`     | Mẫu đánh giá, bao gồm đầu vào, hành vi mong đợi, nhãn                                          |
+| `ai_eval_run`      | Một tác vụ đánh giá                                                                            |
+| `ai_eval_result`   | Kết quả đánh giá từng mẫu                                                                      |
 
-### 核心接口设计
+### Thiết kế interface cốt lõi
 
 ```java
 public interface ModelGateway {
@@ -455,7 +455,7 @@ public interface EvaluationService {
 }
 ```
 
-### 一个最小请求链路
+### Một chuỗi liên kết request tối giản
 
 ```text
 Controller
@@ -468,64 +468,64 @@ Controller
   -> TraceService 写入观测数据
 ```
 
-如果你只做一个企业知识库问答，第一阶段可以先落地 `ai-api`、`ai-prompt`、`ai-gateway`、`ai-rag`、`ai-observability`。Memory、Tool、Eval 可以逐步补齐。但 Trace 和 Prompt 版本不要拖到后面，它们是后续排查问题的地基。
+Nếu bạn chỉ làm hỏi đáp cơ sở tri thức doanh nghiệp, giai đoạn đầu có thể triển khai `ai-api`, `ai-prompt`, `ai-gateway`, `ai-rag`, `ai-observability` trước. Memory, Tool, Eval có thể bổ sung dần. Nhưng Trace và Prompt version đừng để lại sau, chúng là nền tảng để debug vấn đề về sau.
 
-## 面试怎么讲这套架构
+## Làm sao trình bày kiến trúc này trong phỏng vấn
 
-面试官问“你怎么设计一个生产级 AI 应用”，别上来就说“我会用 LangChain”。
+Khi người phỏng vấn hỏi "Bạn thiết kế ứng dụng AI cấp production như thế nào", đừng mở đầu bằng "Tôi sẽ dùng LangChain".
 
-更稳的回答方式是：
+Cách trả lời ổn định hơn là:
 
-1. 先讲 Demo 和生产差距：稳定性、权限、成本、观测、评测、数据治理。
-2. 再讲分层：入口层、编排层、Prompt/Context、RAG/Memory/Tool、模型网关、异步任务、评测观测。
-3. 讲关键链路：一次请求如何鉴权、检索、组装上下文、调用模型、校验输出、记录 Trace。
-4. 讲治理能力：Prompt 版本、模型 fallback、Token 预算、工具权限、PII 脱敏。
-5. 最后讲评测闭环：固定样本集、线上失败样本回放、LLM-as-Judge 和人工复核结合。
+1. Trước tiên nói về khoảng cách giữa Demo và production: độ ổn định, quyền hạn, chi phí, quan sát, đánh giá, quản trị dữ liệu.
+2. Sau đó nói về phân tầng: tầng đầu vào, tầng điều phối, Prompt/Context, RAG/Memory/Tool, model gateway, tác vụ bất đồng bộ, đánh giá quan sát.
+3. Nói về chuỗi liên kết then chốt: Một request xác thực, truy vấn, lắp ráp ngữ cảnh, gọi model, kiểm tra đầu ra, ghi Trace như thế nào.
+4. Nói về năng lực quản trị: Prompt version, model fallback, Token budget, quyền tool, ẩn danh hóa PII.
+5. Cuối cùng nói về vòng đánh giá khép kín: Bộ mẫu cố định, phát lại mẫu thất bại online, kết hợp LLM-as-Judge và kiểm tra thủ công.
 
-## 核心要点回顾
+## Ôn lại các điểm cốt lõi
 
-1. **Prompt Demo 只证明“能回答”，生产级架构要证明“长期可控地回答”**。
-2. **模型网关是 AI 应用基础设施**，负责路由、fallback、限流、熔断、Token 预算和成本归因。
-3. **Prompt 必须版本化**，支持变量校验、灰度、回滚和审计。
-4. **RAG、Memory、Tool 要分开治理**，共享知识、个性化记忆和真实业务动作不能混成一团。
-5. **可观测和评测决定系统能不能持续变好**，没有 Trace 和回放，优化基本靠猜。
-6. **安全策略要靠代码强制执行**，Prompt 只能辅助，不能替代权限、脱敏、审计和二次确认。
+1. **Prompt Demo chỉ chứng minh "có thể trả lời", kiến trúc cấp production cần chứng minh "trả lời ổn định lâu dài có kiểm soát"**.
+2. **Model gateway là hạ tầng cơ sở của ứng dụng AI**, chịu trách nhiệm định tuyến, fallback, rate limiting, circuit breaker, Token budget và quy trách nhiệm chi phí.
+3. **Prompt phải versioning**, hỗ trợ kiểm tra biến, gray, rollback và kiểm toán.
+4. **RAG, Memory, Tool cần quản trị riêng biệt**, tri thức chia sẻ, ký ức cá nhân hóa và hành động nghiệp vụ thực tế không thể trộn lẫn thành một đống.
+5. **Khả năng quan sát và đánh giá quyết định hệ thống có thể tiếp tục cải thiện không**, không có Trace và phát lại thì tối ưu hóa cơ bản là đoán mò.
+6. **Chiến lược bảo mật phải được code thực thi bắt buộc**, Prompt chỉ có thể hỗ trợ, không thể thay thế quyền hạn, ẩn danh hóa, kiểm toán và xác nhận lần hai.
 
-## 高频面试问题
+## Câu hỏi phỏng vấn thường gặp
 
-**1. Prompt Demo 到生产系统最大的差距是什么？**
+**1. Khoảng cách lớn nhất từ Prompt Demo đến hệ thống production là gì?**
 
-核心差距在工程治理。Demo 关注模型能不能答，生产系统关注稳定性、权限隔离、成本控制、可观测、评测回放和数据合规。
+Khoảng cách cốt lõi nằm ở quản trị kỹ thuật. Demo quan tâm model có thể trả lời không, hệ thống production quan tâm độ ổn định, cô lập quyền, kiểm soát chi phí, khả năng quan sát, phát lại đánh giá và tuân thủ dữ liệu.
 
-**2. 为什么需要模型网关？**
+**2. Tại sao cần model gateway?**
 
-模型网关把供应商差异、模型路由、fallback、限流、熔断、Token 预算、成本统计和观测统一起来，避免业务代码直接耦合某个模型 API。
+Model gateway thống nhất sự khác biệt nhà cung cấp, định tuyến model, fallback, rate limiting, circuit breaker, Token budget, thống kê chi phí và quan sát lại, tránh để code nghiệp vụ trực tiếp coupling với một model API cụ thể.
 
-**3. 同步、流式、异步怎么选？**
+**3. Đồng bộ, streaming, bất đồng bộ chọn như thế nào?**
 
-短小任务走同步，长答案和聊天走流式，报告生成、批量处理、多工具任务走异步。核心判断是任务耗时、用户是否需要首字反馈、是否需要重试和恢复。
+Tác vụ nhỏ đi đồng bộ, câu trả lời dài và chat đi streaming, tạo báo cáo, xử lý hàng loạt, tác vụ đa tool đi bất đồng bộ. Phán đoán cốt lõi là thời gian tác vụ, người dùng có cần phản hồi ký tự đầu không, có cần retry và khôi phục không.
 
-**4. Prompt 为什么要做版本管理？**
+**4. Tại sao Prompt cần quản lý version?**
 
-Prompt 会直接影响输出质量、工具调用、检索策略和成本。版本管理可以支持灰度、回滚、审计和离线评测回放。
+Prompt sẽ trực tiếp ảnh hưởng chất lượng đầu ra, gọi tool, chiến lược truy vấn và chi phí. Quản lý version có thể hỗ trợ gray, rollback, kiểm toán và phát lại đánh giá offline.
 
-**5. Tool Calling 的安全边界在哪里？**
+**5. Ranh giới bảo mật của Tool Calling ở đâu?**
 
-模型只能提出工具调用意图，参数校验、权限校验、敏感操作确认和审计必须由后端系统完成。
+Model chỉ có thể đề xuất ý định gọi tool, kiểm tra tham số, kiểm tra quyền, xác nhận thao tác nhạy cảm và kiểm toán phải được hệ thống backend hoàn thành.
 
-**6. RAG 和 Memory 有什么区别？**
+**6. RAG và Memory có gì khác nhau?**
 
-RAG 管共享知识源，例如企业文档和产品手册；Memory 管个性化长期事实，例如用户偏好和历史决策。二者可以协作，但要分区注入上下文，避免污染。
+RAG quản lý nguồn tri thức chia sẻ, ví dụ tài liệu doanh nghiệp và sổ tay sản phẩm; Memory quản lý sự kiện cá nhân hóa dài hạn, ví dụ sở thích người dùng và quyết định lịch sử. Cả hai có thể phối hợp, nhưng cần tiêm theo khu vực vào ngữ cảnh, tránh ô nhiễm.
 
-**7. AI 应用可观测要看哪些指标？**
+**7. Khả năng quan sát ứng dụng AI cần xem những chỉ số nào?**
 
-至少看 Prompt 版本、检索命中、工具调用、模型输出、输入输出 Token、TTFT、总延迟、成功率、错误率、成本和评测分数。
+Ít nhất xem Prompt version, truy vấn hit, gọi tool, đầu ra model, input/output Token, TTFT, tổng độ trễ, tỷ lệ thành công, tỷ lệ lỗi, chi phí và điểm đánh giá.
 
-**8. LLM-as-Judge 能不能替代人工评测？**
+**8. LLM-as-Judge có thể thay thế đánh giá thủ công không?**
 
-不能。它适合自动化回归、线上抽样和大规模初筛，但关键业务仍需要规则校验、人工复核和用户反馈闭环。
+Không thể. Nó phù hợp để tự động hóa hồi quy, lấy mẫu online và sàng lọc ban đầu quy mô lớn, nhưng nghiệp vụ quan trọng vẫn cần kiểm tra quy tắc, kiểm tra thủ công và vòng phản hồi người dùng.
 
-## 参考资料
+## Tài liệu tham khảo
 
 - [OpenAI API 官方文档](https://developers.openai.com/api/docs)
 - [OpenAI Agents SDK 观测与集成](https://developers.openai.com/api/docs/guides/agents/integrations-observability)

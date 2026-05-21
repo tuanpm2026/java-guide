@@ -1,186 +1,186 @@
 ---
-title: AI 系统设计面试题总结
-description: 系统整理 AI 应用系统设计高频面试题，覆盖生产级 AI 应用架构、模型网关、Prompt 管理、RAG、Memory、Tool Calling、可观测、评测、安全合规、实时语音 Agent 等核心考点，并附对应参考文章。
+title: Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI
+description: Tổng hợp có hệ thống các câu hỏi phỏng vấn thiết kế hệ thống ứng dụng AI tần suất cao, bao gồm kiến trúc ứng dụng AI cấp sản xuất, model gateway, quản lý Prompt, RAG, Memory, Tool Calling, khả năng quan sát, đánh giá, tuân thủ bảo mật, voice Agent thời gian thực và các điểm kiểm tra cốt lõi khác, kèm bài viết tham khảo tương ứng.
 category: AI
 tag:
-  - AI系统设计
-  - AI面试
-  - 大模型应用
+  - Thiết kế hệ thống AI
+  - Phỏng vấn AI
+  - Ứng dụng mô hình lớn
 head:
   - - meta
     - name: keywords
       content: AI系统设计面试题,AI应用架构面试题,大模型应用系统设计,LLM网关面试题,AI可观测面试题,AI评测面试题,语音Agent面试题,AI安全面试题
 ---
 
-AI 系统设计题和传统后端系统设计很像，但多了一个特别麻烦的变量：大模型。
+Câu hỏi thiết kế hệ thống AI rất giống thiết kế hệ thống backend truyền thống, nhưng có thêm một biến số đặc biệt khó chịu: mô hình lớn.
 
-传统服务通常遵循确定性的输入输出，出了问题可以按日志、链路、数据库状态逐步定位。AI 应用不一样，模型输出有随机性，Prompt 会影响行为，RAG 证据会影响答案，工具调用可能失败，供应商可能限流，评测还不能只靠单元测试。
+Dịch vụ truyền thống thường tuân theo đầu vào-đầu ra xác định, xảy ra vấn đề có thể định vị từng bước qua log, chain, trạng thái database. Ứng dụng AI khác, đầu ra mô hình có tính ngẫu nhiên, Prompt ảnh hưởng hành vi, bằng chứng RAG ảnh hưởng câu trả lời, gọi công cụ có thể thất bại, nhà cung cấp có thể rate limit, đánh giá không thể chỉ dựa vào unit test.
 
-所以，AI 系统设计面试真正考的是：**你能不能把一个 Prompt Demo 设计成稳定、可观测、可评测、可回滚、可治理的生产系统。**
+Do đó, điều phỏng vấn thiết kế hệ thống AI thực sự kiểm tra là: **bạn có thể thiết kế một Prompt Demo thành hệ thống sản xuất ổn định, có thể quan sát, có thể đánh giá, có thể rollback, có thể quản trị không.**
 
-这份 AI 系统设计面试题根据 AI 专栏现有文章整理，适合 2 年以上开发者复习。建议你按这条主线准备：
+Bộ câu hỏi phỏng vấn thiết kế hệ thống AI này được tổng hợp dựa trên các bài viết hiện có trong chuyên mục AI, phù hợp cho nhà phát triển 2 năm trở lên ôn tập. Khuyến nghị chuẩn bị theo mạch chính này:
 
-1. 先讲清 Prompt Demo 和生产系统的差距。
-2. 再拆整体架构：入口、编排、上下文、RAG、Memory、Tool、模型网关、异步任务、观测评测。
-3. 接着讲关键链路：一次请求如何鉴权、检索、组装上下文、调用模型、校验输出、记录 Trace。
-4. 然后讲治理能力：成本、限流、降级、安全、审计、灰度、回滚。
-5. 最后讲评测闭环：Golden Set、Trace 回放、线上灰度和人工复核。
+1. Trước tiên giải thích rõ khoảng cách giữa Prompt Demo và hệ thống sản xuất.
+2. Rồi phân tách toàn bộ kiến trúc: đầu vào, biên soạn, ngữ cảnh, RAG, Memory, Tool, model gateway, nhiệm vụ bất đồng bộ, quan sát đánh giá.
+3. Tiếp theo nói về chain link quan trọng: một request trải qua những module nào từ đầu, cách xác thực, truy xuất, lắp ráp ngữ cảnh, gọi mô hình, xác minh đầu ra, ghi Trace.
+4. Rồi nói về năng lực quản trị: chi phí, rate limiting, xuống cấp, bảo mật, kiểm toán, grayscale, rollback.
+5. Cuối cùng nói về vòng lặp đánh giá: Golden Set, Trace playback, grayscale trực tuyến và kiểm tra thủ công.
 
-## 面试官真正想考什么
+## Phỏng vấn viên thực sự muốn kiểm tra gì
 
-AI 系统设计题一般不会满足于“我用 LangChain 搭一个 RAG”。面试官更想看你是否有生产级架构意识。
+Câu hỏi thiết kế hệ thống AI thường không thỏa mãn với "tôi dùng LangChain xây một RAG". Phỏng vấn viên muốn xem bạn có ý thức kiến trúc cấp sản xuất không.
 
-| 考察方向        | 面试官想确认什么                         | 常见扣分点                   |
-| --------------- | ---------------------------------------- | ---------------------------- |
-| 整体架构        | 你能否把 AI 应用拆成清晰分层             | 上来就讲框架，不讲链路和边界 |
-| 模型网关        | 你是否知道模型调用需要统一治理           | 业务代码直接耦合供应商 API   |
-| Prompt/Context  | 你是否知道提示词和上下文要版本化、可回放 | Prompt 写死在代码里          |
-| RAG/Memory/Tool | 你是否能区分知识、记忆和真实业务动作     | 把所有上下文混在一起塞给模型 |
-| 可观测与评测    | 你是否能证明系统质量变化                 | 只靠人工试几条问题           |
-| 安全合规        | 你是否知道模型不能绕过业务权限           | 只靠 Prompt 防越权和注入     |
+| Hướng kiểm tra                | Phỏng vấn viên muốn xác nhận gì                                             | Điểm trừ phổ biến                                     |
+| ----------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Kiến trúc tổng thể            | Bạn có thể phân tách ứng dụng AI thành phân lớp rõ ràng không               | Vào ngay nói framework, không nói chain và ranh giới  |
+| Model gateway                 | Bạn có biết gọi mô hình cần quản trị thống nhất không                       | Code nghiệp vụ kết nối trực tiếp với API nhà cung cấp |
+| Prompt/Context                | Bạn có biết prompt và ngữ cảnh cần version hóa, có thể playback không       | Prompt viết cứng trong code                           |
+| RAG/Memory/Tool               | Bạn có thể phân biệt kiến thức, bộ nhớ và hành động nghiệp vụ thực tế không | Nhét tất cả ngữ cảnh vào một chỗ đưa cho mô hình      |
+| Khả năng quan sát và đánh giá | Bạn có thể chứng minh sự thay đổi chất lượng hệ thống không                 | Chỉ dựa vào thử thủ công vài câu hỏi                  |
+| Tuân thủ bảo mật              | Bạn có biết mô hình không thể bỏ qua quyền nghiệp vụ không                  | Chỉ dựa vào Prompt để ngăn vượt quyền và injection    |
 
-系统设计题最怕空泛。好的回答要能沿着一次请求说清楚：用户请求进来后，经过哪些模块，每个模块解决什么问题，出了问题怎么定位，质量下降怎么回滚。
+Câu hỏi system design sợ nhất là mơ hồ chung chung. Đáp án tốt cần có thể nói rõ theo một request: sau khi request người dùng vào, trải qua những module nào, mỗi module giải quyết vấn đề gì, xảy ra vấn đề định vị như thế nào, chất lượng giảm xuống rollback như thế nào.
 
-## 生产级 AI 应用架构
+## Kiến trúc ứng dụng AI cấp sản xuất
 
-参考文章：[《AI 应用系统设计：从 Prompt Demo 到生产级架构》](../system-design/ai-application-architecture.md)
+Bài viết tham khảo: [《Thiết kế hệ thống ứng dụng AI: từ Prompt Demo đến kiến trúc cấp sản xuất》](../system-design/ai-application-architecture.md)
 
-这一组题是 AI 系统设计的核心。你要能把 AI 应用拆成多个工程模块，而不是只说“前端发请求，后端调模型”。
+Nhóm câu hỏi này là cốt lõi của thiết kế hệ thống AI. Bạn phải có thể phân tách ứng dụng AI thành nhiều module kỹ thuật, không chỉ nói "frontend gửi request, backend gọi mô hình".
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- Prompt Demo 证明的是模型能回答，生产系统要证明的是系统能长期、稳定、可控地回答。
-- 入口层负责鉴权、租户、限流、参数校验和请求分类。
-- 编排层负责判断任务类型，是普通问答、RAG、Agent、多工具任务，还是异步批处理。
-- Prompt/Context 层负责模板版本、变量校验、历史消息、检索证据、用户画像和工具说明。
-- RAG 管共享知识，Memory 管个性化长期事实，Tool 管真实业务动作，三者要分开治理。
-- 模型网关负责供应商适配、路由、fallback、限流、熔断、Token 预算、成本归因和观测。
-- 评测观测层负责 Trace、日志、指标、Golden Set、LLM-as-Judge、灰度和回放。
+- Prompt Demo chứng minh mô hình có thể trả lời, hệ thống sản xuất cần chứng minh hệ thống có thể trả lời lâu dài, ổn định, có thể kiểm soát.
+- Lớp đầu vào chịu trách nhiệm xác thực, tenant, rate limiting, xác minh tham số và phân loại request.
+- Lớp biên soạn chịu trách nhiệm xác định loại nhiệm vụ, là hỏi đáp thông thường, RAG, Agent, nhiệm vụ multi-tool, hay xử lý batch bất đồng bộ.
+- Lớp Prompt/Context chịu trách nhiệm phiên bản template, xác minh biến, lịch sử tin nhắn, bằng chứng truy xuất, hồ sơ người dùng và mô tả công cụ.
+- RAG quản lý kiến thức chia sẻ, Memory quản lý sự kiện cá nhân hóa dài hạn, Tool quản lý hành động nghiệp vụ thực tế, ba loại phải được quản trị riêng biệt.
+- Model gateway chịu trách nhiệm thích ứng nhà cung cấp, định tuyến, fallback, rate limiting, circuit breaker, ngân sách Token, quy nhân chi phí và quan sát.
+- Lớp đánh giá quan sát chịu trách nhiệm Trace, log, chỉ số, Golden Set, LLM-as-Judge, grayscale và playback.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- Prompt Demo 到生产系统最大的差距是什么？
-- 怎么设计一个生产级 AI 应用的整体架构？
-- 一次 AI 请求从入口到模型返回，完整链路应该怎么讲？
-- 入口层、编排层、Prompt/Context、RAG/Memory/Tool、模型网关、评测观测分别承担什么职责？
-- 同步、流式、异步三种模式怎么选？
-- 为什么需要模型网关？
-- Prompt 为什么要做版本管理？
-- RAG 和 Memory 有什么区别？为什么不能混在一起治理？
-- Tool Calling 的安全边界在哪里？
-- AI 应用可观测要看哪些指标？
-- LLM-as-Judge 能不能替代人工评测？
+- Khoảng cách lớn nhất từ Prompt Demo đến hệ thống sản xuất là gì?
+- Cách thiết kế kiến trúc tổng thể của ứng dụng AI cấp sản xuất?
+- Một AI request từ đầu vào đến mô hình trả về, chain hoàn chỉnh nên nói như thế nào?
+- Lớp đầu vào, lớp biên soạn, Prompt/Context, RAG/Memory/Tool, model gateway, đánh giá quan sát lần lượt đảm nhận trách nhiệm gì?
+- Ba chế độ đồng bộ, streaming, bất đồng bộ chọn như thế nào?
+- Tại sao cần model gateway?
+- Tại sao Prompt phải làm quản lý phiên bản?
+- Sự khác biệt giữa RAG và Memory là gì? Tại sao không thể quản trị chung?
+- Ranh giới bảo mật của Tool Calling ở đâu?
+- Quan sát ứng dụng AI cần xem những chỉ số nào?
+- LLM-as-Judge có thể thay thế đánh giá thủ công không?
 
-回答“怎么设计生产级 AI 应用”时，可以用一个通用模板：先说明业务目标和约束，再讲分层架构，然后讲一次请求链路，接着讲稳定性、安全、成本、观测和评测，最后讲灰度和回滚。这样比直接报一堆技术名词更有说服力。
+Khi trả lời "cách thiết kế ứng dụng AI cấp sản xuất", có thể dùng một template chung: trước tiên nêu rõ mục tiêu nghiệp vụ và ràng buộc, rồi nói kiến trúc phân lớp, tiếp theo nói chain một request, rồi nói ổn định, bảo mật, chi phí, quan sát và đánh giá, cuối cùng nói grayscale và rollback. Như vậy thuyết phục hơn là trực tiếp liệt kê một đống tên kỹ thuật.
 
-## 稳定性、成本与安全治理
+## Quản trị ổn định, chi phí và bảo mật
 
-参考文章：[《AI 应用系统设计：从 Prompt Demo 到生产级架构》](../system-design/ai-application-architecture.md)、[《大模型 API 调用工程实践：流式输出、重试、限流与结构化返回》](../llm-basis/llm-api-engineering.md)
+Bài viết tham khảo: [《Thiết kế hệ thống ứng dụng AI: từ Prompt Demo đến kiến trúc cấp sản xuất》](../system-design/ai-application-architecture.md)、[《Thực hành kỹ thuật gọi API mô hình lớn: đầu ra streaming, retry, rate limiting và trả về có cấu trúc》](../llm-basis/llm-api-engineering.md)
 
-这一组题考的是生产意识。大模型调用慢、贵、不稳定，输出还不可完全控。没有治理能力，AI 应用很容易在上线后变成成本黑洞和事故来源。
+Nhóm câu hỏi này kiểm tra ý thức sản xuất. Gọi mô hình lớn chậm, đắt, không ổn định, đầu ra còn không thể kiểm soát hoàn toàn. Không có năng lực quản trị, ứng dụng AI rất dễ trở thành lỗ đen chi phí và nguồn gây sự cố sau khi lên mạng.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 超时要分层设置：入口超时、模型调用超时、工具调用超时、异步任务超时。
-- 重试只适合网络瞬断、部分 5xx、供应商过载等可恢复错误；参数错误、权限错误、安全拒答不能盲目重试。
-- 限流要同时看请求数、Token 数、并发数、租户预算和模型供应商配额。
-- fallback 要谨慎。模型降级可能影响质量、格式、工具调用能力和安全策略，不是所有任务都能自动降级。
-- Token 成本要归因到租户、用户、功能、模型、Prompt 版本和业务场景。
-- Tool Calling 安全必须由后端强制执行，不能相信模型自己判断权限。
+- Timeout cần đặt theo phân lớp: timeout đầu vào, timeout gọi mô hình, timeout gọi công cụ, timeout nhiệm vụ bất đồng bộ.
+- Retry chỉ phù hợp với các lỗi có thể phục hồi như mạng chập chờn, một phần 5xx, nhà cung cấp quá tải; lỗi tham số, lỗi quyền, từ chối bảo mật không thể retry mù quáng.
+- Rate limiting cần nhìn đồng thời số request, số Token, số concurrency, ngân sách tenant và quota nhà cung cấp mô hình.
+- Fallback cần thận trọng. Xuống cấp mô hình có thể ảnh hưởng chất lượng, định dạng, khả năng gọi công cụ và chiến lược bảo mật, không phải tất cả nhiệm vụ đều có thể tự động xuống cấp.
+- Chi phí Token cần quy nhân theo tenant, người dùng, tính năng, mô hình, phiên bản Prompt và tình huống nghiệp vụ.
+- Bảo mật Tool Calling phải được thực thi cứng ở backend, không thể tin mô hình tự phán đoán quyền.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- AI 应用如何做超时、重试、限流、熔断和降级？
-- 为什么大模型调用限流要同时看 RPM、TPM、并发数和租户预算？
-- 如何设计模型 fallback 策略？什么时候不能自动降级？
-- Token 成本怎么归因到租户、用户、功能和 Prompt 版本？
-- 高风险工具调用为什么要做二次确认？
-- PII 脱敏、权限过滤、审计日志应该放在哪些环节？
-- Prompt 注入攻击在系统设计层面怎么防？
-- 出现模型输出事故后，如何通过 Trace 回放定位问题？
+- Ứng dụng AI làm timeout, retry, rate limiting, circuit breaker và xuống cấp như thế nào?
+- Tại sao rate limiting gọi mô hình lớn phải nhìn đồng thời RPM, TPM, concurrency và ngân sách tenant?
+- Cách thiết kế chiến lược model fallback? Khi nào không thể tự động xuống cấp?
+- Chi phí Token quy nhân đến tenant, người dùng, tính năng và phiên bản Prompt như thế nào?
+- Tại sao gọi công cụ rủi ro cao phải làm xác nhận lần hai?
+- Desensitize PII, lọc quyền, log kiểm toán nên đặt ở những khâu nào?
+- Tấn công Prompt Injection ở cấp thiết kế hệ thống ngăn như thế nào?
+- Sau khi xảy ra sự cố đầu ra mô hình, cách định vị vấn đề qua Trace playback?
 
-回答安全题时，一定要强调：Prompt 只能辅助，不能替代代码层面的权限校验。模型可以建议调用工具，但后端必须校验用户身份、资源归属、参数范围、操作风险和幂等状态。
+Khi trả lời câu hỏi bảo mật, nhất định phải nhấn mạnh: Prompt chỉ có thể hỗ trợ, không thể thay thế xác minh quyền ở cấp code. Mô hình có thể đề xuất gọi công cụ, nhưng backend phải xác minh danh tính người dùng, quyền sở hữu tài nguyên, phạm vi tham số, rủi ro thao tác và trạng thái idempotency.
 
-## 评测与持续迭代
+## Đánh giá và lặp liên tục
 
-参考文章：[《AI 应用评测体系：从 Golden Set 构建到线上灰度闭环》](../llm-basis/llm-evaluation.md)
+Bài viết tham khảo: [《Hệ thống đánh giá ứng dụng AI: từ xây dựng Golden Set đến vòng lặp grayscale trực tuyến》](../llm-basis/llm-evaluation.md)
 
-传统系统上线前可以跑单元测试、集成测试、压测；AI 应用还要评测答案质量、检索质量、工具轨迹和结构化输出稳定性。没有评测闭环，就很难知道一次 Prompt 调整、模型切换、检索参数变化到底是提升还是退步。
+Hệ thống truyền thống trước khi lên mạng có thể chạy unit test, integration test, stress test; ứng dụng AI còn phải đánh giá chất lượng câu trả lời, chất lượng truy xuất, quỹ đạo công cụ và ổn định đầu ra có cấu trúc. Không có vòng lặp đánh giá, rất khó biết một lần điều chỉnh Prompt, chuyển đổi mô hình, thay đổi tham số truy xuất rốt cuộc là cải thiện hay thụt lùi.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- Golden Set 是发布前质量回归的基础，应该覆盖正常路径、边缘场景、对抗样本和高权重失败。
-- 离线评测适合发布前阻断明显退步，Trace 回放适合复现真实线上路径，线上灰度适合验证真实用户分布。
-- RAG 要分检索和生成评测，Agent 要看任务完成率、工具选择、参数准确率和轨迹质量。
-- LLM-as-Judge 可以提高效率，但要用人工抽样、规则校验和参考答案校准。
-- 评测结果要和 Prompt 版本、模型版本、检索配置、代码版本绑定，便于回滚和定位。
+- Golden Set là nền tảng hồi quy chất lượng trước khi phát hành, nên bao gồm đường dẫn thông thường, tình huống biên, mẫu đối nghịch và thất bại có trọng số cao.
+- Đánh giá offline phù hợp để chặn thụt lùi rõ ràng trước khi phát hành, Trace playback phù hợp để tái hiện đường dẫn trực tuyến thực tế, grayscale trực tuyến phù hợp để xác minh phân phối người dùng thực tế.
+- RAG cần chia đánh giá truy xuất và tạo sinh, Agent cần nhìn tỷ lệ hoàn thành nhiệm vụ, lựa chọn công cụ, độ chính xác tham số và chất lượng quỹ đạo.
+- LLM-as-Judge có thể cải thiện hiệu suất, nhưng cần dùng lấy mẫu thủ công, xác minh quy tắc và hiệu chỉnh câu trả lời tham chiếu.
+- Kết quả đánh giá cần gắn kết với phiên bản Prompt, phiên bản mô hình, cấu hình truy xuất, phiên bản code để tiện rollback và định vị.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 为什么没有评测集就很难放心上线？
-- Golden Set 如何覆盖正常路径、边缘场景、对抗样本和高权重失败？
-- 离线评测、Trace 回放、线上灰度分别放在发布流程的哪个阶段？
-- RAG、Agent、结构化输出的评测指标为什么不能混用一套？
-- LLM-as-Judge 有哪些偏差？生产中怎么校准？
-- CI 自动评测怎么控制成本和耗时？
-- 线上质量下降时，如何判断是模型、Prompt、检索、工具还是数据分布变化导致？
+- Tại sao không có tập đánh giá rất khó yên tâm lên mạng?
+- Golden Set làm thế nào để bao gồm đường dẫn thông thường, tình huống biên, mẫu đối nghịch và thất bại có trọng số cao?
+- Đánh giá offline, Trace playback, grayscale trực tuyến lần lượt đặt ở giai đoạn nào trong quy trình phát hành?
+- Tại sao chỉ số đánh giá RAG, Agent, đầu ra có cấu trúc không thể dùng chung một bộ?
+- LLM-as-Judge có những độ lệch nào? Trong sản xuất hiệu chỉnh như thế nào?
+- Đánh giá AI tự động trong CI làm thế nào để kiểm soát chi phí và thời gian?
+- Khi chất lượng trực tuyến giảm xuống, cách xác định là mô hình, Prompt, truy xuất, công cụ hay thay đổi phân phối dữ liệu gây ra?
 
-面试里可以把评测讲成一条流水线：开发阶段跑小规模核心 Golden Set，合并或发布前跑完整评测，灰度阶段做线上抽样，事故后用 Trace 回放复现，失败样本再回流到评测集。
+Trong phỏng vấn có thể mô tả đánh giá như một pipeline: giai đoạn phát triển chạy Golden Set cốt lõi quy mô nhỏ, trước khi merge hoặc phát hành chạy đánh giá đầy đủ, giai đoạn grayscale làm lấy mẫu trực tuyến, sau sự cố dùng Trace playback để tái hiện, mẫu thất bại lại được đưa vào tập đánh giá.
 
-## 实时语音 Agent
+## Voice Agent thời gian thực
 
-参考文章：[《AI 语音技术详解：从 ASR、TTS 到实时语音 Agent 的工程化落地》](../system-design/ai-voice.md)
+Bài viết tham khảo: [《Giải thích kỹ thuật giọng nói AI: từ ASR, TTS đến triển khai kỹ thuật voice Agent thời gian thực》](../system-design/ai-voice.md)
 
-实时语音 Agent 是很典型的 AI 系统设计题，因为它同时考多模态链路、低延迟、状态机、打断处理和端云选型。
+Voice Agent thời gian thực là câu hỏi thiết kế hệ thống AI rất điển hình, vì nó đồng thời kiểm tra pipeline đa phương thức, độ trễ thấp, state machine, xử lý ngắt và lựa chọn kiến trúc cloud-edge.
 
-建议掌握这些关键点：
+Khuyến nghị nắm vững các điểm mấu chốt sau:
 
-- 语音 Agent 不是 ASR + LLM + TTS 的简单拼接，而是一套实时音频流系统。
-- 完整链路包括音频采集、VAD、ASR、LLM、工具调用、TTS、流式播放和打断处理。
-- 端到端延迟来自多个环节：音频帧提交、VAD 判断、ASR 转写、LLM 首字、TTS 首包、网络和播放缓冲。
-- 打断处理要取消播放、取消生成、处理已播放内容和未播放内容，并更新对话状态。
-- 云端 API 上线快，本地模型可控但工程成本高，端云混合更适合兼顾体验和成本。
+- Voice Agent không phải ghép nối đơn giản ASR + LLM + TTS, mà là một hệ thống luồng âm thanh thời gian thực.
+- Pipeline hoàn chỉnh bao gồm thu âm thanh, VAD, ASR, LLM, gọi công cụ, TTS, phát streaming và xử lý ngắt.
+- Độ trễ end-to-end đến từ nhiều khâu: gửi audio frame, phán đoán VAD, phiên âm ASR, ký tự đầu tiên LLM, gói đầu tiên TTS, mạng và buffer phát.
+- Xử lý ngắt cần hủy phát, hủy tạo sinh, xử lý nội dung đã phát và chưa phát, cập nhật trạng thái hội thoại.
+- Cloud API lên mạng nhanh, mô hình local có thể kiểm soát nhưng chi phí kỹ thuật cao, kiến trúc hybrid cloud-edge phù hợp hơn để cân bằng trải nghiệm và chi phí.
 
-高频面试题：
+Câu hỏi tần suất cao:
 
-- 如何设计一个实时语音 Agent？
-- ASR、LLM、TTS、VAD 在语音系统中分别负责什么？
-- 实时语音 Agent 的端到端延迟主要来自哪里？
-- 用户打断时，系统应该如何取消播放、取消生成和更新上下文？
-- listening、thinking、speaking、interrupted 这些状态如何管理？
-- 云端 API、本地模型、端云混合怎么选？
-- Speech-to-Speech API 适合什么场景？有哪些取舍？
-- 语音 Agent 的可观测指标应该包括哪些？
+- Cách thiết kế voice Agent thời gian thực?
+- ASR, LLM, TTS, VAD trong hệ thống giọng nói lần lượt đảm nhận trách nhiệm gì?
+- Độ trễ end-to-end của voice Agent thời gian thực chủ yếu đến từ đâu?
+- Khi người dùng ngắt, hệ thống nên hủy phát, hủy tạo sinh và cập nhật ngữ cảnh như thế nào?
+- Các trạng thái listening, thinking, speaking, interrupted quản lý như thế nào?
+- Cloud API, mô hình local, kiến trúc hybrid cloud-edge chọn như thế nào?
+- Speech-to-Speech API phù hợp với tình huống nào? Có những sự đánh đổi nào?
+- Các chỉ số quan sát của voice Agent nên bao gồm những gì?
 
-回答实时语音题时，可以先拆链路，再讲低延迟优化，接着讲状态机和打断，最后讲可观测和选型。不要只停留在“调用语音识别和语音合成接口”。
+Khi trả lời câu hỏi giọng nói thời gian thực, có thể trước tiên phân tách pipeline, rồi nói tối ưu độ trễ thấp, tiếp theo nói state machine và ngắt, cuối cùng nói quan sát và lựa chọn. Đừng chỉ dừng lại ở "gọi interface nhận dạng giọng nói và tổng hợp giọng nói".
 
-## 系统设计答题模板
+## Template trả lời câu hỏi thiết kế hệ thống
 
-遇到开放式 AI 系统设计题，可以按下面顺序回答：
+Gặp câu hỏi thiết kế hệ thống AI mở, có thể trả lời theo thứ tự sau:
 
-1. **明确场景和约束**：用户规模、响应时延、数据来源、权限要求、成本预算、质量目标。
-2. **拆分核心链路**：入口、编排、上下文、RAG、Memory、Tool、模型网关、输出校验、观测评测。
-3. **讲关键数据流**：一次请求如何鉴权、检索、组装 Prompt、调用模型、处理流式输出、记录 Trace。
-4. **补治理能力**：限流、熔断、重试、幂等、fallback、成本归因、权限控制、审计日志。
-5. **讲评测闭环**：Golden Set、离线评测、Trace 回放、线上灰度、失败样本回流。
-6. **说明取舍边界**：哪些场景同步，哪些场景流式，哪些场景异步；哪些任务允许降级，哪些必须人工确认。
+1. **Xác định rõ tình huống và ràng buộc**: Quy mô người dùng, độ trễ phản hồi, nguồn dữ liệu, yêu cầu quyền, ngân sách chi phí, mục tiêu chất lượng.
+2. **Phân tách chain chính**: Đầu vào, biên soạn, ngữ cảnh, RAG, Memory, Tool, model gateway, xác minh đầu ra, đánh giá quan sát.
+3. **Nói luồng dữ liệu quan trọng**: Một request được xác thực, truy xuất, lắp ráp Prompt, gọi mô hình, xử lý đầu ra streaming, ghi Trace như thế nào.
+4. **Bổ sung năng lực quản trị**: Rate limiting, circuit breaker, retry, idempotency, fallback, quy nhân chi phí, kiểm soát quyền, log kiểm toán.
+5. **Nói vòng lặp đánh giá**: Golden Set, đánh giá offline, Trace playback, grayscale trực tuyến, hồi lưu mẫu thất bại.
+6. **Nêu rõ ranh giới đánh đổi**: Tình huống nào đồng bộ, tình huống nào streaming, tình huống nào bất đồng bộ; nhiệm vụ nào cho phép xuống cấp, nhiệm vụ nào phải xác nhận thủ công.
 
-这套模板能覆盖大多数 AI 应用系统设计题，包括智能客服、企业知识库、代码助手、数据分析 Agent、语音 Agent。
+Template này có thể bao gồm hầu hết câu hỏi thiết kế hệ thống ứng dụng AI, bao gồm dịch vụ khách hàng thông minh, knowledge base doanh nghiệp, code assistant, data analysis Agent, voice Agent.
 
-## 常见扣分点
+## Điểm trừ phổ biến
 
-- 上来就讲框架名，不讲业务约束和系统边界。
-- 只讲 Prompt 和模型，不讲 RAG、Memory、Tool 的治理差异。
-- 没有模型网关意识，业务代码直接调用供应商 API。
-- 不记录 Prompt 版本、模型版本、检索结果、工具轨迹，导致事故无法回放。
-- 把 LLM-as-Judge 当成万能评测，不做人工校准和规则校验。
-- 只靠 Prompt 做安全防护，忽略权限、脱敏、审计和二次确认。
-- 没有灰度、回滚和失败样本回流机制。
+- Vào ngay nói tên framework, không nói ràng buộc nghiệp vụ và ranh giới hệ thống.
+- Chỉ nói Prompt và mô hình, không nói sự khác biệt quản trị của RAG, Memory, Tool.
+- Không có ý thức model gateway, code nghiệp vụ gọi trực tiếp API nhà cung cấp.
+- Không ghi phiên bản Prompt, phiên bản mô hình, kết quả truy xuất, quỹ đạo công cụ, dẫn đến sự cố không thể playback.
+- Coi LLM-as-Judge là đánh giá vạn năng, không làm hiệu chỉnh thủ công và xác minh quy tắc.
+- Chỉ dựa vào Prompt làm bảo vệ bảo mật, bỏ qua quyền, desensitize, kiểm toán và xác nhận lần hai.
+- Không có cơ chế grayscale, rollback và hồi lưu mẫu thất bại.
 
-## 复习建议
+## Khuyến nghị ôn tập
 
-AI 系统设计面试要按“系统链路”来回答，不要从某个框架或工具名开始。更稳的表达方式是先讲 Demo 和生产差距，再讲分层架构、核心链路、治理能力和评测闭环。
+Phỏng vấn thiết kế hệ thống AI cần trả lời theo "chain hệ thống", đừng bắt đầu từ một tên framework hay công cụ. Cách biểu đạt ổn định hơn là trước tiên nói khoảng cách Demo và sản xuất, rồi nói kiến trúc phân lớp, chain cốt lõi, năng lực quản trị và vòng lặp đánh giá.
 
-如果面试官继续追问，再展开模型网关、Prompt 版本、RAG 和 Memory 隔离、Tool Calling 安全、Trace 回放、灰度评测这些关键点。
+Nếu phỏng vấn viên tiếp tục hỏi thêm, rồi mới mở rộng model gateway, phiên bản Prompt, cách ly RAG và Memory, bảo mật Tool Calling, Trace playback, đánh giá grayscale những điểm mấu chốt này.
 
-最后记住一句话：**AI 系统设计不是让模型回答一次，而是让系统长期、稳定、可控地回答。** 能把这句话展开成架构、链路、治理和评测，基本就能答到面试官想听的层次。
+Cuối cùng nhớ một câu: **Thiết kế hệ thống AI không phải để mô hình trả lời một lần, mà là để hệ thống trả lời lâu dài, ổn định, có thể kiểm soát.** Có thể triển khai câu này thành kiến trúc, chain, quản trị và đánh giá, cơ bản đã đạt được cấp độ phỏng vấn viên muốn nghe.

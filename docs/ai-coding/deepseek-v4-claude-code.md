@@ -1,7 +1,7 @@
 ---
-title: DeepSeek V4 + Claude Code 实战：代码能力深度测评
-description: 深入体验 DeepSeek V4 与 Claude Code 的集成，实测代码审计、数据库迁移、模型升级等多个场景，评估 V4-Pro 和 V4-Flash 的真实代码能力。
-category: AI 编程实战
+title: DeepSeek V4 + Claude Code thực chiến: Đánh giá chuyên sâu năng lực code
+description: Trải nghiệm sâu tích hợp DeepSeek V4 với Claude Code, thực nghiệm nhiều tình huống kiểm toán code, migration database, nâng cấp mô hình, đánh giá năng lực code thực tế của V4-Pro và V4-Flash.
+category: Thực chiến lập trình AI
 head:
   - - meta
     - name: keywords
@@ -10,36 +10,36 @@ head:
 
 <!-- @include: @article-header.snippet.md -->
 
-这几天 AI 圈基本被一件事刷屏了——DeepSeek V4 发布，同步开源。从技术报告里的 benchmark 数据到社区的实测反馈，到处都在讨论。
+Vài ngày qua giới AI gần như bị một sự kiện chiếm sóng — DeepSeek V4 ra mắt, đồng thời mã nguồn mở. Từ dữ liệu benchmark trong báo cáo kỹ thuật đến phản hồi thực nghiệm của cộng đồng, mọi nơi đều đang thảo luận.
 
-开源模型在对话和写作上已经做得相当成熟，各家你追我赶，迭代速度肉眼可见。但 Agent Coding 是另一回事。
+Mô hình mã nguồn mở trong hội thoại và viết lách đã làm khá trưởng thành, các nhà tranh nhau, tốc độ lặp thấy rõ bằng mắt thường. Nhưng Agent Coding là chuyện khác.
 
-让模型自主分析项目结构、理解多文件依赖、给出能直接落地的工程方案——这种活没有捷径，全靠硬实力。
+Để mô hình tự chủ phân tích cấu trúc dự án, hiểu dependency đa file, đưa ra giải pháp kỹ thuật có thể triển khai trực tiếp — loại việc này không có đường tắt, hoàn toàn dựa vào thực lực.
 
-之前各家模型在这个方向上一直在进步，但实际用过就知道，离"放心交给它独立完成"始终还差那么一点。
+Trước đây các mô hình các nhà đều đang tiến bộ ở hướng này, nhưng dùng thực tế thì biết, vẫn còn khoảng cách đến "yên tâm giao cho nó hoàn thành độc lập".
 
-所以这次 V4 发布，Guide 第一反应就是直接接入 Claude Code 上手干活。
+Vì vậy lần phát hành V4 này, phản ứng đầu tiên của Guide là trực tiếp kết nối vào Claude Code để bắt tay làm việc.
 
-这篇文章接近 **7000 字**，建议收藏，通过本文你将搞懂：
+Bài viết này gần **7000 chữ**, khuyến nghị lưu lại, qua bài viết này bạn sẽ hiểu:
 
-1. **Claude Code 接入 DeepSeek V4 的两种方式**：配置文件法 + CC Switch 可视化切换
-2. **五个真实开发任务的实战记录**：V4-Pro 干起活来到底怎么样
-3. **DeepSeek V4-Pro 和 Flash 的核心参数与定价**：值不值得切
-4. **场景建议**：什么时候该用，什么时候先观望
+1. **Hai cách kết nối DeepSeek V4 vào Claude Code**: Phương pháp file cấu hình + CC Switch chuyển đổi trực quan
+2. **Ghi chép thực chiến 5 nhiệm vụ phát triển thực tế**: V4-Pro làm việc thực sự thế nào
+3. **Tham số cốt lõi và định giá của DeepSeek V4-Pro và Flash**: Có đáng chuyển không
+4. **Gợi ý theo tình huống**: Khi nào nên dùng, khi nào nên chờ thêm
 
-## Claude Code 接入 DeepSeek V4
+## Kết nối DeepSeek V4 vào Claude Code
 
-Claude Code 强在它的工具链和执行力，但 Claude 官方模型太贵，加上现在 Claude 太容易封号。这次 DeepSeek V4 提供了一个 **Anthropic 兼容接口**，这意味着 Claude Code 可以直接对接 DeepSeek，不需要任何第三方适配层。
+Claude Code mạnh ở toolchain và khả năng thực thi, nhưng mô hình chính thức Claude quá đắt, cộng thêm Claude bây giờ dễ bị khóa tài khoản. Lần này DeepSeek V4 cung cấp **interface tương thích Anthropic**, điều này có nghĩa là Claude Code có thể kết nối trực tiếp DeepSeek, không cần layer adapter bên thứ ba.
 
-### 方式一：配置文件法（推荐）
+### Cách một: Phương pháp file cấu hình (Khuyến nghị)
 
-如果你本机没有安装 Claude Code 的话，先运行下面这行命令安装（Node.js 18+）：
+Nếu máy bạn chưa cài Claude Code, trước tiên chạy lệnh sau để cài đặt (Node.js 18+):
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-编辑或新增 Claude Code 配置文件 `~/.claude/settings.json`，添加 `env` 字段，把后端地址、模型和 API Key 都写进去：
+Chỉnh sửa hoặc tạo mới file cấu hình Claude Code `~/.claude/settings.json`, thêm trường `env`, điền địa chỉ backend, model và API Key:
 
 ```json
 {
@@ -53,236 +53,236 @@ npm install -g @anthropic-ai/claude-code
 }
 ```
 
-注意替换 `your_deepseek_api_key` 为你的 DeepSeek API Key。如果你使用的是 DeepSeek-V4-Flash，把 `ANTHROPIC_MODEL` 改为 `DeepSeek-V4-Flash` 即可。
+Chú ý thay `your_deepseek_api_key` bằng API Key DeepSeek của bạn. Nếu bạn dùng DeepSeek-V4-Flash, đổi `ANTHROPIC_MODEL` thành `DeepSeek-V4-Flash` là được.
 
-配置完成后启动 Claude Code：
+Sau khi cấu hình xong, khởi động Claude Code:
 
 ```bash
 claude
 ```
 
-首次启动需要选择信任当前文件夹。
+Lần đầu khởi động cần chọn tin tưởng thư mục hiện tại.
 
-### 方式二：CC Switch（可视化切换）
+### Cách hai: CC Switch (Chuyển đổi trực quan)
 
-如果你想在 DeepSeek、Claude、MiniMax 等多个 Provider 之间灵活切换，推荐安装 **CC Switch**。这是一个专门管理 Claude Code 模型切换的小工具，支持一键横跳，还支持管理 Skills、MCP 和提示词。
+Nếu bạn muốn linh hoạt chuyển đổi giữa nhiều Provider như DeepSeek, Claude, MiniMax, khuyến nghị cài đặt **CC Switch**. Đây là công cụ nhỏ chuyên quản lý chuyển đổi mô hình Claude Code, hỗ trợ nhảy một click, còn hỗ trợ quản lý Skills, MCP và prompt.
 
-![CC Switch 主界面](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-main-interface.png)
+![Giao diện chính CC Switch](https://oss.javaguide.cn/github/javaguide/ai/coding/cc-switch-main-interface.png)
 
-启动 CC Switch，点击右上角 **"+"** ，选择自定义供应商，Base URL 填写 `https://api.deepseek.com/anthropic`，API Key 填写你的 DeepSeek API Key。
+Khởi động CC Switch, click **"+"** góc trên bên phải, chọn custom provider, Base URL điền `https://api.deepseek.com/anthropic`, API Key điền API Key DeepSeek của bạn.
 
-![CC Switch 添加 DeepSeek Provider](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/cc-switch-add-deepseek-provider.png)
+![CC Switch thêm DeepSeek Provider](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/cc-switch-add-deepseek-provider.png)
 
-将模型名称改为 `DeepSeek-V4-Pro`（或 `DeepSeek-V4-Flash`），完成后点击右下角的"添加"。
+Đổi tên model thành `DeepSeek-V4-Pro` (hoặc `DeepSeek-V4-Flash`), xong click "Thêm" góc dưới bên phải.
 
-### 验证是否生效
+### Xác minh có hiệu lực không
 
-直接在命令行输入 `claude` 或者进入 Claude Code 界面之后再次输入 `/status` 确认，model 为 `DeepSeek-V4-Pro` 即表示接入成功。
+Trực tiếp nhập `claude` trong command line hoặc sau khi vào giao diện Claude Code nhập `/status` để xác nhận, model là `DeepSeek-V4-Pro` là kết nối thành công.
 
-![验证是否生效](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/verify-deepseek-v4-ready.png)
+![Xác minh có hiệu lực không](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/verify-deepseek-v4-ready.png)
 
-之后你就可以用 DeepSeek V4-Pro 来驱动 Claude Code 的所有能力了。
+Sau đó bạn có thể dùng DeepSeek V4-Pro để drive tất cả năng lực của Claude Code rồi.
 
-## 实战一：升级 LLM 多 Provider 预设模型列表
+## Thực chiến một: Nâng cấp danh sách mô hình preset đa Provider LLM
 
-我手头有一个多智能体股票分析项目，已经快一个月没启动了。这次重新启动，第一件事就是把过时的模型配置更新掉。
+Tôi có một dự án phân tích cổ phiếu đa agent trong tay, đã gần một tháng không khởi động. Lần này khởi động lại, việc đầu tiên là cập nhật cấu hình mô hình lỗi thời.
 
-项目 Settings 页面之前只有一个纯文本输入框让用户手动填写模型名，不够友好。
+Trang Settings của dự án trước đây chỉ có một ô nhập văn bản thuần để người dùng điền thủ công tên model, không đủ thân thiện.
 
-我需要做两件事：**搜索各家 LLM 的最新模型版本**，然后**给前端加一个下拉选择**。
+Tôi cần làm hai việc: **tìm kiếm phiên bản mô hình mới nhất của các nhà LLM**, sau đó **thêm dropdown chọn lựa ở frontend**.
 
-提示词很简单：
+Prompt rất đơn giản:
 
-> /tavily-search 搜索当前 deepseek、glm 和 openai 最新的模型，然后调整全局配置中默认模型推荐和示例。并且，当前这几个 LLM 图标太 AI 味了，帮我换一个上档次点。
+> /tavily-search Tìm kiếm model mới nhất hiện tại của deepseek, glm và openai, rồi điều chỉnh model đề xuất mặc định và ví dụ trong cấu hình toàn cục. Và, vài icon LLM hiện tại quá chất AI, giúp tôi đổi sang cái sang hơn.
 
-任务不大，但有个细节值得说——如果不配 `/tavily-search` Skill，单纯靠大模型的训练数据截止日期来猜最新版本，大概率会出错。我之前用其他模型没配 Tavily 的时候，反复提示了好几遍才把各家最新模型版本搞对。
+Nhiệm vụ không lớn, nhưng có một chi tiết đáng nói — nếu không cấu hình Skill `/tavily-search`, chỉ dựa vào ngày cắt dữ liệu training của mô hình để đoán phiên bản mới nhất, rất có khả năng sai. Tôi trước đây dùng mô hình khác không cấu hình Tavily, nhắc đi nhắc lại nhiều lần mới làm đúng phiên bản mô hình mới nhất của các nhà.
 
-关于 Tavily 的使用可以参考：[Claude Code 对接 AI Agent 搜索引擎 Tavily 实现高质量搜索](https://mp.weixin.qq.com/s/kAk7lLVgYzZrD9xJs3AUkQ)。
+Về cách dùng Tavily có thể tham khảo: [Claude Code kết nối công cụ tìm kiếm AI Agent Tavily để tìm kiếm chất lượng cao](https://mp.weixin.qq.com/s/kAk7lLVgYzZrD9xJs3AUkQ).
 
-DeepSeek V4-Pro **一次搞定**。
+DeepSeek V4-Pro **một lần là xong**.
 
-![搜索并更新最新 LLM 模型](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/search-and-update-latest-models.png)
+![Tìm kiếm và cập nhật model LLM mới nhất](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/search-and-update-latest-models.png)
 
-模型配置全部更新成功，各家推荐的模型示例都切到了最新版本。改了三个文件：
+Cấu hình model tất cả cập nhật thành công, ví dụ model đề xuất của các nhà đều chuyển sang phiên bản mới nhất. Đã sửa ba file:
 
-1. **`application.yml`**——新增 DeepSeek 预设 Provider，GLM 默认模型升级到 `glm-5`
-2. **`.env.example`**——补上 DeepSeek 环境变量，Kimi 默认改为 `kimi-k2.6`
-3. **`SettingsPage.tsx`**——加了 `PROVIDER_PRESETS` 常量，Model 和 Embedding Model 改成 combo box
+1. **`application.yml`** — Thêm DeepSeek preset Provider, nâng cấp model mặc định GLM lên `glm-5`
+2. **`.env.example`** — Bổ sung biến môi trường DeepSeek, Kimi mặc định đổi thành `kimi-k2.6`
+3. **`SettingsPage.tsx`** — Thêm hằng số `PROVIDER_PRESETS`, Model và Embedding Model đổi thành combo box
 
-最终四个 Provider 的推荐模型列表（截至 2026.04.25）：
+Danh sách model đề xuất của bốn Provider cuối cùng (tính đến 2026.04.25):
 
-| Provider  | 推荐模型                                                        |
-| --------- | --------------------------------------------------------------- |
-| DashScope | `qwen3.6-flash`、`qwen3.5-plus`、`qwen3-max`、`qwq-32b` 等 8 款 |
-| DeepSeek  | `deepseek-v4-flash`、`deepseek-v4-pro`                          |
-| GLM       | `glm-5.1`、`glm-5`、`glm-4.7-flash` 等 8 款                     |
-| Kimi      | `kimi-k2.6`、`kimi-k2.5`、`kimi-k2-thinking` 等 5 款            |
+| Provider  | Model đề xuất                                                         |
+| --------- | --------------------------------------------------------------------- |
+| DashScope | `qwen3.6-flash`, `qwen3.5-plus`, `qwen3-max`, `qwq-32b`, v.v. 8 model |
+| DeepSeek  | `deepseek-v4-flash`, `deepseek-v4-pro`                                |
+| GLM       | `glm-5.1`, `glm-5`, `glm-4.7-flash`, v.v. 8 model                     |
+| Kimi      | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2-thinking`, v.v. 5 model            |
 
-![编辑 DeepSeek 模型配置](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/edit-deepseek-model-config.png)
+![Chỉnh sửa cấu hình model DeepSeek](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/edit-deepseek-model-config.png)
 
-## 实战二：数据库迁移方案诊断与 Flyway 集成
+## Thực chiến hai: Chẩn đoán giải pháp migration database và tích hợp Flyway
 
-第二个任务更有挑战性。
+Nhiệm vụ thứ hai thách thức hơn.
 
-因为换了新电脑，所有环境都是重新搭建的。项目有两个 SQL 文件，一个在项目启动时自动执行了，另一个没有。这块逻辑我也忘了，需要让模型帮我诊断。
+Vì đổi máy tính mới, tất cả môi trường đều xây dựng lại. Dự án có hai file SQL, một cái tự động thực thi khi khởi động dự án, cái còn lại không có. Phần logic này tôi cũng quên mất, cần để mô hình giúp chẩn đoán.
 
-![技能管理界面报错](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/skill-management-error.png)
+![Lỗi giao diện quản lý kỹ năng](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/skill-management-error.png)
 
-提示词：
+Prompt:
 
-> 当前项目有两个 SQL 文件，`sql/init.sql` 在项目启动自动执行了，`sql/V2__knowledge_skill.sql` 没有自动执行。请你帮我分析一下是什么原因，然后用合理的方式优化现存的问题。
+> Dự án hiện tại có hai file SQL, `sql/init.sql` tự động thực thi khi khởi động dự án, `sql/V2__knowledge_skill.sql` không tự động thực thi. Hãy giúp tôi phân tích nguyên nhân, rồi tối ưu vấn đề hiện có bằng cách hợp lý.
 
-DeepSeek V4-Pro 的分析很到位：**`V2__knowledge_skill.sql` 没有被挂载到 Docker 容器中，项目也没有引入任何数据库迁移工具**，而 `init.sql` 是在容器启动时自动执行的——这是 Docker Compose 配置里写死的。
+Phân tích của DeepSeek V4-Pro rất đúng: **`V2__knowledge_skill.sql` không được mount vào container Docker, dự án cũng không giới thiệu bất kỳ công cụ migration database nào**, trong khi `init.sql` tự động thực thi khi container khởi động — đây là điều được viết cứng trong cấu hình Docker Compose.
 
-![数据库表未执行原因分析](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/database-table-analysis.png)
+![Phân tích nguyên nhân table database chưa thực thi](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/database-table-analysis.png)
 
-它给出的解决方案是**集成 Flyway 作为数据库迁移工具**。
+Giải pháp nó đưa ra là **tích hợp Flyway làm công cụ migration database**.
 
-Flyway 是 Java 生态中最成熟的数据库迁移方案之一，用文件命名约定（如 `V1__init.sql`、`V2__knowledge_skill.sql`）自动管理迁移顺序。
+Flyway là một trong những giải pháp migration database trưởng thành nhất trong hệ sinh thái Java, dùng quy ước đặt tên file (như `V1__init.sql`, `V2__knowledge_skill.sql`) để tự động quản lý thứ tự migration.
 
-整个过程 DeepSeek V4-Pro 完成了以下工作：
+Toàn bộ quá trình DeepSeek V4-Pro đã hoàn thành những việc sau:
 
-1. 分析了 Docker Compose 配置中 `init.sql` 的挂载逻辑
-2. 发现 `V2__knowledge_skill.sql` 缺失的原因
-3. 引入 Flyway 依赖，编写迁移配置
-4. 重构 SQL 文件命名，确保迁移顺序正确
+1. Phân tích logic mount `init.sql` trong cấu hình Docker Compose
+2. Phát hiện nguyên nhân thiếu `V2__knowledge_skill.sql`
+3. Giới thiệu dependency Flyway, viết cấu hình migration
+4. Tái cấu trúc đặt tên file SQL, đảm bảo thứ tự migration đúng
 
-> 这里踩了个坑：我中途不小心调整了 iTerm2 的窗口大小，导致终端里的对话历史突然错乱了。
+> Có một cạm bẫy ở đây: Tôi vô tình điều chỉnh kích thước cửa sổ iTerm2 giữa chừng, dẫn đến lịch sử hội thoại trong terminal đột nhiên bị lộn xộn.
 
-第一次运行后，Flyway 没有成功执行。我把错误日志贴过去，经过两轮调教后修复成功。
+Lần chạy đầu tiên, Flyway không thực thi thành công. Tôi paste log lỗi qua, sau hai vòng điều chỉnh sửa thành công.
 
-![DeepSeek 完成 Flyway 集成后的总结](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/deepseek-flyway-integration-summary.png)
+![Tóm tắt sau khi DeepSeek hoàn thành tích hợp Flyway](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/deepseek-flyway-integration-summary.png)
 
-这个问题值得单独拿出来讲——因为 DeepSeek V4-Pro 在第一次集成时也踩到了这个坑，经过两轮调试才找到根因。
+Vấn đề này đáng nêu riêng — vì DeepSeek V4-Pro trong lần tích hợp đầu tiên cũng vấp phải cạm bẫy này, trải qua hai vòng debug mới tìm ra nguyên nhân gốc rễ.
 
-**Spring Boot 4.x 对自动配置模块做了大规模拆分**，`FlywayAutoConfiguration` 已从 `spring-boot-autoconfigure` 中移除，迁移到了独立模块 `spring-boot-flyway`。
+**Spring Boot 4.x đã thực hiện phân tách quy mô lớn với module tự động cấu hình**, `FlywayAutoConfiguration` đã bị xóa khỏi `spring-boot-autoconfigure`, chuyển sang module độc lập `spring-boot-flyway`.
 
-如果你只引入了 `flyway-core` 这个第三方库，Spring Boot **不会自动触发任何迁移**。最坑的是，**启动日志里也不会有任何 Flyway 相关输出**——完全没有报错，只是静默地什么都不做。这个坑特别容易迷惑人，让你怀疑是配置写错了，然后在 `yml` 文件里反复折腾。
+Nếu bạn chỉ giới thiệu thư viện bên thứ ba `flyway-core`, Spring Boot **sẽ không tự động trigger bất kỳ migration nào**. Khó chịu nhất là, **trong log khởi động cũng sẽ không có bất kỳ đầu ra nào liên quan đến Flyway** — hoàn toàn không có lỗi, chỉ âm thầm không làm gì. Cạm bẫy này đặc biệt dễ gây hiểu nhầm, khiến bạn nghĩ là cấu hình viết sai, rồi cứ mày mò trong file `yml`.
 
-使用官方 Starter，它会将自动配置模块一并带入：
+Dùng Starter chính thức, nó sẽ đưa module tự động cấu hình vào cùng:
 
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-flyway</artifactId>
 </dependency>
-<!-- PostgreSQL 方言支持仍需单独引入 -->
+<!-- Hỗ trợ dialect PostgreSQL vẫn cần giới thiệu riêng -->
 <dependency>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-database-postgresql</artifactId>
 </dependency>
 ```
 
-记住这个教训：**Spring Boot 4.x 时代，很多你习惯直接引第三方库就能自动装配的功能，现在需要找对应的官方 Starter。** 自动配置被拆出去了，但文档里不一定显眼地提醒你。
+Nhớ bài học này: **Thời đại Spring Boot 4.x, nhiều thứ bạn quen giới thiệu thư viện bên thứ ba trực tiếp là có thể tự động mount, nay cần tìm Starter chính thức tương ứng.** Auto configuration đã bị tách ra, nhưng tài liệu không nhất thiết nhắc nhở rõ ràng.
 
-## 实战三：AI 面试平台对接 DeepSeek
+## Thực chiến ba: Nền tảng phỏng vấn AI kết nối DeepSeek
 
-我们的 AI 智能面试辅助平台目前已经新增了多模型切换和配置功能，DeepSeek 也已经支持了。
+Nền tảng hỗ trợ phỏng vấn thông minh AI của chúng tôi hiện đã thêm tính năng chuyển đổi và cấu hình đa model, DeepSeek cũng đã được hỗ trợ.
 
-和实战一一样，对接最新模型整个过程是一遍过的，就不重复贴过程了。我们直接看效果。
+Giống thực chiến một, toàn bộ quá trình kết nối model mới nhất là một lần qua, không lặp lại quy trình nữa. Chúng ta trực tiếp xem kết quả.
 
-通过配置界面，将默认模型切换到 DeepSeek，选择 **deepseek-v4-flash**。
+Qua giao diện cấu hình, chuyển model mặc định sang DeepSeek, chọn **deepseek-v4-flash**.
 
-![将面试平台的模型切换到 deepseek-v4-flash](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/interview-guide-model-deepseek-v4-flash.png)
+![Chuyển model nền tảng phỏng vấn sang deepseek-v4-flash](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/interview-guide-model-deepseek-v4-flash.png)
 
-然后上传一份简历，基于这份简历生成一次模拟面试，来看看效果。
+Sau đó upload một CV, dựa trên CV này tạo một lần phỏng vấn mô phỏng, xem hiệu quả.
 
-面试题是通过 deepseek-v4-flash 生成的，答案也是让 DeepSeek 在快速非思考模式下给出的（有两个问题没有回答）。
+Câu hỏi phỏng vấn được tạo bởi deepseek-v4-flash, đáp án cũng để DeepSeek đưa ra trong chế độ không suy nghĩ nhanh (có hai câu không trả lời).
 
-![模拟面试评估结果](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/interview-guide-model-deepseek-v4-flash-interview.png)
+![Kết quả đánh giá phỏng vấn mô phỏng](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/interview-guide-model-deepseek-v4-flash-interview.png)
 
-Flash 模型，非思考模式，生成质量已经不错了。考虑到 Flash 的定价，这个性价比相当能打。
+Model Flash, chế độ không suy nghĩ, chất lượng tạo sinh đã khá tốt. Xem xét định giá Flash, tỷ lệ giá/hiệu năng này khá mạnh.
 
-## 实战四：项目代码审计与多模型协同
+## Thực chiến bốn: Kiểm toán code dự án và cộng tác đa model
 
-我手头的多智能体股票分析项目，MVP 版本已经跑起来了，支持股票分析、多策略、告警、技能、多模型、通知等功能。但开发过程中赶进度，代码质量没顾上好好把关。
+Tôi có dự án phân tích cổ phiếu đa agent trong tay, phiên bản MVP đã chạy, hỗ trợ phân tích cổ phiếu, đa chiến lược, cảnh báo, kỹ năng, đa model, thông báo và các tính năng khác. Nhưng trong quá trình phát triển chạy theo tiến độ, chất lượng code chưa được chú ý kỹ.
 
-这次我试了一个思路：**用便宜的模型做审计，用贵的模型做决策和修复**。
+Lần này tôi thử một tư duy: **Dùng model rẻ để kiểm toán, dùng model đắt để ra quyết định và sửa chữa**.
 
-在 Claude Code 里直接让 DeepSeek V4-Pro 启动多个 Agent，从安全性、功能正确性、代码质量等不同维度扫描整个项目，把发现的问题汇总写入文档。
+Trực tiếp trong Claude Code để DeepSeek V4-Pro khởi động nhiều Agent, từ các chiều bảo mật, tính đúng đắn chức năng, chất lượng code quét toàn bộ dự án, tổng hợp các vấn đề phát hiện vào tài liệu.
 
-![DeepSeek V4-Pro 扫描分析代码](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/deepseek-v4-pro-scan-analyze-code.png)
+![DeepSeek V4-Pro quét phân tích code](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/deepseek-v4-pro-scan-analyze-code.png)
 
-V4-Pro 确实找出来不少问题，最紧急的 TOP 5：
+V4-Pro quả thực tìm ra không ít vấn đề, TOP 5 khẩn cấp nhất:
 
-1. **API Key 明文存储** — 加密器已实现但未接入
-2. **系统管理接口无权限控制** — 普通用户可修改 LLM 配置
-3. **Redis 反序列化漏洞** — `activateDefaultTyping` 允许任意类实例化
-4. **硬编码第三方 API Key** — Bocha 真实密钥提交在代码中
-5. **功能 Bug** — History 页"重新分析"按钮因路由参数未读取而失效
+1. **API Key lưu trữ dạng plaintext** — Công cụ mã hóa đã triển khai nhưng chưa kết nối
+2. **Interface quản lý hệ thống không có kiểm soát quyền** — Người dùng thông thường có thể sửa đổi cấu hình LLM
+3. **Lỗ hổng deserialization Redis** — `activateDefaultTyping` cho phép tạo instance lớp tùy ý
+4. **API Key bên thứ ba viết cứng** — Key thực Bocha được commit trong code
+5. **Lỗi chức năng** — Nút "Phân tích lại" trang History thất bại do tham số route không được đọc
 
-我大概过了一遍，基本都是合理的。安全类问题尤其值得重视，第 3 条 Redis 反序列化漏洞如果被利用，后果很严重。
+Tôi lướt qua một lượt, cơ bản đều hợp lý. Vấn đề bảo mật đặc biệt đáng chú ý, điều thứ 3 lỗ hổng deserialization Redis nếu bị khai thác, hậu quả rất nghiêm trọng.
 
-接下来我把 V4-Pro 找出来的问题直接丢给 **GPT-5.5** 复核。
+Tiếp theo tôi ném trực tiếp vấn đề V4-Pro tìm ra cho **GPT-5.5** để phúc tra.
 
-![GPT5.5 对 DeepSeek V4-Pro 找出的问题进行修复](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/gpt5-5-fix-problems-found-by-deepseek-v4-pro.png)
+![GPT5.5 sửa chữa vấn đề được DeepSeek V4-Pro tìm ra](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/gpt5-5-fix-problems-found-by-deepseek-v4-pro.png)
 
-**为什么不让 V4-Pro 自己修？** 因为代码审计和代码修复是两种能力，用不同模型交叉验证更靠谱——一个负责找问题，一个负责确认问题并执行修复。
+**Tại sao không để V4-Pro tự sửa?** Vì kiểm toán code và sửa code là hai loại năng lực, dùng mô hình khác nhau để xác minh chéo đáng tin hơn — một cái chịu trách nhiệm tìm vấn đề, một cái chịu trách nhiệm xác nhận vấn đề và thực thi sửa chữa.
 
-GPT-5.5 复核后直接执行了修复，整个过程很顺。
+GPT-5.5 sau khi phúc tra trực tiếp thực thi sửa chữa, toàn bộ quá trình rất suôn sẻ.
 
-这个案例的重点不是 V4-Pro 有多强，而是**用便宜模型干活、用贵模型把关**这个思路。V4-Pro 做代码扫描的成本几乎可以忽略，同样的事交给 GPT-5.5 或 Claude Opus 4.6 来做，费用至少高出两个数量级。
+Điểm quan trọng của case này không phải V4-Pro mạnh đến đâu, mà là tư duy **dùng model rẻ làm việc, dùng model đắt kiểm soát chất lượng** này. Chi phí V4-Pro làm code scan gần như có thể bỏ qua, cùng việc đó giao cho GPT-5.5 hay Claude Opus 4.6 làm, phí ít nhất cao hơn hai bậc độ lớn.
 
-## 实战五：全项目扫描分析
+## Thực chiến năm: Quét phân tích toàn dự án
 
-这个就简单了，我主要是想验证一下 V4-Pro 的分析质量，顺便看看最后的 Token 消耗。
+Cái này đơn giản thôi, tôi chủ yếu muốn xác minh chất lượng phân tích của V4-Pro, tiện thể xem mức tiêu thụ Token cuối cùng.
 
-![让 V4-Pro 扫描分析 agent-invest](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/claudecode-deepseek-v4-pro%5B1m%5D.png)
+![Để V4-Pro quét phân tích agent-invest](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/claudecode-deepseek-v4-pro%5B1m%5D.png)
 
-![V4-Pro 扫描分析 agent-invest 的结果](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-pro-scan-analyze-result-of-agent-invest.png)
+![Kết quả V4-Pro quét phân tích agent-invest](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-pro-scan-analyze-result-of-agent-invest.png)
 
-这是 V4-Pro 最终输出的文档，整体质量还是非常高的，很全面：
+Đây là tài liệu V4-Pro cuối cùng xuất ra, chất lượng tổng thể rất cao, rất toàn diện:
 
-![V4-Pro 最终输出的 agent-invest 文档](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-pro-final-output-agent-invest-document.png)
+![Tài liệu agent-invest V4-Pro xuất ra cuối cùng](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-pro-final-output-agent-invest-document.png)
 
-## DeepSeek V4 一览：看完实战再看数字
+## Tổng quan DeepSeek V4: Xem số liệu sau khi xem thực chiến
 
-看完上面几个实战任务，再来补一下 DeepSeek V4 的硬参数，会更有体感。
+Xem xong mấy nhiệm vụ thực chiến ở trên, rồi bổ sung thông số cứng của DeepSeek V4, sẽ có cảm giác thực tế hơn.
 
-这次 V4 系列同时发布了两款模型：
+Lần này series V4 đồng thời phát hành hai model:
 
-| 规格              | DeepSeek-V4-Pro                 | DeepSeek-V4-Flash               |
-| ----------------- | ------------------------------- | ------------------------------- |
-| 总参数            | **1.6T**                        | **284B**                        |
-| 每 token 激活参数 | 49B                             | 13B                             |
-| 上下文窗口        | **1M tokens**                   | **1M tokens**                   |
-| 推理模式          | 非思考 / Think High / Think Max | 非思考 / Think High / Think Max |
-| 开源协议          | MIT                             | MIT                             |
+| Thông số                    | DeepSeek-V4-Pro                         | DeepSeek-V4-Flash                       |
+| --------------------------- | --------------------------------------- | --------------------------------------- |
+| Tổng tham số                | **1.6T**                                | **284B**                                |
+| Tham số kích hoạt mỗi token | 49B                                     | 13B                                     |
+| Cửa sổ ngữ cảnh             | **1M tokens**                           | **1M tokens**                           |
+| Chế độ suy luận             | Không suy nghĩ / Think High / Think Max | Không suy nghĩ / Think High / Think Max |
+| Giấy phép mã nguồn mở       | MIT                                     | MIT                                     |
 
-几个关键数字值得注意：
+Một số con số quan trọng đáng chú ý:
 
-- **V4-Pro 的 Codeforces 评分 3206**，在四家主流模型（Claude Opus 4.6、GPT-5.4 xHigh、Gemini 3.1 Pro High）中排第一
-- **SWE-bench Verified 80.6%**，跟 Claude Opus 4.6（80.8%）几乎打平，但 API 价格便宜了两个数量级
-- **1M 上下文场景下**，V4-Pro 的单 token 推理 FLOPs 只有 V3.2 的 **27%**，KV 缓存用量只有 **10%**
+- **Điểm Codeforces của V4-Pro là 3206**, đứng đầu trong bốn model chính (Claude Opus 4.6, GPT-5.4 xHigh, Gemini 3.1 Pro High)
+- **SWE-bench Verified 80.6%**, gần bằng Claude Opus 4.6 (80.8%), nhưng giá API rẻ hơn hai bậc độ lớn
+- **Trong tình huống 1M ngữ cảnh**, FLOPs suy luận đơn token của V4-Pro chỉ bằng **27%** của V3.2, dung lượng KV cache chỉ bằng **10%**
 
-![V4 Benchmark 数据](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-benchmark.png)
+![Dữ liệu Benchmark V4](https://oss.javaguide.cn/github/javaguide/ai/coding/deepseek-v4/v4-benchmark.png)
 
-再看定价：
+Xem tiếp định giá:
 
-| API 定价（每百万 token） | DeepSeek-V4-Flash | DeepSeek-V4-Pro | Claude Sonnet 4.7 |
-| ------------------------ | ----------------- | --------------- | ----------------- |
-| 输入（缓存未命中）       | $0.14             | $1.74           | $3.00             |
-| 输入（缓存命中）         | $0.028            | $0.145          | $0.30             |
-| 输出                     | $0.28             | $3.48           | $15.00            |
+| Định giá API (mỗi triệu token) | DeepSeek-V4-Flash | DeepSeek-V4-Pro | Claude Sonnet 4.7 |
+| ------------------------------ | ----------------- | --------------- | ----------------- |
+| Đầu vào (cache miss)           | $0.14             | $1.74           | $3.00             |
+| Đầu vào (cache hit)            | $0.028            | $0.145          | $0.30             |
+| Đầu ra                         | $0.28             | $3.48           | $15.00            |
 
-Flash 的输出价格不到 Claude Sonnet 的 **1/50**，Pro 的输出价格约为 Sonnet 的 **1/4**，输入端两者差距更小。
+Giá đầu ra Flash chưa đến **1/50** của Claude Sonnet, giá đầu ra Pro khoảng **1/4** của Sonnet, khoảng cách hai loại ở đầu vào còn nhỏ hơn.
 
-放到这个定价体系里看，Flash 在日常对话、内容生成、简单问答场景几乎没什么对手。
+Nhìn trong hệ thống định giá này, Flash trong các tình huống hội thoại hàng ngày, tạo nội dung, hỏi đáp đơn giản gần như không có đối thủ.
 
-另外有一点需要注意：**API 迁移零成本**，改个 model 名就行。`deepseek-chat` 和 `deepseek-reasoner` 将在 7 月 24 日后停用，尽早切换到新模型名。
+Ngoài ra có một điểm cần chú ý: **Migration API không tốn kém**, đổi tên model là xong. `deepseek-chat` và `deepseek-reasoner` sẽ ngừng sử dụng sau ngày 24 tháng 7, hãy chuyển sớm sang tên model mới.
 
-## 场景建议
+## Gợi ý theo tình huống
 
-| 场景                               | 推荐                          | 理由                                               |
-| ---------------------------------- | ----------------------------- | -------------------------------------------------- |
-| 日常对话、内容生成、简单问答       | **V4-Flash**                  | 价格极低，性能足够                                 |
-| Agent Coding、代码重构、全项目分析 | **V4-Pro**                    | SWE-bench 80.6%，Codeforces 3206，复杂任务成功率高 |
-| 复杂编码、精准问答、前沿科学推理   | **Claude Opus 4.6 / GPT-5.5** | 和顶级模型还有差距                                 |
+| Tình huống                                                      | Đề xuất                       | Lý do                                                                    |
+| --------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------ |
+| Hội thoại hàng ngày, tạo nội dung, hỏi đáp đơn giản             | **V4-Flash**                  | Giá cực thấp, hiệu năng đủ dùng                                          |
+| Agent Coding, refactor code, phân tích toàn dự án               | **V4-Pro**                    | SWE-bench 80.6%, Codeforces 3206, tỷ lệ thành công nhiệm vụ phức tạp cao |
+| Coding phức tạp, hỏi đáp chính xác, suy luận khoa học tiên tiến | **Claude Opus 4.6 / GPT-5.5** | Vẫn còn khoảng cách so với model đỉnh cao                                |
 
-## 总结
+## Tổng kết
 
-DeepSeek V4 在 Agent Coding 和代码理解场景上，明显上了一个台阶。V4-Pro 在 SWE-bench Verified 上拿到了 80.6%，Codeforces 评分 3206 排第一，这个实力对应这个价格，性价比确实到位了。
+DeepSeek V4 trong tình huống Agent Coding và hiểu code, rõ ràng lên một bậc. V4-Pro đạt 80.6% trên SWE-bench Verified, điểm Codeforces 3206 đứng đầu, thực lực này tương ứng với giá này, tỷ lệ giá/hiệu năng quả thực đến nơi.
 
-不过，DeepSeek-V4-Pro 在没有 Coding Plan 的情况下，价格还是偏高。V4-Flash 的定价很香，但在开发场景还无法成为主力。
+Tuy nhiên, DeepSeek-V4-Pro trong điều kiện không có Coding Plan, giá vẫn còn hơi cao. Định giá V4-Flash rất hấp dẫn, nhưng trong tình huống phát triển vẫn chưa thể trở thành lực lượng chủ lực.
 
-另外，在复杂的编码、精准问答和前沿科学推理上，跟 Claude Opus 4.6 还有不小距离。不过考虑到 Flash 的价格优势——还要什么自行车？
+Ngoài ra, trong coding phức tạp, hỏi đáp chính xác và suy luận khoa học tiên tiến, vẫn còn khoảng cách không nhỏ so với Claude Opus 4.6. Nhưng xét đến ưu thế giá Flash — cần gì xe tự đi?

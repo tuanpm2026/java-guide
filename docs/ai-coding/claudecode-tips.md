@@ -1,7 +1,7 @@
 ---
 title: Hướng dẫn sử dụng Claude Code - Cấu hình, Workflow và Kỹ thuật nâng cao
 description: Tổng hợp từ tài liệu kỹ thuật của đội ngũ kỹ thuật Anthropic và kinh nghiệm thực chiến, hệ thống hóa cấu hình, mở rộng năng lực, workflow hiệu quả, kỹ thuật nâng cao và bí quyết thực chiến của Claude Code.
-category: AI 编程实战
+category: Thực chiến lập trình AI
 head:
   - - meta
     - name: keywords

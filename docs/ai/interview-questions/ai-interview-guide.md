@@ -1,239 +1,239 @@
 ---
-title: 2026 大模型面试题 | Agent 面试题 | RAG 面试题 | AI 应用开发面试指南（含答案与图解）
-description: 2026 AI 应用开发面试指南，系统整理大模型面试题、AI Agent 面试题、RAG 面试题、AI 系统设计面试题、MCP 面试题、Prompt 工程面试题等高频考点，包含答案思路、图解和参考文章。
+title: Câu hỏi phỏng vấn mô hình lớn 2026 | Câu hỏi phỏng vấn Agent | Câu hỏi phỏng vấn RAG | Hướng dẫn phỏng vấn phát triển ứng dụng AI (kèm đáp án và hình minh họa)
+description: Hướng dẫn phỏng vấn phát triển ứng dụng AI 2026, tổng hợp có hệ thống câu hỏi phỏng vấn mô hình lớn, câu hỏi phỏng vấn AI Agent, câu hỏi phỏng vấn RAG, câu hỏi phỏng vấn thiết kế hệ thống AI, câu hỏi phỏng vấn MCP, câu hỏi phỏng vấn kỹ thuật Prompt và các điểm kiểm tra tần suất cao khác, bao gồm gợi ý đáp án, hình minh họa và bài viết tham khảo.
 category: AI
 tag:
-  - AI面试
-  - 大模型面试
-  - Agent面试
-  - RAG面试
+  - Phỏng vấn AI
+  - Phỏng vấn mô hình lớn
+  - Phỏng vấn Agent
+  - Phỏng vấn RAG
 head:
   - - meta
     - name: keywords
       content: 2026大模型面试题,大模型面试题,Agent面试题,RAG面试题,AI应用开发面试指南,AI面试题,AI面试,AI应用开发面试,大模型面试,LLM面试题,Agent面试,RAG面试,AI系统设计面试题,MCP面试题,Prompt工程面试题,向量数据库面试题
   - - meta
     - property: og:title
-      content: 2026 大模型面试题 | Agent 面试题 | RAG 面试题 | AI 应用开发面试指南（含答案与图解）
+      content: Câu hỏi phỏng vấn mô hình lớn 2026 | Câu hỏi phỏng vấn Agent | Câu hỏi phỏng vấn RAG | Hướng dẫn phỏng vấn phát triển ứng dụng AI (kèm đáp án và hình minh họa)
   - - meta
     - property: og:description
-      content: 系统整理 2026 AI 应用开发高频面试题，覆盖大模型、AI Agent、RAG、MCP、Prompt 工程、向量数据库与 AI 系统设计，包含答案思路、图解和参考文章。
+      content: Tổng hợp có hệ thống câu hỏi phỏng vấn phát triển ứng dụng AI 2026, bao gồm mô hình lớn, AI Agent, RAG, MCP, kỹ thuật Prompt, cơ sở dữ liệu vector và thiết kế hệ thống AI, kèm gợi ý đáp án, hình minh họa và bài viết tham khảo.
 ---
 
 <!-- @include: @small-advertisement.snippet.md -->
 
-AI 应用开发面试和传统后端面试不太一样。
+Phỏng vấn phát triển ứng dụng AI khác với phỏng vấn backend truyền thống.
 
-传统后端面试更多围绕 Java、JVM、并发、MySQL、Redis、消息队列、分布式和系统设计展开。AI 应用开发面试除了这些基础，还会继续追问：
+Phỏng vấn backend truyền thống chủ yếu xoay quanh Java, JVM, concurrency, MySQL, Redis, message queue, distributed và system design. Phỏng vấn phát triển ứng dụng AI ngoài những nền tảng này, còn tiếp tục hỏi thêm:
 
-- 大模型 Token 是怎么计算的？上下文窗口越大越好吗？
-- Function Calling 和 MCP 有什么区别？工具调用怎么做权限控制？
-- RAG 召回率低怎么排查？Chunk 怎么切？Rerank 解决什么问题？
-- Agent 的 Memory 怎么设计？长任务上下文溢出怎么办？
-- 如何设计一个生产级 AI 应用？模型网关、评测、可观测怎么做？
+- Token của mô hình lớn được tính như thế nào? Cửa sổ ngữ cảnh càng lớn càng tốt không?
+- Sự khác biệt giữa Function Calling và MCP là gì? Gọi công cụ làm kiểm soát quyền như thế nào?
+- Tỷ lệ thu hồi RAG thấp cần chẩn đoán như thế nào? Chunk cắt như thế nào? Rerank giải quyết vấn đề gì?
+- Memory của Agent được thiết kế như thế nào? Ngữ cảnh nhiệm vụ dài bị tràn thì sao?
+- Cách thiết kế ứng dụng AI cấp sản xuất? Model gateway, đánh giá, khả năng quan sát làm như thế nào?
 
-这些题不是背几个术语就能过的。AI 应用开发面试更看重的是：**你能不能把大模型、RAG、Agent、工具调用和系统设计放到真实工程里理解。**
+Những câu hỏi này không thể vượt qua chỉ bằng cách học thuộc vài thuật ngữ. Phỏng vấn phát triển ứng dụng AI chú trọng hơn vào: **bạn có thể hiểu mô hình lớn, RAG, Agent, gọi công cụ và system design trong kỹ thuật thực tế không.**
 
-所以，这篇文章会作为 AI 面试题的总入口。你可以先通过这里建立知识地图，再进入具体模块刷题和回到原文补底层理解。
+Do đó, bài viết này sẽ là điểm vào tổng hợp cho câu hỏi phỏng vấn AI. Bạn có thể trước tiên xây dựng bản đồ kiến thức qua đây, rồi vào các module cụ thể để luyện đề và quay lại bài gốc để bổ sung hiểu biết nền tảng.
 
-## 面试题目录
+## Mục lục câu hỏi phỏng vấn
 
-| 面试题模块                                                         | 适合重点复习的人群                                     | 主要覆盖内容                                                                                                               |
-| ------------------------------------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| [大模型基础面试题总结](./llm-interview-questions.md)               | 所有准备 AI 应用开发面试的人                           | Token、上下文窗口、采样参数、API 调用、流式输出、结构化输出、Function Calling、AI 应用评测                                 |
-| [AI Agent 面试题总结](./agent-interview-questions.md)              | 准备 Agent、工具调用、工作流相关岗位的人               | Agent Loop、Memory、Prompt Engineering、Context Engineering、MCP、Agent Skills、Harness Engineering、Workflow、Graph、Loop |
-| [RAG 面试题总结](./rag-interview-questions.md)                     | 准备知识库问答、企业 AI 应用、搜索增强生成相关岗位的人 | RAG 基础、Embedding、向量数据库、Chunk 策略、Hybrid Search、Query Rewrite、Rerank、GraphRAG、知识库更新与评测              |
-| [AI 系统设计面试题总结](./ai-system-design-interview-questions.md) | 2 年以上开发者、准备社招和系统设计面试的人             | 生产级 AI 应用架构、模型网关、Prompt 管理、RAG、Memory、Tool Calling、可观测、评测、安全合规、实时语音 Agent               |
+| Module câu hỏi phỏng vấn                                                                     | Nhóm người phù hợp ôn tập trọng điểm                                                              | Nội dung chính                                                                                                                                                          |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn](./llm-interview-questions.md)                | Tất cả những ai chuẩn bị phỏng vấn phát triển ứng dụng AI                                         | Token, cửa sổ ngữ cảnh, tham số lấy mẫu, gọi API, đầu ra streaming, đầu ra có cấu trúc, Function Calling, đánh giá ứng dụng AI                                          |
+| [Tổng hợp câu hỏi phỏng vấn AI Agent](./agent-interview-questions.md)                        | Những người chuẩn bị vị trí liên quan đến Agent, gọi công cụ, workflow                            | Agent Loop, Memory, Prompt Engineering, Context Engineering, MCP, Agent Skills, Harness Engineering, Workflow, Graph, Loop                                              |
+| [Tổng hợp câu hỏi phỏng vấn RAG](./rag-interview-questions.md)                               | Những người chuẩn bị vị trí hỏi đáp knowledge base, ứng dụng AI doanh nghiệp, tăng cường tìm kiếm | Cơ bản RAG, Embedding, cơ sở dữ liệu vector, chiến lược Chunk, Hybrid Search, Query Rewrite, Rerank, GraphRAG, cập nhật và đánh giá knowledge base                      |
+| [Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI](./ai-system-design-interview-questions.md) | Nhà phát triển 2 năm trở lên, những người chuẩn bị xã chiêu và phỏng vấn system design            | Kiến trúc ứng dụng AI cấp sản xuất, model gateway, quản lý Prompt, RAG, Memory, Tool Calling, khả năng quan sát, đánh giá, tuân thủ bảo mật, voice Agent thời gian thực |
 
-这 4 篇是“面试题入口”，每篇都会告诉你：
+4 bài này là "điểm vào câu hỏi phỏng vấn", mỗi bài sẽ cho bạn biết:
 
-- 这个模块的面试官到底想考什么。
-- 高频题有哪些。
-- 每组题背后应该掌握哪些关键点。
-- 常见扣分点是什么。
-- 应该回到哪篇原文继续深入学习。
+- Module này phỏng vấn viên thực sự muốn kiểm tra gì.
+- Có những câu hỏi tần suất cao nào.
+- Mỗi nhóm câu hỏi cần nắm những điểm mấu chốt nào.
+- Điểm trừ phổ biến là gì.
+- Nên quay lại bài gốc nào để tiếp tục học sâu.
 
-建议你不要把它们当作纯题库看，而是当作“复习路线图”。题目只是入口，真正要掌握的是题目背后的工程判断。
+Khuyến nghị bạn đừng coi chúng như kho câu hỏi thuần túy, mà xem như "bản đồ lộ trình ôn tập". Câu hỏi chỉ là điểm vào, điều thực sự cần nắm là phán đoán kỹ thuật đằng sau câu hỏi.
 
-这里说的“含答案与图解”，不是把所有内容压缩成几句标准答案，而是每篇面试题都会提供答题思路、关键点、扣分点和参考文章。更完整的图解和推导放在对应专题原文里，方便你从面试题继续深入学习。
+"Kèm đáp án và hình minh họa" ở đây không phải nén tất cả nội dung thành vài câu đáp án tiêu chuẩn, mà mỗi bài câu hỏi phỏng vấn đều cung cấp gợi ý trả lời, điểm mấu chốt, điểm trừ và bài viết tham khảo. Hình minh họa và suy luận hoàn chỉnh hơn được đặt trong bài gốc chuyên đề tương ứng, tiện để bạn từ câu hỏi phỏng vấn tiếp tục học sâu.
 
-## AI 应用开发面试考什么？
+## Phỏng vấn phát triển ứng dụng AI kiểm tra gì?
 
-AI 应用开发面试和传统后端面试最大的区别是：它不只问你会不会调用接口，而是问你能不能把 AI 能力接入真实系统。
+Sự khác biệt lớn nhất giữa phỏng vấn phát triển ứng dụng AI và phỏng vấn backend truyền thống là: nó không chỉ hỏi bạn có biết gọi interface không, mà hỏi bạn có thể tích hợp năng lực AI vào hệ thống thực tế không.
 
-可以粗略分成三层。
+Có thể chia thành ba lớp.
 
-### 第一层：大模型基础认知
+### Lớp đầu tiên: Nhận thức cơ bản về mô hình lớn
 
-这一层是所有 AI 应用开发岗位都绕不开的基础。面试官通常会问：
+Lớp này là nền tảng không thể bỏ qua cho tất cả các vị trí phát triển ứng dụng AI. Phỏng vấn viên thường hỏi:
 
-- Token 是什么？为什么中文、英文、代码消耗的 Token 不一样？
-- 上下文窗口有什么限制？长上下文为什么不一定更好？
-- Temperature、Top-P、Top-K 分别控制什么？生产环境怎么调？
-- 大模型为什么会产生幻觉？有哪些工程缓解方式？
-- JSON Mode、Structured Outputs、Function Calling 有什么区别？
+- Token là gì? Tại sao tiếng Trung, tiếng Anh, code tiêu thụ Token khác nhau?
+- Cửa sổ ngữ cảnh có giới hạn gì? Ngữ cảnh dài tại sao không nhất định tốt hơn?
+- Temperature, Top-P, Top-K lần lượt kiểm soát gì? Môi trường sản xuất điều chỉnh như thế nào?
+- Mô hình lớn tại sao tạo ra ảo giác? Có những cách giảm thiểu kỹ thuật nào?
+- JSON Mode, Structured Outputs, Function Calling có gì khác nhau?
 
-这些题看起来基础，但真正要考的是工程认知。你不需要在普通应用开发面试里手推 Transformer，但必须知道这些参数会如何影响成本、延迟、稳定性、结构化输出和线上质量。
+Những câu hỏi này trông có vẻ cơ bản, nhưng điều thực sự kiểm tra là nhận thức kỹ thuật. Bạn không cần tự tính Transformer trong phỏng vấn phát triển ứng dụng thông thường, nhưng phải biết những tham số này sẽ ảnh hưởng như thế nào đến chi phí, độ trễ, ổn định, đầu ra có cấu trúc và chất lượng trực tuyến.
 
-如果你发现自己只能背定义，讲不出生产里的影响，建议先看：[大模型基础面试题总结](./llm-interview-questions.md)。
+Nếu bạn thấy mình chỉ có thể học thuộc định nghĩa, không nói được ảnh hưởng trong sản xuất, khuyến nghị xem trước: [Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn](./llm-interview-questions.md).
 
-### 第二层：AI 应用组件能力
+### Lớp thứ hai: Năng lực component ứng dụng AI
 
-这一层是和“只会调 API”拉开差距的地方，主要包括 RAG、Agent、Prompt、Context、MCP、工具调用等。
+Lớp này là nơi tạo ra khoảng cách với "chỉ biết gọi API", chủ yếu bao gồm RAG, Agent, Prompt, Context, MCP, gọi công cụ v.v.
 
-高频题包括：
+Câu hỏi tần suất cao bao gồm:
 
-- RAG 召回率低怎么排查？是 Chunk 问题、Embedding 问题，还是排序问题？
-- Hybrid Search、Query Rewrite、Rerank 分别解决什么问题？
-- Agent Loop 是什么？和普通工作流有什么区别？
-- Agent Memory 怎么设计？短期记忆和长期记忆怎么区分？
-- MCP 和 Function Calling 有什么区别？生产级 MCP Server 怎么做安全治理？
-- Prompt Engineering 和 Context Engineering 到底差在哪？
+- Tỷ lệ thu hồi RAG thấp cần chẩn đoán như thế nào? Là vấn đề Chunk, vấn đề Embedding, hay vấn đề sắp xếp?
+- Hybrid Search, Query Rewrite, Rerank lần lượt giải quyết vấn đề gì?
+- Agent Loop là gì? Khác gì workflow thông thường?
+- Agent Memory được thiết kế như thế nào? Bộ nhớ ngắn hạn và dài hạn phân biệt như thế nào?
+- Sự khác biệt giữa MCP và Function Calling là gì? MCP Server cấp sản xuất làm quản trị bảo mật như thế nào?
+- Prompt Engineering và Context Engineering khác nhau ở chỗ nào?
 
-这些题的共同点是：面试官不满足于听概念，而是会追问“你怎么落地”“出了问题怎么排查”“为什么这么选”。
+Điểm chung của những câu hỏi này là: phỏng vấn viên không thỏa mãn với việc nghe khái niệm, mà sẽ hỏi thêm "bạn triển khai như thế nào", "xảy ra vấn đề cần chẩn đoán như thế nào", "tại sao chọn như vậy".
 
-如果你正在准备企业知识库、智能客服、Agent 工作流、AI 编程助手这类方向，建议重点看：
+Nếu bạn đang chuẩn bị hướng knowledge base doanh nghiệp, dịch vụ khách hàng thông minh, Agent workflow, AI coding assistant, khuyến nghị chú trọng xem:
 
-- [RAG 面试题总结](./rag-interview-questions.md)
-- [AI Agent 面试题总结](./agent-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn RAG](./rag-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn AI Agent](./agent-interview-questions.md)
 
-### 第三层：AI 系统设计
+### Lớp thứ ba: Thiết kế hệ thống AI
 
-对于社招和有项目经验的候选人，这一层几乎必问。
+Với ứng viên xã chiêu và có kinh nghiệm dự án, lớp này gần như chắc chắn được hỏi.
 
-面试官可能会直接给你一个开放题：
+Phỏng vấn viên có thể trực tiếp cho bạn một câu hỏi mở:
 
-- 如何设计一个企业级 AI 知识库问答系统？
-- 如何设计一个生产级 Agent 平台？
-- 如何设计一个模型网关，支持限流、熔断、降级和成本统计？
-- 如何设计 AI 应用评测体系？Golden Set、LLM-as-Judge、Trace 回放怎么做？
-- 如何设计一个实时语音 Agent？打断、低延迟、状态机怎么处理？
+- Cách thiết kế hệ thống hỏi đáp knowledge base AI cấp doanh nghiệp?
+- Cách thiết kế nền tảng Agent cấp sản xuất?
+- Cách thiết kế model gateway hỗ trợ rate limiting, circuit breaker, xuống cấp và thống kê chi phí?
+- Cách thiết kế hệ thống đánh giá ứng dụng AI? Golden Set, LLM-as-Judge, Trace playback làm như thế nào?
+- Cách thiết kế voice Agent thời gian thực? Xử lý ngắt, độ trễ thấp, state machine như thế nào?
 
-这类题考的是架构能力。你不能只说“用 LangChain 搭一个 RAG”，而要能讲清入口层、编排层、Prompt/Context、RAG、Memory、Tool、模型网关、可观测、评测、安全合规这些模块分别解决什么问题。
+Loại câu hỏi này kiểm tra năng lực kiến trúc. Bạn không thể chỉ nói "dùng LangChain xây một RAG", mà phải nói rõ lớp đầu vào, lớp biên soạn, Prompt/Context, RAG, Memory, Tool, model gateway, khả năng quan sát, đánh giá, tuân thủ bảo mật những module này lần lượt giải quyết vấn đề gì.
 
-系统设计题建议直接看：[AI 系统设计面试题总结](./ai-system-design-interview-questions.md)。
+Câu hỏi system design khuyến nghị xem trực tiếp: [Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI](./ai-system-design-interview-questions.md).
 
-## 怎么用这套面试题复习？
+## Cách ôn tập bộ câu hỏi phỏng vấn này?
 
-这套面试题更适合“先建立框架，再回到原文深入”的方式。
+Bộ câu hỏi phỏng vấn này phù hợp hơn với phương pháp "xây dựng khung trước, quay lại bài gốc để học sâu".
 
-### 1. 先用面试题建立知识地图
+### 1. Dùng câu hỏi phỏng vấn để xây dựng bản đồ kiến thức
 
-先快速过一遍 4 篇面试题，不要求马上记住所有答案。第一遍的目标是知道 AI 应用开发面试会问哪些方向：
+Trước tiên lướt qua 4 bài câu hỏi phỏng vấn, không yêu cầu nhớ ngay tất cả đáp án. Mục tiêu lần đầu là biết phỏng vấn phát triển ứng dụng AI sẽ hỏi những hướng nào:
 
-- 大模型基础
+- Cơ bản mô hình lớn
 - RAG
 - Agent
-- MCP 和工具调用
-- Prompt 和 Context Engineering
-- AI 系统设计
-- AI 应用评测
-- 实时语音 Agent
+- MCP và gọi công cụ
+- Prompt và Context Engineering
+- Thiết kế hệ thống AI
+- Đánh giá ứng dụng AI
+- Voice Agent thời gian thực
 
-这一步能帮你避免复习时东一榔头西一棒子。
+Bước này giúp bạn tránh ôn tập theo kiểu "đánh trái bỏ phải".
 
-### 2. 再回到原文补底层理解
+### 2. Quay lại bài gốc để bổ sung hiểu biết nền tảng
 
-每道题后面都贴了参考文章链接。遇到答不上来的题，不要急着背标准答案，先回到原文看完整逻辑。
+Sau mỗi câu hỏi đều có đính kèm link bài viết tham khảo. Gặp câu trả lời không được, đừng vội học thuộc đáp án tiêu chuẩn, trước tiên quay lại bài gốc để xem logic hoàn chỉnh.
 
-比如：
+Ví dụ:
 
-- Token、上下文窗口、采样参数不清楚，就看 [《LLM 运行机制》](../llm-basis/llm-operation-mechanism.md)。
-- Function Calling、Structured Outputs、MCP 边界不清楚，就看 [《大模型结构化输出详解》](../llm-basis/structured-output-function-calling.md) 和 [《万字拆解 MCP 协议》](../agent/mcp.md)。
-- RAG 效果优化说不清楚，就看 [《万字详解 RAG 检索优化》](../rag/rag-optimization.md)。
-- 生产级 AI 应用架构说不清楚，就看 [《AI 应用系统设计》](../system-design/ai-application-architecture.md)。
+- Token, cửa sổ ngữ cảnh, tham số lấy mẫu không rõ, xem [《Cơ chế hoạt động LLM》](../llm-basis/llm-operation-mechanism.md).
+- Function Calling, Structured Outputs, ranh giới MCP không rõ, xem [《Giải thích đầu ra có cấu trúc mô hình lớn》](../llm-basis/structured-output-function-calling.md) và [《Phân tích toàn diện giao thức MCP》](../agent/mcp.md).
+- Tối ưu hiệu quả RAG không giải thích được, xem [《Giải thích toàn diện tối ưu truy xuất RAG》](../rag/rag-optimization.md).
+- Kiến trúc ứng dụng AI cấp sản xuất không giải thích được, xem [《Thiết kế hệ thống ứng dụng AI》](../system-design/ai-application-architecture.md).
 
-面试题负责帮你定位考点，正文负责帮你补完整的因果链。
+Câu hỏi phỏng vấn giúp bạn định vị điểm kiểm tra, bài chính giúp bạn bổ sung chain nhân quả hoàn chỉnh.
 
-### 3. 最后用“工程表达”组织答案
+### 3. Cuối cùng dùng "biểu đạt kỹ thuật" để tổ chức đáp án
 
-AI 面试题不要只答“是什么”，建议按这个结构组织：
+Câu hỏi phỏng vấn AI đừng chỉ trả lời "là gì", khuyến nghị tổ chức theo cấu trúc này:
 
-1. **先解释概念**：一句话讲清楚它是什么。
-2. **再说明问题**：它在真实系统里会带来什么影响。
-3. **接着给方案**：生产环境怎么设计、排查、优化或治理。
-4. **最后讲边界**：什么场景适用，什么场景不适用。
+1. **Trước tiên giải thích khái niệm**: Một câu nói rõ nó là gì.
+2. **Rồi nêu vấn đề**: Nó sẽ gây ra ảnh hưởng gì trong hệ thống thực tế.
+3. **Tiếp theo đưa ra giải pháp**: Môi trường sản xuất thiết kế, chẩn đoán, tối ưu hoặc quản trị như thế nào.
+4. **Cuối cùng nói ranh giới**: Tình huống nào áp dụng, tình huống nào không áp dụng.
 
-比如问“RAG 召回率低怎么优化”，不要直接背 Hybrid Search、Rerank、Query Rewrite。更好的回答是：
+Ví dụ hỏi "tỷ lệ thu hồi RAG thấp tối ưu như thế nào", đừng trực tiếp liệt kê Hybrid Search, Rerank, Query Rewrite. Câu trả lời tốt hơn là:
 
-先判断正确证据有没有进入候选池；如果没有，排查文档解析、Chunk、Embedding、Metadata、Query Rewrite；如果进入了但排得靠后，再考虑 Hybrid Search、Rerank、候选池大小和融合权重；如果证据进了上下文但答案仍然错，再看 Prompt、上下文位置、模型是否忠实使用证据和评测样本。
+Trước tiên xác định tài liệu đúng có vào pool ứng viên không; nếu không, chẩn đoán phân tích tài liệu, Chunk, Embedding, Metadata, Query Rewrite; nếu vào rồi nhưng xếp hạng thấp, rồi xem xét Hybrid Search, Rerank, kích thước pool ứng viên và trọng số hợp nhất; nếu bằng chứng vào ngữ cảnh nhưng câu trả lời vẫn sai, rồi xem Prompt, vị trí ngữ cảnh, mô hình có trung thực sử dụng bằng chứng và mẫu đánh giá.
 
-这类回答更像真的做过系统。
+Loại trả lời này trông giống thực sự đã làm qua hệ thống.
 
-## 不同经验阶段怎么复习？
+## Các giai đoạn kinh nghiệm khác nhau ôn tập như thế nào?
 
-先说结论：**不同经验阶段不是“看不看某个模块”的区别，而是掌握深度不同。**
+Nói kết luận trước: **Các giai đoạn kinh nghiệm khác nhau không phải khác biệt "có xem hay không xem module nào", mà là độ sâu nắm vững khác nhau.**
 
-即使是应届生，也建议至少了解 Agent 和 AI 系统设计的基本问题。现在很多校招项目、实习项目都会写智能客服、知识库问答、AI 助手、AI 编程工具，如果你完全不了解 Agent Loop、RAG 链路和生产级架构，面试官一追问就容易露怯。
+Ngay cả sinh viên mới ra trường, cũng khuyến nghị ít nhất hiểu các vấn đề cơ bản về Agent và thiết kế hệ thống AI. Hiện tại nhiều dự án tuyển dụng trường, thực tập đều có viết chatbot thông minh, hỏi đáp knowledge base, AI assistant, AI coding tool, nếu bạn hoàn toàn không hiểu Agent Loop, pipeline RAG và kiến trúc cấp sản xuất, phỏng vấn viên hỏi thêm là dễ lộ điểm yếu.
 
-更合理的复习方式是：所有人都要建立完整地图，只是深度分层。
+Cách ôn tập hợp lý hơn là: tất cả mọi người đều cần xây dựng bản đồ hoàn chỉnh, chỉ là độ sâu phân lớp.
 
-### 应届生和 0-1 年
+### Sinh viên và 0-1 năm
 
-目标不是把所有工程细节都背下来，而是能把 AI 应用开发的基本链路讲清楚。
+Mục tiêu không phải học thuộc tất cả chi tiết kỹ thuật, mà có thể giải thích rõ pipeline cơ bản của phát triển ứng dụng AI.
 
-- [大模型基础面试题总结](./llm-interview-questions.md)
-- [AI Agent 面试题总结](./agent-interview-questions.md)
-- [RAG 面试题总结](./rag-interview-questions.md)
-- [AI 系统设计面试题总结](./ai-system-design-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn](./llm-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn AI Agent](./agent-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn RAG](./rag-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI](./ai-system-design-interview-questions.md)
 
-这个阶段建议重点做到：
+Giai đoạn này khuyến nghị tập trung đạt được:
 
-- 大模型基础：能讲清 Token、上下文窗口、采样参数、结构化输出为什么会影响工程稳定性。
-- RAG：能画出“文档处理 -> Chunk -> Embedding -> 向量库 -> 检索 -> 生成”的基本链路，并知道召回不准不能只改 Prompt。
-- Agent：能说明 Agent 和普通 Chatbot、Workflow 的区别，知道 Agent Loop、Memory、Tools 是什么。
-- 系统设计：能用简单语言描述一个 AI 知识库问答系统包含哪些模块，比如鉴权、RAG、模型调用、日志和评测。
+- Cơ bản mô hình lớn: Có thể giải thích rõ Token, cửa sổ ngữ cảnh, tham số lấy mẫu, đầu ra có cấu trúc tại sao ảnh hưởng đến ổn định kỹ thuật.
+- RAG: Có thể vẽ pipeline cơ bản "xử lý tài liệu -> Chunk -> Embedding -> vector store -> truy xuất -> tạo sinh", và biết thu hồi không chính xác không thể chỉ sửa Prompt.
+- Agent: Có thể giải thích sự khác biệt giữa Agent với Chatbot thông thường và Workflow, biết Agent Loop, Memory, Tools là gì.
+- System design: Có thể dùng ngôn ngữ đơn giản mô tả một hệ thống hỏi đáp knowledge base AI bao gồm những module nào, ví dụ xác thực, RAG, gọi mô hình, log và đánh giá.
 
-应届生不一定要讲出复杂的模型网关、灰度回放和多 Agent 协作，但要表现出你不是只会复制 Demo，而是知道 Demo 到生产之间有工程差距。
+Sinh viên không nhất thiết phải giải thích model gateway phức tạp, phát lại grayscale và cộng tác multi-Agent, nhưng cần thể hiện bạn không chỉ biết sao chép Demo, mà biết giữa Demo và sản xuất có khoảng cách kỹ thuật.
 
-### 2-3 年
+### 2-3 năm
 
-这个阶段要从“知道链路”升级到“能定位问题、能做取舍”。
+Giai đoạn này cần nâng cấp từ "biết pipeline" lên "có thể định vị vấn đề, có thể đánh đổi".
 
-- [大模型基础面试题总结](./llm-interview-questions.md)
-- [AI Agent 面试题总结](./agent-interview-questions.md)
-- [RAG 面试题总结](./rag-interview-questions.md)
-- [AI 系统设计面试题总结](./ai-system-design-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn](./llm-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn AI Agent](./agent-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn RAG](./rag-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI](./ai-system-design-interview-questions.md)
 
-这个阶段建议重点做到：
+Giai đoạn này khuyến nghị tập trung đạt được:
 
-- 大模型基础：能讲清 API 调用链路、幂等、限流、重试、结构化输出失败处理。
-- RAG：能按文档处理、召回、排序、上下文、生成、评测这几段排查问题。
-- Agent：能讲清 Agent Loop、Memory、MCP、Function Calling、Skills 的边界和组合方式。
-- 系统设计：能讲一个生产级 AI 应用的核心模块，至少覆盖 Prompt 管理、RAG、Tool Calling、安全和可观测。
+- Cơ bản mô hình lớn: Có thể giải thích rõ pipeline gọi API, idempotency, rate limiting, retry, xử lý thất bại đầu ra có cấu trúc.
+- RAG: Có thể chẩn đoán vấn đề theo các đoạn xử lý tài liệu, thu hồi, sắp xếp, ngữ cảnh, tạo sinh, đánh giá.
+- Agent: Có thể giải thích rõ ranh giới và cách kết hợp Agent Loop, Memory, MCP, Function Calling, Skills.
+- System design: Có thể giải thích các module cốt lõi của ứng dụng AI cấp sản xuất, ít nhất bao gồm quản lý Prompt, RAG, Tool Calling, bảo mật và khả năng quan sát.
 
-面试官会更关注你是否能把 AI 能力接入真实业务系统。比如“知识库更新后旧答案还在怎么办”“工具调用失败怎么降级”“如何证明新 Prompt 比旧 Prompt 更好”，这些问题要能给出工程化回答。
+Phỏng vấn viên sẽ chú ý hơn đến việc bạn có thể tích hợp năng lực AI vào hệ thống nghiệp vụ thực tế không. Ví dụ "knowledge base cập nhật rồi nhưng câu trả lời cũ vẫn còn thì sao", "gọi công cụ thất bại cần xuống cấp như thế nào", "cách chứng minh Prompt mới tốt hơn Prompt cũ", những câu hỏi này cần có đáp án kỹ thuật hóa.
 
-### 3 年以上
+### 3 năm trở lên
 
-这个阶段系统设计会成为重点，但大模型基础、RAG 和 Agent 仍然不能丢。区别是：你不能只讲单点技术，要能讲完整架构、治理策略和演进路线。
+Giai đoạn này system design sẽ trở thành trọng tâm, nhưng cơ bản mô hình lớn, RAG và Agent vẫn không thể bỏ. Sự khác biệt là: bạn không thể chỉ nói kỹ thuật đơn điểm, phải nói được kiến trúc hoàn chỉnh, chiến lược quản trị và lộ trình tiến hóa.
 
-- [大模型基础面试题总结](./llm-interview-questions.md)
-- [AI Agent 面试题总结](./agent-interview-questions.md)
-- [RAG 面试题总结](./rag-interview-questions.md)
-- [AI 系统设计面试题总结](./ai-system-design-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn cơ bản mô hình lớn](./llm-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn AI Agent](./agent-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn RAG](./rag-interview-questions.md)
+- [Tổng hợp câu hỏi phỏng vấn thiết kế hệ thống AI](./ai-system-design-interview-questions.md)
 
-这个阶段建议重点做到：
+Giai đoạn này khuyến nghị tập trung đạt được:
 
-- 架构设计：能拆出入口层、编排层、Prompt/Context、RAG、Memory、Tool、模型网关、评测观测和安全合规模块。
-- 治理能力：能讲清模型路由、fallback、Token 成本归因、Prompt 版本管理、权限隔离、审计日志。
-- 质量闭环：能说明 Golden Set、Trace 回放、线上灰度、LLM-as-Judge 和人工复核怎么配合。
-- 风险控制：能处理 Prompt 注入、工具越权、隐私泄露、RAG 权限过滤、模型供应商故障等问题。
+- Thiết kế kiến trúc: Có thể phân tách lớp đầu vào, lớp biên soạn, Prompt/Context, RAG, Memory, Tool, model gateway, đánh giá quan sát và module tuân thủ bảo mật.
+- Năng lực quản trị: Có thể giải thích rõ định tuyến mô hình, fallback, quy nhân chi phí Token, quản lý phiên bản Prompt, cách ly quyền, log kiểm toán.
+- Vòng lặp chất lượng: Có thể giải thích Golden Set, Trace playback, grayscale trực tuyến, LLM-as-Judge và kiểm tra thủ công phối hợp như thế nào.
+- Kiểm soát rủi ro: Có thể xử lý Prompt Injection, vượt quyền công cụ, rò rỉ quyền riêng tư, lọc quyền RAG, sự cố nhà cung cấp mô hình và các vấn đề khác.
 
-这个阶段最容易被追问“如果上线后效果变差，你怎么定位？”“如果模型供应商限流，你怎么降级？”“如果 Agent 工具调错了怎么办？”“如何证明新 Prompt 比旧 Prompt 更好？”这些问题都需要工程闭环，而不是概念答案。
+Giai đoạn này dễ bị hỏi thêm "nếu hiệu quả xấu đi sau khi lên mạng, bạn chẩn đoán như thế nào?", "nếu nhà cung cấp mô hình rate limit, bạn xuống cấp như thế nào?", "nếu công cụ Agent gọi sai thì sao?", "cách chứng minh Prompt mới tốt hơn Prompt cũ?" Những câu hỏi này đều cần vòng lặp kỹ thuật, không phải đáp án khái niệm.
 
-## 这些面试题和 AI 专栏是什么关系？
+## Những câu hỏi phỏng vấn này và chuyên mục AI có quan hệ gì?
 
-可以这样理解：
+Có thể hiểu như thế này:
 
-- 这篇文章是入口，帮你快速定位高频考点。
-- [AI 应用开发专栏](../) 是正文，帮你把每个考点背后的原理、工程细节和实践方案讲透。
+- Bài viết này là điểm vào, giúp bạn nhanh chóng định vị điểm kiểm tra tần suất cao.
+- [Chuyên mục phát triển ứng dụng AI](../) là bài chính, giúp bạn phân tích sâu nguyên lý, chi tiết kỹ thuật và giải pháp thực hành đằng sau mỗi điểm kiểm tra.
 
-面试题页不会把所有答案都写成几万字，否则会变得很难复习。它更像索引和路线图：告诉你该问什么、该掌握什么、该回到哪篇文章继续学。
+Trang câu hỏi phỏng vấn sẽ không viết tất cả đáp án thành hàng vạn chữ, nếu không sẽ rất khó để ôn tập. Nó giống chỉ mục và bản đồ lộ trình hơn: nói cho bạn biết nên hỏi gì, nên nắm gì, nên quay lại bài viết nào để tiếp tục học.
 
-如果你只想临时抱佛脚，可以先刷 4 篇面试题；如果你想真正把 AI 应用开发这块补扎实，建议按专题把原文也读完。
+Nếu bạn chỉ muốn "học tốc chiến", có thể trước tiên lướt qua 4 bài câu hỏi phỏng vấn; nếu bạn muốn thực sự bổ sung chắc phần phát triển ứng dụng AI này, khuyến nghị theo chuyên đề đọc hết bài gốc.
 
-## 后续会继续更新
+## Sẽ tiếp tục cập nhật
 
-AI 应用开发还在快速变化，面试题也会继续更新。后面如果出现新的高频方向，比如多模态 Agent、端侧模型、AI Coding 工程化、MCP 生态实践、企业级评测平台，我也会继续补到这套面试题里。
+Phát triển ứng dụng AI vẫn đang thay đổi nhanh, câu hỏi phỏng vấn cũng sẽ tiếp tục cập nhật. Nếu sau này xuất hiện hướng tần suất cao mới, ví dụ multimodal Agent, mô hình phía thiết bị đầu cuối, kỹ thuật hóa AI Coding, thực hành hệ sinh thái MCP, nền tảng đánh giá cấp doanh nghiệp, tôi cũng sẽ tiếp tục bổ sung vào bộ câu hỏi phỏng vấn này.
 
-如果你发现某个高频题还没覆盖，也欢迎在项目 issue 区留言。
+Nếu bạn thấy câu hỏi tần suất cao nào chưa được bao gồm, cũng hoan nghênh để lại bình luận trong khu vực issue dự án.

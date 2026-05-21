@@ -1,7 +1,7 @@
 ---
 title: Phân tích chi tiết thuật toán chỉ mục vector và cơ sở dữ liệu vector trong RAG
 description: Phân tích chuyên sâu về lựa chọn và sử dụng cơ sở dữ liệu vector trong các tình huống RAG, bao gồm các thuật toán chỉ mục vector (HNSW, IVFFLAT), nguyên lý tìm kiếm xấp xỉ ANN, thực hành pgvector và các điểm phỏng vấn tần suất cao.
-category: AI 应用开发
+category: Phát triển ứng dụng AI
 head:
   - - meta
     - name: keywords
